@@ -4,7 +4,7 @@ description: Proceso compartido, agnóstico al proyecto, con dos acciones intern
 user-invocable: false
 disable-model-invocation: true
 metadata:
-  version: 2.0.1
+  version: 2.1.0
 ---
 
 # ms-workflow
@@ -58,18 +58,19 @@ Crea (creando `{changesDir}/inProgress/` si no existe):
 {changesDir}/inProgress/{xxxx}/description.md
 ```
 
-Contenido del documento, con exactamente estos campos:
+Sigue exactamente la plantilla [`description.template.md`](description.template.md) de esta misma carpeta, con estas reglas por sección:
 
 - **Nombre** — nombre corto y descriptivo del cambio/fix.
 - **Código** — el `xxxx` calculado en el paso anterior.
 - **Tipo** — `fix` o `change`, según corresponda.
 - **Prompt original del usuario** — la petición tal cual la ha escrito el usuario, sin reformular.
-- **Descripción completa** — resumen funcional de lo que se ha analizado que pide, sin entrar en solución técnica:
+- **Descripción completa** — resumen funcional de lo que se ha analizado que pide, entendible por cualquier persona no técnica, sin entrar en solución técnica ni mencionar ficheros, funciones, clases o estructuras de datos:
   - Para un `fix`: qué comportamiento está roto, cómo reproducirlo o identificarlo, y qué se espera que pase en su lugar.
   - Para un `change`: qué se pide añadir o modificar, por qué, y cómo debería comportarse el resultado.
   - Incluye aquí también, si las ha habido, las preguntas de alcance que se le han hecho al usuario junto con sus respuestas.
+- **Apuntes técnicos** — cualquier detalle técnico visto durante el análisis (ficheros, funciones, clases, patrones ya existentes en el código relevantes para esta entrada, restricciones técnicas detectadas) que convenga dejar anotado para cuando `ms-implement` diseñe la solución. Sección opcional: si el análisis funcional no ha tocado código ni ha encontrado nada técnico relevante, omítela por completo en vez de dejarla vacía.
 
-No incluyas aquí código ni notas técnicas ni de arquitectura — de eso se encarga el `plan.md` que genera `ms-implement` al analizar esta entrada.
+Esta separación es estricta: cualquier mención a ficheros, funciones, clases CSS u otros detalles de implementación va siempre en **Apuntes técnicos**, nunca en **Descripción completa**, aunque haya surgido de forma natural durante el análisis. El análisis técnico en profundidad y la solución en sí los sigue haciendo `plan.md`, que genera `ms-implement`.
 
 ### create.3 Confirmar a quien invoca
 

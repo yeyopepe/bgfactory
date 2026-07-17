@@ -36,7 +36,7 @@ on('mode:changed', renderAll);
 on('components:changed', renderAll);
 
 const defaultComponent = createComponent({
-  type: 'cuadro-texto',
+  type: 'texto',
   properties: {
     contenido: 'Hola, esta es una mesa de juego infinita.',
     tamañoFuente: 18,

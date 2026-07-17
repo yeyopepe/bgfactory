@@ -1,16 +1,21 @@
 // Renders game components onto an infinite-table world element.
 // Unlike ui/table.js (agnostic), this module knows the component model.
 
+import { attachResizeHandle } from './resizeHandle.js';
+
+const MIN_TEXT_BOX_WIDTH = 40;
+const MIN_TEXT_BOX_HEIGHT = 24;
+
 function getWorldZoom(worldEl) {
   const match = getComputedStyle(worldEl).transform.match(/^matrix\(([^,]+),/);
   return match ? parseFloat(match[1]) : 1;
 }
 
-export function renderComponentsOnTable(worldEl, components, { onSelect, selectedId = null, onMove } = {}) {
+export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize } = {}) {
   worldEl.innerHTML = '';
 
   for (const component of components) {
-    if (component.type === 'cuadro-texto') {
+    if (component.type === 'texto') {
       const textBox = document.createElement('div');
       textBox.className = 'text-box';
       textBox.style.position = 'absolute';
@@ -21,6 +26,9 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, selecte
       textBox.style.color = component.properties.colorTexto || '#000000';
       textBox.style.whiteSpace = 'pre-wrap';
       textBox.style.wordBreak = 'break-word';
+      textBox.style.overflow = 'hidden';
+      if (component.width != null) textBox.style.width = `${component.width}px`;
+      if (component.height != null) textBox.style.height = `${component.height}px`;
 
       if (component.properties.colorFondo) {
         textBox.style.backgroundColor = component.properties.colorFondo;
@@ -31,6 +39,13 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, selecte
       if (onSelect) {
         textBox.classList.add('text-box--selectable');
         textBox.addEventListener('dblclick', () => onSelect(component));
+      }
+
+      if (onToggleSelect) {
+        textBox.addEventListener('click', (e) => {
+          e.stopPropagation();
+          onToggleSelect(component);
+        });
       }
 
       if (component.id === selectedId) {
@@ -69,6 +84,32 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, selecte
           startY = component.y ?? 100;
           document.addEventListener('mousemove', handleMouseMove);
           document.addEventListener('mouseup', handleMouseUp);
+        });
+      }
+
+      if (onResize && component.id === selectedId) {
+        attachResizeHandle(textBox, {
+          axis: 'both',
+          getScale: () => getWorldZoom(worldEl),
+          getSize: () => {
+            if (component.width != null && component.height != null) {
+              return { width: component.width, height: component.height };
+            }
+            const zoom = getWorldZoom(worldEl);
+            const rect = textBox.getBoundingClientRect();
+            return { width: rect.width / zoom, height: rect.height / zoom };
+          },
+          clamp: ({ width, height }) => ({
+            width: Math.max(width, MIN_TEXT_BOX_WIDTH),
+            height: Math.max(height, MIN_TEXT_BOX_HEIGHT),
+          }),
+          onResize: ({ width, height }) => {
+            textBox.style.width = `${width}px`;
+            textBox.style.height = `${height}px`;
+          },
+          onResizeEnd: ({ width, height }) => {
+            onResize(component, width, height);
+          },
         });
       }
 

@@ -335,16 +335,47 @@ h1 {
   outline-offset: 4px;
 }
 
+/* Reusable corner resize-handle (standard resize pattern across the app) */
+.resize-handle {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+}
+
+.resize-handle::after {
+  content: '';
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 8px;
+  height: 8px;
+  background:
+    linear-gradient(135deg, transparent 0 45%, #999 45% 55%, transparent 55% 100%),
+    linear-gradient(135deg, transparent 0 65%, #999 65% 75%, transparent 75% 100%);
+}
+
+.resize-handle:hover::after,
+.resize-handle--active::after {
+  background:
+    linear-gradient(135deg, transparent 0 45%, var(--accent-blue) 45% 55%, transparent 55% 100%),
+    linear-gradient(135deg, transparent 0 65%, var(--accent-blue) 65% 75%, transparent 75% 100%);
+}
+
 /* Floating component panel (edit mode) */
 .component-panel-container {
   position: absolute;
   top: 1rem;
   right: 1rem;
+  width: 300px;
   z-index: 15;
 }
 
 .component-panel {
-  width: 300px;
+  position: relative;
+  width: 100%;
   background: var(--bg-card);
   border-radius: 4px;
   overflow: hidden;
@@ -357,6 +388,12 @@ h1 {
   padding: 0.5rem 1rem;
   background: var(--bg-toolbar);
   color: var(--text-light);
+  cursor: grab;
+  user-select: none;
+}
+
+.component-panel__header.grabbing {
+  cursor: grabbing;
 }
 
 .component-panel__header button {

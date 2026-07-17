@@ -4,7 +4,8 @@
       "Bash(python src/scripts/build.py --help)",
       "Bash(cd /d d:\\\\repos\\\\errantes-board-game)",
       "Bash(python ./src/scripts/build.py)",
-      "PowerShell(cd d:\\\\repos\\\\errantes-board-game; python .\\\\.claude\\\\skills\\\\ms-graph\\\\scripts\\\\ms_graph.py extract --base src --out \"$env:TEMP\\\\claude-graph-skeleton.json\" --exclude \"changes,_output,_graph,node_modules,.git,dist,build,coverage\" 2>&1)"
+      "PowerShell(cd d:\\\\repos\\\\errantes-board-game; python .\\\\.claude\\\\skills\\\\ms-graph\\\\scripts\\\\ms_graph.py extract --base src --out \"$env:TEMP\\\\claude-graph-skeleton.json\" --exclude \"changes,_output,_graph,node_modules,.git,dist,build,coverage\" 2>&1)",
+      "Edit(/.claude/skills/ms-workflow/**)"
     ],
     "additionalDirectories": [
       "C:\\Users\\yeyop\\AppData\\Local\\Temp"

@@ -8,6 +8,15 @@ import { openComponentModal } from '../../ui/componentModal.js';
 import { renderComponentList } from '../../ui/componentList.js';
 import { renderComponentsOnTable } from '../../ui/componentRenderer.js';
 
+// Estado de la sesión de edición en curso. `renderEditMode` se vuelve a invocar por
+// completo (desde main.js) ante cualquier `components:changed`, así que este estado
+// vive fuera de la función para no perderse (selección/colapso/posición y ancho del
+// panel) cada vez que se mueve/redimensiona/edita un componente cualquiera.
+let selectedComponentId = null;
+let collapsed = false;
+let panelPosition = null; // { left, top } en px; null = anclaje por defecto (arriba-derecha)
+let panelWidth = null; // px; null = ancho por defecto (300px, de main.css)
+
 export function renderEditMode(container) {
   container.innerHTML = '';
 
@@ -26,10 +35,15 @@ export function renderEditMode(container) {
   // Floating panel with component list, anchored top-right over the table
   const listContainer = document.createElement('div');
   listContainer.className = 'component-panel-container';
+  if (panelPosition) {
+    listContainer.style.left = `${panelPosition.left}px`;
+    listContainer.style.top = `${panelPosition.top}px`;
+    listContainer.style.right = 'auto';
+  }
+  if (panelWidth != null) {
+    listContainer.style.width = `${panelWidth}px`;
+  }
   tableContainer.appendChild(listContainer);
-
-  let selectedComponentId = null;
-  let collapsed = false;
 
   function openEditModalFor(component) {
     openComponentModal({
@@ -52,12 +66,22 @@ export function renderEditMode(container) {
     });
   }
 
+  function toggleSelect(component) {
+    selectedComponentId = selectedComponentId === component.id ? null : component.id;
+    renderList();
+    renderTable();
+  }
+
   function renderTable() {
     renderComponentsOnTable(table.worldEl, getComponents(), {
       onSelect: openEditModalFor,
+      onToggleSelect: toggleSelect,
       selectedId: selectedComponentId,
       onMove: (component, x, y) => {
         replaceComponent(component.id, updateComponent(component, { x, y }));
+      },
+      onResize: (component, width, height) => {
+        replaceComponent(component.id, updateComponent(component, { width, height }));
       },
     });
   }
@@ -71,14 +95,16 @@ export function renderEditMode(container) {
       onAdd: openAddModal,
       selectedId: selectedComponentId,
       collapsed,
-      onSelectRow: (component) => {
-        selectedComponentId = selectedComponentId === component.id ? null : component.id;
-        renderList();
-        renderTable();
-      },
+      onSelectRow: toggleSelect,
       onToggleCollapse: () => {
         collapsed = !collapsed;
         renderList();
+      },
+      onPanelMove: (left, top) => {
+        panelPosition = { left, top };
+      },
+      onPanelResize: (width) => {
+        panelWidth = width;
       },
     });
   }

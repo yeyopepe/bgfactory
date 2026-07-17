@@ -1,4 +1,4 @@
-<title>Panel de componentes arrastrable - propuesta visual</title>
+<title>Panel de componentes arrastrable y redimensionable - propuesta visual</title>
 <style>
   :root {
     --bg-toolbar: #333333;
@@ -56,11 +56,63 @@
   }
 
   .component-panel {
+    position: relative;
     width: 300px;
     background: var(--bg-card);
     border-radius: 4px;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+  }
+
+  .resize-handle {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 16px;
+    height: 16px;
+    cursor: nwse-resize;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 2px;
+  }
+
+  .resize-handle::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background:
+      linear-gradient(135deg, transparent 0 45%, rgba(0,0,0,0.35) 45% 55%, transparent 55% 100%),
+      linear-gradient(135deg, transparent 0 65%, rgba(0,0,0,0.35) 65% 75%, transparent 75% 100%);
+  }
+
+  .resize-handle:hover::after,
+  .resize-handle--active::after {
+    background:
+      linear-gradient(135deg, transparent 0 45%, var(--accent-blue) 45% 55%, transparent 55% 100%),
+      linear-gradient(135deg, transparent 0 65%, var(--accent-blue) 65% 75%, transparent 75% 100%);
+  }
+
+  .resize-demo-container {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .resize-demo-container .component-panel {
+    width: 420px;
+  }
+
+  .resize-demo-label {
+    position: absolute;
+    top: -1.6rem;
+    right: 0;
+    font-size: 0.7rem;
+    color: #888;
+    background: white;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    white-space: nowrap;
   }
 
   .component-panel--dragging {
@@ -235,7 +287,7 @@
 <div class="viewport-hint"></div>
 <div class="scene-label">Propuesta visual — dos instantáneas del mismo panel: en reposo (arriba-derecha) y a mitad de arrastre.</div>
 
-<!-- Idle state: default top-right position -->
+<!-- Idle state: default top-right position, with resize handle on the right edge -->
 <div class="component-panel-container component-panel-container--idle">
   <div class="component-panel">
     <div class="component-panel__header">
@@ -273,6 +325,50 @@
     <div class="component-panel__footer">
       <button type="button">+ Añadir componente</button>
     </div>
+    <div class="resize-handle"></div>
+  </div>
+</div>
+
+<!-- Third instance: panel widened via the resize handle, shown at bottom-right for comparison -->
+<div class="resize-demo-container">
+  <span class="resize-demo-label">panel ensanchado (arrastrando la esquina inferior derecha)</span>
+  <div class="component-panel">
+    <div class="component-panel__header">
+      <div class="component-panel__header-title">
+        <span class="drag-handle drag-handle-grid">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </span>
+        <strong>Componentes</strong>
+      </div>
+      <button type="button">▾</button>
+    </div>
+    <div class="component-panel__body">
+      <table class="component-list">
+        <thead><tr><th>Id</th><th>Tipo</th><th>Acciones</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="component-list__id-cell">carta-01</td>
+            <td>cuadro-texto</td>
+            <td class="component-list__actions-cell">
+              <button type="button">Editar</button>
+              <button type="button">Eliminar</button>
+            </td>
+          </tr>
+          <tr>
+            <td class="component-list__id-cell">token-a</td>
+            <td>cuadro-texto</td>
+            <td class="component-list__actions-cell">
+              <button type="button">Editar</button>
+              <button type="button">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="component-panel__footer">
+      <button type="button">+ Añadir componente</button>
+    </div>
+    <div class="resize-handle resize-handle--active"></div>
   </div>
 </div>
 

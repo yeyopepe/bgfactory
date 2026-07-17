@@ -66,6 +66,7 @@ Si el usuario, al invocar esta skill, indica un `xxxx`, un nombre de carpeta o u
    - **(a) Anotaciones funcionales** — qué queda explícitamente fuera de alcance, y las dudas que se han resuelto con el usuario (pregunta y respuesta, en breve).
    - **(b) Solución técnica** — listado de tareas concretas y explicadas (qué hay que tocar, dónde, y por qué), en el orden en que se deberían implementar.
    - **(c) Cambios de arquitectura** — *solo si aplica*: si `architectureDocPath` está configurado y esta solución modifica la arquitectura básica del proyecto, describe aquí exactamente qué hay que actualizar en ese documento. Si no aplica (no hay `architectureDocPath`, o la solución no toca arquitectura), omite esta sección por completo — no la dejes vacía ni con "N/A".
+   - **(d) Cambios en estilo** — *solo si aplica*: si `styleBibleDocPath` está configurado y esta solución modifica o amplia el estilo visual del proyecto, describre aquí exactamente qué hay que actaulizar en ese documento. Si no aplica, omite esta sección — no la dejes vacía ni con "N/A".
 
 ### 3.1 Preguntar si se quiere implementar
 

@@ -31,7 +31,7 @@ export function openComponentModal({ component = null, onAccept }) {
   // Initialize component if creating new
   const isNew = !component;
   const workingComponent = isNew
-    ? createComponent({ type: 'cuadro-texto' })
+    ? createComponent({ type: 'texto' })
     : { ...component };
 
   // Tab management
@@ -114,7 +114,7 @@ export function openComponentModal({ component = null, onAccept }) {
   function renderSpecificTab() {
     specificContent.innerHTML = '';
 
-    if (workingComponent.type === 'cuadro-texto') {
+    if (workingComponent.type === 'texto') {
       // Content field
       const contentField = document.createElement('div');
       contentField.className = 'modal__field';

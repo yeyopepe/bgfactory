@@ -112,7 +112,16 @@ font-size: 0.875rem;    /* o 0.75rem si es pequeño */
   - `1000` — overlay de modal (siempre el nivel más alto)
 - Al añadir un elemento fijo/absoluto nuevo, elegir su `z-index` respetando este orden (por debajo del modal, por encima del contenido normal).
 
-## 11. Qué NO hacer
+## 11. Redimensionado (manejador de esquina)
+
+Patrón estándar para hacer redimensionable cualquier elemento de la app (no exclusivo de un componente): `.resize-handle`, un bloque standalone (no sigue BEM de ningún otro bloque, como excepción similar a `.btn-*`) con el manejador implementado en `ui/resizeHandle.js` (`attachResizeHandle`).
+
+- Posición: esquina inferior derecha del elemento a redimensionar (`position: absolute; right: 0; bottom: 0`) — el host debe ser un contenedor posicionado (`position: relative/absolute`).
+- Aspecto: grip diagonal pequeño (`::after` con gradientes), gris neutro por defecto y `var(--accent-blue)` en `:hover`/`.resize-handle--active` — sin sombras ni bordes redondeados (coherente con la sección 6 y 11 de este documento).
+- Cursor: `nwse-resize`, igual en todos los usos aunque el elemento solo redimensione un eje (mismo punto de arrastre visual reconocible en toda la app).
+- No introducir un segundo patrón de redimensionado (bordes laterales, esquinas múltiples, etc.) sin decidirlo explícitamente — reutilizar `ui/resizeHandle.js`.
+
+## 12. Qué NO hacer
 
 - No introducir un segundo sistema de tokens de color (Tailwind, otra paleta) — extender `:root` en `main.css`.
 - No mezclar `style="color:#..."` inline para colores del catálogo de la sección 2.
