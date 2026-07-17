@@ -3,7 +3,7 @@ name: ms-implement
 description: Planifica e implementa un change/fix ya documentado en {changesDir}/inProgress — genera un plan.md con la solución técnica (o lo re-analiza si ya existe), y si el usuario lo confirma, lo implementa y mueve la entrada a {changesDir}/implemented. Parte del framework ms-*. Trigger: /ms-implement <xxxx>, o cuando el usuario pide planificar/implementar un cambio o fix ya documentado por ms-change/ms-fix.
 argument-hint: <xxxx o descripción del cambio/fix a implementar>
 metadata:
-  version: 1.2.0
+  version: 1.4.0
 ---
 
 # ms-implement
@@ -84,13 +84,17 @@ Si durante la implementación descubres que el plan no es viable tal cual está 
 Una vez implementado en código lo anterior (y solo entonces — no si el usuario decidió no implementar en 3.1), actualiza siempre lo siguiente antes de mover la carpeta:
 
 - **`architectureDocPath`** — si está configurado, revísalo y déjalo reflejando fielmente el estado técnico resultante. Aplica lo que diga la sección (c) del plan si la tenía; si no la tenía pero al implementar resulta que sí se ha tocado algo que ese documento describe, actualízalo igualmente — no depende únicamente de que el plan lo anticipara. Si no está configurado, omite este punto sin preguntar nada.
-- **`featuresDocPath`** — si está configurado, añade o actualiza ahí la entrada correspondiente a lo implementado en esta entrada (nombre, breve descripción funcional en una o dos frases, y el `xxxx` de esta entrada como referencia), de forma que el documento quede como listado vivo y ordenado de las funcionalidades ya implementadas en el proyecto. Si el fichero todavía no existe, créalo. Si `featuresDocPath` no está configurado, omite este punto sin preguntar nada.
+- **`featuresDocPath`** — si está configurado, es un documento **funcional**, no un changelog: describe qué puede hacer la app hoy, organizado por área/módulo funcional, no una lista cronológica de changes/fixes. Actualízalo así:
+  - Si lo implementado en esta entrada amplía o modifica una funcionalidad que ya tiene su propia entrada en el documento, **edita esa entrada in place** para que siga describiendo fielmente el comportamiento actual (no añadas una entrada nueva para lo mismo), y añade el `xxxx` de esta entrada a su campo **Origen**.
+  - Si es una funcionalidad nueva, añade una entrada en el área funcional que le corresponda (crea el área si no existe todavía) con el `xxxx` de esta entrada en **Origen**.
+  - Si el fichero todavía no existe, créalo a partir de la plantilla [`FEATURES.template.md`](FEATURES.template.md) de esta skill.
+  - Si `featuresDocPath` no está configurado, omite este punto sin preguntar nada.
 
 ## 5. Mover la carpeta a `implemented`
 
 Invoca la skill `ms-workflow` (herramienta Skill) con `action=move`, `xxxx`, `from=inProgress` y `to=implemented` — no muevas la carpeta tú mismo. Esto **solo** cuando el change/fix se haya implementado realmente en el código en el paso 4. Si el usuario decidió no implementar en 3.1, o el proceso se detuvo antes de llegar a tocar código, no invoques `ms-workflow` para esto.
 
-Después, si `framework.versioning` es `true` en `ms-context.json`, pregunta al usuario si este `xxxx` requiere generar una nueva versión del entregable; si confirma, invoca la skill `ms-version` pasándole este `xxxx`. Si `versioning` es `false`, no ofrezcas esta opción.
+No generes nunca una nueva versión del entregable como parte de esta skill, ni preguntes al usuario si quiere hacerlo — ni siquiera si `framework.versioning` es `true`. Generar versión es un paso explícito y separado (skill `ms-version`) que el usuario invoca por su cuenta cuando lo decide.
 
 ## 6. Actualizar el grafo de contexto
 
@@ -98,4 +102,4 @@ Paso final: si en el paso 4 se han aplicado cambios relevantes en el código (no
 
 ## 7. Confirmar al usuario
 
-Indica qué se ha implementado, qué documentación se ha actualizado (`architectureDocPath`/`featuresDocPath`, según aplicara), que la carpeta se movió a `{changesDir}/implemented/{xxxx}/`, el resultado del paso de versión si se ejecutó, y si se ha actualizado el grafo de contexto.
+Indica qué se ha implementado, qué documentación se ha actualizado (`architectureDocPath`/`featuresDocPath`, según aplicara), que la carpeta se movió a `{changesDir}/implemented/{xxxx}/`, y si se ha actualizado el grafo de contexto.

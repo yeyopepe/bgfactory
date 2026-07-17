@@ -1,19 +1,10 @@
-// Modo juego: funcionamiento normal de la partida.
-// De momento solo muestra los componentes disponibles; la lógica de juego
-// (turnos, reglas, tablero interactivo...) se irá añadiendo aquí.
+// Modo juego: mesa infinita con los componentes renderizados directamente sobre ella.
 
 import { getComponents } from '../../core/state.js';
-import { renderComponentList } from '../../ui/componentList.js';
+import { createInfiniteTable } from '../../ui/table.js';
+import { renderComponentsOnTable } from '../../ui/componentRenderer.js';
 
 export function renderPlayMode(container) {
-  container.innerHTML = '';
-
-  const title = document.createElement('h2');
-  title.textContent = 'Partida';
-  container.appendChild(title);
-
-  const listContainer = document.createElement('div');
-  container.appendChild(listContainer);
-
-  renderComponentList(listContainer, getComponents());
+  const table = createInfiniteTable(container);
+  renderComponentsOnTable(table.worldEl, getComponents());
 }

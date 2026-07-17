@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-17T12:25:59Z",
+  "generatedAt": "2026-07-17T13:22:48Z",
   "basePath": "src",
   "nodes": [
     {
@@ -10,7 +10,7 @@
         "createComponent",
         "updateComponent"
       ],
-      "purpose": "Modelo genérico de componente de juego (carta, token, tablero...): construcción y actualización inmutable."
+      "purpose": "Modelo genérico de componente de juego (carta, token, tablero, cuadro-texto...): construcción y actualización inmutable."
     },
     {
       "id": "core/eventBus.js",
@@ -58,13 +58,13 @@
       "exports": [
         "CURRENT_VERSION"
       ],
-      "purpose": "Fuente única de la versión actual del prototipo, actualizada manualmente al generar una nueva versión."
+      "purpose": "Fuente única de la versión actual del prototipo, actualizada al generar una nueva versión."
     },
     {
       "id": "main.js",
       "type": "file",
       "path": "main.js",
-      "purpose": "Bootstrap de la aplicación: carga el estado persistido, monta el botón de entrada/salida de modo edición y su barra de herramientas, y renderiza el modo activo, refrescando ante cualquier cambio."
+      "purpose": "Bootstrap de la aplicación: carga el estado persistido (o precarga un componente de ejemplo si no hay nada guardado), monta los selectores de modo y renderiza el modo activo, refrescando ante cualquier cambio de estado."
     },
     {
       "id": "modes/edit/editMode.js",
@@ -73,7 +73,7 @@
       "exports": [
         "renderEditMode"
       ],
-      "purpose": "Modo edición: por ahora solo muestra un placeholder, sin formulario ni listado editable (funcionalidad retirada, pendiente de reintroducirse en un cambio futuro)."
+      "purpose": "Modo edición: mesa infinita con los componentes renderizados sobre ella (seleccionables con doble click para editar) + panel lateral con listado de componentes y acciones de alta/edición/borrado mediante modal con tabs."
     },
     {
       "id": "modes/play/playMode.js",
@@ -82,7 +82,7 @@
       "exports": [
         "renderPlayMode"
       ],
-      "purpose": "Modo juego: muestra en modo de solo lectura los componentes disponibles de la partida."
+      "purpose": "Modo juego: mesa infinita con los componentes renderizados directamente sobre ella (sin interacción de selección), sin listado aparte."
     },
     {
       "id": "ui/componentList.js",
@@ -91,7 +91,25 @@
       "exports": [
         "renderComponentList"
       ],
-      "purpose": "Listado de componentes reutilizable, en modo lectura (modo juego) o con acciones de edición/borrado (cuando se le pasan los callbacks correspondientes)."
+      "purpose": "Listado de componentes reutilizable con acciones configurable de edición/borrado; usado en modo edición."
+    },
+    {
+      "id": "ui/componentModal.js",
+      "type": "file",
+      "path": "ui/componentModal.js",
+      "exports": [
+        "openComponentModal"
+      ],
+      "purpose": "Modal de creación/edición de componentes con dos tabs (Generales/Específicas), validación en vivo de id (no-vacío y único), y contenido tab-específico según el tipo de componente."
+    },
+    {
+      "id": "ui/componentRenderer.js",
+      "type": "file",
+      "path": "ui/componentRenderer.js",
+      "exports": [
+        "renderComponentsOnTable"
+      ],
+      "purpose": "Renderiza componentes de juego sobre el worldEl de una mesa infinita; a diferencia de ui/table.js, sí conoce el modelo de componente. Soporta selección opcional por doble click."
     },
     {
       "id": "ui/editModeToggle.js",
@@ -101,28 +119,37 @@
         "renderEditToolbar",
         "renderEnterEditButton"
       ],
-      "purpose": "UI para entrar/salir del modo edición: botón de entrada visible en modo juego, y barra de herramientas propia con botón de salida visible en modo edición."
+      "purpose": "UI para entrar/salir del modo edición: botón de entrada visible en modo juego, y barra de herramientas con botón de salida visible en modo edición."
+    },
+    {
+      "id": "ui/table.js",
+      "type": "file",
+      "path": "ui/table.js",
+      "exports": [
+        "createInfiniteTable"
+      ],
+      "purpose": "Mesa infinita con capacidad de pan (arrastrar) y zoom (rueda del ratón), genérica e independiente de componentes, proporcionando una superficie interactiva navegable."
     },
     {
       "id": "core/component.js#createComponent",
       "type": "function",
       "path": "core/component.js",
       "parent": "core/component.js",
-      "purpose": "Crea un nuevo componente con id generado, tipo/nombre/propiedades/imagen por defecto."
+      "purpose": "Crea un nuevo componente con id generado, tipo/nombre/propiedades/imagen inicializados con valores por defecto o suministrados."
     },
     {
       "id": "core/component.js#updateComponent",
       "type": "function",
       "path": "core/component.js",
       "parent": "core/component.js",
-      "purpose": "Devuelve una copia del componente con los cambios (y propiedades) fusionados, sin mutar el original."
+      "purpose": "Devuelve una copia del componente con los cambios (y propiedades) fusionados de forma inmutable, sin mutar el original."
     },
     {
       "id": "core/eventBus.js#emit",
       "type": "function",
       "path": "core/eventBus.js",
       "parent": "core/eventBus.js",
-      "purpose": "Invoca a todos los handlers suscritos a un evento con el payload dado."
+      "purpose": "Invoca a todos los handlers suscritos a un evento con el payload dado, notificando a las capas interesadas de cambios de estado."
     },
     {
       "id": "core/eventBus.js#off",
@@ -157,7 +184,7 @@
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Devuelve el objeto de estado central completo."
+      "purpose": "Devuelve el objeto de estado central completo (modo activo y componentes)."
     },
     {
       "id": "core/state.js#loadComponents",
@@ -220,14 +247,14 @@
       "type": "function",
       "path": "modes/edit/editMode.js",
       "parent": "modes/edit/editMode.js",
-      "purpose": "Renderiza el contenido del modo edición: por ahora, únicamente un mensaje de placeholder."
+      "purpose": "Renderiza el contenido del modo edición: mesa infinita con componentes seleccionables + panel lateral con listado editable y botón de añadir, integrando modal de edición."
     },
     {
       "id": "modes/play/playMode.js#renderPlayMode",
       "type": "function",
       "path": "modes/play/playMode.js",
       "parent": "modes/play/playMode.js",
-      "purpose": "Renderiza el contenido del modo juego: título de partida y el listado de componentes en solo lectura."
+      "purpose": "Renderiza el contenido del modo juego: mesa infinita con los componentes dibujados sobre ella, sin listado aparte."
     },
     {
       "id": "ui/componentList.js#renderComponentList",
@@ -235,6 +262,20 @@
       "path": "ui/componentList.js",
       "parent": "ui/componentList.js",
       "purpose": "Renderiza la lista de componentes dada, con botones de editar/eliminar opcionales según los callbacks recibidos."
+    },
+    {
+      "id": "ui/componentModal.js#openComponentModal",
+      "type": "function",
+      "path": "ui/componentModal.js",
+      "parent": "ui/componentModal.js",
+      "purpose": "Abre una modal para crear o editar un componente, con tabs dinámicos según el tipo, validación en vivo de id, y callbacks de aceptación."
+    },
+    {
+      "id": "ui/componentRenderer.js#renderComponentsOnTable",
+      "type": "function",
+      "path": "ui/componentRenderer.js",
+      "parent": "ui/componentRenderer.js",
+      "purpose": "Dibuja cada componente soportado (de momento 'cuadro-texto') sobre el worldEl de la mesa infinita, añadiendo un listener de doble click si se pasa onSelect."
     },
     {
       "id": "ui/editModeToggle.js#renderEditToolbar",
@@ -249,6 +290,13 @@
       "path": "ui/editModeToggle.js",
       "parent": "ui/editModeToggle.js",
       "purpose": "Renderiza (o vacía) el botón de entrada al modo edición, según el modo activo."
+    },
+    {
+      "id": "ui/table.js#createInfiniteTable",
+      "type": "function",
+      "path": "ui/table.js",
+      "parent": "ui/table.js",
+      "purpose": "Crea una mesa infinita navegable con pan (arrastrar) y zoom (rueda) acotado, devolviendo la superficie completa y el contenedor interior donde renderizar."
     }
   ],
   "edges": [
@@ -284,7 +332,17 @@
     },
     {
       "source": "main.js",
+      "target": "core/component.js#createComponent",
+      "relation": "calls"
+    },
+    {
+      "source": "main.js",
       "target": "core/eventBus.js#on",
+      "relation": "calls"
+    },
+    {
+      "source": "main.js",
+      "target": "core/state.js#addComponent",
       "relation": "calls"
     },
     {
@@ -308,13 +366,68 @@
       "relation": "calls"
     },
     {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "core/state.js#addComponent",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "core/state.js#getComponents",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "core/state.js#removeComponent",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "core/state.js#replaceComponent",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "ui/componentList.js#renderComponentList",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "ui/componentModal.js#openComponentModal",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "ui/componentRenderer.js#renderComponentsOnTable",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "ui/table.js#createInfiniteTable",
+      "relation": "calls"
+    },
+    {
       "source": "modes/play/playMode.js#renderPlayMode",
       "target": "core/state.js#getComponents",
       "relation": "calls"
     },
     {
       "source": "modes/play/playMode.js#renderPlayMode",
-      "target": "ui/componentList.js#renderComponentList",
+      "target": "ui/componentRenderer.js#renderComponentsOnTable",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/play/playMode.js#renderPlayMode",
+      "target": "ui/table.js#createInfiniteTable",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
+      "target": "core/component.js#createComponent",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
+      "target": "core/state.js#getComponents",
       "relation": "calls"
     },
     {
@@ -340,6 +453,11 @@
     {
       "source": "core/state.js",
       "target": "core/eventBus.js",
+      "relation": "imports"
+    },
+    {
+      "source": "main.js",
+      "target": "core/component.js",
       "relation": "imports"
     },
     {
@@ -378,13 +496,53 @@
       "relation": "imports"
     },
     {
+      "source": "modes/edit/editMode.js",
+      "target": "core/state.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/edit/editMode.js",
+      "target": "ui/componentList.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/edit/editMode.js",
+      "target": "ui/componentModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/edit/editMode.js",
+      "target": "ui/componentRenderer.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/edit/editMode.js",
+      "target": "ui/table.js",
+      "relation": "imports"
+    },
+    {
       "source": "modes/play/playMode.js",
       "target": "core/state.js",
       "relation": "imports"
     },
     {
       "source": "modes/play/playMode.js",
-      "target": "ui/componentList.js",
+      "target": "ui/componentRenderer.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/play/playMode.js",
+      "target": "ui/table.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentModal.js",
+      "target": "core/component.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentModal.js",
+      "target": "core/state.js",
       "relation": "imports"
     },
     {
