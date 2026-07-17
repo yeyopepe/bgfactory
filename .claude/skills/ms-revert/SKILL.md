@@ -14,7 +14,7 @@ Esta skill no reinterpreta el cambio ni decide una solución nueva: solo deshace
 
 ## 0. Cargar el contexto del proyecto
 
-Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta `framework.changesDir`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-initialize` para inicializar/completar el framework en este proyecto, y detente ahí.
+Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta `framework.changesDir`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí.
 
 ## 1. Identificar el change/fix
 

@@ -11,11 +11,11 @@ Genera una nueva versión del entregable, hasta el `xxxx` (código de cambio/fix
 
 ## 0. Cargar el contexto del proyecto
 
-Lee `.claude/ms-context.json` en la raíz del repo. El esquema completo está en [`../ms-initialize/schema.json`](../ms-initialize/schema.json) (léelo primero si no lo has hecho ya en esta sesión).
+Lee `.claude/ms-context.json` en la raíz del repo. El esquema completo está en [`../ms-init/schema.json`](../ms-init/schema.json) (léelo primero si no lo has hecho ya en esta sesión).
 
-- Si no existe, o le falta el campo `framework.versioning`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-initialize` para inicializar/completar el framework en este proyecto, y detente ahí.
-- Si `framework.versioning` es `false`, informa de que este proyecto no versiona entregables (decisión explícita tomada en `ms-initialize`) y no hagas nada más.
-- Si `framework.versioning` es `true` pero falta alguno de `versionFilePath`, `versionVariable`, `versionFormat`, `buildCommand`, `buildOutputPath`, no continúes: dile al usuario que debe volver a ejecutar `ms-initialize` para completar esos campos, y detente ahí.
+- Si no existe, o le falta el campo `framework.versioning`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí.
+- Si `framework.versioning` es `false`, informa de que este proyecto no versiona entregables (decisión explícita tomada en `ms-init`) y no hagas nada más.
+- Si `framework.versioning` es `true` pero falta alguno de `versionFilePath`, `versionVariable`, `versionFormat`, `buildCommand`, `buildOutputPath`, no continúes: dile al usuario que debe volver a ejecutar `ms-init` para completar esos campos, y detente ahí.
 
 ## 1. Determinar el `xxxx` objetivo
 

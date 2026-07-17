@@ -1,11 +1,11 @@
 ---
-name: ms-change
-description: Analiza y documenta un cambio intencionado (nueva funcionalidad o modificación de comportamiento existente, no un bug) pedido por el usuario, dejándolo listo en {changesDir}/inProgress para planificar e implementar después con ms-implement. Trigger: /ms-change, o cuando el usuario pide explícitamente "un change"/"documentar este cambio" como parte del flujo de trabajo del proyecto.
+name: ns-new
+description: Analiza y documenta un cambio intencionado (nueva funcionalidad o modificación de comportamiento existente, no un bug) pedido por el usuario, dejándolo listo en {changesDir}/inProgress para planificar e implementar después con ms-implement. Trigger: /ns-new, o cuando el usuario pide explícitamente "un change"/"documentar este cambio" como parte del flujo de trabajo del proyecto.
 metadata:
   version: 1.0.0
 ---
 
-# ms-change
+# ns-new
 
 Analiza y documenta un cambio intencionado sobre el proyecto (funcionalidad nueva o modificación de comportamiento existente a propósito — para bugs usa la skill `ms-fix`, no esta). Parte del framework `ms-*`.
 
@@ -15,7 +15,7 @@ Analiza y documenta un cambio intencionado sobre el proyecto (funcionalidad nuev
 
 Si `.claude/ms-context.json` no existe en la raíz del repo, o le falta la
 sección `framework` (o campos suyos necesarios), no continúes: dile al
-usuario que primero debe ejecutar la skill `ms-initialize` para
+usuario que primero debe ejecutar la skill `ms-init` para
 inicializar/completar el framework en este proyecto, y detente ahí.
 
 ## Pasos

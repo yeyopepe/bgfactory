@@ -18,7 +18,7 @@ No usa el motor de la skill `graphify` (tree-sitter + subagentes LLM, esquema pe
 
 1. Comprueba que hay un intérprete de Python 3 disponible (`python3 --version` o, si falla, `python --version`). Si ninguno funciona, dile al usuario que esta skill necesita Python 3 instalado y detente aquí.
 2. **`rutaBase`** (carpeta raíz del código a recorrer) y **`rutaGraphJson`** (fichero de salida): si el usuario los pasa como argumentos, úsalos tal cual.
-3. Para lo que falte, si `.claude/ms-context.json` existe en la raíz del repo, léelo y usa `framework.sourcecodeDir` como `rutaBase` por defecto y `framework.projectGraphPath` como `rutaGraphJson` por defecto. El esquema de ese fichero está en [`../ms-initialize/schema.json`](../ms-initialize/schema.json) si necesitas consultarlo.
+3. Para lo que falte, si `.claude/ms-context.json` existe en la raíz del repo, léelo y usa `framework.sourcecodeDir` como `rutaBase` por defecto y `framework.projectGraphPath` como `rutaGraphJson` por defecto. El esquema de ese fichero está en [`../ms-init/schema.json`](../ms-init/schema.json) si necesitas consultarlo.
 4. Si sigue faltando alguna de las dos rutas (no hay `ms-context.json`, o no tiene el campo correspondiente, y tampoco se pasó como argumento), pregúntala directamente al usuario en texto libre.
 
 ## 1. Extraer la estructura (script)

@@ -12,7 +12,7 @@ Toma una entrada ya documentada por `ms-change`/`ms-fix` en `{changesDir}/inProg
 
 ## 0. Cargar el contexto del proyecto
 
-Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta `framework.changesDir`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-initialize` para inicializar/completar el framework en este proyecto, y detente ahí. El esquema completo está en [`../ms-initialize/schema.json`](../ms-initialize/schema.json) (léelo primero si no lo has hecho ya en esta sesión).
+Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta `framework.changesDir`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí. El esquema completo está en [`../ms-init/schema.json`](../ms-init/schema.json) (léelo primero si no lo has hecho ya en esta sesión).
 
 `designDocPath`, `projectGraphPath` y `sourcecodeDir` son opcionales y se usan como contexto en el paso 3; si no están configurados, sigue adelante sin ellos (usa el repo en general como contexto de respaldo).
 

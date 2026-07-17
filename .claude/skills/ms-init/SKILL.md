@@ -1,13 +1,13 @@
 ---
-name: ms-initialize
-description: Inicializa el framework ms-* (change/fix/version/workflow) en el proyecto actual, generando .claude/ms-context.json con la configuración necesaria (rutas de carpetas/ficheros del proceso de tracking de cambios y versionado, más una sección libre con info del proyecto). Trigger: /ms-initialize, o cuando cualquier otra skill ms-* necesita .claude/ms-context.json y no existe (o le faltan campos), o cuando el usuario pide "montar"/"configurar" este framework en un proyecto nuevo.
+name: ms-init
+description: Inicializa el framework ms-* (change/fix/version/workflow) en el proyecto actual, generando .claude/ms-context.json con la configuración necesaria (rutas de carpetas/ficheros del proceso de tracking de cambios y versionado, más una sección libre con info del proyecto). Trigger: /ms-init, o cuando cualquier otra skill ms-* necesita .claude/ms-context.json y no existe (o le faltan campos), o cuando el usuario pide "montar"/"configurar" este framework en un proyecto nuevo.
 metadata:
   version: 1.0.0
 ---
 
-# ms-initialize
+# ms-init
 
-Pone en marcha el framework `ms-*` en el proyecto actual: crea (o completa) `.claude/ms-context.json`, el único fichero del que dependen `ms-workflow`, `ms-change`, `ms-fix`, `ms-implement` y `ms-version` para funcionar en cualquier repo sin tener nada hardcodeado.
+Pone en marcha el framework `ms-*` en el proyecto actual: crea (o completa) `.claude/ms-context.json`, el único fichero del que dependen `ms-workflow`, `ns-new`, `ms-fix`, `ms-implement` y `ms-version` para funcionar en cualquier repo sin tener nada hardcodeado.
 
 Lee primero [`schema.json`](schema.json) si no lo has hecho ya en esta sesión — es un JSON Schema que define la forma exacta del fichero (secciones `framework` y `project`), con cada campo documentado en su `description` (obligatoriedad, para qué sirve, qué skill lo usa) y ejemplos completos en `examples`.
 

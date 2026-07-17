@@ -9,19 +9,19 @@ metadata:
 
 # ms-workflow
 
-Proceso genérico de documentación de la intención de un cambio, parte del framework `ms-*`. Solo lo invocan otras skills del framework (`ms-change` y `ms-fix`, con un parámetro `type` de `change` o `fix` y la descripción de lo que se pide) — no está pensado para invocación directa por el usuario.
+Proceso genérico de documentación de la intención de un cambio, parte del framework `ms-*`. Solo lo invocan otras skills del framework (`ns-new` y `ms-fix`, con un parámetro `type` de `change` o `fix` y la descripción de lo que se pide) — no está pensado para invocación directa por el usuario.
 
 Este paso **no implementa ni analiza técnicamente nada**: solo dimensiona el alcance funcional y crea la entrada en `{changesDir}/inProgress/`. El análisis técnico detallado (y la implementación en sí) los hace después la skill `ms-implement`, a partir del documento que aquí se genera.
 
 ## Guardarraíl de invocación — leer antes que nada
 
-Esta skill **no se ejecuta si se ha invocado directamente** (p.ej. el usuario ha escrito `/ms-workflow`, o ha pedido "ejecuta/invoca ms-workflow" en texto plano). Solo debe ejecutarse cuando el propio contenido de la skill `ms-change` o `ms-fix` te ha instruido a invocarla como parte de su proceso, con un `type` (`change`/`fix`) y una descripción concreta de lo que se pide.
+Esta skill **no se ejecuta si se ha invocado directamente** (p.ej. el usuario ha escrito `/ms-workflow`, o ha pedido "ejecuta/invoca ms-workflow" en texto plano). Solo debe ejecutarse cuando el propio contenido de la skill `ns-new` o `ms-fix` te ha instruido a invocarla como parte de su proceso, con un `type` (`change`/`fix`) y una descripción concreta de lo que se pide.
 
-Si te han invocado sin ese contexto (el usuario ha tecleado el comando directamente, o no venías de `ms-change`/`ms-fix`), **detente aquí** y dile al usuario que `ms-workflow` es de uso interno del framework: para documentar un cambio o fix debe usar `ms-change` o `ms-fix`. No generes ningún documento ni preguntes nada más en ese caso.
+Si te han invocado sin ese contexto (el usuario ha tecleado el comando directamente, o no venías de `ns-new`/`ms-fix`), **detente aquí** y dile al usuario que `ms-workflow` es de uso interno del framework: para documentar un cambio o fix debe usar `ns-new` o `ms-fix`. No generes ningún documento ni preguntes nada más en ese caso.
 
 ## 0. Cargar el contexto del proyecto
 
-Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta la sección `framework` (o campos suyos que este proceso necesita), no continúes: dile al usuario que primero debe ejecutar la skill `ms-initialize` para inicializar/completar el framework en este proyecto, y detente ahí — no reimplementes el bootstrap aquí. El esquema completo está en [`../ms-initialize/schema.json`](../ms-initialize/schema.json) (léelo primero si no lo has hecho ya en esta sesión, para saber qué campos comprobar).
+Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta la sección `framework` (o campos suyos que este proceso necesita), no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí — no reimplementes el bootstrap aquí. El esquema completo está en [`../ms-init/schema.json`](../ms-init/schema.json) (léelo primero si no lo has hecho ya en esta sesión, para saber qué campos comprobar).
 
 A partir de aquí, `changesDir` y `numberWidth` se refieren a los valores de `framework` en ese fichero. La sección `project` úsala como contexto adicional al redactar (vocabulario del dominio, convenciones) pero ningún paso de este proceso depende de ella.
 
