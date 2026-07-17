@@ -3,7 +3,7 @@ name: ms-implement
 description: Planifica e implementa un change/fix ya documentado en {changesDir}/inProgress — genera un plan.md con la solución técnica (o lo re-analiza si ya existe), y si el usuario lo confirma, lo implementa y mueve la entrada a {changesDir}/implemented. Parte del framework ms-*. Trigger: /ms-implement <xxxx>, o cuando el usuario pide planificar/implementar un cambio o fix ya documentado por ms-change/ms-fix.
 argument-hint: <xxxx o descripción del cambio/fix a implementar>
 metadata:
-  version: 1.0.0
+  version: 1.1.1
 ---
 
 # ms-implement
@@ -53,11 +53,12 @@ Si el usuario, al invocar esta skill, indica un `xxxx`, un nombre de carpeta o u
 1. Lee el documento funcional de la entrada (`{changesDir}/inProgress/{xxxx}/description.md`, generado por `ms-workflow`) para entender qué se pide. El campo **Tipo** de ese documento indica si es un `fix` o un `change`.
    - **Si es un `fix`**: el análisis y la solución deben limitarse estrictamente a corregir el bug documentado — identifica la causa raíz mínima y el cambio más pequeño que la corrige. No amplíes alcance, no refactorices ni toques código no relacionado con la causa raíz, aunque lo veas mejorable de paso. Si al analizar detectas que hace falta o convendría algo más amplio, anótalo como fuera de alcance en la sección (a) del plan en vez de incluirlo en la solución.
    - **Si es un `change`**: no aplica esta restricción; la solución puede tener el alcance que el cambio requiera.
-2. Si hay dudas técnicas sobre cómo abordarlo, resuélvelas con el usuario antes de escribir el plan.
-3. Reúne contexto adicional:
+2. Si hay ficheros `{changesDir}/inProgress/{xxxx}/design_*.html` (propuesta visual generada por `ms-new`), ábrelos, pero trátalos **solo como referencia visual** — de ellos toma únicamente el aspecto que ilustran (maquetación, estilos, iconografía) para los elementos que cubren. La solución técnica **no debe basarse en ellos** en ningún otro sentido: no reutilices ni traduzcas literalmente su HTML/CSS/SVG, sus clases o su estructura de marcado, ni los tomes como referencia de arquitectura, componentes a crear/reutilizar o cualquier otra decisión de implementación — todo eso lo decides tú a partir del código real del proyecto (paso 4 de este apartado), igual que si esos ficheros no existieran.
+3. Si hay dudas técnicas sobre cómo abordarlo, resuélvelas con el usuario antes de escribir el plan.
+4. Reúne contexto adicional:
    - Si `designDocPath` y/o `projectGraphPath` existen como ficheros reales en el repo, léelos y úsalos como contexto de arquitectura/dominio.
    - Si **ninguno de los dos** existe, usa como contexto el código fuente existente bajo `sourcecodeDir` (o el repo en general si tampoco está configurado) — explóralo lo necesario para entender los patrones y capas ya existentes antes de proponer la solución.
-4. Escribe `{changesDir}/inProgress/{xxxx}/plan.md` con exactamente estas tres secciones:
+5. Escribe `{changesDir}/inProgress/{xxxx}/plan.md` con exactamente estas tres secciones:
    - **(a) Anotaciones funcionales** — qué queda explícitamente fuera de alcance, y las dudas que se han resuelto con el usuario (pregunta y respuesta, en breve).
    - **(b) Solución técnica** — listado de tareas concretas y explicadas (qué hay que tocar, dónde, y por qué), en el orden en que se deberían implementar.
    - **(c) Cambios de arquitectura** — *solo si aplica*: si `designDocPath` está configurado y esta solución modifica la arquitectura básica del proyecto, describe aquí exactamente qué hay que actualizar en ese documento. Si no aplica (no hay `designDocPath`, o la solución no toca arquitectura), omite esta sección por completo — no la dejes vacía ni con "N/A".
