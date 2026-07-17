@@ -67,14 +67,33 @@ Todos los campos de `framework` (excepto `changesDir` y `versioning`) son opcion
 
 ```mermaid
 flowchart LR
+    T["/ms-todo\n(idea suelta)"] -->|"/ms-new todo {código}"| A
     A["/ms-new o /ms-fix\n(documentar intención)"] --> B["ms-implement\n(planificar: plan.md)"]
     B -->|usuario confirma| C["ms-implement\n(implementar código)"]
-    C --> D["/ms-version\n(opcional: cortar release)"]
-    C --> E["/ms-close\n(archivar cuando ya no interesa)"]
+    C --> D["/ms-version\n(cortar release)"]
+    C --> E["/ms-close\n(archivar)"]
     B -->|usuario no confirma| F["queda en inProgress\npendiente de retomar"]
+    F -->|usuario confirma más tarde| C
+    G["/ms-fast\n(cambio trivial)"] -->|si califica| C
+    G -->|si no califica| A
+
+    class T,D,E,F opcional
+    class A,B,C,G obligatorio
+    classDef obligatorio fill:#4c6ef5,stroke:#364fc7,stroke-width:2px,color:#fff
+    classDef opcional fill:transparent,stroke:#adb5bd,stroke-width:1px,stroke-dasharray:4 3,color:inherit
 ```
 
+Nodos con borde continuo azul = paso obligatorio del ciclo (Paso 1 y Paso 2) o vía directa equivalente (`/ms-fast`, que aplica el código sin pasar por `plan.md` si el cambio califica como trivial). Nodos con borde discontinuo gris = punto de entrada u operación opcional (`/ms-todo`, `/ms-version`, `/ms-close`, o quedarse pendiente en `inProgress`).
+
 Cada entrada de trabajo vive en una carpeta numerada `xxxx` (p.ej. `00007`) que va viajando entre subcarpetas de `changesDir` según su estado: `inProgress/` → `implemented/` → `closed/`.
+
+### Paso 0 (opcional) — Apuntar ideas sueltas: `/ms-todo`
+
+Antes de que una idea sea un change o un fix, puede que solo quieras dejarla anotada para más adelante sin comprometerte a documentarla ni implementarla todavía. `/ms-todo <idea>` la guarda en `changes/todo/{código}/description.md` — una carpeta aparte que ninguna otra skill del framework usa ni tiene en cuenta, así que no interfiere con `inProgress`/`implemented`/`closed` ni con la numeración `xxxx`.
+
+- **Apuntar o ampliar**: `/ms-todo <idea>` crea una nueva; `/ms-todo {código} <más detalle>` sigue desarrollando una ya existente.
+- **Consultar lo apuntado**: `/ms-status todo` lista las ideas pendientes con su código y texto completo.
+- **Convertir en cambio**: cuando una idea de la lista madura y quieres llevarla al flujo real, `/ms-new todo {código}` arranca `ms-new` partiendo de esa idea en vez de una petición nueva, y borra la entrada de `todo/` automáticamente al terminar (sin pedir confirmación) — la idea pasa a vivir como entrada normal en `changes/inProgress/`.
 
 ### Paso 1 — Definir el cambio: tres maneras
 
