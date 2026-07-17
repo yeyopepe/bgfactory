@@ -10,6 +10,8 @@ metadata:
 
 Toma una entrada ya documentada por `ms-change`/`ms-fix` en `{changesDir}/inProgress/{xxxx}/` y la lleva hasta implementada: analiza la solución técnica, la deja escrita en `plan.md`, y si el usuario lo confirma, la implementa y mueve la carpeta a `{changesDir}/implemented/{xxxx}/`.
 
+**Fuente de la verdad.** El código, el grafo de contexto (`projectGraphPath`) y la documentación técnica (`designDocPath`) son la única fuente de verdad sobre cómo funciona hoy el proyecto — no lo que `description.md` asuma implícitamente sobre la implementación, ni memoria de conversaciones anteriores. Verifícalos siempre al analizar la causa raíz y diseñar la solución (paso 3), incluso si ya tienes una idea de cómo funciona algo por contexto previo. Tampoco cuenta como fuente de verdad el `description.md` o `plan.md` de **otros** cambios/fixes bajo `{changesDir}/**` (en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto — el único documento de otra entrada que sí es relevante aquí es el que consulta explícitamente el paso 0.1 (los `xxxx` máximos, para la verificación de orden).
+
 ## 0. Cargar el contexto del proyecto
 
 Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta `framework.changesDir`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí. El esquema completo está en [`../ms-init/schema.json`](../ms-init/schema.json) (léelo primero si no lo has hecho ya en esta sesión).
@@ -78,7 +80,7 @@ Si durante la implementación descubres que el plan no es viable tal cual está 
 
 ## 5. Mover la carpeta a `implemented`
 
-Mueve `{changesDir}/inProgress/{xxxx}/` (con el documento funcional y `plan.md` incluidos) a `{changesDir}/implemented/{xxxx}/`, creando `{changesDir}/implemented/` si no existe — pero **solo** cuando el change/fix se haya implementado realmente en el código en el paso 4. Si el usuario decidió no implementar en 3.1, o el proceso se detuvo antes de llegar a tocar código, no muevas la carpeta.
+Invoca la skill `ms-workflow` (herramienta Skill) con `action=move`, `xxxx`, `from=inProgress` y `to=implemented` — no muevas la carpeta tú mismo. Esto **solo** cuando el change/fix se haya implementado realmente en el código en el paso 4. Si el usuario decidió no implementar en 3.1, o el proceso se detuvo antes de llegar a tocar código, no invoques `ms-workflow` para esto.
 
 Después, si `framework.versioning` es `true` en `ms-context.json`, pregunta al usuario si este `xxxx` requiere generar una nueva versión del entregable; si confirma, invoca la skill `ms-version` pasándole este `xxxx`. Si `versioning` es `false`, no ofrezcas esta opción.
 

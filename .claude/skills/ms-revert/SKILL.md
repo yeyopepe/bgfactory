@@ -64,7 +64,7 @@ Si `projectGraphPath` está configurado y en el paso 5 se han aplicado cambios r
 
 ## 7. Mover la carpeta a `inProgress`
 
-Mueve la carpeta de origen identificada en el paso 1 (`{changesDir}/implemented/{xxxx}/` o `{changesDir}/closed/{xxxx}/`, con todo su contenido incluido `revert.md`) a `{changesDir}/inProgress/{xxxx}/`, creando `{changesDir}/inProgress/` si no existe — pero **solo** cuando el revert se haya ejecutado realmente en el paso 5. Si el usuario decidió no ejecutar en 4.1, no muevas la carpeta.
+Invoca la skill `ms-workflow` (herramienta Skill) con `action=move`, `xxxx`, `from` (la carpeta de origen identificada en el paso 1: `implemented` o `closed`) y `to=inProgress` — no muevas la carpeta tú mismo. Esto **solo** cuando el revert se haya ejecutado realmente en el paso 5. Si el usuario decidió no ejecutar en 4.1, no invoques `ms-workflow` para esto.
 
 ## 8. Confirmar al usuario
 

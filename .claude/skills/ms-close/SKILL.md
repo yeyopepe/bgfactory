@@ -36,7 +36,7 @@ Antes de mover nada, usa `AskUserQuestion` para confirmar explícitamente con el
 
 ## 3. Mover la carpeta a `closed`
 
-Mueve `{changesDir}/implemented/{xxxx}/` (tal cual, con todo su contenido) a `{changesDir}/closed/{xxxx}/`, creando `{changesDir}/closed/` si no existe.
+Invoca la skill `ms-workflow` (herramienta Skill) con `action=move`, `xxxx`, `from=implemented` y `to=closed` — no muevas la carpeta tú mismo.
 
 ## 4. Confirmar al usuario
 

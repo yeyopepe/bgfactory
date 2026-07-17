@@ -12,6 +12,8 @@ Analiza y documenta un cambio intencionado sobre el proyecto (funcionalidad nuev
 
 **No implementa nada.** Esta skill solo entiende y documenta el alcance funcional de lo que se pide; la solución técnica y la implementación las hace después la skill `ms-implement`, cuando se decida planificar/implementar esta entrada.
 
+**Fuente de la verdad.** Al anticipar dudas y proponer respuestas (paso 1), la única fuente de verdad sobre cómo funciona hoy el proyecto es el código, el grafo de contexto (`projectGraphPath`, si está configurado) y la documentación técnica (`designDocPath`, si está configurada) — nunca asunciones, ni lo que se recuerde de conversaciones anteriores, ni lo que el usuario crea que hace el código. Tampoco cuenta como fuente de verdad el contenido de otros cambios/fixes que existan bajo `{changesDir}/**` (su `description.md` o `plan.md`, estén en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto. Consúltalos antes de dar por buena una propuesta sobre convivencia con lo existente.
+
 ## 0. Comprobar que el framework está inicializado
 
 Si `.claude/ms-context.json` no existe en la raíz del repo, o le falta la
@@ -37,7 +39,7 @@ Si el usuario, al invocar esta skill, indica un código de cambio/fix (`xxxx`) �
    - **Definición visual de alto nivel**: qué elementos nuevos aparecen, en qué zona aproximada de la pantalla se ubican, cómo se activan/desactivan, qué feedback visual percibe el usuario al interactuar. Queda fuera de este análisis el detalle de bajo nivel (colores exactos, medidas, componentes concretos a reutilizar o crear) — eso lo resuelve `ms-implement` al planificar la solución técnica.
 
    Para cada punto relevante para este cambio concreto, no se lo devuelvas en bruto al usuario: propón tú una respuesta razonable a partir del contexto del proyecto y preséntale la lista completa (punto + tu propuesta) de una sola vez para que la confirme o corrija donde no esté de acuerdo, en vez de preguntar uno a uno. Si hay algún punto sobre el que no puedas ni siquiera proponer una asunción razonable, márcalo explícitamente como pregunta abierta dentro de esa misma lista.
-2. **Documentar la intención.** Invoca la skill `ms-workflow` (herramienta Skill) con `type=change` y el resumen funcional de lo que se pide — incluyendo la lista de dudas del paso 1 ya resuelta (propuestas confirmadas, correcciones del usuario y, en su caso, definición visual de alto nivel acordada) — para que se encargue de numerar el cambio y crear el documento en `{changesDir}/inProgress/{xxxx}/`.
+2. **Documentar la intención.** Invoca la skill `ms-workflow` (herramienta Skill) con `action=create`, `type=change` y el resumen funcional de lo que se pide — incluyendo la lista de dudas del paso 1 ya resuelta (propuestas confirmadas, correcciones del usuario y, en su caso, definición visual de alto nivel acordada) — para que se encargue de numerar el cambio y crear el documento en `{changesDir}/inProgress/{xxxx}/`.
 3. **Indicar el siguiente paso.** Informa al usuario de que el cambio queda documentado y pendiente; para planificarlo e implementarlo debe invocar la skill `ms-implement` sobre ese `xxxx`. Si el usuario quiere implementarlo ya mismo, puedes invocar `ms-implement` directamente tú.
 
 No escribas tú mismo el documento de cambio ni calcules el número `xxxx` — eso lo hace `ms-workflow` para mantener un único sitio con esa lógica.

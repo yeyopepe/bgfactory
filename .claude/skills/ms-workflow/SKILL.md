@@ -1,31 +1,42 @@
 ---
 name: ms-workflow
-description: Proceso compartido, agnóstico al proyecto, para documentar la intención de un fix o change (numeración secuencial, resumen funcional) antes de implementarlo. Parte del framework ms-*. Uso interno de las skills ms-change y ms-fix.
+description: Proceso compartido, agnóstico al proyecto, con dos acciones internas del framework ms-*: (1) crear una entrada nueva en {changesDir}/inProgress documentando la intención de un fix o change, y (2) mover una entrada existente entre los subestados del flujo (inProgress/implemented/closed) cuando otra skill del framework produce esa transición. Uso interno de las skills ms-new, ms-fix, ms-implement, ms-close y ms-revert.
 user-invocable: false
 disable-model-invocation: true
 metadata:
-  version: 1.0.0
+  version: 2.0.0
 ---
 
 # ms-workflow
 
-Proceso genérico de documentación de la intención de un cambio, parte del framework `ms-*`. Solo lo invocan otras skills del framework (`ms-new` y `ms-fix`, con un parámetro `type` de `change` o `fix` y la descripción de lo que se pide) — no está pensado para invocación directa por el usuario.
+Proceso genérico y único punto donde el framework `ms-*` sabe crear y mover las carpetas de `{changesDir}`. Solo lo invocan otras skills del framework — no está pensado para invocación directa por el usuario.
 
-Este paso **no implementa ni analiza técnicamente nada**: solo dimensiona el alcance funcional y crea la entrada en `{changesDir}/inProgress/`. El análisis técnico detallado (y la implementación en sí) los hace después la skill `ms-implement`, a partir del documento que aquí se genera.
+Tiene dos acciones independientes, cada una invocada con un parámetro `action`:
+
+- **`action=create`** — la invocan `ms-new` y `ms-fix`, con `type` (`change`/`fix`) y la descripción de lo que se pide. Dimensiona el alcance funcional y crea la entrada en `{changesDir}/inProgress/`.
+- **`action=move`** — la invocan `ms-implement`, `ms-close` y `ms-revert`, con `xxxx`, `from` y `to` (nombres de subcarpeta de `{changesDir}`: `inProgress`, `implemented` o `closed`). Mueve la carpeta `{xxxx}` entre esos subestados.
+
+Ninguna de las dos acciones implementa ni analiza técnicamente nada, ni decide **si** debe producirse la transición o confirmación con el usuario — eso ya lo ha resuelto la skill llamante antes de invocar `ms-workflow`. Esta skill solo ejecuta la mecánica de fichero (numerar+crear, o mover) de forma consistente en un único sitio.
 
 ## Guardarraíl de invocación — leer antes que nada
 
-Esta skill **no se ejecuta si se ha invocado directamente** (p.ej. el usuario ha escrito `/ms-workflow`, o ha pedido "ejecuta/invoca ms-workflow" en texto plano). Solo debe ejecutarse cuando el propio contenido de la skill `ms-new` o `ms-fix` te ha instruido a invocarla como parte de su proceso, con un `type` (`change`/`fix`) y una descripción concreta de lo que se pide.
+Esta skill **no se ejecuta si se ha invocado directamente** (p.ej. el usuario ha escrito `/ms-workflow`, o ha pedido "ejecuta/invoca ms-workflow" en texto plano). Solo debe ejecutarse cuando el propio contenido de `ms-new`, `ms-fix`, `ms-implement`, `ms-close` o `ms-revert` te ha instruido a invocarla como parte de su proceso, con la `action` y los parámetros correspondientes ya resueltos por esa skill.
 
-Si te han invocado sin ese contexto (el usuario ha tecleado el comando directamente, o no venías de `ms-new`/`ms-fix`), **detente aquí** y dile al usuario que `ms-workflow` es de uso interno del framework: para documentar un cambio o fix debe usar `ms-new` o `ms-fix`. No generes ningún documento ni preguntes nada más en ese caso.
+Si te han invocado sin ese contexto (el usuario ha tecleado el comando directamente, o no venías de ninguna de esas cinco skills), **detente aquí** y dile al usuario que `ms-workflow` es de uso interno del framework: para documentar, implementar, cerrar o revertir un cambio/fix debe usar la skill correspondiente. No hagas nada más en ese caso.
 
 ## 0. Cargar el contexto del proyecto
 
-Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta la sección `framework` (o campos suyos que este proceso necesita), no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí — no reimplementes el bootstrap aquí. El esquema completo está en [`../ms-init/schema.json`](../ms-init/schema.json) (léelo primero si no lo has hecho ya en esta sesión, para saber qué campos comprobar).
+Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta la sección `framework` (o campos suyos que esta acción necesita), no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí — no reimplementes el bootstrap aquí. El esquema completo está en [`../ms-init/schema.json`](../ms-init/schema.json) (léelo primero si no lo has hecho ya en esta sesión, para saber qué campos comprobar).
 
-A partir de aquí, `changesDir` y `numberWidth` se refieren a los valores de `framework` en ese fichero. La sección `project` úsala como contexto adicional al redactar (vocabulario del dominio, convenciones) pero ningún paso de este proceso depende de ella.
+A partir de aquí, `changesDir` y `numberWidth` se refieren a los valores de `framework` en ese fichero.
 
-## 1. Calcular el código de cambio `xxxx`
+Continúa con la sección de abajo que corresponda a la `action` recibida.
+
+## Acción `create`
+
+La sección `project` de `ms-context.json` úsala como contexto adicional al redactar (vocabulario del dominio, convenciones) pero ningún paso de esta acción depende de ella.
+
+### create.1 Calcular el código de cambio `xxxx`
 
 Cada cambio/fix vive en una subcarpeta numerada bajo alguno de los subárboles de `{changesDir}` (`inProgress/`, `implemented/`, `closed/`, o cualquier otro que exista): un mismo `xxxx` no puede repetirse en ninguno de ellos. Para calcularlo sin errores, ejecuta el script [`scripts/next-change-number.py`](scripts/next-change-number.py) (requiere Python 3) desde la raíz del repo:
 
@@ -35,7 +46,7 @@ python .claude/skills/ms-workflow/scripts/next-change-number.py
 
 El script lee `changesDir` y `numberWidth` de `.claude/ms-context.json`, recorre **todas** las subcarpetas de `{changesDir}` (no solo `inProgress`/`implemented`) buscando nombres puramente numéricos, y devuelve por stdout el siguiente `xxxx` ya formateado con `numberWidth` dígitos y ceros a la izquierda (p.ej. `0002`, o `1` si no hubiera ninguna carpeta numerada todavía). Usa ese valor tal cual como `xxxx` — no lo recalcules a mano ni mires solo `inProgress`/`implemented`.
 
-## 2. Generar el documento de intención del cambio/fix
+### create.2 Generar el documento de intención del cambio/fix
 
 Si hay dudas relevantes sobre el alcance de lo que se pide que no se puedan resolver con lo que ya sabes, pregúntalas antes de escribir el documento — no hace falta que sean dudas técnicas de implementación (eso lo resuelve `ms-implement` más adelante), solo las de alcance funcional. Guarda esas preguntas junto con las respuestas del usuario: van incluidas en el documento (ver más abajo).
 
@@ -48,7 +59,7 @@ Crea (creando `{changesDir}/inProgress/` si no existe):
 Contenido del documento, con exactamente estos campos:
 
 - **Nombre** — nombre corto y descriptivo del cambio/fix.
-- **Código** — el `xxxx` calculado en el paso 1.
+- **Código** — el `xxxx` calculado en el paso anterior.
 - **Tipo** — `fix` o `change`, según corresponda.
 - **Prompt original del usuario** — la petición tal cual la ha escrito el usuario, sin reformular.
 - **Descripción completa** — resumen funcional de lo que se ha analizado que pide, sin entrar en solución técnica:
@@ -58,6 +69,21 @@ Contenido del documento, con exactamente estos campos:
 
 No incluyas aquí notas técnicas ni de arquitectura — de eso se encarga el `plan.md` que genera `ms-implement` al analizar esta entrada.
 
-## 3. Confirmar al usuario
+### create.3 Confirmar a quien invoca
 
-Indica el fichero creado (`{changesDir}/inProgress/{xxxx}/description.md`) y recuerda que el siguiente paso, cuando se quiera implementar, es invocar la skill `ms-implement` sobre este `xxxx`.
+Indica el fichero creado (`{changesDir}/inProgress/{xxxx}/description.md`) y el `xxxx` resuelto, para que la skill llamante (`ms-new`/`ms-fix`) continúe su propio proceso.
+
+## Acción `move`
+
+Recibida con `xxxx`, `from` y `to` ya resueltos por quien invoca (`ms-implement`: `inProgress`→`implemented`; `ms-close`: `implemented`→`closed`; `ms-revert`: `implemented`|`closed`→`inProgress`).
+
+La mecánica de fichero (comprobar origen, crear destino si falta, mover) la hace de forma determinista y gratis en tokens el script [`scripts/move-change.py`](scripts/move-change.py) (Python estándar, sin dependencias externas) — no la reimplementes a mano. Ejecuta desde la raíz del repo:
+
+```
+python .claude/skills/ms-workflow/scripts/move-change.py --xxxx <xxxx> --from <from> --to <to>
+```
+
+- Si `{changesDir}/{from}/{xxxx}/` no existe, o ya hay algo en `{changesDir}/{to}/{xxxx}/`, el script termina con error y no mueve nada — es un error de quien invoca (esa skill ya debería haber identificado y verificado la carpeta antes de llamar a `ms-workflow`). Repórtaselo a quien invoca tal cual, sin improvisar una solución.
+- Si va bien, el script imprime en stdout la ruta destino relativa a la raíz del repo (p.ej. `src/_changes/implemented/0002`).
+
+Confirma a quien invoca esa ruta destino, para que la skill llamante continúe su propio proceso (mensaje al usuario, pasos siguientes como generar versión o actualizar el grafo, etc. — eso lo gestiona ella, no `ms-workflow`).
