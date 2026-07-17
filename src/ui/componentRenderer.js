@@ -56,6 +56,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, selecte
         function handleMouseUp() {
           document.removeEventListener('mousemove', handleMouseMove);
           document.removeEventListener('mouseup', handleMouseUp);
+          if (currentX === startX && currentY === startY) return;
           onMove(component, currentX, currentY);
         }
 

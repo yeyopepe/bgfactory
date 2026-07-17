@@ -1,0 +1,321 @@
+<title>Panel de componentes arrastrable - propuesta visual</title>
+<style>
+  :root {
+    --bg-toolbar: #333333;
+    --bg-card: #f5f5f5;
+    --accent-blue: #2c7dd8;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: repeating-linear-gradient(
+      45deg,
+      #e9ecef,
+      #e9ecef 10px,
+      #f4f5f7 10px,
+      #f4f5f7 20px
+    );
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .scene-label {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    font-size: 0.8rem;
+    color: #888;
+    background: white;
+    padding: 0.35rem 0.6rem;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    max-width: 220px;
+  }
+
+  /* Two demo instances side by side: one idle (default position), one mid-drag */
+
+  .component-panel-container {
+    position: absolute;
+    width: 300px;
+  }
+
+  .component-panel-container--idle {
+    top: 1rem;
+    right: 1rem;
+  }
+
+  .component-panel-container--dragging {
+    top: 40%;
+    left: 38%;
+    opacity: 0.92;
+  }
+
+  .component-panel {
+    width: 300px;
+    background: var(--bg-card);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+  }
+
+  .component-panel--dragging {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    outline: 2px dashed var(--accent-blue);
+    outline-offset: 2px;
+  }
+
+  .component-panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-toolbar);
+    color: var(--text-light);
+    cursor: grab;
+    user-select: none;
+  }
+
+  .component-panel__header--grabbing {
+    cursor: grabbing;
+  }
+
+  .component-panel__header-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .drag-handle {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+
+  .drag-handle span {
+    display: block;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .drag-handle-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 3px);
+    grid-template-rows: repeat(3, 3px);
+    gap: 3px;
+  }
+
+  .component-panel__header strong {
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+
+  .component-panel__header button {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .component-panel__body {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .component-list {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .component-list th {
+    padding: 0.5rem;
+    text-align: left;
+    font-weight: 500;
+    background: #f0f0f0;
+  }
+
+  .component-list td {
+    padding: 0.5rem;
+    border-top: 1px solid #ddd;
+  }
+
+  .component-list__id-cell {
+    max-width: 6rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .component-list__actions-cell {
+    white-space: nowrap;
+  }
+
+  .component-list__actions-cell button {
+    padding: 0.25rem 0.5rem;
+    margin-right: 0.25rem;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.75rem;
+  }
+
+  .component-panel__footer {
+    padding: 0.5rem 1rem;
+    border-top: 1px solid #ddd;
+  }
+
+  .component-panel__footer button {
+    width: 100%;
+    padding: 0.5rem;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  /* Viewport boundary illustration around the dragging instance */
+  .viewport-hint {
+    position: absolute;
+    inset: 0.5rem;
+    border: 2px dashed rgba(44, 125, 216, 0.35);
+    border-radius: 6px;
+    pointer-events: none;
+  }
+
+  .viewport-hint::after {
+    content: 'límite de arrastre = borde de la ventana';
+    position: absolute;
+    bottom: 0.4rem;
+    right: 0.6rem;
+    font-size: 0.7rem;
+    color: var(--accent-blue);
+    background: white;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+  }
+
+  .ghost-origin {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 300px;
+    height: 44px;
+    border: 2px dashed #aaa;
+    border-radius: 4px;
+    opacity: 0.5;
+  }
+
+  .ghost-origin::after {
+    content: 'posición original';
+    position: absolute;
+    top: -1.3rem;
+    right: 0;
+    font-size: 0.7rem;
+    color: #888;
+  }
+</style>
+
+<div class="viewport-hint"></div>
+<div class="scene-label">Propuesta visual — dos instantáneas del mismo panel: en reposo (arriba-derecha) y a mitad de arrastre.</div>
+
+<!-- Idle state: default top-right position -->
+<div class="component-panel-container component-panel-container--idle">
+  <div class="component-panel">
+    <div class="component-panel__header">
+      <div class="component-panel__header-title">
+        <span class="drag-handle drag-handle-grid">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </span>
+        <strong>Componentes</strong>
+      </div>
+      <button type="button">▾</button>
+    </div>
+    <div class="component-panel__body">
+      <table class="component-list">
+        <thead><tr><th>Id</th><th>Tipo</th><th>Acciones</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="component-list__id-cell">carta-01</td>
+            <td>cuadro-texto</td>
+            <td class="component-list__actions-cell">
+              <button type="button">Editar</button>
+              <button type="button">Eliminar</button>
+            </td>
+          </tr>
+          <tr>
+            <td class="component-list__id-cell">token-a</td>
+            <td>cuadro-texto</td>
+            <td class="component-list__actions-cell">
+              <button type="button">Editar</button>
+              <button type="button">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="component-panel__footer">
+      <button type="button">+ Añadir componente</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ghost outline marking where the dragged copy started -->
+<div class="ghost-origin"></div>
+
+<!-- Mid-drag state: panel moved toward the center, header shows grabbing cursor -->
+<div class="component-panel-container component-panel-container--dragging">
+  <div class="component-panel component-panel--dragging">
+    <div class="component-panel__header component-panel__header--grabbing">
+      <div class="component-panel__header-title">
+        <span class="drag-handle drag-handle-grid">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </span>
+        <strong>Componentes</strong>
+      </div>
+      <button type="button">▾</button>
+    </div>
+    <div class="component-panel__body">
+      <table class="component-list">
+        <thead><tr><th>Id</th><th>Tipo</th><th>Acciones</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="component-list__id-cell">carta-01</td>
+            <td>cuadro-texto</td>
+            <td class="component-list__actions-cell">
+              <button type="button">Editar</button>
+              <button type="button">Eliminar</button>
+            </td>
+          </tr>
+          <tr>
+            <td class="component-list__id-cell">token-a</td>
+            <td>cuadro-texto</td>
+            <td class="component-list__actions-cell">
+              <button type="button">Editar</button>
+              <button type="button">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="component-panel__footer">
+      <button type="button">+ Añadir componente</button>
+    </div>
+  </div>
+</div>

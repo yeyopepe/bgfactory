@@ -16,7 +16,7 @@ El código fuente, en cambio, se mantiene organizado en ficheros y capas separad
 core/    → estado de la aplicación, modelo de datos, bus de eventos
 modes/   → modo juego (play) y modo edición (edit), cada uno con su propia carpeta
 ui/      → elementos de interfaz reutilizables entre modos
-data/    → persistencia (localStorage + import/export JSON)
+data/    → datos de versión de la app
 main.js  → bootstrap: conecta las capas anteriores
 ```
 
@@ -28,7 +28,7 @@ modes/* ──────────▶ core/*
 main.js ──▶ data/*, ui/*, modes/*, core/*
 ```
 
-`core` no depende de ninguna otra capa. `ui` solo depende de `core` (lee/escribe estado). `modes` compone `ui` y `core` para construir cada pantalla. `data` solo conoce la forma de los datos (lista de componentes), no el resto de capas. `main.js` es el único punto que conoce y conecta todas las capas.
+`core` no depende de ninguna otra capa. `ui` solo depende de `core` (lee/escribe estado). `modes` compone `ui` y `core` para construir cada pantalla. `main.js` es el único punto que conoce y conecta todas las capas.
 
 Comunicación entre capas: el estado (`core/state.js`) es la única fuente de verdad; los cambios se notifican mediante un bus de eventos simple (`core/eventBus.js`, `emit`/`on`) para que la UI se vuelva a renderizar sin acoplar los módulos entre sí.
 
@@ -39,7 +39,7 @@ Ambos modos **comparten el mismo modelo de datos**: la lista de componentes en `
 - `ui/editModeToggle.js` implementa un flujo de entrar/salir (no un selector de dos opciones) sobre `core/state.js` (`mode: 'play' | 'edit'`), con dos funciones: `renderEnterEditButton`, que en modo juego muestra el botón "Entrar en modo edición"; y `renderEditToolbar`, que en modo edición muestra una franja fija en la parte superior con el botón "Salir del modo edición". Ambas operan siempre sobre `setMode()` / evento `mode:changed` de `core/state.js`, sin cambios en esa capa.
 - Al cambiar de modo se emite `mode:changed`, y `main.js` vuelve a renderizar la pantalla activa (`modes/play/playMode.js` o `modes/edit/editMode.js`).
 - `modes/edit/editMode.js` ahora es funcional: renderiza una mesa infinita (pan/zoom) con los componentes dibujados directamente sobre ella (vía `ui/componentRenderer.js`, seleccionables con click para editar), y un panel flotante (anclado en la esquina superior derecha de la mesa, colapsable) con el listado de componentes en formato tabla (columnas Id/Tipo/Acciones) con acciones de alta/edición/borrado, y una modal de edición (`ui/componentModal.js`) para crear/modificar componentes. El botón "Editar" del listado, o hacer click sobre la representación de un componente en la mesa, abren la misma modal; el botón "Eliminar" del listado lo borra directamente, pidiendo confirmación previa (el borrado no está disponible haciendo click en la mesa); el botón "+ Añadir componente" abre la modal vacía para crear uno nuevo. Al hacer click sobre una fila de la tabla (selección única con toggle, estado en memoria, no persistido) se resalta con un contorno discontinuo la representación del componente correspondiente sobre la mesa. `modes/play/playMode.js` renderiza la misma mesa infinita, con los componentes "cuadro-texto" dibujados sobre ella (sin interacción de selección), y ya no muestra ningún listado aparte.
-- Cualquier alta/edición/borrado de un componente en modo edición emite `components:changed`; esto dispara tanto el refresco de la UI como el autoguardado en `localStorage`. Así, lo creado en modo edición está disponible inmediatamente en modo juego sin pasos adicionales.
+- Cualquier alta/edición/borrado de un componente en modo edición emite `components:changed`, que dispara el refresco de la UI. Así, lo creado en modo edición está disponible inmediatamente en modo juego sin pasos adicionales.
 
 ## 4. Modelo de datos de componente
 
@@ -79,17 +79,12 @@ Módulos de UI que se reutilizan entre modos (`modes/play` y `modes/edit`) sin c
 - **`ui/editModeToggle.js`**: proporciona los botones de entrada/salida de modo edición sin conocer detalles de cómo se implementa cada modo.
 - **`ui/componentList.js`**: panel flotante y colapsable con el listado de componentes en formato tabla (Id/Tipo/Acciones), usado en modo edición. Expone `renderComponentList(container, components, { onEdit, onRemove, onSelectRow, onAdd, selectedId = null, collapsed = false, onToggleCollapse } = {})`: cabecera con título y control de colapso, cuerpo con la tabla (scroll vertical si excede la altura, fila resaltada si `component.id === selectedId`) y pie con el botón "+ Añadir componente"; el cuerpo y el pie se omiten si `collapsed` es `true`. Ya no se usa en modo juego (ver sección 3).
 
-## 6. Persistencia
-
-- **Autoguardado**: cada cambio en la lista de componentes se guarda automáticamente en `localStorage` (`data/persistence.js`, `saveToLocalStorage`/`loadFromLocalStorage`). Al arrancar la aplicación, si hay datos guardados se cargan automáticamente.
-- **Exportar/Importar JSON**: `exportToJsonFile` descarga el estado como fichero `.json`; `importFromJsonFile` permite cargar un fichero exportado previamente. Sirve para compartir configuraciones de componentes entre máquinas o hacer copias de seguridad manuales, dado que `localStorage` es local al navegador.
-
-## 7. Flujo de desarrollo y build
+## 6. Flujo de desarrollo y build
 
 - **Desarrollo**: se abre `src/index.html` (no es el entregable) con un servidor estático local — por ejemplo la extensión "Live Server" de VSCode — porque los módulos ES nativos (`<script type="module">`) no cargan correctamente vía `file://`. Este fichero referencia los módulos de `/src` directamente.
 - **Build**: `scripts/build.py` recorre el grafo de `import`/`export` a partir de `src/main.js`, transforma cada módulo a un pequeño sistema `require`/`module.exports` en tiempo de ejecución (sin depender de bundlers ni de Node.js, solo de Python), e inserta el resultado junto con el CSS de `src/styles/main.css` dentro de una copia de `src/index.html`. El resultado, un único fichero autocontenido, se escribe en `src/_output/index.html` — ese es el entregable portable.
 
-## 8. Convenciones de código
+## 7. Convenciones de código
 
 - Módulos ES (`import`/`export`) organizados por capa/responsabilidad, un fichero por módulo funcional.
 - Sin dependencias externas por defecto. Si en el futuro se necesita una librería (por ejemplo, para el editor visual), solo se incorpora si su bundle puede embeberse íntegramente en el HTML final (sin llamadas a CDN en tiempo de ejecución ni instalación adicional para el usuario final).

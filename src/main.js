@@ -1,9 +1,8 @@
-// Bootstrap de la aplicación: carga el estado persistido, monta el selector
-// de modo y renderiza el modo activo, refrescando ante cualquier cambio.
+// Bootstrap de la aplicación: crea el componente por defecto, monta el
+// selector de modo y renderiza el modo activo, refrescando ante cualquier cambio.
 
 import { on } from './core/eventBus.js';
-import { MODES, getState, loadComponents, getComponents, addComponent } from './core/state.js';
-import { loadFromLocalStorage, saveToLocalStorage } from './data/persistence.js';
+import { MODES, getState, addComponent } from './core/state.js';
 import { CURRENT_VERSION } from './data/version.js';
 import { renderEnterEditButton, renderEditToolbar } from './ui/editModeToggle.js';
 import { renderPlayMode } from './modes/play/playMode.js';
@@ -34,23 +33,15 @@ function renderAll() {
 }
 
 on('mode:changed', renderAll);
-on('components:changed', () => {
-  renderAll();
-  saveToLocalStorage(getComponents());
-});
+on('components:changed', renderAll);
 
-const persisted = loadFromLocalStorage();
-if (persisted?.components) {
-  loadComponents(persisted.components);
-} else {
-  const defaultComponent = createComponent({
-    type: 'cuadro-texto',
-    properties: {
-      contenido: 'Hola, esta es una mesa de juego infinita.',
-      tamañoFuente: 18,
-      colorTexto: '#000000',
-      colorFondo: '',
-    },
-  });
-  addComponent(defaultComponent);
-}
+const defaultComponent = createComponent({
+  type: 'cuadro-texto',
+  properties: {
+    contenido: 'Hola, esta es una mesa de juego infinita.',
+    tamañoFuente: 18,
+    colorTexto: '#000000',
+    colorFondo: '',
+  },
+});
+addComponent(defaultComponent);
