@@ -1,7 +1,7 @@
 {
   "framework": {
     "sourcecodeDir": "src",
-    "changesDir": "src/_changes",
+    "changesDir": "_changes",
     "numberWidth": 5,
     "designDocPath": "design/docs/design_technical.md",
     "projectGraphPath": "src/_graph/graph.json",
