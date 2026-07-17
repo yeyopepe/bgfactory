@@ -64,7 +64,7 @@ Modelo genérico y extensible, pensado para no requerir cambios estructurales cu
 ## 6. Flujo de desarrollo y build
 
 - **Desarrollo**: se abre `src/index.html` (no es el entregable) con un servidor estático local — por ejemplo la extensión "Live Server" de VSCode — porque los módulos ES nativos (`<script type="module">`) no cargan correctamente vía `file://`. Este fichero referencia los módulos de `/src` directamente.
-- **Build**: `scripts/build.ps1` recorre el grafo de `import`/`export` a partir de `src/main.js`, transforma cada módulo a un pequeño sistema `require`/`module.exports` en tiempo de ejecución (sin depender de bundlers ni de Node.js), e inserta el resultado junto con el CSS de `src/styles/main.css` dentro de una copia de `src/index.html`. El resultado, un único fichero autocontenido, se escribe en `src/_output/index.html` — ese es el entregable portable.
+- **Build**: `scripts/build.py` recorre el grafo de `import`/`export` a partir de `src/main.js`, transforma cada módulo a un pequeño sistema `require`/`module.exports` en tiempo de ejecución (sin depender de bundlers ni de Node.js, solo de Python), e inserta el resultado junto con el CSS de `src/styles/main.css` dentro de una copia de `src/index.html`. El resultado, un único fichero autocontenido, se escribe en `src/_output/index.html` — ese es el entregable portable.
 
 ## 7. Convenciones de código
 

@@ -9,13 +9,13 @@
     "versionFilePath": "src/data/version.js",
     "versionVariable": "CURRENT_VERSION",
     "versionFormat": "v{xxxx}",
-    "buildCommand": "./src/scripts/build.ps1",
+    "buildCommand": "python ./src/scripts/build.py",
     "buildOutputPath": "src/_output/versions/index-{version}.html"
   },
   "project": {
     "name": "Errantes",
     "summary": "Prototipo digital jugable en navegador del juego de mesa Errantes",
-    "stack": ["JavaScript vanilla (ES modules)", "HTML/CSS", "PowerShell build script"],
+    "stack": ["JavaScript vanilla (ES modules)", "HTML/CSS", "Python build script"],
     "notes": "El entregable es un único HTML autocontenido por versión, generado sin Node.js"
   }
 }

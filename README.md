@@ -8,8 +8,8 @@ El código fuente está en `/src`, organizado en capas (`core`, `modes`, `ui`, `
 
 ## Generar el entregable
 
-```powershell
-./scripts/build.ps1
+```
+python ./scripts/build.py
 ```
 
 Genera un único fichero autocontenido en `src/_output/index.html`, que sí se puede abrir directamente con doble clic en cualquier navegador.
