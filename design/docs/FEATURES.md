@@ -36,7 +36,25 @@ Además, cuando un componente de tipo "cuadro de texto" está seleccionado (haci
 
 ### Componente "cuadro de texto"
 
-Primer tipo de componente concreto: un bloque de texto con contenido, tamaño de fuente, color de texto y color de fondo configurables (fondo transparente por defecto). Se precarga automáticamente una instancia al arrancar la app sin datos persistidos.
+Primer tipo de componente concreto: un bloque de texto con contenido, tamaño de fuente, color de texto y color de fondo configurables (fondo transparente por defecto). Se precarga automáticamente una instancia solo si no hay ningún estado guardado que recuperar (ni en el navegador ni embebido en el propio fichero) — ver [Persistencia y guardado](#persistencia-y-guardado).
 
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición.
 - **Código**: 00002.
+
+## Persistencia y guardado
+
+### Autoguardado en el navegador
+
+Cada alta, edición, movimiento, redimensionado o borrado de un componente se guarda automáticamente en `localStorage`, sin ninguna acción del usuario. Al reabrir la aplicación en el mismo navegador se recupera tal cual el último estado guardado; si nunca se ha guardado nada, arranca con la semilla embebida en el propio fichero (ver más abajo) o, en su defecto, con el componente de ejemplo. Si el estado guardado resulta corrupto o de una versión incompatible, se avisa brevemente y se arranca igualmente con ese mismo comportamiento de respaldo, sin bloquear la carga.
+
+El guardado es un único slot por navegador/perfil (no aislado por fichero): si se abren varias copias descargadas distintas en el mismo navegador, prevalece el último estado autoguardado sobre el contenido propio de la copia que se abra, salvo que sea la primera vez que se abre cualquier copia en ese navegador.
+
+- **Disponible en**: automático, en cualquier modo.
+- **Código**: 00011.
+
+### Guardar a fichero
+
+En modo edición, junto al botón de salir de ese modo (ambos alineados al extremo derecho de la barra), un botón "Guardar" descarga una copia autocontenida del HTML actual con el estado presente ya embebido, pidiendo el nombre de fichero (precargado con el del fichero abierto, editable). El fichero descargado, al abrirse, arranca directamente con ese contenido (salvo que el navegador ya tenga otro estado autoguardado, ver arriba).
+
+- **Disponible en**: modo edición.
+- **Código**: 00011.

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-17T17:25:17Z",
+  "generatedAt": "2026-07-17T17:38:09Z",
   "basePath": "src",
   "nodes": [
     {
@@ -22,6 +22,27 @@
         "on"
       ],
       "purpose": "Bus de eventos pub/sub simple (on/off/emit) usado para desacoplar el estado de la UI que se refresca ante sus cambios."
+    },
+    {
+      "id": "core/fileExport.js",
+      "type": "file",
+      "path": "core/fileExport.js",
+      "exports": [
+        "buildExportHtml",
+        "downloadHtml"
+      ],
+      "purpose": "Genera una copia autocontenida del HTML actual con el estado de componentes embebido en el marcador #initial-state, y dispara su descarga como fichero."
+    },
+    {
+      "id": "core/persistence.js",
+      "type": "file",
+      "path": "core/persistence.js",
+      "exports": [
+        "loadState",
+        "readSeedState",
+        "saveState"
+      ],
+      "purpose": "Autoguardado del estado de componentes en localStorage (un único slot por navegador) y lectura de la semilla de estado embebida en el propio documento (#initial-state), con validación de formato/versión."
     },
     {
       "id": "core/state.js",
@@ -52,7 +73,7 @@
       "id": "main.js",
       "type": "file",
       "path": "main.js",
-      "purpose": "Bootstrap de la app: crea el componente de ejemplo inicial, monta el selector de modo y renderiza el modo activo, refrescando ante mode:changed/components:changed."
+      "purpose": "Bootstrap de la app: al arrancar recupera el estado guardado en localStorage (o, en su defecto, la semilla embebida en el documento, o el componente de ejemplo), monta el selector de modo, engancha el autoguardado a components:changed y renderiza el modo activo, refrescando ante mode:changed/components:changed."
     },
     {
       "id": "modes/edit/editMode.js",
@@ -107,7 +128,7 @@
         "renderEditToolbar",
         "renderEnterEditButton"
       ],
-      "purpose": "Botones de entrada/salida de modo edición (mostrados según el modo activo) sin conocer los detalles internos de cada modo."
+      "purpose": "Botones de entrada/salida de modo edición (mostrados según el modo activo), y en modo edición además el de 'Guardar' que descarga una copia autocontenida del HTML con el estado actual embebido; ambos botones de modo edición alineados al extremo derecho de la barra."
     },
     {
       "id": "ui/resizeHandle.js",
@@ -126,6 +147,15 @@
         "createInfiniteTable"
       ],
       "purpose": "Mesa infinita agnóstica de componentes, con pan (arrastre) y zoom (rueda del ratón) puramente visuales."
+    },
+    {
+      "id": "ui/toast.js",
+      "type": "file",
+      "path": "ui/toast.js",
+      "exports": [
+        "showToast"
+      ],
+      "purpose": "Aviso breve no bloqueante (toast) reutilizable: crea/reutiliza un elemento fijo en el DOM y lo muestra unos segundos con el mensaje dado."
     },
     {
       "id": "core/component.js#createComponent",
@@ -161,6 +191,41 @@
       "path": "core/eventBus.js",
       "parent": "core/eventBus.js",
       "purpose": "Suscribe un handler a un evento y devuelve una función para desuscribirlo."
+    },
+    {
+      "id": "core/fileExport.js#buildExportHtml",
+      "type": "function",
+      "path": "core/fileExport.js",
+      "parent": "core/fileExport.js",
+      "purpose": "Clona el documento actual, sustituye el contenido de #initial-state por el estado dado serializado ({version, components}) y devuelve el HTML resultante como string."
+    },
+    {
+      "id": "core/fileExport.js#downloadHtml",
+      "type": "function",
+      "path": "core/fileExport.js",
+      "parent": "core/fileExport.js",
+      "purpose": "Crea un Blob de tipo text/html con el contenido dado y dispara su descarga con el nombre de fichero indicado."
+    },
+    {
+      "id": "core/persistence.js#loadState",
+      "type": "function",
+      "path": "core/persistence.js",
+      "parent": "core/persistence.js",
+      "purpose": "Lee y valida el estado guardado en localStorage; devuelve los componentes, null si no hay nada guardado, o {error:true} si está corrupto o es de una versión incompatible."
+    },
+    {
+      "id": "core/persistence.js#readSeedState",
+      "type": "function",
+      "path": "core/persistence.js",
+      "parent": "core/persistence.js",
+      "purpose": "Lee y valida el estado 'semilla' embebido en el elemento #initial-state del documento; devuelve los componentes o null si no hay semilla válida."
+    },
+    {
+      "id": "core/persistence.js#saveState",
+      "type": "function",
+      "path": "core/persistence.js",
+      "parent": "core/persistence.js",
+      "purpose": "Serializa los componentes dados junto con la versión actual y los guarda en localStorage, ignorando errores de escritura (p.ej. cuota excedida)."
     },
     {
       "id": "core/state.js#addComponent",
@@ -251,7 +316,7 @@
       "type": "function",
       "path": "ui/editModeToggle.js",
       "parent": "ui/editModeToggle.js",
-      "purpose": "Muestra (solo en modo edición) la barra con el botón para salir del modo edición."
+      "purpose": "Muestra (solo en modo edición) la barra, alineada al extremo derecho, con el botón para salir del modo edición y el botón 'Guardar' que descarga el HTML autocontenido con el estado actual."
     },
     {
       "id": "ui/editModeToggle.js#renderEnterEditButton",
@@ -273,6 +338,13 @@
       "path": "ui/table.js",
       "parent": "ui/table.js",
       "purpose": "Crea la superficie de mesa infinita con pan/zoom y devuelve sus elementos de viewport y mundo."
+    },
+    {
+      "id": "ui/toast.js#showToast",
+      "type": "function",
+      "path": "ui/toast.js",
+      "parent": "ui/toast.js",
+      "purpose": "Muestra el mensaje dado en el toast global durante unos segundos, reutilizando el mismo elemento si ya existía."
     }
   ],
   "edges": [
@@ -308,17 +380,32 @@
     },
     {
       "source": "main.js",
-      "target": "core/component.js#createComponent",
-      "relation": "calls"
-    },
-    {
-      "source": "main.js",
       "target": "core/eventBus.js#on",
       "relation": "calls"
     },
     {
       "source": "main.js",
-      "target": "core/state.js#addComponent",
+      "target": "core/persistence.js#loadState",
+      "relation": "calls"
+    },
+    {
+      "source": "main.js",
+      "target": "core/persistence.js#readSeedState",
+      "relation": "calls"
+    },
+    {
+      "source": "main.js",
+      "target": "core/persistence.js#saveState",
+      "relation": "calls"
+    },
+    {
+      "source": "main.js",
+      "target": "core/state.js#loadComponents",
+      "relation": "calls"
+    },
+    {
+      "source": "main.js",
+      "target": "ui/toast.js#showToast",
       "relation": "calls"
     },
     {
@@ -422,6 +509,16 @@
       "relation": "calls"
     },
     {
+      "source": "core/fileExport.js",
+      "target": "data/version.js",
+      "relation": "imports"
+    },
+    {
+      "source": "core/persistence.js",
+      "target": "data/version.js",
+      "relation": "imports"
+    },
+    {
       "source": "core/state.js",
       "target": "core/eventBus.js",
       "relation": "imports"
@@ -434,6 +531,11 @@
     {
       "source": "main.js",
       "target": "core/eventBus.js",
+      "relation": "imports"
+    },
+    {
+      "source": "main.js",
+      "target": "core/persistence.js",
       "relation": "imports"
     },
     {
@@ -459,6 +561,11 @@
     {
       "source": "main.js",
       "target": "ui/editModeToggle.js",
+      "relation": "imports"
+    },
+    {
+      "source": "main.js",
+      "target": "ui/toast.js",
       "relation": "imports"
     },
     {
@@ -528,7 +635,17 @@
     },
     {
       "source": "ui/editModeToggle.js",
+      "target": "core/fileExport.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/editModeToggle.js",
       "target": "core/state.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/editModeToggle.js",
+      "target": "ui/toast.js",
       "relation": "imports"
     }
   ]

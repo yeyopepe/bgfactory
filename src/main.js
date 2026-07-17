@@ -2,12 +2,14 @@
 // selector de modo y renderiza el modo activo, refrescando ante cualquier cambio.
 
 import { on } from './core/eventBus.js';
-import { MODES, getState, addComponent } from './core/state.js';
+import { MODES, getState, addComponent, loadComponents } from './core/state.js';
 import { CURRENT_VERSION } from './data/version.js';
 import { renderEnterEditButton, renderEditToolbar } from './ui/editModeToggle.js';
 import { renderPlayMode } from './modes/play/playMode.js';
 import { renderEditMode } from './modes/edit/editMode.js';
 import { createComponent } from './core/component.js';
+import { saveState, loadState, readSeedState } from './core/persistence.js';
+import { showToast } from './ui/toast.js';
 
 const switcherEl = document.getElementById('mode-switcher');
 const toolbarEl = document.getElementById('edit-toolbar');
@@ -34,14 +36,32 @@ function renderAll() {
 
 on('mode:changed', renderAll);
 on('components:changed', renderAll);
+on('components:changed', (components) => saveState(components));
 
-const defaultComponent = createComponent({
-  type: 'texto',
-  properties: {
-    contenido: 'Hola, esta es una mesa de juego infinita.',
-    tamañoFuente: 18,
-    colorTexto: '#000000',
-    colorFondo: '',
-  },
-});
-addComponent(defaultComponent);
+function seedDefaultComponent() {
+  const defaultComponent = createComponent({
+    type: 'texto',
+    properties: {
+      contenido: 'Hola, esta es una mesa de juego infinita.',
+      tamañoFuente: 18,
+      colorTexto: '#000000',
+      colorFondo: '',
+    },
+  });
+  addComponent(defaultComponent);
+}
+
+const saved = loadState();
+if (saved?.error) {
+  showToast('No se ha podido recuperar el estado guardado.');
+  seedDefaultComponent();
+} else if (saved) {
+  loadComponents(saved.components);
+} else {
+  const seed = readSeedState();
+  if (seed) {
+    loadComponents(seed.components);
+  } else {
+    seedDefaultComponent();
+  }
+}
