@@ -11,7 +11,7 @@ function getWorldZoom(worldEl) {
   return match ? parseFloat(match[1]) : 1;
 }
 
-export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize } = {}) {
+export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true } = {}) {
   worldEl.innerHTML = '';
 
   for (const component of components) {
@@ -52,7 +52,9 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         textBox.classList.add('text-box--selected');
       }
 
-      if (onMove) {
+      if (onMove && canMove(component)) {
+        textBox.classList.add('text-box--movable');
+
         let startMouseX = 0;
         let startMouseY = 0;
         let startX = component.x ?? 100;

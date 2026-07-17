@@ -62,9 +62,9 @@ Escala basada en `rem`, en pasos de `0.25rem`: `0.25rem`, `0.5rem`, `0.75rem`, `
 
 El proyecto sigue **BEM** (`bloque__elemento--modificador`). Reglas concretas:
 
-- Bloque en kebab-case: `.component-list`, `.modal`, `.infinite-table`, `.edit-mode-panel`.
-- Elemento con doble guion bajo: `.component-list__item`, `.modal__header`, `.modal__tabs`, `.modal__field`, `.infinite-table__world`.
-- Modificador con doble guion: `.text-box--selectable`.
+- Bloque en kebab-case: `.component-list`, `.modal`, `.infinite-table`, `.edit-mode-panel`, `.help-icon`.
+- Elemento con doble guion bajo: `.component-list__item`, `.modal__header`, `.modal__tabs`, `.modal__field`, `.infinite-table__world`, `.help-icon__tooltip`.
+- Modificador con doble guion: `.text-box--selectable`, `.text-box--movable`, `.modal__field--checkbox`.
 - Estados transitorios (no BEM, clases simples añadidas/quitadas por JS): `.grabbing`, `.active` — se usan tal cual, sin prefijo del bloque, y siempre junto a `classList.add/remove`, nunca reemplazando `className` entero.
 - Excepción histórica: `.btn-cancel` / `.btn-accept` / `.btn-eliminar` no siguen BEM (no son `algo__algo`). Si se añaden más variantes de botón standalone (no ligado a un bloque existente), usar el mismo patrón `.btn-<intención>` en vez de mezclar con BEM de otro bloque.
 - Cuando el botón sí pertenece a un bloque ya existente (p. ej. una fila de `.component-list`), no se usa la excepción `.btn-*`: se sigue BEM normal con un modificador, como `.component-list__action-btn--danger`.
@@ -123,7 +123,16 @@ Patrón estándar para hacer redimensionable cualquier elemento de la app (no ex
 - Cursor: `nwse-resize`, igual en todos los usos aunque el elemento solo redimensione un eje (mismo punto de arrastre visual reconocible en toda la app).
 - No introducir un segundo patrón de redimensionado (bordes laterales, esquinas múltiples, etc.) sin decidirlo explícitamente — reutilizar `ui/resizeHandle.js`.
 
-## 12. Qué NO hacer
+## 12. Icono de ayuda (tooltip / modal)
+
+Patrón estándar para ayuda contextual en cualquier punto de la app: `.help-icon`, círculo de 16px con "?" (implementado en `ui/helpIcon.js`, `createHelpIcon({ text, html })`).
+
+- Aspecto: círculo 16px, fondo `var(--text-muted)` (`var(--accent-blue)` en `:hover`), texto "?" en `var(--text-light)`, `font-size: 0.7rem`, `cursor: help` — sin sombra ni borde, coherente con el resto de la app (sección 6).
+- **Tooltip** (`.help-icon__tooltip`): para texto plano de menos de 200 caracteres. Aparece encima del icono al pasar el ratón (`:hover`), fondo `var(--bg-toolbar)`, texto `var(--text-light)`, mismo `box-shadow` que el modal (sección 6).
+- **Modal**: para texto de 200 caracteres o más, o con formato (HTML). Reutiliza el mismo patrón `.modal-overlay`/`.modal` ya documentado (no un patrón nuevo), con botón "Cerrar" (`.btn-cancel`). Usa el mismo `z-index: 1000` reservado para overlays de modal (sección 10) — no se introduce un nivel nuevo.
+- Cualquier ayuda contextual nueva en la app debe reutilizar `ui/helpIcon.js` en vez de crear un tooltip/modal ad-hoc.
+
+## 13. Qué NO hacer
 
 - No introducir un segundo sistema de tokens de color (Tailwind, otra paleta) — extender `:root` en `main.css`.
 - No mezclar `style="color:#..."` inline para colores del catálogo de la sección 2.

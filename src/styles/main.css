@@ -287,6 +287,17 @@ h1 {
   margin-top: 0.25rem;
 }
 
+.modal__field--checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal__field--checkbox label {
+  display: inline;
+  margin-bottom: 0;
+}
+
 .modal__footer {
   padding: 1rem;
   border-top: 1px solid #eee;
@@ -353,6 +364,55 @@ h1 {
 .text-box--selectable.text-box--selected {
   outline: 3px dashed var(--accent-blue);
   outline-offset: 4px;
+}
+
+.text-box--movable {
+  cursor: move;
+}
+
+/* Reusable help icon ("?"): tooltip for short plain text, modal for long/formatted text */
+.help-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  color: var(--text-light);
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: help;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.help-icon:hover {
+  background: var(--accent-blue);
+}
+
+.help-icon__tooltip {
+  display: none;
+  position: absolute;
+  bottom: 130%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 220px;
+  background: var(--bg-toolbar);
+  color: var(--text-light);
+  padding: 0.5rem 0.65rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.3;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  z-index: 10;
+}
+
+.help-icon:hover .help-icon__tooltip {
+  display: block;
 }
 
 /* Reusable corner resize-handle (standard resize pattern across the app) */

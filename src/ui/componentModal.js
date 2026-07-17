@@ -3,6 +3,7 @@
 
 import { getComponents } from '../core/state.js';
 import { createComponent, updateComponent } from '../core/component.js';
+import { createHelpIcon } from './helpIcon.js';
 
 export function openComponentModal({ component = null, onAccept, onDelete }) {
   const overlay = document.createElement('div');
@@ -81,6 +82,25 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   idField.appendChild(idInput);
   idField.appendChild(idError);
   generalContent.appendChild(idField);
+
+  const moveField = document.createElement('div');
+  moveField.className = 'modal__field modal__field--checkbox';
+  const moveCheckbox = document.createElement('input');
+  moveCheckbox.type = 'checkbox';
+  moveCheckbox.checked = workingComponent.moverEnModoJuego ?? false;
+  const moveLabel = document.createElement('label');
+  moveLabel.textContent = 'Mover en Modo Juego';
+
+  moveCheckbox.addEventListener('change', () => {
+    workingComponent.moverEnModoJuego = moveCheckbox.checked;
+  });
+
+  moveField.appendChild(moveCheckbox);
+  moveField.appendChild(moveLabel);
+  moveField.appendChild(createHelpIcon({
+    text: 'Permite arrastrar este componente por toda la mesa mientras se juega. Desactivado por defecto.',
+  }));
+  generalContent.appendChild(moveField);
 
   function validateId() {
     const newId = idInput.value.trim();
