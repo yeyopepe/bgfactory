@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Maqueta — Modo juego (mesa infinita)</title>
+<style>
+  :root {
+    --bg-table: #808080;
+    --bg-table-grid: #ffffff22;
+    --text-light: #e7ecf3;
+    --text-muted: #9aa8bd;
+    --accent-gray: #6b7280;
+    --accent-gray-hover: #545b66;
+    --card-bg: #f3f5f8;
+    --card-border: #d7dee8;
+    --card-text: #23303f;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--bg-table);
+    color: var(--text-light);
+  }
+
+  .table-surface {
+    position: relative;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle, var(--bg-table-grid) 1.5px, transparent 1.5px);
+    background-size: 32px 32px;
+    background-position: -8px -8px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 2rem 0.5rem;
+  }
+
+  .topbar h1 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text-light);
+  }
+
+  .enter-edit-btn {
+    background: var(--accent-gray);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1.1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .enter-edit-btn:hover {
+    background: var(--accent-gray-hover);
+  }
+
+  .panel {
+    margin: 1.5rem 2rem;
+    max-width: 360px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 1rem;
+    color: var(--card-text);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+
+  .panel h2 {
+    margin: 0 0 0.75rem;
+    font-size: 0.95rem;
+    color: #1c2836;
+  }
+
+  .component-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .component-list__item {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.85rem;
+  }
+
+  .component-list__item span.type {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    background: #eef2f7;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    margin-left: 0.5rem;
+  }
+
+  footer {
+    position: absolute;
+    bottom: 12px;
+    right: 16px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  .pan-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-align: center;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* Cuadro de texto de prueba, renderizado directamente sobre la mesa,
+     en posición fija (sin drag todavía). Color de texto negro y fondo
+     transparente son los valores por defecto de este tipo de componente. */
+  .text-box-component {
+    position: absolute;
+    top: 46%;
+    left: 55%;
+    color: #000000;
+    background: transparent;
+    max-width: 280px;
+    line-height: 1.3;
+  }
+</style>
+</head>
+<body>
+  <div class="table-surface">
+    <div class="topbar">
+      <h1>Errantes</h1>
+      <button class="enter-edit-btn">Entrar en modo edición</button>
+    </div>
+
+    <div class="pan-hint">✥ Mesa infinita — arrastra o desplázate para explorar</div>
+
+    <!-- Único componente de prueba: se dibuja tal cual sobre la mesa, sin tarjeta ni borde -->
+    <div class="text-box-component" style="font-size: 28px;">
+      Errantes
+    </div>
+
+    <div class="panel">
+      <h2>Componentes de la partida</h2>
+      <ul class="component-list">
+        <li class="component-list__item">
+          Cuadro de texto "Errantes" <span class="type">cuadro de texto</span>
+        </li>
+      </ul>
+    </div>
+
+    <footer>v0.0.0</footer>
+  </div>
+</body>
+</html>

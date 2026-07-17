@@ -5,15 +5,23 @@ body {
   padding: 0 1rem;
 }
 
-.mode-switcher {
-  display: flex;
-  gap: 0.5rem;
+#mode-switcher {
   margin-bottom: 1.5rem;
 }
 
-.mode-switcher__button.is-active {
-  font-weight: bold;
-  text-decoration: underline;
+.edit-toolbar {
+  width: 100%;
+  position: sticky;
+  top: 0;
+  background: #2c3e50;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1.5rem;
+  box-sizing: border-box;
+}
+
+.edit-toolbar button {
+  color: inherit;
 }
 
 .component-list {

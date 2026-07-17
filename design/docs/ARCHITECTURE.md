@@ -36,7 +36,7 @@ Comunicación entre capas: el estado (`core/state.js`) es la única fuente de ve
 
 Ambos modos **comparten el mismo modelo de datos**: la lista de componentes en `core/state.js`. No hay dos modelos distintos para "editar" y "jugar" — el modo edición crea/modifica componentes con `core/component.js`, y el modo juego lee esos mismos componentes para mostrarlos/usarlos en la partida.
 
-- `ui/modeSwitcher.js` permite alternar el modo activo (`core/state.js` guarda `mode: 'play' | 'edit'`).
+- `ui/editModeToggle.js` implementa un flujo de entrar/salir (no un selector de dos opciones) sobre `core/state.js` (`mode: 'play' | 'edit'`), con dos funciones: `renderEnterEditButton`, que en modo juego muestra el botón "Entrar en modo edición"; y `renderEditToolbar`, que en modo edición muestra una franja fija en la parte superior con el botón "Salir del modo edición". Ambas operan siempre sobre `setMode()` / evento `mode:changed` de `core/state.js`, sin cambios en esa capa.
 - Al cambiar de modo se emite `mode:changed`, y `main.js` vuelve a renderizar la pantalla activa (`modes/play/playMode.js` o `modes/edit/editMode.js`).
 - Cualquier alta/edición/borrado de un componente en modo edición emite `components:changed`; esto dispara tanto el refresco de la UI como el autoguardado en `localStorage`. Así, lo creado en modo edición está disponible inmediatamente en modo juego sin pasos adicionales.
 

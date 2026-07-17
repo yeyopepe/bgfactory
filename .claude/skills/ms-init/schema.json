@@ -49,7 +49,7 @@
         },
         "sourcecodeDir": {
           "type": "string",
-          "description": "OPCIONAL. Carpeta raiz del codigo fuente del proyecto (relativa a la raiz del repo). La usa ms-implement como contexto de respaldo al analizar un cambio/fix y escribir su plan.md, solo cuando ni designDocPath ni projectGraphPath existen como ficheros reales en el repo.",
+          "description": "OPCIONAL. Carpeta raiz del codigo fuente del proyecto (relativa a la raiz del repo). La usa ms-implement como contexto de respaldo al analizar un cambio/fix y escribir su plan.md, solo cuando ni architectureDocPath ni projectGraphPath existen como ficheros reales en el repo.",
           "examples": ["src", "app"]
         },
         "numberWidth": {
@@ -59,10 +59,15 @@
           "description": "OPCIONAL (por defecto 4). Numero de digitos del codigo secuencial 'xxxx', con ceros a la izquierda. No hace falta preguntarlo al usuario salvo que quiera algo distinto del default.",
           "examples": [4]
         },
-        "designDocPath": {
+        "architectureDocPath": {
           "type": "string",
-          "description": "OPCIONAL. Documento de arquitectura/diseno tecnico (relativo a la raiz del repo) que ms-workflow mantiene sincronizado cuando un cambio/fix modifica la arquitectura basica del proyecto. Si no esta configurado, ese paso se omite sin preguntar nada.",
+          "description": "OPCIONAL. Documento de arquitectura/diseno tecnico (relativo a la raiz del repo) que ms-implement mantiene sincronizado tras implementar cada cambio/fix. Si no esta configurado, ese paso se omite sin preguntar nada.",
           "examples": ["design/docs/design_technical.md"]
+        },
+        "featuresDocPath": {
+          "type": "string",
+          "description": "OPCIONAL. Documento con el listado de funcionalidades ya implementadas en el proyecto (relativo a la raiz del repo). ms-implement anade o actualiza ahi la entrada correspondiente cada vez que implementa un cambio/fix, creando el fichero si todavia no existe. Si no esta configurado, ese paso se omite sin preguntar nada.",
+          "examples": ["design/docs/FEATURES.md"]
         },
         "projectGraphPath": {
           "type": "string",
@@ -120,7 +125,8 @@
       "framework": {
         "changesDir": "src/_changes",
         "numberWidth": 4,
-        "designDocPath": "design/docs/design_technical.md",
+        "architectureDocPath": "design/docs/design_technical.md",
+        "featuresDocPath": "design/docs/FEATURES.md",
         "projectGraphPath": "graphify-out/graph.json",
         "sourcecodeDir": "src",
         "versioning": true,

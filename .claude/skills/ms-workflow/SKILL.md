@@ -1,10 +1,10 @@
 ---
 name: ms-workflow
-description: Proceso compartido, agnóstico al proyecto, con dos acciones internas del framework ms-*: (1) crear una entrada nueva en {changesDir}/inProgress documentando la intención de un fix o change, y (2) mover una entrada existente entre los subestados del flujo (inProgress/implemented/closed) cuando otra skill del framework produce esa transición. Uso interno de las skills ms-new, ms-fix, ms-implement, ms-close y ms-revert.
+description: Proceso compartido, agnóstico al proyecto, con dos acciones internas del framework ms-*: (1) crear una entrada nueva en {changesDir}/inProgress documentando la intención de un fix o change, y (2) mover una entrada existente entre los subestados del flujo (inProgress/implemented/closed) cuando otra skill del framework produce esa transición. Uso interno de las skills ms-new, ms-fix, ms-implement y ms-close.
 user-invocable: false
 disable-model-invocation: true
 metadata:
-  version: 2.0.0
+  version: 2.0.1
 ---
 
 # ms-workflow
@@ -14,15 +14,15 @@ Proceso genérico y único punto donde el framework `ms-*` sabe crear y mover la
 Tiene dos acciones independientes, cada una invocada con un parámetro `action`:
 
 - **`action=create`** — la invocan `ms-new` y `ms-fix`, con `type` (`change`/`fix`) y la descripción de lo que se pide. Dimensiona el alcance funcional y crea la entrada en `{changesDir}/inProgress/`.
-- **`action=move`** — la invocan `ms-implement`, `ms-close` y `ms-revert`, con `xxxx`, `from` y `to` (nombres de subcarpeta de `{changesDir}`: `inProgress`, `implemented` o `closed`). Mueve la carpeta `{xxxx}` entre esos subestados.
+- **`action=move`** — la invocan `ms-implement` y `ms-close`, con `xxxx`, `from` y `to` (nombres de subcarpeta de `{changesDir}`: `inProgress`, `implemented` o `closed`). Mueve la carpeta `{xxxx}` entre esos subestados.
 
 Ninguna de las dos acciones implementa ni analiza técnicamente nada, ni decide **si** debe producirse la transición o confirmación con el usuario — eso ya lo ha resuelto la skill llamante antes de invocar `ms-workflow`. Esta skill solo ejecuta la mecánica de fichero (numerar+crear, o mover) de forma consistente en un único sitio.
 
 ## Guardarraíl de invocación — leer antes que nada
 
-Esta skill **no se ejecuta si se ha invocado directamente** (p.ej. el usuario ha escrito `/ms-workflow`, o ha pedido "ejecuta/invoca ms-workflow" en texto plano). Solo debe ejecutarse cuando el propio contenido de `ms-new`, `ms-fix`, `ms-implement`, `ms-close` o `ms-revert` te ha instruido a invocarla como parte de su proceso, con la `action` y los parámetros correspondientes ya resueltos por esa skill.
+Esta skill **no se ejecuta si se ha invocado directamente** (p.ej. el usuario ha escrito `/ms-workflow`, o ha pedido "ejecuta/invoca ms-workflow" en texto plano). Solo debe ejecutarse cuando el propio contenido de `ms-new`, `ms-fix`, `ms-implement` o `ms-close` te ha instruido a invocarla como parte de su proceso, con la `action` y los parámetros correspondientes ya resueltos por esa skill.
 
-Si te han invocado sin ese contexto (el usuario ha tecleado el comando directamente, o no venías de ninguna de esas cinco skills), **detente aquí** y dile al usuario que `ms-workflow` es de uso interno del framework: para documentar, implementar, cerrar o revertir un cambio/fix debe usar la skill correspondiente. No hagas nada más en ese caso.
+Si te han invocado sin ese contexto (el usuario ha tecleado el comando directamente, o no venías de ninguna de esas cuatro skills), **detente aquí** y dile al usuario que `ms-workflow` es de uso interno del framework: para documentar, implementar o cerrar un cambio/fix debe usar la skill correspondiente. No hagas nada más en ese caso.
 
 ## 0. Cargar el contexto del proyecto
 
@@ -75,7 +75,7 @@ Indica el fichero creado (`{changesDir}/inProgress/{xxxx}/description.md`) y el 
 
 ## Acción `move`
 
-Recibida con `xxxx`, `from` y `to` ya resueltos por quien invoca (`ms-implement`: `inProgress`→`implemented`; `ms-close`: `implemented`→`closed`; `ms-revert`: `implemented`|`closed`→`inProgress`).
+Recibida con `xxxx`, `from` y `to` ya resueltos por quien invoca (`ms-implement`: `inProgress`→`implemented`; `ms-close`: `implemented`→`closed`).
 
 La mecánica de fichero (comprobar origen, crear destino si falta, mover) la hace de forma determinista y gratis en tokens el script [`scripts/move-change.py`](scripts/move-change.py) (Python estándar, sin dependencias externas) — no la reimplementes a mano. Ejecuta desde la raíz del repo:
 

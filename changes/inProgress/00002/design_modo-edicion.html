@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Maqueta — Modo edición (mesa infinita)</title>
+<style>
+  :root {
+    --bg-table: #808080;
+    --bg-table-grid: #ffffff22;
+    --bg-toolbar: #333333;
+    --border-toolbar: #4a4a4a;
+    --text-light: #e7ecf3;
+    --text-muted: #9aa8bd;
+    --accent-blue: #4f8ef7;
+    --accent-blue-hover: #3f79dd;
+    --card-bg: #f3f5f8;
+    --card-border: #d7dee8;
+    --card-text: #23303f;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--bg-table);
+    color: var(--text-light);
+  }
+
+  /* Superficie de la mesa infinita: patrón de puntos repetido a modo de fondo sin límites */
+  .table-surface {
+    position: relative;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(circle, var(--bg-table-grid) 1.5px, transparent 1.5px);
+    background-size: 32px 32px;
+    background-position: -8px -8px;
+    padding-top: 64px; /* deja hueco para la barra fija */
+  }
+
+  /* Barra de modo edición: fija, a todo el ancho real de la pantalla */
+  .edit-toolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 56px;
+    background: var(--bg-toolbar);
+    border-bottom: 1px solid var(--border-toolbar);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    z-index: 10;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+  }
+
+  .edit-toolbar__title {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .edit-toolbar__title .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    box-shadow: 0 0 8px var(--accent-blue);
+  }
+
+  .edit-toolbar__hint {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .edit-toolbar button {
+    background: transparent;
+    border: 1px solid var(--border-toolbar);
+    color: var(--text-light);
+    padding: 0.45rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .edit-toolbar button:hover {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+  }
+
+  /* Panel flotante con el listado de componentes y el formulario, sobre la mesa */
+  .panel {
+    position: absolute;
+    top: 88px;
+    left: 24px;
+    width: 320px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 1rem;
+    color: var(--card-text);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+
+  .panel h2 {
+    margin: 0 0 0.75rem;
+    font-size: 0.95rem;
+    color: #1c2836;
+  }
+
+  .component-list {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .component-list__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border: 1px solid var(--card-border);
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .component-list__item span.type {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    background: #eef2f7;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    margin-left: 0.4rem;
+  }
+
+  .component-list__actions button {
+    border: none;
+    background: none;
+    color: var(--accent-blue);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 0.15rem 0.3rem;
+  }
+
+  .component-list__actions button.danger {
+    color: #d9534f;
+  }
+
+  .add-component-btn {
+    width: 100%;
+    background: var(--accent-blue);
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1.1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .add-component-btn:hover {
+    background: var(--accent-blue-hover);
+  }
+
+  /* Indicador decorativo de pan/zoom, solo ilustrativo */
+  .zoom-indicator {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-toolbar);
+    border: 1px solid var(--border-toolbar);
+    border-radius: 8px;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .zoom-indicator button {
+    background: none;
+    border: 1px solid var(--border-toolbar);
+    color: var(--text-light);
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .pan-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-align: center;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <div class="table-surface">
+    <div class="edit-toolbar">
+      <div class="edit-toolbar__title">
+        <span class="dot"></span>
+        Modo edición
+        <span class="edit-toolbar__hint">— arrastra para mover la mesa, rueda para zoom</span>
+      </div>
+      <button>Salir del modo edición</button>
+    </div>
+
+    <div class="pan-hint">✥ Mesa infinita — arrastra o desplázate para explorar</div>
+
+    <div class="panel">
+      <h2>Componentes</h2>
+      <ul class="component-list">
+        <li class="component-list__item">
+          Carta "Errante del Norte" <span class="type">carta</span>
+          <span class="component-list__actions">
+            <button>Editar</button>
+            <button class="danger">Eliminar</button>
+          </span>
+        </li>
+        <li class="component-list__item">
+          Token de progreso <span class="type">token</span>
+          <span class="component-list__actions">
+            <button>Editar</button>
+            <button class="danger">Eliminar</button>
+          </span>
+        </li>
+      </ul>
+      <button class="add-component-btn">+ Añadir componente</button>
+    </div>
+
+    <div class="zoom-indicator">
+      <button>−</button>
+      100%
+      <button>+</button>
+    </div>
+  </div>
+</body>
+</html>

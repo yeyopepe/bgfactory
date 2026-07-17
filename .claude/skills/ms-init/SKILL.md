@@ -2,7 +2,7 @@
 name: ms-init
 description: Inicializa el framework ms-* (change/fix/version/workflow) en el proyecto actual, generando .claude/ms-context.json con la configuración necesaria (rutas de carpetas/ficheros del proceso de tracking de cambios y versionado, más una sección libre con info del proyecto). Trigger: /ms-init, o cuando cualquier otra skill ms-* necesita .claude/ms-context.json y no existe (o le faltan campos), o cuando el usuario pide "montar"/"configurar" este framework en un proyecto nuevo.
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # ms-init
@@ -52,6 +52,7 @@ Antes de preguntar en blanco, mira el repo para proponer valores por defecto raz
 
 - Carpeta de cambios existente: `_changes`, `changes`, `CHANGELOG*`.
 - Documento de arquitectura/diseño: algo bajo `docs/`, `design/`, o un `ARCHITECTURE.md`.
+- Documento de listado de funcionalidades: algo bajo `docs/`, `design/`, o un `FEATURES.md`.
 - Grafo de conocimiento del proyecto: `graphify-out/graph.json` (generado por la skill `graphify`) u otro fichero de grafo si el usuario lo indica.
 - Carpeta raíz del código fuente: `src`, `app`, `lib`, o la que tenga más peso en el repo.
 - Fichero de versión: `version.js`, `version.py`, `VERSION`, el campo `version` de `package.json`, etc.
@@ -65,9 +66,10 @@ Usa `AskUserQuestion` cuando sea una decisión cerrada (p.ej. confirmar una ruta
 Campos a resolver — sección `framework`:
 - `changesDir` (obligatorio).
 - `numberWidth` (opcional, por defecto `4`, no hace falta preguntar salvo que el usuario quiera algo distinto).
-- `designDocPath` (opcional — pregunta si existe un doc de arquitectura a mantener sincronizado; si no, se omite).
+- `architectureDocPath` (opcional — pregunta si existe un doc de arquitectura a mantener sincronizado; si no, se omite).
+- `featuresDocPath` (opcional — pregunta si quiere que `ms-implement` mantenga un listado de funcionalidades implementadas, y en qué ruta; si no, se omite. Se crea vacío la primera vez que `ms-implement` lo necesite).
 - `projectGraphPath` (opcional — si detectas `graphify-out/graph.json` u otro grafo generado, propónlo; si no hay ninguno y el usuario no quiere generarlo ahora, se omite. Lo usa `ms-implement` como contexto).
-- `sourcecodeDir` (opcional — propón la carpeta raíz del código fuente detectada; `ms-implement` la usa como contexto de respaldo cuando no hay `designDocPath` ni `projectGraphPath`).
+- `sourcecodeDir` (opcional — propón la carpeta raíz del código fuente detectada; `ms-implement` la usa como contexto de respaldo cuando no hay `architectureDocPath` ni `projectGraphPath`).
 - `versioning` (obligatorio, booleano) — pregunta primero si el proyecto genera versiones/entregables versionados. Si la respuesta es no, fija `versioning: false` y omite por completo el resto del grupo de versión. Si es sí, fija `versioning: true` y pregunta el grupo de versión — `versionFilePath`, `versionVariable`, `versionFormat`, `buildCommand`, `buildOutputPath` — completo.
 
 Sección `project`: pregunta al usuario qué quiere dejar anotado sobre el proyecto (nombre, resumen, stack, convenciones relevantes para redactar documentación...). Es libre — si el usuario no quiere anotar nada, se deja `{}`.

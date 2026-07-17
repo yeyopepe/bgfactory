@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-17T10:03:50Z",
+  "generatedAt": "2026-07-17T12:25:59Z",
   "basePath": "src",
   "nodes": [
     {
@@ -10,7 +10,7 @@
         "createComponent",
         "updateComponent"
       ],
-      "purpose": "Modelo genérico de componente de juego; expone la única vía para crear y actualizar componentes sin que cada capa maneje la forma del objeto directamente."
+      "purpose": "Modelo genérico de componente de juego (carta, token, tablero...): construcción y actualización inmutable."
     },
     {
       "id": "core/eventBus.js",
@@ -21,7 +21,7 @@
         "off",
         "on"
       ],
-      "purpose": "Bus de eventos simple (pub/sub) para desacoplar capas: permite emitir y escuchar eventos sin acoplar módulos entre sí."
+      "purpose": "Bus de eventos simple (pub/sub) usado para desacoplar capas ante cambios de estado."
     },
     {
       "id": "core/state.js",
@@ -37,7 +37,7 @@
         "replaceComponent",
         "setMode"
       ],
-      "purpose": "Fuente única de verdad del estado de la aplicación (modo activo y lista de componentes); notifica cualquier cambio vía eventBus."
+      "purpose": "Estado central de la aplicación (modo activo y biblioteca de componentes); toda mutación emite un evento para que la UI se refresque."
     },
     {
       "id": "data/persistence.js",
@@ -49,7 +49,7 @@
         "loadFromLocalStorage",
         "saveToLocalStorage"
       ],
-      "purpose": "Persistencia del estado: autoguardado en localStorage y exportación/importación manual como fichero JSON."
+      "purpose": "Persistencia del estado: autoguardado/lectura en localStorage y exportar/importar la lista de componentes como fichero JSON."
     },
     {
       "id": "data/version.js",
@@ -58,13 +58,13 @@
       "exports": [
         "CURRENT_VERSION"
       ],
-      "purpose": "Fuente única de la versión actual del prototipo, actualizada manualmente al generar una nueva versión del entregable."
+      "purpose": "Fuente única de la versión actual del prototipo, actualizada manualmente al generar una nueva versión."
     },
     {
       "id": "main.js",
       "type": "file",
       "path": "main.js",
-      "purpose": "Bootstrap de la aplicación: carga el estado persistido, monta el selector de modo y el modo activo, y conecta todas las capas entre sí."
+      "purpose": "Bootstrap de la aplicación: carga el estado persistido, monta el botón de entrada/salida de modo edición y su barra de herramientas, y renderiza el modo activo, refrescando ante cualquier cambio."
     },
     {
       "id": "modes/edit/editMode.js",
@@ -73,7 +73,7 @@
       "exports": [
         "renderEditMode"
       ],
-      "purpose": "Modo edición: alta, edición y borrado de componentes de juego mediante un formulario genérico."
+      "purpose": "Modo edición: por ahora solo muestra un placeholder, sin formulario ni listado editable (funcionalidad retirada, pendiente de reintroducirse en un cambio futuro)."
     },
     {
       "id": "modes/play/playMode.js",
@@ -82,7 +82,7 @@
       "exports": [
         "renderPlayMode"
       ],
-      "purpose": "Modo juego: muestra los componentes disponibles durante la partida."
+      "purpose": "Modo juego: muestra en modo de solo lectura los componentes disponibles de la partida."
     },
     {
       "id": "ui/componentList.js",
@@ -91,156 +91,164 @@
       "exports": [
         "renderComponentList"
       ],
-      "purpose": "Listado de componentes reutilizable entre modo juego (solo lectura) y modo edición (con acciones de editar/eliminar)."
+      "purpose": "Listado de componentes reutilizable, en modo lectura (modo juego) o con acciones de edición/borrado (cuando se le pasan los callbacks correspondientes)."
     },
     {
-      "id": "ui/modeSwitcher.js",
+      "id": "ui/editModeToggle.js",
       "type": "file",
-      "path": "ui/modeSwitcher.js",
+      "path": "ui/editModeToggle.js",
       "exports": [
-        "renderModeSwitcher"
+        "renderEditToolbar",
+        "renderEnterEditButton"
       ],
-      "purpose": "UI reutilizable para alternar entre modo juego y modo edición."
+      "purpose": "UI para entrar/salir del modo edición: botón de entrada visible en modo juego, y barra de herramientas propia con botón de salida visible en modo edición."
     },
     {
       "id": "core/component.js#createComponent",
       "type": "function",
       "path": "core/component.js",
       "parent": "core/component.js",
-      "purpose": "Construye un nuevo componente (id generado, tipo/nombre/propiedades/imagen) a partir de los datos dados."
+      "purpose": "Crea un nuevo componente con id generado, tipo/nombre/propiedades/imagen por defecto."
     },
     {
       "id": "core/component.js#updateComponent",
       "type": "function",
       "path": "core/component.js",
       "parent": "core/component.js",
-      "purpose": "Devuelve una copia de un componente con los cambios aplicados, fusionando properties en vez de sobrescribirla."
+      "purpose": "Devuelve una copia del componente con los cambios (y propiedades) fusionados, sin mutar el original."
     },
     {
       "id": "core/eventBus.js#emit",
       "type": "function",
       "path": "core/eventBus.js",
       "parent": "core/eventBus.js",
-      "purpose": "Invoca todos los handlers registrados para un evento con el payload dado."
+      "purpose": "Invoca a todos los handlers suscritos a un evento con el payload dado."
     },
     {
       "id": "core/eventBus.js#off",
       "type": "function",
       "path": "core/eventBus.js",
       "parent": "core/eventBus.js",
-      "purpose": "Elimina un handler previamente registrado para un evento."
+      "purpose": "Da de baja un handler previamente suscrito a un evento."
     },
     {
       "id": "core/eventBus.js#on",
       "type": "function",
       "path": "core/eventBus.js",
       "parent": "core/eventBus.js",
-      "purpose": "Registra un handler para un evento y devuelve una función para desuscribirlo."
+      "purpose": "Suscribe un handler a un evento y devuelve una función para darlo de baja."
     },
     {
       "id": "core/state.js#addComponent",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Añade un componente a la lista y emite components:changed."
+      "purpose": "Añade un componente a la lista del estado y emite el evento de cambio de componentes."
     },
     {
       "id": "core/state.js#getComponents",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Devuelve la lista actual de componentes."
+      "purpose": "Devuelve la lista actual de componentes del estado."
     },
     {
       "id": "core/state.js#getState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Devuelve el objeto de estado completo (modo activo + componentes)."
+      "purpose": "Devuelve el objeto de estado central completo."
     },
     {
       "id": "core/state.js#loadComponents",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Reemplaza toda la lista de componentes (p.ej. al cargar desde persistencia) y emite components:changed."
+      "purpose": "Reemplaza la lista completa de componentes del estado (usado al cargar datos persistidos) y emite el evento de cambio."
     },
     {
       "id": "core/state.js#removeComponent",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Elimina un componente por id y emite components:changed."
+      "purpose": "Elimina del estado el componente con el id dado y emite el evento de cambio."
     },
     {
       "id": "core/state.js#replaceComponent",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Sustituye un componente existente por id y emite components:changed."
+      "purpose": "Sustituye en el estado el componente con el id dado por una versión actualizada y emite el evento de cambio."
     },
     {
       "id": "core/state.js#setMode",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Cambia el modo activo (juego/edición) y emite mode:changed."
+      "purpose": "Cambia el modo activo (juego/edición) del estado y emite el evento de cambio de modo."
     },
     {
       "id": "data/persistence.js#exportToJsonFile",
       "type": "function",
       "path": "data/persistence.js",
       "parent": "data/persistence.js",
-      "purpose": "Descarga la lista de componentes como fichero .json para copia de seguridad o compartir entre máquinas."
+      "purpose": "Genera y descarga un fichero JSON con la lista de componentes dada."
     },
     {
       "id": "data/persistence.js#importFromJsonFile",
       "type": "function",
       "path": "data/persistence.js",
       "parent": "data/persistence.js",
-      "purpose": "Lee un fichero .json exportado previamente y devuelve su lista de componentes."
+      "purpose": "Lee un fichero JSON seleccionado por el usuario y devuelve la lista de componentes que contiene."
     },
     {
       "id": "data/persistence.js#loadFromLocalStorage",
       "type": "function",
       "path": "data/persistence.js",
       "parent": "data/persistence.js",
-      "purpose": "Recupera el estado guardado en localStorage, o null si no hay nada o no es válido."
+      "purpose": "Lee y parsea el estado persistido en localStorage, devolviendo null si no hay nada o es inválido."
     },
     {
       "id": "data/persistence.js#saveToLocalStorage",
       "type": "function",
       "path": "data/persistence.js",
       "parent": "data/persistence.js",
-      "purpose": "Guarda la lista de componentes en localStorage."
+      "purpose": "Guarda la lista de componentes actual en localStorage."
     },
     {
       "id": "modes/edit/editMode.js#renderEditMode",
       "type": "function",
       "path": "modes/edit/editMode.js",
       "parent": "modes/edit/editMode.js",
-      "purpose": "Pinta el formulario de alta/edición y el listado de componentes con acciones de editar/eliminar."
+      "purpose": "Renderiza el contenido del modo edición: por ahora, únicamente un mensaje de placeholder."
     },
     {
       "id": "modes/play/playMode.js#renderPlayMode",
       "type": "function",
       "path": "modes/play/playMode.js",
       "parent": "modes/play/playMode.js",
-      "purpose": "Pinta la pantalla de partida con el listado de componentes actual (solo lectura)."
+      "purpose": "Renderiza el contenido del modo juego: título de partida y el listado de componentes en solo lectura."
     },
     {
       "id": "ui/componentList.js#renderComponentList",
       "type": "function",
       "path": "ui/componentList.js",
       "parent": "ui/componentList.js",
-      "purpose": "Pinta la lista de componentes dada, con botones opcionales de editar/eliminar según los callbacks recibidos."
+      "purpose": "Renderiza la lista de componentes dada, con botones de editar/eliminar opcionales según los callbacks recibidos."
     },
     {
-      "id": "ui/modeSwitcher.js#renderModeSwitcher",
+      "id": "ui/editModeToggle.js#renderEditToolbar",
       "type": "function",
-      "path": "ui/modeSwitcher.js",
-      "parent": "ui/modeSwitcher.js",
-      "purpose": "Pinta los botones de cambio de modo y engancha el cambio de modo activo al hacer click."
+      "path": "ui/editModeToggle.js",
+      "parent": "ui/editModeToggle.js",
+      "purpose": "Renderiza (o vacía) la franja de herramientas del modo edición con el botón de salida, según el modo activo."
+    },
+    {
+      "id": "ui/editModeToggle.js#renderEnterEditButton",
+      "type": "function",
+      "path": "ui/editModeToggle.js",
+      "parent": "ui/editModeToggle.js",
+      "purpose": "Renderiza (o vacía) el botón de entrada al modo edición, según el modo activo."
     }
   ],
   "edges": [
@@ -300,21 +308,6 @@
       "relation": "calls"
     },
     {
-      "source": "modes/edit/editMode.js#renderEditMode",
-      "target": "core/state.js#getComponents",
-      "relation": "calls"
-    },
-    {
-      "source": "modes/edit/editMode.js#renderEditMode",
-      "target": "core/state.js#removeComponent",
-      "relation": "calls"
-    },
-    {
-      "source": "modes/edit/editMode.js#renderEditMode",
-      "target": "ui/componentList.js#renderComponentList",
-      "relation": "calls"
-    },
-    {
       "source": "modes/play/playMode.js#renderPlayMode",
       "target": "core/state.js#getComponents",
       "relation": "calls"
@@ -325,12 +318,22 @@
       "relation": "calls"
     },
     {
-      "source": "ui/modeSwitcher.js#renderModeSwitcher",
+      "source": "ui/editModeToggle.js#renderEditToolbar",
       "target": "core/state.js#getState",
       "relation": "calls"
     },
     {
-      "source": "ui/modeSwitcher.js#renderModeSwitcher",
+      "source": "ui/editModeToggle.js#renderEditToolbar",
+      "target": "core/state.js#setMode",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/editModeToggle.js#renderEnterEditButton",
+      "target": "core/state.js#getState",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/editModeToggle.js#renderEnterEditButton",
       "target": "core/state.js#setMode",
       "relation": "calls"
     },
@@ -371,22 +374,7 @@
     },
     {
       "source": "main.js",
-      "target": "ui/modeSwitcher.js",
-      "relation": "imports"
-    },
-    {
-      "source": "modes/edit/editMode.js",
-      "target": "core/component.js",
-      "relation": "imports"
-    },
-    {
-      "source": "modes/edit/editMode.js",
-      "target": "core/state.js",
-      "relation": "imports"
-    },
-    {
-      "source": "modes/edit/editMode.js",
-      "target": "ui/componentList.js",
+      "target": "ui/editModeToggle.js",
       "relation": "imports"
     },
     {
@@ -400,7 +388,7 @@
       "relation": "imports"
     },
     {
-      "source": "ui/modeSwitcher.js",
+      "source": "ui/editModeToggle.js",
       "target": "core/state.js",
       "relation": "imports"
     }

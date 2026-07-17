@@ -1,9 +1,10 @@
 {
   "framework": {
     "sourcecodeDir": "src",
-    "changesDir": "_changes",
+    "changesDir": "changes",
     "numberWidth": 5,
-    "designDocPath": "design/docs/design_technical.md",
+    "architectureDocPath": "design/docs/ARCHITECTURE.md",
+    "featuresDocPath":  "design/docs/FEATURES.md",
     "projectGraphPath": "src/_graph/graph.json",
     "versioning": true,
     "versionFilePath": "src/data/version.js",

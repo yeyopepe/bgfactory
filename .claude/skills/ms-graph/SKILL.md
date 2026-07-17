@@ -41,7 +41,7 @@ Si el proyecto no es JS/TS (el script solo entiende sintaxis de módulos ES: `im
 
 ## 2. Escribir los `purpose`
 
-1. Si `.claude/ms-context.json` tiene `framework.designDocPath` y ese fichero existe, léelo primero como contexto general de arquitectura (capas, dirección de dependencias) — ayuda a escribir descripciones coherentes con lo ya documentado.
+1. Si `.claude/ms-context.json` tiene `framework.architectureDocPath` y ese fichero existe, léelo primero como contexto general de arquitectura (capas, dirección de dependencias) — ayuda a escribir descripciones coherentes con lo ya documentado.
 2. Para cada fichero que aparezca en la lista de ids del paso 1 (basta con leer el fichero una vez aunque tenga varios símbolos exportados), léelo y escribe:
    - Una frase de `purpose` para el nodo `"file"` (su responsabilidad).
    - Una frase de `purpose` para cada nodo `"function"`/`"class"` de ese fichero que aparezca en la lista (qué hace ese símbolo concretamente).
