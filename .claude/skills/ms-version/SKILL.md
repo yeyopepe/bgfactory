@@ -24,6 +24,13 @@ Lee `.claude/ms-context.json` en la raíz del repo. El esquema completo está en
 
 Resuelve el valor de versión aplicando `versionFormat` (sustituyendo `{xxxx}`), p.ej. `v{xxxx}` + `0001` → `v0001`.
 
+## 1.1 Pedir confirmación
+
+Antes de tocar nada, usa `AskUserQuestion` para confirmar explícitamente con el usuario que quiere generar esta versión ahora, mostrándole el `xxxx` objetivo y el valor de versión resuelto (p.ej. `v0001`).
+
+- Si confirma, ve al paso 2.
+- Si no confirma, no hagas nada más: no se toca `versionFilePath` ni se ejecuta el build.
+
 ## 2. Fijar la versión
 
 Edita `versionFilePath` y fija `versionVariable` al valor de versión resuelto en el paso 1, respetando la sintaxis del lenguaje del fichero (no asumas JavaScript si el fichero es de otro tipo — mira su contenido actual antes de editar).

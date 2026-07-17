@@ -1,4 +1,4 @@
- - **Nombre**: Botón para entrar/salir del modo edición con barra de herramientas propia
+ - **Nombre**: Botón para entrar/salir del modo edición con barra de tareas propia
 - **Código**: 00001
 - **Tipo**: change
 
@@ -7,10 +7,22 @@
 
 - **Descripción completa**:
 
-  Se pide añadir un botón para entrar en el modo edición del prototipo. Al activarse el modo edición, debe aparecer una barra de herramientas específica de ese modo en la parte superior de la pantalla (distinta del contenido normal), que incluya al menos un botón para desactivar el modo edición y volver al modo anterior (juego).
+  Se pide sustituir el selector de modo actual por un flujo de entrar/salir: un botón "Entrar en modo edición" visible en modo juego, y al activarse, una barra de tareas propia del modo edición en la parte superior de la pantalla, con (al menos) un botón "Salir del modo edición" para desactivarlo y volver al modo juego.
 
-  Contexto del estado actual del proyecto, relevante para entender el alcance:
+  Contexto del estado actual del proyecto, relevante para el alcance:
 
-  - Actualmente existe un "mode switcher" (`src/ui/modeSwitcher.js`) con dos botones ("Modo juego" / "Modo edición") que alternan el modo activo llamando a `setMode()`. Es un selector de dos opciones, no un botón de "entrar" en un modo con un botón de "salir" independiente.
-  - No existe ninguna barra de herramientas específica del modo edición separada del área de contenido: `src/modes/edit/editMode.js` renderiza directamente el formulario de alta/edición y la lista de componentes dentro del área de contenido normal.
-  - Lo que se pide es un flujo distinto al actual: un botón para entrar en modo edición, y mientras el modo edición está activo, una barra propia de ese modo en la parte superior con (al menos) un botón para desactivarlo. No se ha especificado si esta nueva barra sustituye al "mode switcher" actual o convive con él, ni si debe incluir más acciones además del botón de desactivar — eso se deja para el análisis técnico de `ms-implement`, ya que no afecta al alcance funcional pedido (entrar/salir del modo edición mediante una barra específica de ese modo).
+  - Existe un "mode switcher" (`src/ui/modeSwitcher.js`) con dos botones intercambiables ("Modo juego" / "Modo edición") que llaman a `setMode()` (`src/core/state.js`, `state.mode: 'play' | 'edit'`, evento `mode:changed`). Es un selector de dos opciones, no un flujo de entrar/salir independiente.
+  - No existe ninguna barra de herramientas propia del modo edición separada del contenido: `src/modes/edit/editMode.js` renderiza directamente el formulario de alta/edición y el listado de componentes dentro de `#content`.
+  - No hay roles/usuarios/permisos en el proyecto (prototipo de un solo operador local); cualquiera que abra la app puede activar/desactivar el modo edición, igual que hoy.
+  - El modo (`state.mode`) no se persiste hoy en `localStorage` (solo se persisten los componentes); no hay estados de carga/red relevantes (todo es local y síncrono).
+
+  Preguntas de alcance planteadas al usuario y respuestas confirmadas:
+
+  1. **¿Qué hacemos con el "mode switcher" actual al introducir el nuevo flujo de entrar/salir?** → Se **sustituye**: desaparece el selector de dos botones; en su lugar, un botón "Entrar en modo edición" visible en modo juego (en la misma zona superior donde hoy está el mode switcher), y al activarse, la barra de tareas del modo edición con el botón "Salir del modo edición".
+  2. **¿Qué debe incluir la barra de tareas del modo edición en este cambio?** → Alcance mínimo: **solo el botón de salida**. No se añaden en este cambio otras acciones (como exportar/importar JSON, ya existentes en `src/data/persistence.js` sin UI conectada) — eso queda para un change futuro.
+  3. **Al recargar la página, ¿se recuerda que se estaba en modo edición, o siempre se vuelve a modo juego?** → Se mantiene el comportamiento actual: el modo **no se persiste** en `localStorage`; al recargar la página siempre se vuelve a "Modo juego", y hay que volver a pulsar "Entrar en modo edición" si se desea.
+
+  Además, se confirma que:
+
+  - El contenido actual de `#content` en modo edición (formulario de alta/edición y listado de componentes de `editMode.js`) se mantiene igual; la nueva barra es un elemento adicional por encima, no sustituye ese contenido.
+  - No hay restricciones de rol: cualquier usuario de la app puede activar/desactivar el modo edición, sin cambios respecto al comportamiento actual.

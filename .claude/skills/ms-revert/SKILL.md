@@ -18,7 +18,9 @@ Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta `fr
 
 ## 1. Identificar el change/fix
 
-El usuario indica el change/fix a revertir (por `xxxx`, por nombre de carpeta, o describiéndolo). Resuélvelo buscando **únicamente** dentro de `{changesDir}/implemented/` y `{changesDir}/closed/`.
+Si el usuario, al invocar esta skill, indica un `xxxx`, un nombre de carpeta o una descripción del change/fix, resuélvelo buscando **únicamente** dentro de `{changesDir}/implemented/` y `{changesDir}/closed/`.
+
+**Si no indica nada** (p.ej. invoca `/ms-revert` sin argumentos): no asumas que se refiere al último change/fix mencionado en la conversación ni a ningún otro dato del contexto de chat — la única fuente de verdad es `{changesDir}/implemented/` y `{changesDir}/closed/`. Lista las carpetas que haya en ambas (su `xxxx`, en qué carpeta está, y si lo tiene, el nombre/resumen de su `description.md`) y pregunta explícitamente al usuario cuál quiere revertir. Si no hay ninguna, dile que no hay ningún change/fix implementado o cerrado que revertir y detente ahí.
 
 - Si la carpeta con ese `xxxx` está en `{changesDir}/inProgress/`: todavía no se ha implementado en código, así que no hay nada que revertir. Dile al usuario y detente ahí — no toques esa carpeta.
 - Si no encuentras ninguna carpeta que corresponda en ningún sitio: dile al usuario que no la encuentras y pregunta el `xxxx` o la carpeta correctos.

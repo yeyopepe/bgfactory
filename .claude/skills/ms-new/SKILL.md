@@ -1,8 +1,9 @@
 ---
 name: ms-new
-description: Analiza y documenta un cambio intencionado (nueva funcionalidad o modificación de comportamiento existente, no un bug) pedido por el usuario, dejándolo listo en {changesDir}/inProgress para planificar e implementar después con ms-implement. Trigger: /ms-new, o cuando el usuario pide explícitamente "un change"/"documentar este cambio" como parte del flujo de trabajo del proyecto.
+description: Analiza y documenta un cambio intencionado (nueva funcionalidad o modificación de comportamiento existente, no un bug) pedido por el usuario, dejándolo listo en {changesDir}/inProgress para planificar e implementar después con ms-implement. Si se indica un código ya en inProgress, amplía esa entrada en vez de crear una nueva. Trigger: /ms-new [xxxx], o cuando el usuario pide explícitamente "un change"/"documentar este cambio" como parte del flujo de trabajo del proyecto.
+argument-hint: "[xxxx] <descripción del cambio>"
 metadata:
-  version: 1.1.0
+  version: 1.2.0
 ---
 
 # ms-new
@@ -18,6 +19,14 @@ sección `framework` (o campos suyos necesarios), no continúes: dile al
 usuario que primero debe ejecutar la skill `ms-init` para
 inicializar/completar el framework en este proyecto, y detente ahí.
 
+## 0.1 Comprobar si el código indicado ya está en curso
+
+Si el usuario, al invocar esta skill, indica un código de cambio/fix (`xxxx`) — p.ej. `/ms-new 0001 ...` o "añade esto al cambio 0001" — comprueba si existe esa carpeta **exactamente** en `{changesDir}/inProgress/{xxxx}/`.
+
+- **Si existe**: no es un cambio nuevo, sino una ampliación de esa entrada ya en curso. Ve directamente a la sección [Ampliar una entrada ya en `inProgress`](#ampliar-una-entrada-ya-en-inprogress) y no sigas con los pasos de más abajo.
+- **Si no existe** (esté o no ese `xxxx` en `implemented`/`closed`, o no exista en ningún sitio): es un cambio nuevo con un código nuevo. Continúa con el proceso habitual desde el paso 1, ignorando el código indicado — el `xxxx` real lo calculará `ms-workflow`, no lo asumas tú.
+- Si no se ha indicado ningún código, continúa igualmente con el proceso habitual desde el paso 1.
+
 ## Pasos
 
 1. **Entender el alcance y anticipar las dudas funcionales habituales.** No esperes a que surja una ambigüedad evidente: antes de documentar, revisa la petición y el código relevante del proyecto para construir tú mismo una lista de los puntos que habitualmente quedan indefinidos en este tipo de cambios. Repasa al menos:
@@ -32,3 +41,13 @@ inicializar/completar el framework en este proyecto, y detente ahí.
 3. **Indicar el siguiente paso.** Informa al usuario de que el cambio queda documentado y pendiente; para planificarlo e implementarlo debe invocar la skill `ms-implement` sobre ese `xxxx`. Si el usuario quiere implementarlo ya mismo, puedes invocar `ms-implement` directamente tú.
 
 No escribas tú mismo el documento de cambio ni calcules el número `xxxx` — eso lo hace `ms-workflow` para mantener un único sitio con esa lógica.
+
+## Ampliar una entrada ya en `inProgress`
+
+Cuando el paso 0.1 detecta que el `xxxx` indicado ya existe en `{changesDir}/inProgress/{xxxx}/`, no se crea una entrada nueva: se amplía la que ya hay.
+
+1. **Leer lo ya documentado.** Abre `{changesDir}/inProgress/{xxxx}/description.md` para entender qué se pidió originalmente.
+2. **Entender la ampliación.** Aplica el mismo análisis del paso 1 de "Pasos" (casos límite, convivencia con lo existente, alcance de datos, quién puede usarlo, definición visual de alto nivel), pero centrado en lo que se pide añadir o modificar ahora **sobre** lo ya documentado, no desde cero. Propón tú las respuestas razonables y preséntaselas al usuario para confirmar, igual que en el flujo habitual.
+3. **Actualizar `description.md` directamente** (sin invocar `ms-workflow`, que solo sabe crear entradas nuevas): añade la ampliación a la **Descripción completa** dejando claro qué es lo nuevo respecto a lo ya escrito, y añade el nuevo prompt del usuario a continuación del original en **Prompt original del usuario** (sin borrar el existente). No cambies el **Código** ni el **Tipo** ya fijados.
+4. **Avisar si hay `plan.md`.** Si `{changesDir}/inProgress/{xxxx}/plan.md` ya existe (es decir, ya se había planificado con `ms-implement`), dile al usuario que esta ampliación puede dejar ese plan desactualizado y que conviene volver a invocar `ms-implement` sobre `{xxxx}` para regenerarlo.
+5. **Indicar el siguiente paso.** Confirma que `{changesDir}/inProgress/{xxxx}/description.md` queda actualizado con la ampliación, y recuerda que para planificar/implementar debe invocarse `ms-implement` sobre ese mismo `xxxx`.
