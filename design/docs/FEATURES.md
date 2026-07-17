@@ -20,10 +20,10 @@ Modal con dos pestañas ("Generales" con el `id` editable, y "Específicas" seg�
 
 Panel flotante sobre la mesa (por defecto en la esquina superior derecha), colapsable, con el listado de componentes en tabla (columnas Id, Tipo, Acciones). El botón "Editar" abre la modal de edición; "Eliminar" borra el componente, pidiendo confirmación previa. Al hacer click sobre una fila, o directamente sobre la representación del componente en la mesa, se selecciona (selección única, con toggle al volver a hacer click en cualquiera de los dos sitios) y se resalta con un contorno discontinuo la representación del componente en la mesa. La tabla soporta scroll vertical si el contenido supera la altura disponible.
 
-El panel puede arrastrarse por la pantalla agarrando su cabecera (restringido al área visible de la mesa) y redimensionarse en ancho arrastrando un manejador en su esquina inferior derecha (entre 290 y 600px, o la mitad del ancho del viewport si es menor, sin salir tampoco del área de la mesa) — funciona igual expandido o colapsado. La selección de fila, el estado colapsado/expandido y la posición/ancho del panel son solo de la sesión de edición en curso, no se persisten (se restablecen a sus valores por defecto al recargar la página).
+El panel puede arrastrarse por la pantalla agarrando su cabecera (restringido al área visible de la mesa) y redimensionarse en ancho arrastrando un manejador en su esquina inferior derecha (entre 290 y 600px, o la mitad del ancho del viewport si es menor, sin salir tampoco del área de la mesa) — funciona igual expandido o colapsado. La posición, el ancho y el estado colapsado/expandido del panel se guardan automáticamente (ver [Autoguardado en el navegador](#autoguardado-en-el-navegador)) y se recuperan al recargar la página. La selección de fila es la única parte de este panel que no se persiste: es estado momentáneo de la sesión de edición en curso y se pierde al recargar.
 
 - **Disponible en**: modo edición.
-- **Código**: 00005, 00007, 00009.
+- **Código**: 00005, 00007, 00009, 00014.
 
 ### Posición independiente, arrastre y redimensionado de componentes
 
@@ -47,10 +47,12 @@ Primer tipo de componente concreto: un bloque de texto con contenido, tamaño de
 
 Cada alta, edición, movimiento, redimensionado o borrado de un componente se guarda automáticamente en `localStorage`, sin ninguna acción del usuario. Al reabrir la aplicación en el mismo navegador se recupera tal cual el último estado guardado; si nunca se ha guardado nada, arranca con la semilla embebida en el propio fichero (ver más abajo) o, en su defecto, con el componente de ejemplo. Si el estado guardado resulta corrupto o de una versión incompatible, se avisa brevemente y se arranca igualmente con ese mismo comportamiento de respaldo, sin bloquear la carga.
 
+Además de los componentes, se guarda igual de automático el estado del panel flotante de componentes del modo edición (posición, ancho y colapsado/expandido — ver [Panel flotante de componentes](#panel-flotante-de-componentes-con-selección-resaltado-arrastre-y-redimensionado)), cada vez que cambia. Si el guardado existente es de una versión anterior a esta funcionalidad y no incluye este dato, el panel arranca con sus valores por defecto (expandido, posición y ancho por defecto), igual que si nunca se hubiera guardado nada.
+
 El guardado es un único slot por navegador/perfil (no aislado por fichero): si se abren varias copias descargadas distintas en el mismo navegador, prevalece el último estado autoguardado sobre el contenido propio de la copia que se abra, salvo que sea la primera vez que se abre cualquier copia en ese navegador.
 
-- **Disponible en**: automático, en cualquier modo.
-- **Código**: 00011.
+- **Disponible en**: automático, en cualquier modo (el estado del panel, solo en modo edición, que es donde existe).
+- **Código**: 00011, 00014.
 
 ### Guardar a fichero
 

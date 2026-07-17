@@ -16,12 +16,13 @@ function parseState(raw) {
   if (!parsed || parsed.version !== CURRENT_VERSION || !Array.isArray(parsed.components)) {
     return { error: true };
   }
-  return { components: parsed.components };
+  const panelState = (parsed.panelState && typeof parsed.panelState === 'object') ? parsed.panelState : null;
+  return { components: parsed.components, panelState };
 }
 
-export function saveState(components) {
+export function saveState(components, panelState) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState }));
   } catch {
     // Cuota excedida u otro fallo de localStorage: el autoguardado se omite
     // silenciosamente, sin interrumpir el uso normal de la aplicación.

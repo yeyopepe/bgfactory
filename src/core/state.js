@@ -10,6 +10,8 @@ const state = {
   components: [],
 };
 
+let panelState = { collapsed: false, position: null, width: null };
+
 export function getState() {
   return state;
 }
@@ -43,4 +45,17 @@ export function removeComponent(id) {
 export function loadComponents(components) {
   state.components = components;
   emit('components:changed', state.components);
+}
+
+export function getPanelState() {
+  return panelState;
+}
+
+export function setPanelState(partial) {
+  panelState = { ...panelState, ...partial };
+  emit('panelState:changed', panelState);
+}
+
+export function loadPanelState(newPanelState) {
+  panelState = newPanelState;
 }

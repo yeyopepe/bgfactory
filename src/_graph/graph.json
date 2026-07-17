@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-17T17:50:19Z",
+  "generatedAt": "2026-07-17T18:02:03Z",
   "basePath": "src",
   "nodes": [
     {
@@ -31,7 +31,7 @@
         "buildExportHtml",
         "downloadHtml"
       ],
-      "purpose": "Genera una copia autocontenida del HTML actual con el estado de componentes embebido en el marcador #initial-state, y dispara su descarga como fichero."
+      "purpose": "Genera una copia autocontenida del HTML actual con el estado de componentes embebido en el marcador #initial-state (sin incluir el estado del panel de edición), y dispara su descarga como fichero."
     },
     {
       "id": "core/persistence.js",
@@ -42,7 +42,7 @@
         "readSeedState",
         "saveState"
       ],
-      "purpose": "Autoguardado del estado de componentes en localStorage (un único slot por navegador) y lectura de la semilla de estado embebida en el propio documento (#initial-state), con validación de formato/versión."
+      "purpose": "Autoguardado del estado de componentes y del panel de edición en localStorage (un único slot por navegador) y lectura de la semilla de estado embebida en el propio documento (#initial-state), con validación de formato/versión."
     },
     {
       "id": "core/state.js",
@@ -52,13 +52,16 @@
         "MODES",
         "addComponent",
         "getComponents",
+        "getPanelState",
         "getState",
         "loadComponents",
+        "loadPanelState",
         "removeComponent",
         "replaceComponent",
-        "setMode"
+        "setMode",
+        "setPanelState"
       ],
-      "purpose": "Estado central de la app (modo activo y biblioteca de componentes), con funciones de acceso/mutación que emiten eventos al cambiar."
+      "purpose": "Estado central de la app (modo activo, biblioteca de componentes y estado del panel flotante de edición), con funciones de acceso/mutación que emiten eventos al cambiar."
     },
     {
       "id": "data/version.js",
@@ -73,7 +76,7 @@
       "id": "main.js",
       "type": "file",
       "path": "main.js",
-      "purpose": "Bootstrap de la app: al arrancar recupera el estado guardado en localStorage (o, en su defecto, la semilla embebida en el documento, o el componente de ejemplo), monta el selector de modo, engancha el autoguardado a components:changed y renderiza el modo activo, refrescando ante mode:changed/components:changed."
+      "purpose": "Bootstrap de la app: al arrancar recupera el estado guardado en localStorage (componentes y, si existe, panelState) o, en su defecto, la semilla embebida en el documento o el componente de ejemplo; monta el selector de modo, engancha el autoguardado a components:changed/panelState:changed y renderiza el modo activo, refrescando ante mode:changed/components:changed."
     },
     {
       "id": "modes/edit/editMode.js",
@@ -82,7 +85,7 @@
       "exports": [
         "renderEditMode"
       ],
-      "purpose": "Modo edición: mesa infinita con los componentes renderizados y seleccionables/arrastrables/redimensionables, más el panel flotante de listado (también arrastrable/redimensionable) y la modal de alta/edición/borrado; mantiene selección, colapso y posición/ancho del panel como estado de módulo para sobrevivir a los remontados por components:changed, limpiando la selección si el componente eliminado (desde la modal o el listado) era el seleccionado."
+      "purpose": "Modo edición: mesa infinita con los componentes renderizados y seleccionables/arrastrables/redimensionables, más el panel flotante de listado (también arrastrable/redimensionable) y la modal de alta/edición/borrado; mantiene la selección como estado de módulo (no persistida) para sobrevivir a los remontados por components:changed, limpiando la selección si el componente eliminado era el seleccionado, y delega el colapso/posición/ancho del panel en core/state.js (panelState), que sí se persiste."
     },
     {
       "id": "modes/play/playMode.js",
@@ -211,21 +214,21 @@
       "type": "function",
       "path": "core/persistence.js",
       "parent": "core/persistence.js",
-      "purpose": "Lee y valida el estado guardado en localStorage; devuelve los componentes, null si no hay nada guardado, o {error:true} si está corrupto o es de una versión incompatible."
+      "purpose": "Lee y valida el estado guardado en localStorage; devuelve los componentes y el panelState (si existe y es un objeto válido, si no null), null si no hay nada guardado, o {error:true} si está corrupto o es de una versión incompatible."
     },
     {
       "id": "core/persistence.js#readSeedState",
       "type": "function",
       "path": "core/persistence.js",
       "parent": "core/persistence.js",
-      "purpose": "Lee y valida el estado 'semilla' embebido en el elemento #initial-state del documento; devuelve los componentes o null si no hay semilla válida."
+      "purpose": "Lee y valida el estado 'semilla' embebido en el elemento #initial-state del documento; devuelve los componentes (y panelState si lo trajera, normalmente null al no incluirlo el export a fichero) o null si no hay semilla válida."
     },
     {
       "id": "core/persistence.js#saveState",
       "type": "function",
       "path": "core/persistence.js",
       "parent": "core/persistence.js",
-      "purpose": "Serializa los componentes dados junto con la versión actual y los guarda en localStorage, ignorando errores de escritura (p.ej. cuota excedida)."
+      "purpose": "Serializa los componentes y el panelState dados junto con la versión actual y los guarda en localStorage, ignorando errores de escritura (p.ej. cuota excedida)."
     },
     {
       "id": "core/state.js#addComponent",
@@ -242,6 +245,13 @@
       "purpose": "Devuelve la lista actual de componentes del estado."
     },
     {
+      "id": "core/state.js#getPanelState",
+      "type": "function",
+      "path": "core/state.js",
+      "parent": "core/state.js",
+      "purpose": "Devuelve el estado actual del panel flotante de edición (collapsed, position, width)."
+    },
+    {
       "id": "core/state.js#getState",
       "type": "function",
       "path": "core/state.js",
@@ -254,6 +264,13 @@
       "path": "core/state.js",
       "parent": "core/state.js",
       "purpose": "Reemplaza toda la lista de componentes y emite components:changed."
+    },
+    {
+      "id": "core/state.js#loadPanelState",
+      "type": "function",
+      "path": "core/state.js",
+      "parent": "core/state.js",
+      "purpose": "Sustituye el panelState completo sin emitir evento; usado solo al arrancar para hidratar el estado guardado antes del primer render."
     },
     {
       "id": "core/state.js#removeComponent",
@@ -277,11 +294,18 @@
       "purpose": "Cambia el modo activo (play/edit) y emite mode:changed."
     },
     {
+      "id": "core/state.js#setPanelState",
+      "type": "function",
+      "path": "core/state.js",
+      "parent": "core/state.js",
+      "purpose": "Fusiona los cambios dados sobre el panelState actual y emite panelState:changed, usado desde las interacciones del panel (mover/redimensionar/colapsar)."
+    },
+    {
       "id": "modes/edit/editMode.js#renderEditMode",
       "type": "function",
       "path": "modes/edit/editMode.js",
       "parent": "modes/edit/editMode.js",
-      "purpose": "Renderiza la mesa infinita con los componentes y el panel flotante de listado dentro del contenedor dado, aplicando la selección/colapso/posición/ancho de panel recordados a nivel de módulo."
+      "purpose": "Renderiza la mesa infinita con los componentes y el panel flotante de listado dentro del contenedor dado, aplicando la selección recordada a nivel de módulo y el colapso/posición/ancho de panel leídos de core/state.js."
     },
     {
       "id": "modes/play/playMode.js#renderPlayMode",
@@ -379,6 +403,11 @@
       "relation": "calls"
     },
     {
+      "source": "core/state.js#setPanelState",
+      "target": "core/eventBus.js#emit",
+      "relation": "calls"
+    },
+    {
       "source": "main.js",
       "target": "core/eventBus.js#on",
       "relation": "calls"
@@ -400,7 +429,22 @@
     },
     {
       "source": "main.js",
+      "target": "core/state.js#getComponents",
+      "relation": "calls"
+    },
+    {
+      "source": "main.js",
+      "target": "core/state.js#getPanelState",
+      "relation": "calls"
+    },
+    {
+      "source": "main.js",
       "target": "core/state.js#loadComponents",
+      "relation": "calls"
+    },
+    {
+      "source": "main.js",
+      "target": "core/state.js#loadPanelState",
       "relation": "calls"
     },
     {
@@ -425,12 +469,22 @@
     },
     {
       "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "core/state.js#getPanelState",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
       "target": "core/state.js#removeComponent",
       "relation": "calls"
     },
     {
       "source": "modes/edit/editMode.js#renderEditMode",
       "target": "core/state.js#replaceComponent",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "core/state.js#setPanelState",
       "relation": "calls"
     },
     {

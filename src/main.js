@@ -2,7 +2,7 @@
 // selector de modo y renderiza el modo activo, refrescando ante cualquier cambio.
 
 import { on } from './core/eventBus.js';
-import { MODES, getState, addComponent, loadComponents } from './core/state.js';
+import { MODES, getState, addComponent, loadComponents, getComponents, getPanelState, loadPanelState } from './core/state.js';
 import { CURRENT_VERSION } from './data/version.js';
 import { renderEnterEditButton, renderEditToolbar } from './ui/editModeToggle.js';
 import { renderPlayMode } from './modes/play/playMode.js';
@@ -36,7 +36,8 @@ function renderAll() {
 
 on('mode:changed', renderAll);
 on('components:changed', renderAll);
-on('components:changed', (components) => saveState(components));
+on('components:changed', (components) => saveState(components, getPanelState()));
+on('panelState:changed', (panelState) => saveState(getComponents(), panelState));
 
 function seedDefaultComponent() {
   const defaultComponent = createComponent({
@@ -56,6 +57,9 @@ if (saved?.error) {
   showToast('No se ha podido recuperar el estado guardado.');
   seedDefaultComponent();
 } else if (saved) {
+  if (saved.panelState) {
+    loadPanelState(saved.panelState);
+  }
   loadComponents(saved.components);
 } else {
   const seed = readSeedState();

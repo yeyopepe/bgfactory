@@ -13,7 +13,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = component ? 'Editar componente' : 'Crear componente';
+  header.textContent = component ? 'Editar propiedades del componente' : 'Crear componente';
   modal.appendChild(header);
 
   const tabs = document.createElement('div');

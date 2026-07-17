@@ -1,24 +1,24 @@
 // Modo edición: mesa infinita con los componentes renderizados sobre ella (seleccionables
 // para editar) + panel flotante con listado de componentes y acciones de edición/borrado.
 
-import { getComponents, addComponent, replaceComponent, removeComponent } from '../../core/state.js';
+import { getComponents, addComponent, replaceComponent, removeComponent, getPanelState, setPanelState } from '../../core/state.js';
 import { updateComponent } from '../../core/component.js';
 import { createInfiniteTable } from '../../ui/table.js';
 import { openComponentModal } from '../../ui/componentModal.js';
 import { renderComponentList } from '../../ui/componentList.js';
 import { renderComponentsOnTable } from '../../ui/componentRenderer.js';
 
-// Estado de la sesión de edición en curso. `renderEditMode` se vuelve a invocar por
+// Selección de la sesión de edición en curso. `renderEditMode` se vuelve a invocar por
 // completo (desde main.js) ante cualquier `components:changed`, así que este estado
-// vive fuera de la función para no perderse (selección/colapso/posición y ancho del
-// panel) cada vez que se mueve/redimensiona/edita un componente cualquiera.
+// vive fuera de la función para no perderse cada vez que se mueve/redimensiona/edita
+// un componente cualquiera. El colapso/posición/ancho del panel, en cambio, viven en
+// `core/state.js` (`panelState`) porque sí se persisten en el autoguardado.
 let selectedComponentId = null;
-let collapsed = false;
-let panelPosition = null; // { left, top } en px; null = anclaje por defecto (arriba-derecha)
-let panelWidth = null; // px; null = ancho por defecto (300px, de main.css)
 
 export function renderEditMode(container) {
   container.innerHTML = '';
+
+  const { collapsed, position: panelPosition, width: panelWidth } = getPanelState();
 
   const layout = document.createElement('div');
   layout.style.display = 'flex';
@@ -103,14 +103,14 @@ export function renderEditMode(container) {
       collapsed,
       onSelectRow: toggleSelect,
       onToggleCollapse: () => {
-        collapsed = !collapsed;
+        setPanelState({ collapsed: !collapsed });
         renderList();
       },
       onPanelMove: (left, top) => {
-        panelPosition = { left, top };
+        setPanelState({ position: { left, top } });
       },
       onPanelResize: (width) => {
-        panelWidth = width;
+        setPanelState({ width });
       },
     });
   }
