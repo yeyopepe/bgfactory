@@ -7,7 +7,7 @@ metadata:
 
 # ms-init
 
-Pone en marcha el framework `ms-*` en el proyecto actual: crea (o completa) `.claude/ms-context.json`, el único fichero del que dependen `ms-workflow`, `ns-new`, `ms-fix`, `ms-implement` y `ms-version` para funcionar en cualquier repo sin tener nada hardcodeado.
+Pone en marcha el framework `ms-*` en el proyecto actual: crea (o completa) `.claude/ms-context.json`, el único fichero del que dependen `ms-workflow`, `ms-new`, `ms-fix`, `ms-implement` y `ms-version` para funcionar en cualquier repo sin tener nada hardcodeado.
 
 Lee primero [`schema.json`](schema.json) si no lo has hecho ya en esta sesión — es un JSON Schema que define la forma exacta del fichero (secciones `framework` y `project`), con cada campo documentado en su `description` (obligatoriedad, para qué sirve, qué skill lo usa) y ejemplos completos en `examples`.
 
@@ -51,3 +51,12 @@ Crea `.claude/` si no existe. Escribe (o actualiza con merge, sin pisar campos y
 ## 4. Confirmar
 
 Muestra un resumen de lo que ha quedado configurado (ruta del fichero, campos de `framework` resueltos, y si se ha dejado algo en `project`) y recuerda al usuario que puede volver a invocar esta skill para reconfigurar cualquier campo más adelante.
+
+## 5. Generar el grafo si ya hay código
+
+Si `sourcecodeDir` apunta a una carpeta que ya contiene código (esto no es un repo vacío recién creado), invoca la skill `ms-graph` (`Skill` con `skill: "ms-graph"`) para generar el grafo inicial ahora, en vez de dejarlo pendiente para la primera vez que otra skill lo necesite:
+
+- Pásale como `rutaBase` el `sourcecodeDir` ya configurado.
+- Si `projectGraphPath` quedó configurado en el paso 3, pásaselo como `rutaGraphJson`. Si no se configuró (el usuario no tenía grafo previo), propón uno por defecto (p.ej. `graph.json` en la raíz del repo) antes de invocar `ms-graph`; si el usuario lo acepta, añádelo a `framework.projectGraphPath` en `.claude/ms-context.json` con merge para que `ms-implement` lo recoja automáticamente en adelante.
+
+Si no hay código todavía (proyecto recién creado) o el usuario prefiere no generarlo ahora, omite este paso sin más.

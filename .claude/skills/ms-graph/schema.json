@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "md-graph.schema.json",
-  "title": "graph.json (salida de la skill md-graph)",
-  "description": "Grafo de dependencias del codigo de un proyecto, generado por la skill md-graph a partir de su exploracion directa del codigo fuente (sin parser externo ni motor de graphify). Pensado como contexto reducido de arquitectura -- lo consume por ejemplo ms-implement via framework.projectGraphPath en .claude/ms-context.json. Se reescribe completo en cada invocacion de md-graph, no es incremental.",
+  "$id": "ms-graph.schema.json",
+  "title": "graph.json (salida de la skill ms-graph)",
+  "description": "Grafo de dependencias del codigo de un proyecto, generado por la skill ms-graph a partir de su exploracion directa del codigo fuente (sin parser externo ni motor de graphify). Pensado como contexto reducido de arquitectura -- lo consume por ejemplo ms-implement via framework.projectGraphPath en .claude/ms-context.json. Se reescribe completo en cada invocacion de ms-graph, no es incremental.",
   "type": "object",
   "required": ["generatedAt", "basePath", "nodes", "edges"],
   "additionalProperties": false,
@@ -14,7 +14,7 @@
     },
     "basePath": {
       "type": "string",
-      "description": "Ruta base (relativa a la raiz del repo) del codigo que se recorrio para construir el grafo -- la resuelta en el paso 0 de md-graph (argumento, o framework.sourcecodeDir de ms-context.json).",
+      "description": "Ruta base (relativa a la raiz del repo) del codigo que se recorrio para construir el grafo -- la resuelta en el paso 0 de ms-graph (argumento, o framework.sourcecodeDir de ms-context.json).",
       "examples": ["src"]
     },
     "nodes": {
@@ -42,7 +42,7 @@
           },
           "purpose": {
             "type": "string",
-            "description": "Descripcion breve (una frase) de la responsabilidad del fichero, o del proposito de la funcion/clase, escrita por md-graph al leer el codigo."
+            "description": "Descripcion breve (una frase) de la responsabilidad del fichero, o del proposito de la funcion/clase, escrita por ms-graph al leer el codigo."
           },
           "exports": {
             "type": "array",

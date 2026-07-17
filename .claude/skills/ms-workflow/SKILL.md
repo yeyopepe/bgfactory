@@ -9,15 +9,15 @@ metadata:
 
 # ms-workflow
 
-Proceso genérico de documentación de la intención de un cambio, parte del framework `ms-*`. Solo lo invocan otras skills del framework (`ns-new` y `ms-fix`, con un parámetro `type` de `change` o `fix` y la descripción de lo que se pide) — no está pensado para invocación directa por el usuario.
+Proceso genérico de documentación de la intención de un cambio, parte del framework `ms-*`. Solo lo invocan otras skills del framework (`ms-new` y `ms-fix`, con un parámetro `type` de `change` o `fix` y la descripción de lo que se pide) — no está pensado para invocación directa por el usuario.
 
 Este paso **no implementa ni analiza técnicamente nada**: solo dimensiona el alcance funcional y crea la entrada en `{changesDir}/inProgress/`. El análisis técnico detallado (y la implementación en sí) los hace después la skill `ms-implement`, a partir del documento que aquí se genera.
 
 ## Guardarraíl de invocación — leer antes que nada
 
-Esta skill **no se ejecuta si se ha invocado directamente** (p.ej. el usuario ha escrito `/ms-workflow`, o ha pedido "ejecuta/invoca ms-workflow" en texto plano). Solo debe ejecutarse cuando el propio contenido de la skill `ns-new` o `ms-fix` te ha instruido a invocarla como parte de su proceso, con un `type` (`change`/`fix`) y una descripción concreta de lo que se pide.
+Esta skill **no se ejecuta si se ha invocado directamente** (p.ej. el usuario ha escrito `/ms-workflow`, o ha pedido "ejecuta/invoca ms-workflow" en texto plano). Solo debe ejecutarse cuando el propio contenido de la skill `ms-new` o `ms-fix` te ha instruido a invocarla como parte de su proceso, con un `type` (`change`/`fix`) y una descripción concreta de lo que se pide.
 
-Si te han invocado sin ese contexto (el usuario ha tecleado el comando directamente, o no venías de `ns-new`/`ms-fix`), **detente aquí** y dile al usuario que `ms-workflow` es de uso interno del framework: para documentar un cambio o fix debe usar `ns-new` o `ms-fix`. No generes ningún documento ni preguntes nada más en ese caso.
+Si te han invocado sin ese contexto (el usuario ha tecleado el comando directamente, o no venías de `ms-new`/`ms-fix`), **detente aquí** y dile al usuario que `ms-workflow` es de uso interno del framework: para documentar un cambio o fix debe usar `ms-new` o `ms-fix`. No generes ningún documento ni preguntes nada más en ese caso.
 
 ## 0. Cargar el contexto del proyecto
 

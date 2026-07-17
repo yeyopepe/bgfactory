@@ -66,7 +66,7 @@ Después, si `framework.versioning` es `true` en `ms-context.json`, pregunta al 
 
 ## 6. Actualizar el grafo de contexto
 
-Paso final: si en el paso 4 se han aplicado cambios relevantes en el código (no solo en documentación), además de haber actualizado ya el documento técnico (`designDocPath`, si aplicaba la sección (c) del plan), invoca la skill `md-graph` para regenerar/actualizar el grafo de contexto del proyecto y mantenerlo sincronizado con el código recién implementado. Si no ha habido cambios relevantes en código, omite este paso.
+Paso final: si en el paso 4 se han aplicado cambios relevantes en el código (no solo en documentación), además de haber actualizado ya el documento técnico (`designDocPath`, si aplicaba la sección (c) del plan), invoca la skill `ms-graph` para regenerar/actualizar el grafo de contexto del proyecto y mantenerlo sincronizado con el código recién implementado. Si no ha habido cambios relevantes en código, omite este paso.
 
 ## 7. Confirmar al usuario
 

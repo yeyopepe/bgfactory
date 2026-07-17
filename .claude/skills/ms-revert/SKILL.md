@@ -58,7 +58,7 @@ Si durante la ejecución descubres que el plan de reversión no es viable tal cu
 
 ## 6. Actualizar el grafo de contexto
 
-Si `projectGraphPath` está configurado y en el paso 5 se han aplicado cambios relevantes en el código, invoca la skill `md-graph` para regenerar/actualizar el grafo de contexto del proyecto. Si no ha habido cambios relevantes en código, u omite este paso si `projectGraphPath` no está configurado.
+Si `projectGraphPath` está configurado y en el paso 5 se han aplicado cambios relevantes en el código, invoca la skill `ms-graph` para regenerar/actualizar el grafo de contexto del proyecto. Si no ha habido cambios relevantes en código, u omite este paso si `projectGraphPath` no está configurado.
 
 ## 7. Mover la carpeta a `inProgress`
 
