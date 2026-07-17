@@ -1,8 +1,9 @@
 ---
 name: ms-status
-description: Recopila y presenta el estado actual del proyecto según el framework ms-* — totales de elementos por tipo (todo/change/fix) y por estado (carpetas de {changesDir}), diferenciando dentro de "en progreso" entre entradas descritas (solo description.md) y listas para implementar (description.md + plan.md). Devuelve el informe como respuesta de chat; no escribe ningún fichero salvo que el usuario lo pida explícitamente. Trigger: /ms-status, o cuando el usuario pide un resumen/vista general del estado del proyecto, cuántos changes/fixes hay pendientes, etc.
+description: Recopila y presenta el estado actual del proyecto según el framework ms-* — totales de elementos por tipo (todo/change/fix) y por estado (carpetas de {changesDir}), diferenciando dentro de "en progreso" entre entradas descritas (solo description.md) y listas para implementar (description.md + plan.md). Devuelve el informe como respuesta de chat; no escribe ningún fichero salvo que el usuario lo pida explícitamente. Trigger: /ms-status, o cuando el usuario pide un resumen/vista general del estado del proyecto, cuántos changes/fixes hay pendientes, etc. Con el argumento `todo` (`/ms-status todo`), en vez del informe completo devuelve solo el listado de ideas de `{changesDir}/todo/` con su código y el texto completo de la idea.
+argument-hint: "[todo]"
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # ms-status
@@ -33,14 +34,29 @@ El script:
 
 Parsea ese JSON para el resto del proceso.
 
+## 1.b Modo `todo`: solo listar ideas
+
+Si el usuario invocó la skill con el argumento `todo` (`/ms-status todo`, o pidió explícitamente "solo las ideas de todo"/"lista los todos"), no redactes el informe completo del paso 2 — salta directamente a esto:
+
+- Recorre `states.todo.entries` del JSON del paso 1.
+- Por cada entrada, muestra su `code` y el texto completo (sin truncar) de `name` (la sección `## Idea` de su `description.md`). Si `name` es `null` (idea sin esa sección, o sin `description.md`), dilo explícitamente en vez de omitir la entrada.
+- Si `states.todo.entries` está vacío, dilo así ("no hay ninguna idea apuntada en todo/") en vez de no responder nada.
+- No incluyas la tabla de estados, ni las secciones de "En progreso" ni "Avisos" — este modo es solo el listado de ideas.
+- Entrega el resultado como respuesta de chat (no lo guardes en fichero salvo que el usuario lo pida, igual que en el paso 4).
+
+Si no se pidió este modo, continúa con el informe completo:
+
 ## 2. Redactar el informe
 
-Usa como base la plantilla [`STATUS.template.md`](STATUS.template.md) — sigue su estructura y secciones, pero rellénala con los datos reales del JSON del paso 1:
+Usa como base la plantilla [`STATUS.template.md`](STATUS.template.md) — sigue su estructura y secciones, pero rellénala con los datos reales del JSON del paso 1. Mapeo de los marcadores de la plantilla a campos del JSON:
 
-- **Resumen**: totales globales por tipo (`todo`/`change`/`fix`) y el gran total, desde `totalsByType` y `grandTotal`.
-- **Por estado**: tabla con el desglose por tipo dentro de cada estado (`states[estado].byType`), usando exactamente los nombres de estado que existan en `{changesDir}` (no asumas que siempre son los cuatro habituales; si hay un estado adicional o falta alguno, refleja lo que hay realmente).
-- **En progreso — detalle**: las dos listas (`descrito` / `listo_para_implementar`) a partir de `states.inProgress.entries`, mostrando código, nombre (si `name` no es null) y tipo de cada una. Si alguna lista está vacía, dilo explícitamente en vez de omitirla en silencio. Si hay entradas `sin_descripcion`, menciónalas también (son anómalas).
-- **Ideas en todo/**: lista simple de los códigos presentes en `states.todo.entries` (con su `name` si lo tienen).
+- **Tabla "Estado"**: una fila por cada estado que exista realmente en `{changesDir}` (no asumas que siempre son los cuatro habituales — `todo`/`inProgress`/`implemented`/`closed`; si hay uno adicional o falta alguno, refleja lo que hay). Para cada fila, `{estadoChange}`/`{estadoFix}` salen de `states[estado].byType.change` / `.fix` (0 si no aparecen), y `{estadoTotal}` de `states[estado].total`. La fila `Todo` solo tiene columna Todo (`states.todo.total`), ya que `ms-todo` no usa `**Tipo**`. La fila de totales sale de `totalsByType.change`, `totalsByType.fix`, `states.todo.total` y `grandTotal`.
+- **En progreso**: tres listas, todas derivadas de `states.inProgress`:
+  - "Pendientes de análisis técnico" ({pendingTotal}) = entradas con `subStatus == "descrito"`.
+  - "Listos para implementar" ({toImplementTotal}) = entradas con `subStatus == "listo_para_implementar"`.
+  - "Listos para revisar y cerrar" ({toCloseTotal}) = `states.implemented.total` (ya implementadas en código, pendientes de revisar y mover a `closed` con `ms-close`); si esta entrada existe en la plantilla, no confundirla con `inProgress` — es información de otro estado agrupada aquí porque forma parte del ciclo "en progreso" de trabajo del usuario.
+  - Para las dos primeras, lista cada entrada como código, nombre (si `name` no es null) y tipo. Si alguna de las tres listas está vacía, dilo explícitamente ("ninguno") en vez de omitirla en silencio. Si hay entradas con `subStatus == "sin_descripcion"`, menciónalas aparte (son anómalas).
+- **Ideas en todo/**: lista simple de los códigos presentes en `states.todo.entries`, usando el texto completo (sin truncar) de `name` como `{idea}`.
 - **Avisos**: solo si `warnings` no está vacío — inclúyelos tal cual los da el script, sin suavizarlos ni omitirlos.
 
 No inventes datos que no estén en el JSON (p.ej. no le asignes un tipo a una entrada `unknown` solo por adivinarlo del nombre de la carpeta).

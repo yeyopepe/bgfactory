@@ -108,7 +108,7 @@ Solo aplica si `framework.versioning` es `true` (en este proyecto lo es). `/ms-v
 
 Es un paso explícito y separado: `ms-implement` nunca genera versión por su cuenta, aunque el proyecto versione.
 
-### Paso 4 (opcional) — Cerrar: `/ms-close`
+### Paso 4 — Cerrar: `/ms-close`
 
 Cuando una entrada ya implementada deja de ser relevante para consulta activa (ya está integrada y no hace falta volver a mirarla), `/ms-close {xxxx}` la mueve de `implemented/` a `closed/`, pidiendo confirmación explícita antes de mover nada. Es puramente archivo — no toca código ni documentación.
 

@@ -11,7 +11,13 @@ Para cada entrada determina:
   - type: 'todo' si esta bajo el estado 'todo' (ms-todo no usa campo Tipo);
     en cualquier otro estado, se parsea '**Tipo**' dentro de description.md
     ('change' o 'fix'). Si no se encuentra o no es descriptio.md, 'unknown'.
-  - name: campo '**Nombre**' de description.md si existe (solo informativo).
+  - name: para 'todo', el texto completo (sin truncar) de la seccion
+    '## Idea' de description.md (formato propio de ms-todo); en el resto de
+    estados, el campo '**Nombre**' (formato de ms-new/ms-fix). Solo
+    informativo.
+  - notas: solo para el estado 'todo' -- texto completo (sin truncar) de la
+    seccion '## Notas' de description.md. Null en el resto de estados o si
+    la idea no tiene esa seccion.
   - hasDescription / hasPlan: si existen description.md / plan.md.
   - subStatus: solo relevante para el estado 'inProgress' (para poder
     distinguir 'descrito' de 'listo_para_implementar'); en el resto de
@@ -33,6 +39,15 @@ from pathlib import Path
 
 TIPO_RE = re.compile(r"\*\*Tipo\*\*\s*[:—-]\s*([A-Za-z]+)", re.IGNORECASE)
 NOMBRE_RE = re.compile(r"\*\*Nombre\*\*\s*[:—-]\s*(.+)")
+# ms-todo no usa el formato "- **Campo**:" de ms-new/ms-fix; usa cabeceras
+# markdown ("## Idea", "## Notas") sin negrita.
+# Capturan todo el bloque de cada seccion, hasta la siguiente cabecera '##' o fin de fichero.
+IDEA_FULL_RE = re.compile(
+    r"^##\s*Idea\s*\n+(.+?)(?=\n##\s|\Z)", re.IGNORECASE | re.MULTILINE | re.DOTALL
+)
+NOTAS_FULL_RE = re.compile(
+    r"^##\s*Notas\s*\n+(.+?)(?=\n##\s|\Z)", re.IGNORECASE | re.MULTILINE | re.DOTALL
+)
 
 KNOWN_TYPES = {"change", "fix"}
 
@@ -83,17 +98,43 @@ def parse_description(description_path: Path) -> dict:
     return result
 
 
+def parse_todo_description(description_path: Path) -> dict:
+    """Extrae el texto completo de 'Idea' y 'Notas' de un description.md de ms-todo.
+
+    ms-todo usa cabeceras markdown ('## Idea', '## Notas'), no el formato
+    '**Campo**:' de ms-new/ms-fix, asi que necesita su propio parser.
+    """
+    result: dict[str, str | None] = {"idea": None, "notas": None}
+    try:
+        text = description_path.read_text(encoding="utf-8")
+    except OSError:
+        return result
+
+    idea_match = IDEA_FULL_RE.search(text)
+    if idea_match:
+        result["idea"] = idea_match.group(1).strip()
+
+    notas_full_match = NOTAS_FULL_RE.search(text)
+    if notas_full_match:
+        result["notas"] = notas_full_match.group(1).strip()
+
+    return result
+
+
 def build_entry(state_name: str, entry_dir: Path) -> dict:
     description_path = entry_dir / "description.md"
     plan_path = entry_dir / "plan.md"
     has_description = description_path.is_file()
     has_plan = plan_path.is_file()
 
+    notas = None
     if state_name == "todo":
         entry_type = "todo"
         nombre = None
         if has_description:
-            nombre = parse_description(description_path).get("nombre")
+            parsed_todo = parse_todo_description(description_path)
+            nombre = parsed_todo.get("idea")
+            notas = parsed_todo.get("notas")
     else:
         parsed = parse_description(description_path) if has_description else {"tipo": None, "nombre": None}
         entry_type = parsed.get("tipo") if parsed.get("tipo") in KNOWN_TYPES else "unknown"
@@ -112,6 +153,7 @@ def build_entry(state_name: str, entry_dir: Path) -> dict:
         "code": entry_dir.name,
         "type": entry_type,
         "name": nombre,
+        "notas": notas,
         "hasDescription": has_description,
         "hasPlan": has_plan,
         "subStatus": sub_status,

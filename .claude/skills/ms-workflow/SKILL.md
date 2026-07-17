@@ -69,7 +69,7 @@ Contenido del documento, con exactamente estos campos:
   - Para un `change`: qué se pide añadir o modificar, por qué, y cómo debería comportarse el resultado.
   - Incluye aquí también, si las ha habido, las preguntas de alcance que se le han hecho al usuario junto con sus respuestas.
 
-No incluyas aquí notas técnicas ni de arquitectura — de eso se encarga el `plan.md` que genera `ms-implement` al analizar esta entrada.
+No incluyas aquí código ni notas técnicas ni de arquitectura — de eso se encarga el `plan.md` que genera `ms-implement` al analizar esta entrada.
 
 ### create.3 Confirmar a quien invoca
 

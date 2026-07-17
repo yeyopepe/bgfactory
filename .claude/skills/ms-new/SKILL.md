@@ -1,9 +1,9 @@
 ---
 name: ms-new
-description: Analiza y documenta un cambio intencionado (nueva funcionalidad o modificación de comportamiento existente, no un bug) pedido por el usuario, dejándolo listo en {changesDir}/inProgress para planificar e implementar después con ms-implement. Si se indica un código ya en inProgress, amplía esa entrada en vez de crear una nueva. Trigger: /ms-new [xxxx], o cuando el usuario pide explícitamente "un change"/"documentar este cambio" como parte del flujo de trabajo del proyecto.
-argument-hint: "[xxxx] <descripción del cambio>"
+description: Analiza y documenta un cambio intencionado (nueva funcionalidad o modificación de comportamiento existente, no un bug) pedido por el usuario, dejándolo listo en {changesDir}/inProgress para planificar e implementar después con ms-implement. Si se indica un código ya en inProgress, amplía esa entrada en vez de crear una nueva. Con `/ms-new todo <código>` parte de una idea ya apuntada en {changesDir}/todo/ en vez de una petición nueva, y borra esa idea automáticamente al terminar (sin pedir confirmación). Trigger: /ms-new [xxxx], o cuando el usuario pide explícitamente "un change"/"documentar este cambio" como parte del flujo de trabajo del proyecto.
+argument-hint: "[xxxx | todo <código>] <descripción del cambio>"
 metadata:
-  version: 1.3.0
+  version: 1.5.0
 ---
 
 # ms-new
@@ -28,6 +28,16 @@ Si el usuario, al invocar esta skill, indica un código de cambio/fix (`xxxx`) �
 - **Si existe**: no es un cambio nuevo, sino una ampliación de esa entrada ya en curso. Ve directamente a la sección [Ampliar una entrada ya en `inProgress`](#ampliar-una-entrada-ya-en-inprogress) y no sigas con los pasos de más abajo.
 - **Si no existe** (esté o no ese `xxxx` en `implemented`/`closed`, o no exista en ningún sitio): es un cambio nuevo con un código nuevo. Continúa con el proceso habitual desde el paso 1, ignorando el código indicado — el `xxxx` real lo calculará `ms-workflow`, no lo asumas tú.
 - Si no se ha indicado ningún código, continúa igualmente con el proceso habitual desde el paso 1.
+
+## 0.2 Comprobar si se invoca a partir de una idea de `todo/`
+
+Si el usuario invoca esta skill como `/ms-new todo <código>` (o pide explícitamente "convierte la idea `<código>` de todo en un change"), esta entrada no nace de una petición nueva del usuario en el chat, sino del contenido ya apuntado por `ms-todo`:
+
+1. Comprueba que existe **exactamente** `{changesDir}/todo/{código}/description.md`. Si no existe, dile al usuario que no hay ninguna idea con ese código en `todo/` y detente ahí (no inventes ni asumas un código parecido).
+2. Lee ese `description.md` completo (secciones `## Idea`, `## Código` y `## Notas`) y, si los hay, sus ficheros `design_*.html` de esa misma carpeta. Este es el contenido a analizar y documentar — úsalo como si fuera la petición del usuario para el resto del proceso, en vez de esperar una descripción nueva en el chat. Si el usuario añadió también contexto adicional al invocar la skill, súmalo al análisis.
+3. Continúa con el proceso habitual desde el paso 1 de "Pasos" (anticipar dudas, documentar con `ms-workflow`, propuesta visual), usando ese contenido como base. Si había `design_*.html` en la idea de `todo/`, tenlos en cuenta al construir la propuesta visual del paso 3 (no los copies tal cual sin más: son solo un boceto de partida, no una maqueta ya validada).
+4. **Solo si el paso 2 de "Pasos" termina con éxito** (la entrada ya existe en `{changesDir}/inProgress/{xxxx}/`), borra automáticamente `{changesDir}/todo/{código}/` entera (`description.md` y cualquier `design_*.html` que tuviera), sin pedir confirmación al usuario — a diferencia de `ms-close`, aquí el borrado es una limpieza automática del origen ya migrado, no una acción destructiva que requiera aprobación. Si el paso 2 no llega a completarse, deja la idea tal cual en `todo/`.
+5. En el paso 4 de "Pasos" (indicar el siguiente paso), menciona también que la idea `{código}` de `todo/` ha quedado convertida en el cambio `{xxxx}` y borrada de `todo/`.
 
 ## Pasos
 
