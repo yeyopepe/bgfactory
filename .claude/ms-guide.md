@@ -92,6 +92,15 @@ Diferencia clave: `/ms-fix` encadena automáticamente `ms-implement` al terminar
 
 Si ya existe una entrada en `inProgress` y quieres ampliarla en vez de crear una nueva, invoca `/ms-new {xxxx} <descripción de la ampliación>` — detecta que ya existe y añade a lo documentado en vez de crear otra carpeta.
 
+### Atajo — `/ms-fast` para cambios triviales
+
+Para algo tan pequeño que no merece pasar por `description.md` + `plan.md` + confirmación (un typo, un texto, un valor/constante puntual, un ajuste de estilo aislado), usa `/ms-fast <descripción del cambio>` en vez de `/ms-new`/`/ms-fix`. Ejemplo: `/ms-fast corrige el texto del botón "Guradar" a "Guardar"`.
+
+`ms-fast` primero valora si el cambio de verdad es trivial (sin ambigüedad, como mucho 2 ficheros, sin comportamiento nuevo, sin tocar `architectureDocPath` ni `styleBibleDocPath`):
+
+- **Si califica**: aplica el cambio directamente en el código y, en la misma invocación, documenta lo hecho en `changes/implemented/fast-{título}_{yyyyMMdd}/description.md` — sin pasar por `inProgress`, sin `plan.md`, sin `ms-workflow` (usa su propio nombre de carpeta, no el `xxxx` secuencial). Queda ya en `implemented`, listo para cerrarse más adelante con `/ms-close` igual que cualquier otro change/fix.
+- **Si no califica** (afecta a arquitectura/estilo, falta información, toca más de 2 ficheros, o resulta ser un bug con causa no evidente): no toca nada de código, te avisa de por qué no encaja, e invoca directamente `ms-new` con tu petición para arrancar el flujo normal de documentación.
+
 ### Paso 2 — Planificar e implementar: `ms-implement`
 
 `/ms-implement {xxxx}` toma una entrada ya documentada en `inProgress` y:
@@ -128,10 +137,20 @@ Cuando una entrada ya implementada deja de ser relevante para consulta activa (y
 4. Cuando quieras cortar una nueva build: `/ms-version` → fija `v00008` en `version.js` y ejecuta el build.
 5. Más adelante, si ya no necesitas consultar esa entrada: `/ms-close 00008`.
 
+Y para algo trivial:
+
+```
+/ms-fast corrige el texto del botón "Guradar" a "Guardar"
+```
+
+1. `ms-fast` valora que es trivial (un texto, un fichero) y aplica el cambio directamente.
+2. Documenta lo hecho en `changes/implemented/fast-corrige-texto-boton-guardar_20260717/description.md`, ya en `implemented` sin haber pasado por `inProgress` ni `plan.md`.
+3. Igual que cualquier otra entrada implementada, puede cerrarse más adelante con `/ms-close`.
+
 ## Trucos
 
-- **`/ms-close all`** cierra de golpe todo lo que ya esté en `implemented/`, en vez de tener que invocar `/ms-close {xxxx}` entrada por entrada — sigue pidiendo confirmación antes de mover nada.
 - **Reanálisis sobre una entrada ya en curso**: si invocas `/ms-new {xxxx} ...` o `/ms-implement {xxxx}` sobre un `xxxx` que ya existe en `inProgress`, el framework no crea nada nuevo — reanaliza esa misma entrada (funcionalmente en el caso de `ms-new`, ampliando la documentación existente; técnicamente en el caso de `ms-implement`, regenerando el `plan.md`). Útil para corregir el rumbo de un cambio sin perder lo ya documentado ni generar carpetas duplicadas.
+- **`/ms-fast` para lo trivial**: si el cambio es tan pequeño que no merece pasar por `description.md`/`plan.md`, usa `/ms-fast` en vez de `/ms-new` — ver el atajo dedicado en el Paso 1 más arriba.
 
 ## Notas
 

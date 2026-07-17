@@ -10,7 +10,9 @@ por su nombre (xxxx o codigo alfanumerico de ms-todo).
 Para cada entrada determina:
   - type: 'todo' si esta bajo el estado 'todo' (ms-todo no usa campo Tipo);
     en cualquier otro estado, se parsea '**Tipo**' dentro de description.md
-    ('change' o 'fix'). Si no se encuentra o no es descriptio.md, 'unknown'.
+    ('change', 'fix' o 'fast' -- este ultimo lo crea ms-fast directamente en
+    'implemented', sin pasar por 'inProgress'). Si no se encuentra o no es
+    description.md, 'unknown'.
   - name: para 'todo', el texto completo (sin truncar) de la seccion
     '## Idea' de description.md (formato propio de ms-todo); en el resto de
     estados, el campo '**Nombre**' (formato de ms-new/ms-fix). Solo
@@ -49,7 +51,7 @@ NOTAS_FULL_RE = re.compile(
     r"^##\s*Notas\s*\n+(.+?)(?=\n##\s|\Z)", re.IGNORECASE | re.MULTILINE | re.DOTALL
 )
 
-KNOWN_TYPES = {"change", "fix"}
+KNOWN_TYPES = {"change", "fix", "fast"}
 
 
 def repo_root() -> Path:
