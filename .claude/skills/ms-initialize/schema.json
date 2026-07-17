@@ -1,0 +1,148 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ms-context.schema.json",
+  "title": ".claude/ms-context.json",
+  "description": "Fichero en la raiz del repo (junto a la carpeta .claude/) que da contexto a todas las skills del framework ms-* (ms-initialize, ms-workflow, ms-change, ms-fix, ms-implement, ms-version). Es lo unico que hace que esas skills sean genericas en vez de estar atadas a un proyecto concreto. Lo crea y actualiza la skill ms-initialize; ninguna otra skill debe escribirlo desde cero. Si el fichero existe pero incompleto, ms-initialize hace merge sobre lo ya existente sin pisar nada. Cualquier skill ms-* que necesite un campo que falte debe decirle al usuario que ejecute ms-initialize, no reimplementar el bootstrap.",
+  "type": "object",
+  "required": ["framework"],
+  "additionalProperties": false,
+  "properties": {
+    "framework": {
+      "type": "object",
+      "description": "Configuracion que entienden y usan las skills ms-* directamente (rutas y comandos del proceso de tracking de cambios y versionado). Forma fija, a diferencia de 'project'.",
+      "required": ["changesDir", "versioning"],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "comment": "Regla de negocio (no expresable en JSON Schema puro sin if/then/else): si versioning es true, versionFilePath, versionVariable, versionFormat, buildCommand y buildOutputPath son obligatorios entre si. Si versioning es false, los cinco deben omitirse.",
+          "if": {
+            "properties": { "versioning": { "const": true } }
+          },
+          "then": {
+            "required": [
+              "versionFilePath",
+              "versionVariable",
+              "versionFormat",
+              "buildCommand",
+              "buildOutputPath"
+            ]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                { "required": ["versionFilePath"] },
+                { "required": ["versionVariable"] },
+                { "required": ["versionFormat"] },
+                { "required": ["buildCommand"] },
+                { "required": ["buildOutputPath"] }
+              ]
+            }
+          }
+        }
+      ],
+      "properties": {
+        "changesDir": {
+          "type": "string",
+          "required": true,
+          "description": "OBLIGATORIO. Carpeta (relativa a la raiz del repo) bajo la que viven dos subarboles, cada uno con subcarpetas numeradas ({xxxx}): '{changesDir}/inProgress/' (cambios/fixes documentados por ms-change/ms-fix, pendientes de implementar o de planificar) y '{changesDir}/implemented/' (cambios/fixes cuyo plan.md ya se ha implementado -- los mueve ahi ms-implement). Un mismo {xxxx} nunca debe repetirse entre los dos subarboles: al calcular el siguiente numero hay que mirar el maximo de ambos. 'inProgress' no significa 'sin versionar': las carpetas no se mueven al generar una version, solo al implementarse.",
+          "examples": ["src/_changes", "docs/changes"]
+        },
+        "sourcecodeDir": {
+          "type": "string",
+          "description": "OPCIONAL. Carpeta raiz del codigo fuente del proyecto (relativa a la raiz del repo). La usa ms-implement como contexto de respaldo al analizar un cambio/fix y escribir su plan.md, solo cuando ni designDocPath ni projectGraphPath existen como ficheros reales en el repo.",
+          "examples": ["src", "app"]
+        },
+        "numberWidth": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 4,
+          "description": "OPCIONAL (por defecto 4). Numero de digitos del codigo secuencial 'xxxx', con ceros a la izquierda. No hace falta preguntarlo al usuario salvo que quiera algo distinto del default.",
+          "examples": [4]
+        },
+        "designDocPath": {
+          "type": "string",
+          "description": "OPCIONAL. Documento de arquitectura/diseno tecnico (relativo a la raiz del repo) que ms-workflow mantiene sincronizado cuando un cambio/fix modifica la arquitectura basica del proyecto. Si no esta configurado, ese paso se omite sin preguntar nada.",
+          "examples": ["design/docs/design_technical.md"]
+        },
+        "projectGraphPath": {
+          "type": "string",
+          "description": "OPCIONAL. Ruta al fichero con el grafo de conocimiento del proyecto (p.ej. generado con la skill graphify, tipicamente graphify-out/graph.json). Reservado para que las skills ms-* lo usen como contexto adicional; de momento ninguna skill lo consume todavia. Si el proyecto no tiene ese grafo, se omite.",
+          "examples": ["graphify-out/graph.json"]
+        },
+        "versioning": {
+          "type": "boolean",
+          "required": true,
+          "description": "OBLIGATORIO. true si el proyecto genera versiones/entregables versionados, false si no. Marca explicitamente la decision (tomada en ms-initialize) para que el resto de skills distingan 'el proyecto no versiona, a proposito' de 'el framework no se ha inicializado todavia'. Si es true, son obligatorios ademas versionFilePath, versionVariable, versionFormat, buildCommand y buildOutputPath (ver regla allOf/if-then-else mas arriba). Si es false, esos cinco campos deben omitirse todos y ms-version se limita a informar al usuario de que este proyecto no versiona entregables."
+        },
+        "versionFilePath": {
+          "type": "string",
+          "description": "Obligatorio solo si versioning es true. Fichero fuente (relativo a la raiz del repo) que declara la version actual del entregable. ms-version lo edita para fijar la nueva version.",
+          "examples": ["src/data/version.js"]
+        },
+        "versionVariable": {
+          "type": "string",
+          "description": "Obligatorio solo si versioning es true. Nombre de la constante/variable a fijar dentro de versionFilePath.",
+          "examples": ["CURRENT_VERSION"]
+        },
+        "versionFormat": {
+          "type": "string",
+          "description": "Obligatorio solo si versioning es true. Plantilla del valor de version, con '{xxxx}' como placeholder del codigo de cambio secuencial. Ej.: 'v{xxxx}' + '0001' -> 'v0001'.",
+          "examples": ["v{xxxx}"]
+        },
+        "buildCommand": {
+          "type": "string",
+          "description": "Obligatorio solo si versioning es true. Comando de build a ejecutar (respetando el shell que espera: .ps1 via PowerShell, .sh via bash, etc.) despues de fijar la version en versionFilePath.",
+          "examples": ["./src/scripts/build.ps1"]
+        },
+        "buildOutputPath": {
+          "type": "string",
+          "description": "Obligatorio solo si versioning es true. Ruta del entregable generado por buildCommand, con '{version}' como placeholder del valor resuelto de versionFormat. ms-version la usa para verificar que el build genero lo esperado.",
+          "examples": ["src/_output/versions/index-{version}.html"]
+        }
+      }
+    },
+    "project": {
+      "type": "object",
+      "description": "OPCIONAL, sin forma fija. Informacion libre y especifica de este proyecto concreto (que es, stack, convenciones, lo que haga falta). Las skills ms-* no dependen de ningun campo de aqui para funcionar, pero lo usan como contexto adicional al redactar documentos o tomar decisiones (p.ej. para que el resumen funcional de un fix hable con el vocabulario correcto del dominio). La define ms-initialize en conversacion con el usuario, proyecto a proyecto; puede quedar como objeto vacio si el usuario no quiere anotar nada.",
+      "additionalProperties": true,
+      "examples": [
+        {
+          "name": "Errantes",
+          "summary": "Prototipo de juego de mesa jugable en navegador.",
+          "stack": ["JavaScript vanilla", "HTML/CSS", "PowerShell build script"],
+          "notes": "El entregable es un unico HTML autocontenido por version."
+        }
+      ]
+    }
+  },
+  "examples": [
+    {
+      "framework": {
+        "changesDir": "src/_changes",
+        "numberWidth": 4,
+        "designDocPath": "design/docs/design_technical.md",
+        "projectGraphPath": "graphify-out/graph.json",
+        "sourcecodeDir": "src",
+        "versioning": true,
+        "versionFilePath": "src/data/version.js",
+        "versionVariable": "CURRENT_VERSION",
+        "versionFormat": "v{xxxx}",
+        "buildCommand": "./src/scripts/build.ps1",
+        "buildOutputPath": "src/_output/versions/index-{version}.html"
+      },
+      "project": {
+        "name": "Errantes",
+        "summary": "Prototipo de juego de mesa jugable en navegador.",
+        "stack": ["JavaScript vanilla", "HTML/CSS", "PowerShell build script"],
+        "notes": "El entregable es un unico HTML autocontenido por version."
+      }
+    },
+    {
+      "framework": {
+        "changesDir": "docs/changes",
+        "versioning": false
+      },
+      "project": {}
+    }
+  ]
+}

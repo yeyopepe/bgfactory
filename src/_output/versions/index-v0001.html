@@ -1,0 +1,443 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Errantes</title>
+  <style>
+body {
+  font-family: system-ui, sans-serif;
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.mode-switcher {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.mode-switcher__button.is-active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+.component-list {
+  list-style: none;
+  padding: 0;
+}
+
+.component-list__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  max-width: 360px;
+}
+
+.edit-form textarea {
+  min-height: 4rem;
+}
+
+  </style>
+</head>
+<body>
+  <h1>Errantes</h1>
+  <div id="mode-switcher"></div>
+  <div id="content"></div>
+  <script>
+var __modules = {};
+var __cache = {};
+function require(path) {
+  if (__cache[path]) { return __cache[path].exports; }
+  var module = { exports: {} };
+  __cache[path] = module;
+  __modules[path](module, module.exports, require);
+  return module.exports;
+}
+__modules['core/eventBus.js'] = function(module, exports, require) {
+// Bus de eventos simple (pub/sub) para desacoplar capas.
+
+const listeners = new Map();
+
+function on(eventName, handler) {
+  if (!listeners.has(eventName)) {
+    listeners.set(eventName, new Set());
+  }
+  listeners.get(eventName).add(handler);
+  return () => off(eventName, handler);
+}
+
+function off(eventName, handler) {
+  listeners.get(eventName)?.delete(handler);
+}
+
+function emit(eventName, payload) {
+  listeners.get(eventName)?.forEach((handler) => handler(payload));
+}
+
+module.exports.on = on;
+module.exports.off = off;
+module.exports.emit = emit;
+};
+__modules['core/state.js'] = function(module, exports, require) {
+// Estado central de la aplicación: modo activo + biblioteca de componentes.
+// Cualquier cambio se notifica vía eventBus para que la UI se refresque.
+
+const { emit } = require('core/eventBus.js');
+
+const MODES = { PLAY: 'play', EDIT: 'edit' };
+
+const state = {
+  mode: MODES.PLAY,
+  components: [],
+};
+
+function getState() {
+  return state;
+}
+
+function setMode(mode) {
+  state.mode = mode;
+  emit('mode:changed', state.mode);
+}
+
+function getComponents() {
+  return state.components;
+}
+
+function addComponent(component) {
+  state.components.push(component);
+  emit('components:changed', state.components);
+}
+
+function replaceComponent(id, updatedComponent) {
+  const index = state.components.findIndex((c) => c.id === id);
+  if (index === -1) return;
+  state.components[index] = updatedComponent;
+  emit('components:changed', state.components);
+}
+
+function removeComponent(id) {
+  state.components = state.components.filter((c) => c.id !== id);
+  emit('components:changed', state.components);
+}
+
+function loadComponents(components) {
+  state.components = components;
+  emit('components:changed', state.components);
+}
+
+module.exports.getState = getState;
+module.exports.setMode = setMode;
+module.exports.getComponents = getComponents;
+module.exports.addComponent = addComponent;
+module.exports.replaceComponent = replaceComponent;
+module.exports.removeComponent = removeComponent;
+module.exports.loadComponents = loadComponents;
+module.exports.MODES = MODES;
+};
+__modules['data/persistence.js'] = function(module, exports, require) {
+// Persistencia del estado: autoguardado en localStorage + exportar/importar JSON.
+
+const STORAGE_KEY = 'errantes:state';
+
+function saveToLocalStorage(components) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ components }));
+}
+
+function loadFromLocalStorage() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function exportToJsonFile(components, filename = 'errantes-componentes.json') {
+  const blob = new Blob([JSON.stringify({ components }, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function importFromJsonFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        resolve(data.components ?? []);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(file);
+  });
+}
+
+module.exports.saveToLocalStorage = saveToLocalStorage;
+module.exports.loadFromLocalStorage = loadFromLocalStorage;
+module.exports.exportToJsonFile = exportToJsonFile;
+module.exports.importFromJsonFile = importFromJsonFile;
+};
+__modules['ui/modeSwitcher.js'] = function(module, exports, require) {
+// UI para alternar entre modo juego y modo edición.
+
+const { MODES, getState, setMode } = require('core/state.js');
+
+function renderModeSwitcher(container) {
+  container.innerHTML = '';
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'mode-switcher';
+
+  for (const mode of [MODES.PLAY, MODES.EDIT]) {
+    const button = document.createElement('button');
+    button.textContent = mode === MODES.PLAY ? 'Modo juego' : 'Modo edición';
+    button.className = 'mode-switcher__button';
+    button.classList.toggle('is-active', getState().mode === mode);
+    button.addEventListener('click', () => setMode(mode));
+    wrapper.appendChild(button);
+  }
+
+  container.appendChild(wrapper);
+}
+
+module.exports.renderModeSwitcher = renderModeSwitcher;
+};
+__modules['ui/componentList.js'] = function(module, exports, require) {
+// Listado de componentes, reutilizable en modo juego (solo lectura)
+// y en modo edición (con acciones de edición/borrado).
+
+function renderComponentList(container, components, { onEdit, onRemove } = {}) {
+  container.innerHTML = '';
+
+  if (components.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'component-list__empty';
+    empty.textContent = 'No hay componentes todavía.';
+    container.appendChild(empty);
+    return;
+  }
+
+  const list = document.createElement('ul');
+  list.className = 'component-list';
+
+  for (const component of components) {
+    const item = document.createElement('li');
+    item.className = 'component-list__item';
+
+    const label = document.createElement('span');
+    label.textContent = `[${component.type}] ${component.name || '(sin nombre)'}`;
+    item.appendChild(label);
+
+    if (onEdit) {
+      const editButton = document.createElement('button');
+      editButton.textContent = 'Editar';
+      editButton.addEventListener('click', () => onEdit(component));
+      item.appendChild(editButton);
+    }
+
+    if (onRemove) {
+      const removeButton = document.createElement('button');
+      removeButton.textContent = 'Eliminar';
+      removeButton.addEventListener('click', () => onRemove(component));
+      item.appendChild(removeButton);
+    }
+
+    list.appendChild(item);
+  }
+
+  container.appendChild(list);
+}
+
+module.exports.renderComponentList = renderComponentList;
+};
+__modules['modes/play/playMode.js'] = function(module, exports, require) {
+// Modo juego: funcionamiento normal de la partida.
+// De momento solo muestra los componentes disponibles; la lógica de juego
+// (turnos, reglas, tablero interactivo...) se irá añadiendo aquí.
+
+const { getComponents } = require('core/state.js');
+const { renderComponentList } = require('ui/componentList.js');
+
+function renderPlayMode(container) {
+  container.innerHTML = '';
+
+  const title = document.createElement('h2');
+  title.textContent = 'Partida';
+  container.appendChild(title);
+
+  const listContainer = document.createElement('div');
+  container.appendChild(listContainer);
+
+  renderComponentList(listContainer, getComponents());
+}
+
+module.exports.renderPlayMode = renderPlayMode;
+};
+__modules['core/component.js'] = function(module, exports, require) {
+// Modelo genérico de "componente de juego" (carta, token, tablero, ...).
+// Deliberadamente sin tipos específicos todavía: cada componente es una
+// entidad con id, tipo libre, nombre, propiedades clave-valor e imagen opcional.
+
+function createComponent({ type = 'generico', name = '', properties = {}, image = null } = {}) {
+  return {
+    id: crypto.randomUUID(),
+    type,
+    name,
+    properties: { ...properties },
+    image,
+  };
+}
+
+function updateComponent(component, changes) {
+  return {
+    ...component,
+    ...changes,
+    properties: { ...component.properties, ...(changes.properties ?? {}) },
+  };
+}
+
+module.exports.createComponent = createComponent;
+module.exports.updateComponent = updateComponent;
+};
+__modules['modes/edit/editMode.js'] = function(module, exports, require) {
+// Modo edición: alta y edición de componentes de juego (cartas, tokens, tablero...).
+// El formulario es genérico porque todavía no hay tipos de componente definidos.
+
+const { createComponent, updateComponent } = require('core/component.js');
+const { addComponent, getComponents, removeComponent, replaceComponent } = require('core/state.js');
+const { renderComponentList } = require('ui/componentList.js');
+
+let editingId = null;
+
+function renderEditMode(container) {
+  container.innerHTML = '';
+
+  const title = document.createElement('h2');
+  title.textContent = 'Editor de componentes';
+  container.appendChild(title);
+
+  container.appendChild(buildForm());
+
+  const listContainer = document.createElement('div');
+  container.appendChild(listContainer);
+
+  renderComponentList(listContainer, getComponents(), {
+    onEdit: (component) => startEditing(component, container),
+    onRemove: (component) => removeComponent(component.id),
+  });
+}
+
+function buildForm() {
+  const form = document.createElement('form');
+  form.className = 'edit-form';
+
+  form.innerHTML = `
+    <label>Tipo <input name="type" required placeholder="carta, token, tablero..." /></label>
+    <label>Nombre <input name="name" required /></label>
+    <label>Propiedades (JSON) <textarea name="properties">{}</textarea></label>
+    <button type="submit">Guardar</button>
+  `;
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const formData = new FormData(form);
+    const type = formData.get('type').trim();
+    const name = formData.get('name').trim();
+    let properties = {};
+    try {
+      properties = JSON.parse(formData.get('properties') || '{}');
+    } catch {
+      alert('Las propiedades deben ser JSON válido.');
+      return;
+    }
+
+    if (editingId) {
+      const existing = getComponents().find((c) => c.id === editingId);
+      replaceComponent(editingId, updateComponent(existing, { type, name, properties }));
+      editingId = null;
+    } else {
+      addComponent(createComponent({ type, name, properties }));
+    }
+
+    form.reset();
+    form.querySelector('[name="properties"]').value = '{}';
+  });
+
+  return form;
+}
+
+function startEditing(component, container) {
+  editingId = component.id;
+  renderEditMode(container);
+  const form = container.querySelector('.edit-form');
+  form.querySelector('[name="type"]').value = component.type;
+  form.querySelector('[name="name"]').value = component.name;
+  form.querySelector('[name="properties"]').value = JSON.stringify(component.properties, null, 2);
+}
+
+module.exports.renderEditMode = renderEditMode;
+};
+__modules['main.js'] = function(module, exports, require) {
+// Bootstrap de la aplicación: carga el estado persistido, monta el selector
+// de modo y renderiza el modo activo, refrescando ante cualquier cambio.
+
+const { on } = require('core/eventBus.js');
+const { MODES, getState, loadComponents, getComponents } = require('core/state.js');
+const { loadFromLocalStorage, saveToLocalStorage } = require('data/persistence.js');
+const { renderModeSwitcher } = require('ui/modeSwitcher.js');
+const { renderPlayMode } = require('modes/play/playMode.js');
+const { renderEditMode } = require('modes/edit/editMode.js');
+
+const switcherEl = document.getElementById('mode-switcher');
+const contentEl = document.getElementById('content');
+
+function renderActiveMode() {
+  if (getState().mode === MODES.EDIT) {
+    renderEditMode(contentEl);
+  } else {
+    renderPlayMode(contentEl);
+  }
+}
+
+function renderAll() {
+  renderModeSwitcher(switcherEl);
+  renderActiveMode();
+}
+
+on('mode:changed', renderAll);
+on('components:changed', () => {
+  renderAll();
+  saveToLocalStorage(getComponents());
+});
+
+const persisted = loadFromLocalStorage();
+if (persisted?.components) {
+  loadComponents(persisted.components);
+} else {
+  renderAll();
+}
+
+
+};
+require('main.js');
+  </script>
+</body>
+</html>

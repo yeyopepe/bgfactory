@@ -1,0 +1,408 @@
+{
+  "generatedAt": "2026-07-17T10:03:50Z",
+  "basePath": "src",
+  "nodes": [
+    {
+      "id": "core/component.js",
+      "type": "file",
+      "path": "core/component.js",
+      "exports": [
+        "createComponent",
+        "updateComponent"
+      ],
+      "purpose": "Modelo genérico de componente de juego; expone la única vía para crear y actualizar componentes sin que cada capa maneje la forma del objeto directamente."
+    },
+    {
+      "id": "core/eventBus.js",
+      "type": "file",
+      "path": "core/eventBus.js",
+      "exports": [
+        "emit",
+        "off",
+        "on"
+      ],
+      "purpose": "Bus de eventos simple (pub/sub) para desacoplar capas: permite emitir y escuchar eventos sin acoplar módulos entre sí."
+    },
+    {
+      "id": "core/state.js",
+      "type": "file",
+      "path": "core/state.js",
+      "exports": [
+        "MODES",
+        "addComponent",
+        "getComponents",
+        "getState",
+        "loadComponents",
+        "removeComponent",
+        "replaceComponent",
+        "setMode"
+      ],
+      "purpose": "Fuente única de verdad del estado de la aplicación (modo activo y lista de componentes); notifica cualquier cambio vía eventBus."
+    },
+    {
+      "id": "data/persistence.js",
+      "type": "file",
+      "path": "data/persistence.js",
+      "exports": [
+        "exportToJsonFile",
+        "importFromJsonFile",
+        "loadFromLocalStorage",
+        "saveToLocalStorage"
+      ],
+      "purpose": "Persistencia del estado: autoguardado en localStorage y exportación/importación manual como fichero JSON."
+    },
+    {
+      "id": "data/version.js",
+      "type": "file",
+      "path": "data/version.js",
+      "exports": [
+        "CURRENT_VERSION"
+      ],
+      "purpose": "Fuente única de la versión actual del prototipo, actualizada manualmente al generar una nueva versión del entregable."
+    },
+    {
+      "id": "main.js",
+      "type": "file",
+      "path": "main.js",
+      "purpose": "Bootstrap de la aplicación: carga el estado persistido, monta el selector de modo y el modo activo, y conecta todas las capas entre sí."
+    },
+    {
+      "id": "modes/edit/editMode.js",
+      "type": "file",
+      "path": "modes/edit/editMode.js",
+      "exports": [
+        "renderEditMode"
+      ],
+      "purpose": "Modo edición: alta, edición y borrado de componentes de juego mediante un formulario genérico."
+    },
+    {
+      "id": "modes/play/playMode.js",
+      "type": "file",
+      "path": "modes/play/playMode.js",
+      "exports": [
+        "renderPlayMode"
+      ],
+      "purpose": "Modo juego: muestra los componentes disponibles durante la partida."
+    },
+    {
+      "id": "ui/componentList.js",
+      "type": "file",
+      "path": "ui/componentList.js",
+      "exports": [
+        "renderComponentList"
+      ],
+      "purpose": "Listado de componentes reutilizable entre modo juego (solo lectura) y modo edición (con acciones de editar/eliminar)."
+    },
+    {
+      "id": "ui/modeSwitcher.js",
+      "type": "file",
+      "path": "ui/modeSwitcher.js",
+      "exports": [
+        "renderModeSwitcher"
+      ],
+      "purpose": "UI reutilizable para alternar entre modo juego y modo edición."
+    },
+    {
+      "id": "core/component.js#createComponent",
+      "type": "function",
+      "path": "core/component.js",
+      "parent": "core/component.js",
+      "purpose": "Construye un nuevo componente (id generado, tipo/nombre/propiedades/imagen) a partir de los datos dados."
+    },
+    {
+      "id": "core/component.js#updateComponent",
+      "type": "function",
+      "path": "core/component.js",
+      "parent": "core/component.js",
+      "purpose": "Devuelve una copia de un componente con los cambios aplicados, fusionando properties en vez de sobrescribirla."
+    },
+    {
+      "id": "core/eventBus.js#emit",
+      "type": "function",
+      "path": "core/eventBus.js",
+      "parent": "core/eventBus.js",
+      "purpose": "Invoca todos los handlers registrados para un evento con el payload dado."
+    },
+    {
+      "id": "core/eventBus.js#off",
+      "type": "function",
+      "path": "core/eventBus.js",
+      "parent": "core/eventBus.js",
+      "purpose": "Elimina un handler previamente registrado para un evento."
+    },
+    {
+      "id": "core/eventBus.js#on",
+      "type": "function",
+      "path": "core/eventBus.js",
+      "parent": "core/eventBus.js",
+      "purpose": "Registra un handler para un evento y devuelve una función para desuscribirlo."
+    },
+    {
+      "id": "core/state.js#addComponent",
+      "type": "function",
+      "path": "core/state.js",
+      "parent": "core/state.js",
+      "purpose": "Añade un componente a la lista y emite components:changed."
+    },
+    {
+      "id": "core/state.js#getComponents",
+      "type": "function",
+      "path": "core/state.js",
+      "parent": "core/state.js",
+      "purpose": "Devuelve la lista actual de componentes."
+    },
+    {
+      "id": "core/state.js#getState",
+      "type": "function",
+      "path": "core/state.js",
+      "parent": "core/state.js",
+      "purpose": "Devuelve el objeto de estado completo (modo activo + componentes)."
+    },
+    {
+      "id": "core/state.js#loadComponents",
+      "type": "function",
+      "path": "core/state.js",
+      "parent": "core/state.js",
+      "purpose": "Reemplaza toda la lista de componentes (p.ej. al cargar desde persistencia) y emite components:changed."
+    },
+    {
+      "id": "core/state.js#removeComponent",
+      "type": "function",
+      "path": "core/state.js",
+      "parent": "core/state.js",
+      "purpose": "Elimina un componente por id y emite components:changed."
+    },
+    {
+      "id": "core/state.js#replaceComponent",
+      "type": "function",
+      "path": "core/state.js",
+      "parent": "core/state.js",
+      "purpose": "Sustituye un componente existente por id y emite components:changed."
+    },
+    {
+      "id": "core/state.js#setMode",
+      "type": "function",
+      "path": "core/state.js",
+      "parent": "core/state.js",
+      "purpose": "Cambia el modo activo (juego/edición) y emite mode:changed."
+    },
+    {
+      "id": "data/persistence.js#exportToJsonFile",
+      "type": "function",
+      "path": "data/persistence.js",
+      "parent": "data/persistence.js",
+      "purpose": "Descarga la lista de componentes como fichero .json para copia de seguridad o compartir entre máquinas."
+    },
+    {
+      "id": "data/persistence.js#importFromJsonFile",
+      "type": "function",
+      "path": "data/persistence.js",
+      "parent": "data/persistence.js",
+      "purpose": "Lee un fichero .json exportado previamente y devuelve su lista de componentes."
+    },
+    {
+      "id": "data/persistence.js#loadFromLocalStorage",
+      "type": "function",
+      "path": "data/persistence.js",
+      "parent": "data/persistence.js",
+      "purpose": "Recupera el estado guardado en localStorage, o null si no hay nada o no es válido."
+    },
+    {
+      "id": "data/persistence.js#saveToLocalStorage",
+      "type": "function",
+      "path": "data/persistence.js",
+      "parent": "data/persistence.js",
+      "purpose": "Guarda la lista de componentes en localStorage."
+    },
+    {
+      "id": "modes/edit/editMode.js#renderEditMode",
+      "type": "function",
+      "path": "modes/edit/editMode.js",
+      "parent": "modes/edit/editMode.js",
+      "purpose": "Pinta el formulario de alta/edición y el listado de componentes con acciones de editar/eliminar."
+    },
+    {
+      "id": "modes/play/playMode.js#renderPlayMode",
+      "type": "function",
+      "path": "modes/play/playMode.js",
+      "parent": "modes/play/playMode.js",
+      "purpose": "Pinta la pantalla de partida con el listado de componentes actual (solo lectura)."
+    },
+    {
+      "id": "ui/componentList.js#renderComponentList",
+      "type": "function",
+      "path": "ui/componentList.js",
+      "parent": "ui/componentList.js",
+      "purpose": "Pinta la lista de componentes dada, con botones opcionales de editar/eliminar según los callbacks recibidos."
+    },
+    {
+      "id": "ui/modeSwitcher.js#renderModeSwitcher",
+      "type": "function",
+      "path": "ui/modeSwitcher.js",
+      "parent": "ui/modeSwitcher.js",
+      "purpose": "Pinta los botones de cambio de modo y engancha el cambio de modo activo al hacer click."
+    }
+  ],
+  "edges": [
+    {
+      "source": "core/eventBus.js#on",
+      "target": "core/eventBus.js#off",
+      "relation": "calls"
+    },
+    {
+      "source": "core/state.js#addComponent",
+      "target": "core/eventBus.js#emit",
+      "relation": "calls"
+    },
+    {
+      "source": "core/state.js#loadComponents",
+      "target": "core/eventBus.js#emit",
+      "relation": "calls"
+    },
+    {
+      "source": "core/state.js#removeComponent",
+      "target": "core/eventBus.js#emit",
+      "relation": "calls"
+    },
+    {
+      "source": "core/state.js#replaceComponent",
+      "target": "core/eventBus.js#emit",
+      "relation": "calls"
+    },
+    {
+      "source": "core/state.js#setMode",
+      "target": "core/eventBus.js#emit",
+      "relation": "calls"
+    },
+    {
+      "source": "main.js",
+      "target": "core/eventBus.js#on",
+      "relation": "calls"
+    },
+    {
+      "source": "main.js",
+      "target": "core/state.js#getComponents",
+      "relation": "calls"
+    },
+    {
+      "source": "main.js",
+      "target": "core/state.js#loadComponents",
+      "relation": "calls"
+    },
+    {
+      "source": "main.js",
+      "target": "data/persistence.js#loadFromLocalStorage",
+      "relation": "calls"
+    },
+    {
+      "source": "main.js",
+      "target": "data/persistence.js#saveToLocalStorage",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "core/state.js#getComponents",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "core/state.js#removeComponent",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "ui/componentList.js#renderComponentList",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/play/playMode.js#renderPlayMode",
+      "target": "core/state.js#getComponents",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/play/playMode.js#renderPlayMode",
+      "target": "ui/componentList.js#renderComponentList",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/modeSwitcher.js#renderModeSwitcher",
+      "target": "core/state.js#getState",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/modeSwitcher.js#renderModeSwitcher",
+      "target": "core/state.js#setMode",
+      "relation": "calls"
+    },
+    {
+      "source": "core/state.js",
+      "target": "core/eventBus.js",
+      "relation": "imports"
+    },
+    {
+      "source": "main.js",
+      "target": "core/eventBus.js",
+      "relation": "imports"
+    },
+    {
+      "source": "main.js",
+      "target": "core/state.js",
+      "relation": "imports"
+    },
+    {
+      "source": "main.js",
+      "target": "data/persistence.js",
+      "relation": "imports"
+    },
+    {
+      "source": "main.js",
+      "target": "data/version.js",
+      "relation": "imports"
+    },
+    {
+      "source": "main.js",
+      "target": "modes/edit/editMode.js",
+      "relation": "imports"
+    },
+    {
+      "source": "main.js",
+      "target": "modes/play/playMode.js",
+      "relation": "imports"
+    },
+    {
+      "source": "main.js",
+      "target": "ui/modeSwitcher.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/edit/editMode.js",
+      "target": "core/component.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/edit/editMode.js",
+      "target": "core/state.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/edit/editMode.js",
+      "target": "ui/componentList.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/play/playMode.js",
+      "target": "core/state.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/play/playMode.js",
+      "target": "ui/componentList.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/modeSwitcher.js",
+      "target": "core/state.js",
+      "relation": "imports"
+    }
+  ]
+}
