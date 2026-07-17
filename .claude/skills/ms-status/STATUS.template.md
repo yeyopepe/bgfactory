@@ -14,10 +14,10 @@
 
 ## En progreso
 
--   **Pendientes de análisis técnico** (solo `description.md`, pendientes de planificar con `ms-implement`): {pendingTotal}
+-   **Implementando o pendientes de implementar** (`description.md` + `plan.md`, pendientes de implementar): {toImplementTotal}
     -   {xxxx} — {nombre} ({tipo})
     -   …
--   **Listos para implementar** (`description.md` + `plan.md`, pendientes de implementar): {toImplementTotal}
+-   **Pendientes de análisis técnico** (solo `description.md`, pendientes de planificar con `ms-implement`): {pendingTotal}
     -   {xxxx} — {nombre} ({tipo})
     -   …
 -   **Listos para revisar y cerrar** (en la carpeta changes/implemented): {toCloseTotal}
