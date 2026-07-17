@@ -10,6 +10,7 @@ Todas las skills viven bajo `.claude/skills/ms-*` y comparten un único fichero 
 - **100% conversacional y dirigido por IA.** Todo el ciclo — desde que surge la idea hasta que queda implementada — está pensado para que lo lleve una IA conversando con personas, no para rellenar formularios ni seguir un asistente rígido paso a paso.
 - **Especificación completa, formato libre.** Cada entrada exige la estructura mínima necesaria para ser útil (intención, plan, estado), pero sin formatos de *spec* complejos y rígidos que haya que aprender o mantener a mano.
 - **Sin herramientas adicionales.** No requiere más que Claude y Python instalados en la máquina de desarrollo — nada de servicios externos, bases de datos ni infraestructura propia que mantener.
+- **Valida el diseño antes de tocar código.** No se limita a analizar y planificar el cambio: cuando hay componente visual, genera maquetas estáticas en HTML/CSS (`design_*.html`) que puedes abrir y revisar en el navegador para validar el aspecto antes de que se implemente nada — evitando el ciclo de "implementar → ver que no convence → rehacer".
 
 ## Preparación
 
@@ -75,24 +76,29 @@ flowchart LR
 
 Cada entrada de trabajo vive en una carpeta numerada `xxxx` (p.ej. `00007`) que va viajando entre subcarpetas de `changesDir` según su estado: `inProgress/` → `implemented/` → `closed/`.
 
-### Paso 1 — Documentar: `/ms-new` o `/ms-fix`
+### Paso 1 — Definir el cambio: tres maneras
 
-El punto de entrada depende de qué tipo de trabajo es:
+El framework ofrece tres puntos de entrada según la naturaleza y el tamaño del cambio. Los tres conviven — la elección depende de qué tipo de trabajo es y de si merece pasar por documentación formal.
 
-- **`/ms-new`** — para funcionalidad nueva o un cambio de comportamiento **intencionado**. Ejemplo: `/ms-new añade un botón para barajar el mazo de eventos manualmente`.
-- **`/ms-fix`** — para un bug, algo que ya debería funcionar de otra forma. Ejemplo: `/ms-fix al recargar la página se pierde la partida en curso aunque estaba guardada`.
+#### 1. `/ms-new` — funcionalidad nueva o cambio de comportamiento intencionado
 
-En ambos casos, la skill:
+Para funcionalidad nueva o un cambio de comportamiento **intencionado**. Ejemplo: `/ms-new añade un botón para barajar el mazo de eventos manualmente`.
+
+#### 2. `/ms-fix` — corregir un bug
+
+Para un bug, algo que ya debería funcionar de otra forma. Ejemplo: `/ms-fix al recargar la página se pierde la partida en curso aunque estaba guardada`.
+
+En ambos casos (`/ms-new` y `/ms-fix`), la skill:
 
 1. Analiza el alcance y **anticipa** las dudas típicas (casos límite, convivencia con lo existente, alcance de los datos, quién puede usarlo, aspecto visual de alto nivel) y te propone respuestas razonables para que las confirmes o corrijas, en vez de preguntar a ciegas.
 2. Genera `changes/inProgress/{xxxx}/description.md` con el resumen funcional (nunca solución técnica todavía).
-3. Si el cambio tiene componente visual, crea maquetas estáticas `design_*.html` (solo HTML/CSS/SVG, sin lógica) como referencia visual.
+3. Si el cambio tiene componente visual, crea maquetas estáticas `design_*.html` (solo HTML/CSS/SVG, sin lógica) como referencia visual navegable — para validar el diseño antes de escribir una sola línea de código real.
 
 Diferencia clave: `/ms-fix` encadena automáticamente `ms-implement` al terminar (un bug se corrige de punta a punta en la misma invocación, con alcance estrictamente acotado a la causa raíz). `/ms-new` solo documenta — decides tú cuándo planificar/implementar después.
 
 Si ya existe una entrada en `inProgress` y quieres ampliarla en vez de crear una nueva, invoca `/ms-new {xxxx} <descripción de la ampliación>` — detecta que ya existe y añade a lo documentado en vez de crear otra carpeta.
 
-### Atajo — `/ms-fast` para cambios triviales
+#### 3. `/ms-fast` — atajo para cambios triviales
 
 Para algo tan pequeño que no merece pasar por `description.md` + `plan.md` + confirmación (un typo, un texto, un valor/constante puntual, un ajuste de estilo aislado), usa `/ms-fast <descripción del cambio>` en vez de `/ms-new`/`/ms-fix`. Ejemplo: `/ms-fast corrige el texto del botón "Guradar" a "Guardar"`.
 
@@ -150,7 +156,7 @@ Y para algo trivial:
 ## Trucos
 
 - **Reanálisis sobre una entrada ya en curso**: si invocas `/ms-new {xxxx} ...` o `/ms-implement {xxxx}` sobre un `xxxx` que ya existe en `inProgress`, el framework no crea nada nuevo — reanaliza esa misma entrada (funcionalmente en el caso de `ms-new`, ampliando la documentación existente; técnicamente en el caso de `ms-implement`, regenerando el `plan.md`). Útil para corregir el rumbo de un cambio sin perder lo ya documentado ni generar carpetas duplicadas.
-- **`/ms-fast` para lo trivial**: si el cambio es tan pequeño que no merece pasar por `description.md`/`plan.md`, usa `/ms-fast` en vez de `/ms-new` — ver el atajo dedicado en el Paso 1 más arriba.
+- **`/ms-fast` para lo trivial**: si el cambio es tan pequeño que no merece pasar por `description.md`/`plan.md`, usa `/ms-fast` en vez de `/ms-new` — ver la opción 3 dentro del Paso 1 más arriba.
 
 ## Notas
 
