@@ -121,6 +121,7 @@ export function renderComponentList(
         if (onEdit) {
           const editButton = document.createElement('button');
           editButton.type = 'button';
+          editButton.className = 'component-list__action-btn';
           editButton.textContent = 'Editar';
           editButton.addEventListener('click', (event) => {
             event.stopPropagation();
@@ -132,6 +133,7 @@ export function renderComponentList(
         if (onRemove) {
           const removeButton = document.createElement('button');
           removeButton.type = 'button';
+          removeButton.className = 'component-list__action-btn component-list__action-btn--danger';
           removeButton.textContent = 'Eliminar';
           removeButton.addEventListener('click', (event) => {
             event.stopPropagation();

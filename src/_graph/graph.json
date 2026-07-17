@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-17T17:38:09Z",
+  "generatedAt": "2026-07-17T17:50:19Z",
   "basePath": "src",
   "nodes": [
     {
@@ -82,7 +82,7 @@
       "exports": [
         "renderEditMode"
       ],
-      "purpose": "Modo edición: mesa infinita con los componentes renderizados y seleccionables/arrastrables/redimensionables, más el panel flotante de listado (también arrastrable/redimensionable) y la modal de alta/edición; mantiene selección, colapso y posición/ancho del panel como estado de módulo para sobrevivir a los remontados por components:changed."
+      "purpose": "Modo edición: mesa infinita con los componentes renderizados y seleccionables/arrastrables/redimensionables, más el panel flotante de listado (también arrastrable/redimensionable) y la modal de alta/edición/borrado; mantiene selección, colapso y posición/ancho del panel como estado de módulo para sobrevivir a los remontados por components:changed, limpiando la selección si el componente eliminado (desde la modal o el listado) era el seleccionado."
     },
     {
       "id": "modes/play/playMode.js",
@@ -100,7 +100,7 @@
       "exports": [
         "renderComponentList"
       ],
-      "purpose": "Panel flotante, colapsable, arrastrable (agarrando la cabecera) y redimensionable en ancho (manejador de esquina reutilizable) con el listado de componentes en tabla, usado en modo edición."
+      "purpose": "Panel flotante, colapsable, arrastrable (agarrando la cabecera) y redimensionable en ancho (manejador de esquina reutilizable) con el listado de componentes en tabla, usado en modo edición; el botón 'Eliminar' de cada fila usa el mismo estilo destructivo (rojo) que el de la modal de edición."
     },
     {
       "id": "ui/componentModal.js",
@@ -109,7 +109,7 @@
       "exports": [
         "openComponentModal"
       ],
-      "purpose": "Modal de creación/edición de un componente con tabs 'Generales' (id editable y validado) y 'Específicas' (campos según el tipo de componente, hoy solo 'texto')."
+      "purpose": "Modal de creación/edición de un componente con tabs 'Generales' (id editable y validado) y 'Específicas' (campos según el tipo de componente, hoy solo 'texto'); al editar (no al crear) incluye además un botón 'Eliminar' con estilo destructivo que, previa confirmación, borra el componente y cierra la modal."
     },
     {
       "id": "ui/componentRenderer.js",
@@ -302,7 +302,7 @@
       "type": "function",
       "path": "ui/componentModal.js",
       "parent": "ui/componentModal.js",
-      "purpose": "Abre una modal de alta/edición de componente con sus tabs y validación, invocando onAccept con el componente resultante al aceptar."
+      "purpose": "Abre una modal de alta/edición de componente con sus tabs y validación, invocando onAccept con el componente resultante al aceptar, y onDelete (si se pasa y no es un componente nuevo) tras confirmar su borrado."
     },
     {
       "id": "ui/componentRenderer.js#renderComponentsOnTable",

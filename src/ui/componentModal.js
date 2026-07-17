@@ -4,7 +4,7 @@
 import { getComponents } from '../core/state.js';
 import { createComponent, updateComponent } from '../core/component.js';
 
-export function openComponentModal({ component = null, onAccept }) {
+export function openComponentModal({ component = null, onAccept, onDelete }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -219,6 +219,19 @@ export function openComponentModal({ component = null, onAccept }) {
   renderSpecificTab();
 
   // Footer buttons
+  if (!isNew && onDelete) {
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn-eliminar';
+    deleteBtn.textContent = 'Eliminar';
+    deleteBtn.addEventListener('click', () => {
+      if (confirm(`¿Eliminar el componente "${workingComponent.id}"?`)) {
+        onDelete(component);
+        overlay.remove();
+      }
+    });
+    footer.appendChild(deleteBtn);
+  }
+
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
   cancelBtn.textContent = 'Cancelar';

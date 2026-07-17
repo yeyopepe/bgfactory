@@ -1,11 +1,13 @@
 :root {
-  --bg-table: #808080;
+  --bg-table: #c2c2c2;
+  --bg-table-dot: rgba(0, 0, 0, 0.12);
   --bg-toolbar: #333333;
   --bg-card: #f5f5f5;
   --accent-blue: #2c7dd8;
   --text-primary: #1a1a1a;
   --text-light: #ffffff;
   --text-muted: #666666;
+  --error: #d32f2f; /* estados de error y acciones destructivas */
 }
 
 * {
@@ -100,7 +102,10 @@ h1 {
   position: relative;
   width: 100%;
   height: 100%;
-  background: var(--bg-table);
+  background-color: var(--bg-table);
+  background-image: radial-gradient(circle, var(--bg-table-dot) 1.5px, transparent 1.5px);
+  background-size: 32px 32px;
+  background-position: -8px -8px;
   overflow: hidden;
   cursor: grab;
   user-select: none;
@@ -155,7 +160,7 @@ h1 {
   white-space: nowrap;
 }
 
-.component-list__actions-cell button {
+.component-list__action-btn {
   padding: 0.25rem 0.5rem;
   margin-right: 0.25rem;
   background: var(--accent-blue);
@@ -166,8 +171,12 @@ h1 {
   font-size: 0.75rem;
 }
 
-.component-list__actions-cell button:hover {
+.component-list__action-btn:hover {
   opacity: 0.9;
+}
+
+.component-list__action-btn--danger {
+  background: var(--error);
 }
 
 .component-list__row {
@@ -273,7 +282,7 @@ h1 {
 }
 
 .modal__error {
-  color: #d32f2f;
+  color: var(--error);
   font-size: 0.75rem;
   margin-top: 0.25rem;
 }
@@ -286,7 +295,7 @@ h1 {
   justify-content: flex-end;
 }
 
-.btn-cancel, .btn-accept {
+.btn-cancel, .btn-accept, .btn-eliminar {
   padding: 0.5rem 1.5rem;
   border: none;
   border-radius: 4px;
@@ -315,6 +324,16 @@ h1 {
 .btn-accept:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.btn-eliminar {
+  background: var(--error);
+  color: var(--text-light);
+  margin-right: auto;
+}
+
+.btn-eliminar:hover {
+  opacity: 0.9;
 }
 
 /* Text box component */

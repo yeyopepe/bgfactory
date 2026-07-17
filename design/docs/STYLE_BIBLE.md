@@ -22,11 +22,11 @@ Todos los colores viven como custom properties en `:root`. **Nunca hardcodear un
 --text-primary: #1a1a1a;  /* texto sobre fondos claros */
 --text-light:   #ffffff;  /* texto sobre fondos oscuros/de acento */
 --text-muted:   #666666;  /* texto secundario */
+--error:        #d32f2f;  /* estados de error y acciones destructivas */
 ```
 
 Colores puntuales que aún no son tokens (usarlos igual, pero si se repiten, promoverlos a `:root`):
 - Bordes neutros: `#ddd`, `#eee`, `#f0f0f0`, `#e0e0e0`, `#f9f9f9`
-- Error: `#d32f2f`
 - Overlays: `rgba(0,0,0,0.5)` (fondo de modal), `rgba(255,255,255,0.1)` (hover en toolbar oscura), `rgba(0,0,0,0.15)` (sombra de modal)
 
 ## 3. Tipografía
@@ -66,7 +66,8 @@ El proyecto sigue **BEM** (`bloque__elemento--modificador`). Reglas concretas:
 - Elemento con doble guion bajo: `.component-list__item`, `.modal__header`, `.modal__tabs`, `.modal__field`, `.infinite-table__world`.
 - Modificador con doble guion: `.text-box--selectable`.
 - Estados transitorios (no BEM, clases simples añadidas/quitadas por JS): `.grabbing`, `.active` — se usan tal cual, sin prefijo del bloque, y siempre junto a `classList.add/remove`, nunca reemplazando `className` entero.
-- Excepción histórica: `.btn-cancel` / `.btn-accept` no siguen BEM (no son `algo__algo`). Si se añaden más variantes de botón standalone, usar el mismo patrón `.btn-<intención>` en vez de mezclar con BEM de otro bloque.
+- Excepción histórica: `.btn-cancel` / `.btn-accept` / `.btn-eliminar` no siguen BEM (no son `algo__algo`). Si se añaden más variantes de botón standalone (no ligado a un bloque existente), usar el mismo patrón `.btn-<intención>` en vez de mezclar con BEM de otro bloque.
+- Cuando el botón sí pertenece a un bloque ya existente (p. ej. una fila de `.component-list`), no se usa la excepción `.btn-*`: se sigue BEM normal con un modificador, como `.component-list__action-btn--danger`.
 - IDs (`#mode-switcher`, `#content`, `#app-version`, `#edit-toolbar`) se reservan para contenedores de layout únicos definidos en `index.html`, no para componentes reutilizables.
 
 ## 8. Patrones de componente (JS)
@@ -96,6 +97,7 @@ font-size: 0.875rem;    /* o 0.75rem si es pequeño */
 
 - Acción primaria: fondo `var(--accent-blue)`, texto `var(--text-light)`, hover `opacity: 0.9`.
 - Acción secundaria/cancelar: fondo `#f0f0f0`, texto `var(--text-primary)`, hover `#e0e0e0`.
+- Acción destructiva (eliminar/borrar): fondo `var(--error)`, texto `var(--text-light)`, hover `opacity: 0.9` — mismo tratamiento que la acción primaria, solo cambia el color de fondo. Aplica tanto al botón standalone `.btn-eliminar` (modales) como al modificador BEM `--danger` dentro de un bloque existente (p. ej. `.component-list__action-btn--danger`): cualquier acción que elimine un elemento debe usar este color en toda la app, nunca el azul de acción primaria.
 - Botón sobre fondo oscuro (toolbar): transparente, borde `1px solid var(--text-light)`, hover `rgba(255,255,255,0.1)`.
 - Deshabilitado: `opacity: 0.5; cursor: not-allowed`.
 - No usar `:active` ni transiciones — el único feedback de interacción es el cambio de `opacity` u `background` en `:hover`.

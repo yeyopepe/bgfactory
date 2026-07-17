@@ -11,10 +11,10 @@ Superficie de juego navegable arrastrando (pan) y con la rueda del ratón (zoom,
 
 ### Alta/edición/borrado de componentes con modal de tabs
 
-Modal con dos pestañas ("Generales" con el `id` editable, y "Específicas" según el tipo de componente) para crear o editar un componente, con validación de `id` no vacío y único.
+Modal con dos pestañas ("Generales" con el `id` editable, y "Específicas" según el tipo de componente) para crear o editar un componente, con validación de `id` no vacío y único. Al editar un componente ya existente (no al crear uno nuevo), la modal incluye además un botón "Eliminar" en el extremo izquierdo de la zona de botones, con el mismo estilo destructivo (rojo) que el resto de acciones de borrado de la app; pide confirmación igual que el borrado desde el panel flotante y, si se confirma, borra el componente y cierra la modal (limpiando también la selección en el editor si el componente eliminado era el seleccionado). Es un camino alternativo al borrado desde el panel flotante, no lo sustituye.
 
 - **Disponible en**: modo edición — desde el panel flotante de componentes o haciendo doble click directamente sobre la representación del componente en la mesa.
-- **Código**: 00002, 00003, 00004.
+- **Código**: 00002, 00003, 00004, 00013.
 
 ### Panel flotante de componentes, con selección, resaltado, arrastre y redimensionado
 

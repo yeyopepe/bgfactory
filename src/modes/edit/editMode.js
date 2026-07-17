@@ -51,6 +51,12 @@ export function renderEditMode(container) {
       onAccept: (updated, isNew) => {
         replaceComponent(component.id, updated);
       },
+      onDelete: (deletedComponent) => {
+        if (selectedComponentId === deletedComponent.id) {
+          selectedComponentId = null;
+        }
+        removeComponent(deletedComponent.id);
+      },
     });
   }
 
