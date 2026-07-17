@@ -29,6 +29,8 @@ from pathlib import Path
 
 NUMERIC_NAME = re.compile(r"^\d+$")
 STATES = ("inProgress", "implemented", "closed")
+# "todo" (usada por la skill ms-todo) queda deliberadamente fuera: no forma
+# parte del flujo de change/fix.
 
 
 def repo_root() -> Path:

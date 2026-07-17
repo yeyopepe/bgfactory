@@ -44,7 +44,7 @@
         "changesDir": {
           "type": "string",
           "required": true,
-          "description": "OBLIGATORIO. Carpeta (relativa a la raiz del repo) bajo la que viven dos subarboles, cada uno con subcarpetas numeradas ({xxxx}): '{changesDir}/inProgress/' (cambios/fixes documentados por ms-change/ms-fix, pendientes de implementar o de planificar) y '{changesDir}/implemented/' (cambios/fixes cuyo plan.md ya se ha implementado -- los mueve ahi ms-implement). Un mismo {xxxx} nunca debe repetirse entre los dos subarboles: al calcular el siguiente numero hay que mirar el maximo de ambos. 'inProgress' no significa 'sin versionar': las carpetas no se mueven al generar una version, solo al implementarse.",
+          "description": "OBLIGATORIO. Carpeta (relativa a la raiz del repo) bajo la que viven dos subarboles, cada uno con subcarpetas numeradas ({xxxx}): '{changesDir}/inProgress/' (cambios/fixes documentados por ms-change/ms-fix, pendientes de implementar o de planificar) y '{changesDir}/implemented/' (cambios/fixes cuyo plan.md ya se ha implementado -- los mueve ahi ms-implement). Un mismo {xxxx} nunca debe repetirse entre los dos subarboles: al calcular el siguiente numero hay que mirar el maximo de ambos. 'inProgress' no significa 'sin versionar': las carpetas no se mueven al generar una version, solo al implementarse. Puede convivir ahi tambien '{changesDir}/todo/', usada exclusivamente por la skill ms-todo para ideas sueltas: esa subcarpeta es ajena al flujo de change/fix y ninguna otra skill ms-* la lee, la escribe ni la cuenta al numerar.",
           "examples": ["src/_changes", "docs/changes"]
         },
         "sourcecodeDir": {

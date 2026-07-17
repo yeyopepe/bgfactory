@@ -118,14 +118,11 @@ h1 {
   height: 100%;
 }
 
-/* Component list */
+/* Component list (table inside the floating component panel) */
 .component-list {
-  list-style: none;
-  padding: 1rem;
-  margin: 0;
-  background: var(--bg-card);
-  border-radius: 4px;
-  max-width: 300px;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
 }
 
 .component-list__empty {
@@ -134,20 +131,32 @@ h1 {
   padding: 1rem;
 }
 
-.component-list__item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.component-list th {
   padding: 0.5rem;
-  margin-bottom: 0.5rem;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.875rem;
+  text-align: left;
+  font-weight: 500;
+  background: #f0f0f0;
 }
 
-.component-list__item button {
+.component-list td {
+  padding: 0.5rem;
+  border-top: 1px solid #ddd;
+}
+
+.component-list__id-cell {
+  max-width: 6rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.component-list__actions-cell {
+  white-space: nowrap;
+}
+
+.component-list__actions-cell button {
   padding: 0.25rem 0.5rem;
+  margin-right: 0.25rem;
   background: var(--accent-blue);
   color: var(--text-light);
   border: none;
@@ -156,8 +165,20 @@ h1 {
   font-size: 0.75rem;
 }
 
-.component-list__item button:hover {
+.component-list__actions-cell button:hover {
   opacity: 0.9;
+}
+
+.component-list__row {
+  cursor: pointer;
+}
+
+.component-list__row:hover {
+  background: #f9f9f9;
+}
+
+.component-list__row.component-list__row--selected {
+  background: rgba(44, 125, 216, 0.15);
 }
 
 /* Modal */
@@ -309,31 +330,56 @@ h1 {
   outline: 2px dashed var(--accent-blue);
 }
 
-/* Edit mode layout */
-.edit-mode-layout {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem;
+.text-box--selectable.text-box--selected {
+  outline: 3px dashed var(--accent-blue);
+  outline-offset: 4px;
 }
 
-.edit-mode-panel {
+/* Floating component panel (edit mode) */
+.component-panel-container {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 15;
+}
+
+.component-panel {
   width: 300px;
   background: var(--bg-card);
   border-radius: 4px;
-  padding: 1rem;
-  max-height: calc(100vh - 5rem);
+  overflow: hidden;
+}
+
+.component-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: var(--bg-toolbar);
+  color: var(--text-light);
+}
+
+.component-panel__header button {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.component-panel__body {
+  max-height: 320px;
   overflow-y: auto;
 }
 
-.edit-mode-panel h2 {
-  margin-top: 0;
-  font-size: 1.125rem;
+.component-panel__footer {
+  padding: 0.5rem 1rem;
+  border-top: 1px solid #ddd;
 }
 
-.edit-mode-panel button {
+.component-panel__footer button {
   width: 100%;
   padding: 0.5rem;
-  margin-top: 0.5rem;
   background: var(--accent-blue);
   color: var(--text-light);
   border: none;
@@ -341,7 +387,7 @@ h1 {
   cursor: pointer;
 }
 
-.edit-mode-panel button:hover {
+.component-panel__footer button:hover {
   opacity: 0.9;
 }
 

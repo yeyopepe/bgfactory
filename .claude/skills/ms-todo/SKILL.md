@@ -1,0 +1,71 @@
+---
+name: ms-todo
+description: Apunta y desarrolla ideas sueltas para el futuro sin meterlas en el flujo de trabajo del proyecto — las guarda en {changesDir}/todo/{código}/description.md, una carpeta aparte que ninguna otra skill ms-* usa ni tiene en cuenta. Sirve tanto para anotar una idea nueva como para seguir desarrollando/ampliando una ya apuntada. Trigger: /ms-todo [código] <idea>, o cuando el usuario pide "apuntar"/"dejar anotada" una idea para más adelante, sin pedir que se documente como change/fix.
+argument-hint: "[código] <idea a anotar o desarrollar>"
+metadata:
+  version: 1.0.0
+---
+
+# ms-todo
+
+Cuaderno de ideas del framework `ms-*`, pero **fuera** de su flujo de trabajo: no documenta un cambio/fix a implementar, solo deja constancia de una idea para desarrollarla más adelante, a un ritmo distinto del de `ms-new`/`ms-fix`. No hay planificación (`ms-implement`), ni estados (`inProgress`/`implemented`/`closed`), ni versión: una idea anotada aquí se queda aquí hasta que, en su caso, alguien decida convertirla en un change/fix de verdad con `ms-new`/`ms-fix` (fuera ya de esta skill).
+
+Vive en `{changesDir}/todo/`, una subcarpeta hermana de `inProgress`/`implemented`/`closed` pero **ajena por completo** al resto del framework: ninguna otra skill `ms-*` la lee, la escribe, ni cuenta sus carpetas al numerar o buscar cambios/fixes. Los códigos que usa esta skill no tienen ninguna relación con el `xxxx` numérico de change/fix — son solo identificadores únicos dentro de `{changesDir}/todo/`.
+
+## 0. Comprobar que el framework está inicializado
+
+Si `.claude/ms-context.json` no existe en la raíz del repo, o le falta la sección `framework` (o el campo `changesDir`), no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí.
+
+A partir de aquí, `changesDir` se refiere al valor de `framework.changesDir` en ese fichero.
+
+## 1. Decidir si es una idea nueva o una ampliación
+
+Si el usuario indica un código al invocar esta skill (p.ej. `/ms-todo a3f9k añade también...`), comprueba si existe **exactamente** `{changesDir}/todo/{código}/`.
+
+- **Si existe**: es una ampliación de una idea ya apuntada. Ve a la sección [Ampliar una idea ya apuntada](#ampliar-una-idea-ya-apuntada).
+- **Si no existe**, o no se ha indicado ningún código: es una idea nueva. Continúa en el paso 2.
+
+Si el usuario no da contenido alguno (p.ej. solo pide "qué ideas tengo apuntadas" o "lista las todo"), salta directamente al paso de [Listar ideas apuntadas](#listar-ideas-apuntadas) sin crear ni modificar nada.
+
+## 2. Generar un código único
+
+Lista las subcarpetas que ya existan bajo `{changesDir}/todo/` (créala si no existe todavía — en ese caso no hay ninguna carpeta que colisione). Genera un código alfanumérico corto (p.ej. 5 caracteres en minúscula, `[a-z0-9]`) que no coincida con ninguna carpeta ya existente ahí. No consultes ni tengas en cuenta para esto ninguna otra carpeta del repo (ni `inProgress`/`implemented`/`closed`, ni nada fuera de `{changesDir}/todo/`): la única condición de unicidad es no repetirse dentro de esta subcarpeta.
+
+## 3. Anotar la idea
+
+Sin preguntar dudas de alcance ni proponer respuestas a huecos funcionales (eso es lo que distingue esta skill de `ms-new`/`ms-fix`: aquí se anota la idea tal cual está, aunque esté incompleta o sea solo un esbozo), crea:
+
+```
+{changesDir}/todo/{código}/description.md
+```
+
+Con estos campos:
+
+- **Idea** — nombre corto que resuma la idea.
+- **Código** — el código generado en el paso 2.
+- **Notas** — el contenido de la idea, tal como la ha planteado el usuario. Puede ser una frase suelta, una lista de posibilidades, dudas abiertas sin resolver, o cualquier otra forma en la que el usuario quiera dejarla anotada — no fuerces la estructura de `description.md` de `ms-new`/`ms-fix` (no hay "Prompt original" ni "Descripción completa" separados).
+
+Si la idea tiene componente visual claro y el usuario quiere dejar constancia de ello, puedes crear también algún `design_*.html` igual que hace `ms-new` (maqueta autocontenida, sin funcionalidad real) — pero no es obligatorio ni el foco de esta skill; solo hazlo si el usuario lo pide o aporta ese material.
+
+## 4. Confirmar al usuario
+
+Indica el código asignado y la ruta del fichero creado, y recuerda que esta idea se queda anotada en `{changesDir}/todo/` sin entrar en el flujo de trabajo — si en algún momento se quiere convertir en un cambio/fix real, hay que documentarla de nuevo con `ms-new`/`ms-fix` (esta skill no hace esa conversión automáticamente).
+
+## Ampliar una idea ya apuntada
+
+Cuando el paso 1 detecta que el código indicado ya existe en `{changesDir}/todo/{código}/`:
+
+1. Abre `{changesDir}/todo/{código}/description.md` para ver lo ya anotado.
+2. Añade lo nuevo a la sección **Notas**, dejando lo anterior tal cual (no lo borres ni lo reescribas) y añadiendo lo nuevo a continuación — igual que un cuaderno donde se sigue escribiendo, no un documento que se reformula cada vez.
+3. Confirma al usuario que la idea `{código}` queda actualizada.
+
+## Listar ideas apuntadas
+
+Si el usuario pide ver qué ideas hay anotadas: lista las subcarpetas de `{changesDir}/todo/` y, para cada una, su código y el campo **Idea** de su `description.md`. Si la carpeta no existe o está vacía, dilo así — no hay ninguna idea apuntada todavía.
+
+## Qué NO hace esta skill
+
+- No planifica ni implementa nada (no hay equivalente a `ms-implement` aquí).
+- No mueve ideas entre estados ni las "cierra" — para eso no hay flujo; si una idea deja de interesar, es el usuario quien decide borrarla o dejarla tal cual.
+- No numera con el `xxxx` del framework ni invoca `ms-workflow` — su numeración es independiente y local a `{changesDir}/todo/`.
+- No cuenta como fuente de intención para `ms-implement`, `ms-graph`, `ms-version` ni ninguna otra skill del framework: `{changesDir}/todo/` es territorio exclusivo de `ms-todo`.

@@ -12,6 +12,10 @@ Toma una entrada ya documentada por `ms-change`/`ms-fix` en `{changesDir}/inProg
 
 **Fuente de la verdad.** El código, el grafo de contexto (`projectGraphPath`), la documentación técnica (`architectureDocPath`) y la guía de estilo (`styleBibleDocPath`) son la única fuente de verdad sobre cómo funciona hoy el proyecto — no lo que `description.md` asuma implícitamente sobre la implementación, ni memoria de conversaciones anteriores. Verifícalos siempre al analizar la causa raíz y diseñar la solución (paso 3), incluso si ya tienes una idea de cómo funciona algo por contexto previo. Tampoco cuenta como fuente de verdad el `description.md` o `plan.md` de **otros** cambios/fixes bajo `{changesDir}/**` (en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto — el único documento de otra entrada que sí es relevante aquí es el que consulta explícitamente el paso 0.1 (los `xxxx` máximos, para la verificación de orden).
 
+## Formato de la documentación: diagramas antes que prosa
+
+Al escribir o actualizar cualquier documento de esta skill (`plan.md`, `architectureDocPath`, `featuresDocPath`, `styleBibleDocPath`), si lo que hay que describir es un flujo, un proceso con pasos/decisiones, una secuencia de interacciones o una relación entre estados o componentes, prioriza representarlo con un diagrama Mermaid (`flowchart`, `sequenceDiagram`, `stateDiagram-v2`, etc.) acompañado de las notas imprescindibles, en lugar de un párrafo largo explicando lo mismo en prosa. Reserva la prosa para lo que el diagrama no pueda expresar (matices, motivos, excepciones puntuales) o para contenido sin estructura de flujo/relación clara que representar.
+
 ## 0. Cargar el contexto del proyecto
 
 Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta `framework.changesDir`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí. El esquema completo está en [`../ms-init/schema.json`](../ms-init/schema.json) (léelo primero si no lo has hecho ya en esta sesión).

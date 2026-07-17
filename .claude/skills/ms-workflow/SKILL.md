@@ -32,19 +32,21 @@ A partir de aquí, `changesDir` y `numberWidth` se refieren a los valores de `fr
 
 Continúa con la sección de abajo que corresponda a la `action` recibida.
 
+**Formato de la documentación:** al redactar `description.md` (acción `create`), si hay que describir un flujo, una secuencia de pasos o una interacción entre componentes/estados (p.ej. cómo reproducir un bug, o cómo debería comportarse un flujo nuevo), prioriza un diagrama Mermaid (`flowchart`, `sequenceDiagram`, etc.) con las notas imprescindibles antes que un párrafo largo. Usa prosa cuando no haya un flujo/relación clara que representar.
+
 ## Acción `create`
 
 La sección `project` de `ms-context.json` úsala como contexto adicional al redactar (vocabulario del dominio, convenciones) pero ningún paso de esta acción depende de ella.
 
 ### create.1 Calcular el código de cambio `xxxx`
 
-Cada cambio/fix vive en una subcarpeta numerada bajo alguno de los subárboles de `{changesDir}` (`inProgress/`, `implemented/`, `closed/`, o cualquier otro que exista): un mismo `xxxx` no puede repetirse en ninguno de ellos. Para calcularlo sin errores, ejecuta el script [`scripts/next-change-number.py`](scripts/next-change-number.py) (requiere Python 3) desde la raíz del repo:
+Cada cambio/fix vive en una subcarpeta numerada bajo alguno de los subárboles de `{changesDir}` (`inProgress/`, `implemented/`, `closed/`, o cualquier otro que exista): un mismo `xxxx` no puede repetirse en ninguno de ellos. La excepción es `{changesDir}/todo/`, que usa la skill `ms-todo` para ideas sueltas ajenas a este flujo: sus carpetas nunca cuentan aquí, ni aunque tuvieran nombre numérico. Para calcularlo sin errores, ejecuta el script [`scripts/next-change-number.py`](scripts/next-change-number.py) (requiere Python 3) desde la raíz del repo:
 
 ```
 python .claude/skills/ms-workflow/scripts/next-change-number.py
 ```
 
-El script lee `changesDir` y `numberWidth` de `.claude/ms-context.json`, recorre **todas** las subcarpetas de `{changesDir}` (no solo `inProgress`/`implemented`) buscando nombres puramente numéricos, y devuelve por stdout el siguiente `xxxx` ya formateado con `numberWidth` dígitos y ceros a la izquierda (p.ej. `0002`, o `1` si no hubiera ninguna carpeta numerada todavía). Usa ese valor tal cual como `xxxx` — no lo recalcules a mano ni mires solo `inProgress`/`implemented`.
+El script lee `changesDir` y `numberWidth` de `.claude/ms-context.json`, recorre **todas** las subcarpetas de `{changesDir}` (no solo `inProgress`/`implemented`, pero siempre ignorando `todo/`) buscando nombres puramente numéricos, y devuelve por stdout el siguiente `xxxx` ya formateado con `numberWidth` dígitos y ceros a la izquierda (p.ej. `0002`, o `1` si no hubiera ninguna carpeta numerada todavía). Usa ese valor tal cual como `xxxx` — no lo recalcules a mano ni mires solo `inProgress`/`implemented`.
 
 ### create.2 Generar el documento de intención del cambio/fix
 

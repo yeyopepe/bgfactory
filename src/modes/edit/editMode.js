@@ -1,7 +1,8 @@
 // Modo edición: mesa infinita con los componentes renderizados sobre ella (seleccionables
-// para editar) + panel lateral con listado de componentes y acciones de edición/borrado.
+// para editar) + panel flotante con listado de componentes y acciones de edición/borrado.
 
 import { getComponents, addComponent, replaceComponent, removeComponent } from '../../core/state.js';
+import { updateComponent } from '../../core/component.js';
 import { createInfiniteTable } from '../../ui/table.js';
 import { openComponentModal } from '../../ui/componentModal.js';
 import { renderComponentList } from '../../ui/componentList.js';
@@ -18,8 +19,17 @@ export function renderEditMode(container) {
   // Infinite table with components rendered directly on it
   const tableContainer = document.createElement('div');
   tableContainer.style.flex = '1';
+  tableContainer.style.position = 'relative';
   const table = createInfiniteTable(tableContainer);
   layout.appendChild(tableContainer);
+
+  // Floating panel with component list, anchored top-right over the table
+  const listContainer = document.createElement('div');
+  listContainer.className = 'component-panel-container';
+  tableContainer.appendChild(listContainer);
+
+  let selectedComponentId = null;
+  let collapsed = false;
 
   function openEditModalFor(component) {
     openComponentModal({
@@ -30,42 +40,51 @@ export function renderEditMode(container) {
     });
   }
 
-  renderComponentsOnTable(table.worldEl, getComponents(), { onSelect: openEditModalFor });
-
-  // Side panel with component list
-  const panel = document.createElement('div');
-  panel.className = 'edit-mode-panel';
-
-  const panelTitle = document.createElement('h2');
-  panelTitle.textContent = 'Componentes';
-  panelTitle.style.margin = '0 0 1rem 0';
-  panel.appendChild(panelTitle);
-
-  // List with edit/remove actions
-  const listContainer = document.createElement('div');
-  panel.appendChild(listContainer);
-
-  renderComponentList(listContainer, getComponents(), {
-    onEdit: openEditModalFor,
-    onRemove: (component) => {
-      removeComponent(component.id);
-    },
-  });
-
-  // Add button
-  const addBtn = document.createElement('button');
-  addBtn.textContent = '+ Añadir componente';
-  addBtn.style.marginTop = '1rem';
-  addBtn.addEventListener('click', () => {
+  function openAddModal() {
     openComponentModal({
       component: null,
       onAccept: (newComponent, isNew) => {
+        const n = getComponents().length;
+        newComponent.x = 100 + (n % 10) * 30;
+        newComponent.y = 100 + (n % 10) * 30;
         addComponent(newComponent);
       },
     });
-  });
-  panel.appendChild(addBtn);
+  }
 
-  layout.appendChild(panel);
+  function renderTable() {
+    renderComponentsOnTable(table.worldEl, getComponents(), {
+      onSelect: openEditModalFor,
+      selectedId: selectedComponentId,
+      onMove: (component, x, y) => {
+        replaceComponent(component.id, updateComponent(component, { x, y }));
+      },
+    });
+  }
+
+  function renderList() {
+    renderComponentList(listContainer, getComponents(), {
+      onEdit: openEditModalFor,
+      onRemove: (component) => {
+        removeComponent(component.id);
+      },
+      onAdd: openAddModal,
+      selectedId: selectedComponentId,
+      collapsed,
+      onSelectRow: (component) => {
+        selectedComponentId = selectedComponentId === component.id ? null : component.id;
+        renderList();
+        renderTable();
+      },
+      onToggleCollapse: () => {
+        collapsed = !collapsed;
+        renderList();
+      },
+    });
+  }
+
+  renderTable();
+  renderList();
+
   container.appendChild(layout);
 }

@@ -6,6 +6,9 @@ que existan bajo cualquier subarbol de {changesDir} (inProgress, implemented,
 closed, o cualquier otro que se anada en el futuro) y devuelve ese numero + 1,
 formateado con numberWidth digitos y ceros a la izquierda.
 
+Excepcion: {changesDir}/todo/ (usada por la skill ms-todo, ajena al flujo de
+change/fix) se ignora siempre, aunque contenga subcarpetas numericas.
+
 changesDir y numberWidth se leen de .claude/ms-context.json (seccion
 framework) salvo que se pasen explicitamente por parametro.
 
@@ -24,6 +27,7 @@ import sys
 from pathlib import Path
 
 NUMERIC_NAME = re.compile(r"^\d+$")
+EXCLUDED_STATE_DIRS = {"todo"}
 
 
 def repo_root() -> Path:
@@ -59,7 +63,7 @@ def compute_next_number(changes_dir: Path) -> int:
     # implemented, closed...). Se recorren TODOS, no solo inProgress/implemented,
     # para no reasignar un xxxx que ya se uso en closed.
     for state_dir in changes_dir.iterdir():
-        if not state_dir.is_dir():
+        if not state_dir.is_dir() or state_dir.name in EXCLUDED_STATE_DIRS:
             continue
         for entry_dir in state_dir.iterdir():
             if entry_dir.is_dir() and NUMERIC_NAME.match(entry_dir.name):
