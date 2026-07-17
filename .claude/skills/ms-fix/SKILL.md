@@ -13,7 +13,7 @@ Un fix es, por naturaleza, un cambio acotado: el análisis y la solución deben 
 
 Esta skill no implementa nada por sí misma: documenta la intención y encadena directamente la skill `ms-implement`, que es quien analiza la causa raíz técnica, escribe el `plan.md` y (si se confirma) implementa.
 
-**Fuente de la verdad.** Para distinguir qué hace hoy el proyecto de lo que el usuario cree que hace, la única fuente de verdad es el código, el grafo de contexto (`projectGraphPath`, si está configurado) y la documentación técnica (`architectureDocPath`, si está configurada) — no asunciones ni memoria de la conversación. Tampoco cuenta como fuente de verdad el contenido de otros cambios/fixes que existan bajo `{changesDir}/**` (su `description.md` o `plan.md`, estén en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto.
+**Fuente de la verdad.** Para distinguir qué hace hoy el proyecto de lo que el usuario cree que hace, la única fuente de verdad es el código, el grafo de contexto (`projectGraphPath`, si está configurado), la documentación técnica (`architectureDocPath`, si está configurada) y la guía de estilo (`styleBibleDocPath`, si está configurada) — no asunciones ni memoria de la conversación. Tampoco cuenta como fuente de verdad el contenido de otros cambios/fixes que existan bajo `{changesDir}/**` (su `description.md` o `plan.md`, estén en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto.
 
 ## 0. Comprobar que el framework está inicializado
 

@@ -10,13 +10,13 @@ metadata:
 
 Toma una entrada ya documentada por `ms-change`/`ms-fix` en `{changesDir}/inProgress/{xxxx}/` y la lleva hasta implementada: analiza la solución técnica, la deja escrita en `plan.md`, y si el usuario lo confirma, la implementa y mueve la carpeta a `{changesDir}/implemented/{xxxx}/`.
 
-**Fuente de la verdad.** El código, el grafo de contexto (`projectGraphPath`) y la documentación técnica (`architectureDocPath`) son la única fuente de verdad sobre cómo funciona hoy el proyecto — no lo que `description.md` asuma implícitamente sobre la implementación, ni memoria de conversaciones anteriores. Verifícalos siempre al analizar la causa raíz y diseñar la solución (paso 3), incluso si ya tienes una idea de cómo funciona algo por contexto previo. Tampoco cuenta como fuente de verdad el `description.md` o `plan.md` de **otros** cambios/fixes bajo `{changesDir}/**` (en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto — el único documento de otra entrada que sí es relevante aquí es el que consulta explícitamente el paso 0.1 (los `xxxx` máximos, para la verificación de orden).
+**Fuente de la verdad.** El código, el grafo de contexto (`projectGraphPath`), la documentación técnica (`architectureDocPath`) y la guía de estilo (`styleBibleDocPath`) son la única fuente de verdad sobre cómo funciona hoy el proyecto — no lo que `description.md` asuma implícitamente sobre la implementación, ni memoria de conversaciones anteriores. Verifícalos siempre al analizar la causa raíz y diseñar la solución (paso 3), incluso si ya tienes una idea de cómo funciona algo por contexto previo. Tampoco cuenta como fuente de verdad el `description.md` o `plan.md` de **otros** cambios/fixes bajo `{changesDir}/**` (en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto — el único documento de otra entrada que sí es relevante aquí es el que consulta explícitamente el paso 0.1 (los `xxxx` máximos, para la verificación de orden).
 
 ## 0. Cargar el contexto del proyecto
 
 Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta `framework.changesDir`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí. El esquema completo está en [`../ms-init/schema.json`](../ms-init/schema.json) (léelo primero si no lo has hecho ya en esta sesión).
 
-`architectureDocPath`, `featuresDocPath`, `projectGraphPath` y `sourcecodeDir` son opcionales y se usan como contexto en el paso 3; si no están configurados, sigue adelante sin ellos (usa el repo en general como contexto de respaldo).
+`architectureDocPath`, `featuresDocPath`, `styleBibleDocPath`, `projectGraphPath` y `sourcecodeDir` son opcionales y se usan como contexto en el paso 3; si no están configurados, sigue adelante sin ellos (usa el repo en general como contexto de respaldo).
 
 ## 0.1 Verificación previa de orden
 
@@ -89,6 +89,7 @@ Una vez implementado en código lo anterior (y solo entonces — no si el usuari
   - Si es una funcionalidad nueva, añade una entrada en el área funcional que le corresponda (crea el área si no existe todavía) con el `xxxx` de esta entrada en **Origen**.
   - Si el fichero todavía no existe, créalo a partir de la plantilla [`FEATURES.template.md`](FEATURES.template.md) de esta skill.
   - Si `featuresDocPath` no está configurado, omite este punto sin preguntar nada.
+- **`styleBibleDocPath`** — si está configurado, revísalo y actualízalo si lo implementado introduce o modifica convenciones de estilo (visual, de interacción, de redacción, etc.) relevantes para el proyecto. Si no está configurado, o lo implementado no afecta a ninguna convención de estilo, omite este punto sin preguntar nada.
 
 ## 5. Mover la carpeta a `implemented`
 
@@ -102,4 +103,4 @@ Paso final: si en el paso 4 se han aplicado cambios relevantes en el código (no
 
 ## 7. Confirmar al usuario
 
-Indica qué se ha implementado, qué documentación se ha actualizado (`architectureDocPath`/`featuresDocPath`, según aplicara), que la carpeta se movió a `{changesDir}/implemented/{xxxx}/`, y si se ha actualizado el grafo de contexto.
+Indica qué se ha implementado, qué documentación se ha actualizado (`architectureDocPath`/`featuresDocPath`/`styleBibleDocPath`, según aplicara), que la carpeta se movió a `{changesDir}/implemented/{xxxx}/`, y si se ha actualizado el grafo de contexto.

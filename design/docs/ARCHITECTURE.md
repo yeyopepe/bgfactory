@@ -90,3 +90,4 @@ Módulos de UI que se reutilizan entre modos (`modes/play` y `modes/edit`) sin c
 - Módulos ES (`import`/`export`) organizados por capa/responsabilidad, un fichero por módulo funcional.
 - Sin dependencias externas por defecto. Si en el futuro se necesita una librería (por ejemplo, para el editor visual), solo se incorpora si su bundle puede embeberse íntegramente en el HTML final (sin llamadas a CDN en tiempo de ejecución ni instalación adicional para el usuario final).
 - Los recursos gráficos van en `/src/img`, organizados por tipo de componente a medida que se definan.
+- Convenciones visuales (tokens de color, tipografía, espaciado, nomenclatura BEM de clases, patrones de componente) documentadas en [STYLE_BIBLE.md](STYLE_BIBLE.md).
