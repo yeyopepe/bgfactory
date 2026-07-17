@@ -16,6 +16,22 @@ Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta `fr
 
 `designDocPath`, `projectGraphPath` y `sourcecodeDir` son opcionales y se usan como contexto en el paso 3; si no están configurados, sigue adelante sin ellos (usa el repo en general como contexto de respaldo).
 
+## 0.1 Verificación previa de orden
+
+Antes de identificar el cambio/fix, comprueba **siempre** que no se haya colado por delante de otro más reciente:
+
+1. Ejecuta [`scripts/get-max-change-codes.py`](scripts/get-max-change-codes.py) desde la raíz del repo:
+
+   ```
+   python .claude/skills/ms-implement/scripts/get-max-change-codes.py
+   ```
+
+   Devuelve un JSON con el `xxxx` más alto existente en cada uno de `inProgress`, `implemented` y `closed` (o `null` si ese estado no tiene ninguna carpeta numerada todavía).
+
+2. Compara esos tres códigos con el `xxxx` que se va a implementar en esta invocación. Si el `xxxx` actual es **menor** que cualquiera de los otros tres (ignorando los `null`), significa que este cambio/fix se creó antes que otro que ya avanzó más en el flujo (implementado o cerrado) — avisa de ello al usuario.
+   - Reanaliza inmediatamente la entrada según el resto de esta skill (pasos 1 en adelante), sin dar por válido sin más lo que ya hubiera en `plan.md` si existía.
+3. Si el `xxxx` actual no es menor que ninguno de los tres, continúa con la implementación normalmente desde el paso 1.
+
 ## 1. Identificar el cambio/fix
 
 El usuario indica el cambio/fix a implementar (por `xxxx`, por nombre de carpeta, o describiéndolo). Resuélvelo buscando **únicamente** dentro de `{changesDir}/inProgress/`.

@@ -27,7 +27,13 @@ A partir de aquí, `changesDir` y `numberWidth` se refieren a los valores de `fr
 
 ## 1. Calcular el código de cambio `xxxx`
 
-Cada cambio/fix vive en una subcarpeta numerada bajo `{changesDir}/inProgress/` (mientras no se ha implementado) o `{changesDir}/implemented/` (una vez `ms-implement` lo ha implementado y movido). Un mismo `xxxx` no puede repetirse entre los dos subárboles, así que para calcular el siguiente hay que mirar **ambos**: lista las subcarpetas puramente numéricas de `{changesDir}/inProgress` y de `{changesDir}/implemented` (los que existan; si ninguno existe todavía, no hay ningún `xxxx` previo). `xxxx` es el número más alto de los dos conjuntos + 1, formateado con `numberWidth` dígitos y ceros a la izquierda. Si no hay ninguna carpeta numerada en absoluto, `xxxx` es `1` formateado igual (p.ej. `0001`).
+Cada cambio/fix vive en una subcarpeta numerada bajo alguno de los subárboles de `{changesDir}` (`inProgress/`, `implemented/`, `closed/`, o cualquier otro que exista): un mismo `xxxx` no puede repetirse en ninguno de ellos. Para calcularlo sin errores, ejecuta el script [`scripts/next-change-number.py`](scripts/next-change-number.py) (requiere Python 3) desde la raíz del repo:
+
+```
+python .claude/skills/ms-workflow/scripts/next-change-number.py
+```
+
+El script lee `changesDir` y `numberWidth` de `.claude/ms-context.json`, recorre **todas** las subcarpetas de `{changesDir}` (no solo `inProgress`/`implemented`) buscando nombres puramente numéricos, y devuelve por stdout el siguiente `xxxx` ya formateado con `numberWidth` dígitos y ceros a la izquierda (p.ej. `0002`, o `1` si no hubiera ninguna carpeta numerada todavía). Usa ese valor tal cual como `xxxx` — no lo recalcules a mano ni mires solo `inProgress`/`implemented`.
 
 ## 2. Generar el documento de intención del cambio/fix
 
