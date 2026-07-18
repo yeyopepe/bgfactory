@@ -16,6 +16,11 @@ Configuración:
 - número de caras: mínimo 2, máximo 100.
 - tipo de fuente de los números de los resultados (a elegir en la lista de recursos)
 
+---
+
+Ajusta la representación de los dados: la cara con el resultado tiene que estar totalmente de cara al usuario así que debes ajustar la perspectiva de la vista para que sea más cenital.
+En realidad, basta con una vista plana con un leve efecto de profundidad.
+
 ## Descripción completa
 
 Se añade "Dado" como nuevo tipo de componente que se puede colocar sobre la mesa, junto a los ya existentes "Cuadro de texto" y "Tablero" (cambio 00019). Se crea, mueve y redimensiona en modo edición igual que cualquier otro componente, y se le puede aplicar la propiedad general "Bloqueado" (cambio 00018) para impedir que se arrastre en modo juego, sin ninguna particularidad adicional para este tipo.
@@ -26,15 +31,15 @@ Al crear un componente nuevo, el desplegable "Tipo" de la modal de creación (in
 
 ### Representación visual
 
-Cada dado se representa con una ilustración 2D con distintos tonos de color (bisel/sombreado, sin gradientes ni transformación 3D real — misma técnica ya usada en el borde del tablero del cambio 00019) que sugiere el volumen de un poliedro, mostrando siempre de frente la cara con el resultado actual impreso en números grandes y legibles.
+Cada dado se representa con una vista frontal/cenital: la cara con el resultado se ve completamente de cara al usuario, sin ninguna distorsión de perspectiva (nada de vistas isométricas ni facetas laterales en ángulo). El efecto de profundidad es leve, conseguido con una silueta del mismo contorno en un tono más oscuro, ligeramente desplazada detrás de la cara frontal (misma familia de recurso ya usada en el bisel del borde del tablero del cambio 00019: tonos derivados del color base, sin gradientes ni sombra difuminada). El resultado actual se imprime en números grandes y legibles, centrados sobre la cara frontal.
 
-Existe una silueta dedicada y reconocible para cada uno de estos tipos de dado, según su número de caras configurado:
+Existe una silueta dedicada y reconocible para cada uno de estos tipos de dado, según su número de caras configurado — todas ellas la forma frontal real de esa cara, sin distorsionar:
 
-- **4 caras**: tetraedro.
-- **6 caras**: cubo.
-- **8 caras**: octaedro.
+- **4 caras**: triángulo (cara de un tetraedro).
+- **6 caras**: cuadrado (cara de un cubo).
+- **8 caras**: rombo (cara de un octaedro).
 - **10 caras**: el clásico "cometa" (pentagonal trapezohedron) usado en juegos de rol.
-- **12 caras**: dodecaedro.
+- **12 caras**: pentágono (cara de un dodecaedro).
 
 Cualquier otro número de caras configurado (por ejemplo 2, 3, 5, 7, 9, 11, o cualquier valor entre 13 y 100) se representa con la misma silueta que el dado de 10 caras, sin una forma dedicada propia.
 

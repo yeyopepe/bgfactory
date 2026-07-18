@@ -48,7 +48,7 @@
   }
   .die svg { display: block; margin: 0 auto; overflow: visible; }
   .die__number {
-    font-size: 34px;
+    font-size: 36px;
     font-weight: 700;
     fill: #ffffff;
     text-anchor: middle;
@@ -67,10 +67,10 @@
      no reacciona a ningún evento del usuario, solo ilustra el efecto visual. */
   @keyframes roll-wobble {
     0%   { transform: rotate(0deg) scale(1); }
-    20%  { transform: rotate(-8deg) scale(1.03); }
-    40%  { transform: rotate(7deg) scale(1.05); }
-    60%  { transform: rotate(-5deg) scale(1.03); }
-    80%  { transform: rotate(3deg) scale(1.01); }
+    20%  { transform: rotate(-6deg) scale(1.02); }
+    40%  { transform: rotate(5deg) scale(1.04); }
+    60%  { transform: rotate(-4deg) scale(1.02); }
+    80%  { transform: rotate(2deg) scale(1.01); }
     100% { transform: rotate(0deg) scale(1); }
   }
   .die--rolling svg {
@@ -81,82 +81,77 @@
 
 <div class="page-header">
   <h1>Dado — siluetas dedicadas por número de caras</h1>
-  <p>Maqueta solo visual. Ilustración 2D con bisel/sombreado (sin gradientes ni 3D real), no representa interacción.</p>
+  <p>Maqueta solo visual. Vista frontal/cenital (la cara del resultado siempre de cara al usuario, sin distorsión),
+    con un leve efecto de profundidad — no representa interacción.</p>
 </div>
 
 <div class="table">
 
   <div class="die">
-    <svg width="110" height="130" viewBox="0 0 110 130">
-      <!-- d4: tetraedro -->
-      <polygon points="55,8 100,110 10,110" fill="#5a9bd8"/>
-      <polygon points="55,8 100,110 68,96" fill="#3a6fa0"/>
-      <polygon points="55,8 10,110 42,96" fill="#7bb3e8"/>
-      <text class="die__number" x="55" y="88">1</text>
+    <svg width="110" height="122" viewBox="0 0 110 122">
+      <!-- d4: cara frontal = triángulo, sin distorsión -->
+      <polygon points="61,22 106,112 16,112" fill="#2f5f8f"/>
+      <polygon points="55,15 100,105 10,105" fill="#5a9bd8"/>
+      <text class="die__number" x="55" y="82">1</text>
     </svg>
     <div class="die__label">4 caras — tetraedro</div>
   </div>
 
   <div class="die">
-    <svg width="120" height="130" viewBox="0 0 120 130">
-      <!-- d6: cubo isométrico -->
-      <polygon points="60,10 105,34 105,86 60,110 15,86 15,34" fill="#5a9bd8" stroke="none"/>
-      <polygon points="60,10 105,34 60,58 15,34" fill="#8fc1ec"/>
-      <polygon points="105,34 105,86 60,110 60,58" fill="#2f5f8f"/>
-      <polygon points="15,34 15,86 60,110 60,58" fill="#5a9bd8"/>
-      <text class="die__number" x="37.5" y="84">1</text>
+    <svg width="110" height="106" viewBox="0 0 110 106">
+      <!-- d6: cara frontal = cuadrado, sin distorsión -->
+      <polygon points="32,28 102,28 102,98 32,98" fill="#2f5f8f"/>
+      <polygon points="25,20 95,20 95,90 25,90" fill="#5a9bd8"/>
+      <text class="die__number" x="60" y="57">1</text>
     </svg>
     <div class="die__label">6 caras — cubo</div>
   </div>
 
   <div class="die">
-    <svg width="110" height="130" viewBox="0 0 110 130">
-      <!-- d8: octaedro (dos pirámides) -->
-      <polygon points="55,10 100,62 55,70 10,62" fill="#8fc1ec"/>
-      <polygon points="10,62 55,70 55,118 8,88" fill="#3a6fa0"/>
-      <polygon points="100,62 55,70 55,118 102,88" fill="#5a9bd8"/>
-      <text class="die__number" x="55" y="94">1</text>
+    <svg width="118" height="130" viewBox="0 0 118 130">
+      <!-- d8: cara frontal = rombo, sin distorsión -->
+      <polygon points="66,22 111,72 66,122 21,72" fill="#2f5f8f"/>
+      <polygon points="60,15 105,65 60,115 15,65" fill="#5a9bd8"/>
+      <text class="die__number" x="60" y="68">1</text>
     </svg>
     <div class="die__label">8 caras — octaedro</div>
   </div>
 
   <div class="die">
-    <svg width="100" height="130" viewBox="0 0 100 130">
-      <!-- d10: "cometa" (pentagonal trapezohedron) -->
-      <polygon points="50,8 82,50 62,120 50,128" fill="#3a6fa0"/>
-      <polygon points="50,8 18,50 38,120 50,128" fill="#5a9bd8"/>
-      <text class="die__number" x="50" y="68">1</text>
+    <svg width="103" height="140" viewBox="0 0 103 140">
+      <!-- d10: cara frontal = cometa, sin distorsión -->
+      <polygon points="61,19 96,57 76,132 46,132 26,57" fill="#2f5f8f"/>
+      <polygon points="55,12 90,50 70,125 40,125 20,50" fill="#5a9bd8"/>
+      <text class="die__number" x="55" y="76">1</text>
     </svg>
     <div class="die__label">10 caras — cometa</div>
   </div>
 
   <div class="die">
-    <svg width="120" height="130" viewBox="0 0 120 130">
-      <!-- d12: dodecaedro (pentágono con faceta lateral) -->
+    <svg width="121" height="120" viewBox="0 0 121 120">
+      <!-- d12: cara frontal = pentágono, sin distorsión -->
+      <polygon points="66,17 114,52 96,112 36,112 18,52" fill="#2f5f8f"/>
       <polygon points="60,10 108,45 90,105 30,105 12,45" fill="#5a9bd8"/>
-      <polygon points="12,45 30,105 8,95 2,55" fill="#3a6fa0"/>
-      <text class="die__number" x="63" y="66">1</text>
+      <text class="die__number" x="60" y="70">1</text>
     </svg>
     <div class="die__label">12 caras — dodecaedro</div>
   </div>
 
   <div class="die">
-    <svg width="100" height="130" viewBox="0 0 100 130">
+    <svg width="103" height="140" viewBox="0 0 103 140">
       <!-- "otra cantidad" (p.ej. 20 caras): misma silueta que el d10 -->
-      <polygon points="50,8 82,50 62,120 50,128" fill="#3a6fa0"/>
-      <polygon points="50,8 18,50 38,120 50,128" fill="#5a9bd8"/>
-      <text class="die__number" x="50" y="68">14</text>
+      <polygon points="61,19 96,57 76,132 46,132 26,57" fill="#2f5f8f"/>
+      <polygon points="55,12 90,50 70,125 40,125 20,50" fill="#5a9bd8"/>
+      <text class="die__number" x="55" y="76">14</text>
     </svg>
     <div class="die__label">20 caras ("otra cantidad") — usa la silueta del d10</div>
   </div>
 
   <div class="die die--rolling">
-    <svg width="120" height="130" viewBox="0 0 120 130">
-      <polygon points="60,10 105,34 105,86 60,110 15,86 15,34" fill="#5a9bd8"/>
-      <polygon points="60,10 105,34 60,58 15,34" fill="#8fc1ec"/>
-      <polygon points="105,34 105,86 60,110 60,58" fill="#2f5f8f"/>
-      <polygon points="15,34 15,86 60,110 60,58" fill="#5a9bd8"/>
-      <text class="die__number" x="37.5" y="84">?</text>
+    <svg width="110" height="106" viewBox="0 0 110 106">
+      <polygon points="32,28 102,28 102,98 32,98" fill="#2f5f8f"/>
+      <polygon points="25,20 95,20 95,90 25,90" fill="#5a9bd8"/>
+      <text class="die__number" x="60" y="57">?</text>
     </svg>
     <div class="die__label">Efecto de lanzamiento (giro/tambaleo, decorativo)</div>
   </div>
@@ -164,8 +159,11 @@
 </div>
 
 <div class="legend">
-  Cada dado se representa con una ilustración 2D de varios tonos (bisel/sombreado) que sugiere el volumen del poliedro,
-  mostrando siempre de frente la cara con el resultado. Solo <b>4, 6, 8, 10 y 12</b> caras tienen silueta propia;
-  cualquier otro número de caras (por ejemplo, 20) usa la silueta del <b>d10</b>. El último dado ilustra, de forma
-  puramente decorativa (animación CSS en bucle, sin reaccionar a ningún evento), el efecto de giro/tambaleo al lanzar.
+  Cada dado se representa con la cara del resultado completamente de frente (sin ninguna distorsión de perspectiva:
+  triángulo, cuadrado, rombo, cometa o pentágono según el número de caras, tal cual). El "leve efecto de profundidad"
+  se consigue con una silueta plana del mismo contorno, de un tono más oscuro, ligeramente desplazada detrás de la
+  cara frontal — no con facetas laterales en perspectiva ni con sombra difuminada. Solo <b>4, 6, 8, 10 y 12</b> caras
+  tienen silueta propia; cualquier otro número de caras (por ejemplo, 20) usa la silueta del <b>d10</b>. El último
+  dado ilustra, de forma puramente decorativa (animación CSS en bucle, sin reaccionar a ningún evento), el efecto de
+  giro/tambaleo al lanzar.
 </div>
