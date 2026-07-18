@@ -17,12 +17,15 @@ function parseState(raw) {
     return { error: true };
   }
   const panelState = (parsed.panelState && typeof parsed.panelState === 'object') ? parsed.panelState : null;
-  return { components: parsed.components, panelState };
+  const resourcePanelState = (parsed.resourcePanelState && typeof parsed.resourcePanelState === 'object') ? parsed.resourcePanelState : null;
+  const resources = Array.isArray(parsed.resources) ? parsed.resources : [];
+  const resourcesSeeded = parsed.resourcesSeeded === true;
+  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded };
 }
 
-export function saveState(components, panelState) {
+export function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded }));
   } catch {
     // Cuota excedida u otro fallo de localStorage: el autoguardado se omite
     // silenciosamente, sin interrumpir el uso normal de la aplicación.

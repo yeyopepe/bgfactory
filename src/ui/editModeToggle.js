@@ -1,7 +1,7 @@
 // UI para entrar/salir del modo edición: botón de entrada en modo juego,
 // barra de herramientas propia (con botón de salida) en modo edición.
 
-import { MODES, getState, setMode, getComponents } from '../core/state.js';
+import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded } from '../core/state.js';
 import { buildExportHtml, downloadHtml } from '../core/fileExport.js';
 import { getComponentsBounds } from './componentRenderer.js';
 import { fitToBounds } from './table.js';
@@ -13,7 +13,7 @@ function currentFileName() {
 }
 
 function saveAs(filename) {
-  const html = buildExportHtml(getComponents());
+  const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded());
   downloadHtml(filename, html);
   showToast(`Guardado como "${filename}"`);
 }

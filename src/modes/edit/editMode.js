@@ -1,12 +1,19 @@
 // Modo edición: mesa infinita con los componentes renderizados sobre ella (seleccionables
 // para editar) + panel flotante con listado de componentes y acciones de edición/borrado.
 
-import { getComponents, addComponent, replaceComponent, removeComponent, getPanelState, setPanelState } from '../../core/state.js';
+import {
+  getComponents, addComponent, replaceComponent, removeComponent, getPanelState, setPanelState,
+  getResources, addResource, replaceResource, removeResource, getResourcePanelState, setResourcePanelState,
+} from '../../core/state.js';
 import { updateComponent } from '../../core/component.js';
+import { createResource, resourceTypeForFileName, isResourceInUse } from '../../core/resource.js';
 import { createInfiniteTable } from '../../ui/table.js';
 import { openComponentModal } from '../../ui/componentModal.js';
 import { renderComponentList } from '../../ui/componentList.js';
 import { renderComponentsOnTable } from '../../ui/componentRenderer.js';
+import { openResourceModal } from '../../ui/resourceModal.js';
+import { renderResourceList } from '../../ui/resourceList.js';
+import { showToast } from '../../ui/toast.js';
 
 // Selección de la sesión de edición en curso. `renderEditMode` se vuelve a invocar por
 // completo (desde main.js) ante cualquier `components:changed`, así que este estado
@@ -19,6 +26,8 @@ export function renderEditMode(container) {
   container.innerHTML = '';
 
   const { collapsed, position: panelPosition, width: panelWidth } = getPanelState();
+  const { position: resourcePanelPosition, width: resourcePanelWidth } = getResourcePanelState();
+  let resourceCollapsed = getResourcePanelState().collapsed;
 
   const layout = document.createElement('div');
   layout.style.display = 'flex';
@@ -44,6 +53,51 @@ export function renderEditMode(container) {
     listContainer.style.width = `${panelWidth}px`;
   }
   tableContainer.appendChild(listContainer);
+
+  // Floating panel with the resource gallery, independent position/width/collapse
+  const resourceListContainer = document.createElement('div');
+  resourceListContainer.className = 'resource-panel-container';
+  if (resourcePanelPosition) {
+    resourceListContainer.style.left = `${resourcePanelPosition.left}px`;
+    resourceListContainer.style.top = `${resourcePanelPosition.top}px`;
+    resourceListContainer.style.right = 'auto';
+  }
+  if (resourcePanelWidth != null) {
+    resourceListContainer.style.width = `${resourcePanelWidth}px`;
+  }
+  tableContainer.appendChild(resourceListContainer);
+
+  const resourceFileInput = document.createElement('input');
+  resourceFileInput.type = 'file';
+  resourceFileInput.accept = '.png,.jpg,.jpeg,.gif,.svg,.webp,.ttf,.otf,.woff,.woff2';
+  resourceFileInput.hidden = true;
+  resourceFileInput.addEventListener('change', () => {
+    const file = resourceFileInput.files[0];
+    resourceFileInput.value = '';
+    if (!file) return;
+    const type = resourceTypeForFileName(file.name);
+    if (!type) {
+      showToast('Formato de fichero no soportado.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const name = file.name.replace(/\.[^.]+$/, '');
+      addResource(createResource({ name, type, dataUrl: reader.result, fileName: file.name, mimeType: file.type }));
+    };
+    reader.readAsDataURL(file);
+  });
+  tableContainer.appendChild(resourceFileInput);
+
+  function attemptDeleteResource(resource) {
+    if (isResourceInUse(resource.id, getComponents())) {
+      showToast(`El recurso "${resource.name}" está en uso y no se puede eliminar.`);
+      return false;
+    }
+    if (!confirm(`¿Eliminar el recurso "${resource.name}"?`)) return false;
+    removeResource(resource.id);
+    return true;
+  }
 
   function openEditModalFor(component) {
     openComponentModal({
@@ -115,8 +169,35 @@ export function renderEditMode(container) {
     });
   }
 
+  function renderResourcePanel() {
+    renderResourceList(resourceListContainer, getResources(), {
+      onEdit: (resource) => {
+        openResourceModal({
+          resource,
+          onAccept: (updated) => replaceResource(resource.id, updated),
+          onDelete: attemptDeleteResource,
+        });
+      },
+      onRemove: attemptDeleteResource,
+      onAdd: () => resourceFileInput.click(),
+      collapsed: resourceCollapsed,
+      onToggleCollapse: () => {
+        resourceCollapsed = !resourceCollapsed;
+        setResourcePanelState({ collapsed: resourceCollapsed });
+        renderResourcePanel();
+      },
+      onPanelMove: (left, top) => {
+        setResourcePanelState({ position: { left, top } });
+      },
+      onPanelResize: (width) => {
+        setResourcePanelState({ width });
+      },
+    });
+  }
+
   renderTable();
   renderList();
+  renderResourcePanel();
 
   container.appendChild(layout);
 }

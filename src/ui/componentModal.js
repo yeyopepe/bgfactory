@@ -122,6 +122,10 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   }
 
   idInput.addEventListener('input', () => {
+    const sanitized = idInput.value.replace(/\s+/g, '_');
+    if (sanitized !== idInput.value) {
+      idInput.value = sanitized;
+    }
     workingComponent.id = idInput.value.trim();
     validateId();
     updateAcceptButton();
