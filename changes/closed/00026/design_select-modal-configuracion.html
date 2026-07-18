@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mockup — Homogeneizar estilo de desplegables</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --bg-toolbar: #333333;
+    --accent-blue: #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    color: var(--text-primary);
+    padding: 2rem;
+  }
+  h1.page-title {
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 2rem;
+  }
+  .comparison {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .comparison__col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .comparison__label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+  }
+  .comparison__label--before {
+    background: #fde2e2;
+    color: #a12a2a;
+  }
+  .comparison__label--after {
+    background: #dcf3e2;
+    color: #1f7a3d;
+  }
+
+  /* --- Réplica de .modal / .modal__* de src/styles/main.css --- */
+  .modal {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    width: 380px;
+  }
+  .modal__header {
+    padding: 1rem;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+  }
+  .modal__content {
+    padding: 1.5rem;
+  }
+  .modal__field {
+    margin-bottom: 1rem;
+  }
+  .modal__field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+  .modal__field input[type="text"],
+  .modal__field input[type="number"],
+  .modal__field input[type="color"],
+  .modal__field textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.875rem;
+  }
+  .modal__field input[type="color"] {
+    height: 40px;
+    cursor: pointer;
+  }
+  .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  .btn-cancel, .btn-accept {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    border: none;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .btn-cancel {
+    background: #eee;
+    color: var(--text-primary);
+  }
+  .btn-accept {
+    background: var(--accent-blue);
+    color: white;
+  }
+
+  .bg-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  /* "ANTES": select sin estilo homogéneo (aspecto por defecto del navegador) */
+  .before select {
+    /* deliberadamente sin las reglas de .modal__field select para mostrar el bug */
+  }
+
+  /* "DESPUÉS": select con el mismo estilo que el resto de campos (fix propuesto) */
+  .after select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .bg-row select {
+    flex: 1;
+  }
+</style>
+</head>
+<body>
+  <h1 class="page-title">Homogeneizar estilo de los desplegables — Ventana de propiedades de tablero</h1>
+
+  <div class="comparison">
+    <div class="comparison__col before">
+      <span class="comparison__label comparison__label--before">Antes (bug)</span>
+      <div class="modal">
+        <div class="modal__header">Propiedades del tablero</div>
+        <div class="modal__content">
+          <div class="modal__field">
+            <label>Color del borde</label>
+            <input type="color" value="#2c7dd8">
+          </div>
+          <div class="modal__field">
+            <label>Grosor del borde (px)</label>
+            <input type="number" value="4">
+          </div>
+          <div class="modal__field">
+            <label>Fondo</label>
+            <div class="bg-row">
+              <select>
+                <option>Color y patrón</option>
+                <option>Imagen</option>
+              </select>
+              <button type="button" class="btn-cancel">Configurar fondo</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" class="btn-cancel">Cancelar</button>
+          <button type="button" class="btn-accept">Aceptar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="comparison__col after">
+      <span class="comparison__label comparison__label--after">Después (fix)</span>
+      <div class="modal">
+        <div class="modal__header">Propiedades del tablero</div>
+        <div class="modal__content">
+          <div class="modal__field">
+            <label>Color del borde</label>
+            <input type="color" value="#2c7dd8">
+          </div>
+          <div class="modal__field">
+            <label>Grosor del borde (px)</label>
+            <input type="number" value="4">
+          </div>
+          <div class="modal__field">
+            <label>Fondo</label>
+            <div class="bg-row">
+              <select>
+                <option>Color y patrón</option>
+                <option>Imagen</option>
+              </select>
+              <button type="button" class="btn-cancel">Configurar fondo</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button type="button" class="btn-cancel">Cancelar</button>
+          <button type="button" class="btn-accept">Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

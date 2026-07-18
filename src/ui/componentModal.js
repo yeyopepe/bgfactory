@@ -317,6 +317,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     bgRow.style.alignItems = 'center';
 
     const bgTypeSelect = document.createElement('select');
+    bgTypeSelect.style.flex = '0 1 auto';
+    bgTypeSelect.style.width = '9rem';
     const bgTypeOptions = [
       { value: 'colorPatron', label: 'Color y patrón' },
       { value: 'imagen', label: 'Imagen' },

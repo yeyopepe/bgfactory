@@ -293,6 +293,7 @@ h1 {
 .modal__field input[type="text"],
 .modal__field input[type="number"],
 .modal__field input[type="color"],
+.modal__field select,
 .modal__field textarea {
   width: 100%;
   padding: 0.5rem;
@@ -304,6 +305,10 @@ h1 {
 
 .modal__field input[type="color"] {
   height: 40px;
+  cursor: pointer;
+}
+
+.modal__field select {
   cursor: pointer;
 }
 
