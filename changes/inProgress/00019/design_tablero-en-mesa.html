@@ -27,7 +27,7 @@
   .table {
     position: relative;
     background: var(--bg-table);
-    height: 520px;
+    height: 640px;
     overflow: hidden;
   }
 
@@ -53,12 +53,14 @@
      relieve físico, en vez de usar sombra. Excepción explícita al
      lenguaje visual plano del resto de la app, solo para este componente. */
 
-  /* Ejemplo 1: fondo "color y patrón", casillas cuadradas */
+  /* Ejemplo 1: fondo "color y patrón", casillas cuadradas — tablero NO cuadrado
+     (340×220, 8 columnas × 5 filas) a propósito, para ilustrar que las casillas
+     pasan a ser rectangulares (42.5×44px) y encajan exactas, sin recortes. */
   .board--squares {
-    left: 60px;
+    left: 50px;
     top: 40px;
-    width: 300px;
-    height: 300px;
+    width: 340px;
+    height: 220px;
     border-width: 6px;
     border-top-color: #6b4f30;
     border-left-color: #6b4f30;
@@ -66,22 +68,32 @@
     border-right-color: #241a10;
     background-color: #e8dcc0;
     background-image:
-      repeating-linear-gradient(0deg, #8a6d3b 0 2px, transparent 2px 37.5px),
-      repeating-linear-gradient(90deg, #8a6d3b 0 2px, transparent 2px 37.5px);
+      repeating-linear-gradient(0deg, #8a6d3b 0 2px, transparent 2px 44px),
+      repeating-linear-gradient(90deg, #8a6d3b 0 2px, transparent 2px 42.5px);
   }
 
-  /* Ejemplo 2: fondo "color y patrón", casillas hexagonales (aprox. visual) */
+  /* Ejemplo 2: fondo "color y patrón", casillas hexagonales (aprox. visual).
+     El patrón (.hex-fill) es más pequeño que el tablero a propósito: deja un
+     margen visible sin casillas en los bordes, en vez de recortar hexágonos. */
   .board--hex {
-    left: 430px;
+    left: 440px;
     top: 40px;
-    width: 260px;
-    height: 260px;
+    width: 240px;
+    height: 240px;
     border-width: 4px;
     border-top-color: #4f6b85;
     border-left-color: #4f6b85;
     border-bottom-color: #1a242f;
     border-right-color: #1a242f;
     background-color: #f5f5f5;
+    overflow: hidden;
+  }
+  .board--hex .hex-fill {
+    position: absolute;
+    top: 13px;
+    left: 6px;
+    right: 6px;
+    bottom: 13px;
     background-image:
       repeating-linear-gradient(60deg, #5b7a92 0 2px, transparent 2px 30px),
       repeating-linear-gradient(120deg, #5b7a92 0 2px, transparent 2px 30px),
@@ -90,8 +102,8 @@
 
   /* Ejemplo 3: fondo "imagen" (placeholder decorativo) */
   .board--image {
-    left: 60px;
-    top: 400px;
+    left: 50px;
+    top: 340px;
     width: 220px;
     height: 220px;
     border-width: 3px;
@@ -108,8 +120,8 @@
   /* Componente de texto ya existente, para contexto de convivencia */
   .text-box {
     position: absolute;
-    left: 330px;
-    top: 420px;
+    left: 320px;
+    top: 360px;
     padding: 0.5rem 0.75rem;
     background: #ffffff;
     color: var(--text-primary);
@@ -133,10 +145,11 @@
 
 <div class="table">
   <div class="board board--squares">
-    <div class="board__label">Fondo: color y patrón — casillas cuadradas</div>
+    <div class="board__label">Color y patrón — casillas rectangulares (tablero no cuadrado, sin recortes)</div>
   </div>
   <div class="board board--hex">
-    <div class="board__label">Fondo: color y patrón — casillas hexagonales</div>
+    <div class="hex-fill"></div>
+    <div class="board__label">Color y patrón — hexagonales (margen sin casillas en el borde)</div>
   </div>
   <div class="board board--image">
     <div class="board__label">Fondo: imagen</div>
@@ -152,4 +165,9 @@
   <br><br>
   El borde se dibuja con un ligero <b>bisel</b> (dos tonos derivados del color de borde elegido: más claro arriba/izquierda,
   más oscuro abajo/derecha) para dar sensación de grosor físico, igual en ambos modos. No se usa sombra.
+  <br><br>
+  El fondo "color y patrón" ajusta siempre el tamaño de las casillas (nunca su número) para encajar sin recortes en el
+  tablero actual, sean cuales sean sus dimensiones: con casillas "cuadradas" esto puede dar lugar a rectángulos (como
+  en el primer ejemplo, con un tablero no cuadrado); con hexagonales puede dejar un margen sin casillas en los bordes
+  (segundo ejemplo) en vez de recortar ninguna.
 </div>

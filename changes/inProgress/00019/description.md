@@ -22,6 +22,12 @@ Propiedades específicas:
 Añade:
 - la representación del tablero en la mesa debe dar cierta sensación de grosor
 
+---
+
+Añade:
+- las casillas deben ajustarse siempre al tamaño del tablero, todas del mismo tamaño. No cortes casillas, ajusta su tamaño global para que encaje siempre. En el caso de casillas cuadradas, en realidad Pueden ser casillas rectangulares para que este ajuste sea perfecto.
+- Para las hexagonales es posible que tengas zonas en los bordes del tablero sin casillas
+
 ## Descripción completa
 
 Se añade "Tablero" como nuevo tipo de componente que se puede colocar sobre la mesa, junto al ya existente "Cuadro de texto". Es un elemento cuadrado con un borde y un fondo configurables.
@@ -44,7 +50,7 @@ Se muestra igual que en modo edición (cuadrado, con su borde y su fondo), sin p
 
 - **Borde**: color (por defecto negro) y grosor en píxeles (por defecto 2px, entre 1 y 20px). El borde se dibuja hacia dentro del cuadro, sin aumentar el tamaño total ocupado por el componente.
 - **Fondo**: un desplegable con dos opciones — "Color y patrón" (preseleccionada por defecto) e "Imagen" — y, junto a él, un botón "Configurar fondo" que abre una modal distinta según la opción elegida en ese momento:
-  - **Color y patrón**: se elige un color, una forma de casilla (cuadrada o hexagonal, una de las dos) y el número de filas y columnas del patrón (entre 1 y 50 cada uno). El patrón dibuja únicamente las líneas divisorias de las casillas en el color elegido sobre el resto del fondo del tablero (como una cuadrícula, no casillas alternas tipo ajedrez). El número de filas/columnas elegido se mantiene fijo aunque el tablero se redimensione después: es el tamaño de cada casilla el que se adapta (crece o encoge) para seguir llenando todo el tablero.
+  - **Color y patrón**: se elige un color, una forma de casilla (cuadrada o hexagonal, una de las dos) y el número de filas y columnas del patrón (entre 1 y 50 cada uno). El patrón dibuja únicamente las líneas divisorias de las casillas en el color elegido sobre el resto del fondo del tablero (como una cuadrícula, no casillas alternas tipo ajedrez). El número de filas/columnas elegido se mantiene fijo aunque el tablero se redimensione después: es el tamaño de cada casilla el que se adapta (crece o encoge) para seguir llenando todo el tablero, según las reglas de ajuste descritas en la ampliación de abajo.
   - **Imagen**: se abre una galería con todas las imágenes disponibles en la carpeta de recursos de imágenes del proyecto, mostrando una miniatura y el nombre de cada una, para elegir una con un click. La imagen elegida se escala para cubrir todo el cuadro del tablero manteniendo su proporción (recortando el sobrante si no coincide el aspecto del tablero). No hay ninguna función para subir imágenes nuevas desde la propia app: solo se puede elegir entre las imágenes que ya estén disponibles en esa carpeta del proyecto.
 
 Si el usuario cambia el tipo de fondo elegido en el desplegable (de "Color y patrón" a "Imagen" o viceversa), la configuración ya hecha en el tipo anterior no se pierde: queda guardada por si vuelve a cambiar de opinión, aunque en ese momento no esté activa.
@@ -80,6 +86,15 @@ Se consigue mediante un **bisel en el propio borde** configurado (color y grosor
 Esto es una **excepción explícita** a la convención de estilo general del proyecto, que hoy es deliberadamente plana (sin sombras ni relieves en ningún componente). Se acota expresamente a este componente: no se aplica a ningún otro tipo de componente existente ni futuro salvo que se decida ampliarlo más adelante.
 
 No se añade ninguna propiedad configurable nueva para este efecto: se calcula automáticamente a partir del color de borde que el usuario ya elige, sin ningún campo adicional en la modal.
+
+### Ampliación: ajuste exacto de las casillas del patrón al tamaño del tablero
+
+Se precisa cómo deben encajar las casillas del fondo tipo "Color y patrón" dentro del tablero, para cualquier tamaño que este tenga (incluidos tamaños no cuadrados, ya que el tablero se puede redimensionar libremente):
+
+- Todas las casillas de un mismo tablero tienen siempre el mismo tamaño entre sí.
+- Nunca se corta ni recorta ninguna casilla: el tamaño global de las casillas se ajusta (no el número de filas/columnas, que se mantiene fijo) para que el patrón encaje siempre limpiamente.
+- **Casillas "cuadradas"**: para que el encaje sea perfecto en un tablero de cualquier proporción (no solo cuadrado), esta forma pasa a admitir también casillas rectangulares — el ancho de cada casilla se calcula a partir del ancho del tablero entre el número de columnas, y su alto a partir del alto del tablero entre el número de filas, de forma independiente. Si el tablero es cuadrado, el resultado son casillas cuadradas como hasta ahora; si no lo es, son rectángulos, cubriendo igualmente todo el tablero sin huecos ni recortes.
+- **Casillas hexagonales**: al no encajar siempre de forma exacta en un rectángulo con un número fijo de filas/columnas, se acepta que puedan quedar zonas sin casillas en los bordes del tablero (se ve el resto del fondo del tablero en esas zonas). No se recorta ninguna casilla parcialmente para evitarlo.
 
 ## Apuntes técnicos
 
