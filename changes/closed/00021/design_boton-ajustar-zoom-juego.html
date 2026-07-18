@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Propuesta visual — botón ajustar zoom (modo juego)</title>
+<style>
+  :root {
+    --bg-table: #808080;
+    --accent-blue: #2c7dd8;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --text-primary: #1a1a1a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, sans-serif; background: #eee; padding: 2rem; }
+  h1 { font-size: 1.125rem; color: var(--text-primary); margin: 0 0 0.25rem; }
+  p.hint { font-size: 0.875rem; color: var(--text-muted); margin: 0 0 1.5rem; }
+
+  .stage {
+    position: relative;
+    height: 220px;
+    background: var(--bg-table);
+    overflow: hidden;
+    border: 1px solid #ccc;
+  }
+
+  /* Réplica de #mode-switcher (ver src/styles/main.css), con el nuevo botón
+     en la misma fila para que ambos ocupen la misma zona de pantalla que
+     el botón de la barra de edición (extremo superior derecho). */
+  .mode-switcher {
+    position: absolute;
+    top: 0.5rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .mode-switcher button {
+    padding: 0.5rem 1rem;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+  }
+
+  /* Selector con más especificidad que ".mode-switcher button" (2 clases
+     frente a 1 clase + 1 elemento) para que el padding:0 e icono cuadren
+     dentro del botón circular en vez de heredar el padding del botón de texto. */
+  .mode-switcher .fit-btn {
+    background: var(--accent-blue);
+    color: var(--text-light);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .icon-frame { width: 18px; height: 18px; display: block; }
+</style>
+</head>
+<body>
+  <h1>Botón "ajustar zoom" flotante en modo juego — diseño elegido (variante C: solo icono)</h1>
+  <p class="hint">Se ubica en la misma zona superior derecha que en modo edición, junto al botón azul existente "Entrar en modo edición" (<code>#mode-switcher</code>) — no en otra esquina de la pantalla, para que el usuario lo encuentre en el mismo sitio al cambiar de modo.</p>
+
+  <div class="stage">
+    <div class="mode-switcher">
+      <button>Entrar en modo edición</button>
+      <button class="fit-btn" title="Ajustar zoom para ver todos los elementos" aria-label="Ajustar zoom">
+        <svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 9V5a1 1 0 0 1 1-1h4" stroke-linecap="round"/>
+          <path d="M20 9V5a1 1 0 0 0-1-1h-4" stroke-linecap="round"/>
+          <path d="M4 15v4a1 1 0 0 0 1 1h4" stroke-linecap="round"/>
+          <path d="M20 15v4a1 1 0 0 1-1 1h-4" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</body>
+</html>

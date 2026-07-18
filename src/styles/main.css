@@ -48,6 +48,9 @@ h1 {
   top: 0.5rem;
   right: 1rem;
   z-index: 101;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 #mode-switcher button {
@@ -62,6 +65,21 @@ h1 {
 
 #mode-switcher button:hover {
   opacity: 0.9;
+}
+
+#mode-switcher .mode-switcher__fit-btn {
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mode-switcher__fit-btn .icon-frame {
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 #content {
@@ -91,10 +109,18 @@ h1 {
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
 }
 
 .edit-toolbar button:hover {
   background: rgba(255,255,255,0.1);
+}
+
+.edit-toolbar button .icon-frame {
+  width: 16px;
+  height: 16px;
+  display: block;
 }
 
 /* Infinite table surface */

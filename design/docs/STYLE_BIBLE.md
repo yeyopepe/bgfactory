@@ -101,6 +101,9 @@ font-size: 0.875rem;    /* o 0.75rem si es pequeño */
 - Botón sobre fondo oscuro (toolbar): transparente, borde `1px solid var(--text-light)`, hover `rgba(255,255,255,0.1)`.
 - Deshabilitado: `opacity: 0.5; cursor: not-allowed`.
 - No usar `:active` ni transiciones — el único feedback de interacción es el cambio de `opacity` u `background` en `:hover`.
+- **Botón icono-solo** (acción sin texto visible): icono SVG con `stroke="currentColor"` (hereda el color de texto/borde ya definido para el contexto) y siempre con `title`/`aria-label` como etiqueta accesible, ya que no hay texto. Dos variantes:
+  - Dentro de un botón de barra ya existente (p. ej. `.edit-toolbar button`): mismo padding/tamaño que los botones con texto de ese bloque — solo cambia el contenido.
+  - Botón flotante cuadrado independiente (p. ej. `.mode-switcher__fit-btn`): `padding: 0`, ancho/alto fijo (`36px`), icono centrado con `display: inline-flex; align-items: center; justify-content: center`, mismo fondo/color de acción primaria que ya tuviera el contexto.
 
 ## 10. Layout
 

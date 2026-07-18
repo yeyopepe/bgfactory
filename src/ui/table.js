@@ -12,6 +12,16 @@ let cameraX = 0;
 let cameraY = 0;
 let zoom = 1;
 
+// Referencias a la mesa actualmente montada, para que `fitToBounds` pueda
+// aplicar el reencuadre de forma inmediata sin que el caller conozca la
+// instancia (mismo razonamiento que cameraX/cameraY/zoom: solo hay una
+// mesa activa a la vez).
+let activeViewport = null;
+let activeUpdateTransform = null;
+
+const minZoom = 0.5;
+const maxZoom = 2.5;
+
 export function createInfiniteTable(container = null) {
   const viewport = document.createElement('div');
   viewport.className = 'infinite-table';
@@ -20,12 +30,12 @@ export function createInfiniteTable(container = null) {
   world.className = 'infinite-table__world';
   viewport.appendChild(world);
 
-  const minZoom = 0.5;
-  const maxZoom = 2.5;
-
   function updateTransform() {
     world.style.transform = `translate(${cameraX}px, ${cameraY}px) scale(${zoom})`;
   }
+
+  activeViewport = viewport;
+  activeUpdateTransform = updateTransform;
 
   let isDragging = false;
   let dragStartX = 0;
@@ -87,4 +97,34 @@ export function createInfiniteTable(container = null) {
   }
 
   return { el: viewport, worldEl: world };
+}
+
+// Reencuadra la cámara de forma instantánea (sin transición) para que `bounds`
+// quede visible con un margen (`padding`). `bounds` es una caja ya calculada
+// por el caller ({ minX, minY, maxX, maxY }) o `null` para volver a la vista
+// neutra — esta función no conoce componentes, solo geometría.
+export function fitToBounds(bounds, { padding = 60 } = {}) {
+  if (!activeViewport) return;
+
+  if (!bounds) {
+    cameraX = 0;
+    cameraY = 0;
+    zoom = 1;
+  } else {
+    const rect = activeViewport.getBoundingClientRect();
+    const contentWidth = bounds.maxX - bounds.minX;
+    const contentHeight = bounds.maxY - bounds.minY;
+    const availableWidth = Math.max(rect.width - padding * 2, 1);
+    const availableHeight = Math.max(rect.height - padding * 2, 1);
+    const scaleX = contentWidth > 0 ? availableWidth / contentWidth : maxZoom;
+    const scaleY = contentHeight > 0 ? availableHeight / contentHeight : maxZoom;
+    zoom = Math.max(minZoom, Math.min(maxZoom, Math.min(scaleX, scaleY)));
+
+    const centerX = (bounds.minX + bounds.maxX) / 2;
+    const centerY = (bounds.minY + bounds.maxY) / 2;
+    cameraX = rect.width / 2 - centerX * zoom;
+    cameraY = rect.height / 2 - centerY * zoom;
+  }
+
+  activeUpdateTransform();
 }

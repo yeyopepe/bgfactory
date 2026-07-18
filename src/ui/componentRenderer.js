@@ -11,6 +11,29 @@ function getWorldZoom(worldEl) {
   return match ? parseFloat(match[1]) : 1;
 }
 
+export function getComponentsBounds(components) {
+  if (!components.length) return null;
+
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  for (const component of components) {
+    const x = component.x ?? 100;
+    const y = component.y ?? 100;
+    const width = component.width ?? MIN_TEXT_BOX_WIDTH;
+    const height = component.height ?? MIN_TEXT_BOX_HEIGHT;
+
+    minX = Math.min(minX, x);
+    minY = Math.min(minY, y);
+    maxX = Math.max(maxX, x + width);
+    maxY = Math.max(maxY, y + height);
+  }
+
+  return { minX, minY, maxX, maxY };
+}
+
 export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true } = {}) {
   worldEl.innerHTML = '';
 

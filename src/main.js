@@ -4,7 +4,7 @@
 import { on } from './core/eventBus.js';
 import { MODES, getState, addComponent, loadComponents, getComponents, getPanelState, loadPanelState } from './core/state.js';
 import { CURRENT_VERSION } from './data/version.js';
-import { renderEnterEditButton, renderEditToolbar } from './ui/editModeToggle.js';
+import { renderModeSwitcher, renderEditToolbar } from './ui/editModeToggle.js';
 import { renderPlayMode } from './modes/play/playMode.js';
 import { renderEditMode } from './modes/edit/editMode.js';
 import { createComponent } from './core/component.js';
@@ -29,7 +29,7 @@ function renderActiveMode() {
 }
 
 function renderAll() {
-  renderEnterEditButton(switcherEl);
+  renderModeSwitcher(switcherEl);
   renderEditToolbar(toolbarEl);
   renderActiveMode();
 }
