@@ -178,19 +178,21 @@ html = html.replace('</title>', f'</title>\n  <style>\n{css}\n  </style>')
 html = html.replace('</body>', f'  <script>\n{bundle_js}\n  </script>\n</body>')
 html = html.replace(' (dev)</title>', '</title>')
 
-# La version del entregable viene de src/data/version.js (unica fuente de
-# verdad, actualizada en el paso 3 de src/_changes/changes_workflow.md), no de
-# un contador automatico: asi el numero del entregable coincide con el codigo
-# xxxx de la carpeta src/_changes/xxxx/ que motivo la version.
+# La version del entregable es un contador automatico e independiente de
+# cualquier codigo de change/fix: build.py lee la CURRENT_VERSION actual de
+# src/data/version.js, la incrementa en 1 y guarda el resultado ahi mismo.
 version_js_path = SRC_DIR / 'data' / 'version.js'
 version_js_content = version_js_path.read_text(encoding='utf-8')
 version_match = re.search(r"CURRENT_VERSION\s*=\s*'v(\d+)'", version_js_content)
 if not version_match:
     raise SystemExit(
-        "src/data/version.js no tiene una CURRENT_VERSION con formato 'vNNNN'. "
-        "Actualizala (paso 3 de changes_workflow.md) antes de generar el entregable."
+        "src/data/version.js no tiene una CURRENT_VERSION con formato 'vNNNN'."
     )
-version = version_match.group(1)
+digits = len(version_match.group(1))
+new_version_number = int(version_match.group(1)) + 1
+version = str(new_version_number).zfill(digits)
+version_js_content = version_js_content[:version_match.start(1)] + version + version_js_content[version_match.end(1):]
+version_js_path.write_text(version_js_content, encoding='utf-8', newline='\n')
 
 if '{VERSION}' not in html:
     raise SystemExit(
