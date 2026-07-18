@@ -13,10 +13,10 @@ Superficie de juego navegable arrastrando (pan) y con la rueda del ratón (zoom,
 
 Modal con dos pestañas ("Generales" con el `id` editable, y "Específicas" según el tipo de componente) para crear o editar un componente, con validación de `id` no vacío y único. Al editar un componente ya existente (no al crear uno nuevo), la modal incluye además un botón "Eliminar" en el extremo izquierdo de la zona de botones, con el mismo estilo destructivo (rojo) que el resto de acciones de borrado de la app; pide confirmación igual que el borrado desde el panel flotante y, si se confirma, borra el componente y cierra la modal (limpiando también la selección en el editor si el componente eliminado era el seleccionado). Es un camino alternativo al borrado desde el panel flotante, no lo sustituye.
 
-La pestaña "Generales" incluye también el checkbox "Mover en Modo Juego" (desmarcado por defecto), que determina si ese componente concreto podrá arrastrarse libremente por la mesa durante el modo juego (ver [Posición independiente, arrastre y redimensionado de componentes](#posición-independiente-arrastre-y-redimensionado-de-componentes)). Junto a su etiqueta hay un icono de ayuda "?" que muestra, al pasar el ratón por encima, una breve explicación de qué hace el checkbox — patrón de ayuda contextual reutilizable en toda la app (tooltip para textos cortos, ventana modal para textos largos o con formato).
+La pestaña "Generales" incluye también el checkbox "Bloqueado" (marcado por defecto), que determina si ese componente concreto queda fijo o puede arrastrarse libremente por la mesa durante el modo juego (ver [Posición independiente, arrastre y redimensionado de componentes](#posición-independiente-arrastre-y-redimensionado-de-componentes)). Junto a su etiqueta hay un icono de ayuda "?" que muestra, al pasar el ratón por encima, una breve explicación de qué hace el checkbox — patrón de ayuda contextual reutilizable en toda la app (tooltip para textos cortos, ventana modal para textos largos o con formato).
 
 - **Disponible en**: modo edición — desde el panel flotante de componentes o haciendo doble click directamente sobre la representación del componente en la mesa.
-- **Código**: 00002, 00003, 00004, 00013, 00015.
+- **Código**: 00002, 00003, 00004, 00013, 00015, 00018.
 
 ### Panel flotante de componentes, con selección, resaltado, arrastre y redimensionado
 
@@ -33,10 +33,10 @@ Cada componente tiene su propia posición (`x`, `y`) en la mesa, y opcionalmente
 
 Además, cuando un componente de tipo "cuadro de texto" está seleccionado (haciendo click en él sobre la mesa, o en su fila del panel), muestra un manejador de redimensionado en su esquina inferior derecha (mismo patrón que el del panel de componentes) que ajusta el ancho y el alto de la caja (mínimo 40×24px, sin máximo) — el tamaño de la fuente no cambia; si el contenido no cabe en el nuevo tamaño, se recorta. El tamaño resultante se guarda de inmediato, igual que la posición.
 
-En modo juego, cada componente puede tener activado individualmente el checkbox "Mover en Modo Juego" (desmarcado por defecto, ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)). Cuando está activado, ese componente puede arrastrarse libremente por toda la mesa también durante la partida, sin ninguna restricción de zona; el cursor cambia a indicador de arrastre al pasar el ratón sobre él. Los componentes sin este checkbox marcado permanecen fijos en modo juego, igual que hasta ahora.
+En modo juego, cada componente puede tener desmarcado individualmente el checkbox "Bloqueado" (marcado por defecto, ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)). Cuando está desmarcado, ese componente puede arrastrarse libremente por toda la mesa también durante la partida, sin ninguna restricción de zona; el cursor cambia a indicador de arrastre al pasar el ratón sobre él. Los componentes con este checkbox marcado permanecen fijos en modo juego.
 
-- **Disponible en**: modo edición (arrastre y redimensionado siempre disponibles); modo juego (arrastre solo para los componentes con "Mover en Modo Juego" activado). La posición y el tamaño resultantes se reflejan en ambos modos.
-- **Código**: 00006, 00009, 00015.
+- **Disponible en**: modo edición (arrastre y redimensionado siempre disponibles); modo juego (arrastre solo para los componentes con "Bloqueado" desmarcado). La posición y el tamaño resultantes se reflejan en ambos modos.
+- **Código**: 00006, 00009, 00015, 00018.
 
 ### Componente "cuadro de texto"
 

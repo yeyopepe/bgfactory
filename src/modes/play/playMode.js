@@ -11,6 +11,6 @@ export function renderPlayMode(container) {
     onMove: (component, x, y) => {
       replaceComponent(component.id, updateComponent(component, { x, y }));
     },
-    canMove: (component) => component.moverEnModoJuego === true,
+    canMove: (component) => component.bloqueado !== true,
   });
 }

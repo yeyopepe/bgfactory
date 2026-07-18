@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-18T15:34:38Z",
+  "generatedAt": "2026-07-18T15:40:31Z",
   "basePath": "src",
   "nodes": [
     {
@@ -94,7 +94,7 @@
       "exports": [
         "renderPlayMode"
       ],
-      "purpose": "Renderiza el modo juego: mesa infinita con los componentes dibujados sobre ella, permitiendo mover solo los marcados como movibles en modo juego."
+      "purpose": "Renderiza el modo juego: mesa infinita con los componentes dibujados sobre ella, permitiendo mover solo los que no están marcados como bloqueados."
     },
     {
       "id": "ui/componentList.js",
@@ -174,7 +174,7 @@
       "type": "function",
       "path": "core/component.js",
       "parent": "core/component.js",
-      "purpose": "Crea un componente nuevo con id generado y valores por defecto para los campos no proporcionados."
+      "purpose": "Crea un componente nuevo con id generado y valores por defecto para los campos no proporcionados (incluido 'bloqueado', true por defecto)."
     },
     {
       "id": "core/component.js#updateComponent",
@@ -321,7 +321,7 @@
       "type": "function",
       "path": "modes/play/playMode.js",
       "parent": "modes/play/playMode.js",
-      "purpose": "Monta la mesa infinita del modo juego con los componentes renderizados y el arrastre restringido a los marcados como movibles."
+      "purpose": "Monta la mesa infinita del modo juego con los componentes renderizados y el arrastre habilitado solo para los que no están bloqueados."
     },
     {
       "id": "ui/componentList.js#renderComponentList",

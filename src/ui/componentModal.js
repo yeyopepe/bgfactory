@@ -87,18 +87,18 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   moveField.className = 'modal__field modal__field--checkbox';
   const moveCheckbox = document.createElement('input');
   moveCheckbox.type = 'checkbox';
-  moveCheckbox.checked = workingComponent.moverEnModoJuego ?? false;
+  moveCheckbox.checked = workingComponent.bloqueado ?? true;
   const moveLabel = document.createElement('label');
-  moveLabel.textContent = 'Mover en Modo Juego';
+  moveLabel.textContent = 'Bloqueado';
 
   moveCheckbox.addEventListener('change', () => {
-    workingComponent.moverEnModoJuego = moveCheckbox.checked;
+    workingComponent.bloqueado = moveCheckbox.checked;
   });
 
   moveField.appendChild(moveCheckbox);
   moveField.appendChild(moveLabel);
   moveField.appendChild(createHelpIcon({
-    text: 'Permite arrastrar este componente por toda la mesa mientras se juega. Desactivado por defecto.',
+    text: 'Si está marcado (por defecto), este componente no se puede mover en Modo Juego. Desmárcalo para poder arrastrarlo libremente por la mesa mientras se juega.',
   }));
   generalContent.appendChild(moveField);
 
