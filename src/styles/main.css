@@ -396,6 +396,101 @@ h1 {
   cursor: move;
 }
 
+/* Board component: excepción explícita a "sin sombras/relieves" (ver
+   STYLE_BIBLE.md sección 13), acotada a este tipo de componente. El bisel se
+   consigue con los cuatro colores de borde ya calculados en JS. */
+.board {
+  background-repeat: no-repeat;
+}
+
+.board--selectable {
+  cursor: pointer;
+}
+
+.board--selectable:hover {
+  outline: 2px dashed var(--accent-blue);
+}
+
+.board--selectable.board--selected {
+  outline: 3px dashed var(--accent-blue);
+  outline-offset: 4px;
+}
+
+.board--movable {
+  cursor: move;
+}
+
+/* Component type modal — list of selectable component types before creating one */
+.component-type-modal__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.component-type-modal__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.component-type-modal__item:hover {
+  border-color: var(--accent-blue);
+}
+
+/* Board background modal — sub-modal "Imagen" (gallery grid of image resources) */
+.board-image-modal__gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 0.75rem;
+}
+
+.board-image-modal__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.board-image-modal__item:hover {
+  border-color: var(--accent-blue);
+}
+
+.board-image-modal__item--selected {
+  border-color: var(--accent-blue);
+  outline: 2px solid var(--accent-blue);
+}
+
+.board-image-modal__thumb {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 3px;
+}
+
+.board-image-modal__name {
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  text-align: center;
+  word-break: break-word;
+}
+
+.board-image-modal__empty {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1rem;
+}
+
 /* Reusable help icon ("?"): tooltip for short plain text, modal for long/formatted text */
 .help-icon {
   position: relative;

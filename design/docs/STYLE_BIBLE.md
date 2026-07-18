@@ -62,7 +62,7 @@ Escala basada en `rem`, en pasos de `0.25rem`: `0.25rem`, `0.5rem`, `0.75rem`, `
 
 El proyecto sigue **BEM** (`bloque__elemento--modificador`). Reglas concretas:
 
-- Bloque en kebab-case: `.component-list`, `.modal`, `.infinite-table`, `.edit-mode-panel`, `.help-icon`.
+- Bloque en kebab-case: `.component-list`, `.modal`, `.infinite-table`, `.edit-mode-panel`, `.help-icon`, `.board`, `.board-image-modal` (galería de imágenes del fondo "Imagen" del tablero, cambio 00019), `.component-type-modal` (lista de tipos al elegir qué componente crear, cambio 00019).
 - Elemento con doble guion bajo: `.component-list__item`, `.modal__header`, `.modal__tabs`, `.modal__field`, `.infinite-table__world`, `.help-icon__tooltip`.
 - Modificador con doble guion: `.text-box--selectable`, `.text-box--movable`, `.modal__field--checkbox`.
 - Estados transitorios (no BEM, clases simples añadidas/quitadas por JS): `.grabbing`, `.active` — se usan tal cual, sin prefijo del bloque, y siempre junto a `classList.add/remove`, nunca reemplazando `className` entero.
@@ -141,3 +141,5 @@ Patrón estándar para ayuda contextual en cualquier punto de la app: `.help-ico
 - No mezclar `style="color:#..."` inline para colores del catálogo de la sección 2.
 - No crear clases de un solo uso sin seguir BEM salvo que encajen en la excepción `.btn-*` ya existente.
 - No añadir sombras, bordes redondeados grandes, gradientes o animaciones — el lenguaje visual actual es plano y funcional (prototipo de mesa infinita para juego de tablero), y cualquier cambio de dirección estética debe decidirse explícitamente, no colarse componente a componente.
+
+**Excepción explícita — bisel del componente "Tablero" (cambio 00019):** el tipo de componente `'tablero'` (`ui/componentRenderer.js`) simula relieve en su borde repartiendo el color de borde elegido en dos tonos (más claro arriba/izquierda, más oscuro abajo/derecha, calculados con un helper local `shadeColor`), sin usar sombra ni degradado. Es una excepción acotada **únicamente** a este tipo de componente — no se aplica a ningún otro tipo existente ni futuro salvo que se decida ampliarlo explícitamente, y no cambia la regla general de esta sección para el resto de la app.

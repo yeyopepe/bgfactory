@@ -8,7 +8,8 @@ import {
 import { updateComponent } from '../../core/component.js';
 import { createResource, resourceTypeForFileName, isResourceInUse } from '../../core/resource.js';
 import { createInfiniteTable } from '../../ui/table.js';
-import { openComponentModal } from '../../ui/componentModal.js';
+import { openComponentModal, createDefaultComponent } from '../../ui/componentModal.js';
+import { openComponentTypeModal } from '../../ui/componentTypeModal.js';
 import { renderComponentList } from '../../ui/componentList.js';
 import { renderComponentsOnTable } from '../../ui/componentRenderer.js';
 import { openResourceModal } from '../../ui/resourceModal.js';
@@ -115,13 +116,26 @@ export function renderEditMode(container) {
   }
 
   function openAddModal() {
-    openComponentModal({
-      component: null,
-      onAccept: (newComponent, isNew) => {
+    openComponentTypeModal({
+      onAccept: (type) => {
+        const newComponent = createDefaultComponent(type);
         const n = getComponents().length;
         newComponent.x = 100 + (n % 10) * 30;
         newComponent.y = 100 + (n % 10) * 30;
         addComponent(newComponent);
+
+        openComponentModal({
+          component: newComponent,
+          onAccept: (updated) => {
+            replaceComponent(newComponent.id, updated);
+          },
+          onDelete: (deletedComponent) => {
+            if (selectedComponentId === deletedComponent.id) {
+              selectedComponentId = null;
+            }
+            removeComponent(deletedComponent.id);
+          },
+        });
       },
     });
   }

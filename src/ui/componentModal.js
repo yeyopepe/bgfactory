@@ -1,9 +1,37 @@
 // Modal for creating/editing components with tabs.
 // Generically handles different component types via type-specific tab content.
 
-import { getComponents } from '../core/state.js';
+import { getComponents, getResources } from '../core/state.js';
 import { createComponent, updateComponent } from '../core/component.js';
 import { createHelpIcon } from './helpIcon.js';
+import { openBoardPatternModal } from './boardPatternModal.js';
+import { openBoardImageModal } from './boardImageModal.js';
+
+const DEFAULT_BOARD_SIZE = 200;
+
+export const DEFAULT_BOARD_PROPERTIES = {
+  bordeColor: '#000000',
+  bordeGrosor: 2,
+  fondoTipo: 'colorPatron',
+  patronColor: '#000000',
+  patronForma: 'cuadrada',
+  patronFilas: 8,
+  patronColumnas: 8,
+  imagenResourceId: null,
+};
+
+// Crea un componente nuevo ya con los valores por defecto de su tipo (tamaño y
+// properties), para el flujo de alta: elegir tipo (ui/componentTypeModal.js) →
+// crear con defaults → abrir esta modal para configurarlo.
+export function createDefaultComponent(type) {
+  const component = createComponent({ type });
+  if (type === 'tablero') {
+    component.width = DEFAULT_BOARD_SIZE;
+    component.height = DEFAULT_BOARD_SIZE;
+    component.properties = { ...DEFAULT_BOARD_PROPERTIES };
+  }
+  return component;
+}
 
 export function openComponentModal({ component = null, onAccept, onDelete }) {
   const overlay = document.createElement('div');
@@ -232,12 +260,110 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       bgColorField.appendChild(bgColorLabel);
       bgColorField.appendChild(bgColorContainer);
       specificContent.appendChild(bgColorField);
+    } else if (workingComponent.type === 'tablero') {
+      renderBoardSpecificFields(specificContent);
     } else {
       const empty = document.createElement('p');
       empty.textContent = 'Sin propiedades específicas';
       empty.style.color = 'var(--text-muted)';
       specificContent.appendChild(empty);
     }
+  }
+
+  function renderBoardSpecificFields(container) {
+    const props = workingComponent.properties;
+
+    // Border color
+    const borderColorField = document.createElement('div');
+    borderColorField.className = 'modal__field';
+    const borderColorLabel = document.createElement('label');
+    borderColorLabel.textContent = 'Color del borde';
+    const borderColorInput = document.createElement('input');
+    borderColorInput.type = 'color';
+    borderColorInput.value = props.bordeColor || DEFAULT_BOARD_PROPERTIES.bordeColor;
+    borderColorInput.addEventListener('input', () => {
+      props.bordeColor = borderColorInput.value;
+    });
+    borderColorField.appendChild(borderColorLabel);
+    borderColorField.appendChild(borderColorInput);
+    container.appendChild(borderColorField);
+
+    // Border thickness
+    const borderWidthField = document.createElement('div');
+    borderWidthField.className = 'modal__field';
+    const borderWidthLabel = document.createElement('label');
+    borderWidthLabel.textContent = 'Grosor del borde (px)';
+    const borderWidthInput = document.createElement('input');
+    borderWidthInput.type = 'number';
+    borderWidthInput.min = 1;
+    borderWidthInput.max = 20;
+    borderWidthInput.value = props.bordeGrosor ?? DEFAULT_BOARD_PROPERTIES.bordeGrosor;
+    borderWidthInput.addEventListener('input', () => {
+      const parsed = parseInt(borderWidthInput.value, 10);
+      props.bordeGrosor = Number.isNaN(parsed) ? DEFAULT_BOARD_PROPERTIES.bordeGrosor : Math.min(Math.max(parsed, 1), 20);
+    });
+    borderWidthField.appendChild(borderWidthLabel);
+    borderWidthField.appendChild(borderWidthInput);
+    container.appendChild(borderWidthField);
+
+    // Background type + configure button
+    const bgField = document.createElement('div');
+    bgField.className = 'modal__field';
+    const bgLabel = document.createElement('label');
+    bgLabel.textContent = 'Fondo';
+    const bgRow = document.createElement('div');
+    bgRow.style.display = 'flex';
+    bgRow.style.gap = '0.5rem';
+    bgRow.style.alignItems = 'center';
+
+    const bgTypeSelect = document.createElement('select');
+    const bgTypeOptions = [
+      { value: 'colorPatron', label: 'Color y patrón' },
+      { value: 'imagen', label: 'Imagen' },
+    ];
+    for (const { value, label } of bgTypeOptions) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      if (value === (props.fondoTipo || DEFAULT_BOARD_PROPERTIES.fondoTipo)) option.selected = true;
+      bgTypeSelect.appendChild(option);
+    }
+    bgTypeSelect.addEventListener('change', () => {
+      props.fondoTipo = bgTypeSelect.value;
+    });
+
+    const configureBtn = document.createElement('button');
+    configureBtn.type = 'button';
+    configureBtn.className = 'btn-cancel';
+    configureBtn.textContent = 'Configurar fondo';
+    configureBtn.addEventListener('click', () => {
+      const fondoTipo = props.fondoTipo || DEFAULT_BOARD_PROPERTIES.fondoTipo;
+      if (fondoTipo === 'imagen') {
+        openBoardImageModal({
+          properties: props,
+          resources: getResources(),
+          onAccept: (resourceId) => {
+            props.imagenResourceId = resourceId;
+          },
+        });
+      } else {
+        openBoardPatternModal({
+          properties: props,
+          onAccept: ({ patronColor, patronForma, patronFilas, patronColumnas }) => {
+            props.patronColor = patronColor;
+            props.patronForma = patronForma;
+            props.patronFilas = patronFilas;
+            props.patronColumnas = patronColumnas;
+          },
+        });
+      }
+    });
+
+    bgRow.appendChild(bgTypeSelect);
+    bgRow.appendChild(configureBtn);
+    bgField.appendChild(bgLabel);
+    bgField.appendChild(bgRow);
+    container.appendChild(bgField);
   }
 
   renderSpecificTab();
