@@ -1,0 +1,100 @@
+<title>Modal — resultado del dado en grande</title>
+<style>
+  :root {
+    --accent-blue:  #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-light:   #ffffff;
+    --text-muted:   #666666;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: #808080;
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 0;
+  }
+
+  .modal-overlay {
+    background: rgba(0,0,0,0.5);
+    width: 420px;
+    padding: 3rem 2rem;
+    border-radius: 4px;
+  }
+
+  .modal {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    overflow: hidden;
+  }
+
+  .modal__header {
+    padding: 1rem;
+    font-size: 1.125rem;
+    font-weight: 500;
+    border-bottom: 1px solid #eee;
+  }
+
+  .modal__content {
+    padding: 2.5rem 1rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .result-die {
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .result-number {
+    font-size: 96px;
+    font-weight: 700;
+    color: #ffffff;
+  }
+
+  .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .btn-cancel {
+    padding: 0.5rem 1rem; border: none; border-radius: 4px;
+    font-size: 0.875rem; background: #f0f0f0; color: var(--text-primary); cursor: pointer;
+  }
+
+  .caption {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.75rem;
+    margin-top: 0.75rem;
+    max-width: 420px;
+  }
+</style>
+
+<div class="modal-overlay">
+  <div class="modal">
+    <div class="modal__header">Resultado</div>
+    <div class="modal__content">
+      <svg class="result-die" viewBox="0 0 110 106">
+        <polygon points="32,28 102,28 102,98 32,98" fill="#2f5f8f"/>
+        <polygon points="25,20 95,20 95,90 25,90" fill="#5a9bd8"/>
+        <text x="60" y="57" text-anchor="middle" dominant-baseline="central" class="result-number" style="font-size:52px;">4</text>
+      </svg>
+    </div>
+    <div class="modal__footer">
+      <button class="btn-cancel">Cerrar</button>
+    </div>
+  </div>
+</div>
+<div class="caption">
+  Se abre con doble click sobre el dado en modo juego: muestra el resultado actual mucho más grande, fácil de leer
+  desde lejos. Reutiliza el mismo patrón visual de modal ya usado en el resto de la app.
+</div>
