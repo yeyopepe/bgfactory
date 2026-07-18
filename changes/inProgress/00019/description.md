@@ -17,6 +17,11 @@ Propiedades específicas:
    - color y patrón: puede elegir un color y un patrón entre casillas cuadradas o hexagonales. También debe poder elegir el número de casillas en filas y columnas, que deben adaptarse según el tamaño del tablero.
    - imagen: Si elige imagen, mostrar una modal con la lista de imágenes que hay en la lista de recursos para elegir una.
 
+---
+
+Añade:
+- la representación del tablero en la mesa debe dar cierta sensación de grosor
+
 ## Descripción completa
 
 Se añade "Tablero" como nuevo tipo de componente que se puede colocar sobre la mesa, junto al ya existente "Cuadro de texto". Es un elemento cuadrado con un borde y un fondo configurables.
@@ -66,6 +71,16 @@ Hoy el proyecto no tiene ninguna funcionalidad para listar o elegir imágenes ya
 - **Sin imágenes disponibles en la carpeta de recursos**: la galería de selección muestra el mensaje "No hay imágenes disponibles" y el botón para confirmar la selección permanece deshabilitado.
 - **Filas/columnas del patrón**: limitadas a un rango razonable (1 a 50) para evitar patrones absurdamente densos o vacíos.
 
+### Ampliación: sensación de grosor en la representación del tablero
+
+La representación del tablero sobre la mesa (tanto en modo edición como en modo juego, con el mismo aspecto en ambos) debe transmitir cierta sensación de grosor físico, para diferenciarlo visualmente de un elemento plano como el cuadro de texto.
+
+Se consigue mediante un **bisel en el propio borde** configurado (color y grosor ya definidos por el usuario): el borde se reparte en dos tonos derivados de ese color — más claro en los lados superior e izquierdo, más oscuro en los lados inferior y derecho — simulando un marco con relieve/altura, sin usar sombra ni degradado.
+
+Esto es una **excepción explícita** a la convención de estilo general del proyecto, que hoy es deliberadamente plana (sin sombras ni relieves en ningún componente). Se acota expresamente a este componente: no se aplica a ningún otro tipo de componente existente ni futuro salvo que se decida ampliarlo más adelante.
+
+No se añade ninguna propiedad configurable nueva para este efecto: se calcula automáticamente a partir del color de borde que el usuario ya elige, sin ningún campo adicional en la modal.
+
 ## Apuntes técnicos
 
 - El campo `type` de `core/component.js` es hoy libre pero solo `'texto'` está implementado en `ui/componentModal.js` (pestaña "Específicas") y en `ui/componentRenderer.js` (renderizado sobre la mesa, de momento "solo texto" según `ARCHITECTURE.md` sección 5). Este cambio es la primera vez que se añade un segundo tipo real: hace falta generalizar ambos ficheros para soportar `'tablero'` además de `'texto'`, y añadir el desplegable de tipo (hoy `createComponent({ type: 'texto' })` está hardcodeado en `openComponentModal` para el caso `isNew`).
@@ -73,3 +88,4 @@ Hoy el proyecto no tiene ninguna funcionalidad para listar o elegir imágenes ya
 - `ARCHITECTURE.md` sección 7 ya documenta la convención `Los recursos gráficos van en /src/img, organizados por tipo de componente a medida que se definan` — la carpeta existe como convención pero está vacía; no hay hoy ningún mecanismo para enumerar su contenido desde JS en tiempo de ejecución (la app es estática, sin backend). Como el build (`src/scripts/build.py`) ya recorre y embebe assets referenciados desde CSS/HTML como data URIs, es candidato natural para generar también el listado de imágenes disponibles y dejarlo accesible a la app (dev y build final) — decisión de diseño técnico a resolver en el plan.
 - La propiedad general "Bloqueado" (cambio 00018, campo `bloqueado` en `core/component.js`) no requiere ningún cambio adicional para este tipo: se aplica igual que a cualquier otro componente.
 - El manejador de redimensionado genérico (`ui/resizeHandle.js`, `attachResizeHandle`) ya soporta `axis: 'both'` sin forzar proporción — el mismo patrón usado hoy por `'texto'` sirve para el tablero, sin necesidad de mantenerlo cuadrado tras el redimensionado (confirmado con el usuario).
+- El efecto de bisel es una excepción a `STYLE_BIBLE.md` sección 13 ("Qué NO hacer" — hoy prohíbe sombras/relieves/gradientes sin decidirlo explícitamente). Al planificar/implementar, además del código de renderizado del tablero, hay que actualizar `STYLE_BIBLE.md` documentando esta excepción como acotada específicamente al tipo de componente "Tablero" (no como cambio general del lenguaje visual de la app).

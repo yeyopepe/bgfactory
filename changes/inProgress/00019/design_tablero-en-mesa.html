@@ -48,14 +48,22 @@
     border-radius: 3px;
   }
 
+  /* Bisel: el borde configurado (color base) se reparte en dos tonos —
+     más claro arriba/izquierda, más oscuro abajo/derecha — para sugerir
+     relieve físico, en vez de usar sombra. Excepción explícita al
+     lenguaje visual plano del resto de la app, solo para este componente. */
+
   /* Ejemplo 1: fondo "color y patrón", casillas cuadradas */
   .board--squares {
     left: 60px;
     top: 40px;
     width: 300px;
     height: 300px;
-    border-color: #3a2a1a;
     border-width: 6px;
+    border-top-color: #6b4f30;
+    border-left-color: #6b4f30;
+    border-bottom-color: #241a10;
+    border-right-color: #241a10;
     background-color: #e8dcc0;
     background-image:
       repeating-linear-gradient(0deg, #8a6d3b 0 2px, transparent 2px 37.5px),
@@ -68,8 +76,11 @@
     top: 40px;
     width: 260px;
     height: 260px;
-    border-color: #2c3e50;
     border-width: 4px;
+    border-top-color: #4f6b85;
+    border-left-color: #4f6b85;
+    border-bottom-color: #1a242f;
+    border-right-color: #1a242f;
     background-color: #f5f5f5;
     background-image:
       repeating-linear-gradient(60deg, #5b7a92 0 2px, transparent 2px 30px),
@@ -83,8 +94,11 @@
     top: 400px;
     width: 220px;
     height: 220px;
-    border-color: #1a1a1a;
     border-width: 3px;
+    border-top-color: #444444;
+    border-left-color: #444444;
+    border-bottom-color: #000000;
+    border-right-color: #000000;
     background:
       radial-gradient(circle at 30% 30%, #7fae6a, transparent 55%),
       radial-gradient(circle at 75% 60%, #4c7a3a, transparent 50%),
@@ -135,4 +149,7 @@
   mueve y redimensiona igual que el resto de componentes (manejador en la esquina inferior derecha, no representado aquí).
   En modo juego se ve igual, sin poder editarse, y solo se puede mover si tiene desmarcada la propiedad general
   <b>Bloqueado</b> (cambio 00018).
+  <br><br>
+  El borde se dibuja con un ligero <b>bisel</b> (dos tonos derivados del color de borde elegido: más claro arriba/izquierda,
+  más oscuro abajo/derecha) para dar sensación de grosor físico, igual en ambos modos. No se usa sombra.
 </div>
