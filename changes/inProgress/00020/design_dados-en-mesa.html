@@ -64,17 +64,16 @@
   .legend b { color: var(--text-primary); }
 
   /* Demostración decorativa del efecto de lanzamiento — animación CSS pura,
-     no reacciona a ningún evento del usuario, solo ilustra el efecto visual. */
-  @keyframes roll-wobble {
-    0%   { transform: rotate(0deg) scale(1); }
-    20%  { transform: rotate(-6deg) scale(1.02); }
-    40%  { transform: rotate(5deg) scale(1.04); }
-    60%  { transform: rotate(-4deg) scale(1.02); }
-    80%  { transform: rotate(2deg) scale(1.01); }
-    100% { transform: rotate(0deg) scale(1); }
+     no reacciona a ningún evento del usuario, solo ilustra el efecto visual:
+     giro rápido de 720° (dos vueltas) con deceleración hacia el final, y
+     una pequeña pausa asentado antes de reiniciar el bucle de la demo. */
+  @keyframes roll-spin {
+    0%   { transform: rotate(0deg); }
+    70%  { transform: rotate(720deg); }
+    100% { transform: rotate(720deg); }
   }
   .die--rolling svg {
-    animation: roll-wobble 1.1s ease-in-out infinite;
+    animation: roll-spin 1.6s cubic-bezier(0.13, 0.85, 0.3, 1) infinite;
     transform-origin: center;
   }
 </style>
@@ -118,33 +117,33 @@
   </div>
 
   <div class="die">
-    <svg width="103" height="140" viewBox="0 0 103 140">
-      <!-- d10: cara frontal = cometa, sin distorsión -->
-      <polygon points="61,19 96,57 76,132 46,132 26,57" fill="#2f5f8f"/>
-      <polygon points="55,12 90,50 70,125 40,125 20,50" fill="#5a9bd8"/>
-      <text class="die__number" x="55" y="76">1</text>
+    <svg width="122" height="130" viewBox="0 0 122 130">
+      <!-- 10 caras (9 o más): cara frontal = decágono regular, sin distorsión -->
+      <polygon points="66,20 96.6,29.9 115.5,55.9 115.5,88.1 96.6,114.1 66,124 35.4,114.1 16.5,88.1 16.5,55.9 35.4,29.9" fill="#2f5f8f"/>
+      <polygon points="60,13 90.6,22.9 109.5,48.9 109.5,81.1 90.6,107.1 60,117 29.4,107.1 10.5,81.1 10.5,48.9 29.4,22.9" fill="#5a9bd8"/>
+      <text class="die__number" x="60" y="68">1</text>
     </svg>
-    <div class="die__label">10 caras — cometa</div>
+    <div class="die__label">10 caras — decágono regular</div>
   </div>
 
   <div class="die">
-    <svg width="121" height="120" viewBox="0 0 121 120">
-      <!-- d12: cara frontal = pentágono, sin distorsión -->
-      <polygon points="66,17 114,52 96,112 36,112 18,52" fill="#2f5f8f"/>
-      <polygon points="60,10 108,45 90,105 30,105 12,45" fill="#5a9bd8"/>
-      <text class="die__number" x="60" y="70">1</text>
+    <svg width="122" height="130" viewBox="0 0 122 130">
+      <!-- 12 caras (9 o más): misma silueta de decágono regular que el d10 -->
+      <polygon points="66,20 96.6,29.9 115.5,55.9 115.5,88.1 96.6,114.1 66,124 35.4,114.1 16.5,88.1 16.5,55.9 35.4,29.9" fill="#2f5f8f"/>
+      <polygon points="60,13 90.6,22.9 109.5,48.9 109.5,81.1 90.6,107.1 60,117 29.4,107.1 10.5,81.1 10.5,48.9 29.4,22.9" fill="#5a9bd8"/>
+      <text class="die__number" x="60" y="68">1</text>
     </svg>
-    <div class="die__label">12 caras — dodecaedro</div>
+    <div class="die__label">12 caras — decágono regular (misma silueta que el d10)</div>
   </div>
 
   <div class="die">
-    <svg width="103" height="140" viewBox="0 0 103 140">
-      <!-- "otra cantidad" (p.ej. 20 caras): misma silueta que el d10 -->
-      <polygon points="61,19 96,57 76,132 46,132 26,57" fill="#2f5f8f"/>
-      <polygon points="55,12 90,50 70,125 40,125 20,50" fill="#5a9bd8"/>
-      <text class="die__number" x="55" y="76">14</text>
+    <svg width="122" height="130" viewBox="0 0 122 130">
+      <!-- "otra cantidad" (p.ej. 20 caras): también decágono regular -->
+      <polygon points="66,20 96.6,29.9 115.5,55.9 115.5,88.1 96.6,114.1 66,124 35.4,114.1 16.5,88.1 16.5,55.9 35.4,29.9" fill="#2f5f8f"/>
+      <polygon points="60,13 90.6,22.9 109.5,48.9 109.5,81.1 90.6,107.1 60,117 29.4,107.1 10.5,81.1 10.5,48.9 29.4,22.9" fill="#5a9bd8"/>
+      <text class="die__number" x="60" y="68">14</text>
     </svg>
-    <div class="die__label">20 caras ("otra cantidad") — usa la silueta del d10</div>
+    <div class="die__label">20 caras ("otra cantidad") — decágono regular</div>
   </div>
 
   <div class="die die--rolling">
@@ -153,17 +152,23 @@
       <polygon points="25,20 95,20 95,90 25,90" fill="#5a9bd8"/>
       <text class="die__number" x="60" y="57">?</text>
     </svg>
-    <div class="die__label">Efecto de lanzamiento (giro/tambaleo, decorativo)</div>
+    <div class="die__label">Efecto de lanzamiento: giro de 720° con deceleración (decorativo)</div>
   </div>
 
 </div>
 
 <div class="legend">
   Cada dado se representa con la cara del resultado completamente de frente (sin ninguna distorsión de perspectiva:
-  triángulo, cuadrado, rombo, cometa o pentágono según el número de caras, tal cual). El "leve efecto de profundidad"
+  triángulo, cuadrado, rombo o decágono regular según el número de caras, tal cual). El "leve efecto de profundidad"
   se consigue con una silueta plana del mismo contorno, de un tono más oscuro, ligeramente desplazada detrás de la
-  cara frontal — no con facetas laterales en perspectiva ni con sombra difuminada. Solo <b>4, 6, 8, 10 y 12</b> caras
-  tienen silueta propia; cualquier otro número de caras (por ejemplo, 20) usa la silueta del <b>d10</b>. El último
-  dado ilustra, de forma puramente decorativa (animación CSS en bucle, sin reaccionar a ningún evento), el efecto de
-  giro/tambaleo al lanzar.
+  cara frontal — no con facetas laterales en perspectiva ni con sombra difuminada.
+  <br><br>
+  Solo <b>4, 6 y 8</b> caras tienen silueta propia (triángulo, cuadrado, rombo). <b>9 caras o más</b> — incluidos el
+  d10, el d12 y cualquier otro valor hasta 100 — comparten la misma silueta: un <b>decágono regular</b>. Cualquier
+  cantidad que no encaje en ninguno de los casos anteriores (2, 3, 5 o 7) también usa ese mismo decágono, como forma
+  de respaldo.
+  <br><br>
+  El último dado ilustra, de forma puramente decorativa (animación CSS en bucle, sin reaccionar a ningún evento), el
+  efecto de lanzamiento: un giro rápido de <b>720°</b> (dos vueltas completas) con <b>deceleración</b> hacia el final,
+  antes de asentarse mostrando el resultado.
 </div>

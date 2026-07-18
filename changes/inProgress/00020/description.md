@@ -21,6 +21,11 @@ Configuración:
 Ajusta la representación de los dados: la cara con el resultado tiene que estar totalmente de cara al usuario así que debes ajustar la perspectiva de la vista para que sea más cenital.
 En realidad, basta con una vista plana con un leve efecto de profundidad.
 
+---
+
+La representación visual para dados de 9 caras o más debe ser una figura de 10 lados iguales.
+El efecto para la tirada: el dado da un giro rápido de 720°, con deceleración al final y mostrar el resultado
+
 ## Descripción completa
 
 Se añade "Dado" como nuevo tipo de componente que se puede colocar sobre la mesa, junto a los ya existentes "Cuadro de texto" y "Tablero" (cambio 00019). Se crea, mueve y redimensiona en modo edición igual que cualquier otro componente, y se le puede aplicar la propiedad general "Bloqueado" (cambio 00018) para impedir que se arrastre en modo juego, sin ninguna particularidad adicional para este tipo.
@@ -38,16 +43,15 @@ Existe una silueta dedicada y reconocible para cada uno de estos tipos de dado, 
 - **4 caras**: triángulo (cara de un tetraedro).
 - **6 caras**: cuadrado (cara de un cubo).
 - **8 caras**: rombo (cara de un octaedro).
-- **10 caras**: el clásico "cometa" (pentagonal trapezohedron) usado en juegos de rol.
-- **12 caras**: pentágono (cara de un dodecaedro).
+- **9 caras o más** (incluye 10, 12, y cualquier otro valor hasta 100): un decágono regular (figura de 10 lados iguales), la misma silueta para todos ellos.
 
-Cualquier otro número de caras configurado (por ejemplo 2, 3, 5, 7, 9, 11, o cualquier valor entre 13 y 100) se representa con la misma silueta que el dado de 10 caras, sin una forma dedicada propia.
+Cualquier número de caras que no sea 4, 6, 8, ni esté dentro de "9 o más" (es decir, 2, 3, 5 o 7) también usa el decágono regular, como forma genérica de respaldo.
 
 Al redimensionar el dado en modo edición (mismo manejador de esquina que el resto de componentes), mantiene siempre su proporción (ancho = alto), coherente con representar un objeto 3D regular — no se puede convertir en una forma alargada.
 
 ### Lanzamiento (modo juego)
 
-Con un click sobre el dado (solo disponible en modo juego, no en modo edición) se lanza: se genera un número aleatorio entre 1 y el número de caras configurado, con un efecto visual breve (una animación de giro/tambaleo del propio dado) antes de asentarse mostrando el nuevo resultado impreso en su cara visible. Mientras dura la animación, nuevos clicks sobre el dado no inician otro lanzamiento (se ignoran hasta que termina de asentarse).
+Con un click sobre el dado (solo disponible en modo juego, no en modo edición) se lanza: se genera un número aleatorio entre 1 y el número de caras configurado, con un efecto visual de giro — el propio dado gira rápidamente 720° (dos vueltas completas), decelerando hacia el final del giro — antes de asentarse mostrando el nuevo resultado impreso en su cara visible. Mientras dura la animación, nuevos clicks sobre el dado no inician otro lanzamiento (se ignoran hasta que termina de asentarse).
 
 La propiedad general "Bloqueado" (cambio 00018) solo determina si el dado se puede arrastrar por la mesa; no afecta a la posibilidad de lanzarlo, que sigue disponible independientemente de su estado de bloqueo.
 
@@ -84,7 +88,8 @@ Con un doble click sobre el dado (solo en modo juego) se abre una modal mostrand
 
 - Esta entrada depende del tipo de componente "Tablero" (cambio 00019, todavía sin implementar) en dos frentes: (1) el desplegable "Tipo" de `ui/componentModal.js` que introduce ese cambio, al que "Dado" se suma como tercera opción; y (2) el sistema de recursos con galería de selección que ese cambio construye para elegir imágenes, que aquí se reutiliza/extiende para listar también ficheros de fuente tipográfica (`.woff`, `.woff2`, `.ttf`, `.otf`) en vez de imágenes. Conviene implementar 00019 antes que esta entrada, o generalizar su sistema de recursos para ambos tipos de fichero a la vez.
 - `src/scripts/build.py` ya soporta embeber fuentes como data URI (mismo mecanismo que imágenes: `MIME_TYPES` incluye `.woff`/`.woff2`/`.ttf`/`.otf`/`.eot`, vía `@font-face` con `url()` en CSS) — es la base técnica en la que puede apoyarse la extensión del sistema de recursos a fuentes.
-- El giro/tambaleo del lanzamiento y el bisel/sombreado de cada silueta son excepciones explícitas a `STYLE_BIBLE.md` sección 13 ("Qué NO hacer" — hoy prohíbe sombras/relieves/gradientes/animaciones sin decidirlo explícitamente), acotadas a este componente, en la misma línea que la excepción ya registrada para el bisel del borde del tablero (cambio 00019). Al planificar/implementar, actualizar `STYLE_BIBLE.md` documentando esta nueva excepción.
+- El giro de 720° del lanzamiento y el bisel/sombreado de cada silueta son excepciones explícitas a `STYLE_BIBLE.md` sección 13 ("Qué NO hacer" — hoy prohíbe sombras/relieves/gradientes/animaciones sin decidirlo explícitamente), acotadas a este componente, en la misma línea que la excepción ya registrada para el bisel del borde del tablero (cambio 00019). Al planificar/implementar, actualizar `STYLE_BIBLE.md` documentando esta nueva excepción. La deceleración hacia el final del giro es una curva de easing (ease-out) a elegir en el plan; la duración total no se ha fijado en la descripción funcional, queda a criterio técnico (breve, del orden de 1 segundo).
+- El decágono regular (9 caras o más, y como forma de respaldo para cualquier cantidad sin silueta dedicada) sustituye a las siluetas específicas de "cometa" (d10) y pentágono (d12) usadas antes de esta ampliación: a partir de ahora solo 4, 6 y 8 caras tienen silueta propia distinta; el resto comparte una única forma.
 - El manejador de redimensionado genérico (`ui/resizeHandle.js`, `attachResizeHandle`) soporta hoy `axis: 'both'` sin forzar proporción; mantener el dado siempre cuadrado requiere o bien un nuevo modo de `axis` que fuerce ancho=alto, o bien clampar en el propio `clamp()` que recibe la función — a decidir en el plan.
 - Distinguir un click (lanzar/abrir modal) de un arrastre (mover, si no está "Bloqueado") ya es un patrón resuelto en `ui/componentRenderer.js` para el modo edición (`onToggleSelect` vía click simple convive con `onMove` vía arrastre sobre el mismo componente) — reutilizable como referencia para la interacción de lanzamiento en modo juego.
 - `modes/play/playMode.js` hoy llama a `renderComponentsOnTable` sin `onSelect`/`onToggleSelect` (sección 5 de `ARCHITECTURE.md`); el click/doble click de este cambio son interacciones nuevas específicas de modo juego, no relacionadas con la selección de modo edición.
