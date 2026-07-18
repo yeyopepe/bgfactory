@@ -28,6 +28,11 @@ Añade:
 - las casillas deben ajustarse siempre al tamaño del tablero, todas del mismo tamaño. No cortes casillas, ajusta su tamaño global para que encaje siempre. En el caso de casillas cuadradas, en realidad Pueden ser casillas rectangulares para que este ajuste sea perfecto.
 - Para las hexagonales es posible que tengas zonas en los bordes del tablero sin casillas
 
+---
+
+Cualquiera que sea el patrón elegido, debe ocupar todo el tablero posible.
+En el ejemplo de casillas hexagonales veo que son 4 filas y 4 columnas pero no ocupan todo lo posible del tablero. En ese ejemplo deberían ser más grandes, tanto como para llenar lo máximo posible del tablero.
+
 ## Descripción completa
 
 Se añade "Tablero" como nuevo tipo de componente que se puede colocar sobre la mesa, junto al ya existente "Cuadro de texto". Es un elemento cuadrado con un borde y un fondo configurables.
@@ -95,6 +100,8 @@ Se precisa cómo deben encajar las casillas del fondo tipo "Color y patrón" den
 - Nunca se corta ni recorta ninguna casilla: el tamaño global de las casillas se ajusta (no el número de filas/columnas, que se mantiene fijo) para que el patrón encaje siempre limpiamente.
 - **Casillas "cuadradas"**: para que el encaje sea perfecto en un tablero de cualquier proporción (no solo cuadrado), esta forma pasa a admitir también casillas rectangulares — el ancho de cada casilla se calcula a partir del ancho del tablero entre el número de columnas, y su alto a partir del alto del tablero entre el número de filas, de forma independiente. Si el tablero es cuadrado, el resultado son casillas cuadradas como hasta ahora; si no lo es, son rectángulos, cubriendo igualmente todo el tablero sin huecos ni recortes.
 - **Casillas hexagonales**: al no encajar siempre de forma exacta en un rectángulo con un número fijo de filas/columnas, se acepta que puedan quedar zonas sin casillas en los bordes del tablero (se ve el resto del fondo del tablero en esas zonas). No se recorta ninguna casilla parcialmente para evitarlo.
+
+Independientemente de la forma de casilla elegida, el patrón debe ocupar siempre el máximo espacio posible del tablero: el tamaño de casilla se calcula para que el número de filas/columnas configurado sea lo más grande posible sin salirse del tablero ni cortar ninguna casilla. Para casillas cuadradas/rectangulares esto significa que no queda ningún margen (cubren el tablero al 100%, como ya se explica arriba). Para hexagonales, el margen sin casillas de los bordes debe ser el mínimo inevitable que exige el propio encaje del patrón hexagonal (por el desfase entre columnas propio de esta forma) — nunca un margen arbitrariamente mayor que ese mínimo.
 
 ## Apuntes técnicos
 
