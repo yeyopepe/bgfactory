@@ -399,10 +399,6 @@ h1 {
 /* Board component: excepción explícita a "sin sombras/relieves" (ver
    STYLE_BIBLE.md sección 13), acotada a este tipo de componente. El bisel se
    consigue con los cuatro colores de borde ya calculados en JS. */
-.board {
-  background-repeat: no-repeat;
-}
-
 .board--selectable {
   cursor: pointer;
 }
