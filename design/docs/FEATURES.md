@@ -4,10 +4,10 @@
 
 ### Mesa infinita con navegación pan/zoom
 
-Superficie de juego navegable arrastrando (pan) y con la rueda del ratón (zoom, acotado a un rango razonable), donde se renderizan los componentes de la partida.
+Superficie de juego navegable arrastrando (pan) y con la rueda del ratón (zoom, acotado a un rango razonable), donde se renderizan los componentes de la partida. La posición y el zoom se mantienen tal como los deja el usuario durante toda la sesión, incluida cualquier acción que refresque la pantalla (mover/editar/añadir/eliminar un componente); no se persisten entre recargas de página.
 
 - **Disponible en**: modo juego y modo edición.
-- **Código**: 00002.
+- **Código**: 00002, 00016.
 
 ### Alta/edición/borrado de componentes con modal de tabs
 

@@ -1,6 +1,17 @@
 // Infinite table with pan/zoom capabilities.
 // Generic UI component, independent of component knowledge.
 
+// Camera state shared across mounts: the table is fully recreated on every
+// screen repaint (see main.js `renderAll()`, triggered by `components:changed`/
+// `mode:changed`), so keeping cameraX/cameraY/zoom local to `createInfiniteTable`
+// would reset the view on every repaint. Only one table is ever active at a
+// time (play/edit modes are mutually exclusive), so a single module-level
+// camera is enough to survive those remounts within the session. Not persisted
+// to storage — resets on page reload, like before.
+let cameraX = 0;
+let cameraY = 0;
+let zoom = 1;
+
 export function createInfiniteTable(container = null) {
   const viewport = document.createElement('div');
   viewport.className = 'infinite-table';
@@ -8,10 +19,6 @@ export function createInfiniteTable(container = null) {
   const world = document.createElement('div');
   world.className = 'infinite-table__world';
   viewport.appendChild(world);
-
-  let cameraX = 0;
-  let cameraY = 0;
-  let zoom = 1;
 
   const minZoom = 0.5;
   const maxZoom = 2.5;
