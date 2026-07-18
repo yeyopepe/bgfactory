@@ -54,13 +54,16 @@
      lenguaje visual plano del resto de la app, solo para este componente. */
 
   /* Ejemplo 1: fondo "color y patrón", casillas cuadradas — tablero NO cuadrado
-     (340×220, 8 columnas × 5 filas) a propósito, para ilustrar que las casillas
-     pasan a ser rectangulares (42.5×44px) y encajan exactas, sin recortes. */
+     a propósito, para ilustrar que las casillas pasan a ser rectangulares y
+     encajan exactas, sin recortes. El cálculo se hace sobre el área INTERIOR
+     al borde (336×175 = ancho/alto del tablero menos el grosor de borde a
+     cada lado), no sobre el tamaño exterior del tablero — por eso encajan
+     limpio: 336/8 = 42px de ancho y 175/5 = 35px de alto por casilla. */
   .board--squares {
     left: 50px;
     top: 40px;
-    width: 340px;
-    height: 220px;
+    width: 348px;
+    height: 187px;
     border-width: 6px;
     border-top-color: #6b4f30;
     border-left-color: #6b4f30;
@@ -68,18 +71,20 @@
     border-right-color: #241a10;
     background-color: #e8dcc0;
     background-image:
-      repeating-linear-gradient(0deg, #8a6d3b 0 2px, transparent 2px 44px),
-      repeating-linear-gradient(90deg, #8a6d3b 0 2px, transparent 2px 42.5px);
+      repeating-linear-gradient(0deg, #8a6d3b 0 2px, transparent 2px 35px),
+      repeating-linear-gradient(90deg, #8a6d3b 0 2px, transparent 2px 42px);
   }
 
-  /* Ejemplo 2: fondo "color y patrón", casillas hexagonales (aprox. visual).
-     El patrón (.hex-fill) es más pequeño que el tablero a propósito: deja un
-     margen visible sin casillas en los bordes, en vez de recortar hexágonos. */
+  /* Ejemplo 2: fondo "color y patrón", casillas hexagonales — hexágonos reales
+     (SVG, no una aproximación con gradientes). La cuadrícula de hexágonos
+     (.hex-fill) es más pequeña que el área interior del tablero a propósito:
+     deja un margen visible sin casillas en los bordes, en vez de recortar
+     ningún hexágono. */
   .board--hex {
     left: 440px;
     top: 40px;
-    width: 240px;
-    height: 240px;
+    width: 292px;
+    height: 260px;
     border-width: 4px;
     border-top-color: #4f6b85;
     border-left-color: #4f6b85;
@@ -90,14 +95,10 @@
   }
   .board--hex .hex-fill {
     position: absolute;
-    top: 13px;
-    left: 6px;
-    right: 6px;
-    bottom: 13px;
-    background-image:
-      repeating-linear-gradient(60deg, #5b7a92 0 2px, transparent 2px 30px),
-      repeating-linear-gradient(120deg, #5b7a92 0 2px, transparent 2px 30px),
-      repeating-linear-gradient(0deg, #5b7a92 0 2px, transparent 2px 26px);
+    top: 15px;
+    left: 20px;
+    width: 200px;
+    height: 170px;
   }
 
   /* Ejemplo 3: fondo "imagen" (placeholder decorativo) */
@@ -148,7 +149,20 @@
     <div class="board__label">Color y patrón — casillas rectangulares (tablero no cuadrado, sin recortes)</div>
   </div>
   <div class="board board--hex">
-    <div class="hex-fill"></div>
+    <svg class="hex-fill" viewBox="0 0 200 170" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="56,30 45,49.1 23,49.1 12,30 23,11 45,11" fill="none" stroke="#5b7a92" stroke-width="2"/>
+      <polygon points="56,68.1 45,87.2 23,87.2 12,68.1 23,49.1 45,49.1" fill="none" stroke="#5b7a92" stroke-width="2"/>
+      <polygon points="56,106.2 45,125.3 23,125.3 12,106.2 23,87.2 45,87.2" fill="none" stroke="#5b7a92" stroke-width="2"/>
+      <polygon points="89,49.1 78,68.1 56,68.1 45,49.1 56,30 78,30" fill="none" stroke="#5b7a92" stroke-width="2"/>
+      <polygon points="89,87.2 78,106.2 56,106.2 45,87.2 56,68.1 78,68.1" fill="none" stroke="#5b7a92" stroke-width="2"/>
+      <polygon points="89,125.3 78,144.3 56,144.3 45,125.3 56,106.2 78,106.2" fill="none" stroke="#5b7a92" stroke-width="2"/>
+      <polygon points="122,30 111,49.1 89,49.1 78,30 89,11 111,11" fill="none" stroke="#5b7a92" stroke-width="2"/>
+      <polygon points="122,68.1 111,87.2 89,87.2 78,68.1 89,49.1 111,49.1" fill="none" stroke="#5b7a92" stroke-width="2"/>
+      <polygon points="122,106.2 111,125.3 89,125.3 78,106.2 89,87.2 111,87.2" fill="none" stroke="#5b7a92" stroke-width="2"/>
+      <polygon points="155,49.1 144,68.1 122,68.1 111,49.1 122,30 144,30" fill="none" stroke="#5b7a92" stroke-width="2"/>
+      <polygon points="155,87.2 144,106.2 122,106.2 111,87.2 122,68.1 144,68.1" fill="none" stroke="#5b7a92" stroke-width="2"/>
+      <polygon points="155,125.3 144,144.3 122,144.3 111,125.3 122,106.2 144,106.2" fill="none" stroke="#5b7a92" stroke-width="2"/>
+    </svg>
     <div class="board__label">Color y patrón — hexagonales (margen sin casillas en el borde)</div>
   </div>
   <div class="board board--image">
