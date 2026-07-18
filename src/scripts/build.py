@@ -176,7 +176,7 @@ html = re.sub(r'\s*<script type="module" src="main.js"></script>', '', html)
 html = embed_html_asset_refs(html)
 html = html.replace('</title>', f'</title>\n  <style>\n{css}\n  </style>')
 html = html.replace('</body>', f'  <script>\n{bundle_js}\n  </script>\n</body>')
-html = html.replace('<title>Errantes (dev)</title>', '<title>Errantes</title>')
+html = html.replace(' (dev)</title>', '</title>')
 
 # La version del entregable viene de src/data/version.js (unica fuente de
 # verdad, actualizada en el paso 3 de src/_changes/changes_workflow.md), no de
@@ -191,6 +191,13 @@ if not version_match:
         "Actualizala (paso 3 de changes_workflow.md) antes de generar el entregable."
     )
 version = version_match.group(1)
+
+if '{VERSION}' not in html:
+    raise SystemExit(
+        "src/index.html no tiene el marcador '{VERSION}' en el <title>. "
+        "Añadelo antes de generar el entregable."
+    )
+html = html.replace('{VERSION}', f'v.{version}')
 
 VERSIONS_DIR.mkdir(parents=True, exist_ok=True)
 output_path = VERSIONS_DIR / f'index-v{version}.html'

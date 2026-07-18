@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-18T15:40:31Z",
+  "generatedAt": "2026-07-18T15:57:34Z",
   "basePath": "src",
   "nodes": [
     {
@@ -10,7 +10,7 @@
         "createComponent",
         "updateComponent"
       ],
-      "purpose": "Modelo genérico de componente de juego: crea y actualiza objetos componente sin exponer su forma interna a otras capas."
+      "purpose": "Define el modelo genérico de componente de juego y expone createComponent/updateComponent como única vía para construir o modificar componentes sin que otras capas manejen la forma del objeto directamente."
     },
     {
       "id": "core/eventBus.js",
@@ -21,7 +21,7 @@
         "off",
         "on"
       ],
-      "purpose": "Bus de eventos simple pub/sub usado para desacoplar la capa de estado de la UI que se refresca en respuesta a sus cambios."
+      "purpose": "Bus de eventos simple (pub/sub) con emit/on/off que desacopla las capas de la aplicación, permitiendo que la UI se refresque ante cambios de estado sin acoplarse a los módulos que los producen."
     },
     {
       "id": "core/fileExport.js",
@@ -31,7 +31,7 @@
         "buildExportHtml",
         "downloadHtml"
       ],
-      "purpose": "Genera una copia autocontenida del HTML actual con el estado embebido y dispara su descarga como fichero."
+      "purpose": "Genera una copia autocontenida del HTML actual con el estado de componentes embebido y dispara su descarga como fichero, para la funcionalidad de \"Guardar\" en modo edición."
     },
     {
       "id": "core/persistence.js",
@@ -42,7 +42,7 @@
         "readSeedState",
         "saveState"
       ],
-      "purpose": "Autoguardado del estado (componentes y panel) en localStorage, y lectura de la semilla de estado embebida en el propio documento."
+      "purpose": "Gestiona el autoguardado del estado (componentes y panelState) en localStorage y la lectura de la semilla de estado embebida en el documento, validando versión y forma antes de aceptar un estado guardado."
     },
     {
       "id": "core/state.js",
@@ -61,7 +61,7 @@
         "setMode",
         "setPanelState"
       ],
-      "purpose": "Estado central de la aplicación (modo activo, lista de componentes, estado del panel flotante); expone las únicas funciones para leerlo/mutarlo y emite eventos en cada cambio."
+      "purpose": "Estado central de la aplicación (modo activo, lista de componentes y estado del panel flotante); expone getters/mutadores que emiten eventos por eventBus ante cualquier cambio para que la UI se vuelva a renderizar."
     },
     {
       "id": "data/version.js",
@@ -70,13 +70,13 @@
       "exports": [
         "CURRENT_VERSION"
       ],
-      "purpose": "Fuente única de la versión actual del prototipo, usada por el build y por la persistencia para validar el estado guardado."
+      "purpose": "Fuente única de la versión actual del prototipo, usada para el nombre del entregable y para validar compatibilidad del estado persistido."
     },
     {
       "id": "main.js",
       "type": "file",
       "path": "main.js",
-      "purpose": "Bootstrap de la app: hidrata el estado guardado o la semilla embebida, y conecta el bus de eventos con el repintado del modo activo."
+      "purpose": "Bootstrap de la aplicación: carga el estado inicial (guardado, semilla embebida o componente por defecto), conecta eventBus con el renderizado y el autoguardado, y monta el modo activo (juego o edición)."
     },
     {
       "id": "modes/edit/editMode.js",
@@ -85,7 +85,7 @@
       "exports": [
         "renderEditMode"
       ],
-      "purpose": "Renderiza el modo edición: mesa infinita con componentes seleccionables/movibles/redimensionables más el panel flotante de listado, manteniendo la selección en curso a nivel de módulo entre repintados."
+      "purpose": "Renderiza el modo edición: mesa infinita con los componentes dibujados y seleccionables sobre ella, y un panel flotante con el listado de componentes y acciones de alta/edición/borrado, coordinando la selección y la modal de edición."
     },
     {
       "id": "modes/play/playMode.js",
@@ -94,7 +94,7 @@
       "exports": [
         "renderPlayMode"
       ],
-      "purpose": "Renderiza el modo juego: mesa infinita con los componentes dibujados sobre ella, permitiendo mover solo los que no están marcados como bloqueados."
+      "purpose": "Renderiza el modo juego: mesa infinita con los componentes dibujados sobre ella, permitiendo arrastrar solo los que no están marcados como bloqueados."
     },
     {
       "id": "ui/componentList.js",
@@ -103,7 +103,7 @@
       "exports": [
         "renderComponentList"
       ],
-      "purpose": "Panel flotante, colapsable, arrastrable y redimensionable con el listado de componentes en tabla, usado en modo edición."
+      "purpose": "Panel flotante, colapsable, arrastrable y redimensionable en ancho que muestra el listado de componentes en formato tabla (Id/Tipo/Acciones) con selección de fila, usado en modo edición."
     },
     {
       "id": "ui/componentModal.js",
@@ -112,7 +112,7 @@
       "exports": [
         "openComponentModal"
       ],
-      "purpose": "Modal de alta/edición de componentes con pestañas Generales/Específicas y borrado opcional, reutilizable para cualquier tipo de componente."
+      "purpose": "Modal de creación/edición de componentes con pestañas Generales (id editable con validación, checkbox bloqueado) y Específicas (campos según el tipo de componente), con botones de aceptar/cancelar/eliminar."
     },
     {
       "id": "ui/componentRenderer.js",
@@ -121,7 +121,7 @@
       "exports": [
         "renderComponentsOnTable"
       ],
-      "purpose": "Dibuja los componentes soportados (de momento 'texto') sobre el mundo de la mesa infinita, con selección, arrastre y redimensionado opcionales."
+      "purpose": "Dibuja los componentes soportados sobre la mesa infinita según su modelo de datos, gestionando selección, arrastre y redimensionado directamente sobre su representación visual."
     },
     {
       "id": "ui/editModeToggle.js",
@@ -131,7 +131,7 @@
         "renderEditToolbar",
         "renderEnterEditButton"
       ],
-      "purpose": "Botones de entrada/salida del modo edición y, en modo edición, el botón 'Guardar' que exporta el estado actual a fichero HTML."
+      "purpose": "Proporciona los botones de entrada/salida del modo edición y el botón de guardado a fichero en la barra de herramientas, sin conocer los detalles internos de cada modo."
     },
     {
       "id": "ui/helpIcon.js",
@@ -140,7 +140,7 @@
       "exports": [
         "createHelpIcon"
       ],
-      "purpose": "Icono de ayuda contextual reutilizable: tooltip para texto corto, modal para texto largo o con HTML."
+      "purpose": "Componente genérico de ayuda contextual (icono \"?\") que muestra un tooltip para texto corto o abre una modal para contenido largo o con formato, reutilizable en cualquier punto de la app."
     },
     {
       "id": "ui/resizeHandle.js",
@@ -149,7 +149,7 @@
       "exports": [
         "attachResizeHandle"
       ],
-      "purpose": "Utilidad genérica de redimensionado por arrastre de un manejador en la esquina inferior derecha de cualquier elemento host."
+      "purpose": "Utilidad genérica que implementa el patrón estándar de redimensionado de la app mediante un manejador de esquina, reutilizable por cualquier elemento que necesite hacerse redimensionable."
     },
     {
       "id": "ui/table.js",
@@ -158,7 +158,7 @@
       "exports": [
         "createInfiniteTable"
       ],
-      "purpose": "Mesa infinita con pan/zoom; mantiene la cámara (posición y zoom) como estado de módulo para que sobreviva a los remontados completos que provoca cada repintado de pantalla."
+      "purpose": "Crea la mesa infinita con capacidad de pan y zoom, agnóstica del modelo de componentes, manteniendo el estado de cámara a nivel de módulo para sobrevivir a los remontados completos de pantalla."
     },
     {
       "id": "ui/toast.js",
@@ -167,224 +167,224 @@
       "exports": [
         "showToast"
       ],
-      "purpose": "Aviso breve no bloqueante (toast) reutilizable en toda la app."
+      "purpose": "Muestra un aviso breve no bloqueante en pantalla, reutilizado por el arranque y por el guardado a fichero para confirmar acciones o advertir de errores."
     },
     {
       "id": "core/component.js#createComponent",
       "type": "function",
       "path": "core/component.js",
       "parent": "core/component.js",
-      "purpose": "Crea un componente nuevo con id generado y valores por defecto para los campos no proporcionados (incluido 'bloqueado', true por defecto)."
+      "purpose": "Construye un nuevo objeto de componente con valores por defecto (id generado, posición 0,0, tamaño automático, bloqueado) combinados con las propiedades indicadas."
     },
     {
       "id": "core/component.js#updateComponent",
       "type": "function",
       "path": "core/component.js",
       "parent": "core/component.js",
-      "purpose": "Devuelve una copia de un componente con los cambios aplicados, fusionando 'properties' en vez de sobrescribirlo."
+      "purpose": "Devuelve una copia de un componente existente con los cambios indicados aplicados, fusionando el objeto properties en vez de sobrescribirlo."
     },
     {
       "id": "core/eventBus.js#emit",
       "type": "function",
       "path": "core/eventBus.js",
       "parent": "core/eventBus.js",
-      "purpose": "Invoca a todos los handlers suscritos a un evento con el payload dado."
+      "purpose": "Invoca a todos los handlers suscritos a un nombre de evento, pasándoles el payload indicado."
     },
     {
       "id": "core/eventBus.js#off",
       "type": "function",
       "path": "core/eventBus.js",
       "parent": "core/eventBus.js",
-      "purpose": "Elimina un handler previamente suscrito a un evento."
+      "purpose": "Elimina un handler previamente suscrito a un nombre de evento."
     },
     {
       "id": "core/eventBus.js#on",
       "type": "function",
       "path": "core/eventBus.js",
       "parent": "core/eventBus.js",
-      "purpose": "Suscribe un handler a un evento y devuelve una función para darlo de baja."
+      "purpose": "Suscribe un handler a un nombre de evento y devuelve una función para desuscribirlo."
     },
     {
       "id": "core/fileExport.js#buildExportHtml",
       "type": "function",
       "path": "core/fileExport.js",
       "parent": "core/fileExport.js",
-      "purpose": "Clona el documento vivo y sustituye la semilla de estado embebida por el estado actual, devolviendo el HTML resultante."
+      "purpose": "Clona el documento actual y sustituye el contenido del script de semilla por el estado de componentes dado, devolviendo el HTML autocontenido resultante."
     },
     {
       "id": "core/fileExport.js#downloadHtml",
       "type": "function",
       "path": "core/fileExport.js",
       "parent": "core/fileExport.js",
-      "purpose": "Dispara la descarga del HTML dado como fichero con el nombre indicado."
+      "purpose": "Descarga una cadena HTML como fichero Blob con el nombre indicado."
     },
     {
       "id": "core/persistence.js#loadState",
       "type": "function",
       "path": "core/persistence.js",
       "parent": "core/persistence.js",
-      "purpose": "Lee y valida el estado guardado en localStorage, devolviendo null si no hay nada o un error si está corrupto/incompatible."
+      "purpose": "Lee y valida el estado guardado en localStorage, devolviendo null si no hay nada guardado o un objeto de error si está corrupto o es incompatible."
     },
     {
       "id": "core/persistence.js#readSeedState",
       "type": "function",
       "path": "core/persistence.js",
       "parent": "core/persistence.js",
-      "purpose": "Lee y valida la semilla de estado embebida en el documento (script #initial-state)."
+      "purpose": "Lee y valida el estado embebido en el script de semilla del documento, devolviendo null si no hay semilla o es inválida."
     },
     {
       "id": "core/persistence.js#saveState",
       "type": "function",
       "path": "core/persistence.js",
       "parent": "core/persistence.js",
-      "purpose": "Serializa componentes y estado del panel a localStorage, ignorando silenciosamente errores de cuota."
+      "purpose": "Serializa componentes y panelState junto con la versión actual y los guarda en localStorage, ignorando silenciosamente errores de cuota u otros fallos."
     },
     {
       "id": "core/state.js#addComponent",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Añade un componente a la lista y emite 'components:changed'."
+      "purpose": "Añade un componente a la lista de estado y emite el evento components:changed."
     },
     {
       "id": "core/state.js#getComponents",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Devuelve la lista actual de componentes."
+      "purpose": "Devuelve la lista actual de componentes del estado."
     },
     {
       "id": "core/state.js#getPanelState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Devuelve el estado actual del panel flotante de componentes."
+      "purpose": "Devuelve el estado actual del panel flotante de componentes (colapso, posición, ancho)."
     },
     {
       "id": "core/state.js#getState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Devuelve el objeto de estado central (modo activo y componentes)."
+      "purpose": "Devuelve el objeto de estado central de la aplicación (modo activo y componentes)."
     },
     {
       "id": "core/state.js#loadComponents",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Reemplaza toda la lista de componentes (usado al hidratar desde guardado/semilla) y emite 'components:changed'."
+      "purpose": "Sustituye la lista completa de componentes del estado y emite el evento components:changed."
     },
     {
       "id": "core/state.js#loadPanelState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Reemplaza el estado del panel sin emitir evento (usado solo al hidratar en el arranque)."
+      "purpose": "Sustituye el estado del panel flotante sin emitir evento, usado para hidratarlo al arrancar desde un estado guardado."
     },
     {
       "id": "core/state.js#removeComponent",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Elimina un componente por id y emite 'components:changed'."
+      "purpose": "Elimina un componente de la lista de estado por su id y emite el evento components:changed."
     },
     {
       "id": "core/state.js#replaceComponent",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Sustituye un componente existente por su versión actualizada y emite 'components:changed'."
+      "purpose": "Sustituye un componente existente en la lista de estado por su id y emite el evento components:changed."
     },
     {
       "id": "core/state.js#setMode",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Cambia el modo activo (juego/edición) y emite 'mode:changed'."
+      "purpose": "Cambia el modo activo de la aplicación (juego/edición) y emite el evento mode:changed."
     },
     {
       "id": "core/state.js#setPanelState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Fusiona cambios parciales en el estado del panel y emite 'panelState:changed'."
+      "purpose": "Fusiona cambios parciales en el estado del panel flotante y emite el evento panelState:changed."
     },
     {
       "id": "modes/edit/editMode.js#renderEditMode",
       "type": "function",
       "path": "modes/edit/editMode.js",
       "parent": "modes/edit/editMode.js",
-      "purpose": "Monta la mesa infinita y el panel flotante del modo edición, cableando selección, movimiento, redimensionado y acciones CRUD de componentes."
+      "purpose": "Renderiza la mesa infinita con los componentes seleccionables y el panel flotante de listado en modo edición, conectando ambos con la modal de edición y el estado de selección de la sesión."
     },
     {
       "id": "modes/play/playMode.js#renderPlayMode",
       "type": "function",
       "path": "modes/play/playMode.js",
       "parent": "modes/play/playMode.js",
-      "purpose": "Monta la mesa infinita del modo juego con los componentes renderizados y el arrastre habilitado solo para los que no están bloqueados."
+      "purpose": "Renderiza la mesa infinita con los componentes del estado dibujados sobre ella, habilitando el arrastre solo de los componentes no bloqueados."
     },
     {
       "id": "ui/componentList.js#renderComponentList",
       "type": "function",
       "path": "ui/componentList.js",
       "parent": "ui/componentList.js",
-      "purpose": "Dibuja el panel flotante con la tabla de componentes y engancha arrastre de cabecera, redimensionado y acciones por fila."
+      "purpose": "Dibuja el panel flotante de listado de componentes (cabecera arrastrable, tabla de filas con acciones, pie con botón de añadir) y engancha su redimensionado y colapso."
     },
     {
       "id": "ui/componentModal.js#openComponentModal",
       "type": "function",
       "path": "ui/componentModal.js",
       "parent": "ui/componentModal.js",
-      "purpose": "Abre la modal de creación/edición de un componente con sus pestañas y validación, invocando los callbacks de aceptar/borrar."
+      "purpose": "Abre la modal de creación/edición de un componente con sus pestañas Generales y Específicas, validando el id y notificando la aceptación, cancelación o borrado."
     },
     {
       "id": "ui/componentRenderer.js#renderComponentsOnTable",
       "type": "function",
       "path": "ui/componentRenderer.js",
       "parent": "ui/componentRenderer.js",
-      "purpose": "Limpia y vuelve a dibujar cada componente soportado sobre la mesa, aplicando selección/arrastre/redimensionado según las opciones recibidas."
+      "purpose": "Limpia y vuelve a dibujar cada componente soportado sobre el elemento mundo de la mesa, aplicando selección, arrastre y redimensionado según las opciones recibidas."
     },
     {
       "id": "ui/editModeToggle.js#renderEditToolbar",
       "type": "function",
       "path": "ui/editModeToggle.js",
       "parent": "ui/editModeToggle.js",
-      "purpose": "Dibuja la barra de herramientas del modo edición (botones 'Salir' y 'Guardar') cuando el modo activo es edición."
+      "purpose": "Renderiza la barra de herramientas de modo edición con los botones de salida de modo edición y de guardado a fichero."
     },
     {
       "id": "ui/editModeToggle.js#renderEnterEditButton",
       "type": "function",
       "path": "ui/editModeToggle.js",
       "parent": "ui/editModeToggle.js",
-      "purpose": "Dibuja el botón para entrar en modo edición cuando el modo activo es juego."
+      "purpose": "Renderiza el botón para entrar en modo edición cuando la aplicación está en modo juego."
     },
     {
       "id": "ui/helpIcon.js#createHelpIcon",
       "type": "function",
       "path": "ui/helpIcon.js",
       "parent": "ui/helpIcon.js",
-      "purpose": "Crea el icono de ayuda '?' y decide si su interacción es tooltip o modal según la longitud/tipo del contenido."
+      "purpose": "Crea un icono de ayuda contextual que muestra un tooltip para texto corto o abre una modal de ayuda para contenido largo o con formato HTML."
     },
     {
       "id": "ui/resizeHandle.js#attachResizeHandle",
       "type": "function",
       "path": "ui/resizeHandle.js",
       "parent": "ui/resizeHandle.js",
-      "purpose": "Añade un manejador de redimensionado de esquina a un elemento host, calculando el tamaño propuesto según el eje y aplicando el clamp del caller."
+      "purpose": "Añade a un elemento host un manejador de esquina que, al arrastrarse, calcula el nuevo tamaño según el eje y los límites indicados, invocando callbacks en cada movimiento y al soltar."
     },
     {
       "id": "ui/table.js#createInfiniteTable",
       "type": "function",
       "path": "ui/table.js",
       "parent": "ui/table.js",
-      "purpose": "Crea la superficie de mesa infinita (viewport + world) con pan/zoom, reanudando la cámara compartida de módulo en vez de reiniciarla."
+      "purpose": "Crea la estructura de la mesa infinita (viewport y elemento mundo) con interacción de pan mediante arrastre y zoom mediante rueda del ratón."
     },
     {
       "id": "ui/toast.js#showToast",
       "type": "function",
       "path": "ui/toast.js",
       "parent": "ui/toast.js",
-      "purpose": "Muestra un mensaje breve no bloqueante que se oculta automáticamente tras un tiempo."
+      "purpose": "Muestra un mensaje breve en un aviso flotante que desaparece automáticamente tras unos segundos."
     }
   ],
   "edges": [
