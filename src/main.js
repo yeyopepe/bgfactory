@@ -15,7 +15,7 @@ import { renderEditMode } from './modes/edit/editMode.js';
 import { createComponent } from './core/component.js';
 import { createResource } from './core/resource.js';
 import { saveState, loadState, readSeedState } from './core/persistence.js';
-import { showToast } from './ui/toast.js';
+import { showErrorModal } from './ui/errorModal.js';
 import { syncFontFaces } from './ui/fontFaceRegistry.js';
 
 const switcherEl = document.getElementById('mode-switcher');
@@ -86,7 +86,7 @@ function seedDefaultResources() {
 
 const saved = loadState();
 if (saved?.error) {
-  showToast('No se ha podido recuperar el estado guardado.');
+  showErrorModal('Error', 'No se ha podido recuperar el estado guardado.');
   seedDefaultComponent();
   seedDefaultResources();
 } else if (saved) {

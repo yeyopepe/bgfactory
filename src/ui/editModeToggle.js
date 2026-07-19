@@ -1,11 +1,13 @@
 // UI para entrar/salir del modo edición: botón de entrada en modo juego,
 // barra de herramientas propia (con botón de salida) en modo edición.
 
-import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded } from '../core/state.js';
-import { buildExportHtml, downloadHtml } from '../core/fileExport.js';
+import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, addResource } from '../core/state.js';
+import { buildExportHtml, downloadHtml, downloadJson } from '../core/fileExport.js';
+import { buildComponentsExport, parseImportedComponents } from '../core/persistence.js';
 import { getComponentsBounds } from './componentRenderer.js';
 import { fitToBounds } from './table.js';
 import { showToast } from './toast.js';
+import { showErrorModal } from './errorModal.js';
 
 function currentFileName() {
   const fromPath = decodeURIComponent(location.pathname.split('/').pop() || '');
@@ -16,6 +18,31 @@ function saveAs(filename) {
   const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded());
   downloadHtml(filename, html);
   showToast(`Guardado como "${filename}"`);
+}
+
+function exportComponentsAs(filename) {
+  const data = buildComponentsExport(getComponents(), getResources());
+  downloadJson(filename, data);
+}
+
+function importComponentsFromFile(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    const result = parseImportedComponents(reader.result);
+    if (result.error) {
+      showErrorModal('No se ha podido importar el fichero', 'El fichero seleccionado no contiene un listado de componentes válido.', result.detail);
+      return;
+    }
+    if (!confirm('Se reemplazarán todos los componentes actuales por los del fichero importado. ¿Continuar?')) return;
+    loadComponents(result.components);
+    const existingResourceIds = new Set(getResources().map((r) => r.id));
+    for (const resource of result.resources) {
+      if (!existingResourceIds.has(resource.id)) {
+        addResource(resource);
+      }
+    }
+  };
+  reader.readAsText(file);
 }
 
 function createFitButton(className) {
@@ -69,6 +96,32 @@ export function renderEditToolbar(container) {
     saveAs(name.endsWith('.html') ? name : `${name}.html`);
   });
   toolbar.appendChild(saveButton);
+
+  const exportButton = document.createElement('button');
+  exportButton.textContent = 'Exportar';
+  exportButton.addEventListener('click', () => {
+    const name = prompt('Exportar', 'errantes-componentes.json');
+    if (!name) return;
+    exportComponentsAs(name.endsWith('.json') ? name : `${name}.json`);
+  });
+  toolbar.appendChild(exportButton);
+
+  const importInput = document.createElement('input');
+  importInput.type = 'file';
+  importInput.accept = '.json';
+  importInput.hidden = true;
+  importInput.addEventListener('change', () => {
+    const file = importInput.files[0];
+    importInput.value = '';
+    if (!file) return;
+    importComponentsFromFile(file);
+  });
+  toolbar.appendChild(importInput);
+
+  const importButton = document.createElement('button');
+  importButton.textContent = 'Importar';
+  importButton.addEventListener('click', () => importInput.click());
+  toolbar.appendChild(importButton);
 
   toolbar.appendChild(createFitButton());
 

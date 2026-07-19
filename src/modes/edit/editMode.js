@@ -14,7 +14,7 @@ import { renderComponentList } from '../../ui/componentList.js';
 import { renderComponentsOnTable } from '../../ui/componentRenderer.js';
 import { openResourceModal } from '../../ui/resourceModal.js';
 import { renderResourceList } from '../../ui/resourceList.js';
-import { showToast } from '../../ui/toast.js';
+import { showErrorModal } from '../../ui/errorModal.js';
 
 // Selección de la sesión de edición en curso. `renderEditMode` se vuelve a invocar por
 // completo (desde main.js) ante cualquier `components:changed`, así que este estado
@@ -78,7 +78,7 @@ export function renderEditMode(container) {
     if (!file) return;
     const type = resourceTypeForFileName(file.name);
     if (!type) {
-      showToast('Formato de fichero no soportado.');
+      showErrorModal('Error', 'Formato de fichero no soportado.');
       return;
     }
     const reader = new FileReader();
@@ -92,7 +92,7 @@ export function renderEditMode(container) {
 
   function attemptDeleteResource(resource) {
     if (isResourceInUse(resource.id, getComponents())) {
-      showToast(`El recurso "${resource.name}" está en uso y no se puede eliminar.`);
+      showErrorModal('Error', `El recurso "${resource.name}" está en uso y no se puede eliminar.`);
       return false;
     }
     if (!confirm(`¿Eliminar el recurso "${resource.name}"?`)) return false;

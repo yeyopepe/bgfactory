@@ -91,3 +91,24 @@ En modo edición, junto al botón de salir de ese modo (ambos alineados al extre
 
 - **Disponible en**: modo edición.
 - **Código**: 00011.
+
+### Exportar/importar componentes en JSON
+
+Junto a "Guardar", dos botones "Exportar" e "Importar" permiten guardar y recuperar únicamente los datos de los componentes (y los recursos que usan), en un fichero JSON ligero pensado para sobrevivir a cambios de versión de la aplicación — a diferencia de "Guardar", que fija una copia completa a la versión en la que se generó.
+
+- **Exportar**: pide el nombre de fichero (mismo patrón que "Guardar") y descarga un JSON con los componentes actuales, los recursos (imágenes/tipografías) que esos componentes referencian, y la versión de la aplicación con la que se generó. No incluye la configuración del panel flotante de edición.
+- **Importar**: abre un selector de fichero limitado a `.json`. A diferencia del guardado automático del navegador, un fichero de una versión distinta a la actual se acepta igualmente — es el caso de uso principal. Si el fichero no es válido (vacío, JSON corrupto, o sin listado de componentes reconocible), se muestra el error con el [modal de error común](#notificación-de-errores). Si es válido, se pide confirmación antes de reemplazar por completo los componentes actuales (no se fusionan) por los del fichero; los recursos del fichero que no existan ya en la app (por id) se añaden a la galería.
+
+- **Disponible en**: modo edición.
+- **Código**: 00024.
+
+## Notificación de errores
+
+### Modal de error común a toda la app
+
+Cualquier error de la aplicación (recuperación de estado fallida, formato de fichero no soportado, recurso en uso al intentar eliminarlo, importación de componentes inválida, etc.) se comunica siempre con el mismo elemento: una ventana modal con el detalle del error y un botón "Cerrar", en vez de un aviso breve tipo toast. Así, cualquier error se ve y se comporta igual en toda la app, con independencia de dónde ocurra.
+
+Los avisos que no son de error (confirmaciones de éxito, como "Guardado como...") siguen mostrándose como un aviso breve (toast), sin cambios.
+
+- **Disponible en**: toda la app, cualquier modo.
+- **Código**: 00024.

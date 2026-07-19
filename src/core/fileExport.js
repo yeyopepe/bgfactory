@@ -20,3 +20,13 @@ export function downloadHtml(filename, htmlContent) {
   link.click();
   URL.revokeObjectURL(url);
 }
+
+export function downloadJson(filename, data) {
+  const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}

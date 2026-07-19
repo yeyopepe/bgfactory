@@ -136,6 +136,15 @@ Patrón estándar para ayuda contextual en cualquier punto de la app: `.help-ico
 - **Modal**: para texto de 200 caracteres o más, o con formato (HTML). Reutiliza el mismo patrón `.modal-overlay`/`.modal` ya documentado (no un patrón nuevo), con botón "Cerrar" (`.btn-cancel`). Usa el mismo `z-index: 1000` reservado para overlays de modal (sección 10) — no se introduce un nivel nuevo.
 - Cualquier ayuda contextual nueva en la app debe reutilizar `ui/helpIcon.js` en vez de crear un tooltip/modal ad-hoc.
 
+## 12.1 Modal de error
+
+Patrón estándar para comunicar cualquier error de la app: `showErrorModal(title, message, detail)` (implementado en `ui/errorModal.js`).
+
+- Reutiliza el mismo patrón `.modal-overlay`/`.modal` ya documentado (no un patrón nuevo), con botón "Cerrar" (`.btn-cancel`) y `z-index: 1000` (sección 10).
+- Diferencia respecto al modal informativo genérico (sección 12): la cabecera (`.modal__header--error`) incluye un icono circular de alerta (`.modal__error-icon`, "!" sobre `var(--error)`) junto al título, para distinguirse a simple vista de un modal informativo o de confirmación normal.
+- Si hay un mensaje técnico adicional (p.ej. el error de un `JSON.parse`), se muestra en un bloque monoespaciado (`.modal__error-detail`) debajo del mensaje principal.
+- Es el único punto de la app para comunicar errores: cualquier error nuevo debe usar `ui/errorModal.js` en vez de `ui/toast.js` u otro aviso ad-hoc — el toast queda reservado a confirmaciones/avisos de éxito, no de error.
+
 ## 13. Qué NO hacer
 
 - No introducir un segundo sistema de tokens de color (Tailwind, otra paleta) — extender `:root` en `main.css`.
