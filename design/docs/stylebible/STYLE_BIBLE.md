@@ -108,7 +108,8 @@ font-size: 0.875rem;    /* o 0.75rem si es pequeño */
 ## 10. Layout
 
 - La app es una columna flex de altura completa (`html, body { height: 100% }`, `body { display:flex; flex-direction:column; height:100vh }`): header fijo (`h1`, `3.5rem`) + `#content` flexible (`flex: 1 1 auto; min-height: 0`).
-- Paneles laterales de ancho fijo: `300px` (`.component-list`, `.edit-mode-panel`).
+- Paneles laterales de ancho fijo: `400px` (`.component-list`, `.edit-mode-panel`).
+- Posición inicial por defecto de los paneles flotantes del modo edición: ambos anclados al lado derecho, apilados verticalmente (`.component-panel-container` arriba, `.resource-panel-container` justo debajo) — es solo la posición de partida, el usuario puede arrastrar cada panel libremente después.
 - Los overlays (modal, mode-switcher) usan `position: fixed` con `z-index` crecientes por capa:
   - `10` — footer de versión
   - `99` — toolbar de edición

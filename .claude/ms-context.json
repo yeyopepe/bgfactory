@@ -5,7 +5,7 @@
     "numberWidth": 5,
     "architectureDocPath": "design/docs/ARCHITECTURE.md",
     "featuresDocPath":  "design/docs/FEATURES.md",
-    "styleBibleDocPath": "design/docs/STYLE_BIBLE.md",
+    "styleBibleDocPath": "design/docs/stylebible/STYLE_BIBLE.md",
     "projectGraphPath": "src/_graph/graph.json",
     "versioning": true,
     "versionFilePath": "src/data/version.js",

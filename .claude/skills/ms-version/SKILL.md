@@ -2,7 +2,7 @@
 name: ms-version
 description: Genera una nueva versión del entregable del proyecto (incrementa en 1 la versión actual, sin relación con ningún código de change/fix, y ejecuta el build). Parte del framework ms-*. Trigger: /ms-version, o cuando el usuario pide generar/cortar/bump de una nueva versión o build del proyecto.
 metadata:
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # ms-version
@@ -17,24 +17,17 @@ Lee `.claude/ms-context.json` en la raíz del repo. El esquema completo está en
 - Si `framework.versioning` es `false`, informa de que este proyecto no versiona entregables (decisión explícita tomada en `ms-init`) y no hagas nada más.
 - Si `framework.versioning` es `true` pero falta alguno de `versionFilePath`, `versionVariable`, `buildCommand`, `buildOutputPath`, no continúes: dile al usuario que debe volver a ejecutar `ms-init` para completar esos campos, y detente ahí.
 
-## 1. Pedir confirmación
-
-Lee el valor actual de `versionVariable` en `versionFilePath` para poder mostrar al usuario cuál sería la próxima versión (el valor actual + 1, respetando el mismo padding de dígitos). Antes de tocar nada, usa `AskUserQuestion` para confirmar explícitamente con el usuario que quiere generar esa versión ahora.
-
-- Si confirma, ve al paso 2.
-- Si no confirma, no hagas nada más: no se ejecuta el build.
-
-## 2. Ejecutar el build
+## 1. Ejecutar el build
 
 Ejecuta `buildCommand` tal cual está configurado (respeta el shell que espera: `.ps1` vía PowerShell, `.sh` vía bash, etc.). El propio build se encarga de incrementar `versionVariable` en `versionFilePath` y de generar el entregable con la nueva versión.
 
-## 3. Verificar el resultado
+## 2. Verificar el resultado
 
 - Lee de nuevo `versionVariable` en `versionFilePath` para saber qué versión se generó (build.py ya la habrá incrementado).
 - Comprueba que el fichero resuelto de `buildOutputPath` (sustituyendo `{version}` por ese valor) se ha generado.
 - Si es razonablemente inspeccionable (HTML/texto), comprueba que el número de versión visible dentro coincide con el esperado.
 - Si algo falla, repórtalo con el mensaje de error real del build — no lo des por hecho como éxito.
 
-## 4. Confirmar al usuario
+## 3. Confirmar al usuario
 
 Indica la versión generada, la ruta del entregable y si la verificación fue correcta.

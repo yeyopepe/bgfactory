@@ -4,16 +4,19 @@
 
 ## Prompt original del usuario
 
-un nuevo elemento que se pueda crear y añadir a la mesa que sea un dado:
-- representación pseudo-3D en la mesa según el número de caras y siempre con una cara visible para el usuario con el resultado impreso en ella.
-- representación específica realista de cada tipo de dados de 4, 6, 8, 10 y 12 caras. Para dados con otra cantidad de caras , representarlos como el de 10.
-- un clic: posibilidad de lanzarlo para tener un número aleatorio con un efecto visual
-- cuando se lanza el dado, su resultado debe reflejarse en el propio dado
-- doble clic: una modal con el resultado actual más grande
+un nuevo elemento tipo dado para crear y añadir a la mesa:
+- La representación visual es: cubo en vista isométrica (con un ángula pronunciado para que se vea sobre todo la cara superior) con una cara visible para el usuario con el resultado impreso en ella. El dado tiene un color (configurable) y sus aristas son de color negro con un borde fino.
+- Un clic: se tira el dado y se obtiene uno de sus posibles resultados de manera aleatoria. 
+- Efecto al tirar el dado: cuando se lanza el dado debe haber una animación de una secuencia muy rápida aleatoria de los posibles resultados del dado durante 1 seg. Luego se queda el resultado final.
+- Doble clic: una modal con el resultado actual a mayor tamaño
 
 Configuración:
-- color
-- número de caras: mínimo 2, máximo 100.
+- color del dado
+- número de caras que tiene el dado. Dos opciones: 
+  1. Número máximo de caras (mínimo 2, máximo 100). El dado dará un resultado aleatorio entre 1 y el número máximo (ambos inclusive)
+  2. Una lista de posibles valores separados por comas. El usuario podrá introducir una lista de valores separados por comas y cada uno de esos valores será un posible resultado que debe verse en la cara del dado cuando salga. Ejemplos:
+      - "*,1,2,3,4,@": un dado con 6 valores posibles
+      - "alegría, tristeza, dolor": un dado con 3 valores posibles.
 - tipo de fuente de los números de los resultados (a elegir en la lista de recursos)
 
 ---
