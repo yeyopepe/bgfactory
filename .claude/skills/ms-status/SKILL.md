@@ -1,9 +1,9 @@
 ---
 name: ms-status
-description: Recopila y presenta el estado actual del proyecto según el framework ms-* — totales de elementos por tipo (todo/change/fix/fast) y por estado (carpetas de {changesDir}), diferenciando dentro de "en progreso" entre entradas descritas (solo description.md) y listas para implementar (description.md + plan.md), y listando aparte los cambios `fast` (aplicados directamente en `implemented` por `ms-fast`, sin pasar por `inProgress`). Devuelve el informe como respuesta de chat; no escribe ningún fichero salvo que el usuario lo pida explícitamente. Trigger: /ms-status, o cuando el usuario pide un resumen/vista general del estado del proyecto, cuántos changes/fixes hay pendientes, etc. Con el argumento `todo` (`/ms-status todo`), en vez del informe completo devuelve solo el listado de ideas de `{changesDir}/todo/` con su código y el texto completo de la idea.
-argument-hint: "[todo]"
+description: Recopila y presenta el estado actual del proyecto según el framework ms-* — totales de elementos por tipo (todo/change/fix/fast) y por estado (carpetas de {changesDir}), diferenciando dentro de "en progreso" entre entradas descritas (solo description.md) y listas para implementar (description.md + plan.md), y listando aparte los cambios `fast` (aplicados directamente en `implemented` por `ms-fast`, sin pasar por `inProgress`). Devuelve el informe como respuesta de chat; no escribe ningún fichero salvo que el usuario lo pida explícitamente. Trigger: /ms-status, o cuando el usuario pide un resumen/vista general del estado del proyecto, cuántos changes/fixes hay pendientes, etc. Con el argumento `todo` (`/ms-status todo`), en vez del informe completo devuelve solo el listado de ideas de `{changesDir}/todo/` con su código y el texto completo de la idea. Con cualquier otro nombre de carpeta de estado existente (`/ms-status closed`, `/ms-status implemented`, `/ms-status inProgress`...), devuelve la lista completa de esa carpeta con columnas Código, Tipo, Descripción y Fecha.
+argument-hint: "[todo|<estado>]"
 metadata:
-  version: 1.2.0
+  version: 1.5.0
 ---
 
 # ms-status
@@ -44,7 +44,23 @@ Si el usuario invocó la skill con el argumento `todo` (`/ms-status todo`, o pid
 - No incluyas la tabla de estados, ni las secciones de "En progreso" ni "Avisos" — este modo es solo el listado de ideas.
 - Entrega el resultado como respuesta de chat (no lo guardes en fichero salvo que el usuario lo pida, igual que en el paso 4).
 
-Si no se pidió este modo, continúa con el informe completo:
+Si no se pidió este modo, sigue con 1.c o, si tampoco aplica, con el informe completo.
+
+## 1.c Modo `<estado>`: listado filtrado de una carpeta de estado
+
+Si el usuario invocó la skill con el nombre de una carpeta de estado existente en `{changesDir}` distinta de `todo` (p.ej. `/ms-status closed`, `/ms-status implemented`, `/ms-status inProgress`), o pidió explícitamente "la lista completa de lo que está en <estado>", no redactes el informe completo del paso 2 — salta directamente a esto:
+
+- Ejecuta [`scripts/filter_status.py`](scripts/filter_status.py) con el nombre de esa carpeta como argumento:
+
+  ```
+  python .claude/skills/ms-status/scripts/filter_status.py <estado>
+  ```
+
+  Si el estado indicado no existe como carpeta de `{changesDir}`, el script falla con un mensaje que lista los estados disponibles — muéstraselo al usuario tal cual en vez de improvisar una lista.
+
+- El script ya aplica internamente la plantilla [`STATUS.filtered.template.md`](STATUS.filtered.template.md) e imprime por stdout el informe en markdown listo para mostrar (tabla Código/Tipo/Descripción/Fecha, o el mensaje de "sin entradas" si el estado está vacío) — no es JSON, no vuelvas a aplicar la plantilla tú ni reformatees nada, limítate a pegar la salida tal cual como respuesta.
+
+Si no se pidió ninguno de estos dos modos, continúa con el informe completo:
 
 ## 2. Redactar el informe
 
