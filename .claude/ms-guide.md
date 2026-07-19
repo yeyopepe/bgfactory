@@ -67,23 +67,50 @@ Todos los campos de `framework` (excepto `changesDir` y `versioning`) son opcion
 
 ```mermaid
 flowchart LR
-    T["/ms-todo\n(idea suelta)"] -->|"/ms-new todo {código}"| A
-    A["/ms-new o /ms-fix\n(documentar intención)"] --> B["ms-implement\n(planificar: plan.md)"]
-    B -->|usuario confirma| C["ms-implement\n(implementar código)"]
-    C --> D["/ms-version\n(cortar release)"]
-    C --> E["/ms-close\n(archivar)"]
-    B -->|usuario no confirma| F["queda en inProgress\npendiente de retomar"]
-    F -->|usuario confirma más tarde| C
-    G["/ms-fast\n(cambio trivial)"] -->|si califica| C
-    G -->|si no califica| A
+    T["/ms-todo\n(idea suelta)"]
+    A["/ms-new o /ms-fix\n(documentar intención)"]
+    B["ms-implement\n(planificar: plan.md)"]
+    C["ms-implement\n(implementar código)"]
+    D["/ms-version\n(cortar release)"]
+    E["/ms-close\n(archivar)"]
+    F["queda en inProgress\npendiente de retomar"]
+    G["/ms-fast\n(cambio trivial)"]
+    H["fin de ciclo"]
 
-    class T,D,E,F opcional
-    class A,B,C,G obligatorio
+    T -->|"/ms-new todo {código}"| A
+    A -->|"inProgress"| B
+    B -->|usuario confirma| C
+    C -->|"implemented"| D
+    C -->|"implemented"| E
+    B -->|usuario no confirma| F
+    F -->|usuario confirma más tarde| C
+    G -->|"implemented"| C
+    G -->|si no califica| A
+    E -->|"closed"| H
+
+    N1["comentario:\nno interfiere con\ninProgress/implemented/closed\nni con la numeración xxxx"]
+    N1 --- T
+    N2["comentario:\nsolo si framework.versioning\nes true"]
+    N2 --- D
+    N3["comentario:\npide confirmación explícita\nantes de mover"]
+    N3 --- E
+    N4["comentario:\nun bug se corrige de punta a punta\nen la misma invocación\n(alcance acotado a la causa raíz)"]
+    N4 --- A
+
+    class T,D,F,H opcional
+    class A,B,C,G,E obligatorio
+    class N1,N2,N3,N4 comentario
     classDef obligatorio fill:#4c6ef5,stroke:#364fc7,stroke-width:2px,color:#fff
-    classDef opcional fill:transparent,stroke:#adb5bd,stroke-width:1px,stroke-dasharray:4 3,color:inherit
+    classDef opcional fill:#fff,stroke:#adb5bd,stroke-width:1px,color:#212529
+    classDef comentario fill:#fff9c4,stroke:#e6d84a,stroke-width:1px,color:#333
+    linkStyle 1 color:#8b0000,stroke:#8b0000,stroke-width:2px
+    linkStyle 3 color:#8b0000,stroke:#8b0000,stroke-width:2px
+    linkStyle 4 color:#8b0000,stroke:#8b0000,stroke-width:2px
+    linkStyle 7 color:#8b0000,stroke:#8b0000,stroke-width:2px
+    linkStyle 9 color:#8b0000,stroke:#8b0000,stroke-width:2px
 ```
 
-Nodos con borde continuo azul = paso obligatorio del ciclo (Paso 1 y Paso 2) o vía directa equivalente (`/ms-fast`, que aplica el código sin pasar por `plan.md` si el cambio califica como trivial). Nodos con borde discontinuo gris = punto de entrada u operación opcional (`/ms-todo`, `/ms-version`, `/ms-close`, o quedarse pendiente en `inProgress`).
+Nodos azules = paso obligatorio del ciclo (Paso 1, Paso 2 y Paso 4) o vía directa equivalente (`/ms-fast`, que aplica el código sin pasar por `plan.md` si el cambio califica como trivial). Nodos blancos = punto de entrada u operación opcional (`/ms-todo`, `/ms-version`, o quedarse pendiente en `inProgress`). Las flechas rojo oscuro con fondo blanco y texto rojo oscuro indican un cambio de estado (solo el nombre de la carpeta destino: `inProgress`, `implemented`, `closed`); el resto de flechas indican solo una transición sin cambio de carpeta. Los cuadros amarillos son comentarios aclaratorios conectados sin flecha al nodo al que se refieren.
 
 Cada entrada de trabajo vive en una carpeta numerada `xxxx` (p.ej. `00007`) que va viajando entre subcarpetas de `changesDir` según su estado: `inProgress/` → `implemented/` → `closed/`.
 
