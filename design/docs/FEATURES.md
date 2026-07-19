@@ -88,6 +88,15 @@ En modo juego, un click sobre el dado lo lanza: durante ~1 segundo muestra un pa
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Dado" en la modal previa de tipo al pulsar "+ Añadir componente" (ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)); lanzamiento, temblor y modal de resultado grande solo en modo juego.
 - **Código**: 00020, 00031.
 
+### Identificación de componentes al pasar el ratón
+
+Cualquier componente de la mesa (cuadro de texto, tablero o dado) puede mostrar su tipo y su identificador al pasar el ratón por encima, sin necesidad de abrirlo, con el formato "Tipo: id".
+
+En modo edición, la etiqueta identificativa se muestra siempre, para cualquier componente, sin poder desactivarse. En modo juego, en cambio, cada componente tiene en sus propiedades generales (modal de edición, pestaña "Generales") un checkbox "Mostrar tooltip", desactivado por defecto: solo si está activado ese componente muestra el tooltip identificativo en modo juego; si está desactivado (el caso por defecto, y el de cualquier componente creado antes de que existiera este checkbox), no se muestra ningún tooltip en modo juego para ese componente.
+
+- **Disponible en**: modo juego (tooltip nativo del navegador al dejar el ratón quieto sobre el componente, solo si el componente tiene "Mostrar tooltip" activado) y modo edición (una pequeña etiqueta propia anclada en la esquina superior izquierda del componente, visible en los mismos momentos en que ya se resalta con el contorno azul discontinuo: al pasar el ratón por encima o cuando está seleccionado, sin depender de ningún checkbox).
+- **Código**: 00032, 00034.
+
 ## Persistencia y guardado
 
 ### Autoguardado en el navegador

@@ -9,6 +9,7 @@ import { openDiceResultModal } from '../../ui/diceResultModal.js';
 export function renderPlayMode(container) {
   const table = createInfiniteTable(container);
   renderComponentsOnTable(table.worldEl, getComponents(), {
+    identifyMode: 'tooltip',
     onMove: (component, x, y) => {
       replaceComponent(component.id, updateComponent(component, { x, y }));
     },

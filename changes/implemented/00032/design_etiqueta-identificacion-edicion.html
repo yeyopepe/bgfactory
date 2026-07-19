@@ -1,0 +1,142 @@
+<style>
+  .mockup-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3rem;
+    padding: 2rem;
+    background: #e8e8e8;
+    font-family: sans-serif;
+  }
+
+  .mockup-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .mockup-caption {
+    font-size: 0.85rem;
+    color: #444;
+  }
+
+  .component-demo {
+    position: relative;
+  }
+
+  /* Etiqueta anclada a la esquina superior izquierda del elemento, igual en
+     los tres tipos de componente. Se muestra siempre que se vea el contorno
+     azul (hover o seleccionado), nunca intercepta el ratón. */
+  .id-label {
+    position: absolute;
+    top: -1.4rem;
+    left: -3px;
+    white-space: nowrap;
+    background: #123a66;
+    color: #f5f5f5;
+    font-size: 0.72rem;
+    line-height: 1.4;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    pointer-events: none;
+  }
+
+  /* --- Texto --- */
+  .text-box-demo {
+    width: 140px;
+    height: 60px;
+    padding: 0.5rem;
+    color: #000;
+    outline: 2px dashed #2f7de1;
+  }
+
+  .text-box-demo--selected {
+    outline: 3px dashed #2f7de1;
+    outline-offset: 4px;
+  }
+
+  /* --- Tablero --- */
+  .board-demo {
+    width: 140px;
+    height: 100px;
+    background: #fff;
+    background-image:
+      linear-gradient(to right, #000 1px, transparent 1px),
+      linear-gradient(to bottom, #000 1px, transparent 1px);
+    background-size: 20px 20px;
+    border: 3px solid #7a5230;
+    border-top-color: #a97b4f;
+    border-left-color: #a97b4f;
+    border-bottom-color: #5a3b22;
+    border-right-color: #5a3b22;
+    outline: 2px dashed #2f7de1;
+  }
+
+  .board-demo--selected {
+    outline: 3px dashed #2f7de1;
+    outline-offset: 4px;
+  }
+
+  /* --- Dado --- */
+  .dice-demo {
+    width: 90px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: 2px dashed #2f7de1;
+  }
+
+  .dice-demo--selected {
+    outline: 3px dashed #2f7de1;
+    outline-offset: 4px;
+  }
+
+  .dice-demo svg { position: absolute; top: 0; left: 0; }
+  .dice-demo__result {
+    position: relative;
+    font-size: 2.2rem;
+    color: #000;
+  }
+</style>
+
+<div class="mockup-wrap">
+
+  <div class="mockup-item">
+    <div class="component-demo">
+      <div class="id-label">Texto: 6f2a1c9e-...-8b3d</div>
+      <div class="text-box-demo">Aquí va el contenido del texto de ejemplo.</div>
+    </div>
+    <div class="mockup-caption">Texto — hover</div>
+  </div>
+
+  <div class="mockup-item">
+    <div class="component-demo">
+      <div class="id-label">Tablero: 9d41e7b0-...-2f6a</div>
+      <div class="board-demo board-demo--selected"></div>
+    </div>
+    <div class="mockup-caption">Tablero — seleccionado</div>
+  </div>
+
+  <div class="mockup-item">
+    <div class="component-demo">
+      <div class="id-label">Dado: c5e08a34-...-b71c</div>
+      <div class="dice-demo dice-demo--selected">
+        <svg width="90" height="90" viewBox="0 0 90 90">
+          <polygon points="45,8 82,68 8,68" fill="none" stroke="#555" stroke-width="1.5"/>
+        </svg>
+        <div class="dice-demo__result">4</div>
+      </div>
+    </div>
+    <div class="mockup-caption">Dado — seleccionado</div>
+  </div>
+
+  <div class="mockup-item">
+    <div class="component-demo">
+      <div class="id-label">Texto: 6f2a1c9e-9b41-4d3a-8123-abf0e19a8b3d</div>
+      <div class="text-box-demo" style="width: 70px;">Corto</div>
+    </div>
+    <div class="mockup-caption">Elemento estrecho — etiqueta sobresale (permitido)</div>
+  </div>
+
+</div>

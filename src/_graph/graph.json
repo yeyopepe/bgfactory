@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-19T13:02:41Z",
+  "generatedAt": "2026-07-19T13:53:42Z",
   "basePath": "src",
   "nodes": [
     {
@@ -136,7 +136,7 @@
       "exports": [
         "renderEditMode"
       ],
-      "purpose": "Modo edición: mesa infinita con componentes editables, panel de componentes y panel de galería de recursos."
+      "purpose": "Modo edición: mesa infinita con componentes editables (con etiqueta de identificación en hover/selección), panel de componentes y panel de galería de recursos."
     },
     {
       "id": "modes/play/playMode.js",
@@ -145,7 +145,7 @@
       "exports": [
         "renderPlayMode"
       ],
-      "purpose": "Modo juego: mesa infinita con los componentes renderizados y movibles según su bloqueo, incluido el lanzamiento y modal de resultado grande del componente dado."
+      "purpose": "Modo juego: mesa infinita con los componentes renderizados y movibles según su bloqueo, con tooltip nativo de identificación, incluido el lanzamiento y modal de resultado grande del componente dado."
     },
     {
       "id": "ui/boardImageModal.js",
@@ -194,7 +194,7 @@
         "getComponentsBounds",
         "renderComponentsOnTable"
       ],
-      "purpose": "Renderiza los componentes (cuadro de texto, tablero, dado) sobre la mesa infinita, con selección, arrastre, redimensionado y, para el dado, lanzamiento con parpadeo."
+      "purpose": "Renderiza los componentes (cuadro de texto, tablero, dado) sobre la mesa infinita, con selección, arrastre, redimensionado, identificación (tooltip/etiqueta) y, para el dado, lanzamiento con parpadeo."
     },
     {
       "id": "ui/componentTypeModal.js",
@@ -627,14 +627,14 @@
       "type": "function",
       "path": "modes/edit/editMode.js",
       "parent": "modes/edit/editMode.js",
-      "purpose": "Renderiza el modo edición completo: mesa, panel de componentes y panel de recursos, con todas sus acciones."
+      "purpose": "Renderiza el modo edición completo: mesa (con etiqueta de identificación de componentes), panel de componentes y panel de recursos, con todas sus acciones."
     },
     {
       "id": "modes/play/playMode.js#renderPlayMode",
       "type": "function",
       "path": "modes/play/playMode.js",
       "parent": "modes/play/playMode.js",
-      "purpose": "Renderiza el modo juego: mesa con los componentes movibles según su bloqueo, y el lanzamiento/resultado grande de los dados."
+      "purpose": "Renderiza el modo juego: mesa con los componentes movibles según su bloqueo, tooltip nativo de identificación, y el lanzamiento/resultado grande de los dados."
     },
     {
       "id": "ui/boardImageModal.js#openBoardImageModal",
@@ -683,7 +683,7 @@
       "type": "function",
       "path": "ui/componentRenderer.js",
       "parent": "ui/componentRenderer.js",
-      "purpose": "Renderiza todos los componentes sobre la mesa infinita, con selección, arrastre y redimensionado según su tipo."
+      "purpose": "Renderiza todos los componentes sobre la mesa infinita, con selección, arrastre, redimensionado e identificación (tooltip nativo o etiqueta, según identifyMode) según su tipo."
     },
     {
       "id": "ui/componentTypeModal.js#openComponentTypeModal",

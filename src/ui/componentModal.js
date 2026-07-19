@@ -147,6 +147,25 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   }));
   generalContent.appendChild(moveField);
 
+  const tooltipField = document.createElement('div');
+  tooltipField.className = 'modal__field modal__field--checkbox';
+  const tooltipCheckbox = document.createElement('input');
+  tooltipCheckbox.type = 'checkbox';
+  tooltipCheckbox.checked = workingComponent.mostrarTooltip ?? false;
+  const tooltipLabel = document.createElement('label');
+  tooltipLabel.textContent = 'Mostrar tooltip';
+
+  tooltipCheckbox.addEventListener('change', () => {
+    workingComponent.mostrarTooltip = tooltipCheckbox.checked;
+  });
+
+  tooltipField.appendChild(tooltipCheckbox);
+  tooltipField.appendChild(tooltipLabel);
+  tooltipField.appendChild(createHelpIcon({
+    text: 'Si está marcado, este componente muestra su identificador como tooltip al pasar el ratón por encima, pero solo en Modo Juego. Desmarcado por defecto.',
+  }));
+  generalContent.appendChild(tooltipField);
+
   function validateId() {
     const newId = idInput.value.trim();
     if (!newId) {

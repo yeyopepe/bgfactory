@@ -176,6 +176,24 @@ function renderDiceSilhouette(svgEl, size, count, colorCuerpo) {
   svgEl.appendChild(outline);
 }
 
+const COMPONENT_TYPE_LABELS = {
+  texto: 'Texto',
+  tablero: 'Tablero',
+  dado: 'Dado',
+};
+
+function formatComponentIdentifier(component) {
+  const typeLabel = COMPONENT_TYPE_LABELS[component.type] || component.type;
+  return `${typeLabel}: ${component.id}`;
+}
+
+function createIdentifierLabel(component) {
+  const label = document.createElement('span');
+  label.className = 'component-id-label';
+  label.textContent = formatComponentIdentifier(component);
+  return label;
+}
+
 export function getComponentsBounds(components) {
   if (!components.length) return null;
 
@@ -199,7 +217,7 @@ export function getComponentsBounds(components) {
   return { minX, minY, maxX, maxY };
 }
 
-export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult } = {}) {
+export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, identifyMode } = {}) {
   worldEl.innerHTML = '';
 
   // El componente con `order` más alto se dibuja primero (queda por debajo); el de
@@ -227,6 +245,9 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       textBox.textContent = component.properties.contenido || '';
+
+      if (identifyMode === 'tooltip' && component.mostrarTooltip) textBox.title = formatComponentIdentifier(component);
+      if (identifyMode === 'label') textBox.appendChild(createIdentifierLabel(component));
 
       if (onSelect) {
         textBox.classList.add('text-box--selectable');
@@ -318,6 +339,9 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       const height = component.height ?? MIN_BOARD_SIZE;
       board.style.width = `${width}px`;
       board.style.height = `${height}px`;
+
+      if (identifyMode === 'tooltip' && component.mostrarTooltip) board.title = formatComponentIdentifier(component);
+      if (identifyMode === 'label') board.appendChild(createIdentifierLabel(component));
 
       const props = component.properties || {};
       const bordeColor = props.bordeColor || '#000000';
@@ -451,6 +475,9 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       const size = component.width ?? component.height ?? 100;
       dice.style.width = `${size}px`;
       dice.style.height = `${size}px`;
+
+      if (identifyMode === 'tooltip' && component.mostrarTooltip) dice.title = formatComponentIdentifier(component);
+      if (identifyMode === 'label') dice.appendChild(createIdentifierLabel(component));
 
       const props = component.properties || {};
       const colorCuerpo = props.colorCuerpo || '#888888';

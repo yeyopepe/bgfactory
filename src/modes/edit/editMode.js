@@ -148,6 +148,7 @@ export function renderEditMode(container) {
 
   function renderTable() {
     renderComponentsOnTable(table.worldEl, getComponents(), {
+      identifyMode: 'label',
       onSelect: openEditModalFor,
       onToggleSelect: toggleSelect,
       selectedId: selectedComponentId,

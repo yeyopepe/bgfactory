@@ -19,6 +19,7 @@ Todos los colores viven como custom properties en `:root`. **Nunca hardcodear un
 --bg-toolbar:   #333333;  /* header y toolbars */
 --bg-card:      #f5f5f5;  /* paneles/tarjetas (listas, panel de edición) */
 --accent-blue:  #2c7dd8;  /* color de acción primario (botones, foco, tabs activas) */
+--accent-blue-dark: #123a66;  /* fondo de la etiqueta identificativa de componente en modo edición (sección 12.3) */
 --text-primary: #1a1a1a;  /* texto sobre fondos claros */
 --text-light:   #ffffff;  /* texto sobre fondos oscuros/de acento */
 --text-muted:   #666666;  /* texto secundario */
@@ -159,6 +160,13 @@ Convención general (cambio 00031): cualquier elemento clicable de la app debe m
 Regla genérica de refuerzo: `input[type="checkbox"]`, `input[type="radio"]` y `.modal__field select` llevan `cursor: pointer` explícito en `main.css`, sin depender del estilo por defecto del navegador.
 
 **Modo juego**: los componentes sobre la mesa usan siempre uno de estos 3 cursores fijos, nunca el puntero por defecto — `move` si el componente se puede arrastrar (checkbox "Bloqueado" desmarcado), `pointer` si solo responde a un click sin poder arrastrarse (p. ej. un dado "Bloqueado", que siempre se puede lanzar con click aunque no se pueda mover — cambio 00020), y `grab`/`grabbing` al arrastrar la propia mesa. Cuando un mismo componente admite ambas interacciones a la vez (un dado no bloqueado se puede arrastrar y también lanzar con click), prevalece `move`: es el caso ya existente y minoritario, frente al caso común de un dado bloqueado que solo se lanza.
+
+## 12.3 Etiqueta identificativa de componente (modo edición)
+
+Patrón para mostrar "qué es" un componente de la mesa sin abrirlo (cambio 00032), distinto del icono de ayuda de la sección 12 (esa reutilización obligatoria no aplica aquí: no es ayuda contextual, es identificación del elemento bajo el cursor).
+
+- **Modo juego**: se usa el `title` nativo del navegador (sin marcado ni estilos propios) con el texto `"<Tipo>: <id>"` (p. ej. "Dado: 3fa8...").
+- **Modo edición**: en vez de tooltip nativo, una pequeña etiqueta propia (`.component-id-label`) superpuesta a la esquina superior izquierda del componente (dentro de su área, no sobresaliendo por encima — así nunca depende de que haya espacio libre por encima y no queda oculta tras la cabecera u otro elemento fijo cuando el componente está cerca del borde de la mesa, ver cambio 00035), con el mismo texto y formato. Fondo `var(--accent-blue-dark)`, texto `var(--text-light)`, `font-size: 0.72rem`, sin sombra ni borde redondeado grande (coherente con sección 13); `pointer-events: none` para no interceptar el arrastre/selección del elemento que tiene debajo. Visible solo en los mismos dos momentos en que ya se muestra el contorno azul discontinuo de selección (`:hover` y `.<tipo>--selected`), nunca de forma permanente. No se recorta ni se envuelve en varias líneas si el id es más largo que el propio componente — puede sobresalir de su ancho, al ser una ayuda de edición y no arte final del juego.
 
 ## 13. Qué NO hacer
 
