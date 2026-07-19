@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-19T09:33:38Z",
+  "generatedAt": "2026-07-19T13:02:41Z",
   "basePath": "src",
   "nodes": [
     {
@@ -11,6 +11,20 @@
         "updateComponent"
       ],
       "purpose": "Modelo genérico de componente de juego (carta, token, tablero...) con id, tipo, propiedades y posición/tamaño."
+    },
+    {
+      "id": "core/dice.js",
+      "type": "file",
+      "path": "core/dice.js",
+      "exports": [
+        "esResultadoValido",
+        "getPosibleValores",
+        "getResultadoInicial",
+        "isListaValoresValida",
+        "parseListaValores",
+        "tirarDado"
+      ],
+      "purpose": "Lógica pura del componente dado (sorteo, resultado inicial, validación de configuración), sin dependencias de otras capas."
     },
     {
       "id": "core/eventBus.js",
@@ -131,7 +145,7 @@
       "exports": [
         "renderPlayMode"
       ],
-      "purpose": "Modo juego: mesa infinita con los componentes renderizados y movibles según su bloqueo."
+      "purpose": "Modo juego: mesa infinita con los componentes renderizados y movibles según su bloqueo, incluido el lanzamiento y modal de resultado grande del componente dado."
     },
     {
       "id": "ui/boardImageModal.js",
@@ -166,10 +180,11 @@
       "path": "ui/componentModal.js",
       "exports": [
         "DEFAULT_BOARD_PROPERTIES",
+        "DEFAULT_DADO_PROPERTIES",
         "createDefaultComponent",
         "openComponentModal"
       ],
-      "purpose": "Modal con pestañas para crear/editar las propiedades de un componente según su tipo."
+      "purpose": "Modal con pestañas para crear/editar las propiedades de un componente según su tipo (texto, tablero o dado)."
     },
     {
       "id": "ui/componentRenderer.js",
@@ -179,7 +194,7 @@
         "getComponentsBounds",
         "renderComponentsOnTable"
       ],
-      "purpose": "Renderiza los componentes (cuadro de texto, tablero) sobre la mesa infinita, con selección, arrastre y redimensionado."
+      "purpose": "Renderiza los componentes (cuadro de texto, tablero, dado) sobre la mesa infinita, con selección, arrastre, redimensionado y, para el dado, lanzamiento con parpadeo."
     },
     {
       "id": "ui/componentTypeModal.js",
@@ -188,7 +203,25 @@
       "exports": [
         "openComponentTypeModal"
       ],
-      "purpose": "Modal previa al alta de un componente para elegir su tipo antes de abrir componentModal.js."
+      "purpose": "Modal previa al alta de un componente para elegir su tipo (texto, tablero o dado) antes de abrir componentModal.js."
+    },
+    {
+      "id": "ui/diceFontModal.js",
+      "type": "file",
+      "path": "ui/diceFontModal.js",
+      "exports": [
+        "openDiceFontModal"
+      ],
+      "purpose": "Sub-modal para elegir la tipografía del resultado de un componente dado entre los recursos de tipo tipografía ya subidos."
+    },
+    {
+      "id": "ui/diceResultModal.js",
+      "type": "file",
+      "path": "ui/diceResultModal.js",
+      "exports": [
+        "openDiceResultModal"
+      ],
+      "purpose": "Modal que muestra el resultado actual de un dado a tamaño grande, abierta con doble click en modo juego."
     },
     {
       "id": "ui/editModeToggle.js",
@@ -287,6 +320,48 @@
       "path": "core/component.js",
       "parent": "core/component.js",
       "purpose": "Devuelve una copia de un componente con los cambios aplicados, fusionando properties."
+    },
+    {
+      "id": "core/dice.js#esResultadoValido",
+      "type": "function",
+      "path": "core/dice.js",
+      "parent": "core/dice.js",
+      "purpose": "Comprueba si un resultado sigue siendo uno de los posibles según la configuración actual del dado."
+    },
+    {
+      "id": "core/dice.js#getPosibleValores",
+      "type": "function",
+      "path": "core/dice.js",
+      "parent": "core/dice.js",
+      "purpose": "Devuelve el array de resultados posibles de un dado según su modo de configuración (número máximo o lista)."
+    },
+    {
+      "id": "core/dice.js#getResultadoInicial",
+      "type": "function",
+      "path": "core/dice.js",
+      "parent": "core/dice.js",
+      "purpose": "Devuelve el primer resultado posible según la configuración del dado, usado al crearlo o al reconciliar un resultado inválido."
+    },
+    {
+      "id": "core/dice.js#isListaValoresValida",
+      "type": "function",
+      "path": "core/dice.js",
+      "parent": "core/dice.js",
+      "purpose": "Comprueba si una lista de valores en texto tiene al menos 2 valores no vacíos tras recortarla."
+    },
+    {
+      "id": "core/dice.js#parseListaValores",
+      "type": "function",
+      "path": "core/dice.js",
+      "parent": "core/dice.js",
+      "purpose": "Separa por comas y recorta una lista de valores en texto, descartando entradas vacías."
+    },
+    {
+      "id": "core/dice.js#tirarDado",
+      "type": "function",
+      "path": "core/dice.js",
+      "parent": "core/dice.js",
+      "purpose": "Elige al azar uno de los resultados posibles de un dado según su configuración."
     },
     {
       "id": "core/eventBus.js#emit",
@@ -559,7 +634,7 @@
       "type": "function",
       "path": "modes/play/playMode.js",
       "parent": "modes/play/playMode.js",
-      "purpose": "Renderiza el modo juego: mesa con los componentes movibles según su bloqueo."
+      "purpose": "Renderiza el modo juego: mesa con los componentes movibles según su bloqueo, y el lanzamiento/resultado grande de los dados."
     },
     {
       "id": "ui/boardImageModal.js#openBoardImageModal",
@@ -616,6 +691,20 @@
       "path": "ui/componentTypeModal.js",
       "parent": "ui/componentTypeModal.js",
       "purpose": "Abre la modal para elegir el tipo de componente a crear antes de abrir su configuración."
+    },
+    {
+      "id": "ui/diceFontModal.js#openDiceFontModal",
+      "type": "function",
+      "path": "ui/diceFontModal.js",
+      "parent": "ui/diceFontModal.js",
+      "purpose": "Abre el selector de tipografía del resultado de un dado entre los recursos de tipo tipografía."
+    },
+    {
+      "id": "ui/diceResultModal.js#openDiceResultModal",
+      "type": "function",
+      "path": "ui/diceResultModal.js",
+      "parent": "ui/diceResultModal.js",
+      "purpose": "Abre la modal con el resultado actual de un dado mostrado a tamaño grande."
     },
     {
       "id": "ui/editModeToggle.js#renderEditToolbar",
@@ -703,6 +792,31 @@
     }
   ],
   "edges": [
+    {
+      "source": "core/dice.js#esResultadoValido",
+      "target": "core/dice.js#getPosibleValores",
+      "relation": "calls"
+    },
+    {
+      "source": "core/dice.js#getPosibleValores",
+      "target": "core/dice.js#parseListaValores",
+      "relation": "calls"
+    },
+    {
+      "source": "core/dice.js#getResultadoInicial",
+      "target": "core/dice.js#getPosibleValores",
+      "relation": "calls"
+    },
+    {
+      "source": "core/dice.js#isListaValoresValida",
+      "target": "core/dice.js#parseListaValores",
+      "relation": "calls"
+    },
+    {
+      "source": "core/dice.js#tirarDado",
+      "target": "core/dice.js#getPosibleValores",
+      "relation": "calls"
+    },
     {
       "source": "core/eventBus.js#on",
       "target": "core/eventBus.js#off",
@@ -885,6 +999,11 @@
     },
     {
       "source": "modes/play/playMode.js#renderPlayMode",
+      "target": "ui/diceResultModal.js#openDiceResultModal",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/play/playMode.js#renderPlayMode",
       "target": "ui/table.js#createInfiniteTable",
       "relation": "calls"
     },
@@ -901,6 +1020,21 @@
     {
       "source": "ui/componentModal.js#openComponentModal",
       "target": "core/component.js#createComponent",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
+      "target": "core/dice.js#esResultadoValido",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
+      "target": "core/dice.js#getResultadoInicial",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
+      "target": "core/dice.js#isListaValoresValida",
       "relation": "calls"
     },
     {
@@ -925,7 +1059,22 @@
     },
     {
       "source": "ui/componentModal.js#openComponentModal",
+      "target": "ui/diceFontModal.js#openDiceFontModal",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
       "target": "ui/helpIcon.js#createHelpIcon",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentRenderer.js#renderComponentsOnTable",
+      "target": "core/dice.js#getPosibleValores",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentRenderer.js#renderComponentsOnTable",
+      "target": "core/dice.js#tirarDado",
       "relation": "calls"
     },
     {
@@ -935,7 +1084,17 @@
     },
     {
       "source": "ui/componentRenderer.js#renderComponentsOnTable",
+      "target": "ui/fontFaceRegistry.js#fontFamilyFor",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentRenderer.js#renderComponentsOnTable",
       "target": "ui/resizeHandle.js#attachResizeHandle",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/diceFontModal.js#openDiceFontModal",
+      "target": "ui/fontFaceRegistry.js#fontFamilyFor",
       "relation": "calls"
     },
     {
@@ -1105,6 +1264,11 @@
     },
     {
       "source": "modes/play/playMode.js",
+      "target": "ui/diceResultModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/play/playMode.js",
       "target": "ui/table.js",
       "relation": "imports"
     },
@@ -1125,6 +1289,11 @@
     },
     {
       "source": "ui/componentModal.js",
+      "target": "core/dice.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentModal.js",
       "target": "core/state.js",
       "relation": "imports"
     },
@@ -1140,7 +1309,17 @@
     },
     {
       "source": "ui/componentModal.js",
+      "target": "ui/diceFontModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentModal.js",
       "target": "ui/helpIcon.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentRenderer.js",
+      "target": "core/dice.js",
       "relation": "imports"
     },
     {
@@ -1150,7 +1329,22 @@
     },
     {
       "source": "ui/componentRenderer.js",
+      "target": "ui/fontFaceRegistry.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentRenderer.js",
       "target": "ui/resizeHandle.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/diceFontModal.js",
+      "target": "core/resource.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/diceFontModal.js",
+      "target": "ui/fontFaceRegistry.js",
       "relation": "imports"
     },
     {

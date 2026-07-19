@@ -33,6 +33,7 @@ Colores puntuales que aún no son tokens (usarlos igual, pero si se repiten, pro
 
 - Fuente global: `system-ui, sans-serif` (sin webfonts externas).
 - Tamaños usados, de mayor a menor — reutilizar estos, no inventar tamaños intermedios:
+  - `4rem` — resultado a tamaño grande del componente "Dado" (`ui/diceResultModal.js`, cambio 00020), excepción puntual para mostrarlo legible desde lejos; único uso previsto por ahora
   - `1.5rem` — título principal (`h1`)
   - `1.125rem` — títulos de panel (`.edit-mode-panel h2`)
   - `0.875rem` — texto de UI por defecto (botones, tabs, labels, inputs, items de lista)
@@ -145,6 +146,20 @@ Patrón estándar para comunicar cualquier error de la app: `showErrorModal(titl
 - Si hay un mensaje técnico adicional (p.ej. el error de un `JSON.parse`), se muestra en un bloque monoespaciado (`.modal__error-detail`) debajo del mensaje principal.
 - Es el único punto de la app para comunicar errores: cualquier error nuevo debe usar `ui/errorModal.js` en vez de `ui/toast.js` u otro aviso ad-hoc — el toast queda reservado a confirmaciones/avisos de éxito, no de error.
 
+## 12.2 Cursores
+
+Convención general (cambio 00031): cualquier elemento clicable de la app debe mostrar el cursor de dedo (`cursor: pointer`) al pasar el ratón por encima, salvo que ya tenga asignado uno de los cursores más específicos siguientes, que comunican un tipo de interacción concreto y tienen prioridad sobre el genérico:
+
+- `grab` / `grabbing` — arrastrar la mesa infinita (`.infinite-table`) o un panel flotante por su cabecera (`.component-panel__header`, `.resource-panel__header`).
+- `move` — mover un componente sobre la mesa (`.text-box--movable`, `.board--movable`, `.dice--movable`).
+- `nwse-resize` — manejador de redimensionado (`.resize-handle`, sección 11).
+- `not-allowed` — botón deshabilitado (`.btn-accept:disabled`).
+- `help` — icono de ayuda contextual (`.help-icon`, sección 12).
+
+Regla genérica de refuerzo: `input[type="checkbox"]`, `input[type="radio"]` y `.modal__field select` llevan `cursor: pointer` explícito en `main.css`, sin depender del estilo por defecto del navegador.
+
+**Modo juego**: los componentes sobre la mesa usan siempre uno de estos 3 cursores fijos, nunca el puntero por defecto — `move` si el componente se puede arrastrar (checkbox "Bloqueado" desmarcado), `pointer` si solo responde a un click sin poder arrastrarse (p. ej. un dado "Bloqueado", que siempre se puede lanzar con click aunque no se pueda mover — cambio 00020), y `grab`/`grabbing` al arrastrar la propia mesa. Cuando un mismo componente admite ambas interacciones a la vez (un dado no bloqueado se puede arrastrar y también lanzar con click), prevalece `move`: es el caso ya existente y minoritario, frente al caso común de un dado bloqueado que solo se lanza.
+
 ## 13. Qué NO hacer
 
 - No introducir un segundo sistema de tokens de color (Tailwind, otra paleta) — extender `:root` en `main.css`.
@@ -152,4 +167,6 @@ Patrón estándar para comunicar cualquier error de la app: `showErrorModal(titl
 - No crear clases de un solo uso sin seguir BEM salvo que encajen en la excepción `.btn-*` ya existente.
 - No añadir sombras, bordes redondeados grandes, gradientes o animaciones — el lenguaje visual actual es plano y funcional (prototipo de mesa infinita para juego de tablero), y cualquier cambio de dirección estética debe decidirse explícitamente, no colarse componente a componente.
 
-**Excepción explícita — bisel del componente "Tablero" (cambio 00019):** el tipo de componente `'tablero'` (`ui/componentRenderer.js`) simula relieve en su borde repartiendo el color de borde elegido en dos tonos (más claro arriba/izquierda, más oscuro abajo/derecha, calculados con un helper local `shadeColor`), sin usar sombra ni degradado. Es una excepción acotada **únicamente** a este tipo de componente — no se aplica a ningún otro tipo existente ni futuro salvo que se decida ampliarlo explícitamente, y no cambia la regla general de esta sección para el resto de la app.
+**Excepción explícita — bisel/profundidad de "Tablero" y "Dado" (cambios 00019 y 00020):** el tipo de componente `'tablero'` (`ui/componentRenderer.js`) simula relieve en su borde repartiendo el color de borde elegido en dos tonos (más claro arriba/izquierda, más oscuro abajo/derecha, calculados con un helper local `shadeColor`), sin usar sombra ni degradado. El tipo `'dado'` (`ui/componentRenderer.js`, `renderDiceSilhouette`) reutiliza la misma familia de recurso para su silueta: una copia de la silueta frontal en un tono oscuro derivado del color del cuerpo, ligeramente desplazada detrás (efecto de profundidad), más un contorno fino y las líneas internas de faceteado (4/8/9+ resultados posibles) en otro tono oscuro derivado — todo calculado con el mismo `shadeColor`, sin sombra ni degradado. Es una excepción acotada **únicamente** a estos dos tipos de componente — no se aplica a ningún otro tipo existente ni futuro salvo que se decida ampliarlo explícitamente, y no cambia la regla general de esta sección para el resto de la app.
+
+**Nota — parpadeo y temblor de la tirada del dado no son una animación CSS:** el efecto de "tirada" del componente `'dado'` (~1s de resultados aleatorios cambiando rápido antes de fijar el resultado final, ver `ui/componentRenderer.js`) se implementa como un cambio repetido de `textContent` mediante un temporizador en JS (`setInterval`/`setTimeout`), sin `transition` ni `@keyframes`. El temblor añadido en el cambio 00031 (pequeño desplazamiento aleatorio del dado durante ese mismo segundo) usa el mismo temporizador para recalcular un `transform: translate()` en cada tick — un valor puramente numérico calculado en JS, misma excepción ya documentada en la sección 8 para transforms dinámicos (como el pan/zoom de la mesa), no una animación/transición CSS. Ninguno de los dos entra dentro de la prohibición general de animaciones de esta sección ni requiere una excepción propia — se deja anotado aquí para que quede claro si se revisa en el futuro.

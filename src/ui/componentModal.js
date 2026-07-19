@@ -6,8 +6,11 @@ import { createComponent, updateComponent } from '../core/component.js';
 import { createHelpIcon } from './helpIcon.js';
 import { openBoardPatternModal } from './boardPatternModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
+import { openDiceFontModal } from './diceFontModal.js';
+import { isListaValoresValida, esResultadoValido, getResultadoInicial } from '../core/dice.js';
 
 const DEFAULT_BOARD_SIZE = 200;
+const DEFAULT_DADO_SIZE = 100;
 
 export const DEFAULT_BOARD_PROPERTIES = {
   bordeColor: '#000000',
@@ -20,6 +23,16 @@ export const DEFAULT_BOARD_PROPERTIES = {
   imagenResourceId: null,
 };
 
+export const DEFAULT_DADO_PROPERTIES = {
+  colorCuerpo: '#888888',
+  colorNumeros: '#000000',
+  modoCaras: 'numeroMaximo',
+  numeroMaximoCaras: 6,
+  listaValores: '',
+  fuenteResourceId: null,
+  resultadoActual: '1',
+};
+
 // Crea un componente nuevo ya con los valores por defecto de su tipo (tamaño y
 // properties), para el flujo de alta: elegir tipo (ui/componentTypeModal.js) →
 // crear con defaults → abrir esta modal para configurarlo.
@@ -29,6 +42,10 @@ export function createDefaultComponent(type) {
     component.width = DEFAULT_BOARD_SIZE;
     component.height = DEFAULT_BOARD_SIZE;
     component.properties = { ...DEFAULT_BOARD_PROPERTIES };
+  } else if (type === 'dado') {
+    component.width = DEFAULT_DADO_SIZE;
+    component.height = DEFAULT_DADO_SIZE;
+    component.properties = { ...DEFAULT_DADO_PROPERTIES };
   }
   return component;
 }
@@ -149,6 +166,12 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     return true;
   }
 
+  function isDadoConfigValid() {
+    if (workingComponent.type !== 'dado') return true;
+    const props = workingComponent.properties;
+    return props.modoCaras !== 'lista' || isListaValoresValida(props.listaValores);
+  }
+
   idInput.addEventListener('input', () => {
     const sanitized = idInput.value.replace(/\s+/g, '_');
     if (sanitized !== idInput.value) {
@@ -262,6 +285,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       specificContent.appendChild(bgColorField);
     } else if (workingComponent.type === 'tablero') {
       renderBoardSpecificFields(specificContent);
+    } else if (workingComponent.type === 'dado') {
+      renderDadoSpecificFields(specificContent);
     } else {
       const empty = document.createElement('p');
       empty.textContent = 'Sin propiedades específicas';
@@ -368,6 +393,163 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     container.appendChild(bgField);
   }
 
+  function renderDadoSpecificFields(container) {
+    const props = workingComponent.properties;
+
+    function reconcileResultado() {
+      if (!esResultadoValido(props.resultadoActual, props)) {
+        props.resultadoActual = getResultadoInicial(props);
+      }
+      updateAcceptButton();
+    }
+
+    // Color del cuerpo
+    const bodyColorField = document.createElement('div');
+    bodyColorField.className = 'modal__field';
+    const bodyColorLabel = document.createElement('label');
+    bodyColorLabel.textContent = 'Color del cuerpo';
+    const bodyColorInput = document.createElement('input');
+    bodyColorInput.type = 'color';
+    bodyColorInput.value = props.colorCuerpo || DEFAULT_DADO_PROPERTIES.colorCuerpo;
+    bodyColorInput.addEventListener('input', () => {
+      props.colorCuerpo = bodyColorInput.value;
+    });
+    bodyColorField.appendChild(bodyColorLabel);
+    bodyColorField.appendChild(bodyColorInput);
+    container.appendChild(bodyColorField);
+
+    // Color de los números
+    const numColorField = document.createElement('div');
+    numColorField.className = 'modal__field';
+    const numColorLabel = document.createElement('label');
+    numColorLabel.textContent = 'Color de los números';
+    const numColorInput = document.createElement('input');
+    numColorInput.type = 'color';
+    numColorInput.value = props.colorNumeros || DEFAULT_DADO_PROPERTIES.colorNumeros;
+    numColorInput.addEventListener('input', () => {
+      props.colorNumeros = numColorInput.value;
+    });
+    numColorField.appendChild(numColorLabel);
+    numColorField.appendChild(numColorInput);
+    container.appendChild(numColorField);
+
+    // Configuración de caras: modo
+    const modeField = document.createElement('div');
+    modeField.className = 'modal__field';
+    const modeLabel = document.createElement('label');
+    modeLabel.textContent = 'Configuración de caras';
+    const modeSelect = document.createElement('select');
+    const modeOptions = [
+      { value: 'numeroMaximo', label: 'Número máximo de caras' },
+      { value: 'lista', label: 'Lista de valores' },
+    ];
+    for (const { value, label } of modeOptions) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      if (value === (props.modoCaras || DEFAULT_DADO_PROPERTIES.modoCaras)) option.selected = true;
+      modeSelect.appendChild(option);
+    }
+    modeField.appendChild(modeLabel);
+    modeField.appendChild(modeSelect);
+    container.appendChild(modeField);
+
+    // Número máximo de caras
+    const maxField = document.createElement('div');
+    maxField.className = 'modal__field';
+    const maxLabel = document.createElement('label');
+    maxLabel.textContent = 'Número máximo';
+    const maxInput = document.createElement('input');
+    maxInput.type = 'number';
+    maxInput.min = 2;
+    maxInput.max = 100;
+    maxInput.value = props.numeroMaximoCaras ?? DEFAULT_DADO_PROPERTIES.numeroMaximoCaras;
+    maxInput.addEventListener('input', () => {
+      const parsed = parseInt(maxInput.value, 10);
+      props.numeroMaximoCaras = Number.isNaN(parsed)
+        ? DEFAULT_DADO_PROPERTIES.numeroMaximoCaras
+        : Math.min(Math.max(parsed, 2), 100);
+      reconcileResultado();
+    });
+    maxField.appendChild(maxLabel);
+    maxField.appendChild(maxInput);
+    container.appendChild(maxField);
+
+    // Lista de valores
+    const listField = document.createElement('div');
+    listField.className = 'modal__field';
+    const listLabel = document.createElement('label');
+    listLabel.textContent = 'Lista de valores (separados por comas)';
+    const listInput = document.createElement('input');
+    listInput.type = 'text';
+    listInput.value = props.listaValores || '';
+    const listError = document.createElement('div');
+    listError.className = 'modal__error';
+    listInput.addEventListener('input', () => {
+      props.listaValores = listInput.value;
+      listError.style.display = isListaValoresValida(props.listaValores) ? 'none' : 'block';
+      reconcileResultado();
+    });
+    listError.textContent = 'La lista necesita al menos 2 valores no vacíos';
+    listError.style.display = isListaValoresValida(props.listaValores) ? 'none' : 'block';
+    listField.appendChild(listLabel);
+    listField.appendChild(listInput);
+    listField.appendChild(listError);
+    container.appendChild(listField);
+
+    function updateModeFieldsVisibility() {
+      const modo = props.modoCaras || DEFAULT_DADO_PROPERTIES.modoCaras;
+      maxField.style.display = modo === 'numeroMaximo' ? '' : 'none';
+      listField.style.display = modo === 'lista' ? '' : 'none';
+    }
+    updateModeFieldsVisibility();
+
+    modeSelect.addEventListener('change', () => {
+      props.modoCaras = modeSelect.value;
+      updateModeFieldsVisibility();
+      reconcileResultado();
+    });
+
+    // Tipo de fuente
+    const fontField = document.createElement('div');
+    fontField.className = 'modal__field';
+    const fontLabel = document.createElement('label');
+    fontLabel.textContent = 'Tipo de fuente';
+    const fontRow = document.createElement('div');
+    fontRow.style.display = 'flex';
+    fontRow.style.gap = '0.5rem';
+    fontRow.style.alignItems = 'center';
+
+    const fontCurrentName = document.createElement('span');
+    fontCurrentName.style.color = 'var(--text-muted)';
+    function updateFontCurrentName() {
+      const resource = getResources().find((r) => r.id === props.fuenteResourceId);
+      fontCurrentName.textContent = resource ? resource.name : 'Por defecto';
+    }
+    updateFontCurrentName();
+
+    const fontBtn = document.createElement('button');
+    fontBtn.type = 'button';
+    fontBtn.className = 'btn-cancel';
+    fontBtn.textContent = 'Elegir tipografía';
+    fontBtn.addEventListener('click', () => {
+      openDiceFontModal({
+        resources: getResources(),
+        currentResourceId: props.fuenteResourceId,
+        onAccept: (resourceId) => {
+          props.fuenteResourceId = resourceId;
+          updateFontCurrentName();
+        },
+      });
+    });
+
+    fontRow.appendChild(fontBtn);
+    fontRow.appendChild(fontCurrentName);
+    fontField.appendChild(fontLabel);
+    fontField.appendChild(fontRow);
+    container.appendChild(fontField);
+  }
+
   renderSpecificTab();
 
   // Footer buttons
@@ -396,7 +578,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   acceptBtn.className = 'btn-accept';
   acceptBtn.textContent = 'Aceptar';
   acceptBtn.addEventListener('click', () => {
-    if (validateId()) {
+    if (validateId() && isDadoConfigValid()) {
       if (onAccept) {
         onAccept(workingComponent, isNew);
       }
@@ -406,7 +588,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   footer.appendChild(acceptBtn);
 
   function updateAcceptButton() {
-    acceptBtn.disabled = !validateId();
+    acceptBtn.disabled = !validateId() || !isDadoConfigValid();
   }
 
   updateAcceptButton();

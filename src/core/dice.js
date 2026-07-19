@@ -1,0 +1,36 @@
+// Lógica pura del componente "Dado" (cambio 00020): sin dependencias de otras
+// capas, reutilizada tanto por ui/componentModal.js (validación/recálculo de
+// resultado al cambiar configuración) como por ui/componentRenderer.js
+// (parpadeo/tirada).
+
+export function parseListaValores(listaValores) {
+  return (listaValores || '')
+    .split(',')
+    .map((v) => v.trim())
+    .filter((v) => v.length > 0);
+}
+
+export function isListaValoresValida(listaValores) {
+  return parseListaValores(listaValores).length >= 2;
+}
+
+export function getPosibleValores(properties) {
+  if (properties.modoCaras === 'lista') {
+    return parseListaValores(properties.listaValores);
+  }
+  const max = properties.numeroMaximoCaras || 6;
+  return Array.from({ length: max }, (_, i) => String(i + 1));
+}
+
+export function getResultadoInicial(properties) {
+  return getPosibleValores(properties)[0] ?? '';
+}
+
+export function esResultadoValido(resultado, properties) {
+  return getPosibleValores(properties).includes(resultado);
+}
+
+export function tirarDado(properties) {
+  const posibles = getPosibleValores(properties);
+  return posibles[Math.floor(Math.random() * posibles.length)];
+}

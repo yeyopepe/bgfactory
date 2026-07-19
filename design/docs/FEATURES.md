@@ -15,12 +15,12 @@ Un botón "Ajustar zoom" (solo icono, con etiqueta accesible y tooltip nativo) r
 
 Modal con dos pestañas ("Generales" con el `id` editable, y "Específicas" según el tipo de componente) para crear o editar un componente, con validación de `id` no vacío y único. Al editar un componente ya existente (no al crear uno nuevo), la modal incluye además un botón "Eliminar" en el extremo izquierdo de la zona de botones, con el mismo estilo destructivo (rojo) que el resto de acciones de borrado de la app; pide confirmación igual que el borrado desde el panel flotante y, si se confirma, borra el componente y cierra la modal (limpiando también la selección en el editor si el componente eliminado era el seleccionado). Es un camino alternativo al borrado desde el panel flotante, no lo sustituye.
 
-Al pulsar "+ Añadir componente" se muestra antes una modal previa con la lista de tipos disponibles ("Cuadro de texto" o "Tablero", cada uno en una fila seleccionable) y botones "Cancelar"/"Aceptar". Al aceptar, el componente se crea y se añade de inmediato con los valores por defecto de ese tipo, y a continuación se abre esta misma modal de configuración ya sobre ese componente para ajustar sus propiedades — el tipo, una vez elegido, no se puede cambiar.
+Al pulsar "+ Añadir componente" se muestra antes una modal previa con la lista de tipos disponibles ("Cuadro de texto", "Tablero" o "Dado", cada uno en una fila seleccionable) y botones "Cancelar"/"Aceptar". Al aceptar, el componente se crea y se añade de inmediato con los valores por defecto de ese tipo, y a continuación se abre esta misma modal de configuración ya sobre ese componente para ajustar sus propiedades — el tipo, una vez elegido, no se puede cambiar.
 
 La pestaña "Generales" incluye también el checkbox "Bloqueado" (marcado por defecto), que determina si ese componente concreto queda fijo o puede arrastrarse libremente por la mesa durante el modo juego (ver [Posición independiente, arrastre y redimensionado de componentes](#posición-independiente-arrastre-y-redimensionado-de-componentes)). Junto a su etiqueta hay un icono de ayuda "?" que muestra, al pasar el ratón por encima, una breve explicación de qué hace el checkbox — patrón de ayuda contextual reutilizable en toda la app (tooltip para textos cortos, ventana modal para textos largos o con formato).
 
 - **Disponible en**: modo edición — desde el panel flotante de componentes o haciendo doble click directamente sobre la representación del componente en la mesa.
-- **Código**: 00002, 00003, 00004, 00013, 00015, 00018, 00019.
+- **Código**: 00002, 00003, 00004, 00013, 00015, 00018, 00019, 00020.
 
 ### Panel flotante de componentes, con selección, resaltado, arrastre y redimensionado
 
@@ -46,12 +46,14 @@ Al crear un componente nuevo se le asigna automáticamente el último puesto (qu
 
 Cada componente tiene su propia posición (`x`, `y`) en la mesa, y opcionalmente un tamaño explícito (`width`, `height`; automático según contenido mientras no se fije). Al crear un componente nuevo desde el modo edición, se le asigna automáticamente una posición inicial que no se solapa con los componentes ya existentes. En modo edición, cada componente puede arrastrarse individualmente sobre la mesa (independiente del pan/zoom de la mesa y de los demás componentes); la nueva posición se guarda de inmediato.
 
-Además, cuando un componente está seleccionado (haciendo click en él sobre la mesa, o en su fila del panel), muestra un manejador de redimensionado en su esquina inferior derecha (mismo patrón que el del panel de componentes) que ajusta el ancho y el alto de la caja. Para "cuadro de texto" (mínimo 40×24px, sin máximo): el tamaño de la fuente no cambia, y si el contenido no cabe en el nuevo tamaño, se recorta. Para "tablero" (mínimo 40×40px, sin máximo): se crea siempre con un tamaño cuadrado por defecto (200×200px) pero puede redimensionarse a cualquier proporción, no solo cuadrada. El tamaño resultante se guarda de inmediato, igual que la posición.
+Además, cuando un componente está seleccionado (haciendo click en él sobre la mesa, o en su fila del panel), muestra un manejador de redimensionado en su esquina inferior derecha (mismo patrón que el del panel de componentes) que ajusta el ancho y el alto de la caja. Para "cuadro de texto" (mínimo 40×24px, sin máximo): el tamaño de la fuente no cambia, y si el contenido no cabe en el nuevo tamaño, se recorta. Para "tablero" (mínimo 40×40px, sin máximo): se crea siempre con un tamaño cuadrado por defecto (200×200px) pero puede redimensionarse a cualquier proporción, no solo cuadrada. Para "dado" (mínimo 40×40px, sin máximo): se crea con un tamaño cuadrado por defecto (100×100px) y, a diferencia del tablero, mantiene siempre la proporción cuadrada al redimensionarlo (ancho = alto). El tamaño resultante se guarda de inmediato, igual que la posición.
 
 En modo juego, cada componente puede tener desmarcado individualmente el checkbox "Bloqueado" (marcado por defecto, ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)). Cuando está desmarcado, ese componente puede arrastrarse libremente por toda la mesa también durante la partida, sin ninguna restricción de zona; el cursor cambia a indicador de arrastre al pasar el ratón sobre él. Los componentes con este checkbox marcado permanecen fijos en modo juego.
 
-- **Disponible en**: modo edición (arrastre y redimensionado siempre disponibles); modo juego (arrastre solo para los componentes con "Bloqueado" desmarcado). La posición y el tamaño resultantes se reflejan en ambos modos.
-- **Código**: 00006, 00009, 00015, 00018, 00019.
+En modo juego, cada componente sobre la mesa muestra siempre uno de tres cursores según la interacción disponible en ese momento: indicador de arrastre si se puede mover, dedo de "se puede pulsar" si solo responde a un click (p. ej. un dado bloqueado, que siempre se puede lanzar aunque no se pueda mover), o el de la propia mesa al arrastrarla para desplazar la vista. Esta misma convención de mostrar el cursor de dedo en cualquier elemento pulsable de la app (botones, pestañas, filas de listado, checkboxes...) que no tenga ya un cursor más específico aplica también al resto de la interfaz, en ambos modos.
+
+- **Disponible en**: modo edición (arrastre y redimensionado siempre disponibles); modo juego (arrastre solo para los componentes con "Bloqueado" desmarcado). La posición y el tamaño resultantes se reflejan en ambos modos; el cursor de dedo en elementos pulsables, en toda la app.
+- **Código**: 00006, 00009, 00015, 00018, 00019, 00020, 00031.
 
 ### Componente "cuadro de texto"
 
@@ -71,6 +73,20 @@ El fondo se elige entre dos opciones, configurables desde una modal propia ("Con
 
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Tablero" en la modal previa de tipo al pulsar "+ Añadir componente" (ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)).
 - **Código**: 00019.
+
+### Componente "dado"
+
+Tercer tipo de componente: un dado con representación 2D plana (sin perspectiva ni vista isométrica), con color del cuerpo y color de los números configurables de forma independiente, y una tipografía a elegir entre las disponibles en la galería de recursos (con muestra de texto en la propia fuente; si no hay ninguna disponible, se usa la tipografía por defecto de la app). El número de resultados posibles se configura de dos formas alternables sin perder la configuración de la que no está activa:
+
+- **Número máximo de caras**: entre 2 y 100; cada tirada da un número al azar entre 1 y ese máximo.
+- **Lista de valores**: texto libre separado por comas (mínimo 2 valores no vacíos); cada tirada da uno de esos valores literales al azar, no necesariamente numéricos.
+
+La silueta frontal del dado varía según la cantidad de resultados posibles configurada: triángulo (4), cuadrado liso (6), rombo (8), o una esfera facetada (decágono dividido en un abanico de triángulos) para 9 o más y como respaldo genérico para cualquier otra cantidad (2, 3, 5 o 7). Tiene un leve efecto de profundidad (silueta duplicada en un tono más oscuro, ligeramente desplazada detrás) y un contorno fino oscuro de acabado — misma familia de recurso que el bisel del tablero, sin sombras ni degradados difuminados.
+
+En modo juego, un click sobre el dado lo lanza: durante ~1 segundo muestra un parpadeo de resultados aleatorios entre los posibles, mientras el propio dado tiembla ligeramente (pequeño desplazamiento aleatorio, sin rotación) para reforzar la sensación de que está en juego, y al terminar fija el resultado final y deja de temblar (los clicks durante la tirada se ignoran); un doble click abre una modal con el resultado actual a tamaño grande. En modo edición no hay lanzamiento: el dado se comporta como cualquier otro componente (selección, edición, movimiento, redimensionado siempre cuadrado). El checkbox "Bloqueado" solo afecta a si se puede arrastrar, nunca a si se puede lanzar. Al crear el dado, o si la configuración de caras cambia de forma que el resultado actual deje de ser válido, se fija automáticamente como resultado el primero de los posibles según la configuración vigente.
+
+- **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Dado" en la modal previa de tipo al pulsar "+ Añadir componente" (ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)); lanzamiento, temblor y modal de resultado grande solo en modo juego.
+- **Código**: 00020, 00031.
 
 ## Persistencia y guardado
 

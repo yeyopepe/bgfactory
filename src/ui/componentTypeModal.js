@@ -5,6 +5,7 @@
 const COMPONENT_TYPES = [
   { value: 'texto', label: 'Cuadro de texto' },
   { value: 'tablero', label: 'Tablero' },
+  { value: 'dado', label: 'Dado' },
 ];
 
 export function openComponentTypeModal({ onAccept }) {

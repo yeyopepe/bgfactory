@@ -338,6 +338,11 @@ h1 {
   cursor: pointer;
 }
 
+input[type="checkbox"],
+input[type="radio"] {
+  cursor: pointer;
+}
+
 .modal__error {
   color: var(--error);
   font-size: 0.75rem;
@@ -485,6 +490,34 @@ h1 {
   cursor: move;
 }
 
+/* Dice component: silueta 2D plana con profundidad — misma excepción de
+   estilo que .board (ver STYLE_BIBLE.md sección 13), extendida a este tipo. */
+.dice--selectable {
+  cursor: pointer;
+}
+
+.dice--selectable:hover {
+  outline: 2px dashed var(--accent-blue);
+}
+
+.dice--selectable.dice--selected {
+  outline: 3px dashed var(--accent-blue);
+  outline-offset: 4px;
+}
+
+.dice--movable {
+  cursor: move;
+}
+
+.dice--clickable {
+  cursor: pointer;
+}
+
+.dice__result {
+  font-weight: 500;
+  user-select: none;
+}
+
 /* Component type modal — list of selectable component types before creating one */
 .component-type-modal__list {
   display: flex;
@@ -554,6 +587,63 @@ h1 {
   color: var(--text-muted);
   text-align: center;
   padding: 1rem;
+}
+
+/* Dice font modal — sub-modal "Tipo de fuente" (list of font resources, each
+   previewed in its own typeface) */
+.dice-font-modal__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dice-font-modal__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+  text-align: left;
+}
+
+.dice-font-modal__item:hover {
+  border-color: var(--accent-blue);
+}
+
+.dice-font-modal__item--selected {
+  border-color: var(--accent-blue);
+  outline: 2px solid var(--accent-blue);
+}
+
+.dice-font-modal__name {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.dice-font-modal__sample {
+  font-size: 1.125rem;
+  color: var(--text-primary);
+}
+
+.dice-font-modal__empty {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1rem;
+}
+
+/* Dice result modal — resultado a tamaño grande (doble click en modo juego) */
+.dice-result-modal__value {
+  font-size: 4rem;
+  font-weight: 500;
+  text-align: center;
+  padding: 1rem;
+  word-break: break-word;
 }
 
 /* Reusable help icon ("?"): tooltip for short plain text, modal for long/formatted text */

@@ -138,8 +138,17 @@
       </div>
 
       <div class="modal__field">
-        <label>Número de caras</label>
-        <input type="number" value="6" min="2" max="100" style="max-width:140px" />
+        <label>Configuración de caras</label>
+        <div class="field-inline">
+          <select style="padding:0.5rem;border:1px solid #ddd;border-radius:4px;font-size:0.875rem;font-family:inherit;">
+            <option>Número máximo de caras</option>
+            <option>Lista de valores</option>
+          </select>
+          <input type="number" value="6" min="2" max="100" style="max-width:90px" />
+        </div>
+        <span class="font-preview" style="display:block;margin-top:0.375rem;">
+          Con "Lista de valores" este campo pasa a ser un texto libre, p. ej. <i>alegría, tristeza, dolor</i> — cada valor separado por comas es un resultado posible.
+        </span>
       </div>
 
       <div class="modal__field">

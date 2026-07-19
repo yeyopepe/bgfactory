@@ -3,10 +3,15 @@
 
 import { attachResizeHandle } from './resizeHandle.js';
 import { getResources } from '../core/state.js';
+import { fontFamilyFor } from './fontFaceRegistry.js';
+import { getPosibleValores, tirarDado } from '../core/dice.js';
 
 const MIN_TEXT_BOX_WIDTH = 40;
 const MIN_TEXT_BOX_HEIGHT = 24;
 const MIN_BOARD_SIZE = 40;
+const MIN_DADO_SIZE = 40;
+const DICE_ROLL_DURATION_MS = 1000;
+const DICE_ROLL_INTERVAL_MS = 70;
 
 function getWorldZoom(worldEl) {
   const match = getComputedStyle(worldEl).transform.match(/^matrix\(([^,]+),/);
@@ -70,6 +75,107 @@ function renderHexGrid(svgEl, width, height, filas, columnas, color) {
   }
 }
 
+// Dibuja la silueta 2D plana de un dado según su número de resultados
+// posibles, con un efecto de profundidad leve (copia oscura desplazada
+// detrás) y un contorno fino oscuro — misma familia de recurso que el bisel
+// del tablero (excepción de estilo acotada a ambos tipos, ver STYLE_BIBLE.md
+// sección 13). `count` es el número de resultados posibles configurados.
+function renderDiceSilhouette(svgEl, size, count, colorCuerpo) {
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  svgEl.innerHTML = '';
+  svgEl.setAttribute('width', size);
+  svgEl.setAttribute('height', size);
+  svgEl.setAttribute('viewBox', `0 0 ${size} ${size}`);
+
+  const pad = size * 0.08;
+  const cx = size / 2;
+  const cy = size / 2;
+  const outlineColor = shadeColor(colorCuerpo, -0.5);
+  const lineColor = shadeColor(colorCuerpo, -0.35);
+  const depthColor = shadeColor(colorCuerpo, -0.25);
+  const depthOffset = size * 0.05;
+
+  function polygonPoints(sides, radius, rotationDeg = -90) {
+    const points = [];
+    for (let i = 0; i < sides; i++) {
+      const angle = (Math.PI / 180) * (rotationDeg + (360 / sides) * i);
+      points.push([cx + radius * Math.cos(angle), cy + radius * Math.sin(angle)]);
+    }
+    return points;
+  }
+
+  function addPolygon(points, fill, offset = { x: 0, y: 0 }) {
+    const polygon = document.createElementNS(SVG_NS, 'polygon');
+    polygon.setAttribute('points', points.map(([x, y]) => `${x + offset.x},${y + offset.y}`).join(' '));
+    polygon.setAttribute('fill', fill);
+    svgEl.appendChild(polygon);
+  }
+
+  function addLine(x1, y1, x2, y2) {
+    const line = document.createElementNS(SVG_NS, 'line');
+    line.setAttribute('x1', x1);
+    line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2);
+    line.setAttribute('y2', y2);
+    line.setAttribute('stroke', lineColor);
+    line.setAttribute('stroke-width', Math.max(1, size * 0.015));
+    svgEl.appendChild(line);
+  }
+
+  const radius = cx - pad;
+
+  if (count === 4) {
+    const points = polygonPoints(3, radius);
+    addPolygon(points, depthColor, { x: depthOffset, y: depthOffset });
+    addPolygon(points, colorCuerpo);
+    addLine(cx, cy - radius, cx, cy + radius * 0.5);
+  } else if (count === 6) {
+    const half = radius * 0.85;
+    const points = [
+      [cx - half, cy - half],
+      [cx + half, cy - half],
+      [cx + half, cy + half],
+      [cx - half, cy + half],
+    ];
+    addPolygon(points, depthColor, { x: depthOffset, y: depthOffset });
+    addPolygon(points, colorCuerpo);
+  } else if (count === 8) {
+    const points = polygonPoints(4, radius);
+    addPolygon(points, depthColor, { x: depthOffset, y: depthOffset });
+    addPolygon(points, colorCuerpo);
+    addLine(points[3][0], points[3][1], points[1][0], points[1][1]);
+  } else {
+    const sides = 10;
+    const outer = polygonPoints(sides, radius);
+    addPolygon(outer, depthColor, { x: depthOffset, y: depthOffset });
+    const facetColorA = colorCuerpo;
+    const facetColorB = shadeColor(colorCuerpo, 0.15);
+    for (let i = 0; i < sides; i++) {
+      const p1 = outer[i];
+      const p2 = outer[(i + 1) % sides];
+      addPolygon([[cx, cy], p1, p2], i % 2 === 0 ? facetColorA : facetColorB);
+    }
+    for (const [x, y] of outer) {
+      addLine(cx, cy, x, y);
+    }
+  }
+
+  const outline = document.createElementNS(SVG_NS, 'polygon');
+  const outlinePoints = count === 6
+    ? [
+      [cx - radius * 0.85, cy - radius * 0.85],
+      [cx + radius * 0.85, cy - radius * 0.85],
+      [cx + radius * 0.85, cy + radius * 0.85],
+      [cx - radius * 0.85, cy + radius * 0.85],
+    ]
+    : polygonPoints(count === 4 ? 3 : count === 8 ? 4 : 10, radius);
+  outline.setAttribute('points', outlinePoints.map(([x, y]) => `${x},${y}`).join(' '));
+  outline.setAttribute('fill', 'none');
+  outline.setAttribute('stroke', outlineColor);
+  outline.setAttribute('stroke-width', Math.max(1, size * 0.02));
+  svgEl.appendChild(outline);
+}
+
 export function getComponentsBounds(components) {
   if (!components.length) return null;
 
@@ -93,7 +199,7 @@ export function getComponentsBounds(components) {
   return { minX, minY, maxX, maxY };
 }
 
-export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true } = {}) {
+export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult } = {}) {
   worldEl.innerHTML = '';
 
   // El componente con `order` más alto se dibuja primero (queda por debajo); el de
@@ -336,6 +442,176 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       worldEl.appendChild(board);
+    } else if (component.type === 'dado') {
+      const dice = document.createElement('div');
+      dice.className = 'dice';
+      dice.style.position = 'absolute';
+      dice.style.top = `${component.y ?? 100}px`;
+      dice.style.left = `${component.x ?? 100}px`;
+      const size = component.width ?? component.height ?? 100;
+      dice.style.width = `${size}px`;
+      dice.style.height = `${size}px`;
+
+      const props = component.properties || {};
+      const colorCuerpo = props.colorCuerpo || '#888888';
+      const colorNumeros = props.colorNumeros || '#000000';
+      const posibles = getPosibleValores(props);
+
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.style.position = 'absolute';
+      svg.style.top = '0';
+      svg.style.left = '0';
+      svg.style.pointerEvents = 'none';
+      renderDiceSilhouette(svg, size, posibles.length, colorCuerpo);
+      dice.appendChild(svg);
+
+      const resultEl = document.createElement('div');
+      resultEl.className = 'dice__result';
+      resultEl.style.position = 'absolute';
+      resultEl.style.top = '0';
+      resultEl.style.left = '0';
+      resultEl.style.width = '100%';
+      resultEl.style.height = '100%';
+      resultEl.style.display = 'flex';
+      resultEl.style.alignItems = 'center';
+      resultEl.style.justifyContent = 'center';
+      resultEl.style.color = colorNumeros;
+      resultEl.style.fontSize = `${size * 0.45}px`;
+      resultEl.style.pointerEvents = 'none';
+      const fontResource = props.fuenteResourceId ? getResources().find((r) => r.id === props.fuenteResourceId) : null;
+      if (fontResource) {
+        resultEl.style.fontFamily = fontFamilyFor(fontResource.id);
+      }
+      resultEl.textContent = props.resultadoActual ?? '';
+      dice.appendChild(resultEl);
+
+      if (onSelect) {
+        dice.classList.add('dice--selectable');
+        dice.addEventListener('dblclick', () => onSelect(component));
+      }
+
+      if (onToggleSelect) {
+        dice.addEventListener('click', (e) => {
+          e.stopPropagation();
+          onToggleSelect(component);
+        });
+      }
+
+      if (component.id === selectedId) {
+        dice.classList.add('dice--selected');
+      }
+
+      if (onMove && canMove(component)) {
+        dice.classList.add('dice--movable');
+
+        let startMouseX = 0;
+        let startMouseY = 0;
+        let startX = component.x ?? 100;
+        let startY = component.y ?? 100;
+        let currentX = startX;
+        let currentY = startY;
+
+        function handleMouseMove(e) {
+          const zoom = getWorldZoom(worldEl);
+          currentX = startX + (e.clientX - startMouseX) / zoom;
+          currentY = startY + (e.clientY - startMouseY) / zoom;
+          dice.style.left = `${currentX}px`;
+          dice.style.top = `${currentY}px`;
+        }
+
+        function handleMouseUp() {
+          document.removeEventListener('mousemove', handleMouseMove);
+          document.removeEventListener('mouseup', handleMouseUp);
+          if (currentX === startX && currentY === startY) return;
+          onMove(component, currentX, currentY);
+        }
+
+        dice.addEventListener('mousedown', (e) => {
+          if (e.button !== 0) return;
+          e.stopPropagation();
+          startMouseX = e.clientX;
+          startMouseY = e.clientY;
+          startX = component.x ?? 100;
+          startY = component.y ?? 100;
+          document.addEventListener('mousemove', handleMouseMove);
+          document.addEventListener('mouseup', handleMouseUp);
+        });
+      } else if (onDiceResult) {
+        dice.classList.add('dice--clickable');
+      }
+
+      if (onResize && component.id === selectedId) {
+        attachResizeHandle(dice, {
+          axis: 'both',
+          getScale: () => getWorldZoom(worldEl),
+          getSize: () => ({ width: size, height: size }),
+          clamp: ({ width, height }) => {
+            const s = Math.max(width, height, MIN_DADO_SIZE);
+            return { width: s, height: s };
+          },
+          onResize: ({ width, height }) => {
+            dice.style.width = `${width}px`;
+            dice.style.height = `${height}px`;
+          },
+          onResizeEnd: ({ width, height }) => {
+            onResize(component, width, height);
+          },
+        });
+      }
+
+      // Lanzamiento y modal de resultado (solo modo juego, ver modes/play/playMode.js):
+      // desambigua click (lanzar) de doble click (ver resultado grande) con un timeout
+      // corto, ya que el navegador dispara `click` antes que `dblclick`. La animación de
+      // parpadeo y temblor vive en una variable de cierre local (`rolling`), válida
+      // mientras el worldEl no se vuelva a pintar (no se emite `components:changed` en
+      // cada frame). El temblor es un `transform: translate()` recalculado en cada tick
+      // (mismo mecanismo que el pan/zoom de la mesa), no una animación/transición CSS.
+      if (onDiceResult) {
+        let rolling = false;
+        let rollTimeout = null;
+
+        function startRoll() {
+          if (rolling) return;
+          rolling = true;
+          const shakeAmplitude = size * 0.04;
+          const interval = setInterval(() => {
+            const posiblesActuales = getPosibleValores(props);
+            resultEl.textContent = posiblesActuales[Math.floor(Math.random() * posiblesActuales.length)];
+            const dx = (Math.random() * 2 - 1) * shakeAmplitude;
+            const dy = (Math.random() * 2 - 1) * shakeAmplitude;
+            dice.style.transform = `translate(${dx}px, ${dy}px)`;
+          }, DICE_ROLL_INTERVAL_MS);
+
+          setTimeout(() => {
+            clearInterval(interval);
+            const resultadoFinal = tirarDado(props);
+            resultEl.textContent = resultadoFinal;
+            dice.style.transform = '';
+            rolling = false;
+            onDiceResult(component, resultadoFinal);
+          }, DICE_ROLL_DURATION_MS);
+        }
+
+        dice.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (rolling || rollTimeout) return;
+          rollTimeout = setTimeout(() => {
+            rollTimeout = null;
+            startRoll();
+          }, 250);
+        });
+
+        dice.addEventListener('dblclick', (e) => {
+          e.stopPropagation();
+          if (rollTimeout) {
+            clearTimeout(rollTimeout);
+            rollTimeout = null;
+          }
+          if (onDiceOpenResult) onDiceOpenResult(component);
+        });
+      }
+
+      worldEl.appendChild(dice);
     }
   }
 }
