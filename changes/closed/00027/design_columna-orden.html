@@ -1,0 +1,182 @@
+<style>
+  :root {
+    --accent-blue: #2c7dd8;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --error: #d32f2f;
+  }
+  body {
+    font-family: system-ui, sans-serif;
+    background: #e8e8e8;
+    padding: 2rem;
+  }
+  .component-panel-container {
+    display: inline-block;
+  }
+  .component-panel {
+    width: 340px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    overflow: hidden;
+  }
+  .component-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    background: var(--accent-blue);
+    color: var(--text-light);
+  }
+  .component-panel__header button {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  .component-panel__body {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .component-list {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+  .component-list th {
+    padding: 0.5rem;
+    text-align: left;
+    font-weight: 500;
+    background: #f0f0f0;
+  }
+  .component-list td {
+    padding: 0.5rem;
+    border-top: 1px solid #ddd;
+  }
+  .component-list__order-cell {
+    width: 3.5rem;
+  }
+  .component-list__order-input {
+    width: 3rem;
+    padding: 0.2rem 0.3rem;
+    font-size: 0.875rem;
+    text-align: center;
+    border: 1px solid #bbb;
+    border-radius: 3px;
+  }
+  .component-list__order-input:focus {
+    outline: 2px solid var(--accent-blue);
+    border-color: var(--accent-blue);
+  }
+  .component-list__id-cell {
+    max-width: 6rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .component-list__actions-cell {
+    white-space: nowrap;
+  }
+  .component-list__action-btn {
+    padding: 0.25rem 0.5rem;
+    margin-right: 0.25rem;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.75rem;
+  }
+  .component-list__action-btn--danger {
+    background: var(--error);
+  }
+  .component-list__row {
+    cursor: pointer;
+  }
+  .component-list__row--selected {
+    background: #eaf3fd;
+  }
+  .component-panel__footer {
+    padding: 0.5rem 0.75rem;
+    border-top: 1px solid #ddd;
+  }
+  .component-panel__footer button {
+    background: var(--accent-blue);
+    color: var(--text-light);
+    border: none;
+    border-radius: 3px;
+    padding: 0.4rem 0.75rem;
+    cursor: pointer;
+  }
+  .note {
+    max-width: 340px;
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+</style>
+
+<div class="component-panel-container">
+  <div class="component-panel">
+    <div class="component-panel__header">
+      <strong>Componentes</strong>
+      <button type="button">▾</button>
+    </div>
+    <div class="component-panel__body">
+      <table class="component-list">
+        <thead>
+          <tr><th>Orden</th><th>Id</th><th>Tipo</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+          <tr class="component-list__row component-list__row--selected">
+            <td class="component-list__order-cell"><input class="component-list__order-input" type="number" min="1" max="4" value="1"></td>
+            <td class="component-list__id-cell">carta-evento</td>
+            <td>Carta</td>
+            <td class="component-list__actions-cell">
+              <button type="button" class="component-list__action-btn">Editar</button>
+              <button type="button" class="component-list__action-btn component-list__action-btn--danger">Eliminar</button>
+            </td>
+          </tr>
+          <tr class="component-list__row">
+            <td class="component-list__order-cell"><input class="component-list__order-input" type="number" min="1" max="4" value="2"></td>
+            <td class="component-list__id-cell">ficha-heroe</td>
+            <td>Ficha</td>
+            <td class="component-list__actions-cell">
+              <button type="button" class="component-list__action-btn">Editar</button>
+              <button type="button" class="component-list__action-btn component-list__action-btn--danger">Eliminar</button>
+            </td>
+          </tr>
+          <tr class="component-list__row">
+            <td class="component-list__order-cell"><input class="component-list__order-input" type="number" min="1" max="4" value="3"></td>
+            <td class="component-list__id-cell">tablero-base</td>
+            <td>Tablero</td>
+            <td class="component-list__actions-cell">
+              <button type="button" class="component-list__action-btn">Editar</button>
+              <button type="button" class="component-list__action-btn component-list__action-btn--danger">Eliminar</button>
+            </td>
+          </tr>
+          <tr class="component-list__row">
+            <td class="component-list__order-cell"><input class="component-list__order-input" type="number" min="1" max="4" value="4"></td>
+            <td class="component-list__id-cell">token-vida</td>
+            <td>Token</td>
+            <td class="component-list__actions-cell">
+              <button type="button" class="component-list__action-btn">Editar</button>
+              <button type="button" class="component-list__action-btn component-list__action-btn--danger">Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="component-panel__footer">
+      <button type="button">+ Añadir componente</button>
+    </div>
+  </div>
+  <p class="note">
+    Nueva columna "Orden" en primer lugar de la tabla. La fila con orden 1 (carta-evento)
+    queda por encima de todas en la mesa de juego; la fila con orden 4 (token-vida) queda
+    por debajo de todas. Al cambiar el número de una fila, la lista se reordena y el
+    apilado visual en la mesa se actualiza en consecuencia.
+  </p>
+</div>

@@ -28,8 +28,19 @@ Panel flotante sobre la mesa (por defecto en la esquina superior derecha), colap
 
 El panel puede arrastrarse por la pantalla agarrando su cabecera (restringido al área visible de la mesa) y redimensionarse en ancho arrastrando un manejador en su esquina inferior derecha (entre 290 y 600px, o la mitad del ancho del viewport si es menor, sin salir tampoco del área de la mesa) — funciona igual expandido o colapsado. La posición, el ancho y el estado colapsado/expandido del panel se guardan automáticamente (ver [Autoguardado en el navegador](#autoguardado-en-el-navegador)) y se recuperan al recargar la página. La selección de fila es la única parte de este panel que no se persiste: es estado momentáneo de la sesión de edición en curso y se pierde al recargar.
 
+La tabla incluye además una primera columna "Orden" con un cuadro de texto numérico por fila (ver [Orden de apilado en la mesa](#orden-de-apilado-en-la-mesa)).
+
 - **Disponible en**: modo edición.
-- **Código**: 00005, 00007, 00009, 00014.
+- **Código**: 00005, 00007, 00009, 00014, 00027.
+
+### Orden de apilado en la mesa
+
+Cada componente tiene un orden explícito (1 = el más arriba de todos en la mesa de juego, n = el más abajo, siendo n el número total de componentes) que determina su apilado visual, sustituyendo al orden de inserción/creación usado anteriormente. Se controla desde la columna "Orden" del panel flotante de componentes (ver [Panel flotante de componentes](#panel-flotante-de-componentes-con-selección-resaltado-arrastre-y-redimensionado)): el cuadro de texto de cada fila solo admite dígitos, y al confirmar (perder el foco o pulsar Enter) reordena la lista y actualiza el apilado en la mesa. Si el valor introducido coincide con el de otro componente, ese componente y los que había detrás se desplazan un puesto para dejarle hueco; los valores fuera de rango (menor que 1 o mayor que n) se ajustan al límite más cercano, y un valor vacío al confirmar descarta el cambio y restaura el anterior.
+
+Al crear un componente nuevo se le asigna automáticamente el último puesto (queda por debajo de todos). Al eliminar un componente, los órdenes restantes se recalculan para seguir siendo consecutivos de 1 a n, sin huecos. El orden se guarda como parte del estado del componente (ver [Autoguardado en el navegador](#autoguardado-en-el-navegador)), igual que el resto de sus propiedades.
+
+- **Disponible en**: modo edición (control del orden); el apilado resultante se refleja en modo juego y modo edición.
+- **Código**: 00027.
 
 ### Posición independiente, arrastre y redimensionado de componentes
 

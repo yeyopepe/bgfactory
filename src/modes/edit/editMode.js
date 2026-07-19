@@ -2,7 +2,7 @@
 // para editar) + panel flotante con listado de componentes y acciones de edición/borrado.
 
 import {
-  getComponents, addComponent, replaceComponent, removeComponent, getPanelState, setPanelState,
+  getComponents, addComponent, replaceComponent, removeComponent, reorderComponent, getPanelState, setPanelState,
   getResources, addResource, replaceResource, removeResource, getResourcePanelState, setResourcePanelState,
 } from '../../core/state.js';
 import { updateComponent } from '../../core/component.js';
@@ -167,6 +167,7 @@ export function renderEditMode(container) {
         removeComponent(component.id);
       },
       onAdd: openAddModal,
+      onReorder: (component, newOrder) => reorderComponent(component.id, newOrder),
       selectedId: selectedComponentId,
       collapsed,
       onSelectRow: toggleSelect,

@@ -27,11 +27,27 @@ export function setMode(mode) {
   emit('mode:changed', state.mode);
 }
 
+// Reordena `components` por su `order` actual (o por posición en el array si `order`
+// falta o no es un número válido, para migrar guardados anteriores a este campo) y
+// reasigna 1..n de forma contigua, mutando cada componente en el sitio.
+function compactOrders(components) {
+  const withIndex = components.map((component, index) => ({ component, index }));
+  withIndex.sort((a, b) => {
+    const orderA = Number.isInteger(a.component.order) ? a.component.order : a.index + 1;
+    const orderB = Number.isInteger(b.component.order) ? b.component.order : b.index + 1;
+    return orderA - orderB;
+  });
+  withIndex.forEach(({ component }, i) => {
+    component.order = i + 1;
+  });
+}
+
 export function getComponents() {
   return state.components;
 }
 
 export function addComponent(component) {
+  component.order = state.components.length + 1;
   state.components.push(component);
   emit('components:changed', state.components);
 }
@@ -45,10 +61,34 @@ export function replaceComponent(id, updatedComponent) {
 
 export function removeComponent(id) {
   state.components = state.components.filter((c) => c.id !== id);
+  compactOrders(state.components);
+  emit('components:changed', state.components);
+}
+
+export function reorderComponent(id, rawOrder) {
+  const component = state.components.find((c) => c.id === id);
+  if (!component) return;
+
+  const n = state.components.length;
+  const newOrder = Math.min(Math.max(rawOrder, 1), n);
+  const oldOrder = component.order;
+  if (newOrder === oldOrder) return;
+
+  for (const other of state.components) {
+    if (other === component) continue;
+    if (other.order > oldOrder) other.order -= 1;
+  }
+  for (const other of state.components) {
+    if (other === component) continue;
+    if (other.order >= newOrder) other.order += 1;
+  }
+  component.order = newOrder;
+
   emit('components:changed', state.components);
 }
 
 export function loadComponents(components) {
+  compactOrders(components);
   state.components = components;
   emit('components:changed', state.components);
 }

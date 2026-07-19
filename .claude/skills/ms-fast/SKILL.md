@@ -39,9 +39,9 @@ Si tienes dudas razonables sobre si califica, no lo fuerces: trátalo como que n
 
 ## 2. Si no califica: avisar y crear un change con ms-new
 
-Si el análisis del paso 1 concluye que no es un cambio trivial, **no toques código**. Avisa al usuario, indicando explícitamente qué punto de los criterios no cumple (falta información, afecta a más de 2 ficheros, toca arquitectura/biblia de estilo, no es realmente menor, etc.), de que en su lugar vas a crear un change para documentarlo y analizarlo como corresponde.
-
-A continuación, sin esperar confirmación adicional, invoca directamente la skill `ms-new` (herramienta Skill) pasándole tal cual la petición/información que te ha dado el usuario, para que arranque su propio proceso de definición del cambio en `{changesDir}/inProgress/`. No sigas con el resto de pasos de `ms-fast`: a partir de aquí el proceso lo continúa `ms-new`.
+Si el análisis del paso 1 concluye que no es un cambio trivial, **no toques código todavía**:
+1. Avisa al usuario, indicando explícitamente qué punto de los criterios no cumple (falta información, afecta a más de 2 ficheros, toca arquitectura/biblia de estilo, no es realmente menor, etc.), de que en su lugar vas a crear un change para documentarlo y analizarlo como corresponde.
+2. A continuación, sin esperar confirmación adicional, invoca directamente la skill `ms-new` (herramienta Skill) pasándole tal cual la petición/información que te ha dado el usuario, para que arranque su propio proceso de definición del cambio en `{changesDir}/inProgress/`. No sigas con el resto de pasos de `ms-fast`: a partir de aquí el proceso lo continúa `ms-new`.
 
 ## 3. Si califica: aplicar el cambio
 

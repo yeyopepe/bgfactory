@@ -182,6 +182,32 @@ h1 {
   white-space: nowrap;
 }
 
+.component-list__order-cell {
+  width: 3.5rem;
+}
+
+.component-list__order-input {
+  width: 3rem;
+  padding: 0.2rem 0.3rem;
+  font-size: 0.875rem;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.component-list__order-input::-webkit-outer-spin-button,
+.component-list__order-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.component-list__order-input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+}
+
 .component-list__actions-cell {
   white-space: nowrap;
 }

@@ -96,7 +96,11 @@ export function getComponentsBounds(components) {
 export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true } = {}) {
   worldEl.innerHTML = '';
 
-  for (const component of components) {
+  // El componente con `order` más alto se dibuja primero (queda por debajo); el de
+  // `order = 1` se dibuja el último (appendChild posterior = por encima visualmente).
+  const stackedComponents = [...components].sort((a, b) => (b.order ?? 0) - (a.order ?? 0));
+
+  for (const component of stackedComponents) {
     if (component.type === 'texto') {
       const textBox = document.createElement('div');
       textBox.className = 'text-box';

@@ -14,6 +14,7 @@ export function renderComponentList(
     onRemove,
     onSelectRow,
     onAdd,
+    onReorder,
     selectedId = null,
     collapsed = false,
     onToggleCollapse,
@@ -94,17 +95,46 @@ export function renderComponentList(
       table.className = 'component-list';
 
       const thead = document.createElement('thead');
-      thead.innerHTML = '<tr><th>Id</th><th>Tipo</th><th>Acciones</th></tr>';
+      thead.innerHTML = '<tr><th>Orden</th><th>Id</th><th>Tipo</th><th>Acciones</th></tr>';
       table.appendChild(thead);
 
       const tbody = document.createElement('tbody');
+      const sortedComponents = [...components].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      const total = sortedComponents.length;
 
-      for (const component of components) {
+      for (const component of sortedComponents) {
         const row = document.createElement('tr');
         row.className = 'component-list__row';
         if (component.id === selectedId) {
           row.classList.add('component-list__row--selected');
         }
+
+        const orderCell = document.createElement('td');
+        orderCell.className = 'component-list__order-cell';
+        const orderInput = document.createElement('input');
+        orderInput.type = 'number';
+        orderInput.className = 'component-list__order-input';
+        orderInput.min = 1;
+        orderInput.max = total;
+        orderInput.value = component.order;
+        orderInput.addEventListener('click', (event) => event.stopPropagation());
+        orderInput.addEventListener('input', () => {
+          const sanitized = orderInput.value.replace(/\D+/g, '');
+          if (sanitized !== orderInput.value) {
+            orderInput.value = sanitized;
+          }
+        });
+        orderInput.addEventListener('change', () => {
+          if (orderInput.value === '') {
+            orderInput.value = component.order;
+            return;
+          }
+          const parsed = Math.min(Math.max(parseInt(orderInput.value, 10), 1), total);
+          orderInput.value = parsed;
+          if (onReorder) onReorder(component, parsed);
+        });
+        orderCell.appendChild(orderInput);
+        row.appendChild(orderCell);
 
         const idCell = document.createElement('td');
         idCell.className = 'component-list__id-cell';
