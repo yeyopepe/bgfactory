@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-19T13:53:42Z",
+  "generatedAt": "2026-07-19T15:33:41Z",
   "basePath": "src",
   "nodes": [
     {
@@ -49,6 +49,12 @@
       "purpose": "Genera y descarga ficheros: copia HTML autocontenida del estado embebido, y JSON genérico (usado para exportar componentes)."
     },
     {
+      "id": "core/markdown.js",
+      "type": "file",
+      "path": "core/markdown.js",
+      "purpose": "Conversor propio a HTML de la sintaxis basica de Markdown (encabezados, enfasis con sus combinaciones, citas anidadas con contenido interior, listas anidadas -minimo 2 espacios o 1 tab por nivel- con parrafos/citas/codigo/imagenes dentro de un item, listas de tareas -[ ]/[x]- en listas sin ordenar, bloques de codigo indentados, reglas horizontales, enlaces con titulo/auto-enlaces/estilo referencia, imagenes y escapado de caracteres), normalizando saltos de linea CRLF/CR de entrada; sin dependencias externas y sin cubrir CommonMark/GFM completo."
+    },
+    {
       "id": "core/persistence.js",
       "type": "file",
       "path": "core/persistence.js",
@@ -73,6 +79,15 @@
         "updateResource"
       ],
       "purpose": "Modelo de recurso de la galería (imagen o tipografía) y comprobación de si un recurso está en uso por algún componente."
+    },
+    {
+      "id": "core/sanitizeHtml.js",
+      "type": "file",
+      "path": "core/sanitizeHtml.js",
+      "exports": [
+        "sanitizeHtml"
+      ],
+      "purpose": "Sanitización de HTML de usuario basada en DOM antes de insertarlo en el DOM real, para evitar ejecución de script al reabrir el estado exportado como HTML autocontenido."
     },
     {
       "id": "core/state.js",
@@ -181,6 +196,7 @@
       "exports": [
         "DEFAULT_BOARD_PROPERTIES",
         "DEFAULT_DADO_PROPERTIES",
+        "DEFAULT_DOCUMENTO_PROPERTIES",
         "createDefaultComponent",
         "openComponentModal"
       ],
@@ -467,6 +483,13 @@
       "path": "core/resource.js",
       "parent": "core/resource.js",
       "purpose": "Devuelve una copia de un recurso con los cambios aplicados."
+    },
+    {
+      "id": "core/sanitizeHtml.js#sanitizeHtml",
+      "type": "function",
+      "path": "core/sanitizeHtml.js",
+      "parent": "core/sanitizeHtml.js",
+      "purpose": "Elimina <script>, atributos de evento inline (on...) y enlaces/atributos con protocolo javascript: de un fragmento de HTML, devolviendo el HTML limpio."
     },
     {
       "id": "core/state.js#addComponent",
@@ -1079,6 +1102,11 @@
     },
     {
       "source": "ui/componentRenderer.js#renderComponentsOnTable",
+      "target": "core/sanitizeHtml.js#sanitizeHtml",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentRenderer.js#renderComponentsOnTable",
       "target": "core/state.js#getResources",
       "relation": "calls"
     },
@@ -1320,6 +1348,16 @@
     {
       "source": "ui/componentRenderer.js",
       "target": "core/dice.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentRenderer.js",
+      "target": "core/markdown.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentRenderer.js",
+      "target": "core/sanitizeHtml.js",
       "relation": "imports"
     },
     {

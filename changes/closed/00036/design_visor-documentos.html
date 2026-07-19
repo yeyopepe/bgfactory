@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Visor de documentos — propuesta visual</title>
+<style>
+  body {
+    margin: 0;
+    padding: 40px;
+    background: #e8e8e8;
+    font-family: system-ui, sans-serif;
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .caption {
+    font-size: 13px;
+    color: #555;
+    margin: 8px 0 0;
+    text-align: center;
+  }
+
+  figure {
+    margin: 0;
+  }
+
+  /* Componente "visor de documentos": hoja blanca, aspecto plano,
+     borde fino como única señal de "libreta" (sin sombras/gradientes). */
+  .document-viewer {
+    width: 260px;
+    height: 320px;
+    background: #ffffff;
+    border: 1px solid #999999;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .document-viewer__margin {
+    width: 100%;
+    height: 6px;
+    background: repeating-linear-gradient(
+      to right,
+      #999999 0,
+      #999999 2px,
+      transparent 2px,
+      transparent 10px
+    );
+    flex-shrink: 0;
+  }
+
+  .document-viewer__content {
+    flex: 1;
+    padding: 16px 18px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #222;
+  }
+
+  .document-viewer__content h1 {
+    font-size: 18px;
+    margin: 0 0 8px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 6px;
+  }
+
+  .document-viewer__content h2 {
+    font-size: 15px;
+    margin: 16px 0 6px;
+  }
+
+  .document-viewer__content p {
+    margin: 0 0 10px;
+  }
+
+  .document-viewer__content ul {
+    margin: 0 0 10px;
+    padding-left: 20px;
+  }
+
+  /* Variante: error de carga de URL */
+  .document-viewer__error {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    font-size: 13px;
+    color: #666;
+    background: #fafafa;
+  }
+</style>
+</head>
+<body>
+
+<figure>
+  <div class="document-viewer">
+    <div class="document-viewer__margin"></div>
+    <div class="document-viewer__content">
+      <h1>Reglas del combate</h1>
+      <p>Durante la fase de combate, cada errante lanza sus dados de acción en orden de iniciativa.</p>
+      <h2>Modificadores</h2>
+      <ul>
+        <li>+1 por terreno favorable</li>
+        <li>-1 por fatiga acumulada</li>
+        <li>+2 si hay apoyo de aliado adyacente</li>
+      </ul>
+      <p>El resultado final se compara contra la dificultad marcada por el escenario activo.</p>
+    </div>
+  </div>
+  <p class="caption">Tipo "Texto" / Formato Markdown — contenido renderizado, scroll vertical si excede la altura</p>
+</figure>
+
+<figure>
+  <div class="document-viewer" style="height: 200px;">
+    <div class="document-viewer__margin"></div>
+    <div class="document-viewer__error">
+      No se pudo cargar el contenido
+    </div>
+  </div>
+  <p class="caption">Tipo "URL" — sitio externo bloquea ser embebido</p>
+</figure>
+
+</body>
+</html>

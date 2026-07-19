@@ -11,6 +11,8 @@ import { isListaValoresValida, esResultadoValido, getResultadoInicial } from '..
 
 const DEFAULT_BOARD_SIZE = 200;
 const DEFAULT_DADO_SIZE = 100;
+const DEFAULT_DOCUMENTO_WIDTH = 240;
+const DEFAULT_DOCUMENTO_HEIGHT = 320;
 
 export const DEFAULT_BOARD_PROPERTIES = {
   bordeColor: '#000000',
@@ -33,6 +35,13 @@ export const DEFAULT_DADO_PROPERTIES = {
   resultadoActual: '1',
 };
 
+export const DEFAULT_DOCUMENTO_PROPERTIES = {
+  tipoContenido: 'texto',
+  contenido: '',
+  formato: 'markdown',
+  url: '',
+};
+
 // Crea un componente nuevo ya con los valores por defecto de su tipo (tamaño y
 // properties), para el flujo de alta: elegir tipo (ui/componentTypeModal.js) →
 // crear con defaults → abrir esta modal para configurarlo.
@@ -46,6 +55,10 @@ export function createDefaultComponent(type) {
     component.width = DEFAULT_DADO_SIZE;
     component.height = DEFAULT_DADO_SIZE;
     component.properties = { ...DEFAULT_DADO_PROPERTIES };
+  } else if (type === 'documento') {
+    component.width = DEFAULT_DOCUMENTO_WIDTH;
+    component.height = DEFAULT_DOCUMENTO_HEIGHT;
+    component.properties = { ...DEFAULT_DOCUMENTO_PROPERTIES };
   }
   return component;
 }
@@ -306,6 +319,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       renderBoardSpecificFields(specificContent);
     } else if (workingComponent.type === 'dado') {
       renderDadoSpecificFields(specificContent);
+    } else if (workingComponent.type === 'documento') {
+      renderDocumentoSpecificFields(specificContent);
     } else {
       const empty = document.createElement('p');
       empty.textContent = 'Sin propiedades específicas';
@@ -567,6 +582,104 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     fontField.appendChild(fontLabel);
     fontField.appendChild(fontRow);
     container.appendChild(fontField);
+  }
+
+  function renderDocumentoSpecificFields(container) {
+    const props = workingComponent.properties;
+
+    // Tipo de contenido
+    const tipoField = document.createElement('div');
+    tipoField.className = 'modal__field';
+    const tipoLabel = document.createElement('label');
+    tipoLabel.textContent = 'Tipo de contenido';
+    const tipoSelect = document.createElement('select');
+    const tipoOptions = [
+      { value: 'texto', label: 'Texto' },
+      { value: 'url', label: 'URL' },
+    ];
+    for (const { value, label } of tipoOptions) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      if (value === (props.tipoContenido || DEFAULT_DOCUMENTO_PROPERTIES.tipoContenido)) option.selected = true;
+      tipoSelect.appendChild(option);
+    }
+    tipoField.appendChild(tipoLabel);
+    tipoField.appendChild(tipoSelect);
+    container.appendChild(tipoField);
+
+    // Bloque "Texto": contenido + formato
+    const textBlock = document.createElement('div');
+
+    const contentField = document.createElement('div');
+    contentField.className = 'modal__field';
+    const contentLabel = document.createElement('label');
+    contentLabel.textContent = 'Contenido';
+    const contentInput = document.createElement('textarea');
+    contentInput.value = props.contenido || '';
+    contentInput.rows = 6;
+    contentInput.addEventListener('input', () => {
+      props.contenido = contentInput.value;
+    });
+    contentField.appendChild(contentLabel);
+    contentField.appendChild(contentInput);
+    textBlock.appendChild(contentField);
+
+    const formatField = document.createElement('div');
+    formatField.className = 'modal__field';
+    const formatLabel = document.createElement('label');
+    formatLabel.textContent = 'Formato';
+    const formatSelect = document.createElement('select');
+    const formatOptions = [
+      { value: 'markdown', label: 'Markdown' },
+      { value: 'html', label: 'HTML' },
+    ];
+    for (const { value, label } of formatOptions) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      if (value === (props.formato || DEFAULT_DOCUMENTO_PROPERTIES.formato)) option.selected = true;
+      formatSelect.appendChild(option);
+    }
+    formatSelect.addEventListener('change', () => {
+      props.formato = formatSelect.value;
+    });
+    formatField.appendChild(formatLabel);
+    formatField.appendChild(formatSelect);
+    textBlock.appendChild(formatField);
+
+    container.appendChild(textBlock);
+
+    // Bloque "URL"
+    const urlBlock = document.createElement('div');
+
+    const urlField = document.createElement('div');
+    urlField.className = 'modal__field';
+    const urlLabel = document.createElement('label');
+    urlLabel.textContent = 'URL de la página';
+    const urlInput = document.createElement('input');
+    urlInput.type = 'text';
+    urlInput.value = props.url || '';
+    urlInput.addEventListener('input', () => {
+      props.url = urlInput.value;
+    });
+    urlField.appendChild(urlLabel);
+    urlField.appendChild(urlInput);
+    urlBlock.appendChild(urlField);
+
+    container.appendChild(urlBlock);
+
+    function updateTipoFieldsVisibility() {
+      const tipo = props.tipoContenido || DEFAULT_DOCUMENTO_PROPERTIES.tipoContenido;
+      textBlock.style.display = tipo === 'texto' ? '' : 'none';
+      urlBlock.style.display = tipo === 'url' ? '' : 'none';
+    }
+    updateTipoFieldsVisibility();
+
+    tipoSelect.addEventListener('change', () => {
+      props.tipoContenido = tipoSelect.value;
+      updateTipoFieldsVisibility();
+    });
   }
 
   renderSpecificTab();

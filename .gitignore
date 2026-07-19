@@ -1,2 +1,3 @@
 node_modules/
 dist/
+.claude/skills/ms-graph/scripts/__pycache__/ms_graph.cpython-314.pyc

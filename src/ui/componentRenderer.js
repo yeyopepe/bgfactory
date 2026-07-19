@@ -5,11 +5,16 @@ import { attachResizeHandle } from './resizeHandle.js';
 import { getResources } from '../core/state.js';
 import { fontFamilyFor } from './fontFaceRegistry.js';
 import { getPosibleValores, tirarDado } from '../core/dice.js';
+import { markdownToHtml } from '../core/markdown.js';
+import { sanitizeHtml } from '../core/sanitizeHtml.js';
 
 const MIN_TEXT_BOX_WIDTH = 40;
 const MIN_TEXT_BOX_HEIGHT = 24;
 const MIN_BOARD_SIZE = 40;
 const MIN_DADO_SIZE = 40;
+const MIN_DOCUMENTO_WIDTH = 80;
+const MIN_DOCUMENTO_HEIGHT = 80;
+const DOCUMENTO_IFRAME_LOAD_TIMEOUT_MS = 3000;
 const DICE_ROLL_DURATION_MS = 1000;
 const DICE_ROLL_INTERVAL_MS = 70;
 
@@ -180,6 +185,7 @@ const COMPONENT_TYPE_LABELS = {
   texto: 'Texto',
   tablero: 'Tablero',
   dado: 'Dado',
+  documento: 'Documento',
 };
 
 function formatComponentIdentifier(component) {
@@ -639,6 +645,126 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       worldEl.appendChild(dice);
+    } else if (component.type === 'documento') {
+      const documentViewer = document.createElement('div');
+      documentViewer.className = 'document-viewer';
+      documentViewer.style.position = 'absolute';
+      documentViewer.style.top = `${component.y ?? 100}px`;
+      documentViewer.style.left = `${component.x ?? 100}px`;
+      const width = component.width ?? MIN_DOCUMENTO_WIDTH;
+      const height = component.height ?? MIN_DOCUMENTO_HEIGHT;
+      documentViewer.style.width = `${width}px`;
+      documentViewer.style.height = `${height}px`;
+
+      if (identifyMode === 'tooltip' && component.mostrarTooltip) documentViewer.title = formatComponentIdentifier(component);
+      if (identifyMode === 'label') documentViewer.appendChild(createIdentifierLabel(component));
+
+      const content = document.createElement('div');
+      content.className = 'document-viewer__content';
+      documentViewer.appendChild(content);
+
+      const props = component.properties || {};
+      if (props.tipoContenido === 'url') {
+        const iframe = document.createElement('iframe');
+        iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups');
+        content.appendChild(iframe);
+
+        const errorOverlay = document.createElement('div');
+        errorOverlay.className = 'document-viewer__error';
+        errorOverlay.textContent = 'No se pudo cargar el contenido';
+        errorOverlay.style.display = 'none';
+        documentViewer.appendChild(errorOverlay);
+
+        let loaded = false;
+        iframe.addEventListener('load', () => {
+          loaded = true;
+        });
+        iframe.addEventListener('error', () => {
+          errorOverlay.style.display = 'flex';
+        });
+        iframe.src = props.url || '';
+        setTimeout(() => {
+          if (!loaded) errorOverlay.style.display = 'flex';
+        }, DOCUMENTO_IFRAME_LOAD_TIMEOUT_MS);
+      } else {
+        content.innerHTML = sanitizeHtml(
+          props.formato === 'html' ? (props.contenido || '') : markdownToHtml(props.contenido || '')
+        );
+      }
+
+      if (onSelect) {
+        documentViewer.classList.add('document-viewer--selectable');
+        documentViewer.addEventListener('dblclick', () => onSelect(component));
+      }
+
+      if (onToggleSelect) {
+        documentViewer.addEventListener('click', (e) => {
+          e.stopPropagation();
+          onToggleSelect(component);
+        });
+      }
+
+      if (component.id === selectedId) {
+        documentViewer.classList.add('document-viewer--selected');
+      }
+
+      if (onMove && canMove(component)) {
+        documentViewer.classList.add('document-viewer--movable');
+
+        let startMouseX = 0;
+        let startMouseY = 0;
+        let startX = component.x ?? 100;
+        let startY = component.y ?? 100;
+        let currentX = startX;
+        let currentY = startY;
+
+        function handleMouseMove(e) {
+          const zoom = getWorldZoom(worldEl);
+          currentX = startX + (e.clientX - startMouseX) / zoom;
+          currentY = startY + (e.clientY - startMouseY) / zoom;
+          documentViewer.style.left = `${currentX}px`;
+          documentViewer.style.top = `${currentY}px`;
+        }
+
+        function handleMouseUp() {
+          document.removeEventListener('mousemove', handleMouseMove);
+          document.removeEventListener('mouseup', handleMouseUp);
+          if (currentX === startX && currentY === startY) return;
+          onMove(component, currentX, currentY);
+        }
+
+        documentViewer.addEventListener('mousedown', (e) => {
+          if (e.button !== 0) return;
+          e.stopPropagation();
+          startMouseX = e.clientX;
+          startMouseY = e.clientY;
+          startX = component.x ?? 100;
+          startY = component.y ?? 100;
+          document.addEventListener('mousemove', handleMouseMove);
+          document.addEventListener('mouseup', handleMouseUp);
+        });
+      }
+
+      if (onResize && component.id === selectedId) {
+        attachResizeHandle(documentViewer, {
+          axis: 'both',
+          getScale: () => getWorldZoom(worldEl),
+          getSize: () => ({ width, height }),
+          clamp: ({ width, height }) => ({
+            width: Math.max(width, MIN_DOCUMENTO_WIDTH),
+            height: Math.max(height, MIN_DOCUMENTO_HEIGHT),
+          }),
+          onResize: ({ width, height }) => {
+            documentViewer.style.width = `${width}px`;
+            documentViewer.style.height = `${height}px`;
+          },
+          onResizeEnd: ({ width, height }) => {
+            onResize(component, width, height);
+          },
+        });
+      }
+
+      worldEl.appendChild(documentViewer);
     }
   }
 }

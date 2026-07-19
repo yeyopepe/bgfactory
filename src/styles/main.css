@@ -550,6 +550,89 @@ input[type="radio"] {
   user-select: none;
 }
 
+/* Document viewer component: hoja blanca con aspecto plano, sin excepción a
+   "sin sombras/relieves" (ver STYLE_BIBLE.md sección 13). */
+.document-viewer {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+}
+
+.document-viewer__content {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  word-break: break-word;
+}
+
+.document-viewer__content iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.document-viewer__content img,
+.document-viewer__content pre {
+  max-width: 100%;
+}
+
+.document-viewer__content ul.task-list {
+  list-style: none;
+  padding-left: 1rem;
+}
+
+.document-viewer__content li.task-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+}
+
+.document-viewer__content li.task-list-item input[type="checkbox"] {
+  margin-top: 0.2em;
+}
+
+.document-viewer__error {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  box-sizing: border-box;
+}
+
+.document-viewer--selectable {
+  cursor: pointer;
+}
+
+.document-viewer--selectable:hover {
+  outline: 2px dashed var(--accent-blue);
+}
+
+.document-viewer--selectable.document-viewer--selected {
+  outline: 3px dashed var(--accent-blue);
+  outline-offset: 4px;
+}
+
+.document-viewer--selectable:hover .component-id-label,
+.document-viewer--selectable.document-viewer--selected .component-id-label {
+  display: block;
+}
+
+.document-viewer--movable {
+  cursor: move;
+}
+
 /* Component type modal — list of selectable component types before creating one */
 .component-type-modal__list {
   display: flex;
