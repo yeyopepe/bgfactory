@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-19T15:33:41Z",
+  "generatedAt": "2026-07-19T15:45:03Z",
   "basePath": "src",
   "nodes": [
     {
@@ -52,7 +52,10 @@
       "id": "core/markdown.js",
       "type": "file",
       "path": "core/markdown.js",
-      "purpose": "Conversor propio a HTML de la sintaxis basica de Markdown (encabezados, enfasis con sus combinaciones, citas anidadas con contenido interior, listas anidadas -minimo 2 espacios o 1 tab por nivel- con parrafos/citas/codigo/imagenes dentro de un item, listas de tareas -[ ]/[x]- en listas sin ordenar, bloques de codigo indentados, reglas horizontales, enlaces con titulo/auto-enlaces/estilo referencia, imagenes y escapado de caracteres), normalizando saltos de linea CRLF/CR de entrada; sin dependencias externas y sin cubrir CommonMark/GFM completo."
+      "exports": [
+        "markdownToHtml"
+      ],
+      "purpose": "Envoltorio minimo sobre la libreria de terceros vendorizada vendor/marked.js (CommonMark + GFM completo) que expone markdownToHtml(text) con la misma firma que tenia el parser propio anterior, para no tener que tocar quien lo consume."
     },
     {
       "id": "core/persistence.js",
@@ -420,6 +423,13 @@
       "path": "core/fileExport.js",
       "parent": "core/fileExport.js",
       "purpose": "Dispara la descarga de un objeto serializado a JSON como fichero, vía Blob y enlace temporal."
+    },
+    {
+      "id": "core/markdown.js#markdownToHtml",
+      "type": "function",
+      "path": "core/markdown.js",
+      "parent": "core/markdown.js",
+      "purpose": "Delega en parse() de la libreria marked vendorizada, devolviendo el HTML resultante (sin sanitizar todavia)."
     },
     {
       "id": "core/persistence.js#buildComponentsExport",
@@ -1098,6 +1108,11 @@
     {
       "source": "ui/componentRenderer.js#renderComponentsOnTable",
       "target": "core/dice.js#tirarDado",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentRenderer.js#renderComponentsOnTable",
+      "target": "core/markdown.js#markdownToHtml",
       "relation": "calls"
     },
     {

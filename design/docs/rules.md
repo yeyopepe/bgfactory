@@ -2,31 +2,31 @@
 
 ## Elementos
 
-- [ ] Tablero principal
-- [ ] Cartas
-  - [ ] Eventos
-  - [ ] Misiones personales
-  - [ ] Información: cartas con dos mitades que se resuelve una de las dos según se toma. Incluye indicación del enclave principal donde debe aparecer y una descripción
-  - [ ] Trasfondos
-  - [ ] Enclaves principales
-  - [ ] Enclaves secundarios (circulares)
-    - [ ] Enclave destruido/innaccesible
-- [ ] Bolsa de saqueo
-- [ ] Tableros jugador
-  - [ ] Varios, con bloqueos y acciones adicionales pintadas 
-- [ ] Tokens    
-  - [ ] Objetos
-  - [ ] Herida
-  - [ ] Enemigos
-  - [ ] Zombis
-  - [ ] Personajes acompañantes
-- [ ] Objetos
-  - [ ] Materiales básicos
-  - [ ] Objetos fabricables
-- [ ] Dados
-  - [ ] Búsqueda: 3xbasura, 1xnada, 2xobjeto
-  - [ ] Combate: 2xherida, 1xesquiva, 2xnada, 1x-1enemigo
-  - [ ] Encuentros: 1x2zombis, 2x1zombi, 3xnada
+- Tablero principal
+- Cartas
+  - Eventos
+  - Misiones personales
+  - Información: cartas con dos mitades que se resuelve una de las dos según se toma. Incluye indicación del enclave principal donde debe aparecer y una descripción
+  - Trasfondos
+  - Enclaves principales
+  - Enclaves secundarios (circulares)
+    - Enclave destruido/innaccesible
+- Bolsa de saqueo
+- Tableros jugador
+  - Varios, con bloqueos y acciones adicionales pintadas 
+- Tokens    
+  - Objetos
+  - Herida
+  - Enemigos
+  - Zombis
+  - Personajes acompañantes
+- Objetos
+  - Materiales básicos
+  - Objetos fabricables
+- Dados
+  - Búsqueda: 3xbasura, 1xnada, 2xobjeto
+  - Combate: 2xherida, 1xesquiva, 2xnada, 1x-1enemigo
+  - Encuentros: 1x2zombis, 2x1zombi, 3xnada
 
 
 ## Preparación
