@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-21T10:47:42Z",
+  "generatedAt": "2026-07-21T11:13:14Z",
   "basePath": "src",
   "nodes": [
     {
@@ -301,7 +301,7 @@
       "exports": [
         "attachResizeHandle"
       ],
-      "purpose": "Utilidad genérica que añade un manejador de redimensionado de esquina inferior derecha a cualquier elemento, con límites y callbacks decididos por el caller."
+      "purpose": "Utilidad genérica que añade un manejador de redimensionado de esquina inferior derecha a cualquier elemento, con límites y callbacks decididos por el caller; con axis=both, mantener Shift fuerza aspecto 1:1 evaluado en vivo (cambio 00049)."
     },
     {
       "id": "ui/resourceList.js",
@@ -841,7 +841,7 @@
       "type": "function",
       "path": "ui/resizeHandle.js",
       "parent": "ui/resizeHandle.js",
-      "purpose": "Añade a un elemento host un manejador de redimensionado de esquina que calcula, clampa y notifica el tamaño propuesto durante y al finalizar el arrastre."
+      "purpose": "Añade a un elemento host un manejador de redimensionado de esquina que calcula, clampa y notifica el tamaño propuesto durante y al finalizar el arrastre; en ambos ejes, forzando cuadrado si Shift está pulsado en ese movimiento (e.shiftKey, cambio 00049)."
     },
     {
       "id": "ui/resourceList.js#renderResourceList",

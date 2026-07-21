@@ -22,10 +22,19 @@ export function attachResizeHandle(hostEl, { axis = 'both', getSize, getScale, c
       const scale = getScale ? getScale() : 1;
       const deltaX = axis === 'y' ? 0 : (e.clientX - startX) / scale;
       const deltaY = axis === 'x' ? 0 : (e.clientY - startY) / scale;
-      const proposed = {
-        width: startSize.width + deltaX,
-        height: startSize.height + deltaY,
-      };
+      let proposed;
+      if (axis === 'both' && e.shiftKey) {
+        const delta = Math.abs(deltaX) >= Math.abs(deltaY) ? deltaX : deltaY;
+        proposed = {
+          width: startSize.width + delta,
+          height: startSize.height + delta,
+        };
+      } else {
+        proposed = {
+          width: startSize.width + deltaX,
+          height: startSize.height + deltaY,
+        };
+      }
       return clamp ? clamp(proposed) : proposed;
     }
 
