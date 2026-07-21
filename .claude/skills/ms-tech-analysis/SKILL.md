@@ -2,7 +2,6 @@
 name: ms-tech-analysis
 description: Procedimiento compartido, agnóstico al proyecto, para reunir contexto técnico antes de analizar un change/fix o valorar si un cambio es trivial. Primero lee la documentación técnica configurada en framework.docs.tech (arquitectura, biblia de estilo, grafo), y solo si hace falta más información explora el código real. Si detecta que el código y la documentación no coinciden, señala el código como fuente de la verdad y devuelve la incongruencia como parte del análisis, sin editar nada. Uso interno de las skills ms-new, ms-fix, ms-fast e ms-implement.
 user-invocable: false
-disable-model-invocation: true
 metadata:
   version: 1.0.0
   uses: []
@@ -13,16 +12,6 @@ metadata:
 Procedimiento único y compartido para obtener contexto técnico fiable antes de tomar cualquier decisión sobre un change/fix (diseñar una solución, valorar causa raíz, o juzgar si un cambio es lo bastante trivial para `ms-fast`). Solo lo invocan otras skills del framework `ms-*` — no está pensado para invocación directa por el usuario.
 
 **Esta skill no escribe ni edita nada.** Es puramente de análisis/lectura: reúne contexto y, si lo hay, reporta incongruencias entre documentación y código a quien la invoca. Qué hacer con esas incongruencias (actualizar el documento ya mismo, dejarlo anotado para más adelante, o usarlo como motivo para descartar una vía rápida) lo decide siempre la skill llamante, según sus propias reglas.
-
-## Guardarraíl de invocación — leer antes que nada
-
-Esta skill **no se ejecuta si se ha invocado directamente** (p.ej. el usuario ha escrito `/ms-tech-analysis`, o ha pedido "ejecuta/invoca ms-tech-analysis" en texto plano). Solo debe ejecutarse cuando el propio contenido de `ms-new`, `ms-fix`, `ms-fast` o `ms-implement` te ha instruido a invocarla como parte de su proceso.
-
-Si te han invocado sin ese contexto, **detente aquí** y dile al usuario que `ms-tech-analysis` es de uso interno del framework. No hagas nada más en ese caso.
-
-```
-`/ms-tech-analysis` es de uso interno del framework `ms-*` y no se invoca directamente. Usa `/ms-new`, `/ms-fix`, `/ms-fast` o `/ms-implement`, que la invocan cuando la necesitan.
-```
 
 ## Entrada esperada de quien invoca
 
@@ -39,6 +28,8 @@ Antes de tocar código, mira `framework.docs.tech` en `.claude/ms-context.json`:
 - Para cada uno de `architectureDocPath`, `styleBibleDocPath` y `projectGraphPath` que esté configurado **y** exista de verdad como fichero en el repo, léelo completo (o, si es muy extenso y el tema a analizar es acotado, la parte relevante al tema indicado por quien invoca).
 - Los que no estén configurados, o estén configurados pero el fichero no exista todavía, sáltalos sin más — no es un error, simplemente esa fuente no está disponible.
 - Si `framework.docs.tech` no existe en absoluto, o ninguno de los tres campos está configurado, no hay nada que leer en este paso: pasa directamente al paso 2.
+
+Devuelve al usuario la lista de documentos que tienes en `.claude/ms-context.json` y cuáles has encontrado y cuáles no.
 
 Con esto construye un contexto preliminar (arquitectura/capas, convenciones de estilo, mapa de ficheros y símbolos) antes de leer una sola línea de código fuente.
 
