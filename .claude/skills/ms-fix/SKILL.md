@@ -3,6 +3,7 @@ name: ms-fix
 description: Analiza un bug o comportamiento roto reportado por el usuario, lo documenta en {changesDir}/inProgress y lo implementa directamente encadenando ms-implement, con el análisis acotado estrictamente al fix (cambio mínimo, sin ampliar alcance). Trigger: /ms-fix, o cuando el usuario pide explícitamente "un fix"/corregir un bug como parte del flujo de trabajo del proyecto.
 metadata:
   version: 1.0.0
+  uses: [ms-workflow, ms-tech-analysis, ms-implement]
 ---
 
 # ms-fix
@@ -13,7 +14,7 @@ Un fix es, por naturaleza, un cambio acotado: el análisis y la solución deben 
 
 Esta skill no implementa nada por sí misma: documenta la intención y encadena directamente la skill `ms-implement`, que es quien analiza la causa raíz técnica, escribe el `plan.md` y (si se confirma) implementa.
 
-**Fuente de la verdad.** Para distinguir qué hace hoy el proyecto de lo que el usuario cree que hace, la única fuente de verdad es el código, el grafo de contexto (`projectGraphPath`, si está configurado), la documentación técnica (`architectureDocPath`, si está configurada) y la guía de estilo (`styleBibleDocPath`, si está configurada) — no asunciones ni memoria de la conversación. Tampoco cuenta como fuente de verdad el contenido de otros cambios/fixes que existan bajo `{changesDir}/**` (su `description.md` o `plan.md`, estén en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto.
+**Fuente de la verdad.** Para distinguir qué hace hoy el proyecto de lo que el usuario cree que hace, la única fuente de verdad es la documentación técnica y el código real — no asunciones ni memoria de la conversación. Para reunir ese contexto, invoca la skill `ms-tech-analysis` (herramienta Skill) pasándole un resumen del bug que se está analizando, en vez de leer tú mismo `framework.docs.tech` o explorar el código a ciegas: ella lee primero la documentación técnica configurada y explora código solo si hace falta, devolviendo el contexto reunido y cualquier incongruencia entre documentación y código (en ese caso el código manda). Si detecta alguna incongruencia, anótala en **Apuntes técnicos** al documentar (paso 2) para que `ms-implement` la tenga en cuenta más adelante. Tampoco cuenta como fuente de verdad el contenido de otros cambios/fixes que existan bajo `{changesDir}/**` (su `description.md` o `plan.md`, estén en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto.
 
 ## 0. Comprobar que el framework está inicializado
 

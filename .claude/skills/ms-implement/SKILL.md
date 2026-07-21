@@ -4,23 +4,24 @@ description: Planifica e implementa un change/fix ya documentado en {changesDir}
 argument-hint: <xxxx o descripción del cambio/fix a implementar>
 metadata:
   version: 1.4.0
+  uses: [ms-tech-analysis, ms-workflow, ms-graph]
 ---
 
 # ms-implement
 
 Toma una entrada ya documentada por `ms-change`/`ms-fix` en `{changesDir}/inProgress/{xxxx}/` y la lleva hasta implementada: analiza la solución técnica, la deja escrita en `plan.md`, y si el usuario lo confirma, la implementa y mueve la carpeta a `{changesDir}/implemented/{xxxx}/`.
 
-**Fuente de la verdad.** El código, el grafo de contexto (`projectGraphPath`), la documentación técnica (`architectureDocPath`) y la guía de estilo (`styleBibleDocPath`) son la única fuente de verdad sobre cómo funciona hoy el proyecto — no lo que `description.md` asuma implícitamente sobre la implementación, ni memoria de conversaciones anteriores. Verifícalos siempre al analizar la causa raíz y diseñar la solución (paso 3), incluso si ya tienes una idea de cómo funciona algo por contexto previo. Tampoco cuenta como fuente de verdad el `description.md` o `plan.md` de **otros** cambios/fixes bajo `{changesDir}/**` (en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto — el único documento de otra entrada que sí es relevante aquí es el que consulta explícitamente el paso 0.1 (los `xxxx` máximos, para la verificación de orden).
+**Fuente de la verdad.** La documentación técnica (`docs.tech.*`) y el código real son la única fuente de verdad sobre cómo funciona hoy el proyecto — no lo que `description.md` asuma implícitamente sobre la implementación, ni memoria de conversaciones anteriores. Reúne ese contexto siempre invocando la skill `ms-tech-analysis` (nunca leyendo tú mismo `framework.docs.tech` a pelo o explorando código a ciegas) al analizar la causa raíz y diseñar la solución (paso 3), incluso si ya tienes una idea de cómo funciona algo por contexto previo. Tampoco cuenta como fuente de verdad el `description.md` o `plan.md` de **otros** cambios/fixes bajo `{changesDir}/**` (en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto — el único documento de otra entrada que sí es relevante aquí es el que consulta explícitamente el paso 0.1 (los `xxxx` máximos, para la verificación de orden).
 
 ## Formato de la documentación: diagramas antes que prosa
 
-Al escribir o actualizar cualquier documento de esta skill (`plan.md`, `architectureDocPath`, `featuresDocPath`, `styleBibleDocPath`), si lo que hay que describir es un flujo, un proceso con pasos/decisiones, una secuencia de interacciones o una relación entre estados o componentes, prioriza representarlo con un diagrama Mermaid (`flowchart`, `sequenceDiagram`, `stateDiagram-v2`, etc.) acompañado de las notas imprescindibles, en lugar de un párrafo largo explicando lo mismo en prosa. Reserva la prosa para lo que el diagrama no pueda expresar (matices, motivos, excepciones puntuales) o para contenido sin estructura de flujo/relación clara que representar.
+Al escribir o actualizar cualquier documento de esta skill (`plan.md`, `docs.tech.architectureDocPath`, `docs.functional.featuresDocPath`, `docs.tech.styleBibleDocPath`), si lo que hay que describir es un flujo, un proceso con pasos/decisiones, una secuencia de interacciones o una relación entre estados o componentes, prioriza representarlo con un diagrama Mermaid (`flowchart`, `sequenceDiagram`, `stateDiagram-v2`, etc.) acompañado de las notas imprescindibles, en lugar de un párrafo largo explicando lo mismo en prosa. Reserva la prosa para lo que el diagrama no pueda expresar (matices, motivos, excepciones puntuales) o para contenido sin estructura de flujo/relación clara que representar.
 
 ## 0. Cargar el contexto del proyecto
 
 Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta `framework.changesDir`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí. El esquema completo está en [`../ms-init/schema.json`](../ms-init/schema.json) (léelo primero si no lo has hecho ya en esta sesión).
 
-`architectureDocPath`, `featuresDocPath`, `styleBibleDocPath`, `projectGraphPath` y `sourcecodeDir` son opcionales y se usan como contexto en el paso 3; si no están configurados, sigue adelante sin ellos (usa el repo en general como contexto de respaldo).
+`docs.tech.architectureDocPath`, `docs.functional.featuresDocPath`, `docs.tech.styleBibleDocPath`, `docs.tech.projectGraphPath` y `sourcecodeDir` son opcionales y se usan como contexto en el paso 3; si no están configurados, sigue adelante sin ellos (usa el repo en general como contexto de respaldo).
 
 ## 0.1 Verificación previa de orden
 
@@ -59,14 +60,12 @@ Si el usuario, al invocar esta skill, indica un `xxxx`, un nombre de carpeta o u
    - **Si es un `change`**: no aplica esta restricción; la solución puede tener el alcance que el cambio requiera.
 2. Si hay ficheros `{changesDir}/inProgress/{xxxx}/design_*.html` (propuesta visual generada por `ms-new`), ábrelos, pero trátalos **solo como referencia visual** — de ellos toma únicamente el aspecto que ilustran (maquetación, estilos, iconografía) para los elementos que cubren. La solución técnica **no debe basarse en ellos** en ningún otro sentido: no reutilices ni traduzcas literalmente su HTML/CSS/SVG, sus clases o su estructura de marcado, ni los tomes como referencia de arquitectura, componentes a crear/reutilizar o cualquier otra decisión de implementación — todo eso lo decides tú a partir del código real del proyecto (paso 4 de este apartado), igual que si esos ficheros no existieran.
 3. Si hay dudas técnicas sobre cómo abordarlo, resuélvelas con el usuario antes de escribir el plan.
-4. Reúne contexto adicional:
-   - Si `architectureDocPath` y/o `projectGraphPath` existen como ficheros reales en el repo, léelos y úsalos como contexto de arquitectura/dominio.
-   - Si **ninguno de los dos** existe, usa como contexto el código fuente existente bajo `sourcecodeDir` (o el repo en general si tampoco está configurado) — explóralo lo necesario para entender los patrones y capas ya existentes antes de proponer la solución.
+4. Reúne contexto adicional invocando la skill `ms-tech-analysis` (herramienta Skill), pasándole un resumen de la causa raíz o del cambio a diseñar: ella lee primero la documentación técnica configurada en `framework.docs.tech` y solo explora código (`sourcecodeDir`) si hace falta completar información, devolviéndote el contexto reunido y cualquier incongruencia detectada entre documentación y código (recuerda: en ese caso el código manda). Si reporta alguna incongruencia, tenla en cuenta al diseñar la solución y al escribir las secciones (c)/(d) del plan (paso 5) para que quede reflejada en la actualización de documentación del paso 4.1.
 5. Escribe `{changesDir}/inProgress/{xxxx}/plan.md` con exactamente estas tres secciones:
    - **(a) Anotaciones funcionales** — qué queda explícitamente fuera de alcance, y las dudas que se han resuelto con el usuario (pregunta y respuesta, en breve).
    - **(b) Solución técnica** — listado de tareas concretas y explicadas (qué hay que tocar, dónde, y por qué), en el orden en que se deberían implementar.
-   - **(c) Cambios de arquitectura** — *solo si aplica*: si `architectureDocPath` está configurado y esta solución modifica la arquitectura básica del proyecto, describe aquí exactamente qué hay que actualizar en ese documento. Si no aplica (no hay `architectureDocPath`, o la solución no toca arquitectura), omite esta sección por completo — no la dejes vacía ni con "N/A".
-   - **(d) Cambios en estilo** — *solo si aplica*: si `styleBibleDocPath` está configurado y esta solución modifica o amplia el estilo visual del proyecto, describre aquí exactamente qué hay que actaulizar en ese documento. Si no aplica, omite esta sección — no la dejes vacía ni con "N/A".
+   - **(c) Cambios de arquitectura** — *solo si aplica*: si `docs.tech.architectureDocPath` está configurado y esta solución modifica la arquitectura básica del proyecto, describe aquí exactamente qué hay que actualizar en ese documento. Si no aplica (no hay `docs.tech.architectureDocPath`, o la solución no toca arquitectura), omite esta sección por completo — no la dejes vacía ni con "N/A".
+   - **(d) Cambios en estilo** — *solo si aplica*: si `docs.tech.styleBibleDocPath` está configurado y esta solución modifica o amplia el estilo visual del proyecto, describre aquí exactamente qué hay que actaulizar en ese documento. Si no aplica, omite esta sección — no la dejes vacía ni con "N/A".
 
 ### 3.1 Preguntar si se quiere implementar
 
@@ -80,7 +79,7 @@ Con el `plan.md` ya escrito, pregunta al usuario si quiere implementarlo ahora.
 Implementa todo lo que dice `plan.md`:
 
 - Ejecuta cada tarea de la sección **(b) Solución técnica** con tu proceso normal de ingeniería (editar código, verificar que compila / pasan los tests si los hay).
-- Si `plan.md` tiene sección **(c) Cambios de arquitectura**, aplica esos cambios a `architectureDocPath` como parte de esta implementación.
+- Si `plan.md` tiene sección **(c) Cambios de arquitectura**, aplica esos cambios a `docs.tech.architectureDocPath` como parte de esta implementación.
 
 Si durante la implementación descubres que el plan no es viable tal cual está escrito, para y coméntaselo al usuario en vez de improvisar una solución distinta sin decírselo.
 
@@ -88,13 +87,13 @@ Si durante la implementación descubres que el plan no es viable tal cual está 
 
 Una vez implementado en código lo anterior (y solo entonces — no si el usuario decidió no implementar en 3.1), actualiza siempre lo siguiente antes de mover la carpeta:
 
-- **`architectureDocPath`** — si está configurado, revísalo y déjalo reflejando fielmente el estado técnico resultante. Aplica lo que diga la sección (c) del plan si la tenía; si no la tenía pero al implementar resulta que sí se ha tocado algo que ese documento describe, actualízalo igualmente — no depende únicamente de que el plan lo anticipara. Si no está configurado, omite este punto sin preguntar nada.
-- **`featuresDocPath`** — si está configurado, es un documento **funcional**, no un changelog: describe qué puede hacer la app hoy, organizado por área/módulo funcional, no una lista cronológica de changes/fixes. Actualízalo así:
+- **`docs.tech.architectureDocPath`** — si está configurado, revísalo y déjalo reflejando fielmente el estado técnico resultante. Aplica lo que diga la sección (c) del plan si la tenía; si no la tenía pero al implementar resulta que sí se ha tocado algo que ese documento describe, actualízalo igualmente — no depende únicamente de que el plan lo anticipara. Si no está configurado, omite este punto sin preguntar nada.
+- **`docs.functional.featuresDocPath`** — si está configurado, es un documento **funcional**, no un changelog: describe qué puede hacer la app hoy, organizado por área/módulo funcional, no una lista cronológica de changes/fixes. Actualízalo así:
   - Si lo implementado en esta entrada amplía o modifica una funcionalidad que ya tiene su propia entrada en el documento, **edita esa entrada in place** para que siga describiendo fielmente el comportamiento actual (no añadas una entrada nueva para lo mismo), y añade el `xxxx` de esta entrada a su campo **Origen**.
   - Si es una funcionalidad nueva, añade una entrada en el área funcional que le corresponda (crea el área si no existe todavía) con el `xxxx` de esta entrada en **Origen**.
   - Si el fichero todavía no existe, créalo a partir de la plantilla [`FEATURES.template.md`](FEATURES.template.md) de esta skill.
-  - Si `featuresDocPath` no está configurado, omite este punto sin preguntar nada.
-- **`styleBibleDocPath`** — si está configurado, revísalo y actualízalo si lo implementado introduce o modifica convenciones de estilo (visual, de interacción, de redacción, etc.) relevantes para el proyecto. Si no está configurado, o lo implementado no afecta a ninguna convención de estilo, omite este punto sin preguntar nada.
+  - Si `docs.functional.featuresDocPath` no está configurado, omite este punto sin preguntar nada.
+- **`docs.tech.styleBibleDocPath`** — si está configurado, revísalo y actualízalo si lo implementado introduce o modifica convenciones de estilo (visual, de interacción, de redacción, etc.) relevantes para el proyecto. Si no está configurado, o lo implementado no afecta a ninguna convención de estilo, omite este punto sin preguntar nada.
 
 ## 5. Mover la carpeta a `implemented`
 
@@ -104,8 +103,8 @@ No generes nunca una nueva versión del entregable como parte de esta skill, ni 
 
 ## 6. Actualizar el grafo de contexto
 
-Paso final: si en el paso 4 se han aplicado cambios relevantes en el código (no solo en documentación), además de haber actualizado ya la documentación en el paso 4.1 (`architectureDocPath` y `featuresDocPath`, según aplicara), invoca la skill `ms-graph` para regenerar/actualizar el grafo de contexto del proyecto y mantenerlo sincronizado con el código recién implementado. Si no ha habido cambios relevantes en código, omite este paso.
+Paso final: si en el paso 4 se han aplicado cambios relevantes en el código (no solo en documentación), además de haber actualizado ya la documentación en el paso 4.1 (`docs.tech.architectureDocPath` y `docs.functional.featuresDocPath`, según aplicara), invoca la skill `ms-graph` para regenerar/actualizar el grafo de contexto del proyecto y mantenerlo sincronizado con el código recién implementado. Si no ha habido cambios relevantes en código, omite este paso.
 
 ## 7. Confirmar al usuario
 
-Indica qué se ha implementado, qué documentación se ha actualizado (`architectureDocPath`/`featuresDocPath`/`styleBibleDocPath`, según aplicara), que la carpeta se movió a `{changesDir}/implemented/{xxxx}/`, y si se ha actualizado el grafo de contexto.
+Indica qué se ha implementado, qué documentación se ha actualizado (`docs.tech.architectureDocPath`/`docs.functional.featuresDocPath`/`docs.tech.styleBibleDocPath`, según aplicara), que la carpeta se movió a `{changesDir}/implemented/{xxxx}/`, y si se ha actualizado el grafo de contexto.

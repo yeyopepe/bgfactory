@@ -4,6 +4,7 @@ description: Recopila y presenta el estado actual del proyecto según el framewo
 argument-hint: "[todo|<estado>]"
 metadata:
   version: 1.5.0
+  uses: []
 ---
 
 # ms-status

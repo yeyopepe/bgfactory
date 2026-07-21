@@ -3,10 +3,16 @@
     "sourcecodeDir": "src",
     "changesDir": "changes",
     "numberWidth": 5,
-    "architectureDocPath": "design/docs/ARCHITECTURE.md",
-    "featuresDocPath":  "design/docs/FEATURES.md",
-    "styleBibleDocPath": "design/docs/stylebible/STYLE_BIBLE.md",
-    "projectGraphPath": "src/_graph/graph.json",
+    "docs": {
+      "functional": {
+        "featuresDocPath": "design/docs/FEATURES.md"
+      },
+      "tech": {
+        "architectureDocPath": "design/docs/ARCHITECTURE.md",
+        "styleBibleDocPath": "design/docs/stylebible/STYLE_BIBLE.md",
+        "projectGraphPath": "src/_graph/graph.json"
+      }
+    },
     "versioning": true,
     "versionFilePath": "src/data/version.js",
     "versionVariable": "CURRENT_VERSION",

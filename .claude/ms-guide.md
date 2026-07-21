@@ -41,10 +41,16 @@ Ejemplo de `.claude/ms-context.json` ya configurado en este proyecto:
     "sourcecodeDir": "src",
     "changesDir": "changes",
     "numberWidth": 5,
-    "architectureDocPath": "design/docs/ARCHITECTURE.md",
-    "featuresDocPath": "design/docs/FEATURES.md",
-    "styleBibleDocPath": "design/docs/STYLE_BIBLE.md",
-    "projectGraphPath": "src/_graph/graph.json",
+    "docs": {
+      "functional": {
+        "featuresDocPath": "design/docs/FEATURES.md"
+      },
+      "tech": {
+        "architectureDocPath": "design/docs/ARCHITECTURE.md",
+        "styleBibleDocPath": "design/docs/STYLE_BIBLE.md",
+        "projectGraphPath": "src/_graph/graph.json"
+      }
+    },
     "versioning": true,
     "versionFilePath": "src/data/version.js",
     "versionVariable": "CURRENT_VERSION",
@@ -61,7 +67,7 @@ Ejemplo de `.claude/ms-context.json` ya configurado en este proyecto:
 }
 ```
 
-Todos los campos de `framework` (excepto `changesDir` y `versioning`) son opcionales — el framework funciona sin `architectureDocPath`, `featuresDocPath`, `styleBibleDocPath` o `projectGraphPath`, simplemente usa menos contexto al analizar y no mantiene esos documentos sincronizados.
+Todos los campos de `framework` (excepto `changesDir` y `versioning`) son opcionales — el framework funciona sin `docs.tech.architectureDocPath`, `docs.functional.featuresDocPath`, `docs.tech.styleBibleDocPath` o `docs.tech.projectGraphPath`, simplemente usa menos contexto al analizar y no mantiene esos documentos sincronizados.
 
 ## Guía de uso rápida: el flujo natural
 
@@ -148,7 +154,7 @@ Si ya existe una entrada en `inProgress` y quieres ampliarla en vez de crear una
 
 Para algo tan pequeño que no merece pasar por `description.md` + `plan.md` + confirmación (un typo, un texto, un valor/constante puntual, un ajuste de estilo aislado), usa `/ms-fast <descripción del cambio>` en vez de `/ms-new`/`/ms-fix`. Ejemplo: `/ms-fast corrige el texto del botón "Guradar" a "Guardar"`.
 
-`ms-fast` primero valora si el cambio de verdad es trivial (sin ambigüedad, como mucho 2 ficheros, sin comportamiento nuevo, sin tocar `architectureDocPath` ni `styleBibleDocPath`):
+`ms-fast` primero valora si el cambio de verdad es trivial (sin ambigüedad, como mucho 2 ficheros, sin comportamiento nuevo, sin tocar `docs.tech.architectureDocPath` ni `docs.tech.styleBibleDocPath`):
 
 - **Si califica**: aplica el cambio directamente en el código y, en la misma invocación, documenta lo hecho en `changes/implemented/fast-{título}_{yyyyMMdd}/description.md` — sin pasar por `inProgress`, sin `plan.md`, sin `ms-workflow` (usa su propio nombre de carpeta, no el `xxxx` secuencial). Queda ya en `implemented`, listo para cerrarse más adelante con `/ms-close` igual que cualquier otro change/fix.
 - **Si no califica** (afecta a arquitectura/estilo, falta información, toca más de 2 ficheros, o resulta ser un bug con causa no evidente): no toca nada de código, te avisa de por qué no encaja, e invoca directamente `ms-new` con tu petición para arrancar el flujo normal de documentación.
@@ -157,9 +163,9 @@ Para algo tan pequeño que no merece pasar por `description.md` + `plan.md` + co
 
 `/ms-implement {xxxx}` toma una entrada ya documentada en `inProgress` y:
 
-1. Analiza la causa raíz (fix) o diseña la solución técnica (change), usando como fuente de verdad el código real, el grafo (`projectGraphPath`), la documentación de arquitectura (`architectureDocPath`) y la guía de estilo (`styleBibleDocPath`) — nunca lo que otras entradas de `changes/` asuman ni la memoria de la conversación.
+1. Analiza la causa raíz (fix) o diseña la solución técnica (change), usando como fuente de verdad el código real, el grafo (`docs.tech.projectGraphPath`), la documentación de arquitectura (`docs.tech.architectureDocPath`) y la guía de estilo (`docs.tech.styleBibleDocPath`) — nunca lo que otras entradas de `changes/` asuman ni la memoria de la conversación.
 2. Escribe `changes/inProgress/{xxxx}/plan.md` con tres secciones: (a) anotaciones funcionales, (b) solución técnica paso a paso, (c) cambios de arquitectura si aplica.
-3. Pregunta si quieres implementarlo ya. Si confirmas, edita el código, actualiza `architectureDocPath`/`featuresDocPath`/`styleBibleDocPath` según corresponda, mueve la carpeta a `changes/implemented/{xxxx}/` y regenera el grafo de contexto si hubo cambios de código.
+3. Pregunta si quieres implementarlo ya. Si confirmas, edita el código, actualiza `docs.tech.architectureDocPath`/`docs.functional.featuresDocPath`/`docs.tech.styleBibleDocPath` según corresponda, mueve la carpeta a `changes/implemented/{xxxx}/` y regenera el grafo de contexto si hubo cambios de código.
 
 Si invocas `/ms-implement` sin argumento, lista lo que hay pendiente en `inProgress` y te pregunta cuál quieres. Si `plan.md` ya existía (por ejemplo, quieres retomarlo), te pregunta si quieres regenerarlo desde cero o implementar directamente lo que ya dice.
 
@@ -209,3 +215,4 @@ Y para algo trivial:
 - Nunca se escribe a mano el `description.md`, el `plan.md` ni se numeran/mueven carpetas — eso lo hace siempre `ms-workflow` (skill interna, no invocable directamente) para mantener esa lógica en un único sitio.
 - Un `xxxx` nunca se reutiliza ni se calcula a mano: siempre lo asigna el script de `ms-workflow` recorriendo todas las subcarpetas de `changes/`.
 - Las skills verifican siempre que `.claude/ms-context.json` existe y está completo antes de actuar; si falta algo, piden ejecutar/completar `ms-init` en vez de improvisar valores por defecto.
+- Siempre que `ms-new`, `ms-fix`, `ms-fast` o `ms-implement` necesitan contexto técnico, lo piden invocando `ms-tech-analysis` (skill interna, no invocable directamente): primero lee la documentación de `framework.docs.tech` ya configurada, y solo explora código si hace falta completar información. Si documentación y código no coinciden, el código manda y la incongruencia se devuelve como hallazgo — nunca se corrige el documento dentro de esa misma skill sin que la skill llamante lo decida.

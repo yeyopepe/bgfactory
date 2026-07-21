@@ -4,6 +4,7 @@ description: Apunta y desarrolla ideas sueltas para el futuro sin meterlas en el
 argument-hint: "[código] <idea a anotar o desarrollar>"
 metadata:
   version: 1.0.0
+  uses: []
 ---
 
 # ms-todo

@@ -5,6 +5,7 @@ user-invocable: false
 disable-model-invocation: true
 metadata:
   version: 2.1.0
+  uses: []
 ---
 
 # ms-workflow

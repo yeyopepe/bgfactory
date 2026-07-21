@@ -4,6 +4,7 @@ description: Aplica directamente un cambio muy pequeño y de análisis casi nulo
 argument-hint: <descripción del cambio a aplicar>
 metadata:
   version: 1.1.0
+  uses: [ms-tech-analysis, ms-new]
 ---
 
 # ms-fast
@@ -12,7 +13,7 @@ Vía rápida del framework `ms-*` para cambios **muy pequeños y de análisis ca
 
 **Esta skill no es un atajo para saltarse el análisis de un cambio que sí lo necesita.** Es solo para lo que verdaderamente no requiere ninguno. Si el usuario pide `/ms-fast` para algo que no lo es, esta skill no debe forzar la implementación: debe decirlo y redirigir a `ms-new` o `ms-fix`.
 
-**Fuente de la verdad.** El código es la única fuente de verdad sobre cómo funciona hoy el proyecto — nunca asunciones ni memoria de conversaciones anteriores. Tampoco cuenta como fuente de verdad el contenido de otras entradas bajo `{changesDir}/**`.
+**Fuente de la verdad.** La documentación técnica y el código son la fuente de verdad sobre cómo funciona hoy el proyecto — nunca asunciones ni memoria de conversaciones anteriores. Tampoco cuenta como fuente de verdad el contenido de otras entradas bajo `{changesDir}/**`.
 
 ## 0. Comprobar que el framework está inicializado
 
@@ -22,14 +23,14 @@ A partir de aquí, `changesDir` se refiere al valor de `framework.changesDir` en
 
 ## 1. Valorar si de verdad es un cambio "fast"
 
-Antes de tocar nada, mira el código relevante y valora la petición contra estos criterios. Para calificar como `fast` debe cumplirlos **todos**:
+Antes de tocar nada, invoca la skill `ms-tech-analysis` (herramienta Skill) pasándole un resumen de la petición, para reunir el contexto técnico necesario (lee primero la documentación de `framework.docs.tech` configurada, y solo explora código si hace falta). Con ese contexto ya reunido, valora la petición contra estos criterios — para calificar como `fast` debe cumplirlos **todos**:
 
 - Se entiende sin ambigüedad qué hay que cambiar con una sola lectura de la petición — no falta información relevante ni hace falta tomar ninguna decisión de diseño o de alcance. Si para poder aplicarlo necesitarías preguntar bastante al usuario, no es `fast`.
 - Toca como mucho 2 ficheros, de forma muy localizada (una constante, un texto, un valor, una regla de estilo, una condición puntual, un typo). Si afecta a más de 2 ficheros, no es `fast`, por poco que sea el cambio en cada uno.
 - No introduce comportamiento nuevo ni cambia un flujo o interacción existente — como mucho ajusta un valor, texto o aspecto de algo que ya existe.
 - No tiene casos límite relevantes que analizar, ni afecta a cómo conviven distintas partes del proyecto entre sí.
 - No es, ni de lejos, un bug cuya causa raíz haya que investigar — si hace falta indagar para encontrar por qué falla algo, no es `fast`.
-- **No afecta a `architectureDocPath` ni a `styleBibleDocPath`** (si están configurados en `.claude/ms-context.json`): si el cambio modificaría algo que esos documentos describen (una decisión de arquitectura, una convención de estilo visual/interacción/redacción), no es `fast`, aunque el cambio en el código en sí sea pequeño.
+- **No afecta a `docs.tech.architectureDocPath` ni a `docs.tech.styleBibleDocPath`** (si están configurados en `.claude/ms-context.json`): si el cambio modificaría algo que esos documentos describen (una decisión de arquitectura, una convención de estilo visual/interacción/redacción), no es `fast`, aunque el cambio en el código en sí sea pequeño. Si `ms-tech-analysis` reporta alguna incongruencia entre esos documentos y el código, tampoco califica como `fast`: una incongruencia con la documentación técnica es, por definición, algo que afecta a esos documentos.
 
 Ejemplos orientativos que sí calificarían: corregir un texto o typo, cambiar un color/tamaño/margen puntual, ajustar el valor de una constante o configuración, corregir un enlace o ruta mal escrita, renombrar una etiqueta visible.
 
@@ -47,7 +48,7 @@ Si el análisis del paso 1 concluye que no es un cambio trivial, **no toques có
 
 Implementa el cambio directamente en el código con tu proceso normal de ingeniería (editar, verificar que compila/pasan los tests si los hay). Sigue siendo un cambio real sobre el proyecto: aplícalo con el mismo cuidado que cualquier otra edición, aunque no pase por `plan.md`.
 
-Un cambio `fast` **nunca** debe tocar `architectureDocPath` ni `styleBibleDocPath` (ver paso 1) — no los actualices, ni actualices tampoco `featuresDocPath`, ni invoques `ms-graph` ni `ms-version`, como parte de esta skill. Si durante la implementación descubres que sí hace falta tocar arquitectura, biblia de estilo, o que el cambio se extiende a más ficheros de los previstos, es señal de que el cambio no era tan trivial: para inmediatamente, no lo apliques a medias (deshaz lo ya tocado si llegaste a tocar algo), y sigue el paso 2 (avisar e invocar `ms-new`) en su lugar.
+Un cambio `fast` **nunca** debe tocar `docs.tech.architectureDocPath` ni `docs.tech.styleBibleDocPath` (ver paso 1) — no los actualices, ni actualices tampoco `docs.functional.featuresDocPath`, ni invoques `ms-graph` ni `ms-version`, como parte de esta skill. Si durante la implementación descubres que sí hace falta tocar arquitectura, biblia de estilo, o que el cambio se extiende a más ficheros de los previstos, es señal de que el cambio no era tan trivial: para inmediatamente, no lo apliques a medias (deshaz lo ya tocado si llegaste a tocar algo), y sigue el paso 2 (avisar e invocar `ms-new`) en su lugar.
 
 ## 4. Documentar el cambio ya aplicado
 

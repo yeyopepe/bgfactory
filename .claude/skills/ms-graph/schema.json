@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "ms-graph.schema.json",
   "title": "graph.json (salida de la skill ms-graph)",
-  "description": "Grafo de dependencias del codigo de un proyecto, generado por la skill ms-graph a partir de su exploracion directa del codigo fuente (sin parser externo ni motor de graphify). Pensado como contexto reducido de arquitectura -- lo consume por ejemplo ms-implement via framework.projectGraphPath en .claude/ms-context.json. Se reescribe completo en cada invocacion de ms-graph, no es incremental.",
+  "description": "Grafo de dependencias del codigo de un proyecto, generado por la skill ms-graph a partir de su exploracion directa del codigo fuente (sin parser externo ni motor de graphify). Pensado como contexto reducido de arquitectura -- lo consume por ejemplo ms-implement via framework.docs.tech.projectGraphPath en .claude/ms-context.json. Se reescribe completo en cada invocacion de ms-graph, no es incremental.",
   "type": "object",
   "required": ["generatedAt", "basePath", "nodes", "edges"],
   "additionalProperties": false,

@@ -49,7 +49,7 @@
         },
         "sourcecodeDir": {
           "type": "string",
-          "description": "OPCIONAL. Carpeta raiz del codigo fuente del proyecto (relativa a la raiz del repo). La usa ms-implement como contexto de respaldo al analizar un cambio/fix y escribir su plan.md, solo cuando ni architectureDocPath ni projectGraphPath existen como ficheros reales en el repo.",
+          "description": "OPCIONAL. Carpeta raiz del codigo fuente del proyecto (relativa a la raiz del repo). La usa ms-implement como contexto de respaldo al analizar un cambio/fix y escribir su plan.md, solo cuando ni docs.tech.architectureDocPath ni docs.tech.projectGraphPath existen como ficheros reales en el repo.",
           "examples": ["src", "app"]
         },
         "numberWidth": {
@@ -59,20 +59,46 @@
           "description": "OPCIONAL (por defecto 4). Numero de digitos del codigo secuencial 'xxxx', con ceros a la izquierda. No hace falta preguntarlo al usuario salvo que quiera algo distinto del default.",
           "examples": [4]
         },
-        "architectureDocPath": {
-          "type": "string",
-          "description": "OPCIONAL. Documento de arquitectura/diseno tecnico (relativo a la raiz del repo) que ms-implement mantiene sincronizado tras implementar cada cambio/fix. Si no esta configurado, ese paso se omite sin preguntar nada.",
-          "examples": ["design/docs/design_technical.md"]
-        },
-        "featuresDocPath": {
-          "type": "string",
-          "description": "OPCIONAL. Documento con el listado de funcionalidades ya implementadas en el proyecto (relativo a la raiz del repo). ms-implement anade o actualiza ahi la entrada correspondiente cada vez que implementa un cambio/fix, creando el fichero si todavia no existe. Si no esta configurado, ese paso se omite sin preguntar nada.",
-          "examples": ["design/docs/FEATURES.md"]
-        },
-        "projectGraphPath": {
-          "type": "string",
-          "description": "OPCIONAL. Ruta al fichero con el grafo de conocimiento del proyecto (p.ej. generado con la skill graphify, tipicamente graphify-out/graph.json). Reservado para que las skills ms-* lo usen como contexto adicional; de momento ninguna skill lo consume todavia. Si el proyecto no tiene ese grafo, se omite.",
-          "examples": ["graphify-out/graph.json"]
+        "docs": {
+          "type": "object",
+          "description": "OPCIONAL. Documentacion de referencia externa del proyecto, agrupada por area ('functional', 'tech').",
+          "additionalProperties": false,
+          "properties": {
+            "functional": {
+              "type": "object",
+              "description": "OPCIONAL. Documentacion funcional que las skills ms-* usan como contexto y mantienen sincronizada.",
+              "additionalProperties": false,
+              "properties": {
+                "featuresDocPath": {
+                  "type": "string",
+                  "description": "OPCIONAL. Documento con el listado de funcionalidades ya implementadas en el proyecto (relativo a la raiz del repo). ms-implement anade o actualiza ahi la entrada correspondiente cada vez que implementa un cambio/fix, creando el fichero si todavia no existe. Si no esta configurado, ese paso se omite sin preguntar nada.",
+                  "examples": ["design/docs/FEATURES.md"]
+                }
+              }
+            },
+            "tech": {
+              "type": "object",
+              "description": "OPCIONAL. Documentacion tecnica que las skills ms-* usan como contexto y mantienen sincronizada.",
+              "additionalProperties": false,
+              "properties": {
+                "architectureDocPath": {
+                  "type": "string",
+                  "description": "OPCIONAL. Documento de arquitectura/diseno tecnico (relativo a la raiz del repo) que ms-implement mantiene sincronizado tras implementar cada cambio/fix. Si no esta configurado, ese paso se omite sin preguntar nada.",
+                  "examples": ["design/docs/design_technical.md"]
+                },
+                "styleBibleDocPath": {
+                  "type": "string",
+                  "description": "OPCIONAL. Guia de estilo (visual, de interaccion, de redaccion) del proyecto (relativa a la raiz del repo) que ms-implement mantiene sincronizada tras implementar cada cambio/fix. Si no esta configurado, ese paso se omite sin preguntar nada.",
+                  "examples": ["design/docs/stylebible/STYLE_BIBLE.md"]
+                },
+                "projectGraphPath": {
+                  "type": "string",
+                  "description": "OPCIONAL. Ruta al fichero con el grafo de conocimiento del proyecto (p.ej. generado con la skill graphify, tipicamente graphify-out/graph.json, o con la skill ms-graph). Lo usa ms-implement como contexto adicional al analizar un cambio/fix. Si el proyecto no tiene ese grafo, se omite.",
+                  "examples": ["graphify-out/graph.json"]
+                }
+              }
+            }
+          }
         },
         "versioning": {
           "type": "boolean",
@@ -125,9 +151,15 @@
       "framework": {
         "changesDir": "src/_changes",
         "numberWidth": 4,
-        "architectureDocPath": "design/docs/design_technical.md",
-        "featuresDocPath": "design/docs/FEATURES.md",
-        "projectGraphPath": "graphify-out/graph.json",
+        "docs": {
+          "functional": {
+            "featuresDocPath": "design/docs/FEATURES.md"
+          },
+          "tech": {
+            "architectureDocPath": "design/docs/design_technical.md",
+            "projectGraphPath": "graphify-out/graph.json"
+          }
+        },
         "sourcecodeDir": "src",
         "versioning": true,
         "versionFilePath": "src/data/version.js",

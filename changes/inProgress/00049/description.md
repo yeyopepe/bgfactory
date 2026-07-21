@@ -4,9 +4,7 @@
 
 ## Prompt original del usuario
 
-Al redimensionar una ficha circular ahora se puede hacer libremente, sin mantener el aspecto. Quiero que además, si mantengo pulsada la tecla ctrl al redimensionar, mantenga un aspecto 1:1.
-
-En lugar de la tecla ctrl quiero que sea cualquier tecla shift.
+Al redimensionar una ficha circular ahora se puede hacer libremente, sin mantener el aspecto. Quiero que además, si mantengo pulsada la tecla Shift al redimensionar, mantenga un aspecto 1:1.
 
 ## Descripción completa
 

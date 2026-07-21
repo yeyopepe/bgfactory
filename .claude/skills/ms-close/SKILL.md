@@ -4,6 +4,7 @@ description: Cierra un change/fix ya implementado, moviéndolo de {changesDir}/i
 argument-hint: <xxxx o descripción del cambio/fix a cerrar>
 metadata:
   version: 1.0.0
+  uses: [ms-workflow]
 ---
 
 # ms-close
