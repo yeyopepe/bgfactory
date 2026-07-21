@@ -20,6 +20,10 @@ Esta skill **no se ejecuta si se ha invocado directamente** (p.ej. el usuario ha
 
 Si te han invocado sin ese contexto, **detente aquí** y dile al usuario que `ms-tech-analysis` es de uso interno del framework. No hagas nada más en ese caso.
 
+```
+`/ms-tech-analysis` es de uso interno del framework `ms-*` y no se invoca directamente. Usa `/ms-new`, `/ms-fix`, `/ms-fast` o `/ms-implement`, que la invocan cuando la necesitan.
+```
+
 ## Entrada esperada de quien invoca
 
 Quien invoca debe pasar un resumen breve de **qué se está analizando** (el change/fix/duda concreta, no la conversación entera) — se usa para acotar la exploración de código del paso 2, en vez de explorar el repo entero sin rumbo.

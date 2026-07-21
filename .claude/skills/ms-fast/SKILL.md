@@ -19,6 +19,10 @@ Vía rápida del framework `ms-*` para cambios **muy pequeños y de análisis ca
 
 Si `.claude/ms-context.json` no existe en la raíz del repo, o le falta la sección `framework` (o campos suyos necesarios), no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí.
 
+```
+Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta configuración). Ejecuta primero `/ms-init` antes de volver a invocarme.
+```
+
 A partir de aquí, `changesDir` se refiere al valor de `framework.changesDir` en ese fichero.
 
 ## 1. Valorar si de verdad es un cambio "fast"
@@ -42,6 +46,10 @@ Si tienes dudas razonables sobre si califica, no lo fuerces: trátalo como que n
 
 Si el análisis del paso 1 concluye que no es un cambio trivial, **no toques código todavía**:
 1. Avisa al usuario, indicando explícitamente qué punto de los criterios no cumple (falta información, afecta a más de 2 ficheros, toca arquitectura/biblia de estilo, no es realmente menor, etc.), de que en su lugar vas a crear un change para documentarlo y analizarlo como corresponde.
+
+   ```
+   Esto no califica como cambio "fast": {motivo concreto incumplido}. Voy a documentarlo como un change con `ms-new` para analizarlo y planificarlo como corresponde.
+   ```
 2. A continuación, sin esperar confirmación adicional, invoca directamente la skill `ms-new` (herramienta Skill) pasándole tal cual la petición/información que te ha dado el usuario, para que arranque su propio proceso de definición del cambio en `{changesDir}/inProgress/`. No sigas con el resto de pasos de `ms-fast`: a partir de aquí el proceso lo continúa `ms-new`.
 
 ## 3. Si califica: aplicar el cambio

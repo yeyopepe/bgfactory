@@ -17,6 +17,10 @@ Vive en `{changesDir}/todo/`, una subcarpeta hermana de `inProgress`/`implemente
 
 Si `.claude/ms-context.json` no existe en la raíz del repo, o le falta la sección `framework` (o el campo `changesDir`), no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí.
 
+```
+Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta configuración). Ejecuta primero `/ms-init` antes de volver a invocarme.
+```
+
 A partir de aquí, `changesDir` se refiere al valor de `framework.changesDir` en ese fichero.
 
 ## 1. Decidir si es una idea nueva o una ampliación

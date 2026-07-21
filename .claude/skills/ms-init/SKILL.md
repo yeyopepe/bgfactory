@@ -45,6 +45,10 @@ Solo cuando las herramientas base estén disponibles (y las condicionales que ya
 - **Si `.claude/ms-context.json` no existe**: sigue el proceso normal desde el paso 2 (exploración + preguntas + escritura completa).
 - **Si ya existe**, léelo y compáralo contra los campos obligatorios de [`schema.json`](schema.json) (`framework.changesDir`, `framework.versioning`, y si `versioning` es `true` también `versionFilePath`, `versionVariable`, `versionFormat`, `buildCommand` y `buildOutputPath`):
   - **Si no falta ningún campo obligatorio** (el framework ya está completamente inicializado): usa `AskUserQuestion` para preguntar al usuario si quiere re-inicializar el proyecto desde cero. Deja claro que eso borra el contexto actual (`framework` y `project`) y repite todo el proceso de preguntas como si no existiera. Si confirma, borra el contenido actual y continúa desde el paso 2. Si no confirma, no hagas nada más — el framework ya está listo tal cual está.
+
+    ```
+    El framework `ms-*` ya está inicializado en este proyecto. ¿Quieres reinicializarlo desde cero? Esto borra la configuración actual (`framework` y `project`) de `.claude/ms-context.json` y repite todas las preguntas como si no existiera.
+    ```
   - **Si falta algún campo obligatorio**: no repitas todo el cuestionario. Pregunta solo por lo que falta (paso 3, acotado a los campos ausentes) y en el paso 4 actualiza el fichero con merge, sin tocar lo que ya estaba configurado.
 
 ## 2. Explorar el repo en busca de pistas

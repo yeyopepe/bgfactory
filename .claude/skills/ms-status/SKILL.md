@@ -17,6 +17,10 @@ Esta skill es de solo lectura: no crea, mueve ni modifica ninguna carpeta o fich
 
 Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta `framework.changesDir`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar el framework, y detente ahí.
 
+```
+Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta configuración). Ejecuta primero `/ms-init` antes de volver a invocarme.
+```
+
 ## 1. Recopilar los datos
 
 Toda la mecánica de recorrido y parseo la hace, de forma determinista y gratis en tokens, el script [`scripts/collect_status.py`](scripts/collect_status.py) (Python estándar, sin dependencias externas) — no la reimplementes a mano ni leas tú mismo cada `description.md`. Ejecuta desde la raíz del repo:

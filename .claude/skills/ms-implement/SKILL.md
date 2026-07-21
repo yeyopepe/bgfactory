@@ -21,6 +21,10 @@ Al escribir o actualizar cualquier documento de esta skill (`plan.md`, `docs.tec
 
 Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta `framework.changesDir`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí. El esquema completo está en [`../ms-init/schema.json`](../ms-init/schema.json) (léelo primero si no lo has hecho ya en esta sesión).
 
+```
+Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta configuración). Ejecuta primero `/ms-init` antes de volver a invocarme.
+```
+
 `docs.tech.architectureDocPath`, `docs.functional.featuresDocPath`, `docs.tech.styleBibleDocPath`, `docs.tech.projectGraphPath` y `sourcecodeDir` son opcionales y se usan como contexto en el paso 3; si no están configurados, sigue adelante sin ellos (usa el repo en general como contexto de respaldo).
 
 ## 0.1 Verificación previa de orden
@@ -44,6 +48,18 @@ Antes de identificar el cambio/fix, comprueba **siempre** que no se haya colado 
 Si el usuario, al invocar esta skill, indica un `xxxx`, un nombre de carpeta o una descripción del cambio/fix, resuélvelo buscando **únicamente** dentro de `{changesDir}/inProgress/`.
 
 **Si no indica nada** (p.ej. invoca `/ms-implement` sin argumentos): no asumas que se refiere al último cambio/fix mencionado en la conversación ni a ningún otro dato del contexto de chat — la única fuente de verdad es `{changesDir}/inProgress/`. Lista las carpetas que haya ahí (su `xxxx` y, si lo tiene, el nombre/resumen de su `description.md`) y pregunta explícitamente al usuario cuál quiere implementar. Si no hay ninguna, dile que no hay ningún cambio/fix pendiente y detente ahí.
+
+```
+Estos son los cambios/fixes pendientes en `{changesDir}/inProgress/`:
+- {xxxx} — {nombre/resumen}
+- ...
+
+¿Cuál quieres que implemente?
+```
+
+```
+No hay ningún cambio/fix pendiente en `{changesDir}/inProgress/`.
+```
 
 - Si no encuentras ninguna carpeta que corresponda dentro de `{changesDir}/inProgress/`, **no hagas nada más**: si existe con ese `xxxx` en `{changesDir}/implemented/`, dile al usuario que ese cambio/fix ya está implementado; si no existe en ningún sitio, dile que no lo encuentras y pregunta el `xxxx` o la carpeta correctos. No busques ni operes sobre carpetas fuera de `{changesDir}/inProgress/`.
 - Si la encuentras, esa es `{xxxx}` y su carpeta `{changesDir}/inProgress/{xxxx}/` para el resto del proceso.
@@ -70,6 +86,10 @@ Si el usuario, al invocar esta skill, indica un `xxxx`, un nombre de carpeta o u
 ### 3.1 Preguntar si se quiere implementar
 
 Con el `plan.md` ya escrito, pregunta al usuario si quiere implementarlo ahora.
+
+```
+El plan queda escrito en `{changesDir}/inProgress/{xxxx}/plan.md`. ¿Quieres que lo implemente ahora?
+```
 
 - Si dice que sí, ve al paso 4.
 - Si dice que no, termina aquí: el cambio/fix queda documentado y planificado en `{changesDir}/inProgress/{xxxx}/`, pendiente de implementar más adelante (se puede retomar invocando esta misma skill otra vez sobre el mismo `xxxx`).

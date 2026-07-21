@@ -25,6 +25,10 @@ Esta skill **no se ejecuta si se ha invocado directamente** (p.ej. el usuario ha
 
 Si te han invocado sin ese contexto (el usuario ha tecleado el comando directamente, o no venías de ninguna de esas cuatro skills), **detente aquí** y dile al usuario que `ms-workflow` es de uso interno del framework: para documentar, implementar o cerrar un cambio/fix debe usar la skill correspondiente. No hagas nada más en ese caso.
 
+```
+`/ms-workflow` es de uso interno del framework `ms-*` y no se invoca directamente. Para documentar un cambio/fix usa `ms-new`/`ms-fix`, para implementarlo `/ms-implement`, y para cerrarlo `/ms-close`.
+```
+
 ## 0. Cargar el contexto del proyecto
 
 Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta la sección `framework` (o campos suyos que esta acción necesita), no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí — no reimplementes el bootstrap aquí. El esquema completo está en [`../ms-init/schema.json`](../ms-init/schema.json) (léelo primero si no lo has hecho ya en esta sesión, para saber qué campos comprobar).

@@ -15,8 +15,20 @@ Genera una nueva versión del entregable. El número de versión es un contador 
 Lee `.claude/ms-context.json` en la raíz del repo. El esquema completo está en [`../ms-init/schema.json`](../ms-init/schema.json) (léelo primero si no lo has hecho ya en esta sesión).
 
 - Si no existe, o le falta el campo `framework.versioning`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí.
+
+  ```
+  Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta configuración). Ejecuta primero `/ms-init` antes de volver a invocarme.
+  ```
 - Si `framework.versioning` es `false`, informa de que este proyecto no versiona entregables (decisión explícita tomada en `ms-init`) y no hagas nada más.
+
+  ```
+  Este proyecto no versiona entregables (decisión tomada al inicializar el framework con `/ms-init`). No hay nada que generar aquí.
+  ```
 - Si `framework.versioning` es `true` pero falta alguno de `versionFilePath`, `versionVariable`, `buildCommand`, `buildOutputPath`, no continúes: dile al usuario que debe volver a ejecutar `ms-init` para completar esos campos, y detente ahí.
+
+  ```
+  Falta configuración de versionado en `.claude/ms-context.json` ({campos que faltan}). Ejecuta `/ms-init` para completarla antes de volver a invocarme.
+  ```
 
 ## 1. Ejecutar el build
 

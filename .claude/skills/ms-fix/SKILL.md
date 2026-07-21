@@ -20,6 +20,10 @@ Esta skill no implementa nada por sí misma: documenta la intención y encadena 
 
 Si `.claude/ms-context.json` no existe en la raíz del repo, o le falta la sección `framework` (o campos suyos necesarios), no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí.
 
+```
+Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta configuración). Ejecuta primero `/ms-init` antes de volver a invocarme.
+```
+
 ## Pasos
 
 1. **Entender el bug a nivel funcional.** Si hay ambigüedad sobre qué comportamiento es el correcto o cómo reproducirlo, pregunta. No hace falta localizar la causa raíz en código todavía — eso lo hace `ms-implement` al analizar el fix en detalle.

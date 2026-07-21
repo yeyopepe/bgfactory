@@ -17,6 +17,10 @@ Esta skill no analiza ni toca código: solo archiva entradas que `ms-implement` 
 
 Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta `framework.changesDir`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí.
 
+```
+Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta configuración). Ejecuta primero `/ms-init` antes de volver a invocarme.
+```
+
 ## 1. Identificar el change/fix
 
 Si el usuario, al invocar esta skill, indica un `xxxx`, un nombre de carpeta o una descripción del change/fix, resuélvelo buscando **únicamente** dentro de `{changesDir}/implemented/` — nunca en `{changesDir}/inProgress/` ni en `{changesDir}/closed/`.
@@ -31,6 +35,10 @@ Si el usuario, al invocar esta skill, indica un `xxxx`, un nombre de carpeta o u
 ## 2. Pedir confirmación
 
 Antes de mover nada, usa `AskUserQuestion` para confirmar explícitamente con el usuario que quiere cerrar ese `xxxx` concreto (muéstrale el identificador y, si lo tiene, el título/resumen funcional de su `description.md`). No asumas confirmación implícita por el mero hecho de haber invocado la skill.
+
+```
+¿Confirmas que quieres cerrar {xxxx} ("{título/resumen}")? Se moverá de `{changesDir}/implemented/` a `{changesDir}/closed/`.
+```
 
 - Si confirma, ve al paso 3.
 - Si no confirma, no hagas nada más: la carpeta se queda tal cual en `{changesDir}/implemented/{xxxx}/`.
