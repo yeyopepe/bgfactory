@@ -4,7 +4,7 @@
 
 ## Prompt original del usuario
 
-"posibilidad de clonar un elemento ya existente con un nuveo botón en la lista de elementos"
+"posibilidad de clonar un elemento ya existente con un nuevo botón en la lista de elementos"
 
 Preguntas de alcance planteadas y respuestas del usuario:
 
