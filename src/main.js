@@ -5,7 +5,7 @@ import { on } from './core/eventBus.js';
 import {
   MODES, getState, addComponent, loadComponents, getComponents, getPanelState, loadPanelState,
   addResource, loadResources, getResources, getResourcePanelState, loadResourcePanelState,
-  getResourcesSeeded, markResourcesSeeded, loadResourcesSeeded,
+  getResourcesSeeded, markResourcesSeeded, loadResourcesSeeded, getDecks, loadDecks,
 } from './core/state.js';
 import { CURRENT_VERSION } from './data/version.js';
 import { DEFAULT_RESOURCES } from './data/defaultResources.js';
@@ -42,7 +42,7 @@ function renderAll() {
 }
 
 function persistState() {
-  saveState(getComponents(), getPanelState(), getResources(), getResourcePanelState(), getResourcesSeeded());
+  saveState(getComponents(), getPanelState(), getResources(), getResourcePanelState(), getResourcesSeeded(), getDecks());
 }
 
 on('mode:changed', renderAll);
@@ -53,6 +53,7 @@ on('resources:changed', renderAll);
 on('resources:changed', persistState);
 on('resources:changed', (resources) => syncFontFaces(resources));
 on('resourcePanelState:changed', persistState);
+on('decks:changed', persistState);
 
 function seedDefaultComponent() {
   const defaultComponent = createComponent({
@@ -99,6 +100,7 @@ if (saved?.error) {
   loadResourcesSeeded(saved.resourcesSeeded === true);
   loadComponents(saved.components);
   loadResources(saved.resources);
+  loadDecks(saved.decks ?? []);
   if (!getResourcesSeeded()) {
     seedDefaultResources();
   }
@@ -108,6 +110,7 @@ if (saved?.error) {
     loadResourcesSeeded(seed.resourcesSeeded === true);
     loadComponents(seed.components);
     loadResources(seed.resources);
+    loadDecks(seed.decks ?? []);
     if (!getResourcesSeeded()) {
       seedDefaultResources();
     }

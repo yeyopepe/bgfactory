@@ -1,13 +1,16 @@
 // Modal for creating/editing components with tabs.
 // Generically handles different component types via type-specific tab content.
 
-import { getComponents, getResources } from '../core/state.js';
+import { getComponents, getResources, getDecks, addDeck } from '../core/state.js';
 import { createComponent, updateComponent } from '../core/component.js';
+import { createDeck } from '../core/deck.js';
 import { createHelpIcon } from './helpIcon.js';
 import { openBoardPatternModal } from './boardPatternModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
 import { openDiceFontModal } from './diceFontModal.js';
 import { openImageAdjustModal } from './imageAdjustModal.js';
+import { openCardEditorModal } from './cardEditorModal.js';
+import { CARD_PROPORTIONS, getProporcionRatio } from '../core/cardProportions.js';
 import { isListaValoresValida, esResultadoValido, getResultadoInicial } from '../core/dice.js';
 
 const DEFAULT_BOARD_SIZE = 200;
@@ -15,6 +18,7 @@ const DEFAULT_DADO_SIZE = 100;
 const DEFAULT_DOCUMENTO_WIDTH = 240;
 const DEFAULT_DOCUMENTO_HEIGHT = 320;
 const DEFAULT_FICHA_SIZE = 60;
+const DEFAULT_CARTA_WIDTH = 180;
 
 export const DEFAULT_BOARD_PROPERTIES = {
   bordeColor: '#000000',
@@ -55,6 +59,30 @@ export const DEFAULT_FICHA_PROPERTIES = {
   ajusteImagen: { zoom: 100, posX: 50, posY: 50 },
 };
 
+export const DEFAULT_CARTA_PROPERTIES = {
+  proporcion: '5:7',
+  deckId: null,
+  caraActual: 'trasera',
+  caraFrontal: { imagenResourceId: null, ajusteImagen: { zoom: 100, posX: 50, posY: 50 }, textBoxes: [] },
+  caraTrasera: { imagenResourceId: null, ajusteImagen: { zoom: 100, posX: 50, posY: 50 }, textBoxes: [] },
+};
+
+function cloneCartaProperties(properties) {
+  return {
+    ...properties,
+    caraFrontal: {
+      ...properties.caraFrontal,
+      ajusteImagen: { ...properties.caraFrontal.ajusteImagen },
+      textBoxes: properties.caraFrontal.textBoxes.map((tb) => ({ ...tb })),
+    },
+    caraTrasera: {
+      ...properties.caraTrasera,
+      ajusteImagen: { ...properties.caraTrasera.ajusteImagen },
+      textBoxes: properties.caraTrasera.textBoxes.map((tb) => ({ ...tb })),
+    },
+  };
+}
+
 // Crea un componente nuevo ya con los valores por defecto de su tipo (tamaño y
 // properties), para el flujo de alta: elegir tipo (ui/componentTypeModal.js) →
 // crear con defaults → abrir esta modal para configurarlo.
@@ -77,6 +105,11 @@ export function createDefaultComponent(type) {
     component.height = DEFAULT_FICHA_SIZE;
     component.bloqueado = false;
     component.properties = { ...DEFAULT_FICHA_PROPERTIES, ajusteImagen: { ...DEFAULT_FICHA_PROPERTIES.ajusteImagen } };
+  } else if (type === 'carta') {
+    component.width = DEFAULT_CARTA_WIDTH;
+    component.height = DEFAULT_CARTA_WIDTH / getProporcionRatio(DEFAULT_CARTA_PROPERTIES.proporcion);
+    component.bloqueado = false;
+    component.properties = cloneCartaProperties(DEFAULT_CARTA_PROPERTIES);
   }
   return component;
 }
@@ -341,6 +374,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       renderDocumentoSpecificFields(specificContent);
     } else if (workingComponent.type === 'ficha') {
       renderFichaSpecificFields(specificContent);
+    } else if (workingComponent.type === 'carta') {
+      renderCartaSpecificFields(specificContent);
     } else {
       const empty = document.createElement('p');
       empty.textContent = 'Sin propiedades específicas';
@@ -930,6 +965,128 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       props.fondoTipo = bgTypeSelect.value;
       updateBgFieldsVisibility();
     });
+  }
+
+  function renderCartaSpecificFields(container) {
+    const props = workingComponent.properties;
+
+    // Proporción
+    const proporcionField = document.createElement('div');
+    proporcionField.className = 'modal__field';
+    const proporcionLabel = document.createElement('label');
+    proporcionLabel.textContent = 'Proporción';
+    const proporcionSelect = document.createElement('select');
+    for (const { value, label } of CARD_PROPORTIONS) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      if (value === (props.proporcion || DEFAULT_CARTA_PROPERTIES.proporcion)) option.selected = true;
+      proporcionSelect.appendChild(option);
+    }
+    proporcionSelect.addEventListener('change', () => {
+      props.proporcion = proporcionSelect.value;
+      const width = workingComponent.width || DEFAULT_CARTA_WIDTH;
+      workingComponent.width = width;
+      workingComponent.height = width / getProporcionRatio(props.proporcion);
+    });
+    proporcionField.appendChild(proporcionLabel);
+    proporcionField.appendChild(proporcionSelect);
+    container.appendChild(proporcionField);
+
+    // Mazo
+    const deckField = document.createElement('div');
+    deckField.className = 'modal__field';
+    const deckLabel = document.createElement('label');
+    deckLabel.textContent = 'Mazo';
+    const deckSelect = document.createElement('select');
+    const NEW_DECK_VALUE = '__new__';
+
+    const newDeckRow = document.createElement('div');
+    newDeckRow.style.display = 'none';
+    newDeckRow.style.gap = '0.5rem';
+    newDeckRow.style.marginTop = '0.5rem';
+    const newDeckInput = document.createElement('input');
+    newDeckInput.type = 'text';
+    newDeckInput.placeholder = 'Nombre del mazo nuevo';
+    const newDeckCreateBtn = document.createElement('button');
+    newDeckCreateBtn.type = 'button';
+    newDeckCreateBtn.className = 'btn-cancel';
+    newDeckCreateBtn.textContent = 'Crear';
+    newDeckRow.appendChild(newDeckInput);
+    newDeckRow.appendChild(newDeckCreateBtn);
+
+    function populateDeckSelect() {
+      deckSelect.innerHTML = '';
+      const noneOption = document.createElement('option');
+      noneOption.value = '';
+      noneOption.textContent = 'Sin mazo';
+      if (!props.deckId) noneOption.selected = true;
+      deckSelect.appendChild(noneOption);
+
+      for (const deck of getDecks()) {
+        const option = document.createElement('option');
+        option.value = deck.id;
+        option.textContent = deck.name;
+        if (deck.id === props.deckId) option.selected = true;
+        deckSelect.appendChild(option);
+      }
+
+      const newOption = document.createElement('option');
+      newOption.value = NEW_DECK_VALUE;
+      newOption.textContent = '+ Crear nuevo mazo…';
+      deckSelect.appendChild(newOption);
+    }
+    populateDeckSelect();
+
+    deckSelect.addEventListener('change', () => {
+      if (deckSelect.value === NEW_DECK_VALUE) {
+        newDeckRow.style.display = 'flex';
+        newDeckInput.focus();
+        return;
+      }
+      newDeckRow.style.display = 'none';
+      props.deckId = deckSelect.value || null;
+    });
+
+    newDeckCreateBtn.addEventListener('click', () => {
+      const name = newDeckInput.value.trim();
+      if (!name) return;
+      const deck = createDeck({ name });
+      addDeck(deck);
+      props.deckId = deck.id;
+      newDeckRow.style.display = 'none';
+      newDeckInput.value = '';
+      populateDeckSelect();
+    });
+
+    deckField.appendChild(deckLabel);
+    deckField.appendChild(deckSelect);
+    deckField.appendChild(newDeckRow);
+    container.appendChild(deckField);
+
+    // Editor de diseño
+    const editField = document.createElement('div');
+    editField.className = 'modal__field';
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'btn-cancel';
+    editBtn.textContent = 'Editar diseño de la carta';
+    editBtn.addEventListener('click', () => {
+      openCardEditorModal({
+        component: workingComponent,
+        onAccept: ({ proporcion, caraFrontal, caraTrasera }) => {
+          props.proporcion = proporcion;
+          props.caraFrontal = caraFrontal;
+          props.caraTrasera = caraTrasera;
+          proporcionSelect.value = proporcion;
+          const width = workingComponent.width || DEFAULT_CARTA_WIDTH;
+          workingComponent.width = width;
+          workingComponent.height = width / getProporcionRatio(proporcion);
+        },
+      });
+    });
+    editField.appendChild(editBtn);
+    container.appendChild(editField);
   }
 
   renderSpecificTab();

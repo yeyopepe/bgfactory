@@ -1,7 +1,7 @@
 // UI para entrar/salir del modo edición: botón de entrada en modo juego,
 // barra de herramientas propia (con botón de salida) en modo edición.
 
-import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, addResource } from '../core/state.js';
+import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, addResource, getDecks } from '../core/state.js';
 import { buildExportHtml, downloadHtml, downloadJson } from '../core/fileExport.js';
 import { buildComponentsExport, parseImportedComponents } from '../core/persistence.js';
 import { getComponentsBounds } from './componentRenderer.js';
@@ -15,7 +15,7 @@ function currentFileName() {
 }
 
 function saveAs(filename) {
-  const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded());
+  const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded(), getDecks());
   downloadHtml(filename, html);
   showToast(`Guardado como "${filename}"`);
 }

@@ -6,6 +6,14 @@
 
 import { RESOURCE_TYPES } from '../core/resource.js';
 
+function normalize(str) {
+  return str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+function matchesFilter(resource, query) {
+  return normalize(resource.name).includes(normalize(query));
+}
+
 export function openBoardImageModal({ properties, resources, onAccept, title = 'Configurar fondo — Imagen' }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -37,16 +45,24 @@ export function openBoardImageModal({ properties, resources, onAccept, title = '
     acceptBtn.disabled = !selectedId;
   }
 
-  if (images.length === 0) {
-    const empty = document.createElement('p');
-    empty.className = 'board-image-modal__empty';
-    empty.textContent = 'No hay imágenes disponibles';
-    content.appendChild(empty);
-  } else {
+  let filterText = '';
+  const resultsContainer = document.createElement('div');
+
+  function renderGallery(list) {
+    resultsContainer.innerHTML = '';
+
+    if (list.length === 0) {
+      const emptyFilter = document.createElement('p');
+      emptyFilter.className = 'board-image-modal__empty-filter';
+      emptyFilter.textContent = `No hay imágenes que coincidan con «${filterText}».`;
+      resultsContainer.appendChild(emptyFilter);
+      return;
+    }
+
     const gallery = document.createElement('div');
     gallery.className = 'board-image-modal__gallery';
 
-    for (const resource of images) {
+    for (const resource of list) {
       const item = document.createElement('button');
       item.type = 'button';
       item.className = 'board-image-modal__item';
@@ -73,7 +89,30 @@ export function openBoardImageModal({ properties, resources, onAccept, title = '
       gallery.appendChild(item);
     }
 
-    content.appendChild(gallery);
+    resultsContainer.appendChild(gallery);
+  }
+
+  if (images.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'board-image-modal__empty';
+    empty.textContent = 'No hay imágenes disponibles';
+    content.appendChild(empty);
+  } else {
+    const searchBar = document.createElement('div');
+    searchBar.className = 'board-image-modal__search';
+
+    const searchInput = document.createElement('input');
+    searchInput.type = 'text';
+    searchInput.placeholder = 'Buscar imagen…';
+    searchInput.addEventListener('input', () => {
+      filterText = searchInput.value;
+      renderGallery(images.filter((r) => matchesFilter(r, filterText)));
+    });
+    searchBar.appendChild(searchInput);
+
+    content.appendChild(searchBar);
+    content.appendChild(resultsContainer);
+    renderGallery(images);
   }
 
   const cancelBtn = document.createElement('button');

@@ -38,7 +38,7 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
-export function openImageAdjustModal({ shape, width, height, resource, adjustment, onAccept }) {
+export function openImageAdjustModal({ shape, width, height, resource, adjustment, onAccept, secondaryPreview }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -66,9 +66,13 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   const maskWidth = width * scale;
   const maskHeight = height * scale;
 
+  const stagesRow = document.createElement('div');
+  stagesRow.className = 'image-adjust-modal__stages';
+  content.appendChild(stagesRow);
+
   const stage = document.createElement('div');
   stage.className = 'image-adjust-modal__stage';
-  content.appendChild(stage);
+  stagesRow.appendChild(stage);
 
   const mask = document.createElement('div');
   mask.className = 'image-adjust-modal__mask';
@@ -82,6 +86,41 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   img.src = resource.dataUrl;
   img.draggable = false;
   mask.appendChild(img);
+
+  // Vista de solo lectura de la otra cara/forma, para poder ajustar ambas a
+  // la vez (ver editor de cartas, ui/cardEditorModal.js): mismo marcado, sin
+  // listeners de arrastre, con su propio resource/adjustment fijos.
+  if (secondaryPreview) {
+    const secondaryScale = PREVIEW_MAX_SIDE / Math.max(secondaryPreview.width, secondaryPreview.height);
+    const secondaryMaskWidth = secondaryPreview.width * secondaryScale;
+    const secondaryMaskHeight = secondaryPreview.height * secondaryScale;
+
+    const secondaryStage = document.createElement('div');
+    secondaryStage.className = 'image-adjust-modal__stage image-adjust-modal__stage--secondary';
+    stagesRow.appendChild(secondaryStage);
+
+    const secondaryLabel = document.createElement('span');
+    secondaryLabel.className = 'image-adjust-modal__secondary-label';
+    secondaryLabel.textContent = 'Otra cara';
+    secondaryStage.appendChild(secondaryLabel);
+
+    const secondaryMask = document.createElement('div');
+    secondaryMask.className = 'image-adjust-modal__mask';
+    secondaryMask.style.width = `${secondaryMaskWidth}px`;
+    secondaryMask.style.height = `${secondaryMaskHeight}px`;
+    secondaryMask.style.borderRadius = secondaryPreview.shape === 'circular' ? '50%' : '0';
+    secondaryMask.style.cursor = 'default';
+    secondaryStage.appendChild(secondaryMask);
+
+    if (secondaryPreview.resource) {
+      const secondaryImg = document.createElement('img');
+      secondaryImg.className = 'image-adjust-modal__image';
+      secondaryImg.src = secondaryPreview.resource.dataUrl;
+      secondaryImg.draggable = false;
+      secondaryMask.appendChild(secondaryImg);
+      applyImageAdjustStyle(secondaryImg, secondaryPreview.adjustment);
+    }
+  }
 
   function updatePreview() {
     applyImageAdjustStyle(img, { zoom, posX, posY });

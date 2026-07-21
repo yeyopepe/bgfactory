@@ -1,0 +1,202 @@
+<title>Maqueta — Lista de caras en modo imágenes</title>
+<style>
+  :root {
+    --bg-table:     #808080;
+    --bg-toolbar:   #333333;
+    --bg-card:      #f5f5f5;
+    --accent-blue:  #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --text-primary: #1a1a1a;
+    --text-light:   #ffffff;
+    --text-muted:   #666666;
+    --error:        #d32f2f;
+  }
+  body {
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+  .modal {
+    width: 420px;
+    background: var(--bg-card);
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    color: var(--text-primary);
+  }
+  .modal__header {
+    padding: 1rem;
+    font-size: 1.125rem;
+    font-weight: 500;
+    border-bottom: 1px solid #ddd;
+  }
+  .modal__body {
+    padding: 1rem;
+  }
+  .modal__field {
+    margin-bottom: 1rem;
+  }
+  .modal__field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+
+  .modo-caras-tabs {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .modo-caras-tabs button {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .modo-caras-tabs button.active {
+    background: var(--accent-blue);
+    color: var(--text-light);
+    border-color: var(--accent-blue);
+  }
+
+  .caras-imagenes-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+  .caras-imagenes-list__item {
+    position: relative;
+    aspect-ratio: 1;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .caras-imagenes-list__item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .caras-imagenes-list__item--empty {
+    background: repeating-linear-gradient(
+      45deg, #eee, #eee 6px, #f9f9f9 6px, #f9f9f9 12px
+    );
+  }
+  .caras-imagenes-list__item--empty::after {
+    content: "+";
+    font-size: 1.5rem;
+    color: var(--text-muted);
+  }
+  .caras-imagenes-list__badge {
+    position: absolute;
+    top: 2px;
+    left: 4px;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    background: rgba(0,0,0,0.5);
+    padding: 0 4px;
+    border-radius: 3px;
+  }
+  .caras-imagenes-list__edit {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .caras-imagenes-list__edit svg {
+    width: 12px;
+    height: 12px;
+    stroke: var(--text-light);
+    fill: none;
+    stroke-width: 2;
+  }
+
+  .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid #ddd;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  .btn-cancel {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    background: #f0f0f0;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .btn-accept {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+</style>
+
+<div class="modal">
+  <div class="modal__header">Configuración — Dado</div>
+  <div class="modal__body">
+    <div class="modal__field">
+      <label>Modo de caras</label>
+      <div class="modo-caras-tabs">
+        <button>Número máximo</button>
+        <button>Lista de valores</button>
+        <button class="active">Imágenes por cara</button>
+      </div>
+    </div>
+
+    <div class="modal__field">
+      <label>Caras (6)</label>
+      <div class="caras-imagenes-list">
+        <div class="caras-imagenes-list__item">
+          <span class="caras-imagenes-list__badge">1</span>
+          <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><rect width='80' height='80' fill='%232c7dd8'/><circle cx='40' cy='40' r='20' fill='%23ffffff'/></svg>" alt="">
+          <span class="caras-imagenes-list__edit"><svg viewBox="0 0 24 24"><path d="M4 20h4L18 8l-4-4L4 16v4z"/></svg></span>
+        </div>
+        <div class="caras-imagenes-list__item">
+          <span class="caras-imagenes-list__badge">2</span>
+          <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><rect width='80' height='80' fill='%23d32f2f'/><circle cx='40' cy='40' r='20' fill='%23ffffff'/></svg>" alt="">
+          <span class="caras-imagenes-list__edit"><svg viewBox="0 0 24 24"><path d="M4 20h4L18 8l-4-4L4 16v4z"/></svg></span>
+        </div>
+        <div class="caras-imagenes-list__item--empty caras-imagenes-list__item">
+          <span class="caras-imagenes-list__badge">3</span>
+        </div>
+        <div class="caras-imagenes-list__item">
+          <span class="caras-imagenes-list__badge">4</span>
+          <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='80' height='80'><rect width='80' height='80' fill='%23333333'/><circle cx='40' cy='40' r='20' fill='%23ffffff'/></svg>" alt="">
+          <span class="caras-imagenes-list__edit"><svg viewBox="0 0 24 24"><path d="M4 20h4L18 8l-4-4L4 16v4z"/></svg></span>
+        </div>
+        <div class="caras-imagenes-list__item--empty caras-imagenes-list__item">
+          <span class="caras-imagenes-list__badge">5</span>
+        </div>
+        <div class="caras-imagenes-list__item--empty caras-imagenes-list__item">
+          <span class="caras-imagenes-list__badge">6</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal__footer">
+    <button class="btn-cancel">Cancelar</button>
+    <button class="btn-accept">Guardar</button>
+  </div>
+</div>

@@ -8,6 +8,7 @@ import { getPosibleValores, tirarDado } from '../core/dice.js';
 import { markdownToHtml } from '../core/markdown.js';
 import { sanitizeHtml } from '../core/sanitizeHtml.js';
 import { applyImageAdjustStyle } from './imageAdjustModal.js';
+import { getProporcionRatio, CARD_DESIGN_WIDTH } from '../core/cardProportions.js';
 
 const MIN_TEXT_BOX_WIDTH = 40;
 const MIN_TEXT_BOX_HEIGHT = 24;
@@ -16,6 +17,8 @@ const MIN_DADO_SIZE = 40;
 const MIN_DOCUMENTO_WIDTH = 80;
 const MIN_DOCUMENTO_HEIGHT = 80;
 const MIN_FICHA_SIZE = 20;
+const MIN_CARTA_WIDTH = 60;
+const MIN_CARTA_HEIGHT = 60;
 const DOCUMENTO_IFRAME_LOAD_TIMEOUT_MS = 3000;
 const DICE_ROLL_DURATION_MS = 1000;
 const DICE_ROLL_INTERVAL_MS = 70;
@@ -189,6 +192,7 @@ const COMPONENT_TYPE_LABELS = {
   dado: 'Dado',
   documento: 'Documento',
   ficha: 'Ficha',
+  carta: 'Carta',
 };
 
 // Reduce el tamaño de fuente de `el` (ya insertado en el DOM) hasta que quepa
@@ -240,7 +244,7 @@ export function getComponentsBounds(components) {
   return { minX, minY, maxX, maxY };
 }
 
-export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, identifyMode } = {}) {
+export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, onCartaFlip, identifyMode } = {}) {
   worldEl.innerHTML = '';
 
   // El componente con `order` más alto se dibuja primero (queda por debajo); el de
@@ -921,6 +925,154 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (textSpanToFit) {
         fitTextToBox(textSpanToFit, width - bordeGrosor * 2 - 8, height - bordeGrosor * 2 - 8);
       }
+    } else if (component.type === 'carta') {
+      const carta = document.createElement('div');
+      carta.className = 'carta';
+      carta.style.position = 'absolute';
+      carta.style.top = `${component.y ?? 100}px`;
+      carta.style.left = `${component.x ?? 100}px`;
+      carta.style.boxSizing = 'border-box';
+      carta.style.overflow = 'hidden';
+      carta.style.borderRadius = '8px';
+      const width = component.width ?? MIN_CARTA_WIDTH;
+      const height = component.height ?? MIN_CARTA_HEIGHT;
+      carta.style.width = `${width}px`;
+      carta.style.height = `${height}px`;
+
+      if (identifyMode === 'tooltip' && component.mostrarTooltip) carta.title = formatComponentIdentifier(component);
+      if (identifyMode === 'label') carta.appendChild(createIdentifierLabel(component));
+
+      const props = component.properties || {};
+      const caraActual = props.caraActual === 'frontal' ? 'frontal' : 'trasera';
+      const cara = caraActual === 'frontal' ? props.caraFrontal : props.caraTrasera;
+      const renderScale = width / CARD_DESIGN_WIDTH;
+
+      carta.style.backgroundColor = '#ffffff';
+
+      const resource = cara?.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;
+      if (resource) {
+        const img = document.createElement('img');
+        img.src = resource.dataUrl;
+        img.draggable = false;
+        img.style.position = 'absolute';
+        img.style.top = '0';
+        img.style.left = '0';
+        img.style.pointerEvents = 'none';
+        applyImageAdjustStyle(img, cara.ajusteImagen);
+        carta.appendChild(img);
+      }
+
+      for (const textBox of cara?.textBoxes || []) {
+        const textEl = document.createElement('div');
+        textEl.style.position = 'absolute';
+        textEl.style.left = `${textBox.x * renderScale}px`;
+        textEl.style.top = `${textBox.y * renderScale}px`;
+        textEl.style.width = `${textBox.width * renderScale}px`;
+        textEl.style.height = `${textBox.height * renderScale}px`;
+        textEl.style.fontSize = `${(textBox.tamañoFuente || 16) * renderScale}px`;
+        textEl.style.color = textBox.color || '#000000';
+        textEl.style.overflow = 'hidden';
+        textEl.style.wordBreak = 'break-word';
+        textEl.style.whiteSpace = 'pre-wrap';
+        textEl.style.pointerEvents = 'none';
+        const fontResource = textBox.fuenteResourceId ? getResources().find((r) => r.id === textBox.fuenteResourceId) : null;
+        if (fontResource) {
+          textEl.style.fontFamily = fontFamilyFor(fontResource.id);
+        }
+        textEl.textContent = textBox.contenido || '';
+        carta.appendChild(textEl);
+      }
+
+      if (onSelect) {
+        carta.classList.add('carta--selectable');
+        carta.addEventListener('dblclick', () => onSelect(component));
+      }
+
+      if (onToggleSelect) {
+        carta.addEventListener('click', (e) => {
+          e.stopPropagation();
+          onToggleSelect(component);
+        });
+      }
+
+      if (component.id === selectedId) {
+        carta.classList.add('carta--selected');
+      }
+
+      if (onMove && canMove(component)) {
+        carta.classList.add('carta--movable');
+
+        let startMouseX = 0;
+        let startMouseY = 0;
+        let startX = component.x ?? 100;
+        let startY = component.y ?? 100;
+        let currentX = startX;
+        let currentY = startY;
+
+        function handleMouseMove(e) {
+          const zoom = getWorldZoom(worldEl);
+          currentX = startX + (e.clientX - startMouseX) / zoom;
+          currentY = startY + (e.clientY - startMouseY) / zoom;
+          carta.style.left = `${currentX}px`;
+          carta.style.top = `${currentY}px`;
+        }
+
+        function handleMouseUp() {
+          document.removeEventListener('mousemove', handleMouseMove);
+          document.removeEventListener('mouseup', handleMouseUp);
+          if (currentX === startX && currentY === startY) return;
+          onMove(component, currentX, currentY);
+        }
+
+        carta.addEventListener('mousedown', (e) => {
+          if (e.button !== 0) return;
+          e.stopPropagation();
+          startMouseX = e.clientX;
+          startMouseY = e.clientY;
+          startX = component.x ?? 100;
+          startY = component.y ?? 100;
+          document.addEventListener('mousemove', handleMouseMove);
+          document.addEventListener('mouseup', handleMouseUp);
+        });
+      }
+
+      if (onResize && component.id === selectedId) {
+        attachResizeHandle(carta, {
+          axis: 'both',
+          getScale: () => getWorldZoom(worldEl),
+          getSize: () => ({ width, height }),
+          clamp: ({ width, height }) => {
+            const ratio = getProporcionRatio(props.proporcion);
+            let w = Math.max(width, height * ratio, MIN_CARTA_WIDTH);
+            let h = w / ratio;
+            if (h < MIN_CARTA_HEIGHT) {
+              h = MIN_CARTA_HEIGHT;
+              w = h * ratio;
+            }
+            return { width: w, height: h };
+          },
+          onResize: ({ width, height }) => {
+            carta.style.width = `${width}px`;
+            carta.style.height = `${height}px`;
+          },
+          onResizeEnd: ({ width, height }) => {
+            onResize(component, width, height);
+          },
+        });
+      }
+
+      // Volteo: siempre disponible con un click, independiente de si la carta es
+      // arrastrable — mismo patrón exacto que 'dado' con onDiceResult, para que
+      // "Bloqueado" nunca afecte al volteo (solo al arrastre).
+      if (onCartaFlip) {
+        carta.classList.add('carta--clickable');
+        carta.addEventListener('click', (e) => {
+          e.stopPropagation();
+          onCartaFlip(component, caraActual === 'trasera' ? 'frontal' : 'trasera');
+        });
+      }
+
+      worldEl.appendChild(carta);
     }
   }
 }

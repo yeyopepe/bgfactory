@@ -37,14 +37,32 @@ export function updateResource(resource, changes) {
   return { ...resource, ...changes };
 }
 
-// Ningún componente puede todavía "usar" un recurso (fuera de alcance de este
-// cambio, ver description.md 00017): esta comprobación es genérica y no asume
-// qué campo usará un cambio futuro para referenciar un recurso, así que hoy
-// siempre da `false`, pero queda lista para detectarlo en cuanto exista esa
-// referencia (en `image` o en cualquier propiedad de `properties`).
+// Recorre objetos y arrays anidados (p.ej. las caras de una carta o sus
+// cuadros de texto) acumulando los valores primitivos hoja, para poder
+// detectar un id de recurso referenciado en cualquier nivel de `properties`.
+function collectDeepValues(value, acc = []) {
+  if (Array.isArray(value)) {
+    for (const item of value) collectDeepValues(item, acc);
+  } else if (value && typeof value === 'object') {
+    for (const item of Object.values(value)) collectDeepValues(item, acc);
+  } else {
+    acc.push(value);
+  }
+  return acc;
+}
+
 export function isResourceInUse(resourceId, components) {
   return components.some((component) => {
     if (component.image === resourceId) return true;
-    return Object.values(component.properties ?? {}).includes(resourceId);
+    return collectDeepValues(component.properties ?? {}).includes(resourceId);
   });
+}
+
+// Ids de los componentes que referencian `resourceId`, en cualquier nivel de
+// `properties` (vacío si ninguno) — usada para identificar en el mensaje de
+// error qué componente(s) bloquean el borrado de un recurso.
+export function getComponentsUsingResource(resourceId, components) {
+  return components
+    .filter((component) => component.image === resourceId || collectDeepValues(component.properties ?? {}).includes(resourceId))
+    .map((component) => component.id);
 }

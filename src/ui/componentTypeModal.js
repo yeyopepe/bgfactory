@@ -8,6 +8,7 @@ const COMPONENT_TYPES = [
   { value: 'dado', label: 'Dado' },
   { value: 'documento', label: 'Visor de documentos' },
   { value: 'ficha', label: 'Ficha' },
+  { value: 'carta', label: 'Carta' },
 ];
 
 export function openComponentTypeModal({ onAccept }) {

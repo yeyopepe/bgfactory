@@ -6,7 +6,7 @@ import {
   getResources, addResource, replaceResource, removeResource, getResourcePanelState, setResourcePanelState,
 } from '../../core/state.js';
 import { updateComponent, cloneComponent } from '../../core/component.js';
-import { createResource, resourceTypeForFileName, isResourceInUse } from '../../core/resource.js';
+import { createResource, resourceTypeForFileName, getComponentsUsingResource } from '../../core/resource.js';
 import { createInfiniteTable } from '../../ui/table.js';
 import { openComponentModal, createDefaultComponent } from '../../ui/componentModal.js';
 import { openComponentTypeModal } from '../../ui/componentTypeModal.js';
@@ -91,8 +91,9 @@ export function renderEditMode(container) {
   tableContainer.appendChild(resourceFileInput);
 
   function attemptDeleteResource(resource) {
-    if (isResourceInUse(resource.id, getComponents())) {
-      showErrorModal('Error', `El recurso "${resource.name}" está en uso y no se puede eliminar.`);
+    const usedByIds = getComponentsUsingResource(resource.id, getComponents());
+    if (usedByIds.length > 0) {
+      showErrorModal('Error', `El recurso "${resource.name}" está en uso por: ${usedByIds.join(', ')} y no se puede eliminar.`);
       return false;
     }
     if (!confirm(`¿Eliminar el recurso "${resource.name}"?`)) return false;

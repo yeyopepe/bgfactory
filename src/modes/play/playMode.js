@@ -22,5 +22,8 @@ export function renderPlayMode(container) {
     onDiceOpenResult: (component) => {
       openDiceResultModal({ resultado: component.properties.resultadoActual });
     },
+    onCartaFlip: (component, nuevaCara) => {
+      replaceComponent(component.id, updateComponent(component, { properties: { caraActual: nuevaCara } }));
+    },
   });
 }

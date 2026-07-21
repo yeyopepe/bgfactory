@@ -9,6 +9,7 @@ const state = {
   mode: MODES.PLAY,
   components: [],
   resources: [],
+  decks: [],
 };
 
 let panelState = { collapsed: false, position: null, width: null };
@@ -164,4 +165,18 @@ export function markResourcesSeeded() {
 
 export function loadResourcesSeeded(value) {
   resourcesSeeded = value;
+}
+
+export function getDecks() {
+  return state.decks;
+}
+
+export function addDeck(deck) {
+  state.decks.push(deck);
+  emit('decks:changed', state.decks);
+}
+
+export function loadDecks(decks) {
+  state.decks = decks;
+  emit('decks:changed', state.decks);
 }
