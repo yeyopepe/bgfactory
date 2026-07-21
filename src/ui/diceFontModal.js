@@ -97,7 +97,11 @@ export function openDiceFontModal({ resources, currentResourceId, onAccept }) {
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
+  let mousedownOnOverlay = false;
+  overlay.addEventListener('mousedown', (e) => {
+    mousedownOnOverlay = e.target === overlay;
+  });
   overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.remove();
+    if (e.target === overlay && mousedownOnOverlay) overlay.remove();
   });
 }

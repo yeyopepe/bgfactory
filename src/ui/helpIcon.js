@@ -49,8 +49,12 @@ function openHelpModal({ text, html }) {
   modal.appendChild(footer);
 
   overlay.appendChild(modal);
+  let mousedownOnOverlay = false;
+  overlay.addEventListener('mousedown', (e) => {
+    mousedownOnOverlay = e.target === overlay;
+  });
   overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) overlay.remove();
+    if (e.target === overlay && mousedownOnOverlay) overlay.remove();
   });
   document.body.appendChild(overlay);
 }

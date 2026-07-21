@@ -978,9 +978,13 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
-  // Close on overlay click (outside modal)
+  // Close on overlay click (outside modal), but not if the drag started inside
+  let mousedownOnOverlay = false;
+  overlay.addEventListener('mousedown', (e) => {
+    mousedownOnOverlay = e.target === overlay;
+  });
   overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
+    if (e.target === overlay && mousedownOnOverlay) {
       overlay.remove();
     }
   });
