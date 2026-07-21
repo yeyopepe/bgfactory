@@ -793,18 +793,24 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       ficha.style.top = `${component.y ?? 100}px`;
       ficha.style.left = `${component.x ?? 100}px`;
       ficha.style.boxSizing = 'border-box';
-      ficha.style.overflow = 'hidden';
       const width = component.width ?? MIN_FICHA_SIZE;
       const height = component.height ?? MIN_FICHA_SIZE;
       ficha.style.width = `${width}px`;
       ficha.style.height = `${height}px`;
 
-      if (identifyMode === 'tooltip' && component.mostrarTooltip) ficha.title = formatComponentIdentifier(component);
-      if (identifyMode === 'label') ficha.appendChild(createIdentifierLabel(component));
-
       const props = component.properties || {};
       const forma = props.forma || 'circular';
       ficha.style.borderRadius = forma === 'circular' ? '50%' : '0';
+
+      const fichaContent = document.createElement('div');
+      fichaContent.style.position = 'absolute';
+      fichaContent.style.inset = '0';
+      fichaContent.style.overflow = 'hidden';
+      fichaContent.style.borderRadius = forma === 'circular' ? '50%' : '0';
+      ficha.appendChild(fichaContent);
+
+      if (identifyMode === 'tooltip' && component.mostrarTooltip) ficha.title = formatComponentIdentifier(component);
+      if (identifyMode === 'label') ficha.appendChild(createIdentifierLabel(component));
 
       const bordeColor = props.bordeColor || '#000000';
       const bordeGrosor = props.bordeGrosor ?? 2;
@@ -819,7 +825,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       const fondoTipo = props.fondoTipo || 'color';
       let textSpanToFit = null;
 
-      ficha.style.backgroundColor = props.colorFondo || 'transparent';
+      fichaContent.style.backgroundColor = props.colorFondo || 'transparent';
 
       if (fondoTipo === 'imagen') {
         const resource = getResources().find((r) => r.id === props.imagenResourceId);
@@ -835,16 +841,16 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           img.style.pointerEvents = 'none';
           img.style.borderRadius = forma === 'circular' ? '50%' : '0';
           applyImageAdjustStyle(img, props.ajusteImagen);
-          ficha.appendChild(img);
+          fichaContent.appendChild(img);
         }
       } else if (fondoTipo === 'texto') {
-        ficha.style.display = 'flex';
-        ficha.style.alignItems = 'center';
-        ficha.style.justifyContent = 'center';
+        fichaContent.style.display = 'flex';
+        fichaContent.style.alignItems = 'center';
+        fichaContent.style.justifyContent = 'center';
         const textSpan = document.createElement('span');
         textSpan.style.whiteSpace = 'nowrap';
         textSpan.textContent = props.texto || '';
-        ficha.appendChild(textSpan);
+        fichaContent.appendChild(textSpan);
         textSpanToFit = textSpan;
       }
 
@@ -932,12 +938,18 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       carta.style.top = `${component.y ?? 100}px`;
       carta.style.left = `${component.x ?? 100}px`;
       carta.style.boxSizing = 'border-box';
-      carta.style.overflow = 'hidden';
       carta.style.borderRadius = '8px';
       const width = component.width ?? MIN_CARTA_WIDTH;
       const height = component.height ?? MIN_CARTA_HEIGHT;
       carta.style.width = `${width}px`;
       carta.style.height = `${height}px`;
+
+      const cartaContent = document.createElement('div');
+      cartaContent.style.position = 'absolute';
+      cartaContent.style.inset = '0';
+      cartaContent.style.overflow = 'hidden';
+      cartaContent.style.borderRadius = '8px';
+      carta.appendChild(cartaContent);
 
       if (identifyMode === 'tooltip' && component.mostrarTooltip) carta.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') carta.appendChild(createIdentifierLabel(component));
@@ -959,7 +971,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         img.style.left = '0';
         img.style.pointerEvents = 'none';
         applyImageAdjustStyle(img, cara.ajusteImagen);
-        carta.appendChild(img);
+        cartaContent.appendChild(img);
       }
 
       for (const textBox of cara?.textBoxes || []) {
@@ -980,7 +992,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           textEl.style.fontFamily = fontFamilyFor(fontResource.id);
         }
         textEl.textContent = textBox.contenido || '';
-        carta.appendChild(textEl);
+        cartaContent.appendChild(textEl);
       }
 
       if (onSelect) {
