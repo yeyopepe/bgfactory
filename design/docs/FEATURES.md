@@ -24,14 +24,25 @@ La pestaña "Generales" incluye también el checkbox "Bloqueado" (marcado por de
 
 ### Panel flotante de componentes, con selección, resaltado, arrastre y redimensionado
 
-Panel flotante sobre la mesa (por defecto en la esquina superior derecha), colapsable, con el listado de componentes en tabla (columnas Id, Tipo, Acciones). El botón "Editar" abre la modal de edición; "Eliminar" borra el componente, pidiendo confirmación previa. Al hacer click sobre una fila, o directamente sobre la representación del componente en la mesa, se selecciona (selección única, con toggle al volver a hacer click en cualquiera de los dos sitios) y se resalta con un contorno discontinuo la representación del componente en la mesa. La tabla soporta scroll vertical si el contenido supera la altura disponible.
+Panel flotante sobre la mesa (por defecto en la esquina superior derecha), colapsable, con el listado de componentes en tabla (columnas Id, Tipo, Acciones). El botón "Editar" abre la modal de edición; "Clonar" (entre "Editar" y "Eliminar") crea de inmediato, sin pedir confirmación, una copia completa e independiente del componente; "Eliminar" borra el componente, pidiendo confirmación previa. Al hacer click sobre una fila, o directamente sobre la representación del componente en la mesa, se selecciona (selección única, con toggle al volver a hacer click en cualquiera de los dos sitios) y se resalta con un contorno discontinuo la representación del componente en la mesa. La tabla soporta scroll vertical si el contenido supera la altura disponible.
+
+Al clonar: el id del clon se construye a partir del id del original quitándole cualquier sufijo `(n)` que ya tuviera (para que los clones de un clon compartan la misma familia) y añadiéndole `(n)` con el siguiente entero libre para esa raíz (p. ej. "abc" → "abc(1)"; si "abc(1)" ya existe → "abc(2)"; si se elimina "abc(1)" y no queda otro clon de esa raíz, el hueco "abc(1)" se reutiliza). El clon se inserta siempre justo debajo del original en el listado (el resto de componentes posteriores se desplazan un puesto) y aparece en la mesa con un pequeño desplazamiento respecto a la posición del original, mismo criterio que al añadir un componente nuevo, para no quedar superpuesto. Tras clonar no se abre ninguna modal: el clon queda ya creado y visible, y puede editarse después con "Editar" como cualquier otro componente.
 
 El panel puede arrastrarse por la pantalla agarrando su cabecera (restringido al área visible de la mesa) y redimensionarse en ancho arrastrando un manejador en su esquina inferior derecha (entre 290 y 600px, o la mitad del ancho del viewport si es menor, sin salir tampoco del área de la mesa) — funciona igual expandido o colapsado. La posición, el ancho y el estado colapsado/expandido del panel se guardan automáticamente (ver [Autoguardado en el navegador](#autoguardado-en-el-navegador)) y se recuperan al recargar la página. La selección de fila es la única parte de este panel que no se persiste: es estado momentáneo de la sesión de edición en curso y se pierde al recargar.
 
 La tabla incluye además una primera columna "Orden" con un cuadro de texto numérico por fila (ver [Orden de apilado en la mesa](#orden-de-apilado-en-la-mesa)).
 
 - **Disponible en**: modo edición.
-- **Código**: 00005, 00007, 00009, 00014, 00027.
+- **Código**: 00005, 00007, 00009, 00014, 00027, 00043.
+
+### Panel flotante de recursos, con filtro de texto
+
+Panel flotante en modo edición (análogo al panel de componentes: colapsable, arrastrable por su cabecera y redimensionable en ancho) con el listado de recursos disponibles (imágenes y tipografías) en tabla (columnas Nombre, Tipo, Acciones), usado desde las modales de componentes que permiten elegir una imagen o tipografía (ver [Componente "tablero"](#componente-tablero), [Componente "dado"](#componente-dado) y [Componente "ficha"](#componente-ficha)).
+
+Cuando hay al menos un recurso, la cabecera del panel muestra un cuadro de texto de filtro ("Filtrar recursos…"). Al escribir, la tabla se actualiza en vivo (carácter a carácter) mostrando solo los recursos cuyo nombre, tipo mostrado ("Imagen"/"Tipografía") o identificador interno coincidan parcialmente con el texto escrito, de forma insensible a mayúsculas/minúsculas y a tildes. Si no hay coincidencias, la tabla se sustituye por un mensaje indicándolo. El texto del filtro es estado transitorio de la sesión de edición: no se guarda y se resetea al recargar la página.
+
+- **Disponible en**: modo edición.
+- **Código**: 00042.
 
 ### Orden de apilado en la mesa
 

@@ -28,3 +28,30 @@ export function updateComponent(component, changes) {
     properties: { ...component.properties, ...(changes.properties ?? {}) },
   };
 }
+
+// Calcula el siguiente id de clon disponible para `baseComponentId`, ignorando cualquier
+// sufijo `(n)` final ya existente (así los clones de un clon comparten familia/id raíz).
+export function nextCloneId(baseComponentId, components) {
+  const rootId = baseComponentId.replace(/\(\d+\)$/, '');
+  const usedNumbers = new Set();
+  for (const component of components) {
+    const match = component.id.match(/^(.*)\((\d+)\)$/);
+    if (match && match[1] === rootId) {
+      usedNumbers.add(parseInt(match[2], 10));
+    }
+  }
+  let n = 1;
+  while (usedNumbers.has(n)) n += 1;
+  return `${rootId}(${n})`;
+}
+
+export function cloneComponent(component, components) {
+  return {
+    ...component,
+    id: nextCloneId(component.id, components),
+    properties: { ...component.properties },
+    x: component.x + 30,
+    y: component.y + 30,
+    order: null,
+  };
+}

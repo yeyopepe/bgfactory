@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-21T10:28:11Z",
+  "generatedAt": "2026-07-21T10:47:42Z",
   "basePath": "src",
   "nodes": [
     {
@@ -7,7 +7,9 @@
       "type": "file",
       "path": "core/component.js",
       "exports": [
+        "cloneComponent",
         "createComponent",
+        "nextCloneId",
         "updateComponent"
       ],
       "purpose": "Modelo genérico de componente de juego (carta, token, tablero...): construye y actualiza objetos componente con id, tipo, propiedades, posición y tamaño."
@@ -106,6 +108,7 @@
         "getResources",
         "getResourcesSeeded",
         "getState",
+        "insertComponentAfter",
         "loadComponents",
         "loadPanelState",
         "loadResourcePanelState",
@@ -307,7 +310,7 @@
       "exports": [
         "renderResourceList"
       ],
-      "purpose": "Panel flotante y colapsable con el listado de recursos de la galería (imágenes y tipografías) y sus acciones, análogo a componentList.js."
+      "purpose": "Panel flotante y colapsable con el listado de recursos de la galería (imágenes y tipografías) y sus acciones, con un cuadro de filtro de texto que oculta en vivo las filas que no coinciden por nombre, tipo o id; análogo a componentList.js."
     },
     {
       "id": "ui/resourceModal.js",
@@ -344,11 +347,25 @@
       "purpose": "Librería de terceros vendorizada (marked, MIT) que parsea Markdown/GFM completo a HTML, usada internamente por core/markdown.js."
     },
     {
+      "id": "core/component.js#cloneComponent",
+      "type": "function",
+      "path": "core/component.js",
+      "parent": "core/component.js",
+      "purpose": "Construye el objeto clon de un componente: copia sus propiedades, calcula su id con nextCloneId, y desplaza su posicion (x+30, y+30) respecto al original."
+    },
+    {
       "id": "core/component.js#createComponent",
       "type": "function",
       "path": "core/component.js",
       "parent": "core/component.js",
       "purpose": "Construye un objeto componente nuevo con id generado por crypto.randomUUID() y valores por defecto para tipo, posición, tamaño, bloqueo y orden."
+    },
+    {
+      "id": "core/component.js#nextCloneId",
+      "type": "function",
+      "path": "core/component.js",
+      "parent": "core/component.js",
+      "purpose": "Calcula el siguiente id de clon disponible para un componente, ignorando cualquier sufijo (n) final ya existente en el id base para que los clones de un clon compartan la misma familia."
     },
     {
       "id": "core/component.js#updateComponent",
@@ -573,6 +590,13 @@
       "path": "core/state.js",
       "parent": "core/state.js",
       "purpose": "Devuelve el objeto de estado central completo (modo, componentes, recursos)."
+    },
+    {
+      "id": "core/state.js#insertComponentAfter",
+      "type": "function",
+      "path": "core/state.js",
+      "parent": "core/state.js",
+      "purpose": "Inserta un componente nuevo justo debajo de otro en el listado (asignandole un order intermedio y recompactando), desplazando un puesto al resto de componentes posteriores."
     },
     {
       "id": "core/state.js#loadComponents",
@@ -824,7 +848,7 @@
       "type": "function",
       "path": "ui/resourceList.js",
       "parent": "ui/resourceList.js",
-      "purpose": "Dibuja el panel flotante con la tabla de recursos de la galería, gestionando arrastre, colapso, redimensionado y las acciones de cada fila."
+      "purpose": "Dibuja el panel flotante con el cuadro de filtro y la tabla de recursos de la galería (ya filtrada), gestionando arrastre, colapso, redimensionado y las acciones de cada fila."
     },
     {
       "id": "ui/resourceModal.js#openResourceModal",
@@ -856,6 +880,11 @@
     }
   ],
   "edges": [
+    {
+      "source": "core/component.js#cloneComponent",
+      "target": "core/component.js#nextCloneId",
+      "relation": "calls"
+    },
     {
       "source": "core/dice.js#esResultadoValido",
       "target": "core/dice.js#getPosibleValores",
@@ -898,6 +927,11 @@
     },
     {
       "source": "core/state.js#addResource",
+      "target": "core/eventBus.js#emit",
+      "relation": "calls"
+    },
+    {
+      "source": "core/state.js#insertComponentAfter",
       "target": "core/eventBus.js#emit",
       "relation": "calls"
     },
@@ -974,6 +1008,11 @@
     {
       "source": "main.js",
       "target": "ui/fontFaceRegistry.js#syncFontFaces",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "core/component.js#cloneComponent",
       "relation": "calls"
     },
     {

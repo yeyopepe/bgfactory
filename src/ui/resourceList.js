@@ -12,6 +12,91 @@ const TYPE_LABELS = {
   [RESOURCE_TYPES.FONT]: 'Tipografía',
 };
 
+// Estado del cuadro de filtro. El panel de recursos es único en la página,
+// así que basta con estado de módulo para que sobreviva a los re-renders
+// provocados por cambios en la lista de recursos, y se resetea solo al
+// recargar la página.
+let filterText = '';
+
+function normalize(str) {
+  return str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+function matchesFilter(resource, query) {
+  const normalizedQuery = normalize(query);
+  const typeLabel = TYPE_LABELS[resource.type] ?? resource.type;
+  return (
+    normalize(resource.name).includes(normalizedQuery) ||
+    normalize(typeLabel).includes(normalizedQuery) ||
+    normalize(resource.id).includes(normalizedQuery)
+  );
+}
+
+function renderBody(body, resources, { onEdit, onRemove } = {}) {
+  body.innerHTML = '';
+
+  if (resources.length === 0) {
+    const empty = document.createElement('p');
+    if (filterText.trim() === '') {
+      empty.className = 'resource-list__empty';
+      empty.textContent = 'No hay recursos todavía.';
+    } else {
+      empty.className = 'resource-list__empty-filter';
+      empty.textContent = `No hay recursos que coincidan con «${filterText}».`;
+    }
+    body.appendChild(empty);
+    return;
+  }
+
+  const table = document.createElement('table');
+  table.className = 'resource-list';
+
+  const thead = document.createElement('thead');
+  thead.innerHTML = '<tr><th>Nombre</th><th>Tipo</th><th>Acciones</th></tr>';
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+
+  for (const resource of resources) {
+    const row = document.createElement('tr');
+
+    const nameCell = document.createElement('td');
+    nameCell.textContent = resource.name;
+    row.appendChild(nameCell);
+
+    const typeCell = document.createElement('td');
+    typeCell.textContent = TYPE_LABELS[resource.type] ?? resource.type;
+    row.appendChild(typeCell);
+
+    const actionsCell = document.createElement('td');
+    actionsCell.className = 'resource-list__actions-cell';
+
+    if (onEdit) {
+      const editButton = document.createElement('button');
+      editButton.type = 'button';
+      editButton.className = 'resource-list__action-btn';
+      editButton.textContent = 'Editar';
+      editButton.addEventListener('click', () => onEdit(resource));
+      actionsCell.appendChild(editButton);
+    }
+
+    if (onRemove) {
+      const removeButton = document.createElement('button');
+      removeButton.type = 'button';
+      removeButton.className = 'resource-list__action-btn resource-list__action-btn--danger';
+      removeButton.textContent = 'Eliminar';
+      removeButton.addEventListener('click', () => onRemove(resource));
+      actionsCell.appendChild(removeButton);
+    }
+
+    row.appendChild(actionsCell);
+    tbody.appendChild(row);
+  }
+
+  table.appendChild(tbody);
+  body.appendChild(table);
+}
+
 export function renderResourceList(
   container,
   resources,
@@ -85,64 +170,28 @@ export function renderResourceList(
   panel.appendChild(header);
 
   if (!collapsed) {
-    const body = document.createElement('div');
-    body.className = 'resource-panel__body';
+    if (resources.length > 0) {
+      const filterBar = document.createElement('div');
+      filterBar.className = 'resource-panel__filter';
 
-    if (resources.length === 0) {
-      const empty = document.createElement('p');
-      empty.className = 'resource-list__empty';
-      empty.textContent = 'No hay recursos todavía.';
-      body.appendChild(empty);
+      const filterInput = document.createElement('input');
+      filterInput.type = 'text';
+      filterInput.placeholder = 'Filtrar recursos…';
+      filterInput.value = filterText;
+      filterInput.addEventListener('input', () => {
+        filterText = filterInput.value;
+        renderBody(body, resources.filter((r) => matchesFilter(r, filterText)), { onEdit, onRemove });
+      });
+      filterBar.appendChild(filterInput);
+
+      panel.appendChild(filterBar);
     } else {
-      const table = document.createElement('table');
-      table.className = 'resource-list';
-
-      const thead = document.createElement('thead');
-      thead.innerHTML = '<tr><th>Nombre</th><th>Tipo</th><th>Acciones</th></tr>';
-      table.appendChild(thead);
-
-      const tbody = document.createElement('tbody');
-
-      for (const resource of resources) {
-        const row = document.createElement('tr');
-
-        const nameCell = document.createElement('td');
-        nameCell.textContent = resource.name;
-        row.appendChild(nameCell);
-
-        const typeCell = document.createElement('td');
-        typeCell.textContent = TYPE_LABELS[resource.type] ?? resource.type;
-        row.appendChild(typeCell);
-
-        const actionsCell = document.createElement('td');
-        actionsCell.className = 'resource-list__actions-cell';
-
-        if (onEdit) {
-          const editButton = document.createElement('button');
-          editButton.type = 'button';
-          editButton.className = 'resource-list__action-btn';
-          editButton.textContent = 'Editar';
-          editButton.addEventListener('click', () => onEdit(resource));
-          actionsCell.appendChild(editButton);
-        }
-
-        if (onRemove) {
-          const removeButton = document.createElement('button');
-          removeButton.type = 'button';
-          removeButton.className = 'resource-list__action-btn resource-list__action-btn--danger';
-          removeButton.textContent = 'Eliminar';
-          removeButton.addEventListener('click', () => onRemove(resource));
-          actionsCell.appendChild(removeButton);
-        }
-
-        row.appendChild(actionsCell);
-        tbody.appendChild(row);
-      }
-
-      table.appendChild(tbody);
-      body.appendChild(table);
+      filterText = '';
     }
 
+    const body = document.createElement('div');
+    body.className = 'resource-panel__body';
+    renderBody(body, resources.filter((r) => matchesFilter(r, filterText)), { onEdit, onRemove });
     panel.appendChild(body);
 
     const footer = document.createElement('div');

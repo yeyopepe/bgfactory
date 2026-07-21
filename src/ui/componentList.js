@@ -11,6 +11,7 @@ export function renderComponentList(
   components,
   {
     onEdit,
+    onClone,
     onRemove,
     onSelectRow,
     onAdd,
@@ -158,6 +159,18 @@ export function renderComponentList(
             onEdit(component);
           });
           actionsCell.appendChild(editButton);
+        }
+
+        if (onClone) {
+          const cloneButton = document.createElement('button');
+          cloneButton.type = 'button';
+          cloneButton.className = 'component-list__action-btn';
+          cloneButton.textContent = 'Clonar';
+          cloneButton.addEventListener('click', (event) => {
+            event.stopPropagation();
+            onClone(component);
+          });
+          actionsCell.appendChild(cloneButton);
         }
 
         if (onRemove) {

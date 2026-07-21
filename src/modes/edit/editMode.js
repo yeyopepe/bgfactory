@@ -2,10 +2,10 @@
 // para editar) + panel flotante con listado de componentes y acciones de edición/borrado.
 
 import {
-  getComponents, addComponent, replaceComponent, removeComponent, reorderComponent, getPanelState, setPanelState,
+  getComponents, addComponent, replaceComponent, removeComponent, reorderComponent, insertComponentAfter, getPanelState, setPanelState,
   getResources, addResource, replaceResource, removeResource, getResourcePanelState, setResourcePanelState,
 } from '../../core/state.js';
-import { updateComponent } from '../../core/component.js';
+import { updateComponent, cloneComponent } from '../../core/component.js';
 import { createResource, resourceTypeForFileName, isResourceInUse } from '../../core/resource.js';
 import { createInfiniteTable } from '../../ui/table.js';
 import { openComponentModal, createDefaultComponent } from '../../ui/componentModal.js';
@@ -164,6 +164,10 @@ export function renderEditMode(container) {
   function renderList() {
     renderComponentList(listContainer, getComponents(), {
       onEdit: openEditModalFor,
+      onClone: (component) => {
+        const clone = cloneComponent(component, getComponents());
+        insertComponentAfter(component, clone);
+      },
       onRemove: (component) => {
         removeComponent(component.id);
       },

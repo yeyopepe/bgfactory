@@ -59,6 +59,15 @@ export function replaceComponent(id, updatedComponent) {
   emit('components:changed', state.components);
 }
 
+// Inserta `newComponent` justo debajo de `component` en el orden de la lista, desplazando
+// en +1 al resto de componentes que estuvieran por debajo.
+export function insertComponentAfter(component, newComponent) {
+  newComponent.order = component.order + 0.5;
+  state.components.push(newComponent);
+  compactOrders(state.components);
+  emit('components:changed', state.components);
+}
+
 export function removeComponent(id) {
   state.components = state.components.filter((c) => c.id !== id);
   compactOrders(state.components);
