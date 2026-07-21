@@ -3,7 +3,6 @@
 // el propio documento (usada cuando aún no hay nada guardado en el navegador).
 
 import { CURRENT_VERSION } from '../data/version.js';
-import { isResourceInUse } from './resource.js';
 
 const STORAGE_KEY = 'errantes:state';
 
@@ -62,13 +61,13 @@ export function parseImportedComponents(raw) {
     return { error: true, detail: 'El fichero no contiene un listado de componentes válido.' };
   }
   const resources = Array.isArray(parsed.resources) ? parsed.resources : [];
-  return { components: parsed.components, resources };
+  const decks = Array.isArray(parsed.decks) ? parsed.decks : [];
+  return { components: parsed.components, resources, decks };
 }
 
-// JSON ligero con solo los componentes y los recursos que usan (a diferencia
+// JSON ligero con los componentes, todos los recursos y los mazos (a diferencia
 // de "Guardar", que exporta la app completa) — pensado para sobrevivir a
 // cambios de versión de la app, sin incluir la configuración del panel flotante.
-export function buildComponentsExport(components, resources) {
-  const usedResources = resources.filter((resource) => isResourceInUse(resource.id, components));
-  return { version: CURRENT_VERSION, components, resources: usedResources };
+export function buildComponentsExport(components, resources, decks) {
+  return { version: CURRENT_VERSION, components, resources, decks };
 }

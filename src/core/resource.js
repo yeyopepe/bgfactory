@@ -66,3 +66,34 @@ export function getComponentsUsingResource(resourceId, components) {
     .filter((component) => component.image === resourceId || collectDeepValues(component.properties ?? {}).includes(resourceId))
     .map((component) => component.id);
 }
+
+const RESOURCE_REF_KEYS = new Set(['imagenResourceId', 'fuenteResourceId']);
+
+// A diferencia de collectDeepValues (que recoge cualquier valor primitivo hoja,
+// usada para "¿se usa este id en algún sitio?"), aquí hace falta identificar
+// específicamente los campos que referencian un recurso (imagenResourceId/
+// fuenteResourceId en cualquier nivel, y el campo general `image`) para no dar
+// falsos positivos con cualquier otro string que coincida por casualidad.
+function collectResourceRefs(value, acc) {
+  if (Array.isArray(value)) {
+    for (const item of value) collectResourceRefs(item, acc);
+  } else if (value && typeof value === 'object') {
+    for (const [key, item] of Object.entries(value)) {
+      if (RESOURCE_REF_KEYS.has(key) && typeof item === 'string') acc.push(item);
+      else collectResourceRefs(item, acc);
+    }
+  }
+}
+
+// Ids de los componentes que referencian un recurso ausente de `resourceIds`
+// (p.ej. tras reemplazar por completo la galería al importar un fichero JSON).
+export function getComponentsWithMissingResources(components, resourceIds) {
+  const idSet = new Set(resourceIds);
+  return components
+    .filter((component) => {
+      const refs = component.image ? [component.image] : [];
+      collectResourceRefs(component.properties ?? {}, refs);
+      return refs.some((ref) => ref && !idSet.has(ref));
+    })
+    .map((component) => component.id);
+}

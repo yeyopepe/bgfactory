@@ -1,9 +1,11 @@
 // UI para entrar/salir del modo edición: botón de entrada en modo juego,
 // barra de herramientas propia (con botón de salida) en modo edición.
 
-import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, addResource, getDecks } from '../core/state.js';
+import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadDecks, getDecks } from '../core/state.js';
 import { buildExportHtml, downloadHtml, downloadJson } from '../core/fileExport.js';
 import { buildComponentsExport, parseImportedComponents } from '../core/persistence.js';
+import { getComponentsWithMissingResources } from '../core/resource.js';
+import { getComponentsWithMissingDeck } from '../core/deck.js';
 import { getComponentsBounds } from './componentRenderer.js';
 import { fitToBounds } from './table.js';
 import { showToast } from './toast.js';
@@ -21,7 +23,7 @@ function saveAs(filename) {
 }
 
 function exportComponentsAs(filename) {
-  const data = buildComponentsExport(getComponents(), getResources());
+  const data = buildComponentsExport(getComponents(), getResources(), getDecks());
   downloadJson(filename, data);
 }
 
@@ -33,13 +35,19 @@ function importComponentsFromFile(file) {
       showErrorModal('No se ha podido importar el fichero', 'El fichero seleccionado no contiene un listado de componentes válido.', result.detail);
       return;
     }
-    if (!confirm('Se reemplazarán todos los componentes actuales por los del fichero importado. ¿Continuar?')) return;
+    if (!confirm('Se reemplazarán todos los componentes, recursos y mazos actuales por los del fichero importado. ¿Continuar?')) return;
+
     loadComponents(result.components);
-    const existingResourceIds = new Set(getResources().map((r) => r.id));
-    for (const resource of result.resources) {
-      if (!existingResourceIds.has(resource.id)) {
-        addResource(resource);
-      }
+    loadResources(result.resources);
+    loadDecks(result.decks);
+
+    const missingResourceIds = getComponentsWithMissingResources(result.components, result.resources.map((r) => r.id));
+    const missingDeckIds = getComponentsWithMissingDeck(result.components, result.decks.map((d) => d.id));
+    if (missingResourceIds.length > 0 || missingDeckIds.length > 0) {
+      const parts = [];
+      if (missingResourceIds.length > 0) parts.push(`recursos no incluidos en el fichero (componentes: ${missingResourceIds.join(', ')})`);
+      if (missingDeckIds.length > 0) parts.push(`mazos no incluidos en el fichero (componentes: ${missingDeckIds.join(', ')})`);
+      showErrorModal('Importación con referencias incompletas', `La importación se ha completado, pero algunos componentes referencian ${parts.join(' y ')}.`, null);
     }
   };
   reader.readAsText(file);

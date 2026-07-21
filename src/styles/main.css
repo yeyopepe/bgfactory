@@ -818,10 +818,33 @@ input[type="radio"] {
   color: var(--text-muted);
 }
 
+.image-adjust-modal__primary-label {
+  font-size: 0.75rem;
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
 .image-adjust-modal__mask {
   position: relative;
   overflow: hidden;
   cursor: move;
+}
+
+.image-adjust-modal__mask--active {
+  border: 2px solid var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.25);
+}
+
+.image-adjust-modal__stage--secondary.image-adjust-modal__stage--clickable {
+  opacity: 0.85;
+}
+
+.image-adjust-modal__mask--clickable {
+  cursor: pointer;
+}
+
+.image-adjust-modal__mask--clickable:hover {
+  filter: brightness(1.05);
 }
 
 .image-adjust-modal__image {
@@ -831,6 +854,19 @@ input[type="radio"] {
   width: 100%;
   height: 100%;
   pointer-events: none;
+}
+
+.image-adjust-modal__zoom-value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.image-adjust-modal__zoom-value input[type="text"] {
+  width: 4rem;
+  text-align: center;
 }
 
 /* Card editor modal (00053) — editor de las dos caras de una carta a la vez */
@@ -873,6 +909,11 @@ input[type="radio"] {
   gap: 0.5rem;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+.card-editor-modal__adjust-image {
+  display: block;
+  margin: 1rem auto 0;
 }
 
 .card-editor-modal__textbox {

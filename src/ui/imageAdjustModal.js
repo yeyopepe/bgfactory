@@ -76,10 +76,18 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
 
   const mask = document.createElement('div');
   mask.className = 'image-adjust-modal__mask';
+  if (secondaryPreview) mask.classList.add('image-adjust-modal__mask--active');
   mask.style.width = `${maskWidth}px`;
   mask.style.height = `${maskHeight}px`;
   mask.style.borderRadius = shape === 'circular' ? '50%' : '0';
   stage.appendChild(mask);
+
+  if (secondaryPreview) {
+    const primaryLabel = document.createElement('span');
+    primaryLabel.className = 'image-adjust-modal__primary-label';
+    primaryLabel.textContent = 'Activa';
+    stage.appendChild(primaryLabel);
+  }
 
   const img = document.createElement('img');
   img.className = 'image-adjust-modal__image';
@@ -119,6 +127,18 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
       secondaryImg.draggable = false;
       secondaryMask.appendChild(secondaryImg);
       applyImageAdjustStyle(secondaryImg, secondaryPreview.adjustment);
+
+      if (secondaryPreview.onSelect) {
+        secondaryStage.classList.add('image-adjust-modal__stage--clickable');
+        secondaryMask.classList.add('image-adjust-modal__mask--clickable');
+        secondaryMask.style.cursor = 'pointer';
+        secondaryMask.addEventListener('click', () => {
+          document.removeEventListener('mousemove', handleMouseMove);
+          document.removeEventListener('mouseup', handleMouseUp);
+          overlay.remove();
+          secondaryPreview.onSelect({ zoom, posX, posY });
+        });
+      }
     }
   }
 
@@ -167,12 +187,42 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   zoomInput.min = 100;
   zoomInput.max = 300;
   zoomInput.value = zoom;
+
+  const zoomValue = document.createElement('div');
+  zoomValue.className = 'image-adjust-modal__zoom-value';
+  const zoomTextInput = document.createElement('input');
+  zoomTextInput.type = 'text';
+  zoomTextInput.value = zoom;
+  const zoomUnit = document.createElement('span');
+  zoomUnit.textContent = '%';
+  zoomValue.appendChild(zoomTextInput);
+  zoomValue.appendChild(zoomUnit);
+
   zoomInput.addEventListener('input', () => {
     zoom = parseInt(zoomInput.value, 10);
+    zoomTextInput.value = zoom;
     updatePreview();
   });
+
+  function commitZoomTextInput() {
+    const parsed = parseInt(zoomTextInput.value, 10);
+    if (Number.isNaN(parsed)) {
+      zoomTextInput.value = zoom;
+      return;
+    }
+    zoom = clamp(parsed, 100, 300);
+    zoomTextInput.value = zoom;
+    zoomInput.value = zoom;
+    updatePreview();
+  }
+  zoomTextInput.addEventListener('change', commitZoomTextInput);
+  zoomTextInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') zoomTextInput.blur();
+  });
+
   zoomField.appendChild(zoomLabel);
   zoomField.appendChild(zoomInput);
+  zoomField.appendChild(zoomValue);
   content.appendChild(zoomField);
 
   const cancelBtn = document.createElement('button');

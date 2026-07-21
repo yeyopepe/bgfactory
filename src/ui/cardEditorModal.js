@@ -76,14 +76,73 @@ export function openCardEditorModal({ component, onAccept }) {
   facesRow.className = 'card-editor-modal__faces';
   content.appendChild(facesRow);
 
+  const adjustImageBtn = document.createElement('button');
+  adjustImageBtn.type = 'button';
+  adjustImageBtn.className = 'btn-cancel card-editor-modal__adjust-image';
+  adjustImageBtn.textContent = 'Ajustar imagen…';
+  adjustImageBtn.addEventListener('click', () => openAdjustSession());
+  content.appendChild(adjustImageBtn);
+
   function renderFaces() {
     facesRow.innerHTML = '';
     facesRow.appendChild(renderFace('caraFrontal', 'Cara frontal'));
     facesRow.appendChild(renderFace('caraTrasera', 'Cara trasera'));
+    adjustImageBtn.disabled = !working.caraFrontal.imagenResourceId && !working.caraTrasera.imagenResourceId;
   }
 
   function otherCaraKey(caraKey) {
     return caraKey === 'caraFrontal' ? 'caraTrasera' : 'caraFrontal';
+  }
+
+  function openAdjustSession() {
+    const initialKey = working.caraFrontal.imagenResourceId
+      ? 'caraFrontal'
+      : working.caraTrasera.imagenResourceId
+        ? 'caraTrasera'
+        : null;
+    if (!initialKey) return;
+
+    const { width: designWidth, height: designHeight } = getDesignSize(working.proporcion);
+    const sessionAdjustments = {
+      caraFrontal: { ...working.caraFrontal.ajusteImagen },
+      caraTrasera: { ...working.caraTrasera.ajusteImagen },
+    };
+
+    function openForKey(activeKey) {
+      const otherKey = otherCaraKey(activeKey);
+      const activeResource = working[activeKey].imagenResourceId
+        ? getResources().find((r) => r.id === working[activeKey].imagenResourceId)
+        : null;
+      const otherResource = working[otherKey].imagenResourceId
+        ? getResources().find((r) => r.id === working[otherKey].imagenResourceId)
+        : null;
+      openImageAdjustModal({
+        shape: 'cuadrada',
+        width: designWidth,
+        height: designHeight,
+        resource: activeResource,
+        adjustment: sessionAdjustments[activeKey],
+        secondaryPreview: {
+          shape: 'cuadrada',
+          width: designWidth,
+          height: designHeight,
+          resource: otherResource,
+          adjustment: sessionAdjustments[otherKey],
+          onSelect: (currentAdjustment) => {
+            sessionAdjustments[activeKey] = currentAdjustment;
+            openForKey(otherKey);
+          },
+        },
+        onAccept: (adjustment) => {
+          sessionAdjustments[activeKey] = adjustment;
+          working.caraFrontal.ajusteImagen = sessionAdjustments.caraFrontal;
+          working.caraTrasera.ajusteImagen = sessionAdjustments.caraTrasera;
+          renderFaces();
+        },
+      });
+    }
+
+    openForKey(initialKey);
   }
 
   function renderFace(caraKey, label) {
@@ -145,38 +204,6 @@ export function openCardEditorModal({ component, onAccept }) {
       });
     });
     actionsRow.appendChild(chooseImageBtn);
-
-    const adjustImageBtn = document.createElement('button');
-    adjustImageBtn.type = 'button';
-    adjustImageBtn.className = 'btn-cancel';
-    adjustImageBtn.textContent = 'Ajustar imagen…';
-    adjustImageBtn.disabled = !resource;
-    adjustImageBtn.addEventListener('click', () => {
-      const currentResource = cara.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;
-      if (!currentResource) return;
-      const otherKey = otherCaraKey(caraKey);
-      const otherCara = working[otherKey];
-      const otherResource = otherCara.imagenResourceId ? getResources().find((r) => r.id === otherCara.imagenResourceId) : null;
-      openImageAdjustModal({
-        shape: 'cuadrada',
-        width: designWidth,
-        height: designHeight,
-        resource: currentResource,
-        adjustment: cara.ajusteImagen,
-        secondaryPreview: {
-          shape: 'cuadrada',
-          width: designWidth,
-          height: designHeight,
-          resource: otherResource,
-          adjustment: otherCara.ajusteImagen,
-        },
-        onAccept: (adjustment) => {
-          cara.ajusteImagen = adjustment;
-          renderFaces();
-        },
-      });
-    });
-    actionsRow.appendChild(adjustImageBtn);
 
     const addTextBoxBtn = document.createElement('button');
     addTextBoxBtn.type = 'button';

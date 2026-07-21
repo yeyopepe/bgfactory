@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-21T17:16:58Z",
+  "generatedAt": "2026-07-21T18:14:41Z",
   "basePath": "src",
   "nodes": [
     {
@@ -32,9 +32,10 @@
       "path": "core/deck.js",
       "exports": [
         "createDeck",
+        "getComponentsWithMissingDeck",
         "updateDeck"
       ],
-      "purpose": "Modelo mínimo de mazo (agrupación de cartas): creación y actualización."
+      "purpose": "Modelo mínimo de mazo (agrupación de cartas): creación, actualización, y detección de referencias a mazos ausentes tras un reemplazo completo (importación)."
     },
     {
       "id": "core/dice.js",
@@ -92,7 +93,7 @@
         "readSeedState",
         "saveState"
       ],
-      "purpose": "Persistencia del estado en localStorage (autoguardado) y lectura de la semilla embebida en el documento."
+      "purpose": "Persistencia del estado en localStorage (autoguardado), lectura de la semilla embebida en el documento, y construcción/parseo del JSON ligero de exportación/importación."
     },
     {
       "id": "core/resource.js",
@@ -102,11 +103,12 @@
         "RESOURCE_TYPES",
         "createResource",
         "getComponentsUsingResource",
+        "getComponentsWithMissingResources",
         "isResourceInUse",
         "resourceTypeForFileName",
         "updateResource"
       ],
-      "purpose": "Modelo genérico de recurso de la galería (imagen o tipografía) y comprobación de uso por componentes."
+      "purpose": "Modelo genérico de recurso de la galería (imagen o tipografía), comprobación de uso por componentes, y detección de referencias a recursos ausentes tras un reemplazo completo (importación)."
     },
     {
       "id": "core/sanitizeHtml.js",
@@ -219,7 +221,7 @@
       "exports": [
         "openCardEditorModal"
       ],
-      "purpose": "Editor de cartas: modal grande para diseñar las dos caras de una carta (imagen y cuadros de texto) a la vez."
+      "purpose": "Editor de cartas: modal grande para diseñar las dos caras de una carta (imagen y cuadros de texto) a la vez, con un único botón para ajustar la imagen de cualquiera de las dos caras mediante una sesión que permite alternar cuál está activa."
     },
     {
       "id": "ui/cardTextBoxModal.js",
@@ -299,7 +301,7 @@
         "renderEditToolbar",
         "renderModeSwitcher"
       ],
-      "purpose": "UI para entrar/salir del modo edición y acciones de guardar/exportar/importar/ajustar zoom."
+      "purpose": "UI para entrar/salir del modo edición y acciones de guardar/exportar/importar (reemplazo total de componentes, recursos y mazos, con aviso de referencias rotas)/ajustar zoom."
     },
     {
       "id": "ui/errorModal.js",
@@ -337,7 +339,7 @@
         "applyImageAdjustStyle",
         "openImageAdjustModal"
       ],
-      "purpose": "Editor reutilizable de ajuste de imagen (posición y zoom) sobre la forma de un componente, con vista secundaria opcional de otra cara."
+      "purpose": "Editor reutilizable de ajuste de imagen (posición y zoom, con cuadro de texto sincronizado) sobre la forma de un componente, con vista secundaria opcional de otra cara que puede hacerse clicable para cederle el rol de cara activa."
     },
     {
       "id": "ui/resizeHandle.js",
@@ -439,6 +441,13 @@
       "path": "core/deck.js",
       "parent": "core/deck.js",
       "purpose": "Crea un mazo nuevo con id y nombre."
+    },
+    {
+      "id": "core/deck.js#getComponentsWithMissingDeck",
+      "type": "function",
+      "path": "core/deck.js",
+      "parent": "core/deck.js",
+      "purpose": "Devuelve los ids de los componentes cuyo deckId referencia un mazo ausente de una lista de ids dada (p.ej. tras reemplazar los mazos al importar)."
     },
     {
       "id": "core/deck.js#updateDeck",
@@ -543,7 +552,7 @@
       "type": "function",
       "path": "core/persistence.js",
       "parent": "core/persistence.js",
-      "purpose": "Construye el JSON ligero de exportación de componentes junto con los recursos que usan."
+      "purpose": "Construye el JSON ligero de exportación con los componentes, toda la galería de recursos y los mazos."
     },
     {
       "id": "core/persistence.js#loadState",
@@ -557,7 +566,7 @@
       "type": "function",
       "path": "core/persistence.js",
       "parent": "core/persistence.js",
-      "purpose": "Valida y extrae componentes/recursos de un fichero JSON importado, tolerante a la versión."
+      "purpose": "Valida y extrae componentes, recursos y mazos de un fichero JSON importado, tolerante a la versión y a campos ausentes de formatos anteriores."
     },
     {
       "id": "core/persistence.js#readSeedState",
@@ -586,6 +595,13 @@
       "path": "core/resource.js",
       "parent": "core/resource.js",
       "purpose": "Devuelve los ids de los componentes que referencian un recurso dado, en cualquier nivel de sus properties."
+    },
+    {
+      "id": "core/resource.js#getComponentsWithMissingResources",
+      "type": "function",
+      "path": "core/resource.js",
+      "parent": "core/resource.js",
+      "purpose": "Devuelve los ids de los componentes que referencian un recurso ausente de una lista de ids dada (p.ej. tras reemplazar la galería al importar)."
     },
     {
       "id": "core/resource.js#isResourceInUse",
@@ -830,7 +846,7 @@
       "type": "function",
       "path": "ui/cardEditorModal.js",
       "parent": "ui/cardEditorModal.js",
-      "purpose": "Abre el editor de cartas sobre una copia de trabajo de las dos caras de la carta."
+      "purpose": "Abre el editor de cartas sobre una copia de trabajo de las dos caras de la carta; su botón único de ajuste de imagen orquesta una sesión local (sessionAdjustments) que permite intercambiar cuál cara está activa antes de guardar el ajuste final de ambas."
     },
     {
       "id": "ui/cardTextBoxModal.js#openCardTextBoxModal",
@@ -949,7 +965,7 @@
       "type": "function",
       "path": "ui/imageAdjustModal.js",
       "parent": "ui/imageAdjustModal.js",
-      "purpose": "Abre el editor de ajuste de imagen (posición y zoom), con vista secundaria opcional de solo lectura."
+      "purpose": "Abre el editor de ajuste de imagen (posición y zoom, con cuadro de texto sincronizado con el slider), con vista secundaria opcional de solo lectura que puede pasar a ser clicable (secondaryPreview.onSelect) para ceder el control de qué cara está activa a quien invoca el modal."
     },
     {
       "id": "ui/resizeHandle.js#attachResizeHandle",
@@ -1033,11 +1049,6 @@
     {
       "source": "core/eventBus.js#on",
       "target": "core/eventBus.js#off",
-      "relation": "calls"
-    },
-    {
-      "source": "core/persistence.js#buildComponentsExport",
-      "target": "core/resource.js#isResourceInUse",
       "relation": "calls"
     },
     {
@@ -1472,11 +1483,6 @@
     },
     {
       "source": "core/persistence.js",
-      "target": "core/resource.js",
-      "relation": "imports"
-    },
-    {
-      "source": "core/persistence.js",
       "target": "data/version.js",
       "relation": "imports"
     },
@@ -1772,12 +1778,22 @@
     },
     {
       "source": "ui/editModeToggle.js",
+      "target": "core/deck.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/editModeToggle.js",
       "target": "core/fileExport.js",
       "relation": "imports"
     },
     {
       "source": "ui/editModeToggle.js",
       "target": "core/persistence.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/editModeToggle.js",
+      "target": "core/resource.js",
       "relation": "imports"
     },
     {

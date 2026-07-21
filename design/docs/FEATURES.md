@@ -134,10 +134,10 @@ El tipo de fondo se elige entre tres opciones, cada una conservando su configura
 - **Texto**: un texto libre, siempre centrado vertical y horizontalmente, con el tamaño de letra ajustado automáticamente para caber dentro de la ficha (sin ningún control de tamaño manual).
 - **Imagen**: se elige una imagen entre las ya disponibles en el panel "Recursos" del modo edición (igual que en "tablero", sin ninguna función para subir imágenes nuevas desde aquí). Tras elegirla (o al cambiarla por otra), se abre automáticamente el editor reutilizable de ajuste de imagen, donde se puede mover y hacer zoom sobre la imagen para decidir cómo queda recortada dentro de la forma elegida (cuadrada o circular); este ajuste es propio de esa ficha y nunca modifica la imagen original, y se puede reabrir después en cualquier momento con el botón "Ajustar imagen…". Si se sustituye la imagen por otra, el ajuste se reinicia a sus valores por defecto (imagen centrada, con el zoom mínimo que cubre toda la forma).
 
-El editor de ajuste de imagen (mover/hacer zoom sobre una forma) es una funcionalidad reutilizable, no exclusiva de la ficha: pensada para que futuros tipos de componente con fondo de imagen puedan apoyarse en el mismo editor.
+El editor de ajuste de imagen (mover/hacer zoom sobre una forma) es una funcionalidad reutilizable, no exclusiva de la ficha: pensada para que futuros tipos de componente con fondo de imagen puedan apoyarse en el mismo editor. Debajo del deslizador de zoom hay un cuadro de texto con el valor numérico (100-300), sincronizado en ambos sentidos con el deslizador: mover el deslizador actualiza el número, y escribir un valor en el cuadro (confirmado con Intro o al salir del campo) mueve el deslizador y aplica el zoom; un valor fuera de rango se ajusta al mínimo o máximo permitido, y uno no numérico se descarta.
 
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Ficha" en la modal previa de tipo al pulsar "+ Añadir componente" (ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)).
-- **Código**: 00029, 00046, 00047.
+- **Código**: 00029, 00046, 00047, 00058.
 
 ### Componente "carta"
 
@@ -151,15 +151,17 @@ La modal de configuración de la carta incluye, además de "Bloqueado", tres cam
 
 **Editor de cartas**: una ventana modal amplia (más superficie de trabajo que el resto de modales de la app), disponible solo en modo edición, que muestra las dos caras a la vez, una junto a otra, permitiendo editar cada una por separado sin cambiar de vista. Incluye un desplegable para cambiar la proporción de la carta (cambiarla no borra los elementos ya añadidos a ninguna cara, aunque puede dejar alguno fuera del área visible si no se reposiciona a mano). Por cada cara, permite:
 
-- **Imagen de fondo**: una única imagen, elegida de la galería de recursos ya existente en la app (sin poder subir imágenes nuevas desde aquí, igual que en "tablero"/"ficha"). El ajuste de la imagen (mover/hacer zoom) reutiliza el mismo editor de ajuste de imagen ya existente en la app, pero mostrando además, de forma no interactiva, la otra cara de la misma carta, para poder cuadrar visualmente ambas caras a la vez.
+- **Imagen de fondo**: una única imagen, elegida de la galería de recursos ya existente en la app (sin poder subir imágenes nuevas desde aquí, igual que en "tablero"/"ficha"), con un botón "Elegir imagen…" propio de cada cara.
 - **Cuadros de texto**: se pueden añadir tantos como se quiera por cara, cada uno con su propio contenido, tipografía (de la misma galería de tipografías que usa "Dado"), tamaño y color. Se mueven y redimensionan arrastrando directamente sobre el lienzo de esa cara, con el mismo patrón de arrastre/redimensionado del resto de la app. Un doble click sobre un cuadro de texto abre una ventana para editar esos cuatro parámetros y el contenido, con un botón "Eliminar" propio para borrar ese cuadro de texto.
+
+Debajo de las dos caras hay un único botón "Ajustar imagen…" (no uno por cara), deshabilitado solo si ninguna de las dos tiene imagen elegida. Al pulsarlo se abre el editor de ajuste de imagen mostrando como activa la cara frontal (o la trasera, si la frontal no tiene imagen elegida), con la otra cara visible al lado en modo solo lectura bajo la etiqueta "Otra cara". La cara activa se distingue con un borde de acento y la etiqueta "Activa"; se puede pulsar sobre la otra cara, si tiene una imagen elegida, para que pase a ser ella la activa (intercambiando roles cuantas veces se quiera dentro de la misma sesión de ajuste), reconocible por el cursor de mano y un resaltado sutil al pasar el ratón por encima — si no tiene imagen elegida, no responde a click. Al aceptar se guarda el ajuste final de ambas caras, se hayan intercambiado o no durante la sesión; al cancelar se descartan los cambios de ajuste de las dos. El control de zoom de esta pantalla tiene, debajo del deslizador, un cuadro de texto con el valor numérico sincronizado en ambos sentidos (ver [Componente "ficha"](#componente-ficha) para el detalle, común a cualquier uso del editor de ajuste de imagen).
 
 El diseño de cada cara (imagen, su ajuste, y los cuadros de texto) se guarda como parte de esa carta en concreto — no hay plantillas compartidas entre cartas, cada una tiene su propio diseño independiente.
 
 **Convivencia con la galería de recursos**: al intentar borrar una imagen o tipografía de la galería que esté en uso por el diseño de alguna carta, se bloquea el borrado igual que ya ocurre con otros tipos, y el aviso indica además el identificador del componente (o los componentes) que lo está usando — esta identificación en el aviso de bloqueo aplica ahora a cualquier tipo de componente, no solo a "carta".
 
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Carta" en la modal previa de tipo al pulsar "+ Añadir componente" (ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)); volteo de cara solo en modo juego; editor de cartas y gestión de mazos solo en modo edición.
-- **Código**: 00053.
+- **Código**: 00053, 00058.
 
 ### Identificación de componentes al pasar el ratón
 
@@ -192,13 +194,13 @@ En modo edición, junto al botón de salir de ese modo (ambos alineados al extre
 
 ### Exportar/importar componentes en JSON
 
-Junto a "Guardar", dos botones "Exportar" e "Importar" permiten guardar y recuperar únicamente los datos de los componentes (y los recursos que usan), en un fichero JSON ligero pensado para sobrevivir a cambios de versión de la aplicación — a diferencia de "Guardar", que fija una copia completa a la versión en la que se generó.
+Junto a "Guardar", dos botones "Exportar" e "Importar" permiten guardar y recuperar todos los elementos del juego y todos los recursos en un fichero JSON ligero pensado para sobrevivir a cambios de versión de la aplicación — a diferencia de "Guardar", que fija una copia completa a la versión en la que se generó.
 
-- **Exportar**: pide el nombre de fichero (mismo patrón que "Guardar") y descarga un JSON con los componentes actuales, los recursos (imágenes/tipografías) que esos componentes referencian, y la versión de la aplicación con la que se generó. No incluye la configuración del panel flotante de edición.
-- **Importar**: abre un selector de fichero limitado a `.json`. A diferencia del guardado automático del navegador, un fichero de una versión distinta a la actual se acepta igualmente — es el caso de uso principal. Si el fichero no es válido (vacío, JSON corrupto, o sin listado de componentes reconocible), se muestra el error con el [modal de error común](#notificación-de-errores). Si es válido, se pide confirmación antes de reemplazar por completo los componentes actuales (no se fusionan) por los del fichero; los recursos del fichero que no existan ya en la app (por id) se añaden a la galería.
+- **Exportar**: pide el nombre de fichero (mismo patrón que "Guardar") y descarga un JSON con los componentes actuales, toda la galería de recursos (imágenes/tipografías, estén o no en uso por algún componente en ese momento), los mazos existentes, y la versión de la aplicación con la que se generó. No incluye la configuración del panel flotante de edición.
+- **Importar**: abre un selector de fichero limitado a `.json`. A diferencia del guardado automático del navegador, un fichero de una versión distinta a la actual se acepta igualmente — es el caso de uso principal; un fichero exportado antes de esta funcionalidad (sin mazos, o con solo el subconjunto de recursos que estaban en uso en su momento) también se acepta igual, importando lo que traiga. Si el fichero no es válido (vacío, JSON corrupto, o sin listado de componentes reconocible), se muestra el error con el [modal de error común](#notificación-de-errores). Si es válido, se pide confirmación explícita de que se van a reemplazar por completo los componentes, los recursos y los mazos actuales (no se fusiona nada) por el contenido del fichero — lo que ya existía en la app y no está en el fichero desaparece tras importar. Si, tras importar, algún componente queda con una referencia que no se pudo resolver dentro del propio fichero (un recurso o un mazo que no vino incluido), la importación se completa igualmente con lo disponible y se muestra un aviso no bloqueante (mismo [modal de error común](#notificación-de-errores)) indicando qué componentes quedan con esa referencia incompleta.
 
 - **Disponible en**: modo edición.
-- **Código**: 00024.
+- **Código**: 00024, 00059.
 
 ## Notificación de errores
 
