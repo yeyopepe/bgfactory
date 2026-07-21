@@ -1,0 +1,261 @@
+<title>Maqueta — Filtro en la ventana de componentes</title>
+<style>
+  :root {
+    --bg-toolbar: #333333;
+    --bg-card: #f5f5f5;
+    --accent-blue: #2c7dd8;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --error: #d32f2f;
+  }
+
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #dfe3e6;
+    padding: 2rem;
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .caption {
+    font-size: 0.8rem;
+    color: #444;
+    margin: 0 0 0.5rem;
+    font-weight: 600;
+  }
+
+  .component-panel-container {
+    width: 340px;
+  }
+
+  .component-panel {
+    width: 100%;
+    background: var(--bg-card);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .component-panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: var(--bg-toolbar);
+    color: var(--text-light);
+    user-select: none;
+  }
+
+  .component-panel__header button {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  /* --- Elemento nuevo: cuadro de filtro --- */
+  .component-panel__filter {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #ddd;
+    background: var(--bg-card);
+  }
+
+  .component-panel__filter input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.875rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #fff;
+    color: #222;
+  }
+
+  .component-panel__filter input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .component-panel__filter input:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+  }
+
+  .component-panel__body {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .component-panel__footer {
+    padding: 0.5rem 1rem;
+    border-top: 1px solid #ddd;
+  }
+
+  .component-panel__footer button {
+    width: 100%;
+    padding: 0.5rem;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .component-list {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .component-list th {
+    padding: 0.5rem;
+    text-align: left;
+    font-weight: 500;
+    background: #f0f0f0;
+  }
+
+  .component-list td {
+    padding: 0.5rem;
+    border-top: 1px solid #ddd;
+  }
+
+  .component-list__order-cell input {
+    width: 2.5rem;
+    padding: 0.2rem;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  }
+
+  .component-list__actions-cell {
+    white-space: nowrap;
+  }
+
+  .component-list__action-btn {
+    padding: 0.25rem 0.5rem;
+    margin-right: 0.25rem;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    border: none;
+    border-radius: 3px;
+    font-size: 0.75rem;
+  }
+
+  .component-list__action-btn--danger {
+    background: var(--error);
+  }
+
+  mark {
+    background: #fff2a8;
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+
+  .component-list__empty-filter {
+    padding: 1.5rem 1rem;
+    text-align: center;
+    color: var(--text-muted);
+  }
+</style>
+
+<div class="component-panel-container">
+  <p class="caption">1. Estado inicial (filtro vacío → se ven todos los componentes)</p>
+  <div class="component-panel">
+    <div class="component-panel__header">
+      <span>Componentes</span>
+      <button aria-label="Colapsar">&#9650;</button>
+    </div>
+    <div class="component-panel__filter">
+      <input type="text" placeholder="Filtrar componentes…" value="" />
+    </div>
+    <div class="component-panel__body">
+      <table class="component-list">
+        <thead>
+          <tr><th>Orden</th><th>Id</th><th>Tipo</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="component-list__order-cell"><input type="number" value="1" /></td><td>tablero-principal</td><td>tablero</td><td class="component-list__actions-cell"><button class="component-list__action-btn">Editar</button><button class="component-list__action-btn">Clonar</button><button class="component-list__action-btn component-list__action-btn--danger">Eliminar</button></td></tr>
+          <tr><td class="component-list__order-cell"><input type="number" value="2" /></td><td>ficha-heroe-1</td><td>ficha</td><td class="component-list__actions-cell"><button class="component-list__action-btn">Editar</button><button class="component-list__action-btn">Clonar</button><button class="component-list__action-btn component-list__action-btn--danger">Eliminar</button></td></tr>
+          <tr><td class="component-list__order-cell"><input type="number" value="3" /></td><td>dado-combate</td><td>dado</td><td class="component-list__actions-cell"><button class="component-list__action-btn">Editar</button><button class="component-list__action-btn">Clonar</button><button class="component-list__action-btn component-list__action-btn--danger">Eliminar</button></td></tr>
+          <tr><td class="component-list__order-cell"><input type="number" value="4" /></td><td>texto-titulo</td><td>texto</td><td class="component-list__actions-cell"><button class="component-list__action-btn">Editar</button><button class="component-list__action-btn">Clonar</button><button class="component-list__action-btn component-list__action-btn--danger">Eliminar</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="component-panel__footer">
+      <button>+ Añadir componente</button>
+    </div>
+  </div>
+</div>
+
+<div class="component-panel-container">
+  <p class="caption">2. Filtrando por id ("ficha") → coincide por id</p>
+  <div class="component-panel">
+    <div class="component-panel__header">
+      <span>Componentes</span>
+      <button aria-label="Colapsar">&#9650;</button>
+    </div>
+    <div class="component-panel__filter">
+      <input type="text" placeholder="Filtrar componentes…" value="ficha" />
+    </div>
+    <div class="component-panel__body">
+      <table class="component-list">
+        <thead>
+          <tr><th>Orden</th><th>Id</th><th>Tipo</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="component-list__order-cell"><input type="number" value="2" /></td><td><mark>ficha</mark>-heroe-1</td><td>ficha</td><td class="component-list__actions-cell"><button class="component-list__action-btn">Editar</button><button class="component-list__action-btn">Clonar</button><button class="component-list__action-btn component-list__action-btn--danger">Eliminar</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="component-panel__footer">
+      <button>+ Añadir componente</button>
+    </div>
+  </div>
+</div>
+
+<div class="component-panel-container">
+  <p class="caption">3. Filtrando por tipo ("dado") → coincide por tipo</p>
+  <div class="component-panel">
+    <div class="component-panel__header">
+      <span>Componentes</span>
+      <button aria-label="Colapsar">&#9650;</button>
+    </div>
+    <div class="component-panel__filter">
+      <input type="text" placeholder="Filtrar componentes…" value="dado" />
+    </div>
+    <div class="component-panel__body">
+      <table class="component-list">
+        <thead>
+          <tr><th>Orden</th><th>Id</th><th>Tipo</th><th>Acciones</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="component-list__order-cell"><input type="number" value="3" /></td><td>dado-combate</td><td><mark>dado</mark></td><td class="component-list__actions-cell"><button class="component-list__action-btn">Editar</button><button class="component-list__action-btn">Clonar</button><button class="component-list__action-btn component-list__action-btn--danger">Eliminar</button></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="component-panel__footer">
+      <button>+ Añadir componente</button>
+    </div>
+  </div>
+</div>
+
+<div class="component-panel-container">
+  <p class="caption">4. Sin coincidencias ("xyz")</p>
+  <div class="component-panel">
+    <div class="component-panel__header">
+      <span>Componentes</span>
+      <button aria-label="Colapsar">&#9650;</button>
+    </div>
+    <div class="component-panel__filter">
+      <input type="text" placeholder="Filtrar componentes…" value="xyz" />
+    </div>
+    <div class="component-panel__body">
+      <div class="component-list__empty-filter">No hay componentes que coincidan con "xyz".</div>
+    </div>
+    <div class="component-panel__footer">
+      <button>+ Añadir componente</button>
+    </div>
+  </div>
+</div>

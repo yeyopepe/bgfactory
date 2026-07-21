@@ -164,6 +164,12 @@ h1 {
   padding: 1rem;
 }
 
+.component-list__empty-filter {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1rem;
+}
+
 .component-list th {
   padding: 0.5rem;
   text-align: left;
@@ -929,6 +935,26 @@ input[type="radio"] {
   color: inherit;
   font-size: 1rem;
   cursor: pointer;
+}
+
+.component-panel__filter {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.component-panel__filter input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+.component-panel__filter input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent-blue);
 }
 
 .component-panel__body {
