@@ -6,7 +6,7 @@
 
 import { RESOURCE_TYPES } from '../core/resource.js';
 
-export function openBoardImageModal({ properties, resources, onAccept }) {
+export function openBoardImageModal({ properties, resources, onAccept, title = 'Configurar fondo — Imagen' }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -15,7 +15,7 @@ export function openBoardImageModal({ properties, resources, onAccept }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Configurar fondo — Imagen';
+  header.textContent = title;
   modal.appendChild(header);
 
   const content = document.createElement('div');

@@ -211,9 +211,9 @@ export function renderEditMode(container) {
     });
   }
 
+  container.appendChild(layout);
+
   renderTable();
   renderList();
   renderResourcePanel();
-
-  container.appendChild(layout);
 }

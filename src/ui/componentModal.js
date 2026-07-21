@@ -7,12 +7,14 @@ import { createHelpIcon } from './helpIcon.js';
 import { openBoardPatternModal } from './boardPatternModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
 import { openDiceFontModal } from './diceFontModal.js';
+import { openImageAdjustModal } from './imageAdjustModal.js';
 import { isListaValoresValida, esResultadoValido, getResultadoInicial } from '../core/dice.js';
 
 const DEFAULT_BOARD_SIZE = 200;
 const DEFAULT_DADO_SIZE = 100;
 const DEFAULT_DOCUMENTO_WIDTH = 240;
 const DEFAULT_DOCUMENTO_HEIGHT = 320;
+const DEFAULT_FICHA_SIZE = 60;
 
 export const DEFAULT_BOARD_PROPERTIES = {
   bordeColor: '#000000',
@@ -42,6 +44,17 @@ export const DEFAULT_DOCUMENTO_PROPERTIES = {
   url: '',
 };
 
+export const DEFAULT_FICHA_PROPERTIES = {
+  forma: 'circular',
+  bordeColor: '#000000',
+  bordeGrosor: 2,
+  fondoTipo: 'color',
+  colorFondo: '',
+  texto: '',
+  imagenResourceId: null,
+  ajusteImagen: { zoom: 100, posX: 50, posY: 50 },
+};
+
 // Crea un componente nuevo ya con los valores por defecto de su tipo (tamaño y
 // properties), para el flujo de alta: elegir tipo (ui/componentTypeModal.js) →
 // crear con defaults → abrir esta modal para configurarlo.
@@ -59,6 +72,11 @@ export function createDefaultComponent(type) {
     component.width = DEFAULT_DOCUMENTO_WIDTH;
     component.height = DEFAULT_DOCUMENTO_HEIGHT;
     component.properties = { ...DEFAULT_DOCUMENTO_PROPERTIES };
+  } else if (type === 'ficha') {
+    component.width = DEFAULT_FICHA_SIZE;
+    component.height = DEFAULT_FICHA_SIZE;
+    component.bloqueado = false;
+    component.properties = { ...DEFAULT_FICHA_PROPERTIES, ajusteImagen: { ...DEFAULT_FICHA_PROPERTIES.ajusteImagen } };
   }
   return component;
 }
@@ -321,6 +339,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       renderDadoSpecificFields(specificContent);
     } else if (workingComponent.type === 'documento') {
       renderDocumentoSpecificFields(specificContent);
+    } else if (workingComponent.type === 'ficha') {
+      renderFichaSpecificFields(specificContent);
     } else {
       const empty = document.createElement('p');
       empty.textContent = 'Sin propiedades específicas';
@@ -679,6 +699,236 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     tipoSelect.addEventListener('change', () => {
       props.tipoContenido = tipoSelect.value;
       updateTipoFieldsVisibility();
+    });
+  }
+
+  function renderFichaSpecificFields(container) {
+    const props = workingComponent.properties;
+
+    // Forma
+    const shapeField = document.createElement('div');
+    shapeField.className = 'modal__field';
+    const shapeLabel = document.createElement('label');
+    shapeLabel.textContent = 'Forma';
+    const shapeSelect = document.createElement('select');
+    const shapeOptions = [
+      { value: 'cuadrada', label: 'Cuadrada' },
+      { value: 'circular', label: 'Circular' },
+    ];
+    for (const { value, label } of shapeOptions) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      if (value === (props.forma || DEFAULT_FICHA_PROPERTIES.forma)) option.selected = true;
+      shapeSelect.appendChild(option);
+    }
+    shapeSelect.addEventListener('change', () => {
+      props.forma = shapeSelect.value;
+    });
+    shapeField.appendChild(shapeLabel);
+    shapeField.appendChild(shapeSelect);
+    container.appendChild(shapeField);
+
+    // Fondo: color / texto / imagen (excluyentes, cada uno conserva su configuración)
+    const bgTypeField = document.createElement('div');
+    bgTypeField.className = 'modal__field';
+    const bgTypeLabel = document.createElement('label');
+    bgTypeLabel.textContent = 'Fondo';
+    const bgTypeSelect = document.createElement('select');
+    const bgTypeOptions = [
+      { value: 'color', label: 'Color sólido' },
+      { value: 'texto', label: 'Texto' },
+      { value: 'imagen', label: 'Imagen' },
+    ];
+    for (const { value, label } of bgTypeOptions) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      if (value === (props.fondoTipo || DEFAULT_FICHA_PROPERTIES.fondoTipo)) option.selected = true;
+      bgTypeSelect.appendChild(option);
+    }
+    bgTypeField.appendChild(bgTypeLabel);
+    bgTypeField.appendChild(bgTypeSelect);
+    container.appendChild(bgTypeField);
+
+    // Color de fondo: siempre visible y aplicado sea cual sea el tipo de fondo
+    // elegido (detrás del texto o de la imagen). Vacío = transparente (por defecto).
+    const bgColorField = document.createElement('div');
+    bgColorField.className = 'modal__field';
+    const bgColorLabel = document.createElement('label');
+    bgColorLabel.textContent = 'Color de fondo';
+    const bgColorContainer = document.createElement('div');
+    bgColorContainer.style.display = 'flex';
+    bgColorContainer.style.gap = '0.5rem';
+    bgColorContainer.style.alignItems = 'center';
+
+    const bgColorInput = document.createElement('input');
+    bgColorInput.type = 'color';
+    bgColorInput.value = props.colorFondo || '#ffffff';
+
+    const bgTransparentCheckbox = document.createElement('input');
+    bgTransparentCheckbox.type = 'checkbox';
+    bgTransparentCheckbox.checked = !props.colorFondo;
+
+    const bgTransparentLabel = document.createElement('label');
+    bgTransparentLabel.textContent = 'Transparente';
+    bgTransparentLabel.style.margin = 0;
+
+    bgColorInput.disabled = bgTransparentCheckbox.checked;
+
+    bgTransparentCheckbox.addEventListener('change', () => {
+      bgColorInput.disabled = bgTransparentCheckbox.checked;
+      props.colorFondo = bgTransparentCheckbox.checked ? '' : bgColorInput.value;
+    });
+
+    bgColorInput.addEventListener('input', () => {
+      props.colorFondo = bgColorInput.value;
+    });
+
+    bgColorContainer.appendChild(bgColorInput);
+    bgColorContainer.appendChild(bgTransparentCheckbox);
+    bgColorContainer.appendChild(bgTransparentLabel);
+    bgColorField.appendChild(bgColorLabel);
+    bgColorField.appendChild(bgColorContainer);
+    container.appendChild(bgColorField);
+
+    // Borde: color y grosor juntos en la misma fila (a diferencia del tablero, 0 es válido = sin borde)
+    const borderRow = document.createElement('div');
+    borderRow.className = 'modal__field';
+    const borderRowInner = document.createElement('div');
+    borderRowInner.style.display = 'flex';
+    borderRowInner.style.gap = '0.5rem';
+
+    const borderColorField = document.createElement('div');
+    borderColorField.style.flex = '1';
+    const borderColorLabel = document.createElement('label');
+    borderColorLabel.textContent = 'Color del borde';
+    const borderColorInput = document.createElement('input');
+    borderColorInput.type = 'color';
+    borderColorInput.value = props.bordeColor || DEFAULT_FICHA_PROPERTIES.bordeColor;
+    borderColorInput.addEventListener('input', () => {
+      props.bordeColor = borderColorInput.value;
+    });
+    borderColorField.appendChild(borderColorLabel);
+    borderColorField.appendChild(borderColorInput);
+
+    const borderWidthField = document.createElement('div');
+    borderWidthField.style.flex = '1';
+    const borderWidthLabel = document.createElement('label');
+    borderWidthLabel.textContent = 'Grosor del borde (px, 0 = sin borde)';
+    const borderWidthInput = document.createElement('input');
+    borderWidthInput.type = 'number';
+    borderWidthInput.min = 0;
+    borderWidthInput.max = 20;
+    borderWidthInput.value = props.bordeGrosor ?? DEFAULT_FICHA_PROPERTIES.bordeGrosor;
+    borderWidthInput.addEventListener('input', () => {
+      const parsed = parseInt(borderWidthInput.value, 10);
+      props.bordeGrosor = Number.isNaN(parsed) ? DEFAULT_FICHA_PROPERTIES.bordeGrosor : Math.min(Math.max(parsed, 0), 20);
+    });
+    borderWidthField.appendChild(borderWidthLabel);
+    borderWidthField.appendChild(borderWidthInput);
+
+    borderRowInner.appendChild(borderColorField);
+    borderRowInner.appendChild(borderWidthField);
+    borderRow.appendChild(borderRowInner);
+    container.appendChild(borderRow);
+
+    // Bloque "Texto" (tamaño de fuente siempre automático, sin campo manual)
+    const textBlock = document.createElement('div');
+    const textField = document.createElement('div');
+    textField.className = 'modal__field';
+    const textLabel = document.createElement('label');
+    textLabel.textContent = 'Texto';
+    const textInput = document.createElement('textarea');
+    textInput.rows = 2;
+    textInput.value = props.texto || '';
+    textInput.addEventListener('input', () => {
+      props.texto = textInput.value;
+    });
+    textField.appendChild(textLabel);
+    textField.appendChild(textInput);
+    textBlock.appendChild(textField);
+    container.appendChild(textBlock);
+
+    // Bloque "Imagen"
+    const imageBlock = document.createElement('div');
+    const imageField = document.createElement('div');
+    imageField.className = 'modal__field';
+    const imageLabel = document.createElement('label');
+    imageLabel.textContent = 'Imagen';
+    const imageRow = document.createElement('div');
+    imageRow.style.display = 'flex';
+    imageRow.style.gap = '0.5rem';
+    imageRow.style.alignItems = 'center';
+
+    const chooseImageBtn = document.createElement('button');
+    chooseImageBtn.type = 'button';
+    chooseImageBtn.className = 'btn-cancel';
+    chooseImageBtn.textContent = 'Elegir imagen';
+
+    const adjustImageBtn = document.createElement('button');
+    adjustImageBtn.type = 'button';
+    adjustImageBtn.className = 'btn-cancel';
+    adjustImageBtn.textContent = 'Ajustar imagen…';
+
+    function currentImageResource() {
+      return getResources().find((r) => r.id === props.imagenResourceId) || null;
+    }
+
+    function updateAdjustButtonState() {
+      adjustImageBtn.disabled = !currentImageResource();
+    }
+
+    function openAdjustModal() {
+      const resource = currentImageResource();
+      if (!resource) return;
+      openImageAdjustModal({
+        shape: props.forma || DEFAULT_FICHA_PROPERTIES.forma,
+        width: workingComponent.width || DEFAULT_FICHA_SIZE,
+        height: workingComponent.height || DEFAULT_FICHA_SIZE,
+        resource,
+        adjustment: props.ajusteImagen || DEFAULT_FICHA_PROPERTIES.ajusteImagen,
+        onAccept: (adjustment) => {
+          props.ajusteImagen = adjustment;
+        },
+      });
+    }
+
+    chooseImageBtn.addEventListener('click', () => {
+      openBoardImageModal({
+        properties: props,
+        resources: getResources(),
+        title: 'Elegir imagen',
+        onAccept: (resourceId) => {
+          props.imagenResourceId = resourceId;
+          props.ajusteImagen = { ...DEFAULT_FICHA_PROPERTIES.ajusteImagen };
+          updateAdjustButtonState();
+          openAdjustModal();
+        },
+      });
+    });
+
+    adjustImageBtn.addEventListener('click', openAdjustModal);
+
+    updateAdjustButtonState();
+
+    imageRow.appendChild(chooseImageBtn);
+    imageRow.appendChild(adjustImageBtn);
+    imageField.appendChild(imageLabel);
+    imageField.appendChild(imageRow);
+    imageBlock.appendChild(imageField);
+    container.appendChild(imageBlock);
+
+    function updateBgFieldsVisibility() {
+      const tipo = props.fondoTipo || DEFAULT_FICHA_PROPERTIES.fondoTipo;
+      textBlock.style.display = tipo === 'texto' ? '' : 'none';
+      imageBlock.style.display = tipo === 'imagen' ? '' : 'none';
+    }
+    updateBgFieldsVisibility();
+
+    bgTypeSelect.addEventListener('change', () => {
+      props.fondoTipo = bgTypeSelect.value;
+      updateBgFieldsVisibility();
     });
   }
 

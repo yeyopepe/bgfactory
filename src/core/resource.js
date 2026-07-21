@@ -22,9 +22,9 @@ export function resourceTypeForFileName(fileName) {
   return EXTENSION_TYPE_MAP[ext] ?? null;
 }
 
-export function createResource({ name = '', type, dataUrl, fileName = '', mimeType = '' } = {}) {
+export function createResource({ id, name = '', type, dataUrl, fileName = '', mimeType = '' } = {}) {
   return {
-    id: crypto.randomUUID(),
+    id: id || crypto.randomUUID(),
     name,
     type,
     dataUrl,
