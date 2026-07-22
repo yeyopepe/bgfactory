@@ -117,15 +117,15 @@
     border: 2px solid #2c3e50;
   }
 
-  /* Sombra elevada: sigue siendo la silueta exacta del elemento (mismo box-shadow, sin ningún
-     offset en X/Y — en cenital no hay ángulo de cámara que la desplace a un lado), pero con
-     más difuminado y expansión ("spread"), de forma que asoma como un marco/halo alrededor de
-     todo el contorno del elemento, no como una mancha aparte debajo. Eso es lo que transmite
-     que se ha separado de la mesa, sin implicar ningún desplazamiento lateral. */
+  /* Sombra elevada: sigue siendo la silueta exacta del elemento (box-shadow respeta su forma),
+     con más difuminado y expansión ("spread") para asomar como un marco/halo alrededor de todo
+     su contorno — y un pequeño offset en diagonal (abajo-derecha) sobre ese mismo marco, para
+     insinuar levemente una dirección de luz sin llegar a separarse del elemento como una
+     mancha aparte. */
   .component-slot.lifted .ficha,
   .component-slot.lifted .carta {
     transform: translateY(-8px);
-    box-shadow: 0 0 10px 4px rgba(0,0,0,0.35);
+    box-shadow: 3px 4px 8px 2px rgba(0,0,0,0.35);
   }
 
   .footnote {
@@ -142,10 +142,10 @@
   <h1>Efecto "levantar" al arrastrar un componente en Modo Juego</h1>
   <div class="page-caption">
     Comparación entre el aspecto normal (apoyado en la mesa) y el aspecto durante el arrastre.
-    Al ser una vista cenital, la sombra no se desplaza a ningún lado: sigue exactamente la
-    silueta del elemento (círculo en la ficha, rectángulo redondeado en la carta) justo debajo
-    de él, sin ningún offset lateral. Lo que transmite la elevación es que esa sombra crece y
-    se difumina más, asomando como un marco/halo alrededor de todo su contorno. El cambio es
+    Al ser una vista cenital, la sombra sigue la silueta exacta del elemento (círculo en la
+    ficha, rectángulo redondeado en la carta), asomando como un marco/halo alrededor de todo su
+    contorno — con un pequeño offset en diagonal (abajo-derecha) que insinúa levemente una
+    dirección de luz, sin llegar a separarse del elemento como una mancha aparte. El cambio es
     instantáneo al empezar/terminar el arrastre, sin transición animada.
   </div>
 
