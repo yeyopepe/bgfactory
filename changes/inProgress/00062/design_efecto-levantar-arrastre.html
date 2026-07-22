@@ -106,19 +106,16 @@
     transform: translate(-50%, 0);
   }
 
-  /* Sombra elevada: en vista cenital, un elemento que se separa de la mesa hacia el jugador
-     no solo agranda su sombra — la sombra queda proyectada con un desplazamiento (aquí,
-     abajo-derecha, simulando una luz cenital ligeramente angulada) respecto a la posición del
-     elemento, que a su vez se desplaza en la dirección contraria (arriba-izquierda). Esa
-     separación diagonal entre elemento y sombra es la que vende la sensación de altura al
-     mirar desde arriba — una sombra perfectamente centrada debajo, por muy grande o difusa
-     que sea, se leería como un simple halo, no como profundidad. */
+  /* Sombra elevada: sigue prácticamente debajo del elemento (vista cenital, no hay un ángulo
+     de cámara que la desplace lejos) — solo un leve offset respecto al centro, apenas
+     perceptible, para no leerse como un simple halo perfectamente simétrico. La sensación de
+     altura la da sobre todo que crece y se difumina más que la sombra de contacto en reposo. */
   .component-slot.lifted::before {
-    bottom: -2px;
-    width: 78%;
-    height: 22px;
-    background: radial-gradient(closest-side, rgba(0,0,0,0.38), rgba(0,0,0,0) 100%);
-    transform: translate(calc(-50% + 9px), 6px);
+    bottom: 0px;
+    width: 76%;
+    height: 18px;
+    background: radial-gradient(closest-side, rgba(0,0,0,0.32), rgba(0,0,0,0) 100%);
+    transform: translate(calc(-50% + 3px), 2px);
   }
 
   .ficha, .carta {
@@ -144,7 +141,7 @@
 
   .component-slot.lifted .ficha,
   .component-slot.lifted .carta {
-    transform: translate(-5px, -10px);
+    transform: translateY(-8px);
   }
 
   .footnote {
@@ -161,11 +158,11 @@
   <h1>Efecto "levantar" al arrastrar un componente en Modo Juego</h1>
   <div class="page-caption">
     Comparación entre el aspecto normal (apoyado en la mesa) y el aspecto durante el arrastre.
-    Al ser una vista cenital, el efecto de elevación no es solo "sombra más grande y difusa":
-    la sombra queda proyectada con un desplazamiento respecto al elemento (aquí, abajo-derecha),
-    mientras el propio elemento se desplaza en la dirección contraria (arriba-izquierda) — esa
-    separación diagonal es la que transmite altura al mirar desde arriba. El cambio es
-    instantáneo al empezar/terminar el arrastre, sin transición animada.
+    Al ser una vista cenital, la sombra se mantiene prácticamente debajo del elemento (no hay
+    ángulo de cámara que la desplace lejos) — solo con un leve offset respecto al centro, y
+    creciendo/difuminándose más que la sombra de contacto en reposo, que es lo que transmite
+    la elevación. El cambio es instantáneo al empezar/terminar el arrastre, sin transición
+    animada.
   </div>
 
   <div class="stage">
