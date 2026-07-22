@@ -92,35 +92,13 @@
     justify-content: center;
   }
 
-  /* Sombra de contacto normal (apoyado): tenue, centrada y muy pegada al elemento — al estar
-     apoyado en la mesa, no hay separación entre el elemento y su sombra de contacto. */
-  .component-slot::before {
-    content: "";
-    position: absolute;
-    left: 50%;
-    bottom: 6px;
-    width: 70%;
-    height: 10px;
-    background: radial-gradient(closest-side, rgba(0,0,0,0.18), rgba(0,0,0,0) 100%);
-    border-radius: 50%;
-    transform: translate(-50%, 0);
-  }
-
-  /* Sombra elevada: sigue prácticamente debajo del elemento (vista cenital, no hay un ángulo
-     de cámara que la desplace lejos) — solo un leve offset respecto al centro, apenas
-     perceptible, para no leerse como un simple halo perfectamente simétrico. La sensación de
-     altura la da sobre todo que crece y se difumina más que la sombra de contacto en reposo. */
-  .component-slot.lifted::before {
-    bottom: 0px;
-    width: 76%;
-    height: 18px;
-    background: radial-gradient(closest-side, rgba(0,0,0,0.32), rgba(0,0,0,0) 100%);
-    transform: translate(calc(-50% + 3px), 2px);
-  }
-
   .ficha, .carta {
     position: relative;
     z-index: 1;
+    /* Sombra de contacto en reposo: un halo que sigue exactamente la silueta del propio
+       elemento (box-shadow respeta su border-radius), sin ningún desplazamiento — vista
+       cenital pura, la sombra de un elemento apoyado queda justo debajo, tapada por él. */
+    box-shadow: 0 0 3px 0px rgba(0,0,0,0.18);
   }
 
   .ficha {
@@ -139,9 +117,15 @@
     border: 2px solid #2c3e50;
   }
 
+  /* Sombra elevada: sigue siendo la silueta exacta del elemento (mismo box-shadow, sin ningún
+     offset en X/Y — en cenital no hay ángulo de cámara que la desplace a un lado), pero con
+     más difuminado y expansión ("spread"), de forma que asoma como un marco/halo alrededor de
+     todo el contorno del elemento, no como una mancha aparte debajo. Eso es lo que transmite
+     que se ha separado de la mesa, sin implicar ningún desplazamiento lateral. */
   .component-slot.lifted .ficha,
   .component-slot.lifted .carta {
     transform: translateY(-8px);
+    box-shadow: 0 0 10px 4px rgba(0,0,0,0.35);
   }
 
   .footnote {
@@ -158,11 +142,11 @@
   <h1>Efecto "levantar" al arrastrar un componente en Modo Juego</h1>
   <div class="page-caption">
     Comparación entre el aspecto normal (apoyado en la mesa) y el aspecto durante el arrastre.
-    Al ser una vista cenital, la sombra se mantiene prácticamente debajo del elemento (no hay
-    ángulo de cámara que la desplace lejos) — solo con un leve offset respecto al centro, y
-    creciendo/difuminándose más que la sombra de contacto en reposo, que es lo que transmite
-    la elevación. El cambio es instantáneo al empezar/terminar el arrastre, sin transición
-    animada.
+    Al ser una vista cenital, la sombra no se desplaza a ningún lado: sigue exactamente la
+    silueta del elemento (círculo en la ficha, rectángulo redondeado en la carta) justo debajo
+    de él, sin ningún offset lateral. Lo que transmite la elevación es que esa sombra crece y
+    se difumina más, asomando como un marco/halo alrededor de todo su contorno. El cambio es
+    instantáneo al empezar/terminar el arrastre, sin transición animada.
   </div>
 
   <div class="stage">
