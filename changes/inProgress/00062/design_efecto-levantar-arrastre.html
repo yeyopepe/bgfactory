@@ -92,7 +92,8 @@
     justify-content: center;
   }
 
-  /* Sombra de contacto normal (apoyado): tenue, muy pegada, para diferenciar del estado elevado */
+  /* Sombra de contacto normal (apoyado): tenue, centrada y muy pegada al elemento — al estar
+     apoyado en la mesa, no hay separación entre el elemento y su sombra de contacto. */
   .component-slot::before {
     content: "";
     position: absolute;
@@ -100,18 +101,24 @@
     bottom: 6px;
     width: 70%;
     height: 10px;
-    background: rgba(0,0,0,0.12);
+    background: radial-gradient(closest-side, rgba(0,0,0,0.18), rgba(0,0,0,0) 100%);
     border-radius: 50%;
-    transform: translateX(-50%);
-    filter: blur(2px);
+    transform: translate(-50%, 0);
   }
 
+  /* Sombra elevada: en vista cenital, un elemento que se separa de la mesa hacia el jugador
+     no solo agranda su sombra — la sombra queda proyectada con un desplazamiento (aquí,
+     abajo-derecha, simulando una luz cenital ligeramente angulada) respecto a la posición del
+     elemento, que a su vez se desplaza en la dirección contraria (arriba-izquierda). Esa
+     separación diagonal entre elemento y sombra es la que vende la sensación de altura al
+     mirar desde arriba — una sombra perfectamente centrada debajo, por muy grande o difusa
+     que sea, se leería como un simple halo, no como profundidad. */
   .component-slot.lifted::before {
-    bottom: -6px;
-    width: 82%;
-    height: 16px;
-    background: rgba(0,0,0,0.28);
-    filter: blur(5px);
+    bottom: -2px;
+    width: 78%;
+    height: 22px;
+    background: radial-gradient(closest-side, rgba(0,0,0,0.38), rgba(0,0,0,0) 100%);
+    transform: translate(calc(-50% + 9px), 6px);
   }
 
   .ficha, .carta {
@@ -137,7 +144,7 @@
 
   .component-slot.lifted .ficha,
   .component-slot.lifted .carta {
-    transform: translateY(-8px);
+    transform: translate(-5px, -10px);
   }
 
   .footnote {
@@ -153,8 +160,11 @@
 
   <h1>Efecto "levantar" al arrastrar un componente en Modo Juego</h1>
   <div class="page-caption">
-    Comparación entre el aspecto normal (apoyado en la mesa) y el aspecto durante el arrastre
-    (desplazado hacia arriba, con una sombra más marcada y difusa debajo). El cambio es
+    Comparación entre el aspecto normal (apoyado en la mesa) y el aspecto durante el arrastre.
+    Al ser una vista cenital, el efecto de elevación no es solo "sombra más grande y difusa":
+    la sombra queda proyectada con un desplazamiento respecto al elemento (aquí, abajo-derecha),
+    mientras el propio elemento se desplaza en la dirección contraria (arriba-izquierda) — esa
+    separación diagonal es la que transmite altura al mirar desde arriba. El cambio es
     instantáneo al empezar/terminar el arrastre, sin transición animada.
   </div>
 
