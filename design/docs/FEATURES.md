@@ -17,10 +17,10 @@ Modal con dos pestañas ("Generales" con el `id` editable, y "Específicas" seg�
 
 Al pulsar "+ Añadir componente" se muestra antes una modal previa con la lista de tipos disponibles ("Cuadro de texto", "Tablero", "Dado", "Visor de documentos", "Ficha" o "Carta", cada uno en una fila seleccionable) y botones "Cancelar"/"Aceptar". Al aceptar, el componente se crea y se añade de inmediato con los valores por defecto de ese tipo, y a continuación se abre esta misma modal de configuración ya sobre ese componente para ajustar sus propiedades — el tipo, una vez elegido, no se puede cambiar.
 
-La pestaña "Generales" incluye también el checkbox "Bloqueado" (marcado por defecto para cualquier tipo salvo "Ficha" y "Carta", ver [Componente "ficha"](#componente-ficha) y [Componente "carta"](#componente-carta)), que determina si ese componente concreto queda fijo o puede arrastrarse libremente por la mesa durante el modo juego (ver [Posición independiente, arrastre y redimensionado de componentes](#posición-independiente-arrastre-y-redimensionado-de-componentes)). Junto a su etiqueta hay un icono de ayuda "?" que muestra, al pasar el ratón por encima, una breve explicación de qué hace el checkbox — patrón de ayuda contextual reutilizable en toda la app (tooltip para textos cortos, ventana modal para textos largos o con formato).
+La pestaña "Generales" incluye también el checkbox "Bloqueado" (marcado por defecto para cualquier tipo salvo "Ficha" y "Carta", ver [Componente "ficha"](#componente-ficha) y [Componente "carta"](#componente-carta)), que determina si ese componente concreto queda fijo o puede arrastrarse libremente por la mesa durante el modo juego (ver [Posición independiente, arrastre y redimensionado de componentes](#posición-independiente-arrastre-y-redimensionado-de-componentes)); el checkbox "Mostrar tooltip" (ver [Identificación de componentes al pasar el ratón](#identificación-de-componentes-al-pasar-el-ratón)); y el checkbox "Subir al mover/interactuar" (ver [Subir al mover/interactuar](#subir-al-moverinteractuar)). Junto a la etiqueta de cada uno hay un icono de ayuda "?" que muestra, al pasar el ratón por encima, una breve explicación de qué hace el checkbox — patrón de ayuda contextual reutilizable en toda la app (tooltip para textos cortos, ventana modal para textos largos o con formato).
 
 - **Disponible en**: modo edición — desde el panel flotante de componentes o haciendo doble click directamente sobre la representación del componente en la mesa.
-- **Código**: 00002, 00003, 00004, 00013, 00015, 00018, 00019, 00020, 00029, 00053.
+- **Código**: 00002, 00003, 00004, 00013, 00015, 00018, 00019, 00020, 00029, 00053, 00061.
 
 ### Panel flotante de componentes, con selección, resaltado, arrastre y redimensionado
 
@@ -59,6 +59,15 @@ Al crear un componente nuevo se le asigna automáticamente el último puesto (qu
 
 - **Disponible en**: modo edición (control del orden); el apilado resultante se refleja en modo juego y modo edición.
 - **Código**: 00027.
+
+### Subir al mover/interactuar
+
+Cada componente tiene, en la pestaña "Generales" de su modal de configuración (junto a "Bloqueado" y "Mostrar tooltip"), un checkbox "Subir al mover/interactuar" con su propio icono de ayuda. Marcado por defecto para "Carta", "Ficha" y "Dado" (tipos pensados para piezas que se mueven o se usan activamente durante la partida); desmarcado por defecto para el resto — un componente guardado antes de que existiera este checkbox se comporta como si estuviera desmarcado.
+
+Cuando está marcado, cada vez que el componente se mueve (arrastre) o resuelve su propia interacción de juego (voltear una carta, lanzar un dado) estando en Modo Juego, se coloca automáticamente encima de todos los demás componentes de la mesa (equivalente al orden "1", ver [Orden de apilado en la mesa](#orden-de-apilado-en-la-mesa)). Si está desmarcado, no hay ningún cambio: el componente conserva la posición de apilado que ya tuviera. Este comportamiento es exclusivo de Modo Juego — moverlo en modo edición nunca lo reordena por este checkbox — y es independiente de "Bloqueado": un componente bloqueado sigue sin poder arrastrarse, pero sus interacciones propias (voltear, lanzar) pueden seguir disparando este reordenamiento aunque esté bloqueado, igual que ya ocurre con esas interacciones respecto al bloqueo.
+
+- **Disponible en**: modo juego (efecto del reordenamiento); modo edición (checkbox editable en la modal de configuración, pestaña "Generales").
+- **Código**: 00061.
 
 ### Posición independiente, arrastre y redimensionado de componentes
 

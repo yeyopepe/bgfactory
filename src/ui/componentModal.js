@@ -95,6 +95,7 @@ export function createDefaultComponent(type) {
   } else if (type === 'dado') {
     component.width = DEFAULT_DADO_SIZE;
     component.height = DEFAULT_DADO_SIZE;
+    component.subirAlMoverInteractuar = true;
     component.properties = { ...DEFAULT_DADO_PROPERTIES };
   } else if (type === 'documento') {
     component.width = DEFAULT_DOCUMENTO_WIDTH;
@@ -104,11 +105,13 @@ export function createDefaultComponent(type) {
     component.width = DEFAULT_FICHA_SIZE;
     component.height = DEFAULT_FICHA_SIZE;
     component.bloqueado = false;
+    component.subirAlMoverInteractuar = true;
     component.properties = { ...DEFAULT_FICHA_PROPERTIES, ajusteImagen: { ...DEFAULT_FICHA_PROPERTIES.ajusteImagen } };
   } else if (type === 'carta') {
     component.width = DEFAULT_CARTA_WIDTH;
     component.height = DEFAULT_CARTA_WIDTH / getProporcionRatio(DEFAULT_CARTA_PROPERTIES.proporcion);
     component.bloqueado = false;
+    component.subirAlMoverInteractuar = true;
     component.properties = cloneCartaProperties(DEFAULT_CARTA_PROPERTIES);
   }
   return component;
@@ -229,6 +232,25 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     text: 'Si está marcado, este componente muestra su identificador como tooltip al pasar el ratón por encima, pero solo en Modo Juego. Desmarcado por defecto.',
   }));
   generalContent.appendChild(tooltipField);
+
+  const upOnMoveField = document.createElement('div');
+  upOnMoveField.className = 'modal__field modal__field--checkbox';
+  const upOnMoveCheckbox = document.createElement('input');
+  upOnMoveCheckbox.type = 'checkbox';
+  upOnMoveCheckbox.checked = workingComponent.subirAlMoverInteractuar ?? false;
+  const upOnMoveLabel = document.createElement('label');
+  upOnMoveLabel.textContent = 'Subir al mover/interactuar';
+
+  upOnMoveCheckbox.addEventListener('change', () => {
+    workingComponent.subirAlMoverInteractuar = upOnMoveCheckbox.checked;
+  });
+
+  upOnMoveField.appendChild(upOnMoveCheckbox);
+  upOnMoveField.appendChild(upOnMoveLabel);
+  upOnMoveField.appendChild(createHelpIcon({
+    text: 'Si está marcado, este componente se coloca automáticamente encima de todos los demás cada vez que se mueve o se interactúa con él (voltear, lanzar) en Modo Juego.',
+  }));
+  generalContent.appendChild(upOnMoveField);
 
   function validateId() {
     const newId = idInput.value.trim();

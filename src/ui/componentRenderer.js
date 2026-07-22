@@ -244,7 +244,20 @@ export function getComponentsBounds(components) {
   return { minX, minY, maxX, maxY };
 }
 
-export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, onCartaFlip, identifyMode } = {}) {
+// Efecto "levantar" al arrastrar (cambio 00062, solo cuando `liftOnDrag` es true): trae el
+// nodo al final de `worldEl` (visualmente al frente, sin tocar `order`) y añade el estado
+// transitorio `lifted`. El reordenamiento real y persistido (cambio 00061) sigue disparándose
+// aparte, al soltar, donde ya lo hacía.
+function beginDragLift(el, worldEl) {
+  worldEl.appendChild(el);
+  el.classList.add('lifted');
+}
+
+function endDragLift(el) {
+  el.classList.remove('lifted');
+}
+
+export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, onCartaFlip, identifyMode, liftOnDrag = false } = {}) {
   worldEl.innerHTML = '';
 
   // El componente con `order` más alto se dibuja primero (queda por debajo); el de
@@ -313,6 +326,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         function handleMouseUp() {
           document.removeEventListener('mousemove', handleMouseMove);
           document.removeEventListener('mouseup', handleMouseUp);
+          if (liftOnDrag) endDragLift(textBox);
           if (currentX === startX && currentY === startY) return;
           onMove(component, currentX, currentY);
         }
@@ -320,6 +334,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         textBox.addEventListener('mousedown', (e) => {
           if (e.button !== 0) return;
           e.stopPropagation();
+          if (liftOnDrag) beginDragLift(textBox, worldEl);
           startMouseX = e.clientX;
           startMouseY = e.clientY;
           startX = component.x ?? 100;
@@ -457,6 +472,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         function handleMouseUp() {
           document.removeEventListener('mousemove', handleMouseMove);
           document.removeEventListener('mouseup', handleMouseUp);
+          if (liftOnDrag) endDragLift(board);
           if (currentX === startX && currentY === startY) return;
           onMove(component, currentX, currentY);
         }
@@ -464,6 +480,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         board.addEventListener('mousedown', (e) => {
           if (e.button !== 0) return;
           e.stopPropagation();
+          if (liftOnDrag) beginDragLift(board, worldEl);
           startMouseX = e.clientX;
           startMouseY = e.clientY;
           startX = component.x ?? 100;
@@ -576,6 +593,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         function handleMouseUp() {
           document.removeEventListener('mousemove', handleMouseMove);
           document.removeEventListener('mouseup', handleMouseUp);
+          if (liftOnDrag) endDragLift(dice);
           if (currentX === startX && currentY === startY) return;
           onMove(component, currentX, currentY);
         }
@@ -583,6 +601,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         dice.addEventListener('mousedown', (e) => {
           if (e.button !== 0) return;
           e.stopPropagation();
+          if (liftOnDrag) beginDragLift(dice, worldEl);
           startMouseX = e.clientX;
           startMouseY = e.clientY;
           startX = component.x ?? 100;
@@ -750,6 +769,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         function handleMouseUp() {
           document.removeEventListener('mousemove', handleMouseMove);
           document.removeEventListener('mouseup', handleMouseUp);
+          if (liftOnDrag) endDragLift(documentViewer);
           if (currentX === startX && currentY === startY) return;
           onMove(component, currentX, currentY);
         }
@@ -757,6 +777,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         documentViewer.addEventListener('mousedown', (e) => {
           if (e.button !== 0) return;
           e.stopPropagation();
+          if (liftOnDrag) beginDragLift(documentViewer, worldEl);
           startMouseX = e.clientX;
           startMouseY = e.clientY;
           startX = component.x ?? 100;
@@ -891,6 +912,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         function handleMouseUp() {
           document.removeEventListener('mousemove', handleMouseMove);
           document.removeEventListener('mouseup', handleMouseUp);
+          if (liftOnDrag) endDragLift(ficha);
           if (currentX === startX && currentY === startY) return;
           onMove(component, currentX, currentY);
         }
@@ -898,6 +920,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         ficha.addEventListener('mousedown', (e) => {
           if (e.button !== 0) return;
           e.stopPropagation();
+          if (liftOnDrag) beginDragLift(ficha, worldEl);
           startMouseX = e.clientX;
           startMouseY = e.clientY;
           startX = component.x ?? 100;
@@ -1032,6 +1055,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         function handleMouseUp() {
           document.removeEventListener('mousemove', handleMouseMove);
           document.removeEventListener('mouseup', handleMouseUp);
+          if (liftOnDrag) endDragLift(carta);
           if (currentX === startX && currentY === startY) return;
           onMove(component, currentX, currentY);
         }
@@ -1039,6 +1063,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         carta.addEventListener('mousedown', (e) => {
           if (e.button !== 0) return;
           e.stopPropagation();
+          if (liftOnDrag) beginDragLift(carta, worldEl);
           startMouseX = e.clientX;
           startMouseY = e.clientY;
           startX = component.x ?? 100;

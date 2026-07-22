@@ -4,7 +4,7 @@
 // El campo `order` gobierna el apilado visual en la mesa (ver core/state.js,
 // que es quien lo asigna/recalcula: aquí solo se declara con valor por defecto).
 
-export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = true, mostrarTooltip = false, order = null } = {}) {
+export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = true, mostrarTooltip = false, subirAlMoverInteractuar = false, order = null } = {}) {
   return {
     id: crypto.randomUUID(),
     type,
@@ -17,6 +17,7 @@ export function createComponent({ type = 'generico', name = '', properties = {},
     height,
     bloqueado,
     mostrarTooltip,
+    subirAlMoverInteractuar,
     order,
   };
 }
