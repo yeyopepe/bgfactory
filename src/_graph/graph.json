@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-22T05:48:18Z",
+  "generatedAt": "2026-07-22T07:49:11Z",
   "basePath": "src",
   "nodes": [
     {
@@ -194,7 +194,7 @@
       "exports": [
         "renderPlayMode"
       ],
-      "purpose": "Modo juego: renderiza la mesa infinita con los componentes dibujados genéricamente y conecta las interacciones de juego (arrastrar, lanzar dado, voltear carta)."
+      "purpose": "Modo juego: renderiza la mesa infinita con los componentes dibujados genéricamente, conecta las interacciones de juego (arrastrar con efecto de \"levantar\", lanzar dado, voltear carta) y el reordenamiento a order=1 para los componentes con 'Subir al mover/interactuar'."
     },
     {
       "id": "ui/boardImageModal.js",
@@ -264,7 +264,7 @@
         "getComponentsBounds",
         "renderComponentsOnTable"
       ],
-      "purpose": "Dibuja los componentes sobre la mesa según su tipo, gestiona selección/movimiento/redimensionado y calcula la caja envolvente de todos los componentes."
+      "purpose": "Dibuja los componentes sobre la mesa según su tipo, gestiona selección/movimiento/redimensionado (con efecto visual de \"levantar\" opcional durante el arrastre) e interacciones propias de cada tipo, y calcula la caja envolvente de todos los componentes."
     },
     {
       "id": "ui/componentTypeModal.js",
@@ -825,7 +825,7 @@
       "type": "function",
       "path": "modes/play/playMode.js",
       "parent": "modes/play/playMode.js",
-      "purpose": "Renderiza el modo juego: mesa infinita con los componentes dibujados y las interacciones de arrastre, tirada de dado y volteo de carta conectadas al estado."
+      "purpose": "Renderiza el modo juego: mesa infinita con los componentes dibujados, liftOnDrag activado para el efecto visual de arrastre, y las interacciones de arrastre/tirada de dado/volteo de carta conectadas al estado (incluyendo el reordenamiento a order=1 si corresponde)."
     },
     {
       "id": "ui/boardImageModal.js#openBoardImageModal",
@@ -888,7 +888,7 @@
       "type": "function",
       "path": "ui/componentRenderer.js",
       "parent": "ui/componentRenderer.js",
-      "purpose": "Dibuja de nuevo todos los componentes sobre la mesa según su tipo y order, activando selección, arrastre, redimensionado e interacciones propias de cada tipo."
+      "purpose": "Dibuja de nuevo todos los componentes sobre la mesa según su tipo y order, activando selección, arrastre (con estado transitorio 'lifted' si liftOnDrag es true), redimensionado e interacciones propias de cada tipo."
     },
     {
       "id": "ui/componentTypeModal.js#openComponentTypeModal",

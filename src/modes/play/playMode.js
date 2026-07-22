@@ -10,6 +10,7 @@ export function renderPlayMode(container) {
   const table = createInfiniteTable(container);
   renderComponentsOnTable(table.worldEl, getComponents(), {
     identifyMode: 'tooltip',
+    liftOnDrag: true,
     onMove: (component, x, y) => {
       replaceComponent(component.id, updateComponent(component, { x, y }));
       if (component.subirAlMoverInteractuar) reorderComponent(component.id, 1);
