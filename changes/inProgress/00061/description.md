@@ -1,4 +1,4 @@
-- **Nombre**: Propiedad "Arriba al mover" en componentes
+- **Nombre**: Propiedad "Subir al mover/interactuar" en componentes
 - **Código**: 00061
 - **Tipo**: change
 
@@ -19,16 +19,20 @@ Corrección tras la primera propuesta de análisis:
 
 Asegúrate además de que en la importación/exportacion también se incluye el valor de esta propiedad
 
+---
+
+Corrección adicional: el texto de la propiedad: "Subir al mover/interactuar"
+
 ## Descripción completa
 
-Cada componente de la mesa (cualquier tipo: cuadro de texto, tablero, dado, visor de documentos, ficha, carta) incorpora una nueva propiedad "Arriba al mover", editable individualmente para cada componente desde la pestaña "Generales" de su modal de configuración — el mismo sitio y el mismo aspecto que los checkboxes ya existentes "Bloqueado" y "Mostrar tooltip", justo debajo de ambos, con su propio icono de ayuda.
+Cada componente de la mesa (cualquier tipo: cuadro de texto, tablero, dado, visor de documentos, ficha, carta) incorpora una nueva propiedad "Subir al mover/interactuar", editable individualmente para cada componente desde la pestaña "Generales" de su modal de configuración — el mismo sitio y el mismo aspecto que los checkboxes ya existentes "Bloqueado" y "Mostrar tooltip", justo debajo de ambos, con su propio icono de ayuda.
 
 Comportamiento:
 
 - Si está marcada: cada vez que, estando en Modo Juego, el componente se mueva (se arrastra a una nueva posición) **o realice su propia interacción de juego** (voltear, en el caso de una carta; lanzar, en el caso de un dado), se coloca automáticamente por encima de todos los demás componentes de la mesa (equivalente a fijar su orden al valor "1", el más alto de todos).
 - Si no está marcada: no hay ningún cambio — el componente conserva la posición de apilado que ya tuviera, tanto al moverse como al interactuar con él.
 - Aplica únicamente en **Modo Juego**. En Modo Edición no hay ningún cambio de comportamiento: mover un componente mientras se edita la partida nunca lo reordena por esta propiedad.
-- Es independiente del checkbox "Bloqueado": un componente bloqueado sigue sin poder arrastrarse (sin cambios respecto a hoy), pero sus interacciones propias de juego (voltear una carta, lanzar un dado) siguen estando disponibles aunque esté bloqueado — igual que ya ocurre actualmente — por lo que "Arriba al mover" puede seguir disparándose por esas interacciones incluso con el componente bloqueado.
+- Es independiente del checkbox "Bloqueado": un componente bloqueado sigue sin poder arrastrarse (sin cambios respecto a hoy), pero sus interacciones propias de juego (voltear una carta, lanzar un dado) siguen estando disponibles aunque esté bloqueado — igual que ya ocurre actualmente — por lo que "Subir al mover/interactuar" puede seguir disparándose por esas interacciones incluso con el componente bloqueado.
 - El texto de ayuda de la propiedad deja claro que cubre ambos casos: se coloca arriba del todo tanto al moverlo como al interactuar con él (voltear, lanzar).
 
 Diagrama de la decisión que se aplica en cada uno de esos tres momentos (arrastre, volteo de carta, lanzamiento de dado):
@@ -37,7 +41,7 @@ Diagrama de la decisión que se aplica en cada uno de esos tres momentos (arrast
 flowchart TD
     A["Componente se mueve o interactúa\n(arrastre / voltear carta / lanzar dado)"] --> B{"¿Modo Juego?"}
     B -- No --> Z["Sin cambios de orden"]
-    B -- Sí --> C{"¿'Arriba al mover' marcada?"}
+    B -- Sí --> C{"¿'Subir al mover/interactuar' marcada?"}
     C -- No --> Z
     C -- Sí --> D["El componente pasa a estar\narriba del todo"]
 ```
@@ -53,7 +57,7 @@ El valor de esta propiedad viaja junto con el resto de datos del componente en c
 - **¿A qué corresponden "cartas", "figuras" y "dados"?** El tipo pensado para representar figuras/meeples/tokens de juego es el que en el resto de la documentación del proyecto se llama "ficha". Se confirma ese mapeo.
 - **¿Es una propiedad realmente global (una única configuración compartida por todos los componentes de un tipo) o un campo por componente con un valor por defecto según su tipo?** Se confirma que es un campo editable componente a componente (como "Bloqueado"/"Mostrar tooltip"), cuyo valor de partida al crearlo varía según el tipo — no una configuración única compartida por todos los componentes de un mismo tipo a la vez.
 - **¿Qué cuenta como disparador?** Inicialmente se planteó solo el arrastre; se corrigió para incluir también la interacción propia de cada tipo (voltear carta, lanzar dado).
-- **¿Y si el componente está bloqueado?** Se corrigió: el bloqueo solo impide el arrastre (sin cambios), pero no impide que las interacciones propias (volteo, lanzamiento) disparen "Arriba al mover".
+- **¿Y si el componente está bloqueado?** Se corrigió: el bloqueo solo impide el arrastre (sin cambios), pero no impide que las interacciones propias (volteo, lanzamiento) disparen "Subir al mover/interactuar".
 - **¿Qué pasa con partidas ya guardadas sin este campo?** Se comportan como si estuviera desmarcada, sin aplicar el valor por defecto por tipo de forma retroactiva.
 
 ## Apuntes técnicos
