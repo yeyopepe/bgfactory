@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Propuesta visual — efecto "levantar" al arrastrar</title>
+<style>
+  :root {
+    --accent-blue: #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --table-bg: #eef1f4;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    padding: 2.5rem 1rem;
+    background: #e4e4e4;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: var(--text-primary);
+  }
+
+  h1 {
+    font-size: 1.05rem;
+    margin: 0;
+  }
+
+  .page-caption {
+    max-width: 640px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .stage {
+    background: var(--table-bg);
+    border-radius: 6px;
+    padding: 2.5rem 3rem;
+    display: flex;
+    gap: 4rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .pair {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .pair-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .row {
+    display: flex;
+    gap: 3rem;
+    align-items: flex-end;
+  }
+
+  .state-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .state-tag {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  .component-slot {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Sombra de contacto normal (apoyado): tenue, muy pegada, para diferenciar del estado elevado */
+  .component-slot::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 6px;
+    width: 70%;
+    height: 10px;
+    background: rgba(0,0,0,0.12);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    filter: blur(2px);
+  }
+
+  .component-slot.lifted::before {
+    bottom: -6px;
+    width: 82%;
+    height: 16px;
+    background: rgba(0,0,0,0.28);
+    filter: blur(5px);
+  }
+
+  .ficha, .carta {
+    position: relative;
+    z-index: 1;
+  }
+
+  .ficha {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #d8734c;
+    border: 2px solid #7a3d22;
+  }
+
+  .carta {
+    width: 56px;
+    height: 78px;
+    border-radius: 8px;
+    background: #ffffff;
+    border: 2px solid #2c3e50;
+  }
+
+  .component-slot.lifted .ficha,
+  .component-slot.lifted .carta {
+    transform: translateY(-8px);
+  }
+
+  .footnote {
+    max-width: 640px;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+
+  <h1>Efecto "levantar" al arrastrar un componente en Modo Juego</h1>
+  <div class="page-caption">
+    Comparación entre el aspecto normal (apoyado en la mesa) y el aspecto durante el arrastre
+    (desplazado hacia arriba, con una sombra más marcada y difusa debajo). El cambio es
+    instantáneo al empezar/terminar el arrastre, sin transición animada.
+  </div>
+
+  <div class="stage">
+    <div class="pair">
+      <div class="pair-label">Ficha</div>
+      <div class="row">
+        <div class="state-col">
+          <div class="component-slot">
+            <div class="ficha"></div>
+          </div>
+          <div class="state-tag">Reposo</div>
+        </div>
+        <div class="state-col">
+          <div class="component-slot lifted">
+            <div class="ficha"></div>
+          </div>
+          <div class="state-tag">Arrastrando</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pair">
+      <div class="pair-label">Carta</div>
+      <div class="row">
+        <div class="state-col">
+          <div class="component-slot">
+            <div class="carta"></div>
+          </div>
+          <div class="state-tag">Reposo</div>
+        </div>
+        <div class="state-col">
+          <div class="component-slot lifted">
+            <div class="carta"></div>
+          </div>
+          <div class="state-tag">Arrastrando</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footnote">
+    El efecto aplica igual a cualquier tipo de componente que se pueda arrastrar en Modo Juego
+    (incluidos "Tablero" y "Dado"), como una sombra adicional por debajo de todo el componente —
+    no sustituye su propio bisel/silueta interno.
+  </div>
+
+</body>
+</html>
