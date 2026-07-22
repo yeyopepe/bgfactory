@@ -90,10 +90,6 @@ export function openCardEditorModal({ component, onAccept }) {
     adjustImageBtn.disabled = !working.caraFrontal.imagenResourceId && !working.caraTrasera.imagenResourceId;
   }
 
-  function otherCaraKey(caraKey) {
-    return caraKey === 'caraFrontal' ? 'caraTrasera' : 'caraFrontal';
-  }
-
   function openAdjustSession() {
     const initialKey = working.caraFrontal.imagenResourceId
       ? 'caraFrontal'
@@ -103,46 +99,41 @@ export function openCardEditorModal({ component, onAccept }) {
     if (!initialKey) return;
 
     const { width: designWidth, height: designHeight } = getDesignSize(working.proporcion);
-    const sessionAdjustments = {
-      caraFrontal: { ...working.caraFrontal.ajusteImagen },
-      caraTrasera: { ...working.caraTrasera.ajusteImagen },
-    };
+    const frontalResource = working.caraFrontal.imagenResourceId
+      ? getResources().find((r) => r.id === working.caraFrontal.imagenResourceId)
+      : null;
+    const traseraResource = working.caraTrasera.imagenResourceId
+      ? getResources().find((r) => r.id === working.caraTrasera.imagenResourceId)
+      : null;
 
-    function openForKey(activeKey) {
-      const otherKey = otherCaraKey(activeKey);
-      const activeResource = working[activeKey].imagenResourceId
-        ? getResources().find((r) => r.id === working[activeKey].imagenResourceId)
-        : null;
-      const otherResource = working[otherKey].imagenResourceId
-        ? getResources().find((r) => r.id === working[otherKey].imagenResourceId)
-        : null;
-      openImageAdjustModal({
-        shape: 'cuadrada',
-        width: designWidth,
-        height: designHeight,
-        resource: activeResource,
-        adjustment: sessionAdjustments[activeKey],
-        secondaryPreview: {
+    openImageAdjustModal({
+      faces: [
+        {
+          key: 'caraFrontal',
+          label: 'Frontal',
           shape: 'cuadrada',
           width: designWidth,
           height: designHeight,
-          resource: otherResource,
-          adjustment: sessionAdjustments[otherKey],
-          onSelect: (currentAdjustment) => {
-            sessionAdjustments[activeKey] = currentAdjustment;
-            openForKey(otherKey);
-          },
+          resource: frontalResource,
+          adjustment: working.caraFrontal.ajusteImagen,
         },
-        onAccept: (adjustment) => {
-          sessionAdjustments[activeKey] = adjustment;
-          working.caraFrontal.ajusteImagen = sessionAdjustments.caraFrontal;
-          working.caraTrasera.ajusteImagen = sessionAdjustments.caraTrasera;
-          renderFaces();
+        {
+          key: 'caraTrasera',
+          label: 'Trasera',
+          shape: 'cuadrada',
+          width: designWidth,
+          height: designHeight,
+          resource: traseraResource,
+          adjustment: working.caraTrasera.ajusteImagen,
         },
-      });
-    }
-
-    openForKey(initialKey);
+      ],
+      initialFocusKey: initialKey,
+      onAccept: (adjustments) => {
+        working.caraFrontal.ajusteImagen = adjustments.caraFrontal;
+        working.caraTrasera.ajusteImagen = adjustments.caraTrasera;
+        renderFaces();
+      },
+    });
   }
 
   function renderFace(caraKey, label) {

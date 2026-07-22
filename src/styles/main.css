@@ -809,19 +809,19 @@ input[type="radio"] {
   border: 1px dashed #ccc;
 }
 
-.image-adjust-modal__stage--secondary {
-  opacity: 0.6;
-}
-
-.image-adjust-modal__secondary-label {
+.image-adjust-modal__stage-title {
   font-size: 0.75rem;
   color: var(--text-muted);
+  font-weight: 600;
 }
 
-.image-adjust-modal__primary-label {
-  font-size: 0.75rem;
+.image-adjust-modal__stage--focused .image-adjust-modal__stage-title {
   color: var(--accent-blue);
-  font-weight: 600;
+}
+
+.image-adjust-modal__stage--dim {
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
 }
 
 .image-adjust-modal__mask {
@@ -833,10 +833,6 @@ input[type="radio"] {
 .image-adjust-modal__mask--active {
   border: 2px solid var(--accent-blue);
   box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.25);
-}
-
-.image-adjust-modal__stage--secondary.image-adjust-modal__stage--clickable {
-  opacity: 0.85;
 }
 
 .image-adjust-modal__mask--clickable {
