@@ -119,13 +119,14 @@
 
   /* Sombra elevada: sigue siendo la silueta exacta del elemento (box-shadow respeta su forma),
      con más difuminado y expansión ("spread") para asomar como un marco/halo alrededor de todo
-     su contorno — y un pequeño offset en diagonal (abajo-derecha) sobre ese mismo marco, para
-     insinuar levemente una dirección de luz sin llegar a separarse del elemento como una
-     mancha aparte. */
+     su contorno, y un offset en diagonal (abajo-derecha) ya más marcado sobre ese mismo marco.
+     El elemento, a su vez, se desplaza en la dirección contraria (arriba-izquierda) al
+     levantarse — esa dirección opuesta entre element y sombra es la que hace que el offset de
+     la sombra se lea bien como algo que se ha quedado "atrás" en vez de flotar sin más. */
   .component-slot.lifted .ficha,
   .component-slot.lifted .carta {
-    transform: translateY(-8px);
-    box-shadow: 3px 4px 8px 2px rgba(0,0,0,0.35);
+    transform: translate(-4px, -9px);
+    box-shadow: 6px 7px 9px 2px rgba(0,0,0,0.35);
   }
 
   .footnote {
@@ -144,9 +145,10 @@
     Comparación entre el aspecto normal (apoyado en la mesa) y el aspecto durante el arrastre.
     Al ser una vista cenital, la sombra sigue la silueta exacta del elemento (círculo en la
     ficha, rectángulo redondeado en la carta), asomando como un marco/halo alrededor de todo su
-    contorno — con un pequeño offset en diagonal (abajo-derecha) que insinúa levemente una
-    dirección de luz, sin llegar a separarse del elemento como una mancha aparte. El cambio es
-    instantáneo al empezar/terminar el arrastre, sin transición animada.
+    contorno, con un offset en diagonal (abajo-derecha). El propio elemento se desplaza en la
+    dirección contraria (arriba-izquierda) al levantarse, para que ese offset de la sombra se
+    lea bien como parte del mismo efecto. El cambio es instantáneo al empezar/terminar el
+    arrastre, sin transición animada.
   </div>
 
   <div class="stage">
