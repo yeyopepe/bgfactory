@@ -91,7 +91,7 @@ Primer tipo de componente concreto: un bloque de texto con contenido, tamaño de
 
 ### Componente "tablero"
 
-Segundo tipo de componente: un elemento cuadrado (redimensionable a cualquier proporción, ver [Posición independiente, arrastre y redimensionado de componentes](#posición-independiente-arrastre-y-redimensionado-de-componentes)) con borde y fondo configurables, pensado para representar el tablero físico de la partida. El borde tiene color y grosor configurables (1–20px) y se dibuja con un ligero efecto de bisel/relieve (tonos más claro/oscuro derivados del color elegido) para diferenciarlo visualmente de un elemento plano — única excepción del lenguaje visual, deliberadamente plano, del resto de la app.
+Segundo tipo de componente: un elemento cuadrado (redimensionable a cualquier proporción, ver [Posición independiente, arrastre y redimensionado de componentes](#posición-independiente-arrastre-y-redimensionado-de-componentes)) con borde y fondo configurables, pensado para representar el tablero físico de la partida. El borde tiene color y grosor configurables (1–20px) y se dibuja con un ligero efecto de bisel/relieve (tonos más claro/oscuro derivados del color elegido), además de una sombra de contacto suave que lo asienta sobre la mesa — mismo lenguaje visual de "pieza física" que comparten el resto de piezas de juego (Dado, Ficha, Carta).
 
 El fondo se elige entre dos opciones, configurables desde una modal propia ("Configurar fondo") sin perder la configuración de la opción no activa al alternar entre ellas:
 
@@ -99,7 +99,7 @@ El fondo se elige entre dos opciones, configurables desde una modal propia ("Con
 - **Imagen**: se elige una imagen entre las ya disponibles en el panel "Recursos" del modo edición (sin ninguna función para subir imágenes nuevas desde esta modal), mostrada cubriendo todo el tablero y recortada si no coincide su proporción.
 
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Tablero" en la modal previa de tipo al pulsar "+ Añadir componente" (ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)).
-- **Código**: 00019.
+- **Código**: 00019, 00063.
 
 ### Componente "dado"
 
@@ -108,16 +108,16 @@ Tercer tipo de componente: un dado con representación 2D plana (sin perspectiva
 - **Número máximo de caras**: entre 2 y 100; cada tirada da un número al azar entre 1 y ese máximo.
 - **Lista de valores**: texto libre separado por comas (mínimo 2 valores no vacíos); cada tirada da uno de esos valores literales al azar, no necesariamente numéricos.
 
-La silueta frontal del dado varía según la cantidad de resultados posibles configurada: triángulo (4), cuadrado liso (6), rombo (8), o una esfera facetada (decágono dividido en un abanico de triángulos) para 9 o más y como respaldo genérico para cualquier otra cantidad (2, 3, 5 o 7). Tiene un leve efecto de profundidad (silueta duplicada en un tono más oscuro, ligeramente desplazada detrás) y un contorno fino oscuro de acabado — misma familia de recurso que el bisel del tablero, sin sombras ni degradados difuminados.
+La silueta frontal del dado varía según la cantidad de resultados posibles configurada: triángulo (4), cuadrado liso (6), rombo (8), o una esfera facetada (decágono dividido en un abanico de triángulos) para 9 o más y como respaldo genérico para cualquier otra cantidad (2, 3, 5 o 7). Tiene un leve efecto de profundidad (silueta duplicada en un tono más oscuro, ligeramente desplazada detrás) y un contorno fino oscuro de acabado — misma familia de recurso que el bisel del tablero, sin degradados difuminados —, además de una sombra de contacto suave que sigue el contorno de la silueta y lo asienta sobre la mesa, igual que el resto de piezas de juego.
 
 En modo juego, un click sobre el dado lo lanza: durante ~1 segundo muestra un parpadeo de resultados aleatorios entre los posibles, mientras el propio dado tiembla ligeramente (pequeño desplazamiento aleatorio, sin rotación) para reforzar la sensación de que está en juego, y al terminar fija el resultado final y deja de temblar (los clicks durante la tirada se ignoran); un doble click abre una modal con el resultado actual a tamaño grande. En modo edición no hay lanzamiento: el dado se comporta como cualquier otro componente (selección, edición, movimiento, redimensionado siempre cuadrado). El checkbox "Bloqueado" solo afecta a si se puede arrastrar, nunca a si se puede lanzar. Al crear el dado, o si la configuración de caras cambia de forma que el resultado actual deje de ser válido, se fija automáticamente como resultado el primero de los posibles según la configuración vigente.
 
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Dado" en la modal previa de tipo al pulsar "+ Añadir componente" (ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)); lanzamiento, temblor y modal de resultado grande solo en modo juego.
-- **Código**: 00020, 00031.
+- **Código**: 00020, 00031, 00063.
 
 ### Componente "Visor de documentos"
 
-Cuarto tipo de componente: una hoja con fondo blanco y borde fino (sin bisel ni sombra, aspecto deliberadamente plano) que muestra contenido renderizado, pensada para notas, reglas o material de referencia de la partida. El contenido siempre se ajusta al ancho del componente (nunca aparece scroll horizontal); si es más alto que el tamaño fijado, aparece scroll vertical dentro de ese tamaño.
+Cuarto tipo de componente: una hoja con fondo blanco, borde fino y una sombra de contacto suave que la asienta sobre la mesa (como un papel apoyado encima), que muestra contenido renderizado, pensada para notas, reglas o material de referencia de la partida. El contenido siempre se ajusta al ancho del componente (nunca aparece scroll horizontal); si es más alto que el tamaño fijado, aparece scroll vertical dentro de ese tamaño.
 
 El tipo de contenido se elige entre dos opciones, configurables sin perder la configuración de la que no está activa:
 
@@ -127,11 +127,11 @@ El tipo de contenido se elige entre dos opciones, configurables sin perder la co
 Un componente sin contenido (texto vacío, o antes de configurar nada) muestra simplemente la hoja en blanco, sin ningún aviso.
 
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Visor de documentos" en la modal previa de tipo al pulsar "+ Añadir componente" (ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)).
-- **Código**: 00036, 00037, 00038, 00039, 00040.
+- **Código**: 00036, 00037, 00038, 00039, 00040, 00063.
 
 ### Componente "ficha"
 
-Quinto tipo de componente, pensado para representar meeples/tokens/fichas de juego: un cuadrado o un círculo (a elegir, sin perder la configuración de borde ni de fondo al cambiar de forma) con borde y fondo configurables, con aspecto deliberadamente plano (sin bisel, sombra ni animación). Es el único tipo que se crea con el checkbox "Bloqueado" desmarcado por defecto (ver [Posición independiente, arrastre y redimensionado de componentes](#posición-independiente-arrastre-y-redimensionado-de-componentes)), para poder empezar a moverla en modo juego sin tener que desmarcarlo antes a mano.
+Quinto tipo de componente, pensado para representar meeples/tokens/fichas de juego: un cuadrado o un círculo (a elegir, sin perder la configuración de borde ni de fondo al cambiar de forma) con borde y fondo configurables, y una sombra de contacto suave que la asienta sobre la mesa (mismo lenguaje visual que el resto de piezas de juego, sin bisel ni animación). Es el único tipo que se crea con el checkbox "Bloqueado" desmarcado por defecto (ver [Posición independiente, arrastre y redimensionado de componentes](#posición-independiente-arrastre-y-redimensionado-de-componentes)), para poder empezar a moverla en modo juego sin tener que desmarcarlo antes a mano.
 
 El borde tiene color y grosor configurables (0–20px); a diferencia del tablero, un grosor de 0 es válido y significa que no se dibuja ningún borde.
 
@@ -146,11 +146,11 @@ El tipo de fondo se elige entre tres opciones, cada una conservando su configura
 El editor de ajuste de imagen (mover/hacer zoom sobre una forma) es una funcionalidad reutilizable, no exclusiva de la ficha: pensada para que futuros tipos de componente con fondo de imagen puedan apoyarse en el mismo editor. Debajo del deslizador de zoom hay un cuadro de texto con el valor numérico (100-300), sincronizado en ambos sentidos con el deslizador: mover el deslizador actualiza el número, y escribir un valor en el cuadro (confirmado con Intro o al salir del campo) mueve el deslizador y aplica el zoom; un valor fuera de rango se ajusta al mínimo o máximo permitido, y uno no numérico se descarta.
 
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Ficha" en la modal previa de tipo al pulsar "+ Añadir componente" (ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)).
-- **Código**: 00029, 00046, 00047, 00058.
+- **Código**: 00029, 00046, 00047, 00058, 00063.
 
 ### Componente "carta"
 
-Sexto tipo de componente: un rectángulo de proporción configurable (a elegir entre las más habituales del mercado de juegos de cartas — cuadrada, horizontal/vertical 2:1, vertical estándar tipo póker 2:3 por defecto, horizontal estándar 3:2, y vertical clásica de coleccionables 5:7) con las esquinas ligeramente redondeadas, cuyo aspecto se diseña con un editor dedicado (ver más abajo). A diferencia de todos los demás tipos salvo "dado", mantiene siempre la proporción configurada al redimensionarla en la mesa (no se puede cambiar arrastrando el manejador, solo editando la propiedad "Proporción"). Es, junto con "Ficha", el único tipo que se crea con el checkbox "Bloqueado" desmarcado por defecto, para poder moverse de inmediato en modo juego.
+Sexto tipo de componente: un rectángulo de proporción configurable (a elegir entre las más habituales del mercado de juegos de cartas — cuadrada, horizontal/vertical 2:1, vertical estándar tipo póker 2:3 por defecto, horizontal estándar 3:2, y vertical clásica de coleccionables 5:7) con las esquinas ligeramente redondeadas y una sombra de contacto suave que la asienta sobre la mesa (mismo lenguaje visual que el resto de piezas de juego), cuyo aspecto se diseña con un editor dedicado (ver más abajo). A diferencia de todos los demás tipos salvo "dado", mantiene siempre la proporción configurada al redimensionarla en la mesa (no se puede cambiar arrastrando el manejador, solo editando la propiedad "Proporción"). Es, junto con "Ficha", el único tipo que se crea con el checkbox "Bloqueado" desmarcado por defecto, para poder moverse de inmediato en modo juego.
 
 La carta tiene siempre dos caras, frontal y trasera, y muestra una de las dos a la vez — empieza mostrando la **trasera** por defecto, tanto en modo juego como en modo edición. En modo juego, un click sobre la carta voltea entre cara frontal y trasera; esta interacción está siempre disponible, con independencia de si "Bloqueado" está marcado o no ("Bloqueado" solo afecta a si se puede arrastrar, nunca a si se puede voltear). Sin ningún diseño (antes de usar el editor de cartas, o si una cara se deja vacía), esa cara se muestra en blanco con la proporción configurada, sin ningún aviso.
 
@@ -170,7 +170,7 @@ El diseño de cada cara (imagen, su ajuste, y los cuadros de texto) se guarda co
 **Convivencia con la galería de recursos**: al intentar borrar una imagen o tipografía de la galería que esté en uso por el diseño de alguna carta, se bloquea el borrado igual que ya ocurre con otros tipos, y el aviso indica además el identificador del componente (o los componentes) que lo está usando — esta identificación en el aviso de bloqueo aplica ahora a cualquier tipo de componente, no solo a "carta".
 
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Carta" en la modal previa de tipo al pulsar "+ Añadir componente" (ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)); volteo de cara solo en modo juego; editor de cartas y gestión de mazos solo en modo edición.
-- **Código**: 00053, 00058, 00060.
+- **Código**: 00053, 00058, 00060, 00063.
 
 ### Identificación de componentes al pasar el ratón
 

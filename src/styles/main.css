@@ -1,6 +1,6 @@
 :root {
   --bg-table: #c2c2c2;
-  --bg-table-dot: rgba(0, 0, 0, 0.12);
+  --bg-table-dot: rgba(0, 0, 0, 0.09);
   --bg-toolbar: #333333;
   --bg-card: #f5f5f5;
   --accent-blue: #2c7dd8;
@@ -9,6 +9,14 @@
   --text-light: #ffffff;
   --text-muted: #666666;
   --error: #d32f2f; /* estados de error y acciones destructivas */
+  --border-neutral: #dcdcdc; /* todos los bordes finos neutros (antes #ddd/#eee sueltos) */
+  --bg-subtle: #f0f0f0; /* fondos neutros en reposo (cabecera de tabla, botón secundario) */
+  --bg-hover: #e8e8e8; /* cualquier hover neutro (fila, botón secundario, tab) */
+  --radius-sm: 4px; /* controles: botones, inputs, items pequeños de lista */
+  --radius-lg: 8px; /* contenedores destacados: modal, paneles, tarjetas, carta */
+  --shadow-1: 0 2px 6px rgba(0, 0, 0, 0.10), 0 1px 2px rgba(0, 0, 0, 0.08); /* nivel 1: flotante sutil (paneles, listas, piezas) */
+  --shadow-2: 0 4px 20px rgba(0, 0, 0, 0.15); /* nivel 2: overlay (modales, el más alto) */
+  --transition-fast: 150ms ease;
 }
 
 * {
@@ -34,7 +42,7 @@ h1 {
   margin: 0;
   padding: 0.75rem 1rem;
   font-size: 1.5rem;
-  background: var(--bg-toolbar);
+  background: linear-gradient(180deg, #3a3a3a, var(--bg-toolbar));
   color: var(--text-light);
   height: 3.5rem;
   box-sizing: border-box;
@@ -42,6 +50,7 @@ h1 {
   align-items: center;
   flex-shrink: 0;
   z-index: 100;
+  box-shadow: var(--shadow-1);
 }
 
 #mode-switcher {
@@ -59,9 +68,10 @@ h1 {
   background: var(--accent-blue);
   color: var(--text-light);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 0.875rem;
+  transition: background var(--transition-fast), opacity var(--transition-fast);
 }
 
 #mode-switcher button:hover {
@@ -100,6 +110,7 @@ h1 {
   align-items: center;
   justify-content: flex-end;
   gap: 1rem;
+  box-shadow: var(--shadow-1);
 }
 
 .edit-toolbar button {
@@ -107,11 +118,12 @@ h1 {
   background: none;
   border: 1px solid var(--text-light);
   padding: 0.5rem 1rem;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 0.875rem;
   display: inline-flex;
   align-items: center;
+  transition: background var(--transition-fast);
 }
 
 .edit-toolbar button:hover {
@@ -174,12 +186,12 @@ h1 {
   padding: 0.5rem;
   text-align: left;
   font-weight: 500;
-  background: #f0f0f0;
+  background: var(--bg-subtle);
 }
 
 .component-list td {
   padding: 0.5rem;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--border-neutral);
 }
 
 .component-list__id-cell {
@@ -198,10 +210,11 @@ h1 {
   padding: 0.2rem 0.3rem;
   font-size: 0.875rem;
   text-align: center;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
   appearance: textfield;
   -moz-appearance: textfield;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .component-list__order-input::-webkit-outer-spin-button,
@@ -213,6 +226,7 @@ h1 {
 .component-list__order-input:focus {
   outline: none;
   border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
 }
 
 .component-list__actions-cell {
@@ -225,9 +239,10 @@ h1 {
   background: var(--accent-blue);
   color: var(--text-light);
   border: none;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 0.75rem;
+  transition: opacity var(--transition-fast);
 }
 
 .component-list__action-btn:hover {
@@ -240,10 +255,11 @@ h1 {
 
 .component-list__row {
   cursor: pointer;
+  transition: background var(--transition-fast);
 }
 
 .component-list__row:hover {
-  background: #f9f9f9;
+  background: var(--bg-hover);
 }
 
 .component-list__row.component-list__row--selected {
@@ -266,8 +282,8 @@ h1 {
 
 .modal {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
   max-width: 500px;
   width: 90%;
   max-height: 80vh;
@@ -277,23 +293,24 @@ h1 {
 
 .modal__header {
   padding: 1rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-neutral);
 }
 
 .modal__tabs {
   display: flex;
   gap: 0;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-neutral);
 }
 
 .modal__tab {
   padding: 0.75rem 1rem;
-  background: #f9f9f9;
+  background: var(--bg-hover);
   border: none;
   cursor: pointer;
   color: var(--text-muted);
   font-size: 0.875rem;
   border-bottom: 2px solid transparent;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .modal__tab.active {
@@ -330,10 +347,20 @@ h1 {
 .modal__field textarea {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
   font-family: inherit;
   font-size: 0.875rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.modal__field input[type="text"]:focus,
+.modal__field input[type="number"]:focus,
+.modal__field select:focus,
+.modal__field textarea:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
 }
 
 .modal__field input[type="color"] {
@@ -373,6 +400,7 @@ input[type="radio"] {
   color: var(--text-light);
   font-size: 0.75rem;
   flex-shrink: 0;
+  box-shadow: 0 2px 5px rgba(211, 47, 47, 0.4);
 }
 
 .modal__header-title {
@@ -383,8 +411,8 @@ input[type="radio"] {
 
 .modal__error-detail {
   background: #fff;
-  border: 1px solid #eee;
-  border-radius: 4px;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
   padding: 0.75rem;
   margin-top: 0.75rem;
   font-family: ui-monospace, monospace;
@@ -407,7 +435,7 @@ input[type="radio"] {
 
 .modal__footer {
   padding: 1rem;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border-neutral);
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;
@@ -416,18 +444,19 @@ input[type="radio"] {
 .btn-cancel, .btn-accept, .btn-eliminar {
   padding: 0.5rem 1.5rem;
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 0.875rem;
+  transition: background var(--transition-fast), opacity var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .btn-cancel {
-  background: #f0f0f0;
+  background: var(--bg-subtle);
   color: var(--text-primary);
 }
 
 .btn-cancel:hover {
-  background: #e0e0e0;
+  background: var(--bg-hover);
 }
 
 .btn-accept {
@@ -437,6 +466,8 @@ input[type="radio"] {
 
 .btn-accept:hover:not(:disabled) {
   opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(44, 125, 216, 0.35);
 }
 
 .btn-accept:disabled {
@@ -452,12 +483,18 @@ input[type="radio"] {
 
 .btn-eliminar:hover {
   opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(211, 47, 47, 0.3);
 }
 
-/* Text box component */
+/* Text box component: texto suelto directamente sobre la mesa, sin caja ni
+   fondo — la sombra de contacto del resto de piezas no aplica aquí (no hay
+   caja que elevar); en su lugar lleva una sombra de texto muy sutil para
+   mantener la legibilidad sobre cualquier color de mesa. */
 .text-box {
   word-wrap: break-word;
   white-space: pre-wrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 .text-box--selectable {
@@ -482,9 +519,14 @@ input[type="radio"] {
   cursor: move;
 }
 
-/* Board component: excepción explícita a "sin sombras/relieves" (ver
-   STYLE_BIBLE.md sección 13), acotada a este tipo de componente. El bisel se
-   consigue con los cuatro colores de borde ya calculados en JS. */
+/* Board component: el bisel de borde (cuatro colores calculados en JS a
+   partir del color elegido) sigue siendo la técnica que le da relieve — no
+   cambia. La sombra de contacto de abajo es la misma que usa el resto de
+   piezas de juego (sección 6 de STYLE_BIBLE.md), no una excepción propia. */
+.board {
+  box-shadow: var(--shadow-1);
+}
+
 .board--selectable {
   cursor: pointer;
 }
@@ -507,8 +549,15 @@ input[type="radio"] {
   cursor: move;
 }
 
-/* Dice component: silueta 2D plana con profundidad — misma excepción de
-   estilo que .board (ver STYLE_BIBLE.md sección 13), extendida a este tipo. */
+/* Dice component: silueta 2D con profundidad (duplicado oscuro desplazado +
+   contorno + faceta, calculado en JS con shadeColor) — no cambia. Como la
+   silueta no es rectangular (triángulo/cuadrado/rombo/decágono según el
+   número de caras), la sombra de contacto usa `filter: drop-shadow`, que seguí
+   la forma real renderizada en vez de la caja cuadrada del contenedor. */
+.dice {
+  filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.28));
+}
+
 .dice--selectable {
   cursor: pointer;
 }
@@ -538,7 +587,8 @@ input[type="radio"] {
   font-size: 0.72rem;
   line-height: 1.4;
   padding: 0.1rem 0.4rem;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
   pointer-events: none;
   display: none;
 }
@@ -556,11 +606,13 @@ input[type="radio"] {
   user-select: none;
 }
 
-/* Document viewer component: hoja blanca con aspecto plano, sin excepción a
-   "sin sombras/relieves" (ver STYLE_BIBLE.md sección 13). */
+/* Document viewer component: hoja con fondo blanco y borde fino — ya no es
+   plana a propósito, se comporta como el resto de piezas (papel apoyado
+   sobre la mesa, sombra de contacto nivel 1, sección 6 de STYLE_BIBLE.md). */
 .document-viewer {
   background-color: #ffffff;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-neutral);
+  box-shadow: var(--shadow-1);
 }
 
 .document-viewer__content {
@@ -637,8 +689,13 @@ input[type="radio"] {
   cursor: move;
 }
 
-/* Ficha component (00029): cuadrado o círculo con borde/fondo configurables,
-   sin excepción de estilo (sin bisel/sombra, a diferencia de .board/.dice). */
+/* Ficha component (00029): cuadrado o círculo con borde/fondo configurables.
+   Gana la misma sombra de contacto nivel 1 que el resto de piezas de juego,
+   para sentirse hecha del mismo material que tablero/dado/carta. */
+.ficha {
+  box-shadow: var(--shadow-1);
+}
+
 .ficha--selectable {
   cursor: pointer;
 }
@@ -662,8 +719,14 @@ input[type="radio"] {
 }
 
 /* Carta component (00053): rectángulo de proporción configurable con
-   esquinas ligeramente redondeadas (radio ya catalogado en la sección 5 de
-   STYLE_BIBLE.md, "contenedores destacados"), sin excepción de bisel/sombra. */
+   esquinas ligeramente redondeadas (--radius-lg, sección 5 de
+   STYLE_BIBLE.md, "contenedores destacados"). Gana la misma sombra de
+   contacto nivel 1 que el resto de piezas de juego. */
+.carta {
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+}
+
 .carta--selectable {
   cursor: pointer;
 }
@@ -702,14 +765,16 @@ input[type="radio"] {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 0.875rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .component-type-modal__item:hover {
   border-color: var(--accent-blue);
+  box-shadow: 0 2px 6px rgba(44, 125, 216, 0.15);
 }
 
 /* Board background modal — sub-modal "Imagen" (gallery grid of image resources) */
@@ -721,15 +786,17 @@ input[type="radio"] {
   width: 100%;
   box-sizing: border-box;
   padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
   font-family: inherit;
   font-size: 0.875rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .board-image-modal__search input[type="text"]:focus {
   outline: none;
   border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
 }
 
 .board-image-modal__gallery {
@@ -745,14 +812,16 @@ input[type="radio"] {
   gap: 0.25rem;
   padding: 0.5rem;
   background: none;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-family: inherit;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .board-image-modal__item:hover {
   border-color: var(--accent-blue);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
 }
 
 .board-image-modal__item--selected {
@@ -764,7 +833,7 @@ input[type="radio"] {
   width: 80px;
   height: 80px;
   object-fit: cover;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
 }
 
 .board-image-modal__name {
@@ -897,7 +966,7 @@ input[type="radio"] {
   position: relative;
   overflow: hidden;
   background: #ffffff;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-neutral);
 }
 
 .card-editor-modal__face-actions {
@@ -939,16 +1008,18 @@ input[type="radio"] {
   gap: 0.5rem;
   padding: 0.5rem;
   background: none;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-family: inherit;
   width: 100%;
   text-align: left;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .dice-font-modal__item:hover {
   border-color: var(--accent-blue);
+  box-shadow: 0 2px 6px rgba(44, 125, 216, 0.15);
 }
 
 .dice-font-modal__item--selected {
@@ -997,10 +1068,12 @@ input[type="radio"] {
   cursor: help;
   user-select: none;
   flex-shrink: 0;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .help-icon:hover {
   background: var(--accent-blue);
+  box-shadow: 0 2px 5px rgba(44, 125, 216, 0.35);
 }
 
 .help-icon__tooltip {
@@ -1014,11 +1087,11 @@ input[type="radio"] {
   background: var(--bg-toolbar);
   color: var(--text-light);
   padding: 0.5rem 0.65rem;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-size: 0.75rem;
   font-weight: 400;
   line-height: 1.3;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  box-shadow: var(--shadow-2);
   z-index: 10;
 }
 
@@ -1031,8 +1104,8 @@ input[type="radio"] {
   position: absolute;
   right: 0;
   bottom: 0;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   cursor: nwse-resize;
 }
 
@@ -1041,11 +1114,12 @@ input[type="radio"] {
   position: absolute;
   right: 3px;
   bottom: 3px;
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   background:
     linear-gradient(135deg, transparent 0 45%, #999 45% 55%, transparent 55% 100%),
     linear-gradient(135deg, transparent 0 65%, #999 65% 75%, transparent 75% 100%);
+  transition: transform var(--transition-fast);
 }
 
 .resize-handle:hover::after,
@@ -1053,6 +1127,7 @@ input[type="radio"] {
   background:
     linear-gradient(135deg, transparent 0 45%, var(--accent-blue) 45% 55%, transparent 55% 100%),
     linear-gradient(135deg, transparent 0 65%, var(--accent-blue) 65% 75%, transparent 75% 100%);
+  transform: scale(1.15);
 }
 
 /* Floating component panel (edit mode) */
@@ -1068,8 +1143,9 @@ input[type="radio"] {
   position: relative;
   width: 100%;
   background: var(--bg-card);
-  border-radius: 4px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-1);
 }
 
 .component-panel__header {
@@ -1097,22 +1173,24 @@ input[type="radio"] {
 
 .component-panel__filter {
   padding: 0.5rem 1rem;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-neutral);
 }
 
 .component-panel__filter input[type="text"] {
   width: 100%;
   box-sizing: border-box;
   padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
   font-family: inherit;
   font-size: 0.875rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .component-panel__filter input[type="text"]:focus {
   outline: none;
   border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
 }
 
 .component-panel__body {
@@ -1122,7 +1200,7 @@ input[type="radio"] {
 
 .component-panel__footer {
   padding: 0.5rem 1rem;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--border-neutral);
 }
 
 .component-panel__footer button {
@@ -1131,8 +1209,9 @@ input[type="radio"] {
   background: var(--accent-blue);
   color: var(--text-light);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
+  transition: opacity var(--transition-fast);
 }
 
 .component-panel__footer button:hover {
@@ -1153,8 +1232,9 @@ input[type="radio"] {
   position: relative;
   width: 100%;
   background: var(--bg-card);
-  border-radius: 4px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-1);
 }
 
 .resource-panel__header {
@@ -1182,22 +1262,24 @@ input[type="radio"] {
 
 .resource-panel__filter {
   padding: 0.5rem 1rem;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-neutral);
 }
 
 .resource-panel__filter input[type="text"] {
   width: 100%;
   box-sizing: border-box;
   padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
   font-family: inherit;
   font-size: 0.875rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .resource-panel__filter input[type="text"]:focus {
   outline: none;
   border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
 }
 
 .resource-panel__body {
@@ -1207,7 +1289,7 @@ input[type="radio"] {
 
 .resource-panel__footer {
   padding: 0.5rem 1rem;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--border-neutral);
 }
 
 .resource-panel__footer button {
@@ -1216,8 +1298,9 @@ input[type="radio"] {
   background: var(--accent-blue);
   color: var(--text-light);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
+  transition: opacity var(--transition-fast);
 }
 
 .resource-panel__footer button:hover {
@@ -1247,12 +1330,12 @@ input[type="radio"] {
   padding: 0.5rem;
   text-align: left;
   font-weight: 500;
-  background: #f0f0f0;
+  background: var(--bg-subtle);
 }
 
 .resource-list td {
   padding: 0.5rem;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--border-neutral);
 }
 
 .resource-list__actions-cell {
@@ -1265,9 +1348,10 @@ input[type="radio"] {
   background: var(--accent-blue);
   color: var(--text-light);
   border: none;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 0.75rem;
+  transition: opacity var(--transition-fast);
 }
 
 .resource-list__action-btn:hover {
@@ -1283,8 +1367,8 @@ input[type="radio"] {
 .resource-modal__font-preview {
   width: 100%;
   padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
   background: #fff;
   box-sizing: border-box;
 }
@@ -1315,9 +1399,10 @@ input[type="radio"] {
   background: var(--bg-toolbar);
   color: var(--text-light);
   padding: 0.5rem 1rem;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-size: 0.75rem;
   z-index: 1100;
+  box-shadow: var(--shadow-1);
 }
 
 .toast--visible {
@@ -1334,8 +1419,9 @@ input[type="radio"] {
 }
 
 /* Estado transitorio "levantado" (cambio 00062): mientras se arrastra un componente en Modo
-   Juego, simula que se despega de la mesa. Excepción explícita y acotada a la sección 13 de
-   STYLE_BIBLE.md (sombra + desplazamiento fijo, sin transición). */
+   Juego, simula que se despega de la mesa — el estado "en el aire" del mismo sistema de
+   elevación (sección 6 de STYLE_BIBLE.md) que ya usan el resto de piezas en reposo, no una
+   excepción aislada. Cambio de aspecto instantáneo (sin transición), igual que siempre. */
 .lifted {
   transform: translate(-4px, -9px);
   box-shadow: 6px 7px 9px 2px rgba(0, 0, 0, 0.35);
