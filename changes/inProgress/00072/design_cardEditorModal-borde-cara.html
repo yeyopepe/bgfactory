@@ -1,0 +1,199 @@
+<style>
+  :root {
+    --bg-table:     #c2c2c2;
+    --bg-toolbar:   #333333;
+    --bg-card:      #f5f5f5;
+    --accent-blue:  #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --text-primary: #1a1a1a;
+    --text-light:   #ffffff;
+    --text-muted:   #666666;
+    --border-neutral: #dcdcdc;
+    --bg-subtle:    #f0f0f0;
+    --radius-sm:    4px;
+    --radius-lg:    8px;
+    --shadow-2:     0 4px 20px rgba(0,0,0,0.15);
+  }
+  body {
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    margin: 0;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+  .modal-overlay {
+    position: static;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+  }
+  .modal {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    max-width: 720px;
+    width: 100%;
+  }
+  .modal__header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    font-size: 1.125rem;
+    color: var(--text-primary);
+  }
+  .modal__content { padding: 1.5rem; }
+  .preview-note {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0 0 1.5rem 0;
+  }
+  .card-editor-modal__toolbar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+  .modal__field { display: flex; flex-direction: column; gap: 0.25rem; }
+  .modal__field label { font-size: 0.875rem; font-weight: 500; }
+  .modal__field select {
+    padding: 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.875rem;
+  }
+
+  .card-editor-modal__faces {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+  }
+  .card-editor-modal__face {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .card-editor-modal__face-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .card-editor-modal__canvas {
+    width: 140px;
+    height: 196px;
+    background: repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 0 0 / 16px 16px;
+    box-sizing: border-box;
+  }
+  .card-editor-modal__canvas--frontal {
+    border: 4px solid #2c7dd8;
+  }
+  .card-editor-modal__canvas--trasera {
+    border: 0 none;
+  }
+
+  .card-editor-modal__face-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  .btn-cancel {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+    cursor: pointer;
+    font-size: 0.8125rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .field-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-end;
+  }
+  .field-row > div { flex: 1; display: flex; flex-direction: column; gap: 0.25rem; }
+  .field-row label { font-size: 0.75rem; font-weight: 500; color: var(--text-muted); }
+  .field-row input[type="color"] {
+    height: 34px;
+    padding: 0.2rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .field-row input[type="number"] {
+    padding: 0.4rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.8125rem;
+  }
+  .border-block-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin: 0.25rem 0 0 0;
+  }
+</style>
+
+<div class="modal-overlay">
+  <div class="modal">
+    <div class="modal__header">Editor de cartas</div>
+    <div class="modal__content">
+      <p class="preview-note">Maqueta ilustrativa — muestra solo el bloque nuevo "Borde" añadido dentro de cada cara (frontal y trasera), junto a "Elegir imagen…". La cara frontal se ilustra con borde activo (grosor > 0); la trasera, con grosor 0 (sin borde, estado por defecto).</p>
+
+      <div class="card-editor-modal__toolbar">
+        <div class="modal__field">
+          <label>Proporción</label>
+          <select><option>Poker vertical (5:7)</option></select>
+        </div>
+      </div>
+
+      <div class="card-editor-modal__faces">
+        <div class="card-editor-modal__face">
+          <div class="card-editor-modal__face-label">Cara frontal</div>
+          <div class="card-editor-modal__canvas card-editor-modal__canvas--frontal"></div>
+          <div class="card-editor-modal__face-actions">
+            <button class="btn-cancel">Elegir imagen…</button>
+            <p class="border-block-title">Borde</p>
+            <div class="field-row">
+              <div>
+                <label>Color</label>
+                <input type="color" value="#2c7dd8" />
+              </div>
+              <div>
+                <label>Grosor (px)</label>
+                <input type="number" value="4" min="0" max="20" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-editor-modal__face">
+          <div class="card-editor-modal__face-label">Cara trasera</div>
+          <div class="card-editor-modal__canvas card-editor-modal__canvas--trasera"></div>
+          <div class="card-editor-modal__face-actions">
+            <button class="btn-cancel">Elegir imagen…</button>
+            <p class="border-block-title">Borde</p>
+            <div class="field-row">
+              <div>
+                <label>Color</label>
+                <input type="color" value="#1a1a1a" />
+              </div>
+              <div>
+                <label>Grosor (px)</label>
+                <input type="number" value="0" min="0" max="20" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -19,15 +19,17 @@ import { showErrorModal } from '../../ui/errorModal.js';
 // Selección de la sesión de edición en curso. `renderEditMode` se vuelve a invocar por
 // completo (desde main.js) ante cualquier `components:changed`, así que este estado
 // vive fuera de la función para no perderse cada vez que se mueve/redimensiona/edita
-// un componente cualquiera. El colapso/posición/ancho del panel, en cambio, viven en
-// `core/state.js` (`panelState`) porque sí se persisten en el autoguardado.
+// un componente cualquiera. El colapso/posición/ancho del panel y el ancho de sus
+// columnas, en cambio, viven en `core/state.js` (`panelState`) porque sí se
+// persisten en el autoguardado.
 let selectedComponentId = null;
 
 export function renderEditMode(container) {
   container.innerHTML = '';
 
-  const { collapsed, position: panelPosition, width: panelWidth } = getPanelState();
-  const { position: resourcePanelPosition, width: resourcePanelWidth } = getResourcePanelState();
+  const { position: panelPosition, width: panelWidth, columnWidths: panelColumnWidths } = getPanelState();
+  let collapsed = getPanelState().collapsed;
+  const { position: resourcePanelPosition, width: resourcePanelWidth, columnWidths: resourcePanelColumnWidths } = getResourcePanelState();
   let resourceCollapsed = getResourcePanelState().collapsed;
 
   const layout = document.createElement('div');
@@ -178,7 +180,8 @@ export function renderEditMode(container) {
       collapsed,
       onSelectRow: toggleSelect,
       onToggleCollapse: () => {
-        setPanelState({ collapsed: !collapsed });
+        collapsed = !collapsed;
+        setPanelState({ collapsed });
         renderList();
       },
       onPanelMove: (left, top) => {
@@ -186,6 +189,10 @@ export function renderEditMode(container) {
       },
       onPanelResize: (width) => {
         setPanelState({ width });
+      },
+      columnWidths: panelColumnWidths,
+      onColumnResize: (columnWidths) => {
+        setPanelState({ columnWidths });
       },
     });
   }
@@ -212,6 +219,10 @@ export function renderEditMode(container) {
       },
       onPanelResize: (width) => {
         setResourcePanelState({ width });
+      },
+      columnWidths: resourcePanelColumnWidths,
+      onColumnResize: (columnWidths) => {
+        setResourcePanelState({ columnWidths });
       },
     });
   }

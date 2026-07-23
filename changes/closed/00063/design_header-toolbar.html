@@ -1,0 +1,94 @@
+<title>00063 — Header, selector de modo y barra de edición</title>
+<style>
+  :root{--accent-blue:#2c7dd8;--bg-toolbar:#333;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#fafafa;color:#1a1a1a;}
+  .page{max-width:1160px;margin:0 auto;padding:2.5rem 1.5rem 4rem;font-family:system-ui,sans-serif;}
+  .page h1{font-size:1.5rem;margin:0 0 .25rem;}
+  .page .subtitle{color:#666;font-size:.95rem;margin:0 0 2.75rem;max-width:70ch;line-height:1.5;}
+  .section{margin-bottom:3rem;}
+  .section h2{font-size:1.125rem;margin:0 0 .25rem;padding-bottom:.6rem;border-bottom:1px solid #e0e0e0;}
+  .section .desc{color:#666;font-size:.875rem;margin:.75rem 0 1.25rem;max-width:74ch;line-height:1.55;}
+  .stack{display:flex;flex-direction:column;gap:1.25rem;}
+  .compare-col{border-radius:10px;overflow:hidden;border:1px solid #e5e5e5;}
+  .compare-col__label{display:flex;align-items:center;gap:.5rem;padding:.5rem 1rem;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+  .compare-col--before .compare-col__label{background:#f5f5f5;color:#888;}
+  .compare-col--after .compare-col__label{background:#e7f0fc;color:#1a5fa8;}
+  .compare-col__stage{padding:0;}
+
+  /* header old */
+  .o-h1{margin:0;padding:.75rem 1rem;font-size:1.5rem;background:var(--bg-toolbar);color:#fff;height:3.5rem;display:flex;align-items:center;position:relative;}
+  .o-switcher{position:absolute;top:.5rem;right:1rem;display:flex;gap:.5rem;}
+  .o-switcher button{padding:.5rem 1rem;background:var(--accent-blue);color:#fff;border:none;border-radius:4px;font-size:.875rem;cursor:pointer;}
+  .o-switcher .fit{width:36px;height:36px;padding:0;}
+
+  /* header new */
+  .n-h1{margin:0;padding:.75rem 1.25rem;font-size:1.5rem;font-weight:600;background:linear-gradient(180deg,#3a3a3a,var(--bg-toolbar));color:#fff;height:3.5rem;display:flex;align-items:center;position:relative;box-shadow:0 2px 6px rgba(0,0,0,.15);z-index:2;}
+  .n-switcher{position:absolute;top:.5rem;right:1.25rem;display:flex;gap:.6rem;}
+  .n-switcher button{padding:.5rem 1rem;background:var(--accent-blue);color:#fff;border:none;border-radius:4px;font-size:.875rem;cursor:pointer;transition:opacity 150ms ease, transform 150ms ease;}
+  .n-switcher button:hover{opacity:.9;transform:translateY(-1px);}
+  .n-switcher .fit{width:36px;height:36px;padding:0;}
+
+  /* toolbar old */
+  .o-toolbar{width:100%;background:var(--bg-toolbar);color:#fff;padding:.5rem 1rem;display:flex;justify-content:flex-end;gap:1rem;}
+  .o-toolbar button{color:inherit;background:none;border:1px solid #fff;padding:.5rem 1rem;border-radius:4px;font-size:.875rem;cursor:pointer;}
+  .o-toolbar button:hover{background:rgba(255,255,255,.1);}
+
+  /* toolbar new */
+  .n-toolbar{width:100%;background:var(--bg-toolbar);color:#fff;padding:.6rem 1.25rem;display:flex;justify-content:flex-end;gap:1rem;box-shadow:0 2px 6px rgba(0,0,0,.12);position:relative;z-index:1;}
+  .n-toolbar button{color:inherit;background:none;border:1px solid rgba(255,255,255,.7);padding:.5rem 1rem;border-radius:4px;font-size:.875rem;cursor:pointer;transition:background 150ms ease, border-color 150ms ease;}
+  .n-toolbar button:hover{background:rgba(255,255,255,.14);border-color:#fff;}
+
+  .table-strip{height:60px;background:#c2c2c2 radial-gradient(circle, rgba(0,0,0,.12) 1.5px, transparent 1.5px) -8px -8px/32px 32px;}
+</style>
+
+<div class="page">
+  <h1>00063 · Modo Juego / Modo Edición — Cabecera y barras</h1>
+  <p class="subtitle">La cabecera y las barras son planas hoy, incluso estando fijas por encima del contenido (mismo plano visual que la mesa). Después: una sombra sutil bajo header y barra de edición para reforzar que están "por encima" de la mesa (nivel 1), un ligero degradado casi imperceptible en el header para dar textura sin romper el estilo plano, y transición en los botones.</p>
+
+  <div class="section">
+    <h2>Cabecera + selector de modo (Modo Juego)</h2>
+    <div class="stack">
+      <div class="compare-col compare-col--before">
+        <div class="compare-col__label">Antes</div>
+        <div class="compare-col__stage">
+          <div class="o-h1">Errantes, un juego de mesa de SJ Martínez
+            <div class="o-switcher"><button>Entrar en modo edición</button><button class="fit">⤢</button></div>
+          </div>
+          <div class="table-strip"></div>
+        </div>
+      </div>
+      <div class="compare-col compare-col--after">
+        <div class="compare-col__label">Después</div>
+        <div class="compare-col__stage">
+          <div class="n-h1">Errantes, un juego de mesa de SJ Martínez
+            <div class="n-switcher"><button>Entrar en modo edición</button><button class="fit">⤢</button></div>
+          </div>
+          <div class="table-strip"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Barra de herramientas de edición</h2>
+    <div class="stack">
+      <div class="compare-col compare-col--before">
+        <div class="compare-col__label">Antes</div>
+        <div class="compare-col__stage">
+          <div class="o-h1" style="height:auto;padding:.75rem 1rem;">Errantes, un juego de mesa de SJ Martínez</div>
+          <div class="o-toolbar"><button>Salir del modo edición</button><button>Guardar</button><button>Exportar</button><button>Importar</button></div>
+          <div class="table-strip"></div>
+        </div>
+      </div>
+      <div class="compare-col compare-col--after">
+        <div class="compare-col__label">Después</div>
+        <div class="compare-col__stage">
+          <div class="n-h1" style="height:auto;padding:.75rem 1.25rem;box-shadow:none;">Errantes, un juego de mesa de SJ Martínez</div>
+          <div class="n-toolbar"><button>Salir del modo edición</button><button>Guardar</button><button>Exportar</button><button>Importar</button></div>
+          <div class="table-strip"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

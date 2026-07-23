@@ -4,12 +4,15 @@
 import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadDecks, getDecks } from '../core/state.js';
 import { buildExportHtml, downloadHtml, downloadJson } from '../core/fileExport.js';
 import { buildComponentsExport, parseImportedComponents } from '../core/persistence.js';
-import { getComponentsWithMissingResources } from '../core/resource.js';
-import { getComponentsWithMissingDeck } from '../core/deck.js';
+import { mergeImportedGame } from '../core/importMerge.js';
 import { getComponentsBounds } from './componentRenderer.js';
 import { fitToBounds } from './table.js';
 import { showToast } from './toast.js';
 import { showErrorModal } from './errorModal.js';
+import { openExportSelectionModal } from './exportSelectionModal.js';
+import { openImportSelectionModal } from './importSelectionModal.js';
+import { openImportConfirmModal } from './importConfirmModal.js';
+import { openImportReportModal } from './importReportModal.js';
 
 function currentFileName() {
   const fromPath = decodeURIComponent(location.pathname.split('/').pop() || '');
@@ -22,9 +25,22 @@ function saveAs(filename) {
   showToast(`Guardado como "${filename}"`);
 }
 
-function exportComponentsAs(filename) {
-  const data = buildComponentsExport(getComponents(), getResources(), getDecks());
-  downloadJson(filename, data);
+function byIds(items, ids) {
+  const idSet = new Set(ids);
+  return items.filter((item) => idSet.has(item.id));
+}
+
+function openExportFlow() {
+  openExportSelectionModal({
+    components: getComponents(),
+    resources: getResources(),
+    decks: getDecks(),
+    defaultFilename: 'errantes-componentes.json',
+    onAccept: ({ filename, componentIds, resourceIds, deckIds }) => {
+      const data = buildComponentsExport(byIds(getComponents(), componentIds), byIds(getResources(), resourceIds), byIds(getDecks(), deckIds));
+      downloadJson(filename.endsWith('.json') ? filename : `${filename}.json`, data);
+    },
+  });
 }
 
 function importComponentsFromFile(file) {
@@ -35,20 +51,36 @@ function importComponentsFromFile(file) {
       showErrorModal('No se ha podido importar el fichero', 'El fichero seleccionado no contiene un listado de componentes válido.', result.detail);
       return;
     }
-    if (!confirm('Se reemplazarán todos los componentes, recursos y mazos actuales por los del fichero importado. ¿Continuar?')) return;
 
-    loadComponents(result.components);
-    loadResources(result.resources);
-    loadDecks(result.decks);
+    openImportSelectionModal({
+      components: result.components,
+      resources: result.resources,
+      decks: result.decks,
+      onAccept: ({ componentIds, resourceIds, deckIds }) => {
+        openImportConfirmModal({
+          onAccept: ({ mode, conflictMode }) => {
+            const { components, resources, decks, report } = mergeImportedGame({
+              mode,
+              conflictMode,
+              existingComponents: getComponents(),
+              existingResources: getResources(),
+              existingDecks: getDecks(),
+              selectedComponents: byIds(result.components, componentIds),
+              selectedResources: byIds(result.resources, resourceIds),
+              selectedDecks: byIds(result.decks, deckIds),
+              allImportedResources: result.resources,
+              allImportedDecks: result.decks,
+            });
 
-    const missingResourceIds = getComponentsWithMissingResources(result.components, result.resources.map((r) => r.id));
-    const missingDeckIds = getComponentsWithMissingDeck(result.components, result.decks.map((d) => d.id));
-    if (missingResourceIds.length > 0 || missingDeckIds.length > 0) {
-      const parts = [];
-      if (missingResourceIds.length > 0) parts.push(`recursos no incluidos en el fichero (componentes: ${missingResourceIds.join(', ')})`);
-      if (missingDeckIds.length > 0) parts.push(`mazos no incluidos en el fichero (componentes: ${missingDeckIds.join(', ')})`);
-      showErrorModal('Importación con referencias incompletas', `La importación se ha completado, pero algunos componentes referencian ${parts.join(' y ')}.`, null);
-    }
+            loadComponents(components);
+            loadResources(resources);
+            loadDecks(decks);
+
+            if (report.length > 0) openImportReportModal(report);
+          },
+        });
+      },
+    });
   };
   reader.readAsText(file);
 }
@@ -107,11 +139,7 @@ export function renderEditToolbar(container) {
 
   const exportButton = document.createElement('button');
   exportButton.textContent = 'Exportar';
-  exportButton.addEventListener('click', () => {
-    const name = prompt('Exportar', 'errantes-componentes.json');
-    if (!name) return;
-    exportComponentsAs(name.endsWith('.json') ? name : `${name}.json`);
-  });
+  exportButton.addEventListener('click', () => openExportFlow());
   toolbar.appendChild(exportButton);
 
   const importInput = document.createElement('input');

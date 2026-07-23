@@ -2,10 +2,11 @@
 // tipografías), usado en modo edición. Análogo a componentList.js.
 
 import { attachResizeHandle } from './resizeHandle.js';
+import { attachColumnResizing } from './tableColumnResize.js';
 import { RESOURCE_TYPES } from '../core/resource.js';
 
 const MIN_PANEL_WIDTH = 290;
-const MAX_PANEL_WIDTH = 600;
+const RESOURCE_LIST_COLUMNS = ['nombre', 'tipo', 'acciones'];
 
 const TYPE_LABELS = {
   [RESOURCE_TYPES.IMAGE]: 'Imagen',
@@ -32,7 +33,7 @@ function matchesFilter(resource, query) {
   );
 }
 
-function renderBody(body, resources, { onEdit, onRemove } = {}) {
+function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnResize } = {}) {
   body.innerHTML = '';
 
   if (resources.length === 0) {
@@ -52,7 +53,15 @@ function renderBody(body, resources, { onEdit, onRemove } = {}) {
   table.className = 'resource-list';
 
   const thead = document.createElement('thead');
-  thead.innerHTML = '<tr><th>Nombre</th><th>Tipo</th><th>Acciones</th></tr>';
+  const headRow = document.createElement('tr');
+  const headLabels = { nombre: 'Nombre', tipo: 'Tipo', acciones: 'Acciones' };
+  for (const key of RESOURCE_LIST_COLUMNS) {
+    const th = document.createElement('th');
+    th.dataset.col = key;
+    th.textContent = headLabels[key];
+    headRow.appendChild(th);
+  }
+  thead.appendChild(headRow);
   table.appendChild(thead);
 
   const tbody = document.createElement('tbody');
@@ -95,6 +104,10 @@ function renderBody(body, resources, { onEdit, onRemove } = {}) {
 
   table.appendChild(tbody);
   body.appendChild(table);
+
+  if (onColumnResize) {
+    attachColumnResizing(table, RESOURCE_LIST_COLUMNS, columnWidths, onColumnResize);
+  }
 }
 
 export function renderResourceList(
@@ -108,6 +121,8 @@ export function renderResourceList(
     onToggleCollapse,
     onPanelMove,
     onPanelResize,
+    columnWidths = null,
+    onColumnResize,
   } = {}
 ) {
   container.innerHTML = '';
@@ -180,7 +195,7 @@ export function renderResourceList(
       filterInput.value = filterText;
       filterInput.addEventListener('input', () => {
         filterText = filterInput.value;
-        renderBody(body, resources.filter((r) => matchesFilter(r, filterText)), { onEdit, onRemove });
+        renderBody(body, resources.filter((r) => matchesFilter(r, filterText)), { onEdit, onRemove, columnWidths, onColumnResize });
       });
       filterBar.appendChild(filterInput);
 
@@ -191,7 +206,7 @@ export function renderResourceList(
 
     const body = document.createElement('div');
     body.className = 'resource-panel__body';
-    renderBody(body, resources.filter((r) => matchesFilter(r, filterText)), { onEdit, onRemove });
+    renderBody(body, resources.filter((r) => matchesFilter(r, filterText)), { onEdit, onRemove, columnWidths, onColumnResize });
     panel.appendChild(body);
 
     const footer = document.createElement('div');
@@ -213,9 +228,8 @@ export function renderResourceList(
     getSize: () => ({ width: container.getBoundingClientRect().width, height: 0 }),
     clamp: ({ width }) => {
       const parentWidth = container.offsetParent ? container.offsetParent.clientWidth : window.innerWidth;
-      const maxByViewport = Math.min(MAX_PANEL_WIDTH, window.innerWidth / 2);
       const maxByRightEdge = parentWidth - container.offsetLeft;
-      return { width: Math.min(Math.max(width, MIN_PANEL_WIDTH), maxByViewport, maxByRightEdge) };
+      return { width: Math.min(Math.max(width, MIN_PANEL_WIDTH), maxByRightEdge) };
     },
     onResize: ({ width }) => {
       container.style.width = `${width}px`;

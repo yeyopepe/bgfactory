@@ -8,6 +8,7 @@ export const CARD_PROPORTIONS = [
   { value: 'tarot-h', label: 'Tarot estándar vertical (70 × 120 mm)', ratio: 70 / 120 },
   { value: 'tarot-v', label: 'Tarot estándar horizontal (120 × 70 mm)', ratio: 120 / 70 },
   { value: '1:1', label: 'Cuadrada (1:1)', ratio: 1 },
+  { value: 'circular', label: 'Circular', ratio: 1 },
 ];
 
 const DEFAULT_PROPORTION = '5:7';
