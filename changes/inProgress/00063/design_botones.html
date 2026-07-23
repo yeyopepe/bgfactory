@@ -1,0 +1,122 @@
+<title>00063 — Modo Edición: Botones</title>
+<style>
+  :root{--accent-blue:#2c7dd8;--error:#d32f2f;--text-primary:#1a1a1a;--text-light:#fff;--bg-toolbar:#333;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#fafafa;color:#1a1a1a;}
+  .page{max-width:1120px;margin:0 auto;padding:2.5rem 1.5rem 4rem;font-family:system-ui,sans-serif;}
+  .page h1{font-size:1.5rem;margin:0 0 .25rem;}
+  .page .subtitle{color:#666;font-size:.95rem;margin:0 0 2.75rem;max-width:70ch;line-height:1.5;}
+  .section{margin-bottom:3rem;}
+  .section h2{font-size:1.125rem;margin:0 0 .25rem;padding-bottom:.6rem;border-bottom:1px solid #e0e0e0;}
+  .section .desc{color:#666;font-size:.875rem;margin:.75rem 0 1.25rem;max-width:74ch;line-height:1.55;}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+  @media (max-width:760px){.compare{grid-template-columns:1fr;}}
+  .compare-col{border-radius:10px;overflow:hidden;border:1px solid #e5e5e5;background:#fff;}
+  .compare-col__label{display:flex;align-items:center;gap:.5rem;padding:.6rem 1rem;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+  .compare-col--before .compare-col__label{background:#f5f5f5;color:#888;}
+  .compare-col--after .compare-col__label{background:#e7f0fc;color:#1a5fa8;}
+  .compare-col__stage{padding:1.75rem;display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;}
+  .compare-col__stage--dark{background:var(--bg-toolbar);}
+
+  /* OLD button styles (verbatim from main.css) */
+  .o-btn{padding:.5rem 1.5rem;border:none;border-radius:4px;cursor:pointer;font-size:.875rem;}
+  .o-btn-cancel{background:#f0f0f0;color:var(--text-primary);}
+  .o-btn-cancel:hover{background:#e0e0e0;}
+  .o-btn-accept{background:var(--accent-blue);color:#fff;}
+  .o-btn-accept:hover{opacity:.9;}
+  .o-btn-eliminar{background:var(--error);color:#fff;}
+  .o-btn-eliminar:hover{opacity:.9;}
+  .o-btn-small{padding:.25rem .5rem;border-radius:3px;font-size:.75rem;background:var(--accent-blue);color:#fff;border:none;cursor:pointer;}
+  .o-btn-toolbar{background:none;border:1px solid #fff;color:#fff;padding:.5rem 1rem;border-radius:4px;font-size:.875rem;cursor:pointer;}
+  .o-btn-toolbar:hover{background:rgba(255,255,255,.1);}
+  .o-btn-icon{width:36px;height:36px;padding:0;border:none;border-radius:4px;background:var(--accent-blue);color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+  .o-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  /* NEW button styles (proposal) */
+  .n-btn{padding:.5rem 1.5rem;border:none;border-radius:4px;cursor:pointer;font-size:.875rem;transition:opacity 150ms ease, transform 150ms ease, box-shadow 150ms ease;}
+  .n-btn-cancel{background:#f0f0f0;color:var(--text-primary);}
+  .n-btn-cancel:hover{background:#e8e8e8;transform:translateY(-1px);}
+  .n-btn-accept{background:var(--accent-blue);color:#fff;}
+  .n-btn-accept:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 3px 8px rgba(44,125,216,.35);}
+  .n-btn-eliminar{background:var(--error);color:#fff;}
+  .n-btn-eliminar:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 3px 8px rgba(211,47,47,.3);}
+  .n-btn-small{padding:.25rem .5rem;border-radius:4px;font-size:.75rem;background:var(--accent-blue);color:#fff;border:none;cursor:pointer;transition:opacity 150ms ease;}
+  .n-btn-small:hover{opacity:.9;}
+  .n-btn-toolbar{background:none;border:1px solid #fff;color:#fff;padding:.5rem 1rem;border-radius:4px;font-size:.875rem;cursor:pointer;transition:background 150ms ease;}
+  .n-btn-toolbar:hover{background:rgba(255,255,255,.14);}
+  .n-btn-icon{width:36px;height:36px;padding:0;border:none;border-radius:4px;background:var(--accent-blue);color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity 150ms ease, transform 150ms ease;}
+  .n-btn-icon:hover{opacity:.9;transform:translateY(-1px);}
+  .n-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+  .label{font-size:.68rem;color:#888;width:100%;margin-bottom:-.35rem;}
+</style>
+
+<div class="page">
+  <h1>00063 · Modo Edición — Botones</h1>
+  <p class="subtitle">Todas las variantes de botón de la app (primario, secundario, destructivo, sobre barra oscura, icono-solo, pequeño de lista) comparten hoy la misma base pero sin transición ni feedback de profundidad. Después: transición de 150ms y un ligero levantamiento + sombra de color en los botones de acción (primario/destructivo), coherente con el nuevo sistema de elevación. Pasa el ratón por encima para ver la diferencia.</p>
+
+  <div class="section">
+    <h2>Acción primaria / secundaria / destructiva</h2>
+    <p class="desc">Radio homogeneizado a 4px en todos los casos (el pequeño de lista pasaba de 3px a 4px). El primario y el destructivo añaden una sombra de color sutil en hover, reforzando que son la acción principal del modal.</p>
+    <div class="compare">
+      <div class="compare-col compare-col--before">
+        <div class="compare-col__label">Antes</div>
+        <div class="compare-col__stage">
+          <button class="o-btn o-btn-cancel">Cancelar</button>
+          <button class="o-btn o-btn-accept">Aceptar</button>
+          <button class="o-btn o-btn-eliminar">Eliminar</button>
+          <button class="o-btn o-btn-accept" disabled>Aceptar</button>
+        </div>
+      </div>
+      <div class="compare-col compare-col--after">
+        <div class="compare-col__label">Después</div>
+        <div class="compare-col__stage">
+          <button class="n-btn n-btn-cancel">Cancelar</button>
+          <button class="n-btn n-btn-accept">Aceptar</button>
+          <button class="n-btn n-btn-eliminar">Eliminar</button>
+          <button class="n-btn n-btn-accept" disabled>Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Botón pequeño (dentro de filas de lista)</h2>
+    <div class="compare">
+      <div class="compare-col compare-col--before">
+        <div class="compare-col__label">Antes — radio 3px</div>
+        <div class="compare-col__stage">
+          <button class="o-btn-small">Editar</button>
+          <button class="o-btn-small" style="background:#d32f2f">Eliminar</button>
+        </div>
+      </div>
+      <div class="compare-col compare-col--after">
+        <div class="compare-col__label">Después — radio 4px unificado</div>
+        <div class="compare-col__stage">
+          <button class="n-btn-small">Editar</button>
+          <button class="n-btn-small" style="background:#d32f2f">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Sobre barra oscura (toolbar) — con texto e icono-solo</h2>
+    <div class="compare">
+      <div class="compare-col compare-col--before">
+        <div class="compare-col__label">Antes</div>
+        <div class="compare-col__stage compare-col__stage--dark">
+          <button class="o-btn-toolbar">Guardar</button>
+          <button class="o-btn-icon" title="Encajar vista">⤢</button>
+        </div>
+      </div>
+      <div class="compare-col compare-col--after">
+        <div class="compare-col__label">Después</div>
+        <div class="compare-col__stage compare-col__stage--dark">
+          <button class="n-btn-toolbar">Guardar</button>
+          <button class="n-btn-icon" title="Encajar vista">⤢</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
