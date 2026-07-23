@@ -1,13 +1,13 @@
 ---
-name: ms-graph
-description: Genera (o regenera) un fichero graph.json con el grafo de dependencias del código del proyecto (ficheros, símbolos exportados y relaciones entre ellos) para servir como contexto reducido de arquitectura. Trigger: /ms-graph [rutaBase] [rutaGraphJson], o cuando el usuario pide generar/actualizar el grafo de contexto del proyecto.
+name: ms-internal-graph
+description: Genera (o regenera) un fichero graph.json con el grafo de dependencias del código del proyecto (ficheros, símbolos exportados y relaciones entre ellos) para servir como contexto reducido de arquitectura. Trigger: /ms-internal-graph [rutaBase] [rutaGraphJson], o cuando el usuario pide generar/actualizar el grafo de contexto del proyecto.
 argument-hint: "[rutaBase] [rutaGraphJson] (opcionales)"
 metadata:
   version: 2.0.0
   uses: []
 ---
 
-# ms-graph
+# ms-internal-graph
 
 Explora el código fuente de un proyecto y escribe un `graph.json` con un grafo de dependencias reducido (ficheros, símbolos que exportan, y las relaciones entre ellos) pensado como contexto de arquitectura fácil de cargar por otras skills o conversaciones, sin tener que releer todo el código cada vez.
 
@@ -28,7 +28,7 @@ Elige un directorio de trabajo temporal (tu scratchpad de sesión si tienes
 uno, o cualquier carpeta temporal escribible) y ejecuta:
 
 ```
-python3 .claude/skills/ms-graph/scripts/ms_graph.py extract \
+python3 .claude/skills/ms-internal-graph/scripts/ms_graph.py extract \
   --base <rutaBase> \
   --out <tmp>/graph.skeleton.json \
   --exclude "<carpetas a excluir además de node_modules/.git/dist/build/out/coverage>"
@@ -53,16 +53,16 @@ No inventes nodos ni edges nuevos aquí ni cambies los que trajo el skeleton —
 ## 3. Construir y validar el `graph.json` (script)
 
 ```
-python3 .claude/skills/ms-graph/scripts/ms_graph.py build \
+python3 .claude/skills/ms-internal-graph/scripts/ms_graph.py build \
   --skeleton <tmp>/graph.skeleton.json \
   --purposes <tmp>/purposes.json \
   --out <rutaGraphJson>
 ```
 
-`build` fusiona tus `purpose` en el skeleton, valida el resultado contra [`schema.json`](schema.json) (ids únicos, sin edges colgantes, tipos y relaciones válidos, ningún campo obligatorio vacío) y **solo si pasa** escribe `<rutaGraphJson>`, sobrescribiendo cualquier contenido previo — `ms-graph` siempre regenera el grafo entero, no actualiza de forma incremental.
+`build` fusiona tus `purpose` en el skeleton, valida el resultado contra [`schema.json`](schema.json) (ids únicos, sin edges colgantes, tipos y relaciones válidos, ningún campo obligatorio vacío) y **solo si pasa** escribe `<rutaGraphJson>`, sobrescribiendo cualquier contenido previo — `ms-internal-graph` siempre regenera el grafo entero, no actualiza de forma incremental.
 
 - Si falla porque falta algún `purpose` (te lista los ids exactos), vuelve al paso 2 solo para esos ids y repite este paso.
-- Si el skeleton lo construiste tú a mano en el paso 1 (proyecto no JS/TS), puedes en su lugar ejecutar `python3 .claude/skills/ms-graph/scripts/ms_graph.py validate --graph <rutaGraphJson>` después de escribir tú mismo el `graph.json` completo, para comprobarlo igualmente antes de confirmar al usuario.
+- Si el skeleton lo construiste tú a mano en el paso 1 (proyecto no JS/TS), puedes en su lugar ejecutar `python3 .claude/skills/ms-internal-graph/scripts/ms_graph.py validate --graph <rutaGraphJson>` después de escribir tú mismo el `graph.json` completo, para comprobarlo igualmente antes de confirmar al usuario.
 
 ## 4. Confirmar al usuario
 

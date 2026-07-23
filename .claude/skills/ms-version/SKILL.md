@@ -2,7 +2,7 @@
 name: ms-version
 description: Genera una nueva versión del entregable del proyecto (incrementa en 1 la versión actual, sin relación con ningún código de change/fix, y ejecuta el build). Parte del framework ms-*. Trigger: /ms-version, o cuando el usuario pide generar/cortar/bump de una nueva versión o build del proyecto.
 metadata:
-  version: 1.1.0
+  version: 1.2.0
   uses: []
 ---
 
@@ -36,10 +36,16 @@ Ejecuta `buildCommand` tal cual está configurado (respeta el shell que espera: 
 
 ## 2. Verificar el resultado
 
-- Lee de nuevo `versionVariable` en `versionFilePath` para saber qué versión se generó (build.py ya la habrá incrementado).
-- Comprueba que el fichero resuelto de `buildOutputPath` (sustituyendo `{version}` por ese valor) se ha generado.
-- Si es razonablemente inspeccionable (HTML/texto), comprueba que el número de versión visible dentro coincide con el esperado.
-- Si algo falla, repórtalo con el mensaje de error real del build — no lo des por hecho como éxito.
+La relectura de la versión y la comprobación del entregable las hace de forma determinista y gratis en tokens el script [`scripts/verify-build.py`](scripts/verify-build.py) (Python estándar, sin dependencias externas) — no las repitas a mano releyendo ficheros. Ejecuta desde la raíz del repo:
+
+```
+python .claude/skills/ms-version/scripts/verify-build.py
+```
+
+El script lee `versionFilePath`/`versionVariable`/`buildOutputPath` de `.claude/ms-context.json`, relee la versión ya incrementada por el build, resuelve la ruta de `buildOutputPath` sustituyendo `{version}`, comprueba que el fichero existe y, si es texto legible, que el string de versión aparece dentro. Imprime por stdout un único JSON: `{"version", "outputPath", "outputExists", "versionFoundInOutput"}` (`versionFoundInOutput` es `null` si el fichero no se pudo leer como texto, p.ej. un binario). Parsea ese JSON:
+
+- Si `outputExists` es `false`, o `versionFoundInOutput` es `false`, el build no ha generado lo esperado — repórtalo como fallo, no lo des por hecho como éxito.
+- Si el propio script termina con error (p.ej. no encuentra `versionVariable` en `versionFilePath`), repórtalo con su mensaje real.
 
 ## 3. Confirmar al usuario
 

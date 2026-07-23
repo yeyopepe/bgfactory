@@ -3,7 +3,7 @@ name: ms-todo
 description: Apunta y desarrolla ideas sueltas para el futuro sin meterlas en el flujo de trabajo del proyecto — las guarda en {changesDir}/todo/{código}/description.md, una carpeta aparte que ninguna otra skill ms-* usa ni tiene en cuenta. Sirve tanto para anotar una idea nueva como para seguir desarrollando/ampliando una ya apuntada. Trigger: /ms-todo [código] <idea>, o cuando el usuario pide "apuntar"/"dejar anotada" una idea para más adelante, sin pedir que se documente como change/fix.
 argument-hint: "[código] <idea a anotar o desarrollar>"
 metadata:
-  version: 1.0.0
+  version: 1.2.0
   uses: []
 ---
 
@@ -34,7 +34,13 @@ Si el usuario no da contenido alguno (p.ej. solo pide "qué ideas tengo apuntada
 
 ## 2. Generar un código único
 
-Lista las subcarpetas que ya existan bajo `{changesDir}/todo/` (créala si no existe todavía — en ese caso no hay ninguna carpeta que colisione). Genera un código alfanumérico corto (p.ej. 5 caracteres en minúscula, `[a-z0-9]`) que no coincida con ninguna carpeta ya existente ahí. No consultes ni tengas en cuenta para esto ninguna otra carpeta del repo (ni `inProgress`/`implemented`/`closed`, ni nada fuera de `{changesDir}/todo/`): la única condición de unicidad es no repetirse dentro de esta subcarpeta.
+La generación y comprobación de colisión las hace de forma determinista y gratis en tokens el script [`scripts/new-todo-code.py`](scripts/new-todo-code.py) (Python estándar, sin dependencias externas) — no lo hagas a mano. Ejecuta desde la raíz del repo:
+
+```
+python .claude/skills/ms-todo/scripts/new-todo-code.py
+```
+
+El script lee `changesDir` de `.claude/ms-context.json` (o usa `--changes-dir` si se lo pasas), lista las subcarpetas que ya existan bajo `{changesDir}/todo/` (sin necesidad de que exista todavía — en ese caso no hay ninguna carpeta que colisione), genera un código alfanumérico corto (`[a-z0-9]`, 5 caracteres por defecto, `--length` para otro tamaño) que no coincida con ninguna ya existente ahí, e imprime únicamente ese código por stdout. No consulta ni tiene en cuenta ninguna otra carpeta del repo (ni `inProgress`/`implemented`/`closed`, ni nada fuera de `{changesDir}/todo/`): la única condición de unicidad es no repetirse dentro de esta subcarpeta. Usa ese valor tal cual como código — no lo recalcules a mano.
 
 ## 3. Anotar la idea
 
@@ -72,5 +78,5 @@ Si el usuario pide ver qué ideas hay anotadas: lista las subcarpetas de `{chang
 
 - No planifica ni implementa nada (no hay equivalente a `ms-implement` aquí).
 - No mueve ideas entre estados ni las "cierra" — para eso no hay flujo; si una idea deja de interesar, es el usuario quien decide borrarla o dejarla tal cual.
-- No numera con el `xxxx` del framework ni invoca `ms-workflow` — su numeración es independiente y local a `{changesDir}/todo/`.
-- No cuenta como fuente de intención para `ms-implement`, `ms-graph`, `ms-version` ni ninguna otra skill del framework: `{changesDir}/todo/` es territorio exclusivo de `ms-todo`.
+- No numera con el `xxxx` del framework ni invoca `ms-internal-workflow` — su numeración es independiente y local a `{changesDir}/todo/`.
+- No cuenta como fuente de intención para `ms-implement`, `ms-internal-graph`, `ms-version` ni ninguna otra skill del framework: `{changesDir}/todo/` es territorio exclusivo de `ms-todo`.

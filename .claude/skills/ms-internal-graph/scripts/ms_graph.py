@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Helper for the ms-graph skill: does the deterministic, structural half of
+"""Helper for the ms-internal-graph skill: does the deterministic, structural half of
 building graph.json (walking files, resolving imports, matching exported
 function/class declarations, finding call sites) with plain regex + brace
 counting -- no tree-sitter, no pip dependencies, stdlib only.

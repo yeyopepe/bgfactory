@@ -3,7 +3,7 @@ name: ms-status
 description: Recopila y presenta el estado actual del proyecto según el framework ms-* — totales de elementos por tipo (todo/change/fix/fast) y por estado (carpetas de {changesDir}), diferenciando dentro de "en progreso" entre entradas descritas (solo description.md) y listas para implementar (description.md + plan.md), y listando aparte los cambios `fast` (aplicados directamente en `implemented` por `ms-fast`, sin pasar por `inProgress`). Devuelve el informe como respuesta de chat; no escribe ningún fichero salvo que el usuario lo pida explícitamente. Trigger: /ms-status, o cuando el usuario pide un resumen/vista general del estado del proyecto, cuántos changes/fixes hay pendientes, etc. Con el argumento `todo` (`/ms-status todo`), en vez del informe completo devuelve solo el listado de ideas de `{changesDir}/todo/` con su código y el texto completo de la idea. Con cualquier otro nombre de carpeta de estado existente (`/ms-status closed`, `/ms-status implemented`, `/ms-status inProgress`...), devuelve la lista completa de esa carpeta con columnas Código, Tipo, Descripción y Fecha.
 argument-hint: "[todo|<estado>]"
 metadata:
-  version: 1.5.0
+  version: 1.6.0
   uses: []
 ---
 
@@ -69,19 +69,15 @@ Si no se pidió ninguno de estos dos modos, continúa con el informe completo:
 
 ## 2. Redactar el informe
 
-Usa como base la plantilla [`STATUS.template.md`](STATUS.template.md) — sigue su estructura y secciones, pero rellénala con los datos reales del JSON del paso 1. Mapeo de los marcadores de la plantilla a campos del JSON:
+Toda la mecánica de mapear el JSON del paso 1 a la plantilla [`STATUS.template.md`](STATUS.template.md) (tabla de totales, las tres listas de "En progreso", cambios fast, ideas de `todo/`, avisos) la hace, de forma determinista y gratis en tokens, el script [`scripts/render_status.py`](scripts/render_status.py) — no repitas tú ese mapeo campo a campo ni redactes las listas a mano. Ejecuta desde la raíz del repo:
 
-- **Tabla "Estado"**: una fila por cada estado que exista realmente en `{changesDir}` (no asumas que siempre son los cuatro habituales — `todo`/`inProgress`/`implemented`/`closed`; si hay uno adicional o falta alguno, refleja lo que hay). Para cada fila, `{estadoChange}`/`{estadoFix}`/`{estadoFast}` salen de `states[estado].byType.change` / `.fix` / `.fast` (0 si no aparecen), y `{estadoTotal}` de `states[estado].total`. La columna Fast solo tendrá valores en `implemented`/`closed` (las entradas `fast` de `ms-fast` nunca pasan por `inProgress`); dale 0/`—` en las demás filas. La fila `Todo` solo tiene columna Todo (`states.todo.total`), ya que `ms-todo` no usa `**Tipo**`. La fila de totales sale de `totalsByType.change`, `totalsByType.fix`, `totalsByType.fast`, `states.todo.total` y `grandTotal`.
-- **En progreso**: tres listas, todas derivadas de `states.inProgress`:
-  - "Pendientes de análisis técnico" ({pendingTotal}) = entradas con `subStatus == "descrito"`.
-  - "Listos para implementar" ({toImplementTotal}) = entradas con `subStatus == "listo_para_implementar"`.
-  - "Listos para revisar y cerrar" ({toCloseTotal}) = `states.implemented.total` (ya implementadas en código, pendientes de revisar y mover a `closed` con `ms-close`; incluye tanto entradas `change`/`fix` como `fast`); si esta entrada existe en la plantilla, no confundirla con `inProgress` — es información de otro estado agrupada aquí porque forma parte del ciclo "en progreso" de trabajo del usuario.
-  - Para las dos primeras, lista cada entrada como código, nombre (si `name` no es null) y tipo. Si alguna de las tres listas está vacía, dilo explícitamente ("ninguno") en vez de omitirla en silencio. Si hay entradas con `subStatus == "sin_descripcion"`, menciónalas aparte (son anómalas).
-- **Cambios fast implementados**: lista las entradas con `type == "fast"` de `states.implemented.entries` y, si los hay, de `states.closed.entries` (código, nombre y, si se necesita, indica si ya está `closed`). Si `totalsByType.fast` es 0 o no existe, omite la sección entera en vez de dejarla vacía.
-- **Ideas en todo/**: lista simple de los códigos presentes en `states.todo.entries`, usando el texto completo (sin truncar) de `name` como `{idea}`.
-- **Avisos**: solo si `warnings` no está vacío — inclúyelos tal cual los da el script, sin suavizarlos ni omitirlos.
+```
+python .claude/skills/ms-status/scripts/render_status.py
+```
 
-No inventes datos que no estén en el JSON (p.ej. no le asignes un tipo a una entrada `unknown` solo por adivinarlo del nombre de la carpeta).
+El script reutiliza internamente la misma recopilación del paso 1, aplica el mapeo completo (incluida la regla de la columna Fast solo en `implemented`/`closed`, las tres listas de "En progreso" con sus casos vacíos, y omitir por completo las secciones de "Cambios fast implementados"/"Avisos" cuando no aplican) e imprime por stdout el informe en markdown ya listo — no es JSON, no vuelvas a aplicar la plantilla tú ni reformatees nada, limítate a pegar la salida tal cual como respuesta.
+
+No inventes datos que no estén en la salida del script (p.ej. no le asignes un tipo a una entrada `unknown` solo por adivinarlo del nombre de la carpeta).
 
 ## 3. Presentar el informe
 

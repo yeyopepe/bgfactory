@@ -4,7 +4,7 @@ description: Cierra un change/fix ya implementado, moviéndolo de {changesDir}/i
 argument-hint: <xxxx o descripción del cambio/fix a cerrar>
 metadata:
   version: 1.0.0
-  uses: [ms-workflow]
+  uses: [ms-internal-workflow]
 ---
 
 # ms-close
@@ -45,7 +45,7 @@ Antes de mover nada, usa `AskUserQuestion` para confirmar explícitamente con el
 
 ## 3. Mover la carpeta a `closed`
 
-Invoca la skill `ms-workflow` (herramienta Skill) con `action=move`, `xxxx`, `from=implemented` y `to=closed` — no muevas la carpeta tú mismo.
+Invoca la skill `ms-internal-workflow` (herramienta Skill) con `action=move`, `xxxx`, `from=implemented` y `to=closed` — no muevas la carpeta tú mismo.
 
 ## 4. Confirmar al usuario
 

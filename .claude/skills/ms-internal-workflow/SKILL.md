@@ -1,5 +1,5 @@
 ---
-name: ms-workflow
+name: ms-internal-workflow
 description: Proceso compartido, agnóstico al proyecto, con dos acciones internas del framework ms-*: (1) crear una entrada nueva en {changesDir}/inProgress documentando la intención de un fix o change, y (2) mover una entrada existente entre los subestados del flujo (inProgress/implemented/closed) cuando otra skill del framework produce esa transición. Uso interno de las skills ms-new, ms-fix, ms-implement y ms-close.
 user-invocable: false
 metadata:
@@ -7,7 +7,7 @@ metadata:
   uses: []
 ---
 
-# ms-workflow
+# ms-internal-workflow
 
 Proceso genérico y único punto donde el framework `ms-*` sabe crear y mover las carpetas de `{changesDir}`. Solo lo invocan otras skills del framework — no está pensado para invocación directa por el usuario.
 
@@ -16,16 +16,16 @@ Tiene dos acciones independientes, cada una invocada con un parámetro `action`:
 - **`action=create`** — la invocan `ms-new` y `ms-fix`, con `type` (`change`/`fix`) y la descripción de lo que se pide. Dimensiona el alcance funcional y crea la entrada en `{changesDir}/inProgress/`.
 - **`action=move`** — la invocan `ms-implement` y `ms-close`, con `xxxx`, `from` y `to` (nombres de subcarpeta de `{changesDir}`: `inProgress`, `implemented` o `closed`). Mueve la carpeta `{xxxx}` entre esos subestados.
 
-Ninguna de las dos acciones implementa ni analiza técnicamente nada, ni decide **si** debe producirse la transición o confirmación con el usuario — eso ya lo ha resuelto la skill llamante antes de invocar `ms-workflow`. Esta skill solo ejecuta la mecánica de fichero (numerar+crear, o mover) de forma consistente en un único sitio.
+Ninguna de las dos acciones implementa ni analiza técnicamente nada, ni decide **si** debe producirse la transición o confirmación con el usuario — eso ya lo ha resuelto la skill llamante antes de invocar `ms-internal-workflow`. Esta skill solo ejecuta la mecánica de fichero (numerar+crear, o mover) de forma consistente en un único sitio.
 
 ## Guardarraíl de invocación — leer antes que nada
 
-Esta skill **no se ejecuta si se ha invocado directamente** (p.ej. el usuario ha escrito `/ms-workflow`, o ha pedido "ejecuta/invoca ms-workflow" en texto plano). Solo debe ejecutarse cuando el propio contenido de `ms-new`, `ms-fix`, `ms-implement` o `ms-close` te ha instruido a invocarla como parte de su proceso, con la `action` y los parámetros correspondientes ya resueltos por esa skill.
+Esta skill **no se ejecuta si se ha invocado directamente** (p.ej. el usuario ha escrito `/ms-internal-workflow`, o ha pedido "ejecuta/invoca ms-internal-workflow" en texto plano). Solo debe ejecutarse cuando el propio contenido de `ms-new`, `ms-fix`, `ms-implement` o `ms-close` te ha instruido a invocarla como parte de su proceso, con la `action` y los parámetros correspondientes ya resueltos por esa skill.
 
-Si te han invocado sin ese contexto (el usuario ha tecleado el comando directamente, o no venías de ninguna de esas cuatro skills), **detente aquí** y dile al usuario que `ms-workflow` es de uso interno del framework: para documentar, implementar o cerrar un cambio/fix debe usar la skill correspondiente. No hagas nada más en ese caso.
+Si te han invocado sin ese contexto (el usuario ha tecleado el comando directamente, o no venías de ninguna de esas cuatro skills), **detente aquí** y dile al usuario que `ms-internal-workflow` es de uso interno del framework: para documentar, implementar o cerrar un cambio/fix debe usar la skill correspondiente. No hagas nada más en ese caso.
 
 ```
-`/ms-workflow` es de uso interno del framework `ms-*` y no se invoca directamente. Para documentar un cambio/fix usa `ms-new`/`ms-fix`, para implementarlo `/ms-implement`, y para cerrarlo `/ms-close`.
+`/ms-internal-workflow` es de uso interno del framework `ms-*` y no se invoca directamente. Para documentar un cambio/fix usa `ms-new`/`ms-fix`, para implementarlo `/ms-implement`, y para cerrarlo `/ms-close`.
 ```
 
 ## 0. Cargar el contexto del proyecto
@@ -47,7 +47,7 @@ La sección `project` de `ms-context.json` úsala como contexto adicional al red
 Cada cambio/fix vive en una subcarpeta numerada bajo alguno de los subárboles de `{changesDir}` (`inProgress/`, `implemented/`, `closed/`, o cualquier otro que exista): un mismo `xxxx` no puede repetirse en ninguno de ellos. La excepción es `{changesDir}/todo/`, que usa la skill `ms-todo` para ideas sueltas ajenas a este flujo: sus carpetas nunca cuentan aquí, ni aunque tuvieran nombre numérico. Para calcularlo sin errores, ejecuta el script [`scripts/next-change-number.py`](scripts/next-change-number.py) (requiere Python 3) desde la raíz del repo:
 
 ```
-python .claude/skills/ms-workflow/scripts/next-change-number.py
+python .claude/skills/ms-internal-workflow/scripts/next-change-number.py
 ```
 
 El script lee `changesDir` y `numberWidth` de `.claude/ms-context.json`, recorre **todas** las subcarpetas de `{changesDir}` (no solo `inProgress`/`implemented`, pero siempre ignorando `todo/`) buscando nombres puramente numéricos, y devuelve por stdout el siguiente `xxxx` ya formateado con `numberWidth` dígitos y ceros a la izquierda (p.ej. `0002`, o `1` si no hubiera ninguna carpeta numerada todavía). Usa ese valor tal cual como `xxxx` — no lo recalcules a mano ni mires solo `inProgress`/`implemented`.
@@ -87,10 +87,10 @@ Recibida con `xxxx`, `from` y `to` ya resueltos por quien invoca (`ms-implement`
 La mecánica de fichero (comprobar origen, crear destino si falta, mover) la hace de forma determinista y gratis en tokens el script [`scripts/move-change.py`](scripts/move-change.py) (Python estándar, sin dependencias externas) — no la reimplementes a mano. Ejecuta desde la raíz del repo:
 
 ```
-python .claude/skills/ms-workflow/scripts/move-change.py --xxxx <xxxx> --from <from> --to <to>
+python .claude/skills/ms-internal-workflow/scripts/move-change.py --xxxx <xxxx> --from <from> --to <to>
 ```
 
-- Si `{changesDir}/{from}/{xxxx}/` no existe, o ya hay algo en `{changesDir}/{to}/{xxxx}/`, el script termina con error y no mueve nada — es un error de quien invoca (esa skill ya debería haber identificado y verificado la carpeta antes de llamar a `ms-workflow`). Repórtaselo a quien invoca tal cual, sin improvisar una solución.
+- Si `{changesDir}/{from}/{xxxx}/` no existe, o ya hay algo en `{changesDir}/{to}/{xxxx}/`, el script termina con error y no mueve nada — es un error de quien invoca (esa skill ya debería haber identificado y verificado la carpeta antes de llamar a `ms-internal-workflow`). Repórtaselo a quien invoca tal cual, sin improvisar una solución.
 - Si va bien, el script imprime en stdout la ruta destino relativa a la raíz del repo (p.ej. `src/_changes/implemented/0002`).
 
-Confirma a quien invoca esa ruta destino, para que la skill llamante continúe su propio proceso (mensaje al usuario, pasos siguientes como generar versión o actualizar el grafo, etc. — eso lo gestiona ella, no `ms-workflow`).
+Confirma a quien invoca esa ruta destino, para que la skill llamante continúe su propio proceso (mensaje al usuario, pasos siguientes como generar versión o actualizar el grafo, etc. — eso lo gestiona ella, no `ms-internal-workflow`).

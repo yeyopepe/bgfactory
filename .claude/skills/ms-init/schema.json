@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "ms-context.schema.json",
   "title": ".claude/ms-context.json",
-  "description": "Fichero en la raiz del repo (junto a la carpeta .claude/) que da contexto a todas las skills del framework ms-* (ms-initialize, ms-workflow, ms-change, ms-fix, ms-implement, ms-version). Es lo unico que hace que esas skills sean genericas en vez de estar atadas a un proyecto concreto. Lo crea y actualiza la skill ms-initialize; ninguna otra skill debe escribirlo desde cero. Si el fichero existe pero incompleto, ms-initialize hace merge sobre lo ya existente sin pisar nada. Cualquier skill ms-* que necesite un campo que falte debe decirle al usuario que ejecute ms-initialize, no reimplementar el bootstrap.",
+  "description": "Fichero en la raiz del repo (junto a la carpeta .claude/) que da contexto a todas las skills del framework ms-* (ms-initialize, ms-internal-workflow, ms-change, ms-fix, ms-implement, ms-version). Es lo unico que hace que esas skills sean genericas en vez de estar atadas a un proyecto concreto. Lo crea y actualiza la skill ms-initialize; ninguna otra skill debe escribirlo desde cero. Si el fichero existe pero incompleto, ms-initialize hace merge sobre lo ya existente sin pisar nada. Cualquier skill ms-* que necesite un campo que falte debe decirle al usuario que ejecute ms-initialize, no reimplementar el bootstrap.",
   "type": "object",
   "required": ["framework"],
   "additionalProperties": false,
@@ -93,7 +93,7 @@
                 },
                 "projectGraphPath": {
                   "type": "string",
-                  "description": "OPCIONAL. Ruta al fichero con el grafo de conocimiento del proyecto (p.ej. generado con la skill graphify, tipicamente graphify-out/graph.json, o con la skill ms-graph). Lo usa ms-implement como contexto adicional al analizar un cambio/fix. Si el proyecto no tiene ese grafo, se omite.",
+                  "description": "OPCIONAL. Ruta al fichero con el grafo de conocimiento del proyecto (p.ej. generado con la skill graphify, tipicamente graphify-out/graph.json, o con la skill ms-internal-graph). Lo usa ms-implement como contexto adicional al analizar un cambio/fix. Si el proyecto no tiene ese grafo, se omite.",
                   "examples": ["graphify-out/graph.json"]
                 }
               }

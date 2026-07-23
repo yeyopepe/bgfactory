@@ -1,6 +1,6 @@
 # Estado del proyecto — {nombreProyecto}
 
-*Generado: {fecha}*
+*Generado: {fechaGeneracion}*
 
 ## Estado
 
@@ -17,27 +17,33 @@
 ## En progreso
 
 -   **Implementando o pendientes de implementar** (`description.md` + `plan.md`, pendientes de implementar): {toImplementTotal}
-    -   {xxxx} — {nombre} ({tipo})
-    -   …
+{filasImplementar}
 -   **Pendientes de análisis técnico** (solo `description.md`, pendientes de planificar con `ms-implement`): {pendingTotal}
-    -   {xxxx} — {nombre} ({tipo})
-    -   …
+{filasPendientes}
 -   **Listos para revisar y cerrar** (en la carpeta changes/implemented, incluye tanto change/fix como fast): {toCloseTotal}
-*(Omitir cualquiera de las tres listas si su total es 0, indicando "ninguno".)*
+<!-- SECTION:sinDescripcion -->
+-   **Entradas sin `description.md` (anómalas):** {filasSinDescripcion}
+<!-- /SECTION:sinDescripcion -->
 
+<!-- SECTION:fast -->
 ## Cambios fast implementados
 
--   {código} — {nombre} ({fecha})
-    -   …
-*(Listar las entradas `fast` de `implemented` y `closed` — código de carpeta, nombre y fecha. Si no hay ninguna, indicarlo. Omitir esta sección solo si `totalsByType.fast` es 0 o no existe.)*
+{filasFast}
+<!-- /SECTION:fast -->
 
 ## Ideas en todo/ (fuera del flujo change/fix)
 
--   {codigo}: {idea}
--   …
+{filasIdeas}
 
-*(Listar los códigos de `{changesDir}/todo/`; si no hay ninguna, indicarlo.)*
-
+<!-- SECTION:avisos -->
 ## Avisos
 
-*(Incluir esta sección solo si `collect_status.py` devolvió algún elemento en `warnings` — p.ej. entradas sin `description.md`, o sin campo `**Tipo**` reconocible. Omitir la sección entera si no hay avisos.)*
+{filasAvisos}
+<!-- /SECTION:avisos -->
+
+<!-- ROW_ENTRY: -   {xxxx} — {nombre} ({tipo}) -->
+<!-- EMPTY_ENTRY: -   ninguno -->
+<!-- ROW_FAST: -   {código} — {nombre} ({fecha}) -->
+<!-- ROW_IDEA: -   {codigo}: {idea} -->
+<!-- ROW_AVISO: -   {aviso} -->
+<!-- EMPTY_IDEAS: *(No hay ninguna idea apuntada en `todo/`.)* -->

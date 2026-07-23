@@ -31,7 +31,7 @@ EXCLUDED_STATE_DIRS = {"todo"}
 
 
 def repo_root() -> Path:
-    # Este script vive en {repo}/.claude/skills/ms-workflow/scripts/
+    # Este script vive en {repo}/.claude/skills/ms-internal-workflow/scripts/
     return Path(__file__).resolve().parents[4]
 
 

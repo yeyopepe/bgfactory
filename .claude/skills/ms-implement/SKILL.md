@@ -4,14 +4,14 @@ description: Planifica e implementa un change/fix ya documentado en {changesDir}
 argument-hint: <xxxx o descripción del cambio/fix a implementar>
 metadata:
   version: 1.4.0
-  uses: [ms-tech-analysis, ms-workflow, ms-graph]
+  uses: [ms-internal-tech-analysis, ms-internal-workflow, ms-internal-graph]
 ---
 
 # ms-implement
 
 Toma una entrada ya documentada por `ms-change`/`ms-fix` en `{changesDir}/inProgress/{xxxx}/` y la lleva hasta implementada: analiza la solución técnica, la deja escrita en `plan.md`, y si el usuario lo confirma, la implementa y mueve la carpeta a `{changesDir}/implemented/{xxxx}/`.
 
-**Fuente de la verdad.** La documentación técnica (`docs.tech.*`) y el código real son la única fuente de verdad sobre cómo funciona hoy el proyecto — no lo que `description.md` asuma implícitamente sobre la implementación, ni memoria de conversaciones anteriores. Reúne ese contexto siempre invocando la skill `ms-tech-analysis` (nunca leyendo tú mismo `framework.docs.tech` a pelo o explorando código a ciegas) al analizar la causa raíz y diseñar la solución (paso 3), incluso si ya tienes una idea de cómo funciona algo por contexto previo. Tampoco cuenta como fuente de verdad el `description.md` o `plan.md` de **otros** cambios/fixes bajo `{changesDir}/**` (en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto — el único documento de otra entrada que sí es relevante aquí es el que consulta explícitamente el paso 0.1 (los `xxxx` máximos, para la verificación de orden).
+**Fuente de la verdad.** La documentación técnica (`docs.tech.*`) y el código real son la única fuente de verdad sobre cómo funciona hoy el proyecto — no lo que `description.md` asuma implícitamente sobre la implementación, ni memoria de conversaciones anteriores. Reúne ese contexto siempre invocando la skill `ms-internal-tech-analysis` (nunca leyendo tú mismo `framework.docs.tech` a pelo o explorando código a ciegas) al analizar la causa raíz y diseñar la solución (paso 3), incluso si ya tienes una idea de cómo funciona algo por contexto previo. Tampoco cuenta como fuente de verdad el `description.md` o `plan.md` de **otros** cambios/fixes bajo `{changesDir}/**` (en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto — el único documento de otra entrada que sí es relevante aquí es el que consulta explícitamente el paso 0.1 (los `xxxx` máximos, para la verificación de orden).
 
 ## Formato de la documentación: diagramas antes que prosa
 
@@ -71,12 +71,12 @@ No hay ningún cambio/fix pendiente en `{changesDir}/inProgress/`.
 
 ## 3. Analizar y escribir `plan.md`
 
-1. Lee el documento funcional de la entrada (`{changesDir}/inProgress/{xxxx}/description.md`, generado por `ms-workflow`) para entender qué se pide. El campo **Tipo** de ese documento indica si es un `fix` o un `change`.
+1. Lee el documento funcional de la entrada (`{changesDir}/inProgress/{xxxx}/description.md`, generado por `ms-internal-workflow`) para entender qué se pide. El campo **Tipo** de ese documento indica si es un `fix` o un `change`.
    - **Si es un `fix`**: el análisis y la solución deben limitarse estrictamente a corregir el bug documentado — identifica la causa raíz mínima y el cambio más pequeño que la corrige. No amplíes alcance, no refactorices ni toques código no relacionado con la causa raíz, aunque lo veas mejorable de paso. Si al analizar detectas que hace falta o convendría algo más amplio, anótalo como fuera de alcance en la sección (a) del plan en vez de incluirlo en la solución.
    - **Si es un `change`**: no aplica esta restricción; la solución puede tener el alcance que el cambio requiera.
 2. Si hay ficheros `{changesDir}/inProgress/{xxxx}/design_*.html` (propuesta visual generada por `ms-new`), ábrelos, pero trátalos **solo como referencia visual** — de ellos toma únicamente el aspecto que ilustran (maquetación, estilos, iconografía) para los elementos que cubren. La solución técnica **no debe basarse en ellos** en ningún otro sentido: no reutilices ni traduzcas literalmente su HTML/CSS/SVG, sus clases o su estructura de marcado, ni los tomes como referencia de arquitectura, componentes a crear/reutilizar o cualquier otra decisión de implementación — todo eso lo decides tú a partir del código real del proyecto (paso 4 de este apartado), igual que si esos ficheros no existieran.
 3. Si hay dudas técnicas sobre cómo abordarlo, resuélvelas con el usuario antes de escribir el plan.
-4. Reúne contexto adicional invocando la skill `ms-tech-analysis` (herramienta Skill), pasándole un resumen de la causa raíz o del cambio a diseñar: ella lee primero la documentación técnica configurada en `framework.docs.tech` y solo explora código (`sourcecodeDir`) si hace falta completar información, devolviéndote el contexto reunido y cualquier incongruencia detectada entre documentación y código (recuerda: en ese caso el código manda). Si reporta alguna incongruencia, tenla en cuenta al diseñar la solución y al escribir las secciones (c)/(d) del plan (paso 5) para que quede reflejada en la actualización de documentación del paso 4.1.
+4. Reúne contexto adicional invocando la skill `ms-internal-tech-analysis` (herramienta Skill), pasándole un resumen de la causa raíz o del cambio a diseñar: ella lee primero la documentación técnica configurada en `framework.docs.tech` y solo explora código (`sourcecodeDir`) si hace falta completar información, devolviéndote el contexto reunido y cualquier incongruencia detectada entre documentación y código (recuerda: en ese caso el código manda). Si reporta alguna incongruencia, tenla en cuenta al diseñar la solución y al escribir las secciones (c)/(d) del plan (paso 5) para que quede reflejada en la actualización de documentación del paso 4.1.
 5. Escribe `{changesDir}/inProgress/{xxxx}/plan.md` con exactamente estas tres secciones:
    - **(a) Anotaciones funcionales** — qué queda explícitamente fuera de alcance, y las dudas que se han resuelto con el usuario (pregunta y respuesta, en breve).
    - **(b) Solución técnica** — listado de tareas concretas y explicadas (qué hay que tocar, dónde, y por qué), en el orden en que se deberían implementar.
@@ -117,13 +117,13 @@ Una vez implementado en código lo anterior (y solo entonces — no si el usuari
 
 ## 5. Mover la carpeta a `implemented`
 
-Invoca la skill `ms-workflow` (herramienta Skill) con `action=move`, `xxxx`, `from=inProgress` y `to=implemented` — no muevas la carpeta tú mismo. Esto **solo** cuando el change/fix se haya implementado realmente en el código en el paso 4. Si el usuario decidió no implementar en 3.1, o el proceso se detuvo antes de llegar a tocar código, no invoques `ms-workflow` para esto.
+Invoca la skill `ms-internal-workflow` (herramienta Skill) con `action=move`, `xxxx`, `from=inProgress` y `to=implemented` — no muevas la carpeta tú mismo. Esto **solo** cuando el change/fix se haya implementado realmente en el código en el paso 4. Si el usuario decidió no implementar en 3.1, o el proceso se detuvo antes de llegar a tocar código, no invoques `ms-internal-workflow` para esto.
 
 No generes nunca una nueva versión del entregable como parte de esta skill, ni preguntes al usuario si quiere hacerlo — ni siquiera si `framework.versioning` es `true`. Generar versión es un paso explícito y separado (skill `ms-version`) que el usuario invoca por su cuenta cuando lo decide.
 
 ## 6. Actualizar el grafo de contexto
 
-Paso final: si en el paso 4 se han aplicado cambios relevantes en el código (no solo en documentación), además de haber actualizado ya la documentación en el paso 4.1 (`docs.tech.architectureDocPath` y `docs.functional.featuresDocPath`, según aplicara), invoca la skill `ms-graph` para regenerar/actualizar el grafo de contexto del proyecto y mantenerlo sincronizado con el código recién implementado. Si no ha habido cambios relevantes en código, omite este paso.
+Paso final: si en el paso 4 se han aplicado cambios relevantes en el código (no solo en documentación), además de haber actualizado ya la documentación en el paso 4.1 (`docs.tech.architectureDocPath` y `docs.functional.featuresDocPath`, según aplicara), invoca la skill `ms-internal-graph` para regenerar/actualizar el grafo de contexto del proyecto y mantenerlo sincronizado con el código recién implementado. Si no ha habido cambios relevantes en código, omite este paso.
 
 ## 7. Confirmar al usuario
 

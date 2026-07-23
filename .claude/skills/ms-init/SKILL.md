@@ -2,13 +2,13 @@
 name: ms-init
 description: Inicializa el framework ms-* (change/fix/version/workflow) en el proyecto actual, generando .claude/ms-context.json con la configuración necesaria (rutas de carpetas/ficheros del proceso de tracking de cambios y versionado, más una sección libre con info del proyecto). Trigger: /ms-init, o cuando cualquier otra skill ms-* necesita .claude/ms-context.json y no existe (o le faltan campos), o cuando el usuario pide "montar"/"configurar" este framework en un proyecto nuevo.
 metadata:
-  version: 1.1.0
-  uses: [ms-graph]
+  version: 1.2.0
+  uses: [ms-internal-graph]
 ---
 
 # ms-init
 
-Pone en marcha el framework `ms-*` en el proyecto actual: crea (o completa) `.claude/ms-context.json`, el único fichero del que dependen `ms-workflow`, `ms-new`, `ms-fix`, `ms-implement` y `ms-version` para funcionar en cualquier repo sin tener nada hardcodeado.
+Pone en marcha el framework `ms-*` en el proyecto actual: crea (o completa) `.claude/ms-context.json`, el único fichero del que dependen `ms-internal-workflow`, `ms-new`, `ms-fix`, `ms-implement` y `ms-version` para funcionar en cualquier repo sin tener nada hardcodeado.
 
 Lee primero [`schema.json`](schema.json) si no lo has hecho ya en esta sesión — es un JSON Schema que define la forma exacta del fichero (secciones `framework` y `project`), con cada campo documentado en su `description` (obligatoriedad, para qué sirve, qué skill lo usa) y ejemplos completos en `examples`.
 
@@ -19,7 +19,7 @@ Antes de tocar nada de `.claude/ms-context.json`, comprueba que las herramientas
 Herramientas base, siempre necesarias (las usa el framework en sí, independientemente del proyecto):
 
 - **Git** — el repo ya es un repositorio git, pero comprueba que el CLI responde: `git --version`.
-- **Python 3** — lo usa `ms-workflow` (invocado por `ms-new`/`ms-fix`) para calcular el código de cambio secuencial vía [`../ms-workflow/scripts/next-change-number.py`](../ms-workflow/scripts/next-change-number.py). Comprueba `python --version` o `python3 --version` (según qué alias resuelva en este sistema).
+- **Python 3** — lo usa `ms-internal-workflow` (invocado por `ms-new`/`ms-fix`) para calcular el código de cambio secuencial vía [`../ms-internal-workflow/scripts/next-change-number.py`](../ms-internal-workflow/scripts/next-change-number.py). Comprueba `python --version` o `python3 --version` (según qué alias resuelva en este sistema).
 
 Herramientas condicionales — mira el repo (igual que en el paso 2 de exploración) para saber cuáles aplican antes de preguntar nada:
 
@@ -43,13 +43,19 @@ Solo cuando las herramientas base estén disponibles (y las condicionales que ya
 ## 1. Comprobar estado actual
 
 - **Si `.claude/ms-context.json` no existe**: sigue el proceso normal desde el paso 2 (exploración + preguntas + escritura completa).
-- **Si ya existe**, léelo y compáralo contra los campos obligatorios de [`schema.json`](schema.json) (`framework.changesDir`, `framework.versioning`, y si `versioning` es `true` también `versionFilePath`, `versionVariable`, `versionFormat`, `buildCommand` y `buildOutputPath`):
+- **Si ya existe**, la comparación contra los campos obligatorios de [`schema.json`](schema.json) (incluyendo la regla condicional: si `versioning` es `true`, además `versionFilePath`, `versionVariable`, `versionFormat`, `buildCommand` y `buildOutputPath`) la hace de forma determinista y gratis en tokens el script [`scripts/check-context.py`](scripts/check-context.py) (Python estándar, sin dependencias externas) — no la hagas a ojo comparando contra el schema. Ejecuta desde la raíz del repo:
+
+  ```
+  python .claude/skills/ms-init/scripts/check-context.py
+  ```
+
+  Imprime por stdout un único JSON `{"exists", "hasFramework", "missingRequired", "complete"}`, con `missingRequired` ya aplicando la regla condicional de `versioning`. Parsea ese JSON para lo siguiente:
   - **Si no falta ningún campo obligatorio** (el framework ya está completamente inicializado): usa `AskUserQuestion` para preguntar al usuario si quiere re-inicializar el proyecto desde cero. Deja claro que eso borra el contexto actual (`framework` y `project`) y repite todo el proceso de preguntas como si no existiera. Si confirma, borra el contenido actual y continúa desde el paso 2. Si no confirma, no hagas nada más — el framework ya está listo tal cual está.
 
     ```
     El framework `ms-*` ya está inicializado en este proyecto. ¿Quieres reinicializarlo desde cero? Esto borra la configuración actual (`framework` y `project`) de `.claude/ms-context.json` y repite todas las preguntas como si no existiera.
     ```
-  - **Si falta algún campo obligatorio**: no repitas todo el cuestionario. Pregunta solo por lo que falta (paso 3, acotado a los campos ausentes) y en el paso 4 actualiza el fichero con merge, sin tocar lo que ya estaba configurado.
+  - **Si `missingRequired` no está vacío**: no repitas todo el cuestionario. Pregunta solo por los campos listados en `missingRequired` (paso 3, acotado a esos) y en el paso 4 actualiza el fichero con merge, sin tocar lo que ya estaba configurado.
 
 ## 2. Explorar el repo en busca de pistas
 
@@ -91,9 +97,9 @@ Muestra un resumen de lo que ha quedado configurado (ruta del fichero, campos de
 
 ## 6. Generar el grafo si ya hay código
 
-Si `sourcecodeDir` apunta a una carpeta que ya contiene código (esto no es un repo vacío recién creado), invoca la skill `ms-graph` (`Skill` con `skill: "ms-graph"`) para generar el grafo inicial ahora, en vez de dejarlo pendiente para la primera vez que otra skill lo necesite:
+Si `sourcecodeDir` apunta a una carpeta que ya contiene código (esto no es un repo vacío recién creado), invoca la skill `ms-internal-graph` (`Skill` con `skill: "ms-internal-graph"`) para generar el grafo inicial ahora, en vez de dejarlo pendiente para la primera vez que otra skill lo necesite:
 
 - Pásale como `rutaBase` el `sourcecodeDir` ya configurado.
-- Si `docs.tech.projectGraphPath` quedó configurado en el paso 4, pásaselo como `rutaGraphJson`. Si no se configuró (el usuario no tenía grafo previo), propón uno por defecto (p.ej. `graph.json` en la raíz del repo) antes de invocar `ms-graph`; si el usuario lo acepta, añádelo a `framework.docs.tech.projectGraphPath` en `.claude/ms-context.json` con merge para que `ms-implement` lo recoja automáticamente en adelante.
+- Si `docs.tech.projectGraphPath` quedó configurado en el paso 4, pásaselo como `rutaGraphJson`. Si no se configuró (el usuario no tenía grafo previo), propón uno por defecto (p.ej. `graph.json` en la raíz del repo) antes de invocar `ms-internal-graph`; si el usuario lo acepta, añádelo a `framework.docs.tech.projectGraphPath` en `.claude/ms-context.json` con merge para que `ms-implement` lo recoja automáticamente en adelante.
 
 Si no hay código todavía (proyecto recién creado) o el usuario prefiere no generarlo ahora, omite este paso sin más.

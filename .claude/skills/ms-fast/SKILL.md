@@ -3,8 +3,8 @@ name: ms-fast
 description: Aplica directamente un cambio muy pequeño y de análisis casi nulo (typo, ajuste de un valor/constante, texto, un estilo puntual...), sin pasar por el flujo inProgress→plan→implementado del resto del framework. Nunca toca arquitectura ni biblia de estilo. Si al analizarlo resulta que afecta a arquitectura/estilo, falta información, o toca más de 2 ficheros, no implementa nada: avisa al usuario e invoca ms-new con su petición para iniciar la definición de un change. Si procede, aplica el cambio y documenta directamente en {changesDir}/implemented/fast-<título>_<yyyyMMdd>/description.md. Parte del framework ms-*. Trigger: /ms-fast <descripción>, o cuando el usuario pide explícitamente "algo rápido"/"un fast" para un cambio trivial.
 argument-hint: <descripción del cambio a aplicar>
 metadata:
-  version: 1.1.0
-  uses: [ms-tech-analysis, ms-new]
+  version: 1.2.0
+  uses: [ms-internal-tech-analysis, ms-new]
 ---
 
 # ms-fast
@@ -27,7 +27,7 @@ A partir de aquí, `changesDir` se refiere al valor de `framework.changesDir` en
 
 ## 1. Valorar si de verdad es un cambio "fast"
 
-Antes de tocar nada, invoca la skill `ms-tech-analysis` (herramienta Skill) pasándole un resumen de la petición, para reunir el contexto técnico necesario (lee primero la documentación de `framework.docs.tech` configurada, y solo explora código si hace falta). Con ese contexto ya reunido, valora la petición contra estos criterios — para calificar como `fast` debe cumplirlos **todos**:
+Antes de tocar nada, invoca la skill `ms-internal-tech-analysis` (herramienta Skill) pasándole un resumen de la petición, para reunir el contexto técnico necesario (lee primero la documentación de `framework.docs.tech` configurada, y solo explora código si hace falta). Con ese contexto ya reunido, valora la petición contra estos criterios — para calificar como `fast` debe cumplirlos **todos**:
 
 - Se entiende sin ambigüedad qué hay que cambiar con una sola lectura de la petición — no falta información relevante ni hace falta tomar ninguna decisión de diseño o de alcance. Si para poder aplicarlo necesitarías preguntar bastante al usuario, no es `fast`.
 - Toca pocos ficheros, de forma muy localizada (una constante, un texto, un valor, una regla de estilo, una condición puntual, un typo). Si afecta a más de 3 ficheros, no es `fast`, por poco que sea el cambio en cada uno.
@@ -35,7 +35,7 @@ Antes de tocar nada, invoca la skill `ms-tech-analysis` (herramienta Skill) pas�
 - No tiene casos límite relevantes que analizar, ni afecta a cómo conviven distintas partes del proyecto entre sí.
 - No es, ni de lejos, un bug cuya causa raíz haya que investigar — si hace falta indagar para encontrar por qué falla algo, no es `fast`.
 - Puede afectar a valores o **conceptos pequeños de los documentos `docs.tech.*`** (si están configurados en `.claude/ms-context.json`).
-- Si el cambio que afecta a **`docs.tech.architectureDocPath` ni a `docs.tech.styleBibleDocPath`** (si están configurados en `.claude/ms-context.json`) es mayor (una decisión de arquitectura, una convención de estilo visual/interacción/redacción), no es `fast`, aunque el cambio en el código en sí sea pequeño. Si `ms-tech-analysis` reporta alguna incongruencia entre esos documentos y el código, tampoco califica como `fast`: una incongruencia con la documentación técnica es, por definición, algo que afecta a esos documentos.
+- Si el cambio que afecta a **`docs.tech.architectureDocPath` ni a `docs.tech.styleBibleDocPath`** (si están configurados en `.claude/ms-context.json`) es mayor (una decisión de arquitectura, una convención de estilo visual/interacción/redacción), no es `fast`, aunque el cambio en el código en sí sea pequeño. Si `ms-internal-tech-analysis` reporta alguna incongruencia entre esos documentos y el código, tampoco califica como `fast`: una incongruencia con la documentación técnica es, por definición, algo que afecta a esos documentos.
 - Si el cambio a afecta a **`docs.functional.*`** no es `fast`.
 
 Ejemplos orientativos que sí calificarían: corregir un texto o typo, cambiar un color/tamaño/margen puntual, ajustar el valor de una constante o configuración, corregir un enlace o ruta mal escrita, renombrar una etiqueta visible.
@@ -58,19 +58,23 @@ Si el análisis del paso 1 concluye que no es un cambio trivial, **no toques có
 
 Implementa el cambio directamente en el código con tu proceso normal de ingeniería (editar, verificar que compila/pasan los tests si los hay). Sigue siendo un cambio real sobre el proyecto: aplícalo con el mismo cuidado que cualquier otra edición, aunque no pase por `plan.md`.
 
-Un cambio `fast` **nunca** debe tocar `docs.tech.architectureDocPath` ni `docs.tech.styleBibleDocPath` (ver paso 1) — no los actualices, ni actualices tampoco `docs.functional.featuresDocPath`, ni invoques `ms-graph` ni `ms-version`, como parte de esta skill. Si durante la implementación descubres que sí hace falta tocar arquitectura, biblia de estilo, o que el cambio se extiende a más ficheros de los previstos, es señal de que el cambio no era tan trivial: para inmediatamente, no lo apliques a medias (deshaz lo ya tocado si llegaste a tocar algo), y sigue el paso 2 (avisar e invocar `ms-new`) en su lugar.
+Un cambio `fast` **nunca** debe tocar `docs.tech.architectureDocPath` ni `docs.tech.styleBibleDocPath` (ver paso 1) — no los actualices, ni actualices tampoco `docs.functional.featuresDocPath`, ni invoques `ms-internal-graph` ni `ms-version`, como parte de esta skill. Si durante la implementación descubres que sí hace falta tocar arquitectura, biblia de estilo, o que el cambio se extiende a más ficheros de los previstos, es señal de que el cambio no era tan trivial: para inmediatamente, no lo apliques a medias (deshaz lo ya tocado si llegaste a tocar algo), y sigue el paso 2 (avisar e invocar `ms-new`) en su lugar.
 
 ## 4. Documentar el cambio ya aplicado
 
-No invoques `ms-workflow` (esta skill no usa numeración `xxxx`: gestiona su propio espacio de nombres, independiente del de `ms-new`/`ms-fix`). Crea directamente (creando `{changesDir}/implemented/` si no existe):
+No invoques `ms-internal-workflow` (esta skill no usa numeración `xxxx`: gestiona su propio espacio de nombres, independiente del de `ms-new`/`ms-fix`). El nombre de carpeta lo resuelve de forma determinista y gratis en tokens el script [`scripts/resolve-fast-folder.py`](scripts/resolve-fast-folder.py) (Python estándar, sin dependencias externas) — no lo calcules a mano. Ejecuta desde la raíz del repo:
 
 ```
-{changesDir}/implemented/fast-{título}_{yyyyMMdd}/description.md
+python .claude/skills/ms-fast/scripts/resolve-fast-folder.py --title "<nombre corto del cambio>"
 ```
 
-- **`{título}`** — versión corta en kebab-case del nombre del cambio (minúsculas, sin acentos ni caracteres especiales, palabras separadas por guiones, unas pocas palabras), p.ej. `fast-corrige-texto-boton-guardar_20260717`.
-- **`{yyyyMMdd}`** — fecha de hoy.
-- Si ya existe una carpeta con ese mismo nombre exacto (dos cambios `fast` con título parecido el mismo día), añade un sufijo numérico (`-2`, `-3`...) hasta que no colisione.
+El script slugifica el título (minúsculas, sin acentos ni caracteres especiales, palabras separadas por guiones), le añade la fecha de hoy (`yyyyMMdd`), y si ya existe una carpeta con ese mismo nombre exacto bajo `{changesDir}/implemented/` (dos cambios `fast` con título parecido el mismo día), añade un sufijo numérico (`-2`, `-3`...) hasta que no colisione. Imprime únicamente el nombre de carpeta final por stdout (p.ej. `fast-corrige-texto-boton-guardar_20260717`). Usa ese valor tal cual — no lo recalcules a mano.
+
+Crea directamente (creando `{changesDir}/implemented/` si no existe):
+
+```
+{changesDir}/implemented/{nombre-de-carpeta-resuelto}/description.md
+```
 
 Redacta `description.md` siguiendo la plantilla [`description.template.md`](description.template.md) de esta misma carpeta:
 

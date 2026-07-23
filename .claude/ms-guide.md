@@ -19,7 +19,7 @@ Todas las skills viven bajo `.claude/skills/ms-*` y comparten un único fichero 
 El propio `ms-init` comprueba esto por ti la primera vez, pero para referencia:
 
 - **Git** — el repo ya lo es; solo hace falta que el CLI funcione (`git --version`).
-- **Python 3** — usado por los scripts internos de `ms-workflow`, `ms-implement` y `ms-graph` (numeración de cambios, mover carpetas, generar el grafo). Comprueba `python --version`.
+- **Python 3** — usado por los scripts internos de `ms-internal-workflow`, `ms-implement` y `ms-internal-graph` (numeración de cambios, mover carpetas, generar el grafo). Comprueba `python --version`.
 - **Herramientas condicionales según el proyecto**, por ejemplo:
   - Node/npm si hay `package.json`.
   - PowerShell/bash si el `buildCommand` configurado es un `.ps1`/`.sh`.
@@ -156,7 +156,7 @@ Para algo tan pequeño que no merece pasar por `description.md` + `plan.md` + co
 
 `ms-fast` primero valora si el cambio de verdad es trivial (sin ambigüedad, como mucho 2 ficheros, sin comportamiento nuevo, sin tocar `docs.tech.architectureDocPath` ni `docs.tech.styleBibleDocPath`):
 
-- **Si califica**: aplica el cambio directamente en el código y, en la misma invocación, documenta lo hecho en `changes/implemented/fast-{título}_{yyyyMMdd}/description.md` — sin pasar por `inProgress`, sin `plan.md`, sin `ms-workflow` (usa su propio nombre de carpeta, no el `xxxx` secuencial). Queda ya en `implemented`, listo para cerrarse más adelante con `/ms-close` igual que cualquier otro change/fix.
+- **Si califica**: aplica el cambio directamente en el código y, en la misma invocación, documenta lo hecho en `changes/implemented/fast-{título}_{yyyyMMdd}/description.md` — sin pasar por `inProgress`, sin `plan.md`, sin `ms-internal-workflow` (usa su propio nombre de carpeta, no el `xxxx` secuencial). Queda ya en `implemented`, listo para cerrarse más adelante con `/ms-close` igual que cualquier otro change/fix.
 - **Si no califica** (afecta a arquitectura/estilo, falta información, toca más de 2 ficheros, o resulta ser un bug con causa no evidente): no toca nada de código, te avisa de por qué no encaja, e invoca directamente `ms-new` con tu petición para arrancar el flujo normal de documentación.
 
 ### Paso 2 — Planificar e implementar: `ms-implement`
@@ -179,9 +179,9 @@ Es un paso explícito y separado: `ms-implement` nunca genera versión por su cu
 
 Cuando una entrada ya implementada deja de ser relevante para consulta activa (ya está integrada y no hace falta volver a mirarla), `/ms-close {xxxx}` la mueve de `implemented/` a `closed/`, pidiendo confirmación explícita antes de mover nada. Es puramente archivo — no toca código ni documentación.
 
-### Soporte: `ms-graph`
+### Soporte: `ms-internal-graph`
 
-`/ms-graph` genera o regenera `graph.json` (aquí, `src/_graph/graph.json`): un mapa de ficheros, símbolos exportados y relaciones entre ellos, sin usar LLM para la parte estructural (un script Python determinista hace el parseo). Sirve de contexto reducido de arquitectura para `ms-implement`, en vez de tener que releer todo el código fuente cada vez. Se ejecuta automáticamente al final de `ms-implement` si hubo cambios de código, pero puede invocarse manualmente en cualquier momento.
+`/ms-internal-graph` genera o regenera `graph.json` (aquí, `src/_graph/graph.json`): un mapa de ficheros, símbolos exportados y relaciones entre ellos, sin usar LLM para la parte estructural (un script Python determinista hace el parseo). Sirve de contexto reducido de arquitectura para `ms-implement`, en vez de tener que releer todo el código fuente cada vez. Se ejecuta automáticamente al final de `ms-implement` si hubo cambios de código, pero puede invocarse manualmente en cualquier momento.
 
 ## Ejemplo de ciclo completo
 
@@ -212,7 +212,7 @@ Y para algo trivial:
 
 ## Notas
 
-- Nunca se escribe a mano el `description.md`, el `plan.md` ni se numeran/mueven carpetas — eso lo hace siempre `ms-workflow` (skill interna, no invocable directamente) para mantener esa lógica en un único sitio.
-- Un `xxxx` nunca se reutiliza ni se calcula a mano: siempre lo asigna el script de `ms-workflow` recorriendo todas las subcarpetas de `changes/`.
+- Nunca se escribe a mano el `description.md`, el `plan.md` ni se numeran/mueven carpetas — eso lo hace siempre `ms-internal-workflow` (skill interna, no invocable directamente) para mantener esa lógica en un único sitio.
+- Un `xxxx` nunca se reutiliza ni se calcula a mano: siempre lo asigna el script de `ms-internal-workflow` recorriendo todas las subcarpetas de `changes/`.
 - Las skills verifican siempre que `.claude/ms-context.json` existe y está completo antes de actuar; si falta algo, piden ejecutar/completar `ms-init` en vez de improvisar valores por defecto.
-- Siempre que `ms-new`, `ms-fix`, `ms-fast` o `ms-implement` necesitan contexto técnico, lo piden invocando `ms-tech-analysis` (skill interna, no invocable directamente): primero lee la documentación de `framework.docs.tech` ya configurada, y solo explora código si hace falta completar información. Si documentación y código no coinciden, el código manda y la incongruencia se devuelve como hallazgo — nunca se corrige el documento dentro de esa misma skill sin que la skill llamante lo decida.
+- Siempre que `ms-new`, `ms-fix`, `ms-fast` o `ms-implement` necesitan contexto técnico, lo piden invocando `ms-internal-tech-analysis` (skill interna, no invocable directamente): primero lee la documentación de `framework.docs.tech` ya configurada, y solo explora código si hace falta completar información. Si documentación y código no coinciden, el código manda y la incongruencia se devuelve como hallazgo — nunca se corrige el documento dentro de esa misma skill sin que la skill llamante lo decida.
