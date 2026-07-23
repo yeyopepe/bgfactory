@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Maqueta — Modal 2 de importación (confirmación)</title>
+<style>
+  :root {
+    --bg-table:     #c2c2c2;
+    --accent-blue:  #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-light:   #ffffff;
+    --text-muted:   #666666;
+    --error:        #d32f2f;
+    --border-neutral: #dcdcdc;
+    --bg-subtle:    #f0f0f0;
+    --radius-sm:    4px;
+    --radius-lg:    8px;
+    --shadow-2:     0 4px 20px rgba(0,0,0,0.15);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    color: var(--text-primary);
+    background: var(--bg-table);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    width: 420px;
+    max-width: 90vw;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal__header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal__header h2 {
+    margin: 0;
+    font-size: 1.125rem;
+  }
+  .modal__close {
+    border: none;
+    background: transparent;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.25rem;
+  }
+  .modal__body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .modal__summary {
+    font-size: 0.875rem;
+    background: var(--bg-subtle);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    color: var(--text-primary);
+  }
+  .modal__field label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+  }
+  .modal__field-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0.25rem 0 0 0;
+  }
+  select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-family: inherit;
+    background: #fff;
+    cursor: pointer;
+  }
+  .modal__field--disabled label,
+  .modal__field--disabled .modal__field-hint {
+    color: var(--text-muted);
+  }
+  .modal__field--disabled select {
+    background: var(--bg-subtle);
+    color: var(--text-muted);
+    cursor: not-allowed;
+  }
+  .modal__warning {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-start;
+    font-size: 0.8125rem;
+    color: var(--error);
+    background: #fdecea;
+    border-radius: var(--radius-sm);
+    padding: 0.625rem 0.75rem;
+  }
+  .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  button {
+    font-family: inherit;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+  }
+  .btn-cancel {
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+  }
+  .btn-accept {
+    background: var(--accent-blue);
+    color: var(--text-light);
+  }
+</style>
+</head>
+<body>
+  <div class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h2>Confirmar importación</h2>
+        <button class="modal__close" aria-label="Cerrar">&times;</button>
+      </div>
+      <div class="modal__body">
+        <div class="modal__summary">Se van a importar 3 componentes, 2 recursos y 1 mazo de "campania-errantes.json".</div>
+
+        <div class="modal__field">
+          <label for="import-mode">¿Qué hacer con el juego actual?</label>
+          <select id="import-mode">
+            <option selected>Añadir a lo existente</option>
+            <option>Sobrescribir todo el juego</option>
+          </select>
+        </div>
+
+        <div class="modal__field">
+          <label for="conflict-mode">Si un elemento ya existe con el mismo id…</label>
+          <select id="conflict-mode">
+            <option>Sobrescribir el existente</option>
+            <option selected>Mantener ambos (renombra el nuevo con "-imported")</option>
+          </select>
+          <p class="modal__field-hint">Se aplica elemento a elemento, según corresponda.</p>
+        </div>
+
+        <div class="modal__warning">
+          ⚠ Esta acción no se puede deshacer.
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn-cancel">Cancelar</button>
+        <button class="btn-accept">Importar</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

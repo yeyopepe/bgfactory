@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-23T12:13:42Z",
+  "generatedAt": "2026-07-23T19:34:56Z",
   "basePath": "src",
   "nodes": [
     {
@@ -12,7 +12,7 @@
         "getDesignSize",
         "getProporcionRatio"
       ],
-      "purpose": "Módulo de datos puro que define el catálogo de proporciones de carta y el ancho de diseño de referencia usado por el editor de cartas y su renderizado en mesa."
+      "purpose": "Módulo de datos puro que define el catálogo de proporciones de carta (incluida 'circular', de resize libre) y el ancho de diseño de referencia usado por el editor de cartas y su renderizado en mesa."
     },
     {
       "id": "core/component.js",
@@ -32,7 +32,6 @@
       "path": "core/deck.js",
       "exports": [
         "createDeck",
-        "getComponentsWithMissingDeck",
         "updateDeck"
       ],
       "purpose": "Modelo mínimo de mazo de cartas: creación/actualización de mazos y detección de componentes cuyo mazo referenciado ya no existe."
@@ -74,6 +73,16 @@
       "purpose": "Genera una copia HTML autocontenida del documento con el estado embebido y dispara su descarga como fichero, además de exportar datos como JSON."
     },
     {
+      "id": "core/importMerge.js",
+      "type": "file",
+      "path": "core/importMerge.js",
+      "exports": [
+        "mergeImportedGame",
+        "nextImportedId"
+      ],
+      "purpose": "Fusiona la selección de una importación (componentes/recursos/mazos) con el estado actual del juego según el modo (añadir/sobrescribir) y el comportamiento ante id duplicado, y resuelve las referencias rotas resultantes generando un informe."
+    },
+    {
       "id": "core/markdown.js",
       "type": "file",
       "path": "core/markdown.js",
@@ -103,7 +112,6 @@
         "RESOURCE_TYPES",
         "createResource",
         "getComponentsUsingResource",
-        "getComponentsWithMissingResources",
         "isResourceInUse",
         "resourceTypeForFileName",
         "updateResource"
@@ -212,7 +220,7 @@
       "exports": [
         "openBoardPatternModal"
       ],
-      "purpose": "Sub-modal para configurar el fondo de patrón de color (color, forma de casilla y filas/columnas) de un componente 'tablero'."
+      "purpose": "Sub-modal para configurar el fondo de patrón de color (color, grosor de línea/trazo, forma de casilla y filas/columnas) de un componente 'tablero'."
     },
     {
       "id": "ui/cardEditorModal.js",
@@ -221,7 +229,7 @@
       "exports": [
         "openCardEditorModal"
       ],
-      "purpose": "Modal grande para diseñar las dos caras de una carta a la vez (imagen de fondo y cuadros de texto por cara); el botón único 'Ajustar imagen…' abre `openImageAdjustModal` con ambas caras en posiciones fijas (frontal/trasera) y deja que el propio popup gestione el cambio de foco entre ellas."
+      "purpose": "Modal grande para diseñar las dos caras de una carta a la vez (imagen de fondo y cuadros de texto por cara), con el lienzo y la máscara de ajuste de imagen de cada cara recortados en redondo cuando la proporción activa es 'circular'; el botón único 'Ajustar imagen…' abre `openImageAdjustModal` con ambas caras en posiciones fijas (frontal/trasera) y deja que el propio popup gestione el cambio de foco entre ellas."
     },
     {
       "id": "ui/cardTextBoxModal.js",
@@ -261,6 +269,7 @@
       "type": "file",
       "path": "ui/componentRenderer.js",
       "exports": [
+        "formatComponentIdentifier",
         "getComponentsBounds",
         "renderComponentsOnTable"
       ],
@@ -304,6 +313,15 @@
       "purpose": "Renderiza el botón para entrar en modo edición y la barra fija de modo edición (salir/guardar/ajustar zoom)."
     },
     {
+      "id": "ui/elementSelectionModal.js",
+      "type": "file",
+      "path": "ui/elementSelectionModal.js",
+      "exports": [
+        "createElementSelectionGroups"
+      ],
+      "purpose": "Pinta la lista de selección agrupada en tres bloques (Componentes/Recursos/Mazos), cada uno con su checkbox 'seleccionar todo' y checks individuales, reutilizada por las modales de exportar e importar con selección."
+    },
+    {
       "id": "ui/errorModal.js",
       "type": "file",
       "path": "ui/errorModal.js",
@@ -311,6 +329,15 @@
         "showErrorModal"
       ],
       "purpose": "Modal de error genérica y reutilizable para mostrar cualquier fallo de la aplicación de forma consistente."
+    },
+    {
+      "id": "ui/exportSelectionModal.js",
+      "type": "file",
+      "path": "ui/exportSelectionModal.js",
+      "exports": [
+        "openExportSelectionModal"
+      ],
+      "purpose": "Modal de exportación: nombre de fichero más selección de qué componentes/recursos/mazos incluir, sustituyendo al prompt() nativo anterior."
     },
     {
       "id": "ui/fontFaceRegistry.js",
@@ -340,6 +367,33 @@
         "openImageAdjustModal"
       ],
       "purpose": "Editor reutilizable de ajuste de imagen (posición/zoom) sobre la forma de un componente; soporta un único stage (uso clásico, p. ej. 'ficha') o varios stages en posición fija con foco conmutable por clic (parámetro `faces`, usado por el editor de cartas para ajustar ambas caras sin cerrar/reabrir el modal). También exporta `applyImageAdjustStyle`, la función de recorte/zoom compartida con el renderizado final."
+    },
+    {
+      "id": "ui/importConfirmModal.js",
+      "type": "file",
+      "path": "ui/importConfirmModal.js",
+      "exports": [
+        "openImportConfirmModal"
+      ],
+      "purpose": "Segunda modal del flujo de importar: modo de importación (añadir/sobrescribir) y comportamiento ante id duplicado (sobrescribir/mantener ambos)."
+    },
+    {
+      "id": "ui/importReportModal.js",
+      "type": "file",
+      "path": "ui/importReportModal.js",
+      "exports": [
+        "openImportReportModal"
+      ],
+      "purpose": "Modal de informe final de una importación: tabla con una fila por cada referencia rota resuelta automáticamente (recurso descartado o mazo autocreado)."
+    },
+    {
+      "id": "ui/importSelectionModal.js",
+      "type": "file",
+      "path": "ui/importSelectionModal.js",
+      "exports": [
+        "openImportSelectionModal"
+      ],
+      "purpose": "Primera modal del flujo de importar: elegir, de entre los elementos que trae el fichero leído, cuáles importar de verdad."
     },
     {
       "id": "ui/resizeHandle.js",
@@ -377,6 +431,15 @@
         "fitToBounds"
       ],
       "purpose": "Mesa infinita con pan y zoom, genérica y sin conocimiento del modelo de componentes, que mantiene su cámara entre remontados."
+    },
+    {
+      "id": "ui/tableColumnResize.js",
+      "type": "file",
+      "path": "ui/tableColumnResize.js",
+      "exports": [
+        "attachColumnResizing"
+      ],
+      "purpose": "Ajuste manual del ancho de columnas de una tabla (reutilizado por ui/componentList.js y ui/resourceList.js), enganchando un manejador de arrastre por cada <th> vía ui/resizeHandle.js."
     },
     {
       "id": "ui/toast.js",
@@ -441,13 +504,6 @@
       "path": "core/deck.js",
       "parent": "core/deck.js",
       "purpose": "Crea un nuevo mazo con id único (o el recibido) y nombre."
-    },
-    {
-      "id": "core/deck.js#getComponentsWithMissingDeck",
-      "type": "function",
-      "path": "core/deck.js",
-      "parent": "core/deck.js",
-      "purpose": "Devuelve los ids de los componentes cuyo deckId referencia un mazo que ya no existe en la lista de ids dada."
     },
     {
       "id": "core/deck.js#updateDeck",
@@ -541,6 +597,20 @@
       "purpose": "Crea un Blob JSON a partir de unos datos y dispara su descarga con el nombre de fichero indicado."
     },
     {
+      "id": "core/importMerge.js#mergeImportedGame",
+      "type": "function",
+      "path": "core/importMerge.js",
+      "parent": "core/importMerge.js",
+      "purpose": "Combina componentes, recursos y mazos seleccionados de una importación con los existentes, renombrando ids en conflicto si corresponde, remapeando referencias de los componentes importados y autorresolviendo recursos/mazos ausentes; devuelve el estado final más el informe de avisos."
+    },
+    {
+      "id": "core/importMerge.js#nextImportedId",
+      "type": "function",
+      "path": "core/importMerge.js",
+      "parent": "core/importMerge.js",
+      "purpose": "Calcula el siguiente id libre con sufijo '-imported'/'-imported(n)' para un id que colisiona al importar, análogo a nextCloneId pero genérico para cualquier tipo (componente, recurso o mazo)."
+    },
+    {
       "id": "core/markdown.js#markdownToHtml",
       "type": "function",
       "path": "core/markdown.js",
@@ -595,13 +665,6 @@
       "path": "core/resource.js",
       "parent": "core/resource.js",
       "purpose": "Devuelve los ids de los componentes que referencian un recurso concreto en cualquier nivel de sus propiedades."
-    },
-    {
-      "id": "core/resource.js#getComponentsWithMissingResources",
-      "type": "function",
-      "path": "core/resource.js",
-      "parent": "core/resource.js",
-      "purpose": "Devuelve los ids de los componentes que referencian un recurso ausente de la lista de ids dada, tras importar una galería nueva."
     },
     {
       "id": "core/resource.js#isResourceInUse",
@@ -839,7 +902,7 @@
       "type": "function",
       "path": "ui/boardPatternModal.js",
       "parent": "ui/boardPatternModal.js",
-      "purpose": "Abre la sub-modal de configuración del fondo de color y patrón de un tablero, operando sobre una copia de trabajo hasta aceptar."
+      "purpose": "Abre la sub-modal de configuración del fondo de color y patrón de un tablero (color, grosor de línea/trazo en la misma fila, forma y filas/columnas), operando sobre una copia de trabajo hasta aceptar."
     },
     {
       "id": "ui/cardEditorModal.js#openCardEditorModal",
@@ -877,6 +940,13 @@
       "purpose": "Abre la modal de creación/edición de un componente con sus pestañas Generales/Específicas, aplicando los cambios solo al aceptar."
     },
     {
+      "id": "ui/componentRenderer.js#formatComponentIdentifier",
+      "type": "function",
+      "path": "ui/componentRenderer.js",
+      "parent": "ui/componentRenderer.js",
+      "purpose": "Da el texto identificativo '<Tipo>: <id>' de un componente, usado tanto por la etiqueta/tooltip de identificación en la mesa como por la lista de selección de exportar/importar."
+    },
+    {
       "id": "ui/componentRenderer.js#getComponentsBounds",
       "type": "function",
       "path": "ui/componentRenderer.js",
@@ -888,7 +958,7 @@
       "type": "function",
       "path": "ui/componentRenderer.js",
       "parent": "ui/componentRenderer.js",
-      "purpose": "Dibuja de nuevo todos los componentes sobre la mesa según su tipo y order, activando selección, arrastre (con estado transitorio 'lifted' si liftOnDrag es true), redimensionado e interacciones propias de cada tipo."
+      "purpose": "Dibuja de nuevo todos los componentes sobre la mesa según su tipo y order, activando selección, arrastre (con estado transitorio 'lifted' si liftOnDrag es true), redimensionado e interacciones propias de cada tipo; el patrón de fondo del tablero usa el grosor configurado (`patronGrosor`) tanto en el gradiente CSS de la forma cuadrada (con capas adicionales no repetidas que cierran las líneas de borde derecho/inferior, fix 00070) como en el stroke-width del svg hexagonal; la carta con proporción 'circular' se recorta con border-radius 50% (en vez de 8px) y su resize es libre (sin forzar ratio) en vez del clamp con ratio fijo del resto de proporciones."
     },
     {
       "id": "ui/componentTypeModal.js#openComponentTypeModal",
@@ -926,11 +996,25 @@
       "purpose": "Renderiza el botón de 'Entrar en modo edición' visible en modo juego."
     },
     {
+      "id": "ui/elementSelectionModal.js#createElementSelectionGroups",
+      "type": "function",
+      "path": "ui/elementSelectionModal.js",
+      "parent": "ui/elementSelectionModal.js",
+      "purpose": "Construye los tres bloques de checklist dentro de un contenedor y devuelve la selección actual, notificando cada cambio para que el caller habilite/deshabilite su botón de confirmar."
+    },
+    {
       "id": "ui/errorModal.js#showErrorModal",
       "type": "function",
       "path": "ui/errorModal.js",
       "parent": "ui/errorModal.js",
       "purpose": "Muestra una modal de error genérica con título, mensaje y detalle opcional, reutilizable en toda la app."
+    },
+    {
+      "id": "ui/exportSelectionModal.js#openExportSelectionModal",
+      "type": "function",
+      "path": "ui/exportSelectionModal.js",
+      "parent": "ui/exportSelectionModal.js",
+      "purpose": "Abre la modal de exportar con el campo de nombre de fichero y los tres bloques de selección; al aceptar, invoca el callback con el nombre y los ids marcados."
     },
     {
       "id": "ui/fontFaceRegistry.js#fontFamilyFor",
@@ -968,6 +1052,27 @@
       "purpose": "Abre la ventana modal de ajuste de imagen; sin `faces`, gestiona un único stage arrastrable con zoom; con `faces`, pinta N stages en posiciones fijas con títulos fijos y mantiene un estado de foco interno conmutable por clic (arrastre/zoom siempre sobre la cara enfocada), devolviendo al aceptar el ajuste final de todas las caras."
     },
     {
+      "id": "ui/importConfirmModal.js#openImportConfirmModal",
+      "type": "function",
+      "path": "ui/importConfirmModal.js",
+      "parent": "ui/importConfirmModal.js",
+      "purpose": "Abre la modal de confirmación final de importación con los dos desplegables (modo, comportamiento ante conflicto de id) e invoca el callback con la elección al aceptar."
+    },
+    {
+      "id": "ui/importReportModal.js#openImportReportModal",
+      "type": "function",
+      "path": "ui/importReportModal.js",
+      "parent": "ui/importReportModal.js",
+      "purpose": "Pinta la tabla de informe de importación a partir del array de avisos devuelto por mergeImportedGame."
+    },
+    {
+      "id": "ui/importSelectionModal.js#openImportSelectionModal",
+      "type": "function",
+      "path": "ui/importSelectionModal.js",
+      "parent": "ui/importSelectionModal.js",
+      "purpose": "Abre la modal de selección de elementos a importar; al confirmar, invoca el callback con los ids marcados para continuar con la modal de confirmación final."
+    },
+    {
       "id": "ui/resizeHandle.js#attachResizeHandle",
       "type": "function",
       "path": "ui/resizeHandle.js",
@@ -1001,6 +1106,13 @@
       "path": "ui/table.js",
       "parent": "ui/table.js",
       "purpose": "Reencuadra instantáneamente la cámara de la mesa para que una caja de componentes quede visible con margen, o vuelve a la vista neutra si no se pasa ninguna."
+    },
+    {
+      "id": "ui/tableColumnResize.js#attachColumnResizing",
+      "type": "function",
+      "path": "ui/tableColumnResize.js",
+      "parent": "ui/tableColumnResize.js",
+      "purpose": "Engancha manejadores de resize horizontal a cada <th> indicado, fija anchos de columna en la primera interacción y notifica el resultado final vía onChange para que el caller lo persista."
     },
     {
       "id": "ui/toast.js#showToast",
@@ -1049,6 +1161,11 @@
     {
       "source": "core/eventBus.js#on",
       "target": "core/eventBus.js#off",
+      "relation": "calls"
+    },
+    {
+      "source": "core/importMerge.js#mergeImportedGame",
+      "target": "core/deck.js#createDeck",
       "relation": "calls"
     },
     {
@@ -1428,6 +1545,11 @@
     },
     {
       "source": "ui/componentRenderer.js#renderComponentsOnTable",
+      "target": "ui/componentRenderer.js#formatComponentIdentifier",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentRenderer.js#renderComponentsOnTable",
       "target": "ui/fontFaceRegistry.js#fontFamilyFor",
       "relation": "calls"
     },
@@ -1467,8 +1589,18 @@
       "relation": "calls"
     },
     {
+      "source": "ui/exportSelectionModal.js#openExportSelectionModal",
+      "target": "ui/elementSelectionModal.js#createElementSelectionGroups",
+      "relation": "calls"
+    },
+    {
       "source": "ui/imageAdjustModal.js#openImageAdjustModal",
       "target": "ui/imageAdjustModal.js#applyImageAdjustStyle",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/importSelectionModal.js#openImportSelectionModal",
+      "target": "ui/elementSelectionModal.js#createElementSelectionGroups",
       "relation": "calls"
     },
     {
@@ -1477,8 +1609,18 @@
       "relation": "calls"
     },
     {
+      "source": "ui/tableColumnResize.js#attachColumnResizing",
+      "target": "ui/resizeHandle.js#attachResizeHandle",
+      "relation": "calls"
+    },
+    {
       "source": "core/fileExport.js",
       "target": "data/version.js",
+      "relation": "imports"
+    },
+    {
+      "source": "core/importMerge.js",
+      "target": "core/deck.js",
       "relation": "imports"
     },
     {
@@ -1677,6 +1819,11 @@
       "relation": "imports"
     },
     {
+      "source": "ui/componentList.js",
+      "target": "ui/tableColumnResize.js",
+      "relation": "imports"
+    },
+    {
       "source": "ui/componentModal.js",
       "target": "core/cardProportions.js",
       "relation": "imports"
@@ -1783,22 +1930,17 @@
     },
     {
       "source": "ui/editModeToggle.js",
-      "target": "core/deck.js",
-      "relation": "imports"
-    },
-    {
-      "source": "ui/editModeToggle.js",
       "target": "core/fileExport.js",
       "relation": "imports"
     },
     {
       "source": "ui/editModeToggle.js",
-      "target": "core/persistence.js",
+      "target": "core/importMerge.js",
       "relation": "imports"
     },
     {
       "source": "ui/editModeToggle.js",
-      "target": "core/resource.js",
+      "target": "core/persistence.js",
       "relation": "imports"
     },
     {
@@ -1818,6 +1960,26 @@
     },
     {
       "source": "ui/editModeToggle.js",
+      "target": "ui/exportSelectionModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/editModeToggle.js",
+      "target": "ui/importConfirmModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/editModeToggle.js",
+      "target": "ui/importReportModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/editModeToggle.js",
+      "target": "ui/importSelectionModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/editModeToggle.js",
       "target": "ui/table.js",
       "relation": "imports"
     },
@@ -1827,8 +1989,23 @@
       "relation": "imports"
     },
     {
+      "source": "ui/elementSelectionModal.js",
+      "target": "ui/componentRenderer.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/exportSelectionModal.js",
+      "target": "ui/elementSelectionModal.js",
+      "relation": "imports"
+    },
+    {
       "source": "ui/fontFaceRegistry.js",
       "target": "core/resource.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/importSelectionModal.js",
+      "target": "ui/elementSelectionModal.js",
       "relation": "imports"
     },
     {
@@ -1842,6 +2019,11 @@
       "relation": "imports"
     },
     {
+      "source": "ui/resourceList.js",
+      "target": "ui/tableColumnResize.js",
+      "relation": "imports"
+    },
+    {
       "source": "ui/resourceModal.js",
       "target": "core/resource.js",
       "relation": "imports"
@@ -1849,6 +2031,11 @@
     {
       "source": "ui/resourceModal.js",
       "target": "ui/fontFaceRegistry.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/tableColumnResize.js",
+      "target": "ui/resizeHandle.js",
       "relation": "imports"
     }
   ]

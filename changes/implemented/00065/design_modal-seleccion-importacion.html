@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Maqueta — Modal 1 de importación (selección)</title>
+<style>
+  :root {
+    --bg-table:     #c2c2c2;
+    --bg-card:      #f5f5f5;
+    --accent-blue:  #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-light:   #ffffff;
+    --text-muted:   #666666;
+    --border-neutral: #dcdcdc;
+    --bg-subtle:    #f0f0f0;
+    --bg-hover:     #e8e8e8;
+    --radius-sm:    4px;
+    --radius-lg:    8px;
+    --shadow-2:     0 4px 20px rgba(0,0,0,0.15);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    color: var(--text-primary);
+    background: var(--bg-table);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    width: 460px;
+    max-width: 90vw;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal__header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal__header h2 {
+    margin: 0;
+    font-size: 1.125rem;
+  }
+  .modal__header-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.125rem;
+  }
+  .modal__close {
+    border: none;
+    background: transparent;
+    font-size: 1.25rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.25rem;
+  }
+  .modal__body {
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .modal__hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0 0 0.5rem 0;
+  }
+  .selection-group {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .selection-group__header {
+    background: var(--bg-subtle);
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+  .selection-group__header label {
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .selection-group__count {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  .selection-group__items {
+    max-height: 140px;
+    overflow-y: auto;
+  }
+  .selection-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem 0.375rem 1.75rem;
+    font-size: 0.875rem;
+  }
+  .selection-item:hover {
+    background: var(--bg-hover);
+  }
+  .selection-item__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .selection-item__type {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  input[type="checkbox"] {
+    cursor: pointer;
+  }
+  .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  button {
+    font-family: inherit;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    cursor: pointer;
+  }
+  .btn-cancel {
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+  }
+  .btn-accept {
+    background: var(--accent-blue);
+    color: var(--text-light);
+  }
+  .btn-accept:disabled {
+    background: var(--border-neutral);
+    color: var(--text-muted);
+    cursor: not-allowed;
+  }
+</style>
+</head>
+<body>
+  <div class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <div>
+          <h2>Elegir qué importar</h2>
+          <div class="modal__header-sub">campania-errantes.json</div>
+        </div>
+        <button class="modal__close" aria-label="Cerrar">&times;</button>
+      </div>
+      <div class="modal__body">
+        <p class="modal__hint">Selecciona qué elementos del fichero se van a importar. Todo está marcado por defecto.</p>
+
+        <div class="selection-group">
+          <div class="selection-group__header">
+            <input type="checkbox" checked>
+            <label>Componentes</label>
+            <span class="selection-group__count">3/3</span>
+          </div>
+          <div class="selection-group__items">
+            <div class="selection-item"><input type="checkbox" checked><span class="selection-item__name">tablero-principal</span><span class="selection-item__type">tablero</span></div>
+            <div class="selection-item"><input type="checkbox" checked><span class="selection-item__name">dado-combate</span><span class="selection-item__type">dado</span></div>
+            <div class="selection-item"><input type="checkbox" checked><span class="selection-item__name">carta-evento(1)</span><span class="selection-item__type">carta</span></div>
+          </div>
+        </div>
+
+        <div class="selection-group">
+          <div class="selection-group__header">
+            <input type="checkbox" checked>
+            <label>Recursos</label>
+            <span class="selection-group__count">2/2</span>
+          </div>
+          <div class="selection-group__items">
+            <div class="selection-item"><input type="checkbox" checked><span class="selection-item__name">fondo-tablero</span><span class="selection-item__type">imagen</span></div>
+            <div class="selection-item"><input type="checkbox" checked><span class="selection-item__name">icono-espada</span><span class="selection-item__type">imagen</span></div>
+          </div>
+        </div>
+
+        <div class="selection-group">
+          <div class="selection-group__header">
+            <input type="checkbox" checked>
+            <label>Mazos</label>
+            <span class="selection-group__count">1/1</span>
+          </div>
+          <div class="selection-group__items">
+            <div class="selection-item"><input type="checkbox" checked><span class="selection-item__name">Mazo de eventos</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn-cancel">Cancelar</button>
+        <button class="btn-accept">Continuar</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

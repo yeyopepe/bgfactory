@@ -106,12 +106,14 @@ export function openCardEditorModal({ component, onAccept }) {
       ? getResources().find((r) => r.id === working.caraTrasera.imagenResourceId)
       : null;
 
+    const faceShape = working.proporcion === 'circular' ? 'circular' : 'cuadrada';
+
     openImageAdjustModal({
       faces: [
         {
           key: 'caraFrontal',
           label: 'Frontal',
-          shape: 'cuadrada',
+          shape: faceShape,
           width: designWidth,
           height: designHeight,
           resource: frontalResource,
@@ -120,7 +122,7 @@ export function openCardEditorModal({ component, onAccept }) {
         {
           key: 'caraTrasera',
           label: 'Trasera',
-          shape: 'cuadrada',
+          shape: faceShape,
           width: designWidth,
           height: designHeight,
           resource: traseraResource,
@@ -155,7 +157,7 @@ export function openCardEditorModal({ component, onAccept }) {
     canvas.className = 'card-editor-modal__canvas';
     canvas.style.width = `${canvasWidth}px`;
     canvas.style.height = `${canvasHeight}px`;
-    canvas.style.borderRadius = '8px';
+    canvas.style.borderRadius = working.proporcion === 'circular' ? '50%' : '8px';
     faceCol.appendChild(canvas);
 
     const resource = cara.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;

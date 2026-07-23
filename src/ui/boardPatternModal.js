@@ -27,13 +27,21 @@ export function openBoardPatternModal({ properties, onAccept }) {
 
   const working = {
     patronColor: properties.patronColor || '#000000',
+    patronGrosor: properties.patronGrosor || 1,
     patronForma: properties.patronForma || 'cuadrada',
     patronFilas: properties.patronFilas || 8,
     patronColumnas: properties.patronColumnas || 8,
   };
 
+  // Color y grosor del patrón juntos en la misma fila (STYLE_BIBLE.md sección 8)
+  const colorRow = document.createElement('div');
+  colorRow.className = 'modal__field';
+  const colorRowInner = document.createElement('div');
+  colorRowInner.style.display = 'flex';
+  colorRowInner.style.gap = '0.5rem';
+
   const colorField = document.createElement('div');
-  colorField.className = 'modal__field';
+  colorField.style.flex = '1';
   const colorLabel = document.createElement('label');
   colorLabel.textContent = 'Color del patrón';
   const colorInput = document.createElement('input');
@@ -44,7 +52,27 @@ export function openBoardPatternModal({ properties, onAccept }) {
   });
   colorField.appendChild(colorLabel);
   colorField.appendChild(colorInput);
-  content.appendChild(colorField);
+
+  const grosorField = document.createElement('div');
+  grosorField.style.flex = '1';
+  const grosorLabel = document.createElement('label');
+  grosorLabel.textContent = 'Grosor';
+  const grosorInput = document.createElement('input');
+  grosorInput.type = 'number';
+  grosorInput.min = 1;
+  grosorInput.max = 20;
+  grosorInput.value = working.patronGrosor;
+  grosorInput.addEventListener('input', () => {
+    const parsed = parseInt(grosorInput.value, 10);
+    working.patronGrosor = Number.isNaN(parsed) ? working.patronGrosor : Math.min(Math.max(parsed, 1), 20);
+  });
+  grosorField.appendChild(grosorLabel);
+  grosorField.appendChild(grosorInput);
+
+  colorRowInner.appendChild(colorField);
+  colorRowInner.appendChild(grosorField);
+  colorRow.appendChild(colorRowInner);
+  content.appendChild(colorRow);
 
   const shapeField = document.createElement('div');
   shapeField.className = 'modal__field';

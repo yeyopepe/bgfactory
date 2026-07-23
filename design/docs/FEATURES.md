@@ -28,21 +28,21 @@ Panel flotante sobre la mesa (por defecto en la esquina superior derecha), colap
 
 Al clonar: el id del clon se construye a partir del id del original quitándole cualquier sufijo `(n)` que ya tuviera (para que los clones de un clon compartan la misma familia) y añadiéndole `(n)` con el siguiente entero libre para esa raíz (p. ej. "abc" → "abc(1)"; si "abc(1)" ya existe → "abc(2)"; si se elimina "abc(1)" y no queda otro clon de esa raíz, el hueco "abc(1)" se reutiliza). El clon se inserta siempre justo debajo del original en el listado (el resto de componentes posteriores se desplazan un puesto) y aparece en la mesa con un pequeño desplazamiento respecto a la posición del original, mismo criterio que al añadir un componente nuevo, para no quedar superpuesto. Tras clonar no se abre ninguna modal: el clon queda ya creado y visible, y puede editarse después con "Editar" como cualquier otro componente.
 
-El panel puede arrastrarse por la pantalla agarrando su cabecera (restringido al área visible de la mesa) y redimensionarse en ancho arrastrando un manejador en su esquina inferior derecha (entre 290 y 600px, o la mitad del ancho del viewport si es menor, sin salir tampoco del área de la mesa) — funciona igual expandido o colapsado. La posición, el ancho y el estado colapsado/expandido del panel se guardan automáticamente (ver [Autoguardado en el navegador](#autoguardado-en-el-navegador)) y se recuperan al recargar la página. La selección de fila es la única parte de este panel que no se persiste: es estado momentáneo de la sesión de edición en curso y se pierde al recargar.
+El panel puede arrastrarse por la pantalla agarrando su cabecera (restringido al área visible de la mesa) y redimensionarse en ancho arrastrando un manejador en su esquina inferior derecha (mínimo 290px, sin límite máximo salvo no salirse del área de la mesa) — funciona igual expandido o colapsado. Además, el ancho de cada columna de la tabla puede ajustarse manualmente arrastrando el borde derecho de su cabecera (mínimo 60px por columna, sin límite máximo); si la suma de anchos de columna supera el ancho visible del panel, la tabla muestra scroll horizontal. La posición, el ancho del panel, el estado colapsado/expandido y el ancho de cada columna se guardan automáticamente (ver [Autoguardado en el navegador](#autoguardado-en-el-navegador)) y se recuperan al recargar la página. La selección de fila es la única parte de este panel que no se persiste: es estado momentáneo de la sesión de edición en curso y se pierde al recargar.
 
 La tabla incluye además una primera columna "Orden" con un cuadro de texto numérico por fila (ver [Orden de apilado en la mesa](#orden-de-apilado-en-la-mesa)).
 
 - **Disponible en**: modo edición.
-- **Código**: 00005, 00007, 00009, 00014, 00027, 00043.
+- **Código**: 00005, 00007, 00009, 00014, 00027, 00043, 00064, 00066.
 
 ### Panel flotante de recursos, con filtro de texto
 
-Panel flotante en modo edición (análogo al panel de componentes: colapsable, arrastrable por su cabecera y redimensionable en ancho) con el listado de recursos disponibles (imágenes y tipografías) en tabla (columnas Nombre, Tipo, Acciones), usado desde las modales de componentes que permiten elegir una imagen o tipografía (ver [Componente "tablero"](#componente-tablero), [Componente "dado"](#componente-dado) y [Componente "ficha"](#componente-ficha)).
+Panel flotante en modo edición (análogo al panel de componentes: colapsable, arrastrable por su cabecera, redimensionable en ancho sin límite máximo salvo el mínimo de 290px, y con el ancho de columna ajustable manualmente igual que en el panel de componentes) con el listado de recursos disponibles (imágenes y tipografías) en tabla (columnas Nombre, Tipo, Acciones), usado desde las modales de componentes que permiten elegir una imagen o tipografía (ver [Componente "tablero"](#componente-tablero), [Componente "dado"](#componente-dado) y [Componente "ficha"](#componente-ficha)).
 
 Cuando hay al menos un recurso, la cabecera del panel muestra un cuadro de texto de filtro ("Filtrar recursos…"). Al escribir, la tabla se actualiza en vivo (carácter a carácter) mostrando solo los recursos cuyo nombre, tipo mostrado ("Imagen"/"Tipografía") o identificador interno coincidan parcialmente con el texto escrito, de forma insensible a mayúsculas/minúsculas y a tildes. Si no hay coincidencias, la tabla se sustituye por un mensaje indicándolo. El texto del filtro es estado transitorio de la sesión de edición: no se guarda y se resetea al recargar la página.
 
 - **Disponible en**: modo edición.
-- **Código**: 00042.
+- **Código**: 00042, 00064.
 
 ### Búsqueda de imagen en el modal "Elegir imagen"
 
@@ -95,11 +95,11 @@ Segundo tipo de componente: un elemento cuadrado (redimensionable a cualquier pr
 
 El fondo se elige entre dos opciones, configurables desde una modal propia ("Configurar fondo") sin perder la configuración de la opción no activa al alternar entre ellas:
 
-- **Color y patrón**: una cuadrícula (casillas cuadradas/rectangulares o hexagonales, a elegir) del color elegido, con el número de filas/columnas configurado (1–50 cada uno). Las casillas se ajustan siempre de tamaño (nunca de cantidad) para llenar el máximo espacio posible del tablero sin recortarse, adaptándose automáticamente cada vez que el tablero se redimensiona; para hexagonales puede quedar un margen mínimo inevitable sin casillas en los bordes.
+- **Color y patrón**: una cuadrícula (casillas cuadradas/rectangulares o hexagonales, a elegir) del color y grosor de línea elegidos (grosor 1–20px, `1` por defecto), con el número de filas/columnas configurado (1–50 cada uno). Las casillas se ajustan siempre de tamaño (nunca de cantidad) para llenar el máximo espacio posible del tablero sin recortarse, adaptándose automáticamente cada vez que el tablero se redimensiona; para hexagonales puede quedar un margen mínimo inevitable sin casillas en los bordes.
 - **Imagen**: se elige una imagen entre las ya disponibles en el panel "Recursos" del modo edición (sin ninguna función para subir imágenes nuevas desde esta modal), mostrada cubriendo todo el tablero y recortada si no coincide su proporción.
 
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Tablero" en la modal previa de tipo al pulsar "+ Añadir componente" (ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)).
-- **Código**: 00019, 00063.
+- **Código**: 00019, 00063, 00068.
 
 ### Componente "dado"
 
@@ -150,7 +150,9 @@ El editor de ajuste de imagen (mover/hacer zoom sobre una forma) es una funciona
 
 ### Componente "carta"
 
-Sexto tipo de componente: un rectángulo de proporción configurable (a elegir entre las más habituales del mercado de juegos de cartas — cuadrada, horizontal/vertical 2:1, vertical estándar tipo póker 2:3 por defecto, horizontal estándar 3:2, y vertical clásica de coleccionables 5:7) con las esquinas ligeramente redondeadas y una sombra de contacto suave que la asienta sobre la mesa (mismo lenguaje visual que el resto de piezas de juego), cuyo aspecto se diseña con un editor dedicado (ver más abajo). A diferencia de todos los demás tipos salvo "dado", mantiene siempre la proporción configurada al redimensionarla en la mesa (no se puede cambiar arrastrando el manejador, solo editando la propiedad "Proporción"). Es, junto con "Ficha", el único tipo que se crea con el checkbox "Bloqueado" desmarcado por defecto, para poder moverse de inmediato en modo juego.
+Sexto tipo de componente: un rectángulo de proporción configurable (a elegir entre las más habituales del mercado de juegos de cartas — Poker estándar vertical 5:7 por defecto, Poker estándar horizontal 7:5, Tarot estándar vertical, Tarot estándar horizontal, Cuadrada 1:1 — o "Circular", ver más abajo) con las esquinas ligeramente redondeadas y una sombra de contacto suave que la asienta sobre la mesa (mismo lenguaje visual que el resto de piezas de juego), cuyo aspecto se diseña con un editor dedicado (ver más abajo). A diferencia de todos los demás tipos salvo "dado", mantiene siempre la proporción configurada al redimensionarla en la mesa (no se puede cambiar arrastrando el manejador, solo editando la propiedad "Proporción") — **excepto** con la proporción "Circular" (ver más abajo). Es, junto con "Ficha", el único tipo que se crea con el checkbox "Bloqueado" desmarcado por defecto, para poder moverse de inmediato en modo juego.
+
+**Proporción "Circular"**: a diferencia de las cinco proporciones rectangulares, no fuerza ningún ratio al redimensionar en la mesa — se puede estirar libremente en ambos ejes, pudiendo convertirse en un óvalo si ancho y alto dejan de coincidir (mismo comportamiento de redimensionado libre que "Tablero"/"Ficha"/"Visor de documentos"), con la tecla Shift forzando un aspecto 1:1 (círculo perfecto) mientras se arrastra el manejador. Al crear una carta con esta proporción (o cambiar a ella), nace con ancho = alto (círculo perfecto). Visualmente, la carta se recorta como una forma redonda completa (círculo u óvalo) en vez del rectángulo de esquinas ligeramente redondeadas del resto de proporciones, tanto en modo juego como en modo edición; el editor de cartas y su ajuste de imagen de fondo por cara reflejan igualmente ese recorte circular en su lienzo/previsualización.
 
 La carta tiene siempre dos caras, frontal y trasera, y muestra una de las dos a la vez — empieza mostrando la **trasera** por defecto, tanto en modo juego como en modo edición. En modo juego, un click sobre la carta voltea entre cara frontal y trasera; esta interacción está siempre disponible, con independencia de si "Bloqueado" está marcado o no ("Bloqueado" solo afecta a si se puede arrastrar, nunca a si se puede voltear). Sin ningún diseño (antes de usar el editor de cartas, o si una cara se deja vacía), esa cara se muestra en blanco con la proporción configurada, sin ningún aviso.
 
@@ -170,7 +172,7 @@ El diseño de cada cara (imagen, su ajuste, y los cuadros de texto) se guarda co
 **Convivencia con la galería de recursos**: al intentar borrar una imagen o tipografía de la galería que esté en uso por el diseño de alguna carta, se bloquea el borrado igual que ya ocurre con otros tipos, y el aviso indica además el identificador del componente (o los componentes) que lo está usando — esta identificación en el aviso de bloqueo aplica ahora a cualquier tipo de componente, no solo a "carta".
 
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Carta" en la modal previa de tipo al pulsar "+ Añadir componente" (ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)); volteo de cara solo en modo juego; editor de cartas y gestión de mazos solo en modo edición.
-- **Código**: 00053, 00058, 00060, 00063.
+- **Código**: 00053, 00058, 00060, 00063, 00071.
 
 ### Identificación de componentes al pasar el ratón
 
@@ -187,12 +189,12 @@ En modo edición, la etiqueta identificativa se muestra siempre, para cualquier 
 
 Cada alta, edición, movimiento, redimensionado o borrado de un componente se guarda automáticamente en `localStorage`, sin ninguna acción del usuario. Al reabrir la aplicación en el mismo navegador se recupera tal cual el último estado guardado; si nunca se ha guardado nada, arranca con la semilla embebida en el propio fichero (ver más abajo) o, en su defecto, con el componente de ejemplo. Si el estado guardado resulta corrupto o de una versión incompatible, se avisa brevemente y se arranca igualmente con ese mismo comportamiento de respaldo, sin bloquear la carga.
 
-Además de los componentes, se guarda igual de automático el estado del panel flotante de componentes del modo edición (posición, ancho y colapsado/expandido — ver [Panel flotante de componentes](#panel-flotante-de-componentes-con-selección-resaltado-arrastre-y-redimensionado)), cada vez que cambia. Si el guardado existente es de una versión anterior a esta funcionalidad y no incluye este dato, el panel arranca con sus valores por defecto (expandido, posición y ancho por defecto), igual que si nunca se hubiera guardado nada. Los mazos creados desde la modal de "Carta" (ver [Componente "carta"](#componente-carta)) se guardan con el mismo criterio; un guardado anterior a esta funcionalidad simplemente arranca sin ningún mazo.
+Además de los componentes, se guarda igual de automático el estado de los paneles flotantes de componentes y de recursos del modo edición (posición, ancho, colapsado/expandido y ancho de cada columna de su tabla — ver [Panel flotante de componentes](#panel-flotante-de-componentes-con-selección-resaltado-arrastre-y-redimensionado)), cada vez que cambia. Si el guardado existente es de una versión anterior a esta funcionalidad y no incluye algún dato, ese aspecto del panel arranca con sus valores por defecto (expandido, posición, ancho y ancho de columna por defecto), igual que si nunca se hubiera guardado nada. Los mazos creados desde la modal de "Carta" (ver [Componente "carta"](#componente-carta)) se guardan con el mismo criterio; un guardado anterior a esta funcionalidad simplemente arranca sin ningún mazo.
 
 El guardado es un único slot por navegador/perfil (no aislado por fichero): si se abren varias copias descargadas distintas en el mismo navegador, prevalece el último estado autoguardado sobre el contenido propio de la copia que se abra, salvo que sea la primera vez que se abre cualquier copia en ese navegador.
 
 - **Disponible en**: automático, en cualquier modo (el estado del panel, solo en modo edición, que es donde existe).
-- **Código**: 00011, 00014, 00053.
+- **Código**: 00011, 00014, 00053, 00064.
 
 ### Guardar a fichero
 
@@ -201,15 +203,19 @@ En modo edición, junto al botón de salir de ese modo (ambos alineados al extre
 - **Disponible en**: modo edición.
 - **Código**: 00011.
 
-### Exportar/importar componentes en JSON
+### Exportar/importar componentes en JSON, con selección
 
-Junto a "Guardar", dos botones "Exportar" e "Importar" permiten guardar y recuperar todos los elementos del juego y todos los recursos en un fichero JSON ligero pensado para sobrevivir a cambios de versión de la aplicación — a diferencia de "Guardar", que fija una copia completa a la versión en la que se generó.
+Junto a "Guardar", dos botones "Exportar" e "Importar" permiten guardar y recuperar un subconjunto elegible de los elementos del juego (componentes, recursos y mazos) en un fichero JSON ligero pensado para sobrevivir a cambios de versión de la aplicación — a diferencia de "Guardar", que fija una copia completa a la versión en la que se generó.
 
-- **Exportar**: pide el nombre de fichero (mismo patrón que "Guardar") y descarga un JSON con los componentes actuales, toda la galería de recursos (imágenes/tipografías, estén o no en uso por algún componente en ese momento), los mazos existentes, y la versión de la aplicación con la que se generó. No incluye la configuración del panel flotante de edición.
-- **Importar**: abre un selector de fichero limitado a `.json`. A diferencia del guardado automático del navegador, un fichero de una versión distinta a la actual se acepta igualmente — es el caso de uso principal; un fichero exportado antes de esta funcionalidad (sin mazos, o con solo el subconjunto de recursos que estaban en uso en su momento) también se acepta igual, importando lo que traiga. Si el fichero no es válido (vacío, JSON corrupto, o sin listado de componentes reconocible), se muestra el error con el [modal de error común](#notificación-de-errores). Si es válido, se pide confirmación explícita de que se van a reemplazar por completo los componentes, los recursos y los mazos actuales (no se fusiona nada) por el contenido del fichero — lo que ya existía en la app y no está en el fichero desaparece tras importar. Si, tras importar, algún componente queda con una referencia que no se pudo resolver dentro del propio fichero (un recurso o un mazo que no vino incluido), la importación se completa igualmente con lo disponible y se muestra un aviso no bloqueante (mismo [modal de error común](#notificación-de-errores)) indicando qué componentes quedan con esa referencia incompleta.
+- **Exportar**: abre una modal con el nombre de fichero (mismo valor por defecto que antes) y una lista de todos los componentes/recursos/mazos actuales, agrupados en tres bloques (Componentes, Recursos, Mazos). Cada bloque tiene su propio checkbox "seleccionar todo el bloque" y un check individual por elemento (todos marcados por defecto); el botón "Exportar" queda deshabilitado si no queda ningún elemento marcado en ningún bloque. El fichero descargado solo contiene los elementos marcados (junto con la versión de la aplicación con la que se generó); no valida ni avisa si algún componente exportado queda referenciando un recurso o mazo que no viaja en la selección. No incluye la configuración del panel flotante de edición.
+- **Importar**: abre un selector de fichero limitado a `.json`. A diferencia del guardado automático del navegador, un fichero de una versión distinta a la actual se acepta igualmente — es el caso de uso principal. Si el fichero no es válido (vacío, JSON corrupto, o sin listado de componentes reconocible), se muestra el error con el [modal de error común](#notificación-de-errores). Si es válido, el flujo continúa en dos modales:
+  1. **Selección de elementos**: misma lista agrupada en tres bloques que en "Exportar", mostrando esta vez los elementos que trae el fichero, todos marcados por defecto (botón "Continuar" deshabilitado si no queda ninguno marcado).
+  2. **Confirmación final**: dos desplegables — "Modo de importación" (`Añadir a lo existente`, por defecto, que conserva el contenido actual y le suma lo seleccionado; o `Sobrescribir todo el juego`, que borra primero todo el contenido actual y deja el juego solo con lo seleccionado) y "Comportamiento ante id duplicado" (solo aplica en modo "Añadir", ya que en "Sobrescribir" no puede haber duplicados al partir de vacío): `Sobrescribir el existente` (por defecto, el elemento nuevo reemplaza al que ya tenía ese id) o `Mantener ambos` (el elemento importado se conserva con un id nuevo, el original con el sufijo `-imported`, o `-imported(2)`, `-imported(3)`... si ese id renombrado también choca). Este comportamiento se aplica de forma independiente a cada elemento y cada tipo (componentes, recursos y mazos tienen cada uno su propio espacio de ids).
+
+  Tras aplicar la selección y la fusión: si un componente importado queda referenciando un recurso ausente del estado final, se añade igualmente sin ese recurso (referencia descartada, igual que ya tolera la app un recurso borrado en uso); si referencia un mazo ausente, se crea automáticamente un mazo con ese mismo id (una sola vez por id, aunque varios componentes lo referencien). Si se ha dado alguno de estos dos casos, se muestra al terminar una modal de informe con una tabla ("Componente afectado", "Error", "Solución", "Elemento erróneo/faltante") con una fila por cada aviso — un mismo componente puede aparecer en varias filas.
 
 - **Disponible en**: modo edición.
-- **Código**: 00024, 00059.
+- **Código**: 00024, 00059, 00065.
 
 ## Notificación de errores
 

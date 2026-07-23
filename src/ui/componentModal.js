@@ -25,6 +25,7 @@ export const DEFAULT_BOARD_PROPERTIES = {
   bordeGrosor: 2,
   fondoTipo: 'colorPatron',
   patronColor: '#000000',
+  patronGrosor: 1,
   patronForma: 'cuadrada',
   patronFilas: 8,
   patronColumnas: 8,
@@ -409,9 +410,15 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   function renderBoardSpecificFields(container) {
     const props = workingComponent.properties;
 
-    // Border color
+    // Borde: color y grosor juntos en la misma fila
+    const borderRow = document.createElement('div');
+    borderRow.className = 'modal__field';
+    const borderRowInner = document.createElement('div');
+    borderRowInner.style.display = 'flex';
+    borderRowInner.style.gap = '0.5rem';
+
     const borderColorField = document.createElement('div');
-    borderColorField.className = 'modal__field';
+    borderColorField.style.flex = '1';
     const borderColorLabel = document.createElement('label');
     borderColorLabel.textContent = 'Color del borde';
     const borderColorInput = document.createElement('input');
@@ -422,13 +429,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     });
     borderColorField.appendChild(borderColorLabel);
     borderColorField.appendChild(borderColorInput);
-    container.appendChild(borderColorField);
 
-    // Border thickness
     const borderWidthField = document.createElement('div');
-    borderWidthField.className = 'modal__field';
+    borderWidthField.style.flex = '1';
     const borderWidthLabel = document.createElement('label');
-    borderWidthLabel.textContent = 'Grosor del borde (px)';
+    borderWidthLabel.textContent = 'Grosor';
     const borderWidthInput = document.createElement('input');
     borderWidthInput.type = 'number';
     borderWidthInput.min = 1;
@@ -440,7 +445,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     });
     borderWidthField.appendChild(borderWidthLabel);
     borderWidthField.appendChild(borderWidthInput);
-    container.appendChild(borderWidthField);
+
+    borderRowInner.appendChild(borderColorField);
+    borderRowInner.appendChild(borderWidthField);
+    borderRow.appendChild(borderRowInner);
+    container.appendChild(borderRow);
 
     // Background type + configure button
     const bgField = document.createElement('div');
@@ -487,8 +496,9 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       } else {
         openBoardPatternModal({
           properties: props,
-          onAccept: ({ patronColor, patronForma, patronFilas, patronColumnas }) => {
+          onAccept: ({ patronColor, patronGrosor, patronForma, patronFilas, patronColumnas }) => {
             props.patronColor = patronColor;
+            props.patronGrosor = patronGrosor;
             props.patronForma = patronForma;
             props.patronFilas = patronFilas;
             props.patronColumnas = patronColumnas;
@@ -872,7 +882,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const borderWidthField = document.createElement('div');
     borderWidthField.style.flex = '1';
     const borderWidthLabel = document.createElement('label');
-    borderWidthLabel.textContent = 'Grosor del borde (px, 0 = sin borde)';
+    borderWidthLabel.textContent = 'Grosor';
     const borderWidthInput = document.createElement('input');
     borderWidthInput.type = 'number';
     borderWidthInput.min = 0;

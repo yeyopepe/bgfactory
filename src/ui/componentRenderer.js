@@ -48,7 +48,7 @@ function shadeColor(hex, percent) {
 // posible de un lienzo width×height con el número de filas/columnas dado,
 // sin recortar ningún hexágono (puede dejar un margen mínimo inevitable en
 // los bordes, ver description.md 00019 "ajuste exacto de las casillas").
-function renderHexGrid(svgEl, width, height, filas, columnas, color) {
+function renderHexGrid(svgEl, width, height, filas, columnas, color, grosor) {
   const SVG_NS = 'http://www.w3.org/2000/svg';
   svgEl.innerHTML = '';
   svgEl.setAttribute('width', width);
@@ -79,7 +79,7 @@ function renderHexGrid(svgEl, width, height, filas, columnas, color) {
       polygon.setAttribute('points', points.join(' '));
       polygon.setAttribute('fill', 'none');
       polygon.setAttribute('stroke', color);
-      polygon.setAttribute('stroke-width', '1');
+      polygon.setAttribute('stroke-width', String(grosor));
       svgEl.appendChild(polygon);
     }
   }
@@ -209,7 +209,7 @@ function fitTextToBox(el, maxWidth, maxHeight, minFontSize = 6) {
   }
 }
 
-function formatComponentIdentifier(component) {
+export function formatComponentIdentifier(component) {
   const typeLabel = COMPONENT_TYPE_LABELS[component.type] || component.type;
   return `${typeLabel}: ${component.id}`;
 }
@@ -410,18 +410,22 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       } else {
         board.style.backgroundColor = '#ffffff';
         const patronColor = props.patronColor || '#000000';
+        const patronGrosor = props.patronGrosor || 1;
         const patronFilas = props.patronFilas || 8;
         const patronColumnas = props.patronColumnas || 8;
 
         if (props.patronForma === 'hexagonal') {
-          hexGridToRender = { patronFilas, patronColumnas, patronColor };
+          hexGridToRender = { patronFilas, patronColumnas, patronColor, patronGrosor };
         } else {
           const cellWidth = width / patronColumnas;
           const cellHeight = height / patronFilas;
           board.style.backgroundImage =
-            `linear-gradient(to right, ${patronColor} 1px, transparent 1px), ` +
-            `linear-gradient(to bottom, ${patronColor} 1px, transparent 1px)`;
-          board.style.backgroundSize = `${cellWidth}px ${cellHeight}px`;
+            `linear-gradient(to right, ${patronColor} ${patronGrosor}px, transparent ${patronGrosor}px), ` +
+            `linear-gradient(to bottom, ${patronColor} ${patronGrosor}px, transparent ${patronGrosor}px), ` +
+            `linear-gradient(to left, ${patronColor} ${patronGrosor}px, transparent ${patronGrosor}px), ` +
+            `linear-gradient(to top, ${patronColor} ${patronGrosor}px, transparent ${patronGrosor}px)`;
+          board.style.backgroundSize = `${cellWidth}px ${cellHeight}px, ${cellWidth}px ${cellHeight}px, 100% 100%, 100% 100%`;
+          board.style.backgroundRepeat = 'repeat, repeat, no-repeat, no-repeat';
         }
       }
 
@@ -432,7 +436,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         svg.style.left = '0';
         svg.style.pointerEvents = 'none';
         board.appendChild(svg);
-        renderHexGrid(svg, width - bordeGrosor * 2, height - bordeGrosor * 2, hexGridToRender.patronFilas, hexGridToRender.patronColumnas, hexGridToRender.patronColor);
+        renderHexGrid(svg, width - bordeGrosor * 2, height - bordeGrosor * 2, hexGridToRender.patronFilas, hexGridToRender.patronColumnas, hexGridToRender.patronColor, hexGridToRender.patronGrosor);
       }
 
       if (onSelect) {
@@ -955,13 +959,16 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         fitTextToBox(textSpanToFit, width - bordeGrosor * 2 - 8, height - bordeGrosor * 2 - 8);
       }
     } else if (component.type === 'carta') {
+      const props = component.properties || {};
+      const cartaBorderRadius = props.proporcion === 'circular' ? '50%' : '8px';
+
       const carta = document.createElement('div');
       carta.className = 'carta';
       carta.style.position = 'absolute';
       carta.style.top = `${component.y ?? 100}px`;
       carta.style.left = `${component.x ?? 100}px`;
       carta.style.boxSizing = 'border-box';
-      carta.style.borderRadius = '8px';
+      carta.style.borderRadius = cartaBorderRadius;
       const width = component.width ?? MIN_CARTA_WIDTH;
       const height = component.height ?? MIN_CARTA_HEIGHT;
       carta.style.width = `${width}px`;
@@ -971,13 +978,12 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       cartaContent.style.position = 'absolute';
       cartaContent.style.inset = '0';
       cartaContent.style.overflow = 'hidden';
-      cartaContent.style.borderRadius = '8px';
+      cartaContent.style.borderRadius = cartaBorderRadius;
       carta.appendChild(cartaContent);
 
       if (identifyMode === 'tooltip' && component.mostrarTooltip) carta.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') carta.appendChild(createIdentifierLabel(component));
 
-      const props = component.properties || {};
       const caraActual = props.caraActual === 'frontal' ? 'frontal' : 'trasera';
       const cara = caraActual === 'frontal' ? props.caraFrontal : props.caraTrasera;
       const renderScale = width / CARD_DESIGN_WIDTH;
@@ -1079,6 +1085,12 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           getScale: () => getWorldZoom(worldEl),
           getSize: () => ({ width, height }),
           clamp: ({ width, height }) => {
+            if (props.proporcion === 'circular') {
+              return {
+                width: Math.max(width, MIN_CARTA_WIDTH),
+                height: Math.max(height, MIN_CARTA_HEIGHT),
+              };
+            }
             const ratio = getProporcionRatio(props.proporcion);
             let w = Math.max(width, height * ratio, MIN_CARTA_WIDTH);
             let h = w / ratio;

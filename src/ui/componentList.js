@@ -2,9 +2,10 @@
 // Tabla de tres columnas (Id, Tipo, Acciones) con selección de fila.
 
 import { attachResizeHandle } from './resizeHandle.js';
+import { attachColumnResizing } from './tableColumnResize.js';
 
 const MIN_PANEL_WIDTH = 290;
-const MAX_PANEL_WIDTH = 600;
+const COMPONENT_LIST_COLUMNS = ['orden', 'id', 'tipo', 'acciones'];
 
 // Estado del cuadro de filtro. El panel de componentes es único en la
 // página, así que basta con estado de módulo para que sobreviva a los
@@ -24,7 +25,7 @@ function matchesFilter(component, query) {
   );
 }
 
-function renderBody(body, displayedComponents, total, { onEdit, onClone, onRemove, onSelectRow, onReorder, selectedId } = {}) {
+function renderBody(body, displayedComponents, total, { onEdit, onClone, onRemove, onSelectRow, onReorder, selectedId, columnWidths, onColumnResize } = {}) {
   body.innerHTML = '';
 
   if (displayedComponents.length === 0) {
@@ -44,7 +45,15 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onRemov
   table.className = 'component-list';
 
   const thead = document.createElement('thead');
-  thead.innerHTML = '<tr><th>Orden</th><th>Id</th><th>Tipo</th><th>Acciones</th></tr>';
+  const headRow = document.createElement('tr');
+  const headLabels = { orden: 'Orden', id: 'Id', tipo: 'Tipo', acciones: 'Acciones' };
+  for (const key of COMPONENT_LIST_COLUMNS) {
+    const th = document.createElement('th');
+    th.dataset.col = key;
+    th.textContent = headLabels[key];
+    headRow.appendChild(th);
+  }
+  thead.appendChild(headRow);
   table.appendChild(thead);
 
   const tbody = document.createElement('tbody');
@@ -144,6 +153,10 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onRemov
 
   table.appendChild(tbody);
   body.appendChild(table);
+
+  if (onColumnResize) {
+    attachColumnResizing(table, COMPONENT_LIST_COLUMNS, columnWidths, onColumnResize);
+  }
 }
 
 export function renderComponentList(
@@ -161,6 +174,8 @@ export function renderComponentList(
     onToggleCollapse,
     onPanelMove,
     onPanelResize,
+    columnWidths = null,
+    onColumnResize,
   } = {}
 ) {
   container.innerHTML = '';
@@ -224,7 +239,7 @@ export function renderComponentList(
 
   if (!collapsed) {
     const sortedComponents = [...components].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-    const rowHandlers = { onEdit, onClone, onRemove, onSelectRow, onReorder, selectedId };
+    const rowHandlers = { onEdit, onClone, onRemove, onSelectRow, onReorder, selectedId, columnWidths, onColumnResize };
 
     if (components.length > 0) {
       const filterBar = document.createElement('div');
@@ -269,9 +284,8 @@ export function renderComponentList(
     getSize: () => ({ width: container.getBoundingClientRect().width, height: 0 }),
     clamp: ({ width }) => {
       const parentWidth = container.offsetParent ? container.offsetParent.clientWidth : window.innerWidth;
-      const maxByViewport = Math.min(MAX_PANEL_WIDTH, window.innerWidth / 2);
       const maxByRightEdge = parentWidth - container.offsetLeft;
-      return { width: Math.min(Math.max(width, MIN_PANEL_WIDTH), maxByViewport, maxByRightEdge) };
+      return { width: Math.min(Math.max(width, MIN_PANEL_WIDTH), maxByRightEdge) };
     },
     onResize: ({ width }) => {
       container.style.width = `${width}px`;

@@ -30,11 +30,13 @@ A partir de aquí, `changesDir` se refiere al valor de `framework.changesDir` en
 Antes de tocar nada, invoca la skill `ms-tech-analysis` (herramienta Skill) pasándole un resumen de la petición, para reunir el contexto técnico necesario (lee primero la documentación de `framework.docs.tech` configurada, y solo explora código si hace falta). Con ese contexto ya reunido, valora la petición contra estos criterios — para calificar como `fast` debe cumplirlos **todos**:
 
 - Se entiende sin ambigüedad qué hay que cambiar con una sola lectura de la petición — no falta información relevante ni hace falta tomar ninguna decisión de diseño o de alcance. Si para poder aplicarlo necesitarías preguntar bastante al usuario, no es `fast`.
-- Toca como mucho 2 ficheros, de forma muy localizada (una constante, un texto, un valor, una regla de estilo, una condición puntual, un typo). Si afecta a más de 2 ficheros, no es `fast`, por poco que sea el cambio en cada uno.
+- Toca pocos ficheros, de forma muy localizada (una constante, un texto, un valor, una regla de estilo, una condición puntual, un typo). Si afecta a más de 3 ficheros, no es `fast`, por poco que sea el cambio en cada uno.
 - No introduce comportamiento nuevo ni cambia un flujo o interacción existente — como mucho ajusta un valor, texto o aspecto de algo que ya existe.
 - No tiene casos límite relevantes que analizar, ni afecta a cómo conviven distintas partes del proyecto entre sí.
 - No es, ni de lejos, un bug cuya causa raíz haya que investigar — si hace falta indagar para encontrar por qué falla algo, no es `fast`.
-- **No afecta a `docs.tech.architectureDocPath` ni a `docs.tech.styleBibleDocPath`** (si están configurados en `.claude/ms-context.json`): si el cambio modificaría algo que esos documentos describen (una decisión de arquitectura, una convención de estilo visual/interacción/redacción), no es `fast`, aunque el cambio en el código en sí sea pequeño. Si `ms-tech-analysis` reporta alguna incongruencia entre esos documentos y el código, tampoco califica como `fast`: una incongruencia con la documentación técnica es, por definición, algo que afecta a esos documentos.
+- Puede afectar a valores o **conceptos pequeños de los documentos `docs.tech.*`** (si están configurados en `.claude/ms-context.json`).
+- Si el cambio que afecta a **`docs.tech.architectureDocPath` ni a `docs.tech.styleBibleDocPath`** (si están configurados en `.claude/ms-context.json`) es mayor (una decisión de arquitectura, una convención de estilo visual/interacción/redacción), no es `fast`, aunque el cambio en el código en sí sea pequeño. Si `ms-tech-analysis` reporta alguna incongruencia entre esos documentos y el código, tampoco califica como `fast`: una incongruencia con la documentación técnica es, por definición, algo que afecta a esos documentos.
+- Si el cambio a afecta a **`docs.functional.*`** no es `fast`.
 
 Ejemplos orientativos que sí calificarían: corregir un texto o typo, cambiar un color/tamaño/margen puntual, ajustar el valor de una constante o configuración, corregir un enlace o ruta mal escrita, renombrar una etiqueta visible.
 
