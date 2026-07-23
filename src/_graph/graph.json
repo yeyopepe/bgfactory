@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-22T07:49:11Z",
+  "generatedAt": "2026-07-22T09:11:55Z",
   "basePath": "src",
   "nodes": [
     {
@@ -221,7 +221,7 @@
       "exports": [
         "openCardEditorModal"
       ],
-      "purpose": "Modal grande para diseñar las dos caras de una carta (imagen de fondo y cuadros de texto), operando sobre una copia de trabajo hasta aceptar."
+      "purpose": "Modal grande para diseñar las dos caras de una carta a la vez (imagen de fondo y cuadros de texto por cara); el botón único 'Ajustar imagen…' abre `openImageAdjustModal` con ambas caras en posiciones fijas (frontal/trasera) y deja que el propio popup gestione el cambio de foco entre ellas."
     },
     {
       "id": "ui/cardTextBoxModal.js",
@@ -339,7 +339,7 @@
         "applyImageAdjustStyle",
         "openImageAdjustModal"
       ],
-      "purpose": "Editor reutilizable de ajuste de imagen (posición y zoom) sobre una forma cuadrada o circular, con previsualización secundaria opcional."
+      "purpose": "Editor reutilizable de ajuste de imagen (posición/zoom) sobre la forma de un componente; soporta un único stage (uso clásico, p. ej. 'ficha') o varios stages en posición fija con foco conmutable por clic (parámetro `faces`, usado por el editor de cartas para ajustar ambas caras sin cerrar/reabrir el modal). También exporta `applyImageAdjustStyle`, la función de recorte/zoom compartida con el renderizado final."
     },
     {
       "id": "ui/resizeHandle.js",
@@ -846,7 +846,7 @@
       "type": "function",
       "path": "ui/cardEditorModal.js",
       "parent": "ui/cardEditorModal.js",
-      "purpose": "Abre el editor grande de las dos caras de una carta (proporción, imagen de fondo y cuadros de texto), aplicando los cambios solo al aceptar."
+      "purpose": "Abre el editor de cartas sobre una copia de trabajo del componente; gestiona proporción, imagen y cuadros de texto de cada cara, y invoca `openImageAdjustModal` con `faces`/`initialFocusKey` para el ajuste conjunto de imagen de ambas caras, aplicando el resultado a la copia de trabajo al aceptar."
     },
     {
       "id": "ui/cardTextBoxModal.js#openCardTextBoxModal",
@@ -958,14 +958,14 @@
       "type": "function",
       "path": "ui/imageAdjustModal.js",
       "parent": "ui/imageAdjustModal.js",
-      "purpose": "Aplica a un elemento <img> el recorte y zoom (object-fit/object-position/dimensiones) correspondientes a un ajuste de imagen."
+      "purpose": "Aplica a un <img> el estilo de recorte 'cover' + desplazamiento/zoom (object-position y width/height/top/left en %) a partir de un ajuste {zoom, posX, posY}."
     },
     {
       "id": "ui/imageAdjustModal.js#openImageAdjustModal",
       "type": "function",
       "path": "ui/imageAdjustModal.js",
       "parent": "ui/imageAdjustModal.js",
-      "purpose": "Abre el editor de ajuste de posición y zoom de una imagen sobre una forma cuadrada o circular, con previsualización secundaria opcional intercambiable."
+      "purpose": "Abre la ventana modal de ajuste de imagen; sin `faces`, gestiona un único stage arrastrable con zoom; con `faces`, pinta N stages en posiciones fijas con títulos fijos y mantiene un estado de foco interno conmutable por clic (arrastre/zoom siempre sobre la cara enfocada), devolviendo al aceptar el ajuste final de todas las caras."
     },
     {
       "id": "ui/resizeHandle.js#attachResizeHandle",

@@ -38,7 +38,7 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
-export function openImageAdjustModal({ shape, width, height, resource, adjustment, onAccept, secondaryPreview }) {
+export function openImageAdjustModal({ shape, width, height, resource, adjustment, onAccept, faces, initialFocusKey }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -58,107 +58,102 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   footer.className = 'modal__footer';
   modal.appendChild(footer);
 
-  let posX = adjustment?.posX ?? 50;
-  let posY = adjustment?.posY ?? 50;
-  let zoom = adjustment?.zoom ?? 100;
-
-  const scale = PREVIEW_MAX_SIDE / Math.max(width, height);
-  const maskWidth = width * scale;
-  const maskHeight = height * scale;
+  // Entradas normalizadas: sin `faces`, un único stage anónimo (caso
+  // 'ficha', un solo recurso); con `faces`, N stages en posición fija (el
+  // orden del array decide la columna, no se reordenan nunca) — usado por
+  // ui/cardEditorModal.js para las dos caras de una carta.
+  const entries = faces || [{ key: '__single__', label: null, shape, width, height, resource, adjustment }];
 
   const stagesRow = document.createElement('div');
   stagesRow.className = 'image-adjust-modal__stages';
   content.appendChild(stagesRow);
 
-  const stage = document.createElement('div');
-  stage.className = 'image-adjust-modal__stage';
-  stagesRow.appendChild(stage);
+  const state = {};
+  const stageEls = {};
+  const maskEls = {};
+  const imgEls = {};
+  const maskSizes = {};
 
-  const mask = document.createElement('div');
-  mask.className = 'image-adjust-modal__mask';
-  if (secondaryPreview) mask.classList.add('image-adjust-modal__mask--active');
-  mask.style.width = `${maskWidth}px`;
-  mask.style.height = `${maskHeight}px`;
-  mask.style.borderRadius = shape === 'circular' ? '50%' : '0';
-  stage.appendChild(mask);
+  for (const entry of entries) {
+    state[entry.key] = {
+      zoom: entry.adjustment?.zoom ?? 100,
+      posX: entry.adjustment?.posX ?? 50,
+      posY: entry.adjustment?.posY ?? 50,
+    };
 
-  if (secondaryPreview) {
-    const primaryLabel = document.createElement('span');
-    primaryLabel.className = 'image-adjust-modal__primary-label';
-    primaryLabel.textContent = 'Activa';
-    stage.appendChild(primaryLabel);
-  }
+    const entryScale = PREVIEW_MAX_SIDE / Math.max(entry.width, entry.height);
+    const maskWidth = entry.width * entryScale;
+    const maskHeight = entry.height * entryScale;
+    maskSizes[entry.key] = { maskWidth, maskHeight };
 
-  const img = document.createElement('img');
-  img.className = 'image-adjust-modal__image';
-  img.src = resource.dataUrl;
-  img.draggable = false;
-  mask.appendChild(img);
+    const stage = document.createElement('div');
+    stage.className = 'image-adjust-modal__stage';
+    stagesRow.appendChild(stage);
+    stageEls[entry.key] = stage;
 
-  // Vista de solo lectura de la otra cara/forma, para poder ajustar ambas a
-  // la vez (ver editor de cartas, ui/cardEditorModal.js): mismo marcado, sin
-  // listeners de arrastre, con su propio resource/adjustment fijos.
-  if (secondaryPreview) {
-    const secondaryScale = PREVIEW_MAX_SIDE / Math.max(secondaryPreview.width, secondaryPreview.height);
-    const secondaryMaskWidth = secondaryPreview.width * secondaryScale;
-    const secondaryMaskHeight = secondaryPreview.height * secondaryScale;
+    if (entry.label) {
+      const title = document.createElement('span');
+      title.className = 'image-adjust-modal__stage-title';
+      title.textContent = entry.label;
+      stage.appendChild(title);
+    }
 
-    const secondaryStage = document.createElement('div');
-    secondaryStage.className = 'image-adjust-modal__stage image-adjust-modal__stage--secondary';
-    stagesRow.appendChild(secondaryStage);
+    const mask = document.createElement('div');
+    mask.className = 'image-adjust-modal__mask';
+    mask.style.width = `${maskWidth}px`;
+    mask.style.height = `${maskHeight}px`;
+    mask.style.borderRadius = entry.shape === 'circular' ? '50%' : '0';
+    stage.appendChild(mask);
+    maskEls[entry.key] = mask;
 
-    const secondaryLabel = document.createElement('span');
-    secondaryLabel.className = 'image-adjust-modal__secondary-label';
-    secondaryLabel.textContent = 'Otra cara';
-    secondaryStage.appendChild(secondaryLabel);
-
-    const secondaryMask = document.createElement('div');
-    secondaryMask.className = 'image-adjust-modal__mask';
-    secondaryMask.style.width = `${secondaryMaskWidth}px`;
-    secondaryMask.style.height = `${secondaryMaskHeight}px`;
-    secondaryMask.style.borderRadius = secondaryPreview.shape === 'circular' ? '50%' : '0';
-    secondaryMask.style.cursor = 'default';
-    secondaryStage.appendChild(secondaryMask);
-
-    if (secondaryPreview.resource) {
-      const secondaryImg = document.createElement('img');
-      secondaryImg.className = 'image-adjust-modal__image';
-      secondaryImg.src = secondaryPreview.resource.dataUrl;
-      secondaryImg.draggable = false;
-      secondaryMask.appendChild(secondaryImg);
-      applyImageAdjustStyle(secondaryImg, secondaryPreview.adjustment);
-
-      if (secondaryPreview.onSelect) {
-        secondaryStage.classList.add('image-adjust-modal__stage--clickable');
-        secondaryMask.classList.add('image-adjust-modal__mask--clickable');
-        secondaryMask.style.cursor = 'pointer';
-        secondaryMask.addEventListener('click', () => {
-          document.removeEventListener('mousemove', handleMouseMove);
-          document.removeEventListener('mouseup', handleMouseUp);
-          overlay.remove();
-          secondaryPreview.onSelect({ zoom, posX, posY });
-        });
-      }
+    if (entry.resource) {
+      const img = document.createElement('img');
+      img.className = 'image-adjust-modal__image';
+      img.src = entry.resource.dataUrl;
+      img.draggable = false;
+      mask.appendChild(img);
+      imgEls[entry.key] = img;
+    } else {
+      mask.style.cursor = 'default';
     }
   }
 
-  function updatePreview() {
-    applyImageAdjustStyle(img, { zoom, posX, posY });
+  function updatePreview(key) {
+    if (imgEls[key]) applyImageAdjustStyle(imgEls[key], state[key]);
   }
-  updatePreview();
+  for (const entry of entries) updatePreview(entry.key);
+
+  let focusedKey = entries.find((entry) => entry.key === initialFocusKey && entry.resource)?.key
+    ?? entries.find((entry) => entry.resource)?.key
+    ?? null;
+
+  function refreshFocusClasses() {
+    for (const entry of entries) {
+      const isFocused = entry.key === focusedKey;
+      stageEls[entry.key].classList.toggle('image-adjust-modal__stage--focused', isFocused);
+      stageEls[entry.key].classList.toggle('image-adjust-modal__stage--dim', Boolean(entry.resource) && !isFocused);
+      maskEls[entry.key].classList.toggle('image-adjust-modal__mask--active', isFocused);
+      maskEls[entry.key].classList.toggle('image-adjust-modal__mask--clickable', Boolean(entry.resource) && !isFocused);
+    }
+    if (focusedKey) {
+      zoomInput.value = state[focusedKey].zoom;
+      zoomTextInput.value = state[focusedKey].zoom;
+    }
+  }
 
   let dragging = false;
   let startMouseX = 0;
   let startMouseY = 0;
-  let startPosX = posX;
-  let startPosY = posY;
+  let startPosX = 0;
+  let startPosY = 0;
 
   function handleMouseMove(e) {
+    const { maskWidth, maskHeight } = maskSizes[focusedKey];
     const dxPercent = ((e.clientX - startMouseX) / maskWidth) * 100;
     const dyPercent = ((e.clientY - startMouseY) / maskHeight) * 100;
-    posX = clamp(startPosX - dxPercent, 0, 100);
-    posY = clamp(startPosY - dyPercent, 0, 100);
-    updatePreview();
+    state[focusedKey].posX = clamp(startPosX - dxPercent, 0, 100);
+    state[focusedKey].posY = clamp(startPosY - dyPercent, 0, 100);
+    updatePreview(focusedKey);
   }
 
   function handleMouseUp() {
@@ -167,16 +162,27 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
     document.removeEventListener('mouseup', handleMouseUp);
   }
 
-  mask.addEventListener('mousedown', (e) => {
-    if (e.button !== 0) return;
+  function beginDrag(key, e) {
+    if (focusedKey !== key) {
+      focusedKey = key;
+      refreshFocusClasses();
+    }
     dragging = true;
     startMouseX = e.clientX;
     startMouseY = e.clientY;
-    startPosX = posX;
-    startPosY = posY;
+    startPosX = state[key].posX;
+    startPosY = state[key].posY;
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-  });
+  }
+
+  for (const entry of entries) {
+    if (!entry.resource) continue;
+    maskEls[entry.key].addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      beginDrag(entry.key, e);
+    });
+  }
 
   const zoomField = document.createElement('div');
   zoomField.className = 'modal__field';
@@ -186,34 +192,34 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   zoomInput.type = 'range';
   zoomInput.min = 100;
   zoomInput.max = 300;
-  zoomInput.value = zoom;
+  zoomInput.value = focusedKey ? state[focusedKey].zoom : 100;
 
   const zoomValue = document.createElement('div');
   zoomValue.className = 'image-adjust-modal__zoom-value';
   const zoomTextInput = document.createElement('input');
   zoomTextInput.type = 'text';
-  zoomTextInput.value = zoom;
+  zoomTextInput.value = zoomInput.value;
   const zoomUnit = document.createElement('span');
   zoomUnit.textContent = '%';
   zoomValue.appendChild(zoomTextInput);
   zoomValue.appendChild(zoomUnit);
 
   zoomInput.addEventListener('input', () => {
-    zoom = parseInt(zoomInput.value, 10);
-    zoomTextInput.value = zoom;
-    updatePreview();
+    state[focusedKey].zoom = parseInt(zoomInput.value, 10);
+    zoomTextInput.value = state[focusedKey].zoom;
+    updatePreview(focusedKey);
   });
 
   function commitZoomTextInput() {
     const parsed = parseInt(zoomTextInput.value, 10);
     if (Number.isNaN(parsed)) {
-      zoomTextInput.value = zoom;
+      zoomTextInput.value = state[focusedKey].zoom;
       return;
     }
-    zoom = clamp(parsed, 100, 300);
-    zoomTextInput.value = zoom;
-    zoomInput.value = zoom;
-    updatePreview();
+    state[focusedKey].zoom = clamp(parsed, 100, 300);
+    zoomTextInput.value = state[focusedKey].zoom;
+    zoomInput.value = state[focusedKey].zoom;
+    updatePreview(focusedKey);
   }
   zoomTextInput.addEventListener('change', commitZoomTextInput);
   zoomTextInput.addEventListener('keydown', (e) => {
@@ -224,6 +230,8 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   zoomField.appendChild(zoomInput);
   zoomField.appendChild(zoomValue);
   content.appendChild(zoomField);
+
+  refreshFocusClasses();
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
@@ -239,7 +247,15 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   acceptBtn.className = 'btn-accept';
   acceptBtn.textContent = 'Aceptar';
   acceptBtn.addEventListener('click', () => {
-    if (onAccept) onAccept({ zoom, posX, posY });
+    if (onAccept) {
+      if (faces) {
+        const adjustments = {};
+        for (const entry of entries) adjustments[entry.key] = { ...state[entry.key] };
+        onAccept(adjustments);
+      } else {
+        onAccept({ ...state.__single__ });
+      }
+    }
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
     overlay.remove();
