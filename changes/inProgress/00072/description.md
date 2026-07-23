@@ -11,6 +11,10 @@
 
 "Añade también en la configuración el borde de la carta completa: grosor y color."
 
+"Añade también, para la imagen de cada cara de la carta, un valor de transparencia (0% por defecto)"
+
+"También añade que en los botones que ahora dicen "+ Cuadro de texto", cámbialos por "+ Texto""
+
 ## Descripción completa
 
 En el editor de cartas (el sub-modal que se abre con doble click sobre un cuadro de texto de una cara), se añaden dos bloques nuevos de configuración a cada cuadro de texto, después del campo "Color" ya existente:
@@ -36,6 +40,18 @@ Al ser un control por cara, la carta puede tener un borde distinto en su cara fr
 
 El borde se dibuja como línea simple (color + grosor), sin ningún efecto de bisel o relieve (esa técnica queda reservada a "Tablero"/"Dado", igual que se indica más abajo para el borde de cuadro de texto), y respeta la forma de la carta: esquinas redondeadas o círculo/óvalo completo según la proporción configurada (`proporcion === 'circular'`), igual que ya ocurre con el resto del contorno de la carta.
 
+### Ampliación: transparencia de la imagen de cada cara
+
+Además del borde (arriba), se añade a cada cara (frontal y trasera) un valor de transparencia para su imagen, independiente entre caras.
+
+4. **Transparencia de imagen**: dentro del editor de cartas, en la sección propia de cada cara, junto al resto de configuración de la imagen de esa cara (elegir imagen / ajustar imagen), un control de transparencia de 0% a 100% (0% por defecto). `0%` significa "imagen totalmente opaca" (sin cambio visual respecto a hoy); a medida que sube el valor, la imagen se vuelve más transparente hasta desaparecer del todo en `100%`.
+
+Este control solo afecta a la imagen de fondo de la cara: no afecta al color de fondo blanco de la carta, a los cuadros de texto ni al borde de carta (arriba). El control solo tiene sentido, y por tanto solo se muestra, si esa cara tiene una imagen elegida; al no haber imagen no hay nada que hacer transparente. Al elegir o cambiar la imagen de una cara, la transparencia se reinicia a `0%` (mismo criterio ya usado para el ajuste de posición/zoom de esa imagen, que también se reinicia al cambiar de imagen).
+
+### Ampliación: renombrado del botón "+ Cuadro de texto"
+
+Sin relación funcional con lo anterior: en el editor de cartas, el botón que añade un cuadro de texto nuevo a una cara pasa de decir "+ Cuadro de texto" a decir "+ Texto" (mismo botón, mismo comportamiento, solo cambia la etiqueta visible). Aparece dos veces, una por cada cara (frontal y trasera).
+
 ### Casos límite
 
 - Cuadro de texto nuevo: se crea con el check de borde desmarcado y con fondo transparente (mismo comportamiento que hoy, sin cambios visibles hasta que el usuario active alguna de las dos configuraciones).
@@ -44,6 +60,8 @@ El borde se dibuja como línea simple (color + grosor), sin ningún efecto de bi
 - Esta configuración es exclusiva de los cuadros de texto del editor de cartas; no afecta al componente suelto de tipo "Texto" que se coloca directamente sobre la mesa (que ya tiene su propio color de fondo, sin esta ampliación).
 - Carta nueva o cara sin borde configurado (cartas guardadas antes de esta ampliación): grosor `0`, sin ningún efecto visual respecto a hoy.
 - El borde de la carta completa es independiente del borde de los cuadros de texto: cada uno se configura y se dibuja por separado, y pueden convivir sin conflicto (un cuadro de texto con su propio borde, dentro de una carta que también tiene borde propio).
+- Carta nueva, cara sin imagen o cara sin transparencia configurada (cartas guardadas antes de esta ampliación): `0%`, sin ningún efecto visual respecto a hoy.
+- La transparencia de imagen es independiente del borde de cuadro de texto, del fondo de cuadro de texto y del borde de carta: los cuatro conviven sin conflicto, cada uno se configura y se aplica por separado.
 
 ### Convivencia con lo existente
 
@@ -63,6 +81,8 @@ Cualquier usuario en modo edición, igual que el resto de la configuración de c
 - A continuación, un bloque "Fondo": una fila con selector de color y checkbox "Transparente" al lado (mismo patrón ya usado en "Ficha" y en el componente "Texto" de la mesa).
 - El resultado se refleja de inmediato en la vista previa del propio editor de cartas y, al guardar, en el renderizado de la carta sobre la mesa.
 - Borde de la carta completa: dentro de cada sección de cara (frontal/trasera) del editor de cartas, junto a las demás acciones de esa cara ("Elegir imagen…"), un control "Borde" con selector de color y campo numérico de grosor (mismo patrón "color y grosor en la misma fila" ya usado en "Ficha"/"Tablero"). Al cambiar el grosor por encima de 0 aparece de inmediato el borde en la vista previa de esa cara dentro del editor; al guardar, se refleja también en el renderizado de la carta sobre la mesa.
+- Transparencia de imagen: dentro de cada sección de cara, junto a la imagen elegida ("Elegir imagen…"/"Ajustar imagen…"), solo visible si esa cara tiene imagen, un control "Transparencia" con slider de 0% a 100% y campo numérico junto a un símbolo "%" (mismo patrón ya usado para "Zoom" en el ajuste de imagen). Al mover el slider, la imagen se ve de inmediato más o menos transparente en la vista previa de esa cara dentro del editor; al guardar, se refleja también en el renderizado de la carta sobre la mesa.
+- Renombrado de botón: el botón "+ Cuadro de texto" de cada cara pasa a decir "+ Texto", sin ningún otro cambio visual ni de comportamiento.
 
 ## Apuntes técnicos
 
@@ -75,3 +95,9 @@ Cualquier usuario en modo edición, igual que el resto de la configuración de c
 - Editor de la propiedad: `src/ui/cardEditorModal.js`, dentro de `renderFace(caraKey, label)` (por cara, no en el `toolbar` compartido con "Proporción"), reutilizando el mismo patrón "color + grosor en la misma fila" de `componentModal.js`.
 - Renderizado a actualizar: `src/ui/componentRenderer.js`, bloque `component.type === 'carta'` (~línea 961) — aplicar `border` (o `border: none` si `bordeGrosor` es `0`) al elemento `.carta` según la cara activa (`caraActual`), sin bisel (línea simple, igual que `'ficha'`), respetando `cartaBorderRadius` ya calculado (redondeado u óvalo/círculo si `proporcion === 'circular'`). Como el borde envuelve la carta completa (no cada cara por separado dentro del DOM, que ya alterna vía `caraActual`), el borde mostrado en cada instante es el de la cara actualmente visible.
 - Mismo criterio de "sin migración": campos opcionales, ausentes en cartas guardadas antes de esta ampliación se comportan como `bordeGrosor: 0` (sin cambio visual).
+- **Ampliación (transparencia de imagen de cada cara)**: `caraFrontal`/`caraTrasera` (`ARCHITECTURE.md` sección 4, tipo `'carta'`) son hoy `{ imagenResourceId, ajusteImagen, textBoxes }` (más `bordeColor`/`bordeGrosor` de la ampliación anterior); no existe hoy en el proyecto ningún campo de opacidad/transparencia de imagen en ningún tipo de componente (`'ficha'`, `'tablero'`, etc. tampoco lo tienen) — es un campo nuevo, sin precedente de naming que reutilizar. Esta ampliación añade a cada cara `transparenciaImagen` (number, 0–100, `0` por defecto = imagen opaca), aplicado como `opacity` CSS del elemento `<img>` de esa cara mediante `1 - transparenciaImagen / 100`.
+- Patrón de UI a reutilizar: el control slider + input numérico + símbolo "%" ya implementado para "Zoom" en `src/ui/imageAdjustModal.js` (líneas ~187-220: `input[type=range]` sincronizado con un `input[type=text]`, ambos actualizando el mismo valor en `state`), adaptado a rango 0–100 en vez de 100–300.
+- Editor de la propiedad: `src/ui/cardEditorModal.js`, dentro de `renderFace(caraKey, label)` (línea ~141 en adelante, junto al bloque de imagen de esa cara: `cara.imagenResourceId`, botones "Elegir imagen…"/"Ajustar imagen…") — el control solo se muestra si `cara.imagenResourceId` no es `null`. Al elegir/cambiar imagen (línea ~193-194, donde ya se reinicia `cara.ajusteImagen = { zoom: 100, posX: 50, posY: 50 }`), reiniciar también `cara.transparenciaImagen = 0`.
+- Renderizado a actualizar: `src/ui/componentRenderer.js`, en los dos puntos donde se crea el `<img>` de la imagen de fondo de una cara y se le aplica `applyImageAdjustStyle` — la vista previa del propio editor (`cardEditorModal.js`, análogo a `renderFace`) y el bloque `component.type === 'carta'` de `componentRenderer.js` (~línea 1017-1027, tras `applyImageAdjustStyle(img, cara.ajusteImagen)`) — añadiendo `img.style.opacity = String(1 - (cara.transparenciaImagen ?? 0) / 100)`.
+- Mismo criterio de "sin migración": campo opcional, ausente en cartas guardadas antes de esta ampliación se comporta como `transparenciaImagen: 0` (sin cambio visual).
+- **Ampliación (renombrado de botón)**: en `src/ui/cardEditorModal.js` línea 204, `addTextBoxBtn.textContent = '+ Cuadro de texto'` pasa a `'+ Texto'`. Es solo texto visible, sin ningún dato ni comportamiento nuevo — no requiere apuntes adicionales.

@@ -32,7 +32,7 @@
     background: white;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-2);
-    max-width: 720px;
+    max-width: 920px;
     width: 100%;
   }
   .modal__header {
@@ -81,8 +81,8 @@
     color: var(--text-primary);
   }
   .card-editor-modal__canvas {
-    width: 140px;
-    height: 196px;
+    width: 200px;
+    height: 280px;
     background: repeating-conic-gradient(#eee 0% 25%, #fff 0% 50%) 0 0 / 16px 16px;
     box-sizing: border-box;
   }
@@ -140,13 +140,33 @@
     letter-spacing: 0.02em;
     margin: 0.25rem 0 0 0;
   }
+  .opacity-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .opacity-row input[type="range"] {
+    flex: 1;
+  }
+  .opacity-row input[type="number"] {
+    width: 3rem;
+    padding: 0.3rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.8125rem;
+  }
+  .opacity-row span {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+  }
 </style>
 
 <div class="modal-overlay">
   <div class="modal">
     <div class="modal__header">Editor de cartas</div>
     <div class="modal__content">
-      <p class="preview-note">Maqueta ilustrativa — muestra solo el bloque nuevo "Borde" añadido dentro de cada cara (frontal y trasera), junto a "Elegir imagen…". La cara frontal se ilustra con borde activo (grosor > 0); la trasera, con grosor 0 (sin borde, estado por defecto).</p>
+      <p class="preview-note">Maqueta ilustrativa — muestra los bloques nuevos "Borde" y "Transparencia" añadidos dentro de cada cara (frontal y trasera), junto a "Elegir imagen…". Ambas caras tienen imagen elegida, por eso ambas muestran su propio control "Transparencia" (independiente entre caras: 30% en la frontal, 70% en la trasera, a modo de ejemplo). La cara frontal se ilustra además con borde activo (grosor > 0); la trasera, con grosor 0 (sin borde, estado por defecto).</p>
 
       <div class="card-editor-modal__toolbar">
         <div class="modal__field">
@@ -161,6 +181,14 @@
           <div class="card-editor-modal__canvas card-editor-modal__canvas--frontal"></div>
           <div class="card-editor-modal__face-actions">
             <button class="btn-cancel">Elegir imagen…</button>
+            <div class="modal__field">
+              <label>Transparencia</label>
+              <div class="opacity-row">
+                <input type="range" min="0" max="100" value="30" />
+                <input type="number" value="30" min="0" max="100" />
+                <span>%</span>
+              </div>
+            </div>
             <p class="border-block-title">Borde</p>
             <div class="field-row">
               <div>
@@ -180,6 +208,14 @@
           <div class="card-editor-modal__canvas card-editor-modal__canvas--trasera"></div>
           <div class="card-editor-modal__face-actions">
             <button class="btn-cancel">Elegir imagen…</button>
+            <div class="modal__field">
+              <label>Transparencia</label>
+              <div class="opacity-row">
+                <input type="range" min="0" max="100" value="70" />
+                <input type="number" value="70" min="0" max="100" />
+                <span>%</span>
+              </div>
+            </div>
             <p class="border-block-title">Borde</p>
             <div class="field-row">
               <div>
