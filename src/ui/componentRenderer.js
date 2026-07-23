@@ -257,6 +257,28 @@ function endDragLift(el) {
   el.classList.remove('lifted');
 }
 
+// Feedback visual al voltear una carta (cambio 00075): detectado por diferencia de datos
+// (última `caraActual` vista por id), no por el evento de click que lo origina — así el
+// efecto no depende de (ni comparte nada con) el gesto de arrastre/`.lifted` de arriba, y
+// se dispara ante cualquier cambio futuro de cara, no solo el click actual. Necesario
+// porque `onCartaFlip` dispara un re-render síncrono que destruye el nodo sobre el que se
+// hizo click antes de que se pudiera ver ninguna clase añadida ahí.
+const lastCaraById = new Map();
+const flipFeedbackTimeouts = new Map();
+
+function applyFlipFeedbackIfChanged(carta, componentId, caraActual) {
+  const previousCara = lastCaraById.get(componentId);
+  lastCaraById.set(componentId, caraActual);
+  if (previousCara === undefined || previousCara === caraActual) return;
+
+  clearTimeout(flipFeedbackTimeouts.get(componentId));
+  carta.classList.add('carta--flip-feedback');
+  flipFeedbackTimeouts.set(componentId, setTimeout(() => {
+    carta.classList.remove('carta--flip-feedback');
+    flipFeedbackTimeouts.delete(componentId);
+  }, 250));
+}
+
 export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, onCartaFlip, identifyMode, liftOnDrag = false } = {}) {
   worldEl.innerHTML = '';
 
@@ -988,6 +1010,8 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       const cara = caraActual === 'frontal' ? props.caraFrontal : props.caraTrasera;
       const renderScale = width / CARD_DESIGN_WIDTH;
 
+      applyFlipFeedbackIfChanged(carta, component.id, caraActual);
+
       carta.style.backgroundColor = '#ffffff';
 
       const resource = cara?.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;
@@ -1049,6 +1073,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         let startY = component.y ?? 100;
         let currentX = startX;
         let currentY = startY;
+        let lifted = false;
 
         function handleMouseMove(e) {
           const zoom = getWorldZoom(worldEl);
@@ -1056,12 +1081,17 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           currentY = startY + (e.clientY - startMouseY) / zoom;
           carta.style.left = `${currentX}px`;
           carta.style.top = `${currentY}px`;
+          if (liftOnDrag && !lifted) {
+            lifted = true;
+            beginDragLift(carta, worldEl);
+          }
         }
 
         function handleMouseUp() {
           document.removeEventListener('mousemove', handleMouseMove);
           document.removeEventListener('mouseup', handleMouseUp);
-          if (liftOnDrag) endDragLift(carta);
+          if (lifted) endDragLift(carta);
+          lifted = false;
           if (currentX === startX && currentY === startY) return;
           onMove(component, currentX, currentY);
         }
@@ -1069,7 +1099,6 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         carta.addEventListener('mousedown', (e) => {
           if (e.button !== 0) return;
           e.stopPropagation();
-          if (liftOnDrag) beginDragLift(carta, worldEl);
           startMouseX = e.clientX;
           startMouseY = e.clientY;
           startX = component.x ?? 100;

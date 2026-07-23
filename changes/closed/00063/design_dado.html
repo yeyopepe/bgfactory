@@ -1,0 +1,61 @@
+<title>00063 — Modo Juego: pieza Dado</title>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#fafafa;color:#1a1a1a;}
+  .page{max-width:1120px;margin:0 auto;padding:2.5rem 1.5rem 4rem;font-family:system-ui,sans-serif;}
+  .page h1{font-size:1.5rem;margin:0 0 .25rem;}
+  .page .subtitle{color:#666;font-size:.95rem;margin:0 0 2.75rem;max-width:70ch;line-height:1.5;}
+  .section{margin-bottom:2.5rem;}
+  .section h2{font-size:1.125rem;margin:0 0 .25rem;padding-bottom:.6rem;border-bottom:1px solid #e0e0e0;}
+  .section .desc{color:#666;font-size:.875rem;margin:.75rem 0 1.25rem;max-width:74ch;line-height:1.55;}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+  @media (max-width:760px){.compare{grid-template-columns:1fr;}}
+  .compare-col{border-radius:10px;overflow:hidden;border:1px solid #e5e5e5;}
+  .compare-col__label{display:flex;align-items:center;gap:.5rem;padding:.6rem 1rem;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+  .compare-col--before .compare-col__label{background:#f5f5f5;color:#888;}
+  .compare-col--after .compare-col__label{background:#e7f0fc;color:#1a5fa8;}
+  .compare-col__stage{padding:2.5rem 1.5rem;background:#c2c2c2 radial-gradient(circle, rgba(0,0,0,.12) 1.5px, transparent 1.5px) -8px -8px/32px 32px;display:flex;align-items:center;justify-content:center;min-height:200px;gap:2rem;}
+  .dice-wrap{text-align:center;}
+  .dice-wrap svg{display:block;}
+  .dice-wrap--new svg{filter:drop-shadow(0 5px 8px rgba(0,0,0,.28));}
+  .dice-result{font-size:.72rem;color:#888;margin-top:.4rem;}
+</style>
+
+<div class="page">
+  <h1>00063 · Modo Juego — Pieza Dado</h1>
+  <p class="subtitle">El dado ya reproduce una silueta con profundidad (copia oscura desplazada detrás + contorno + líneas de faceta, todo calculado en color, sin sombra CSS) — esa técnica se mantiene intacta porque es la que da su aspecto de "pieza tallada". Se añade un <code>drop-shadow</code> de contacto muy sutil bajo toda la silueta para asentarlo sobre la mesa junto con el resto de piezas, igual que el tablero.</p>
+
+  <div class="section">
+    <h2>Dado de 6 caras (resultado mostrado tras tirar)</h2>
+    <div class="compare">
+      <div class="compare-col compare-col--before">
+        <div class="compare-col__label">Antes</div>
+        <div class="compare-col__stage">
+          <div class="dice-wrap">
+            <svg width="90" height="90" viewBox="0 0 90 90">
+              <polygon points="17,17 73,17 73,73 17,73" fill="#7a4a10" transform="translate(4,4)"/>
+              <polygon points="17,17 73,17 73,73 17,73" fill="#c2790f"/>
+              <polygon points="17,17 73,17 73,73 17,73" fill="none" stroke="#5a3608" stroke-width="1.8"/>
+              <text x="45" y="52" text-anchor="middle" font-family="system-ui,sans-serif" font-size="26" font-weight="500" fill="#fff">4</text>
+            </svg>
+            <div class="dice-result">sin sombra de contacto</div>
+          </div>
+        </div>
+      </div>
+      <div class="compare-col compare-col--after">
+        <div class="compare-col__label">Después</div>
+        <div class="compare-col__stage">
+          <div class="dice-wrap dice-wrap--new">
+            <svg width="90" height="90" viewBox="0 0 90 90">
+              <polygon points="17,17 73,17 73,73 17,73" fill="#7a4a10" transform="translate(4,4)"/>
+              <polygon points="17,17 73,17 73,73 17,73" fill="#c2790f"/>
+              <polygon points="17,17 73,17 73,73 17,73" fill="none" stroke="#5a3608" stroke-width="1.8"/>
+              <text x="45" y="52" text-anchor="middle" font-family="system-ui,sans-serif" font-size="26" font-weight="500" fill="#fff">4</text>
+            </svg>
+            <div class="dice-result">+ sombra de contacto sutil</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

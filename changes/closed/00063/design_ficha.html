@@ -1,0 +1,46 @@
+<title>00063 — Modo Juego: pieza Ficha</title>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0;background:#fafafa;color:#1a1a1a;}
+  .page{max-width:1120px;margin:0 auto;padding:2.5rem 1.5rem 4rem;font-family:system-ui,sans-serif;}
+  .page h1{font-size:1.5rem;margin:0 0 .25rem;}
+  .page .subtitle{color:#666;font-size:.95rem;margin:0 0 2.75rem;max-width:70ch;line-height:1.5;}
+  .section{margin-bottom:2.5rem;}
+  .section h2{font-size:1.125rem;margin:0 0 .25rem;padding-bottom:.6rem;border-bottom:1px solid #e0e0e0;}
+  .section .desc{color:#666;font-size:.875rem;margin:.75rem 0 1.25rem;max-width:74ch;line-height:1.55;}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+  @media (max-width:760px){.compare{grid-template-columns:1fr;}}
+  .compare-col{border-radius:10px;overflow:hidden;border:1px solid #e5e5e5;}
+  .compare-col__label{display:flex;align-items:center;gap:.5rem;padding:.6rem 1rem;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+  .compare-col--before .compare-col__label{background:#f5f5f5;color:#888;}
+  .compare-col--after .compare-col__label{background:#e7f0fc;color:#1a5fa8;}
+  .compare-col__stage{padding:2.5rem 1.5rem;background:#c2c2c2 radial-gradient(circle, rgba(0,0,0,.12) 1.5px, transparent 1.5px) -8px -8px/32px 32px;display:flex;align-items:center;justify-content:center;gap:2.5rem;min-height:170px;}
+  .ficha{width:64px;height:64px;background:#d3453b;border:3px solid #7a1f19;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.75rem;font-family:system-ui,sans-serif;}
+  .ficha--circular{border-radius:50%;}
+  .ficha--new{box-shadow:0 5px 10px rgba(0,0,0,.25), 0 1px 2px rgba(0,0,0,.15);}
+</style>
+
+<div class="page">
+  <h1>00063 · Modo Juego — Pieza Ficha</h1>
+  <p class="subtitle">Hoy la ficha (cuadrada o circular) es completamente plana, a diferencia del tablero y el dado. Se le añade la misma sombra de contacto sutil (nivel 1 de elevación) para que las cuatro piezas — tablero, dado, ficha, carta — se sientan del mismo material sobre la mesa. La forma (cuadrada/circular) y el borde configurable no cambian.</p>
+
+  <div class="section">
+    <h2>Ficha cuadrada y circular</h2>
+    <div class="compare">
+      <div class="compare-col compare-col--before">
+        <div class="compare-col__label">Antes</div>
+        <div class="compare-col__stage">
+          <div class="ficha">Zombi</div>
+          <div class="ficha ficha--circular">P1</div>
+        </div>
+      </div>
+      <div class="compare-col compare-col--after">
+        <div class="compare-col__label">Después</div>
+        <div class="compare-col__stage">
+          <div class="ficha ficha--new">Zombi</div>
+          <div class="ficha ficha--circular ficha--new">P1</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

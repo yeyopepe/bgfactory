@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-23T19:34:56Z",
+  "generatedAt": "2026-07-23T20:10:49Z",
   "basePath": "src",
   "nodes": [
     {
@@ -273,7 +273,7 @@
         "getComponentsBounds",
         "renderComponentsOnTable"
       ],
-      "purpose": "Dibuja los componentes sobre la mesa según su tipo, gestiona selección/movimiento/redimensionado (con efecto visual de \"levantar\" opcional durante el arrastre) e interacciones propias de cada tipo, y calcula la caja envolvente de todos los componentes."
+      "purpose": "Dibuja los componentes sobre la mesa según su tipo, gestiona selección/movimiento/redimensionado (con efecto visual de \"levantar\" opcional, solo tras detectar arrastre real, no en un simple click, en la carta desde el fix 00074) e interacciones propias de cada tipo (incluyendo el feedback visual de volteo de carta, detectado por diferencia de datos, cambio 00075), y calcula la caja envolvente de todos los componentes."
     },
     {
       "id": "ui/componentTypeModal.js",
@@ -958,7 +958,7 @@
       "type": "function",
       "path": "ui/componentRenderer.js",
       "parent": "ui/componentRenderer.js",
-      "purpose": "Dibuja de nuevo todos los componentes sobre la mesa según su tipo y order, activando selección, arrastre (con estado transitorio 'lifted' si liftOnDrag es true), redimensionado e interacciones propias de cada tipo; el patrón de fondo del tablero usa el grosor configurado (`patronGrosor`) tanto en el gradiente CSS de la forma cuadrada (con capas adicionales no repetidas que cierran las líneas de borde derecho/inferior, fix 00070) como en el stroke-width del svg hexagonal; la carta con proporción 'circular' se recorta con border-radius 50% (en vez de 8px) y su resize es libre (sin forzar ratio) en vez del clamp con ratio fijo del resto de proporciones."
+      "purpose": "Dibuja de nuevo todos los componentes sobre la mesa según su tipo y order, activando selección, arrastre (con estado transitorio 'lifted' si liftOnDrag es true, aplicado solo al primer movimiento real del ratón tras el mousedown, nunca en un simple click, fix 00074), redimensionado e interacciones propias de cada tipo; el patrón de fondo del tablero usa el grosor configurado (`patronGrosor`) tanto en el gradiente CSS de la forma cuadrada (con capas adicionales no repetidas que cierran las líneas de borde derecho/inferior, fix 00070) como en el stroke-width del svg hexagonal; la carta con proporción 'circular' se recorta con border-radius 50% (en vez de 8px) y su resize es libre (sin forzar ratio) en vez del clamp con ratio fijo del resto de proporciones; cada volteo de carta dispara además un feedback visual breve ('carta--flip-feedback', cambio 00075), detectado comparando la caraActual actual contra la última vista por id de componente, no por el evento de click."
     },
     {
       "id": "ui/componentTypeModal.js#openComponentTypeModal",

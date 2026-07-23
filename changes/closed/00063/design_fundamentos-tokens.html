@@ -1,0 +1,162 @@
+<title>00063 — Fundamentos: color, radios, elevación, transiciones</title>
+<style>
+  :root{
+    --o-border:#ddd; --o-border-light:#eee; --o-bg-subtle:#f0f0f0; --o-bg-hover-row:#f9f9f9; --o-bg-hover-btn:#e0e0e0;
+    --n-border-neutral:#dcdcdc; --n-bg-subtle:#f0f0f0; --n-bg-hover:#e8e8e8;
+    --shadow-2:0 4px 20px rgba(0,0,0,.15);
+    --n-shadow-1:0 2px 6px rgba(0,0,0,.10), 0 1px 2px rgba(0,0,0,.08);
+    --accent-blue:#2c7dd8; --accent-blue-dark:#123a66; --error:#d32f2f; --text-muted:#666;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#fafafa;color:#1a1a1a;}
+  .page{max-width:1120px;margin:0 auto;padding:2.5rem 1.5rem 4rem;font-family:system-ui,sans-serif;}
+  .page h1{font-size:1.5rem;margin:0 0 .25rem;}
+  .page .subtitle{color:#666;font-size:.95rem;margin:0 0 2.75rem;max-width:70ch;line-height:1.5;}
+  .section{margin-bottom:3.5rem;}
+  .section h2{font-size:1.125rem;margin:0 0 .25rem;padding-bottom:.6rem;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;gap:.5rem;}
+  .section h2 .n{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:var(--accent-blue-dark);color:#fff;font-size:.72rem;font-weight:600;flex-shrink:0;}
+  .section .desc{color:#666;font-size:.875rem;margin:.75rem 0 1.5rem;max-width:74ch;line-height:1.55;}
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+  @media (max-width:760px){.compare{grid-template-columns:1fr;}}
+  .compare-col{border-radius:10px;overflow:hidden;border:1px solid #e5e5e5;background:#fff;}
+  .compare-col__label{display:flex;align-items:center;gap:.5rem;padding:.6rem 1rem;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+  .compare-col--before .compare-col__label{background:#f5f5f5;color:#888;}
+  .compare-col--after .compare-col__label{background:#e7f0fc;color:#1a5fa8;}
+  .compare-col__stage{padding:1.75rem;min-height:150px;}
+
+  /* swatches */
+  .swatch-row{display:flex;flex-wrap:wrap;gap:.75rem;}
+  .swatch{width:88px;}
+  .swatch__chip{height:56px;border-radius:6px;border:1px solid rgba(0,0,0,.08);}
+  .swatch__label{font-size:.68rem;color:#666;margin-top:.35rem;text-align:center;word-break:break-word;}
+
+  /* radius demo */
+  .radius-row{display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;}
+  .radius-box{width:76px;height:76px;background:var(--accent-blue);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:600;}
+
+  /* elevation demo */
+  .elev-row{display:flex;gap:1.25rem;flex-wrap:wrap;}
+  .elev-box{width:130px;height:90px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.72rem;color:#666;text-align:center;padding:.5rem;}
+  .elev-box--0{border:1px solid #e0e0e0;}
+  .elev-box--1{box-shadow:var(--n-shadow-1);}
+  .elev-box--2{box-shadow:var(--shadow-2);}
+
+  /* transition demo */
+  .btn-demo{padding:.5rem 1.25rem;border:none;border-radius:4px;background:var(--accent-blue);color:#fff;font-size:.875rem;cursor:pointer;}
+  .btn-demo--old:hover{opacity:.9;}
+  .btn-demo--new{transition:opacity 150ms ease, transform 150ms ease;}
+  .btn-demo--new:hover{opacity:.88;transform:translateY(-1px);}
+  .hint{font-size:.72rem;color:#888;margin-top:.6rem;}
+
+  /* neutral tokens demo */
+  .neutral-list{display:flex;flex-direction:column;gap:.5rem;font-size:.8rem;}
+  .neutral-item{display:flex;align-items:center;gap:.6rem;}
+  .neutral-item__dot{width:16px;height:16px;border-radius:3px;flex-shrink:0;border:1px solid rgba(0,0,0,.08);}
+  code{background:#f0f0f0;padding:.1rem .35rem;border-radius:3px;font-size:.8em;}
+</style>
+
+<div class="page">
+  <h1>00063 · Fundamentos compartidos</h1>
+  <p class="subtitle">Base de tokens que reutilizan el resto de maquetas de este cambio: colores neutros, escala de radios, sistema de elevación y transiciones. Los colores de marca (azul de acción, colores de texto, error) no cambian — el foco está en resolver la inconsistencia de grises, radios y la falta de profundidad/transición.</p>
+
+  <div class="section">
+    <h2><span class="n">1</span> Colores neutros — de sueltos a consolidados</h2>
+    <p class="desc">Hoy <code>#ddd</code>, <code>#eee</code>, <code>#f0f0f0</code>, <code>#e0e0e0</code> y <code>#f9f9f9</code> conviven sin criterio claro (bordes, fondos de cabecera, hover de fila, hover de botón secundario). Se consolidan en 3 tokens con un uso definido cada uno.</p>
+    <div class="compare">
+      <div class="compare-col compare-col--before">
+        <div class="compare-col__label">Antes</div>
+        <div class="compare-col__stage">
+          <div class="neutral-list">
+            <div class="neutral-item"><span class="neutral-item__dot" style="background:#ddd"></span><code>#ddd</code> — bordes de inputs, tablas, items</div>
+            <div class="neutral-item"><span class="neutral-item__dot" style="background:#eee"></span><code>#eee</code> — bordes de cabecera/pie de modal</div>
+            <div class="neutral-item"><span class="neutral-item__dot" style="background:#f0f0f0"></span><code>#f0f0f0</code> — fondo cabecera de tabla, botón cancelar</div>
+            <div class="neutral-item"><span class="neutral-item__dot" style="background:#e0e0e0"></span><code>#e0e0e0</code> — hover de botón cancelar</div>
+            <div class="neutral-item"><span class="neutral-item__dot" style="background:#f9f9f9"></span><code>#f9f9f9</code> — hover de fila de lista, tabs inactivas</div>
+          </div>
+        </div>
+      </div>
+      <div class="compare-col compare-col--after">
+        <div class="compare-col__label">Después</div>
+        <div class="compare-col__stage">
+          <div class="neutral-list">
+            <div class="neutral-item"><span class="neutral-item__dot" style="background:#dcdcdc"></span><code>--border-neutral</code> — todos los bordes finos (sustituye <code>#ddd</code>/<code>#eee</code>)</div>
+            <div class="neutral-item"><span class="neutral-item__dot" style="background:#f0f0f0"></span><code>--bg-subtle</code> — fondos neutros en reposo (cabecera de tabla, botón secundario)</div>
+            <div class="neutral-item"><span class="neutral-item__dot" style="background:#e8e8e8"></span><code>--bg-hover</code> — cualquier hover neutro (fila, botón secundario, tab)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="n">2</span> Escala de radios — de 3 tamaños a 2</h2>
+    <p class="desc">Hoy conviven <code>3px</code>, <code>4px</code> y <code>8px</code> repartidos sin un criterio homogéneo. Se reduce a dos pasos con un uso claro: controles pequeños vs. contenedores destacados.</p>
+    <div class="compare">
+      <div class="compare-col compare-col--before">
+        <div class="compare-col__label">Antes — 3 tamaños</div>
+        <div class="compare-col__stage">
+          <div class="radius-row">
+            <div><div class="radius-box" style="border-radius:3px">3px</div><div class="hint">botón pequeño de lista</div></div>
+            <div><div class="radius-box" style="border-radius:4px">4px</div><div class="hint">botón, input, panel</div></div>
+            <div><div class="radius-box" style="border-radius:8px">8px</div><div class="hint">modal, carta</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="compare-col compare-col--after">
+        <div class="compare-col__label">Después — 2 tamaños</div>
+        <div class="compare-col__stage">
+          <div class="radius-row">
+            <div><div class="radius-box" style="border-radius:4px">4px</div><div class="hint">--radius-sm: todos los controles, incl. botones de lista</div></div>
+            <div><div class="radius-box" style="border-radius:8px">8px</div><div class="hint">--radius-lg: modal, paneles, tarjetas, piezas</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="n">3</span> Sistema de elevación — de "solo el modal" a 3 niveles</h2>
+    <p class="desc">Hoy únicamente el modal tiene sombra; paneles flotantes, tarjetas y piezas de juego son planos. Se define un sistema de 3 niveles reutilizable en toda la app.</p>
+    <div class="compare">
+      <div class="compare-col compare-col--before">
+        <div class="compare-col__label">Antes</div>
+        <div class="compare-col__stage">
+          <div class="elev-row">
+            <div class="elev-box elev-box--0">Mesa / contenido<br>sin sombra</div>
+            <div class="elev-box elev-box--0">Paneles / piezas<br>sin sombra (plano)</div>
+            <div class="elev-box elev-box--2">Modal<br>única sombra de la app</div>
+          </div>
+        </div>
+      </div>
+      <div class="compare-col compare-col--after">
+        <div class="compare-col__label">Después</div>
+        <div class="compare-col__stage">
+          <div class="elev-row">
+            <div class="elev-box elev-box--0">Nivel 0<br>mesa, contenido embebido</div>
+            <div class="elev-box elev-box--1">Nivel 1<br>paneles, listas, piezas</div>
+            <div class="elev-box elev-box--2">Nivel 2<br>modales (sin cambios)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2><span class="n">4</span> Transiciones de hover — de instantáneo a suave</h2>
+    <p class="desc">Pasa el ratón por encima de cada botón: hoy el cambio de opacidad es brusco; después es una transición de 150ms con un ligero desplazamiento. Mismo criterio para filas de lista e items interactivos.</p>
+    <div class="compare">
+      <div class="compare-col compare-col--before">
+        <div class="compare-col__label">Antes</div>
+        <div class="compare-col__stage" style="display:flex;align-items:center;justify-content:center;">
+          <button class="btn-demo btn-demo--old">Pasa el ratón</button>
+        </div>
+      </div>
+      <div class="compare-col compare-col--after">
+        <div class="compare-col__label">Después</div>
+        <div class="compare-col__stage" style="display:flex;align-items:center;justify-content:center;">
+          <button class="btn-demo btn-demo--new">Pasa el ratón</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
