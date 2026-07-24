@@ -17,6 +17,7 @@
   --shadow-1: 0 2px 6px rgba(0, 0, 0, 0.10), 0 1px 2px rgba(0, 0, 0, 0.08); /* nivel 1: flotante sutil (paneles, listas, piezas) */
   --shadow-2: 0 4px 20px rgba(0, 0, 0, 0.15); /* nivel 2: overlay (modales, el más alto) */
   --transition-fast: 150ms ease;
+  --section-accent: #5b5f97; /* título de .modal__section (cambio 00072), distinto de --accent-blue (interactivo/seleccionado) */
 }
 
 * {
@@ -432,6 +433,50 @@ input[type="radio"] {
 .modal__field--checkbox label {
   display: inline;
   margin-bottom: 0;
+}
+
+/* Sección encuadrada dentro de una pestaña/sub-modal (cambio 00072, ver
+   STYLE_BIBLE.md sección 12.6): fieldset con borde neutro estándar; el título
+   (legend) es lo único que usa --section-accent. */
+fieldset.modal__section {
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
+  margin: 1rem -0.75rem 0;
+  padding: 1rem 1.25rem;
+}
+
+fieldset.modal__section > *:last-child {
+  margin-bottom: 0;
+}
+
+legend.modal__section-title {
+  padding: 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--section-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+legend.modal__section-title--toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+legend.modal__section-title--toggle input[type="checkbox"] {
+  margin: 0;
+}
+
+fieldset.modal__section--disabled > *:not(legend) {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Grupo de campos sin título propio: mismo marco, sin legend. */
+fieldset.modal__section--untitled {
+  padding-top: 1rem;
 }
 
 .modal__footer {
@@ -988,6 +1033,36 @@ input[type="radio"] {
   word-break: break-word;
   white-space: pre-wrap;
   user-select: none;
+}
+
+.card-editor-modal__border-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: 0.25rem 0 0 0;
+  width: 100%;
+}
+
+.card-editor-modal__opacity-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.card-editor-modal__opacity-row input[type="range"] {
+  flex: 1;
+}
+
+.card-editor-modal__opacity-row input[type="number"] {
+  width: 3rem;
+}
+
+.card-editor-modal__opacity-row span {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
 }
 
 .card-editor-modal__textbox:hover {

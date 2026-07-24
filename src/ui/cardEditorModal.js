@@ -18,6 +18,9 @@ function cloneCara(cara) {
     imagenResourceId: cara?.imagenResourceId ?? null,
     ajusteImagen: { ...(cara?.ajusteImagen || { zoom: 100, posX: 50, posY: 50 }) },
     textBoxes: (cara?.textBoxes || []).map((tb) => ({ ...tb })),
+    bordeColor: cara?.bordeColor ?? '#000000',
+    bordeGrosor: cara?.bordeGrosor ?? 0,
+    transparenciaImagen: cara?.transparenciaImagen ?? 0,
   };
 }
 
@@ -157,20 +160,24 @@ export function openCardEditorModal({ component, onAccept }) {
     canvas.className = 'card-editor-modal__canvas';
     canvas.style.width = `${canvasWidth}px`;
     canvas.style.height = `${canvasHeight}px`;
+    canvas.style.boxSizing = 'border-box';
     canvas.style.borderRadius = working.proporcion === 'circular' ? '50%' : '8px';
+    canvas.style.border = (cara.bordeGrosor ?? 0) > 0 ? `${cara.bordeGrosor}px solid ${cara.bordeColor || '#000000'}` : '';
     faceCol.appendChild(canvas);
 
+    let faceImg = null;
     const resource = cara.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;
     if (resource) {
-      const img = document.createElement('img');
-      img.src = resource.dataUrl;
-      img.draggable = false;
-      img.style.position = 'absolute';
-      img.style.top = '0';
-      img.style.left = '0';
-      img.style.pointerEvents = 'none';
-      applyImageAdjustStyle(img, cara.ajusteImagen);
-      canvas.appendChild(img);
+      faceImg = document.createElement('img');
+      faceImg.src = resource.dataUrl;
+      faceImg.draggable = false;
+      faceImg.style.position = 'absolute';
+      faceImg.style.top = '0';
+      faceImg.style.left = '0';
+      faceImg.style.pointerEvents = 'none';
+      faceImg.style.opacity = String(1 - (cara.transparenciaImagen ?? 0) / 100);
+      applyImageAdjustStyle(faceImg, cara.ajusteImagen);
+      canvas.appendChild(faceImg);
     }
 
     for (const textBox of cara.textBoxes) {
@@ -192,16 +199,117 @@ export function openCardEditorModal({ component, onAccept }) {
         onAccept: (resourceId) => {
           cara.imagenResourceId = resourceId;
           cara.ajusteImagen = { zoom: 100, posX: 50, posY: 50 };
+          cara.transparenciaImagen = 0;
           renderFaces();
         },
       });
     });
     actionsRow.appendChild(chooseImageBtn);
 
+    // Borde de la carta completa (por cara). Fila color+grosor con la misma
+    // excepción de estilo inline que ya usa componentModal.js (STYLE_BIBLE sección 8).
+    const borderTitle = document.createElement('p');
+    borderTitle.className = 'card-editor-modal__border-title';
+    borderTitle.textContent = 'Borde';
+    actionsRow.appendChild(borderTitle);
+
+    const borderField = document.createElement('div');
+    borderField.className = 'modal__field';
+    borderField.style.width = '100%';
+    const borderRowInner = document.createElement('div');
+    borderRowInner.style.display = 'flex';
+    borderRowInner.style.gap = '0.5rem';
+
+    const borderColorField = document.createElement('div');
+    borderColorField.style.flex = '1';
+    const borderColorLabel = document.createElement('label');
+    borderColorLabel.textContent = 'Color';
+    const borderColorInput = document.createElement('input');
+    borderColorInput.type = 'color';
+    borderColorInput.value = cara.bordeColor || '#000000';
+    borderColorInput.addEventListener('input', () => {
+      cara.bordeColor = borderColorInput.value;
+      canvas.style.border = (cara.bordeGrosor ?? 0) > 0 ? `${cara.bordeGrosor}px solid ${cara.bordeColor || '#000000'}` : '';
+    });
+    borderColorField.appendChild(borderColorLabel);
+    borderColorField.appendChild(borderColorInput);
+
+    const borderWidthField = document.createElement('div');
+    borderWidthField.style.flex = '1';
+    const borderWidthLabel = document.createElement('label');
+    borderWidthLabel.textContent = 'Grosor (px)';
+    const borderWidthInput = document.createElement('input');
+    borderWidthInput.type = 'number';
+    borderWidthInput.min = 0;
+    borderWidthInput.max = 20;
+    borderWidthInput.value = cara.bordeGrosor ?? 0;
+    borderWidthInput.addEventListener('input', () => {
+      const parsed = parseInt(borderWidthInput.value, 10);
+      cara.bordeGrosor = Number.isNaN(parsed) ? 0 : Math.min(Math.max(parsed, 0), 20);
+      canvas.style.border = (cara.bordeGrosor ?? 0) > 0 ? `${cara.bordeGrosor}px solid ${cara.bordeColor || '#000000'}` : '';
+    });
+    borderWidthField.appendChild(borderWidthLabel);
+    borderWidthField.appendChild(borderWidthInput);
+
+    borderRowInner.appendChild(borderColorField);
+    borderRowInner.appendChild(borderWidthField);
+    borderField.appendChild(borderRowInner);
+    actionsRow.appendChild(borderField);
+
+    // Transparencia de la imagen de fondo de esta cara (solo si tiene imagen)
+    if (cara.imagenResourceId) {
+      const opacityField = document.createElement('div');
+      opacityField.className = 'modal__field';
+      opacityField.style.width = '100%';
+      const opacityLabel = document.createElement('label');
+      opacityLabel.textContent = 'Transparencia';
+      const opacityRow = document.createElement('div');
+      opacityRow.className = 'card-editor-modal__opacity-row';
+
+      const opacitySlider = document.createElement('input');
+      opacitySlider.type = 'range';
+      opacitySlider.min = 0;
+      opacitySlider.max = 100;
+      opacitySlider.value = cara.transparenciaImagen ?? 0;
+
+      const opacityNumber = document.createElement('input');
+      opacityNumber.type = 'number';
+      opacityNumber.min = 0;
+      opacityNumber.max = 100;
+      opacityNumber.value = cara.transparenciaImagen ?? 0;
+
+      const opacityPercent = document.createElement('span');
+      opacityPercent.textContent = '%';
+
+      function applyTransparencia(value) {
+        cara.transparenciaImagen = value;
+        if (faceImg) faceImg.style.opacity = String(1 - value / 100);
+      }
+
+      opacitySlider.addEventListener('input', () => {
+        const value = parseInt(opacitySlider.value, 10);
+        opacityNumber.value = value;
+        applyTransparencia(value);
+      });
+      opacityNumber.addEventListener('input', () => {
+        const parsed = parseInt(opacityNumber.value, 10);
+        const value = Number.isNaN(parsed) ? 0 : Math.min(Math.max(parsed, 0), 100);
+        opacitySlider.value = value;
+        applyTransparencia(value);
+      });
+
+      opacityRow.appendChild(opacitySlider);
+      opacityRow.appendChild(opacityNumber);
+      opacityRow.appendChild(opacityPercent);
+      opacityField.appendChild(opacityLabel);
+      opacityField.appendChild(opacityRow);
+      actionsRow.appendChild(opacityField);
+    }
+
     const addTextBoxBtn = document.createElement('button');
     addTextBoxBtn.type = 'button';
     addTextBoxBtn.className = 'btn-cancel';
-    addTextBoxBtn.textContent = '+ Cuadro de texto';
+    addTextBoxBtn.textContent = '+ Texto';
     addTextBoxBtn.addEventListener('click', () => {
       const w = designWidth * 0.5;
       const h = designHeight * 0.15;
@@ -235,6 +343,10 @@ export function openCardEditorModal({ component, onAccept }) {
     el.style.height = `${textBox.height * previewScale}px`;
     el.style.fontSize = `${textBox.tamañoFuente * previewScale}px`;
     el.style.color = textBox.color || '#000000';
+    el.style.border = textBox.bordeActivo
+      ? `${textBox.bordeGrosor ?? 2}px ${textBox.bordeTipo === 'punteada' ? 'dashed' : 'solid'} ${textBox.bordeColor || '#000000'}`
+      : 'none';
+    el.style.backgroundColor = textBox.colorFondo || 'transparent';
     el.textContent = textBox.contenido || '';
 
     el.addEventListener('dblclick', (e) => {

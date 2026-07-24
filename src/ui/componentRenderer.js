@@ -1013,6 +1013,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       applyFlipFeedbackIfChanged(carta, component.id, caraActual);
 
       carta.style.backgroundColor = '#ffffff';
+      carta.style.border = (cara?.bordeGrosor ?? 0) > 0 ? `${cara.bordeGrosor}px solid ${cara.bordeColor || '#000000'}` : 'none';
 
       const resource = cara?.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;
       if (resource) {
@@ -1023,6 +1024,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         img.style.top = '0';
         img.style.left = '0';
         img.style.pointerEvents = 'none';
+        img.style.opacity = String(1 - (cara.transparenciaImagen ?? 0) / 100);
         applyImageAdjustStyle(img, cara.ajusteImagen);
         cartaContent.appendChild(img);
       }
@@ -1036,6 +1038,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         textEl.style.height = `${textBox.height * renderScale}px`;
         textEl.style.fontSize = `${(textBox.tamañoFuente || 16) * renderScale}px`;
         textEl.style.color = textBox.color || '#000000';
+        textEl.style.border = textBox.bordeActivo
+          ? `${textBox.bordeGrosor ?? 2}px ${textBox.bordeTipo === 'punteada' ? 'dashed' : 'solid'} ${textBox.bordeColor || '#000000'}`
+          : 'none';
+        textEl.style.backgroundColor = textBox.colorFondo || 'transparent';
         textEl.style.overflow = 'hidden';
         textEl.style.wordBreak = 'break-word';
         textEl.style.whiteSpace = 'pre-wrap';

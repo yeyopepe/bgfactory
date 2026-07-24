@@ -64,8 +64,22 @@ export const DEFAULT_CARTA_PROPERTIES = {
   proporcion: '5:7',
   deckId: null,
   caraActual: 'trasera',
-  caraFrontal: { imagenResourceId: null, ajusteImagen: { zoom: 100, posX: 50, posY: 50 }, textBoxes: [] },
-  caraTrasera: { imagenResourceId: null, ajusteImagen: { zoom: 100, posX: 50, posY: 50 }, textBoxes: [] },
+  caraFrontal: {
+    imagenResourceId: null,
+    ajusteImagen: { zoom: 100, posX: 50, posY: 50 },
+    textBoxes: [],
+    bordeColor: '#000000',
+    bordeGrosor: 0,
+    transparenciaImagen: 0,
+  },
+  caraTrasera: {
+    imagenResourceId: null,
+    ajusteImagen: { zoom: 100, posX: 50, posY: 50 },
+    textBoxes: [],
+    bordeColor: '#000000',
+    bordeGrosor: 0,
+    transparenciaImagen: 0,
+  },
 };
 
 function cloneCartaProperties(properties) {
@@ -411,6 +425,13 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const props = workingComponent.properties;
 
     // Borde: color y grosor juntos en la misma fila
+    const borderSection = document.createElement('fieldset');
+    borderSection.className = 'modal__section';
+    const borderLegend = document.createElement('legend');
+    borderLegend.className = 'modal__section-title';
+    borderLegend.textContent = 'Borde';
+    borderSection.appendChild(borderLegend);
+
     const borderRow = document.createElement('div');
     borderRow.className = 'modal__field';
     const borderRowInner = document.createElement('div');
@@ -449,9 +470,13 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     borderRowInner.appendChild(borderColorField);
     borderRowInner.appendChild(borderWidthField);
     borderRow.appendChild(borderRowInner);
-    container.appendChild(borderRow);
+    borderSection.appendChild(borderRow);
+    container.appendChild(borderSection);
 
     // Background type + configure button
+    const bgSection = document.createElement('fieldset');
+    bgSection.className = 'modal__section modal__section--untitled';
+
     const bgField = document.createElement('div');
     bgField.className = 'modal__field';
     const bgLabel = document.createElement('label');
@@ -511,7 +536,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     bgRow.appendChild(configureBtn);
     bgField.appendChild(bgLabel);
     bgField.appendChild(bgRow);
-    container.appendChild(bgField);
+    bgSection.appendChild(bgField);
+    container.appendChild(bgSection);
   }
 
   function renderDadoSpecificFields(container) {
@@ -773,6 +799,9 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const props = workingComponent.properties;
 
     // Forma
+    const shapeSection = document.createElement('fieldset');
+    shapeSection.className = 'modal__section modal__section--untitled';
+
     const shapeField = document.createElement('div');
     shapeField.className = 'modal__field';
     const shapeLabel = document.createElement('label');
@@ -794,9 +823,17 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     });
     shapeField.appendChild(shapeLabel);
     shapeField.appendChild(shapeSelect);
-    container.appendChild(shapeField);
+    shapeSection.appendChild(shapeField);
+    container.appendChild(shapeSection);
 
     // Fondo: color / texto / imagen (excluyentes, cada uno conserva su configuración)
+    const bgSection = document.createElement('fieldset');
+    bgSection.className = 'modal__section';
+    const bgLegend = document.createElement('legend');
+    bgLegend.className = 'modal__section-title';
+    bgLegend.textContent = 'Fondo';
+    bgSection.appendChild(bgLegend);
+
     const bgTypeField = document.createElement('div');
     bgTypeField.className = 'modal__field';
     const bgTypeLabel = document.createElement('label');
@@ -816,7 +853,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     }
     bgTypeField.appendChild(bgTypeLabel);
     bgTypeField.appendChild(bgTypeSelect);
-    container.appendChild(bgTypeField);
+    bgSection.appendChild(bgTypeField);
 
     // Color de fondo: siempre visible y aplicado sea cual sea el tipo de fondo
     // elegido (detrás del texto o de la imagen). Vacío = transparente (por defecto).
@@ -857,9 +894,17 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     bgColorContainer.appendChild(bgTransparentLabel);
     bgColorField.appendChild(bgColorLabel);
     bgColorField.appendChild(bgColorContainer);
-    container.appendChild(bgColorField);
+    bgSection.appendChild(bgColorField);
+    container.appendChild(bgSection);
 
     // Borde: color y grosor juntos en la misma fila (a diferencia del tablero, 0 es válido = sin borde)
+    const borderSection = document.createElement('fieldset');
+    borderSection.className = 'modal__section';
+    const borderLegend = document.createElement('legend');
+    borderLegend.className = 'modal__section-title';
+    borderLegend.textContent = 'Borde';
+    borderSection.appendChild(borderLegend);
+
     const borderRow = document.createElement('div');
     borderRow.className = 'modal__field';
     const borderRowInner = document.createElement('div');
@@ -898,7 +943,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     borderRowInner.appendChild(borderColorField);
     borderRowInner.appendChild(borderWidthField);
     borderRow.appendChild(borderRowInner);
-    container.appendChild(borderRow);
+    borderSection.appendChild(borderRow);
+    container.appendChild(borderSection);
 
     // Bloque "Texto" (tamaño de fuente siempre automático, sin campo manual)
     const textBlock = document.createElement('div');
