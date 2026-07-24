@@ -1,11 +1,11 @@
 ---
 name: ms-internal-workflow
-description: Proceso compartido, agnóstico al proyecto, con dos acciones internas del framework ms-*: (1) crear una entrada nueva en {changesDir}/inProgress documentando la intención de un fix o change, y (2) mover una entrada existente entre los subestados del flujo (inProgress/implemented/closed) cuando otra skill del framework produce esa transición. Uso interno de las skills ms-new, ms-fix, ms-implement y ms-close.
+description: Proceso compartido, agnóstico al proyecto, con dos acciones internas del framework ms-*: (1) crear una entrada nueva en {changesDir}/inProgress documentando la intención de un fix o change, y (2) mover una entrada existente entre los subestados del flujo (inProgress/implemented) cuando otra skill del framework produce esa transición. Uso interno de las skills ms-new, ms-fix y ms-do.
 user-invocable: false
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 2.1.1
+  version: 2.2.0
   uses: []
 ---
 
@@ -16,18 +16,18 @@ Proceso genérico y único punto donde el framework `ms-*` sabe crear y mover la
 Tiene dos acciones independientes, cada una invocada con un parámetro `action`:
 
 - **`action=create`** — la invocan `ms-new` y `ms-fix`, con `type` (`change`/`fix`) y la descripción de lo que se pide. Dimensiona el alcance funcional y crea la entrada en `{changesDir}/inProgress/`.
-- **`action=move`** — la invocan `ms-implement` y `ms-close`, con `xxxx`, `from` y `to` (nombres de subcarpeta de `{changesDir}`: `inProgress`, `implemented` o `closed`). Mueve la carpeta `{xxxx}` entre esos subestados.
+- **`action=move`** — la invoca `ms-do`, con `xxxx`, `from` y `to` (nombres de subcarpeta de `{changesDir}`: `inProgress` o `implemented`). Mueve la carpeta `{xxxx}` entre esos subestados.
 
 Ninguna de las dos acciones implementa ni analiza técnicamente nada, ni decide **si** debe producirse la transición o confirmación con el usuario — eso ya lo ha resuelto la skill llamante antes de invocar `ms-internal-workflow`. Esta skill solo ejecuta la mecánica de fichero (numerar+crear, o mover) de forma consistente en un único sitio.
 
 ## Guardarraíl de invocación — leer antes que nada
 
-Esta skill **no se ejecuta si se ha invocado directamente** (p.ej. el usuario ha escrito `/ms-internal-workflow`, o ha pedido "ejecuta/invoca ms-internal-workflow" en texto plano). Solo debe ejecutarse cuando el propio contenido de `ms-new`, `ms-fix`, `ms-implement` o `ms-close` te ha instruido a invocarla como parte de su proceso, con la `action` y los parámetros correspondientes ya resueltos por esa skill.
+Esta skill **no se ejecuta si se ha invocado directamente** (p.ej. el usuario ha escrito `/ms-internal-workflow`, o ha pedido "ejecuta/invoca ms-internal-workflow" en texto plano). Solo debe ejecutarse cuando el propio contenido de `ms-new`, `ms-fix` o `ms-do` te ha instruido a invocarla como parte de su proceso, con la `action` y los parámetros correspondientes ya resueltos por esa skill.
 
-Si te han invocado sin ese contexto (el usuario ha tecleado el comando directamente, o no venías de ninguna de esas cuatro skills), **detente aquí** y dile al usuario que `ms-internal-workflow` es de uso interno del framework: para documentar, implementar o cerrar un cambio/fix debe usar la skill correspondiente. No hagas nada más en ese caso.
+Si te han invocado sin ese contexto (el usuario ha tecleado el comando directamente, o no venías de ninguna de esas tres skills), **detente aquí** y dile al usuario que `ms-internal-workflow` es de uso interno del framework: para documentar o implementar un cambio/fix debe usar la skill correspondiente. No hagas nada más en ese caso.
 
 ```
-`/ms-internal-workflow` es de uso interno del framework `ms-*` y no se invoca directamente. Para documentar un cambio/fix usa `ms-new`/`ms-fix`, para implementarlo `/ms-implement`, y para cerrarlo `/ms-close`.
+`/ms-internal-workflow` es de uso interno del framework `ms-*` y no se invoca directamente. Para documentar un cambio/fix usa `ms-new`/`ms-fix`, y para implementarlo `/ms-how`/`/ms-do`.
 ```
 
 ## 0. Cargar el contexto del proyecto
@@ -46,7 +46,7 @@ La sección `project` de `ms-context.json` úsala como contexto adicional al red
 
 ### create.1 Calcular el código de cambio `xxxx`
 
-Cada cambio/fix vive en una subcarpeta numerada bajo alguno de los subárboles de `{changesDir}` (`inProgress/`, `implemented/`, `closed/`, o cualquier otro que exista): un mismo `xxxx` no puede repetirse en ninguno de ellos. La excepción es `{changesDir}/todo/`, que usa la skill `ms-todo` para ideas sueltas ajenas a este flujo: sus carpetas nunca cuentan aquí, ni aunque tuvieran nombre numérico. Para calcularlo sin errores, ejecuta el script [`scripts/next-change-number.py`](scripts/next-change-number.py) (requiere Python 3) desde la raíz del repo:
+Cada cambio/fix vive en una subcarpeta numerada bajo alguno de los subárboles de `{changesDir}` (`inProgress/`, `implemented/`, o cualquier otro que exista): un mismo `xxxx` no puede repetirse en ninguno de ellos. La excepción es `{changesDir}/todo/`, que usa la skill `ms-todo` para ideas sueltas ajenas a este flujo: sus carpetas nunca cuentan aquí, ni aunque tuvieran nombre numérico. Para calcularlo sin errores, ejecuta el script [`scripts/next-change-number.py`](scripts/next-change-number.py) (requiere Python 3) desde la raíz del repo:
 
 ```
 python .claude/skills/ms-internal-workflow/scripts/next-change-number.py
@@ -56,7 +56,7 @@ El script lee `changesDir` y `numberWidth` de `.claude/ms-context.json`, recorre
 
 ### create.2 Generar el documento de intención del cambio/fix
 
-Si hay dudas relevantes sobre el alcance de lo que se pide que no se puedan resolver con lo que ya sabes, pregúntalas antes de escribir el documento — no hace falta que sean dudas técnicas de implementación (eso lo resuelve `ms-implement` más adelante), solo las de alcance funcional. Guarda esas preguntas junto con las respuestas del usuario: van incluidas en el documento (ver más abajo).
+Si hay dudas relevantes sobre el alcance de lo que se pide que no se puedan resolver con lo que ya sabes, pregúntalas antes de escribir el documento — no hace falta que sean dudas técnicas de implementación (eso lo resuelve `ms-how` más adelante), solo las de alcance funcional. Guarda esas preguntas junto con las respuestas del usuario: van incluidas en el documento (ver más abajo).
 
 Crea (creando `{changesDir}/inProgress/` si no existe):
 
@@ -74,9 +74,9 @@ Sigue exactamente la plantilla [`description.template.md`](description.template.
   - Para un `fix`: qué comportamiento está roto, cómo reproducirlo o identificarlo, y qué se espera que pase en su lugar.
   - Para un `change`: qué se pide añadir o modificar, por qué, y cómo debería comportarse el resultado.
   - Incluye aquí también, si las ha habido, las preguntas de alcance que se le han hecho al usuario junto con sus respuestas.
-- **Apuntes técnicos** — cualquier detalle técnico visto durante el análisis (ficheros, funciones, clases, patrones ya existentes en el código relevantes para esta entrada, restricciones técnicas detectadas) que convenga dejar anotado para cuando `ms-implement` diseñe la solución. Sección opcional: si el análisis funcional no ha tocado código ni ha encontrado nada técnico relevante, omítela por completo en vez de dejarla vacía.
+- **Apuntes técnicos** — cualquier detalle técnico visto durante el análisis (ficheros, funciones, clases, patrones ya existentes en el código relevantes para esta entrada, restricciones técnicas detectadas) que convenga dejar anotado para cuando `ms-how` diseñe la solución. Sección opcional: si el análisis funcional no ha tocado código ni ha encontrado nada técnico relevante, omítela por completo en vez de dejarla vacía.
 
-Esta separación es estricta: cualquier mención a ficheros, funciones, clases CSS u otros detalles de implementación va siempre en **Apuntes técnicos**, nunca en **Descripción completa**, aunque haya surgido de forma natural durante el análisis. El análisis técnico en profundidad y la solución en sí los sigue haciendo `plan.md`, que genera `ms-implement`.
+Esta separación es estricta: cualquier mención a ficheros, funciones, clases CSS u otros detalles de implementación va siempre en **Apuntes técnicos**, nunca en **Descripción completa**, aunque haya surgido de forma natural durante el análisis. El análisis técnico en profundidad y la solución en sí los sigue haciendo `plan.md`, que genera `ms-how`.
 
 ### create.3 Confirmar a quien invoca
 
@@ -84,7 +84,7 @@ Indica el fichero creado (`{changesDir}/inProgress/{xxxx}/description.md`) y el 
 
 ## Acción `move`
 
-Recibida con `xxxx`, `from` y `to` ya resueltos por quien invoca (`ms-implement`: `inProgress`→`implemented`; `ms-close`: `implemented`→`closed`).
+Recibida con `xxxx`, `from` y `to` ya resueltos por quien invoca (`ms-do`: `inProgress`→`implemented`).
 
 La mecánica de fichero (comprobar origen, crear destino si falta, mover) la hace de forma determinista y gratis en tokens el script [`scripts/move-change.py`](scripts/move-change.py) (Python estándar, sin dependencias externas) — no la reimplementes a mano. Ejecuta desde la raíz del repo:
 

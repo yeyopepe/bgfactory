@@ -5,7 +5,7 @@ argument-hint: "[rutaBase] [rutaGraphJson] (opcionales)"
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 2.0.1
+  version: 2.2.0
   uses: []
 ---
 
@@ -13,7 +13,7 @@ metadata:
 
 Explora el código fuente de un proyecto y escribe un `graph.json` con un grafo de dependencias reducido (ficheros, símbolos que exportan, y las relaciones entre ellos) pensado como contexto de arquitectura fácil de cargar por otras skills o conversaciones, sin tener que releer todo el código cada vez.
 
-No depende del framework `ms-*` para funcionar (puede usarse en cualquier proyecto pasando las rutas como argumentos), pero si `.claude/ms-context.json` existe en este repo, lo aprovecha para rellenar los valores por defecto — en particular, el `graph.json` que genera es justo lo que `framework.docs.tech.projectGraphPath` de ese fichero está pensado para apuntar, y que `ms-implement` ya lee automáticamente como contexto si existe.
+No depende del framework `ms-*` para funcionar (puede usarse en cualquier proyecto pasando las rutas como argumentos), pero si `.claude/ms-context.json` existe en este repo, lo aprovecha para rellenar los valores por defecto — en particular, el `graph.json` que genera es justo lo que `framework.docs.tech.projectGraphPath` de ese fichero está pensado para apuntar, y que `ms-how` ya lee automáticamente como contexto si existe.
 
 No usa el motor de la skill `graphify` (tree-sitter + subagentes LLM, esquema pesado). En vez de eso, la parte estructural (recorrer ficheros, resolver imports, localizar funciones/clases exportadas y sus llamadas) la hace de forma determinista y gratis en tokens el script [`scripts/ms_graph.py`](scripts/ms_graph.py) (Python estándar, sin dependencias externas). Tu trabajo es solo la parte que el script no puede hacer: leer cada fichero y escribir una frase de `purpose` por nodo. Esto reduce mucho la salida que tienes que generar tú mismo — nunca escribes a mano el JSON de nodes/edges, solo un mapa plano `{id: "propósito en una frase"}`.
 
@@ -36,7 +36,7 @@ python3 .claude/skills/ms-internal-graph/scripts/ms_graph.py extract \
   --exclude "<carpetas a excluir además de node_modules/.git/dist/build/out/coverage>"
 ```
 
-Pasa en `--exclude` las carpetas propias del proyecto que no son código fuente a grafar: la carpeta que contiene `rutaGraphJson` (para no incluir el grafo de una ejecución anterior como si fuera código), y si `.claude/ms-context.json` existe, también la carpeta de `framework.changesDir` y la carpeta contenedora de `framework.buildOutputPath` si están configurados.
+Pasa en `--exclude` las carpetas propias del proyecto que no son código fuente a grafar: la carpeta que contiene `rutaGraphJson` (para no incluir el grafo de una ejecución anterior como si fuera código), y si `.claude/ms-context.json` existe, también la carpeta de `framework.changesDir` si está configurada.
 
 El script recorre `rutaBase`, parsea imports/exports con regex + conteo de llaves (sin tree-sitter), y escribe un *skeleton*: los mismos `nodes` y `edges` que llevará el `graph.json` final, pero sin el campo `purpose` (las llamadas que no pueda resolver con confianza a un símbolo conocido las omite, igual que harías tú a mano). Imprime además la lista completa de ids que necesitan `purpose` — esa lista es tu lista de tareas para el paso 2, no hace falta que releas el skeleton para saber qué falta.
 
@@ -68,4 +68,4 @@ python3 .claude/skills/ms-internal-graph/scripts/ms_graph.py build \
 
 ## 4. Confirmar al usuario
 
-Indica la ruta escrita y el resumen que imprime `build` (número de ficheros, número de nodos función/clase, número de edges por tipo). Si `rutaGraphJson` coincide con `framework.docs.tech.projectGraphPath` de `.claude/ms-context.json`, recuerda al usuario que `ms-implement` ya lo carga automáticamente como contexto en sus próximas ejecuciones, sin necesidad de ningún paso adicional.
+Indica la ruta escrita y el resumen que imprime `build` (número de ficheros, número de nodos función/clase, número de edges por tipo). Si `rutaGraphJson` coincide con `framework.docs.tech.projectGraphPath` de `.claude/ms-context.json`, recuerda al usuario que `ms-how` ya lo carga automáticamente como contexto en sus próximas ejecuciones, sin necesidad de ningún paso adicional.

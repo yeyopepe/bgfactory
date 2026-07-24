@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 """Valida .claude/ms-context.json contra los campos obligatorios de schema.json.
 
-Aplica la regla condicional del framework (ver schema.json): 'changesDir' y
-'versioning' son siempre obligatorios; si 'versioning' es true, ademas son
-obligatorios 'versionFilePath', 'versionVariable', 'versionFormat',
-'buildCommand' y 'buildOutputPath'. Si 'versioning' es false, esos cinco
-campos no deben preguntarse (no se consideran "que faltan").
+'changesDir' es el unico campo obligatorio de 'framework' (ver schema.json).
 
 No decide nada por si mismo (no crea ni completa el fichero) -- solo
 determina que campos obligatorios faltan, para que ms-init sepa si debe
@@ -14,9 +10,7 @@ preguntar el cuestionario completo, solo lo que falta, o nada.
 Imprime UNICAMENTE un JSON en stdout:
 
   {"exists": true, "hasFramework": true, "missingRequired": [], "complete": true}
-  {"exists": true, "hasFramework": true,
-   "missingRequired": ["versionFilePath", "buildCommand"], "complete": false}
-  {"exists": false, "hasFramework": false, "missingRequired": ["changesDir", "versioning"], "complete": false}
+  {"exists": false, "hasFramework": false, "missingRequired": ["changesDir"], "complete": false}
 
 Uso:
   python check-context.py
@@ -27,14 +21,7 @@ import json
 import sys
 from pathlib import Path
 
-ALWAYS_REQUIRED = ("changesDir", "versioning")
-VERSIONING_REQUIRED = (
-    "versionFilePath",
-    "versionVariable",
-    "versionFormat",
-    "buildCommand",
-    "buildOutputPath",
-)
+ALWAYS_REQUIRED = ("changesDir",)
 
 
 def repo_root() -> Path:
@@ -72,11 +59,6 @@ def main() -> None:
     framework = context.get("framework") or {}
 
     missing = [field for field in ALWAYS_REQUIRED if field not in framework]
-
-    if framework.get("versioning") is True:
-        missing.extend(
-            field for field in VERSIONING_REQUIRED if field not in framework
-        )
 
     result = {
         "exists": True,

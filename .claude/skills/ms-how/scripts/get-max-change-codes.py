@@ -3,10 +3,10 @@
 
 Busca, por separado, el numero mas alto entre las subcarpetas puramente
 numericas de {changesDir}/inProgress, {changesDir}/implemented y
-{changesDir}/closed. Se usa como verificacion previa de ms-implement: si el
-xxxx que se va a implementar es menor que el maximo de cualquiera de estos
+{changesDir}/closed. Se usa como verificacion previa de ms-how: si el
+xxxx que se va a planificar es menor que el maximo de cualquiera de estos
 tres estados, significa que se ha creado despues de otro cambio/fix mas
-reciente y conviene reanalizarlo antes de implementar.
+reciente y conviene reanalizarlo antes de planificar.
 
 changesDir y numberWidth se leen de .claude/ms-context.json (seccion
 framework) salvo que se pasen explicitamente por parametro.
@@ -34,7 +34,7 @@ STATES = ("inProgress", "implemented", "closed")
 
 
 def repo_root() -> Path:
-    # Este script vive en {repo}/.claude/skills/ms-implement/scripts/
+    # Este script vive en {repo}/.claude/skills/ms-how/scripts/
     return Path(__file__).resolve().parents[4]
 
 

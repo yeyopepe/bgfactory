@@ -18,7 +18,7 @@
 
 -   **Implementando o pendientes de implementar** (`description.md` + `plan.md`, pendientes de implementar): {toImplementTotal}
 {filasImplementar}
--   **Pendientes de análisis técnico** (solo `description.md`, pendientes de planificar con `ms-implement`): {pendingTotal}
+-   **Pendientes de análisis técnico** (solo `description.md`, pendientes de planificar con `ms-how`): {pendingTotal}
 {filasPendientes}
 -   **Listos para revisar y cerrar** (en la carpeta changes/implemented, incluye tanto change/fix como fast): {toCloseTotal}
 <!-- SECTION:sinDescripcion -->

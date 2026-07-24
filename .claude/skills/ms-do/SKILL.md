@@ -1,0 +1,82 @@
+---
+name: ms-do
+description: Implementa un change/fix cuyo plan.md ya está escrito en {changesDir}/inProgress/{xxxx}/ — edita el código según la solución técnica, actualiza la documentación sincronizada, regenera el grafo de contexto si aplica, y mueve la entrada a {changesDir}/implemented. Parte del framework ms-*. Trigger: /ms-do <xxxx>, o cuando el usuario pide implementar un cambio/fix ya planificado por ms-how (normalmente encadenado automáticamente desde ella).
+argument-hint: <xxxx del cambio/fix ya planificado>
+model: claude-haiku-4-5-20251001
+effort: high
+metadata:
+  version: 1.1.1
+  uses: [ms-internal-workflow, ms-internal-graph]
+---
+
+# ms-do
+
+Toma una entrada de `{changesDir}/inProgress/{xxxx}/` cuya solución técnica ya está escrita en `plan.md` (por la skill `ms-how`) y la lleva hasta implementada: edita el código, actualiza la documentación sincronizada, y mueve la carpeta a `{changesDir}/implemented/{xxxx}/`.
+
+**Fuente de la verdad.** El `plan.md` de esta entrada es la guía de lo que hay que implementar. Si durante la implementación algo no cuadra con el código real, el código manda — para y coméntaselo al usuario en vez de improvisar una solución distinta sin decírselo (ver paso 2).
+
+## 0. Cargar el contexto del proyecto
+
+Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta `framework.changesDir`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí.
+
+```
+Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta configuración). Ejecuta primero `/ms-init` antes de volver a invocarme.
+```
+
+`docs.tech.architectureDocPath`, `docs.functional.featuresDocPath` y `docs.tech.styleBibleDocPath` son opcionales y se usan en el paso 2.1; si no están configurados, omite las actualizaciones correspondientes sin preguntar nada.
+
+## 1. Identificar la entrada a implementar
+
+Si el usuario, al invocar esta skill, indica un `xxxx`, un nombre de carpeta o una descripción del cambio/fix, resuélvelo buscando **únicamente** dentro de `{changesDir}/inProgress/`, y comprueba que tiene `plan.md`:
+
+- Si la carpeta existe pero **no** tiene `plan.md` todavía: no continúes. Dile al usuario que esa entrada aún no tiene solución técnica planificada y que primero debe invocar `ms-how` sobre ese `xxxx`.
+- Si no encuentras ninguna carpeta que corresponda dentro de `{changesDir}/inProgress/`: si existe con ese `xxxx` en `{changesDir}/implemented/`, dile al usuario que ese cambio/fix ya está implementado; si no existe en ningún sitio, dile que no lo encuentras y pregunta el `xxxx` o la carpeta correctos.
+
+**Si no indica nada** (p.ej. invoca `/ms-do` sin argumentos): no asumas que se refiere al último cambio/fix mencionado en la conversación ni a ningún otro dato del contexto de chat. Lista únicamente las carpetas de `{changesDir}/inProgress/` que ya tengan `plan.md` (listas para implementar) — su `xxxx` y, si lo tiene, el nombre/resumen de su `description.md` — y pregunta explícitamente al usuario cuál quiere implementar. Si no hay ninguna con `plan.md` todavía (aunque haya entradas en `inProgress` sin planificar), dile que no hay ningún cambio/fix listo para implementar y que primero hace falta planificarlo con `ms-how`.
+
+```
+Estos cambios/fixes ya tienen `plan.md` y están listos para implementar:
+- {xxxx} — {nombre/resumen}
+- ...
+
+¿Cuál quieres que implemente?
+```
+
+```
+No hay ningún cambio/fix con `plan.md` listo para implementar. Usa `ms-how` primero para planificar alguno de los pendientes en `{changesDir}/inProgress/`.
+```
+
+Una vez identificada, esa es `{xxxx}` y su carpeta `{changesDir}/inProgress/{xxxx}/` para el resto del proceso.
+
+## 2. Implementar
+
+Implementa todo lo que dice `plan.md`:
+
+- Ejecuta cada tarea de la sección **(b) Solución técnica** con tu proceso normal de ingeniería (editar código, verificar que compila / pasan los tests si los hay).
+- Si `plan.md` tiene sección **(c) Cambios de arquitectura**, aplica esos cambios a `docs.tech.architectureDocPath` como parte de esta implementación.
+
+Si durante la implementación descubres que el plan no es viable tal cual está escrito, para y coméntaselo al usuario en vez de improvisar una solución distinta sin decírselo.
+
+## 2.1 Actualizar documentación tras implementar
+
+Una vez implementado en código lo anterior, actualiza siempre lo siguiente antes de mover la carpeta:
+
+- **`docs.tech.architectureDocPath`** — si está configurado, revísalo y déjalo reflejando fielmente el estado técnico resultante. Aplica lo que diga la sección (c) del plan si la tenía; si no la tenía pero al implementar resulta que sí se ha tocado algo que ese documento describe, actualízalo igualmente — no depende únicamente de que el plan lo anticipara. Si no está configurado, omite este punto sin preguntar nada.
+- **`docs.functional.featuresDocPath`** — si está configurado, es un documento **funcional**, no un changelog: describe qué puede hacer la app hoy, organizado por área/módulo funcional, no una lista cronológica de changes/fixes. Actualízalo así:
+  - Si lo implementado en esta entrada amplía o modifica una funcionalidad que ya tiene su propia entrada en el documento, **edita esa entrada in place** para que siga describiendo fielmente el comportamiento actual (no añadas una entrada nueva para lo mismo), y añade el `xxxx` de esta entrada a su campo **Origen**.
+  - Si es una funcionalidad nueva, añade una entrada en el área funcional que le corresponda (crea el área si no existe todavía) con el `xxxx` de esta entrada en **Origen**.
+  - Si el fichero todavía no existe, créalo a partir de la plantilla [`FEATURES.template.md`](FEATURES.template.md) de esta skill.
+  - Si `docs.functional.featuresDocPath` no está configurado, omite este punto sin preguntar nada.
+- **`docs.tech.styleBibleDocPath`** — si está configurado, revísalo y actualízalo si lo implementado introduce o modifica convenciones de estilo (visual, de interacción, de redacción, etc.) relevantes para el proyecto. Si no está configurado, o lo implementado no afecta a ninguna convención de estilo, omite este punto sin preguntar nada.
+
+## 3. Mover la carpeta a `implemented`
+
+Invoca la skill `ms-internal-workflow` (herramienta Skill) con `action=move`, `xxxx`, `from=inProgress` y `to=implemented` — no muevas la carpeta tú mismo.
+
+## 4. Actualizar el grafo de contexto
+
+Paso final: si en el paso 2 se han aplicado cambios relevantes en el código (no solo en documentación), además de haber actualizado ya la documentación en el paso 2.1 (`docs.tech.architectureDocPath` y `docs.functional.featuresDocPath`, según aplicara), invoca la skill `ms-internal-graph` para regenerar/actualizar el grafo de contexto del proyecto y mantenerlo sincronizado con el código recién implementado. Si no ha habido cambios relevantes en código, omite este paso.
+
+## 5. Confirmar al usuario
+
+Indica qué se ha implementado, qué documentación se ha actualizado (`docs.tech.architectureDocPath`/`docs.functional.featuresDocPath`/`docs.tech.styleBibleDocPath`, según aplicara), que la carpeta se movió a `{changesDir}/implemented/{xxxx}/`, y si se ha actualizado el grafo de contexto.

@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "ms-context.schema.json",
   "title": ".claude/ms-context.json",
-  "description": "Fichero en la raiz del repo (junto a la carpeta .claude/) que da contexto a todas las skills del framework ms-* (ms-initialize, ms-internal-workflow, ms-change, ms-fix, ms-implement, ms-version). Es lo unico que hace que esas skills sean genericas en vez de estar atadas a un proyecto concreto. Lo crea y actualiza la skill ms-initialize; ninguna otra skill debe escribirlo desde cero. Si el fichero existe pero incompleto, ms-initialize hace merge sobre lo ya existente sin pisar nada. Cualquier skill ms-* que necesite un campo que falte debe decirle al usuario que ejecute ms-initialize, no reimplementar el bootstrap.",
+  "description": "Fichero en la raiz del repo (junto a la carpeta .claude/) que da contexto a todas las skills del framework ms-* (ms-initialize, ms-internal-workflow, ms-change, ms-fix, ms-how, ms-do). Es lo unico que hace que esas skills sean genericas en vez de estar atadas a un proyecto concreto. Lo crea y actualiza la skill ms-initialize; ninguna otra skill debe escribirlo desde cero. Si el fichero existe pero incompleto, ms-initialize hace merge sobre lo ya existente sin pisar nada. Cualquier skill ms-* que necesite un campo que falte debe decirle al usuario que ejecute ms-initialize, no reimplementar el bootstrap.",
   "type": "object",
   "required": ["framework"],
   "additionalProperties": false,
@@ -29,47 +29,19 @@
     },
     "framework": {
       "type": "object",
-      "description": "Configuracion que entienden y usan las skills ms-* directamente (rutas y comandos del proceso de tracking de cambios y versionado). Forma fija, a diferencia de 'project'.",
-      "required": ["changesDir", "versioning"],
+      "description": "Configuracion que entienden y usan las skills ms-* directamente (rutas del proceso de tracking de cambios). Forma fija, a diferencia de 'project'.",
+      "required": ["changesDir"],
       "additionalProperties": false,
-      "allOf": [
-        {
-          "comment": "Regla de negocio (no expresable en JSON Schema puro sin if/then/else): si versioning es true, versionFilePath, versionVariable, versionFormat, buildCommand y buildOutputPath son obligatorios entre si. Si versioning es false, los cinco deben omitirse.",
-          "if": {
-            "properties": { "versioning": { "const": true } }
-          },
-          "then": {
-            "required": [
-              "versionFilePath",
-              "versionVariable",
-              "versionFormat",
-              "buildCommand",
-              "buildOutputPath"
-            ]
-          },
-          "else": {
-            "not": {
-              "anyOf": [
-                { "required": ["versionFilePath"] },
-                { "required": ["versionVariable"] },
-                { "required": ["versionFormat"] },
-                { "required": ["buildCommand"] },
-                { "required": ["buildOutputPath"] }
-              ]
-            }
-          }
-        }
-      ],
       "properties": {
         "changesDir": {
           "type": "string",
           "required": true,
-          "description": "OBLIGATORIO. Carpeta (relativa a la raiz del repo) bajo la que viven dos subarboles, cada uno con subcarpetas numeradas ({xxxx}): '{changesDir}/inProgress/' (cambios/fixes documentados por ms-change/ms-fix, pendientes de implementar o de planificar) y '{changesDir}/implemented/' (cambios/fixes cuyo plan.md ya se ha implementado -- los mueve ahi ms-implement). Un mismo {xxxx} nunca debe repetirse entre los dos subarboles: al calcular el siguiente numero hay que mirar el maximo de ambos. 'inProgress' no significa 'sin versionar': las carpetas no se mueven al generar una version, solo al implementarse. Puede convivir ahi tambien '{changesDir}/todo/', usada exclusivamente por la skill ms-todo para ideas sueltas: esa subcarpeta es ajena al flujo de change/fix y ninguna otra skill ms-* la lee, la escribe ni la cuenta al numerar.",
+          "description": "OBLIGATORIO. Carpeta (relativa a la raiz del repo) bajo la que viven dos subarboles, cada uno con subcarpetas numeradas ({xxxx}): '{changesDir}/inProgress/' (cambios/fixes documentados por ms-change/ms-fix, pendientes de implementar o de planificar) y '{changesDir}/implemented/' (cambios/fixes cuyo plan.md ya se ha implementado -- los mueve ahi ms-do). Un mismo {xxxx} nunca debe repetirse entre los dos subarboles: al calcular el siguiente numero hay que mirar el maximo de ambos. Puede convivir ahi tambien '{changesDir}/todo/', usada exclusivamente por la skill ms-todo para ideas sueltas: esa subcarpeta es ajena al flujo de change/fix y ninguna otra skill ms-* la lee, la escribe ni la cuenta al numerar.",
           "examples": ["src/_changes", "docs/changes"]
         },
         "sourcecodeDir": {
           "type": "string",
-          "description": "OPCIONAL. Carpeta raiz del codigo fuente del proyecto (relativa a la raiz del repo). La usa ms-implement como contexto de respaldo al analizar un cambio/fix y escribir su plan.md, solo cuando ni docs.tech.architectureDocPath ni docs.tech.projectGraphPath existen como ficheros reales en el repo.",
+          "description": "OPCIONAL. Carpeta raiz del codigo fuente del proyecto (relativa a la raiz del repo). La usa ms-how como contexto de respaldo al analizar un cambio/fix y escribir su plan.md, solo cuando ni docs.tech.architectureDocPath ni docs.tech.projectGraphPath existen como ficheros reales en el repo.",
           "examples": ["src", "app"]
         },
         "numberWidth": {
@@ -91,7 +63,7 @@
               "properties": {
                 "featuresDocPath": {
                   "type": "string",
-                  "description": "OPCIONAL. Documento con el listado de funcionalidades ya implementadas en el proyecto (relativo a la raiz del repo). ms-implement anade o actualiza ahi la entrada correspondiente cada vez que implementa un cambio/fix, creando el fichero si todavia no existe. Si no esta configurado, ese paso se omite sin preguntar nada.",
+                  "description": "OPCIONAL. Documento con el listado de funcionalidades ya implementadas en el proyecto (relativo a la raiz del repo). ms-do anade o actualiza ahi la entrada correspondiente cada vez que implementa un cambio/fix, creando el fichero si todavia no existe. Si no esta configurado, ese paso se omite sin preguntar nada.",
                   "examples": ["design/docs/FEATURES.md"]
                 }
               }
@@ -103,52 +75,22 @@
               "properties": {
                 "architectureDocPath": {
                   "type": "string",
-                  "description": "OPCIONAL. Documento de arquitectura/diseno tecnico (relativo a la raiz del repo) que ms-implement mantiene sincronizado tras implementar cada cambio/fix. Si no esta configurado, ese paso se omite sin preguntar nada.",
+                  "description": "OPCIONAL. Documento de arquitectura/diseno tecnico (relativo a la raiz del repo) que ms-do mantiene sincronizado tras implementar cada cambio/fix. Si no esta configurado, ese paso se omite sin preguntar nada.",
                   "examples": ["design/docs/design_technical.md"]
                 },
                 "styleBibleDocPath": {
                   "type": "string",
-                  "description": "OPCIONAL. Guia de estilo (visual, de interaccion, de redaccion) del proyecto (relativa a la raiz del repo) que ms-implement mantiene sincronizada tras implementar cada cambio/fix. Si no esta configurado, ese paso se omite sin preguntar nada.",
+                  "description": "OPCIONAL. Guia de estilo (visual, de interaccion, de redaccion) del proyecto (relativa a la raiz del repo) que ms-do mantiene sincronizada tras implementar cada cambio/fix. Si no esta configurado, ese paso se omite sin preguntar nada.",
                   "examples": ["design/docs/stylebible/STYLE_BIBLE.md"]
                 },
                 "projectGraphPath": {
                   "type": "string",
-                  "description": "OPCIONAL. Ruta al fichero con el grafo de conocimiento del proyecto (p.ej. generado con la skill graphify, tipicamente graphify-out/graph.json, o con la skill ms-internal-graph). Lo usa ms-implement como contexto adicional al analizar un cambio/fix. Si el proyecto no tiene ese grafo, se omite.",
+                  "description": "OPCIONAL. Ruta al fichero con el grafo de conocimiento del proyecto (p.ej. generado con la skill graphify, tipicamente graphify-out/graph.json, o con la skill ms-internal-graph). Lo usa ms-how como contexto adicional al analizar un cambio/fix. Si el proyecto no tiene ese grafo, se omite.",
                   "examples": ["graphify-out/graph.json"]
                 }
               }
             }
           }
-        },
-        "versioning": {
-          "type": "boolean",
-          "required": true,
-          "description": "OBLIGATORIO. true si el proyecto genera versiones/entregables versionados, false si no. Marca explicitamente la decision (tomada en ms-initialize) para que el resto de skills distingan 'el proyecto no versiona, a proposito' de 'el framework no se ha inicializado todavia'. Si es true, son obligatorios ademas versionFilePath, versionVariable, versionFormat, buildCommand y buildOutputPath (ver regla allOf/if-then-else mas arriba). Si es false, esos cinco campos deben omitirse todos y ms-version se limita a informar al usuario de que este proyecto no versiona entregables."
-        },
-        "versionFilePath": {
-          "type": "string",
-          "description": "Obligatorio solo si versioning es true. Fichero fuente (relativo a la raiz del repo) que declara la version actual del entregable. ms-version lo edita para fijar la nueva version.",
-          "examples": ["src/data/version.js"]
-        },
-        "versionVariable": {
-          "type": "string",
-          "description": "Obligatorio solo si versioning es true. Nombre de la constante/variable a fijar dentro de versionFilePath.",
-          "examples": ["CURRENT_VERSION"]
-        },
-        "versionFormat": {
-          "type": "string",
-          "description": "Obligatorio solo si versioning es true. Plantilla del valor de version, con '{xxxx}' como placeholder del codigo de cambio secuencial. Ej.: 'v{xxxx}' + '0001' -> 'v0001'.",
-          "examples": ["v{xxxx}"]
-        },
-        "buildCommand": {
-          "type": "string",
-          "description": "Obligatorio solo si versioning es true. Comando de build a ejecutar (respetando el shell que espera: .ps1 via PowerShell, .sh via bash, etc.) despues de fijar la version en versionFilePath.",
-          "examples": ["./src/scripts/build.ps1"]
-        },
-        "buildOutputPath": {
-          "type": "string",
-          "description": "Obligatorio solo si versioning es true. Ruta del entregable generado por buildCommand, con '{version}' como placeholder del valor resuelto de versionFormat. ms-version la usa para verificar que el build genero lo esperado.",
-          "examples": ["src/_output/versions/index-{version}.html"]
         }
       }
     },
@@ -206,13 +148,7 @@
             "projectGraphPath": "graphify-out/graph.json"
           }
         },
-        "sourcecodeDir": "src",
-        "versioning": true,
-        "versionFilePath": "src/data/version.js",
-        "versionVariable": "CURRENT_VERSION",
-        "versionFormat": "v{xxxx}",
-        "buildCommand": "./src/scripts/build.ps1",
-        "buildOutputPath": "src/_output/versions/index-{version}.html"
+        "sourcecodeDir": "src"
       },
       "project": {
         "name": "Errantes",
@@ -223,8 +159,7 @@
     },
     {
       "framework": {
-        "changesDir": "docs/changes",
-        "versioning": false
+        "changesDir": "docs/changes"
       },
       "project": {}
     }

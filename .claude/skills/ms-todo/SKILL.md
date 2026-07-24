@@ -5,13 +5,13 @@ argument-hint: "[código] <idea a anotar o desarrollar>"
 model: claude-haiku-4-5-20251001
 effort: medium
 metadata:
-  version: 1.2.1
+  version: 1.2.2
   uses: []
 ---
 
 # ms-todo
 
-Cuaderno de ideas del framework `ms-*`, pero **fuera** de su flujo de trabajo: no documenta un cambio/fix a implementar, solo deja constancia de una idea para desarrollarla más adelante, a un ritmo distinto del de `ms-new`/`ms-fix`. No hay planificación (`ms-implement`), ni estados (`inProgress`/`implemented`/`closed`), ni versión: una idea anotada aquí se queda aquí hasta que, en su caso, alguien decida convertirla en un change/fix de verdad con `ms-new`/`ms-fix` (fuera ya de esta skill).
+Cuaderno de ideas del framework `ms-*`, pero **fuera** de su flujo de trabajo: no documenta un cambio/fix a implementar, solo deja constancia de una idea para desarrollarla más adelante, a un ritmo distinto del de `ms-new`/`ms-fix`. No hay planificación (`ms-how`/`ms-do`), ni estados (`inProgress`/`implemented`/`closed`), ni versión: una idea anotada aquí se queda aquí hasta que, en su caso, alguien decida convertirla en un change/fix de verdad con `ms-new`/`ms-fix` (fuera ya de esta skill).
 
 Vive en `{changesDir}/todo/`, una subcarpeta hermana de `inProgress`/`implemented`/`closed` pero **ajena por completo** al resto del framework: ninguna otra skill `ms-*` la lee, la escribe, ni cuenta sus carpetas al numerar o buscar cambios/fixes. Los códigos que usa esta skill no tienen ninguna relación con el `xxxx` numérico de change/fix — son solo identificadores únicos dentro de `{changesDir}/todo/`.
 
@@ -78,7 +78,7 @@ Si el usuario pide ver qué ideas hay anotadas: lista las subcarpetas de `{chang
 
 ## Qué NO hace esta skill
 
-- No planifica ni implementa nada (no hay equivalente a `ms-implement` aquí).
+- No planifica ni implementa nada (no hay equivalente a `ms-how`/`ms-do` aquí).
 - No mueve ideas entre estados ni las "cierra" — para eso no hay flujo; si una idea deja de interesar, es el usuario quien decide borrarla o dejarla tal cual.
 - No numera con el `xxxx` del framework ni invoca `ms-internal-workflow` — su numeración es independiente y local a `{changesDir}/todo/`.
-- No cuenta como fuente de intención para `ms-implement`, `ms-internal-graph`, `ms-version` ni ninguna otra skill del framework: `{changesDir}/todo/` es territorio exclusivo de `ms-todo`.
+- No cuenta como fuente de intención para `ms-how`, `ms-do`, `ms-internal-graph` ni ninguna otra skill del framework: `{changesDir}/todo/` es territorio exclusivo de `ms-todo`.

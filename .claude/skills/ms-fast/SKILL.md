@@ -5,13 +5,13 @@ argument-hint: <descripción del cambio a aplicar>
 model: claude-haiku-4-5-20251001
 effort: medium
 metadata:
-  version: 1.2.2
+  version: 1.2.3
   uses: [ms-internal-tech-analysis, ms-new]
 ---
 
 # ms-fast
 
-Vía rápida del framework `ms-*` para cambios **muy pequeños y de análisis casi nulo**: un typo, un texto, un valor/constante puntual, un ajuste de estilo aislado, etc. A diferencia de `ms-new`/`ms-fix` + `ms-implement`, no pasa por `{changesDir}/inProgress/` ni genera `plan.md`: si el cambio de verdad es trivial, se analiza, se aplica y se documenta ya implementado, todo en la misma invocación.
+Vía rápida del framework `ms-*` para cambios **muy pequeños y de análisis casi nulo**: un typo, un texto, un valor/constante puntual, un ajuste de estilo aislado, etc. A diferencia de `ms-new`/`ms-fix` + `ms-how`/`ms-do`, no pasa por `{changesDir}/inProgress/` ni genera `plan.md`: si el cambio de verdad es trivial, se analiza, se aplica y se documenta ya implementado, todo en la misma invocación.
 
 **Esta skill no es un atajo para saltarse el análisis de un cambio que sí lo necesita.** Es solo para lo que verdaderamente no requiere ninguno. Si el usuario pide `/ms-fast` para algo que no lo es, esta skill no debe forzar la implementación: debe decirlo y redirigir a `ms-new` o `ms-fix`.
 
@@ -60,7 +60,7 @@ Si el análisis del paso 1 concluye que no es un cambio trivial, **no toques có
 
 Implementa el cambio directamente en el código con tu proceso normal de ingeniería (editar, verificar que compila/pasan los tests si los hay). Sigue siendo un cambio real sobre el proyecto: aplícalo con el mismo cuidado que cualquier otra edición, aunque no pase por `plan.md`.
 
-Un cambio `fast` **nunca** debe tocar `docs.tech.architectureDocPath` ni `docs.tech.styleBibleDocPath` (ver paso 1) — no los actualices, ni actualices tampoco `docs.functional.featuresDocPath`, ni invoques `ms-internal-graph` ni `ms-version`, como parte de esta skill. Si durante la implementación descubres que sí hace falta tocar arquitectura, biblia de estilo, o que el cambio se extiende a más ficheros de los previstos, es señal de que el cambio no era tan trivial: para inmediatamente, no lo apliques a medias (deshaz lo ya tocado si llegaste a tocar algo), y sigue el paso 2 (avisar e invocar `ms-new`) en su lugar.
+Un cambio `fast` **nunca** debe tocar `docs.tech.architectureDocPath` ni `docs.tech.styleBibleDocPath` (ver paso 1) — no los actualices, ni actualices tampoco `docs.functional.featuresDocPath`, ni invoques `ms-internal-graph`, como parte de esta skill. Si durante la implementación descubres que sí hace falta tocar arquitectura, biblia de estilo, o que el cambio se extiende a más ficheros de los previstos, es señal de que el cambio no era tan trivial: para inmediatamente, no lo apliques a medias (deshaz lo ya tocado si llegaste a tocar algo), y sigue el paso 2 (avisar e invocar `ms-new`) en su lugar.
 
 ## 4. Documentar el cambio ya aplicado
 
@@ -90,4 +90,4 @@ Redacta `description.md` siguiendo la plantilla [`description.template.md`](desc
 
 ## 5. Confirmar al usuario
 
-Indica qué se ha implementado y la ruta del fichero de documentación creado (`{changesDir}/implemented/fast-{título}_{yyyyMMdd}/description.md`). Recuerda que, como cualquier otra entrada de `implemented`, puede cerrarse más adelante con `ms-close` cuando el usuario lo revise.
+Indica qué se ha implementado y la ruta del fichero de documentación creado (`{changesDir}/implemented/fast-{título}_{yyyyMMdd}/description.md`).

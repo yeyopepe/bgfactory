@@ -5,8 +5,8 @@
     "overrides": {
       "ms-status": { "model": "claude-haiku-4-5-20251001", "effort": "medium" },
       "ms-todo": { "model": "claude-haiku-4-5-20251001", "effort": "medium" },
-      "ms-close": { "model": "claude-haiku-4-5-20251001", "effort": "medium" },
-      "ms-fast": { "model": "claude-haiku-4-5-20251001", "effort": "medium" }
+      "ms-fast": { "model": "claude-haiku-4-5-20251001", "effort": "medium" },
+      "ms-do": { "model": "claude-haiku-4-5-20251001", "effort": "high" }
     }
   },
   "framework": {
@@ -22,13 +22,7 @@
         "styleBibleDocPath": "design/docs/stylebible/STYLE_BIBLE.md",
         "projectGraphPath": "src/_graph/graph.json"
       }
-    },
-    "versioning": true,
-    "versionFilePath": "src/data/version.js",
-    "versionVariable": "CURRENT_VERSION",
-    "versionFormat": "v{xxxx}",
-    "buildCommand": "python ./src/scripts/build.py",
-    "buildOutputPath": "src/_output/versions/index-{version}.html"
+    }
   },
   "project": {
     "name": "Errantes",

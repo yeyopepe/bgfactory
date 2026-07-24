@@ -1,11 +1,11 @@
 ---
 name: ms-fix
-description: Analiza un bug o comportamiento roto reportado por el usuario, lo documenta en {changesDir}/inProgress y lo implementa directamente encadenando ms-implement, con el análisis acotado estrictamente al fix (cambio mínimo, sin ampliar alcance). Trigger: /ms-fix, o cuando el usuario pide explícitamente "un fix"/corregir un bug como parte del flujo de trabajo del proyecto.
+description: Analiza un bug o comportamiento roto reportado por el usuario, lo documenta en {changesDir}/inProgress y lo implementa directamente encadenando ms-how (que a su vez encadena ms-do), con el análisis acotado estrictamente al fix (cambio mínimo, sin ampliar alcance). Trigger: /ms-fix, o cuando el usuario pide explícitamente "un fix"/corregir un bug como parte del flujo de trabajo del proyecto.
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.0.1
-  uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-implement]
+  version: 1.1.0
+  uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-how]
 ---
 
 # ms-fix
@@ -14,9 +14,9 @@ Analiza, documenta e implementa un fix (comportamiento roto) sobre el proyecto �
 
 Un fix es, por naturaleza, un cambio acotado: el análisis y la solución deben centrarse **única y exclusivamente en corregir el bug reportado**, con el menor cambio posible. Nada de aprovechar para refactorizar, renombrar o tocar código no relacionado con la causa raíz — eso, si hace falta, es un `ms-change` aparte.
 
-Esta skill no implementa nada por sí misma: documenta la intención y encadena directamente la skill `ms-implement`, que es quien analiza la causa raíz técnica, escribe el `plan.md` y (si se confirma) implementa.
+Esta skill no implementa nada por sí misma: documenta la intención y encadena directamente la skill `ms-how`, que es quien analiza la causa raíz técnica y escribe el `plan.md`, y que a su vez (si se confirma) encadena `ms-do` para implementar.
 
-**Fuente de la verdad.** Para distinguir qué hace hoy el proyecto de lo que el usuario cree que hace, la única fuente de verdad es la documentación técnica y el código real — no asunciones ni memoria de la conversación. Para reunir ese contexto, invoca la skill `ms-internal-tech-analysis` (herramienta Skill) pasándole un resumen del bug que se está analizando, en vez de leer tú mismo `framework.docs.tech` o explorar el código a ciegas: ella lee primero la documentación técnica configurada y explora código solo si hace falta, devolviendo el contexto reunido y cualquier incongruencia entre documentación y código (en ese caso el código manda). Si detecta alguna incongruencia, anótala en **Apuntes técnicos** al documentar (paso 2) para que `ms-implement` la tenga en cuenta más adelante. Tampoco cuenta como fuente de verdad el contenido de otros cambios/fixes que existan bajo `{changesDir}/**` (su `description.md` o `plan.md`, estén en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto.
+**Fuente de la verdad.** Para distinguir qué hace hoy el proyecto de lo que el usuario cree que hace, la única fuente de verdad es la documentación técnica y el código real — no asunciones ni memoria de la conversación. Para reunir ese contexto, invoca la skill `ms-internal-tech-analysis` (herramienta Skill) pasándole un resumen del bug que se está analizando, en vez de leer tú mismo `framework.docs.tech` o explorar el código a ciegas: ella lee primero la documentación técnica configurada y explora código solo si hace falta, devolviendo el contexto reunido y cualquier incongruencia entre documentación y código (en ese caso el código manda). Si detecta alguna incongruencia, anótala en **Apuntes técnicos** al documentar (paso 2) para que `ms-how` la tenga en cuenta más adelante. Tampoco cuenta como fuente de verdad el contenido de otros cambios/fixes que existan bajo `{changesDir}/**` (su `description.md` o `plan.md`, estén en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto.
 
 ## 0. Comprobar que el framework está inicializado
 
@@ -28,7 +28,7 @@ Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta con
 
 ## Pasos
 
-1. **Entender el bug a nivel funcional.** Si hay ambigüedad sobre qué comportamiento es el correcto o cómo reproducirlo, pregunta. No hace falta localizar la causa raíz en código todavía — eso lo hace `ms-implement` al analizar el fix en detalle.
+1. **Entender el bug a nivel funcional.** Si hay ambigüedad sobre qué comportamiento es el correcto o cómo reproducirlo, pregunta. No hace falta localizar la causa raíz en código todavía — eso lo hace `ms-how` al analizar el fix en detalle.
 2. **Documentar la intención.** Invoca la skill `ms-internal-workflow` (herramienta Skill) con `action=create`, `type=fix` y el resumen funcional de qué está mal y qué se espera en su lugar, para que se encargue de numerar el fix y crear el documento en `{changesDir}/inProgress/{xxxx}/`.
 
 Si la funcionalidad que se describe incorpora un flujo, una secuencia de pasos/decisiones o una interacción entre estados o componentes (p.ej. cómo transiciona una pantalla, el orden de una operación, casos límite encadenados), incluye ese análisis como diagrama Mermaid (`flowchart`, `sequenceDiagram`, `stateDiagram-v2`, etc.) con las notas imprescindibles al pasárselo a `ms-internal-workflow`, en vez de describirlo solo en prosa — así queda ya así en `description.md`. Usa prosa cuando no haya un flujo/relación clara que representar.
@@ -40,6 +40,6 @@ Si la funcionalidad que se describe incorpora un flujo, una secuencia de pasos/d
    - No debe tener funcionalidad real: nada de JavaScript que reaccione a eventos, ni llamadas a red, ni estado — como mucho, JS puramente decorativo si hiciera falta para el aspecto visual.
    - Ha de ser autocontenido: solo HTML, CSS y SVG, todo incrustado en el propio fichero (sin ficheros externos, sin CDNs, sin imports).
 
-4. **Encadenar la implementación.** Invoca directamente la skill `ms-implement` (herramienta Skill) sobre ese mismo `xxxx`, indicando explícitamente que es un fix y que su análisis y solución deben limitarse estrictamente a corregir el bug documentado — cambio mínimo, sin ampliar alcance ni tocar nada no relacionado con la causa raíz. No le pidas al usuario que invoque `ms-implement` por separado: continúa tú mismo con ese flujo (análisis → `plan.md` → confirmación → implementación → mover a `implemented`), tal como lo define `ms-implement`.
+4. **Encadenar la planificación.** Invoca directamente la skill `ms-how` (herramienta Skill) sobre ese mismo `xxxx`, indicando explícitamente que es un fix y que su análisis y solución deben limitarse estrictamente a corregir el bug documentado — cambio mínimo, sin ampliar alcance ni tocar nada no relacionado con la causa raíz. No le pidas al usuario que invoque `ms-how` por separado: continúa tú mismo con ese flujo (análisis → `plan.md` → confirmación → `ms-do` implementa → mueve a `implemented`), tal como lo define `ms-how`.
 
-No escribas tú mismo el documento de fix ni calcules el número `xxxx` — eso lo hace `ms-internal-workflow` para mantener un único sitio con esa lógica. No escribas tú mismo el `plan.md` ni toques código directamente — eso lo hace `ms-implement` para mantener un único sitio con esa lógica.
+No escribas tú mismo el documento de fix ni calcules el número `xxxx` — eso lo hace `ms-internal-workflow` para mantener un único sitio con esa lógica. No escribas tú mismo el `plan.md` ni toques código directamente — eso lo hacen `ms-how` y `ms-do` para mantener un único sitio con esa lógica.
