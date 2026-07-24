@@ -2,8 +2,10 @@
 name: ms-internal-graph
 description: Genera (o regenera) un fichero graph.json con el grafo de dependencias del código del proyecto (ficheros, símbolos exportados y relaciones entre ellos) para servir como contexto reducido de arquitectura. Trigger: /ms-internal-graph [rutaBase] [rutaGraphJson], o cuando el usuario pide generar/actualizar el grafo de contexto del proyecto.
 argument-hint: "[rutaBase] [rutaGraphJson] (opcionales)"
+model: claude-sonnet-5
+effort: medium
 metadata:
-  version: 2.0.0
+  version: 2.0.1
   uses: []
 ---
 

@@ -2,8 +2,10 @@
 name: ms-new
 description: Analiza y documenta un cambio intencionado (nueva funcionalidad o modificación de comportamiento existente, no un bug) pedido por el usuario, dejándolo listo en {changesDir}/inProgress para planificar e implementar después con ms-implement. Si se indica un código ya en inProgress, amplía esa entrada en vez de crear una nueva. Con `/ms-new todo <código>` parte de una idea ya apuntada en {changesDir}/todo/ en vez de una petición nueva, y borra esa idea automáticamente al terminar (sin pedir confirmación). Trigger: /ms-new [xxxx], o cuando el usuario pide explícitamente "un change"/"documentar este cambio" como parte del flujo de trabajo del proyecto.
 argument-hint: "[xxxx | todo <código>] <descripción del cambio>"
+model: claude-sonnet-5
+effort: medium
 metadata:
-  version: 1.6.0
+  version: 1.6.1
   uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-implement]
 ---
 

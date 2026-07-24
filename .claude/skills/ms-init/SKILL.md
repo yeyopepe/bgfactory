@@ -1,8 +1,10 @@
 ---
 name: ms-init
 description: Inicializa el framework ms-* (change/fix/version/workflow) en el proyecto actual, generando .claude/ms-context.json con la configuración necesaria (rutas de carpetas/ficheros del proceso de tracking de cambios y versionado, más una sección libre con info del proyecto). Trigger: /ms-init, o cuando cualquier otra skill ms-* necesita .claude/ms-context.json y no existe (o le faltan campos), o cuando el usuario pide "montar"/"configurar" este framework en un proyecto nuevo.
+model: claude-sonnet-5
+effort: medium
 metadata:
-  version: 1.2.0
+  version: 1.2.1
   uses: [ms-internal-graph]
 ---
 

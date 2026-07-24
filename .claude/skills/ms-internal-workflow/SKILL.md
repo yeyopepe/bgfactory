@@ -2,8 +2,10 @@
 name: ms-internal-workflow
 description: Proceso compartido, agnóstico al proyecto, con dos acciones internas del framework ms-*: (1) crear una entrada nueva en {changesDir}/inProgress documentando la intención de un fix o change, y (2) mover una entrada existente entre los subestados del flujo (inProgress/implemented/closed) cuando otra skill del framework produce esa transición. Uso interno de las skills ms-new, ms-fix, ms-implement y ms-close.
 user-invocable: false
+model: claude-sonnet-5
+effort: medium
 metadata:
-  version: 2.1.0
+  version: 2.1.1
   uses: []
 ---
 

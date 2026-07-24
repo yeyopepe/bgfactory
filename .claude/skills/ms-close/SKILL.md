@@ -2,8 +2,10 @@
 name: ms-close
 description: Cierra un change/fix ya implementado, moviéndolo de {changesDir}/implemented a {changesDir}/closed. Solo actúa sobre entradas que ya estén en implemented (es decir, ya implementadas en código); pide siempre confirmación explícita al usuario antes de mover. Parte del framework ms-*. Trigger: /ms-close <xxxx>, o cuando el usuario pide cerrar/archivar un change/fix ya implementado.
 argument-hint: <xxxx o descripción del cambio/fix a cerrar>
+model: claude-sonnet-5
+effort: medium
 metadata:
-  version: 1.0.0
+  version: 1.0.1
   uses: [ms-internal-workflow]
 ---
 

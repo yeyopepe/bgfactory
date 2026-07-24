@@ -2,8 +2,10 @@
 name: ms-internal-tech-analysis
 description: Procedimiento compartido, agnóstico al proyecto, para reunir contexto técnico antes de analizar un change/fix o valorar si un cambio es trivial. Primero lee la documentación técnica configurada en framework.docs.tech (arquitectura, biblia de estilo, grafo), y solo si hace falta más información explora el código real. Si detecta que el código y la documentación no coinciden, señala el código como fuente de la verdad y devuelve la incongruencia como parte del análisis, sin editar nada. Uso interno de las skills ms-new, ms-fix, ms-fast e ms-implement.
 user-invocable: false
+model: claude-sonnet-5
+effort: medium
 metadata:
-  version: 1.0.0
+  version: 1.0.1
   uses: []
 ---
 

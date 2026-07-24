@@ -7,6 +7,26 @@
   "required": ["framework"],
   "additionalProperties": false,
   "properties": {
+    "skillModels": {
+      "type": "object",
+      "description": "OPCIONAL. Fuente de verdad para el modelo/esfuerzo (Claude) con el que corre cada skill 'ms-*' de este repo. El harness de Claude Code solo lee el campo 'model'/'effort' del frontmatter de cada SKILL.md -- no este JSON -- asi que esta seccion no tiene efecto por si sola. Tras editar 'default' o 'overrides', hay que ejecutar el script de sincronizacion documentado en '_instructions' para propagar los valores al frontmatter real de cada SKILL.md.",
+      "additionalProperties": false,
+      "properties": {
+        "_instructions": {
+          "type": "string",
+          "description": "Recordatorio, en el propio fichero, de como aplicar cambios hechos en 'default'/'overrides'. Ninguna skill debe borrar esta clave."
+        },
+        "default": {
+          "$ref": "#/$defs/modelConfig",
+          "description": "Modelo/esfuerzo por defecto para cualquier skill 'ms-*' que no tenga entrada propia en 'overrides'."
+        },
+        "overrides": {
+          "type": "object",
+          "description": "OPCIONAL. Una entrada por nombre de skill (el 'name:' de su SKILL.md, p.ej. 'ms-status') que necesite un modelo/esfuerzo distinto del 'default'.",
+          "additionalProperties": { "$ref": "#/$defs/modelConfig" }
+        }
+      }
+    },
     "framework": {
       "type": "object",
       "description": "Configuracion que entienden y usan las skills ms-* directamente (rutas y comandos del proceso de tracking de cambios y versionado). Forma fija, a diferencia de 'project'.",
@@ -146,8 +166,34 @@
       ]
     }
   },
+  "$defs": {
+    "modelConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "effort"],
+      "properties": {
+        "model": {
+          "type": "string",
+          "description": "Valor aceptado por el campo 'model' del frontmatter de un SKILL.md (los mismos IDs que acepta /model, p.ej. 'claude-sonnet-5', 'claude-haiku-4-5-20251001', o 'inherit').",
+          "examples": ["claude-sonnet-5", "claude-haiku-4-5-20251001"]
+        },
+        "effort": {
+          "type": "string",
+          "description": "Valor aceptado por el campo 'effort' del frontmatter de un SKILL.md.",
+          "examples": ["low", "medium", "high"]
+        }
+      }
+    }
+  },
   "examples": [
     {
+      "skillModels": {
+        "_instructions": "Tras editar 'default'/'overrides', ejecuta desde la raiz del repo: python .claude/skills/ms-init/scripts/sync-skill-models.py -- reescribe 'model'/'effort' en el frontmatter de cada SKILL.md 'ms-*' segun esta seccion.",
+        "default": { "model": "claude-sonnet-5", "effort": "medium" },
+        "overrides": {
+          "ms-status": { "model": "claude-haiku-4-5-20251001", "effort": "medium" }
+        }
+      },
       "framework": {
         "changesDir": "src/_changes",
         "numberWidth": 4,

@@ -2,8 +2,10 @@
 name: ms-implement
 description: Planifica e implementa un change/fix ya documentado en {changesDir}/inProgress — genera un plan.md con la solución técnica (o lo re-analiza si ya existe), y si el usuario lo confirma, lo implementa y mueve la entrada a {changesDir}/implemented. Parte del framework ms-*. Trigger: /ms-implement <xxxx>, o cuando el usuario pide planificar/implementar un cambio o fix ya documentado por ms-change/ms-fix.
 argument-hint: <xxxx o descripción del cambio/fix a implementar>
+model: claude-sonnet-5
+effort: medium
 metadata:
-  version: 1.4.0
+  version: 1.4.1
   uses: [ms-internal-tech-analysis, ms-internal-workflow, ms-internal-graph]
 ---
 

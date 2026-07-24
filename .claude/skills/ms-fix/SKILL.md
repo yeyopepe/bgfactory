@@ -1,8 +1,10 @@
 ---
 name: ms-fix
 description: Analiza un bug o comportamiento roto reportado por el usuario, lo documenta en {changesDir}/inProgress y lo implementa directamente encadenando ms-implement, con el análisis acotado estrictamente al fix (cambio mínimo, sin ampliar alcance). Trigger: /ms-fix, o cuando el usuario pide explícitamente "un fix"/corregir un bug como parte del flujo de trabajo del proyecto.
+model: claude-sonnet-5
+effort: medium
 metadata:
-  version: 1.0.0
+  version: 1.0.1
   uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-implement]
 ---
 

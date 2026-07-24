@@ -1,8 +1,10 @@
 ---
 name: ms-version
 description: Genera una nueva versión del entregable del proyecto (incrementa en 1 la versión actual, sin relación con ningún código de change/fix, y ejecuta el build). Parte del framework ms-*. Trigger: /ms-version, o cuando el usuario pide generar/cortar/bump de una nueva versión o build del proyecto.
+model: claude-sonnet-5
+effort: medium
 metadata:
-  version: 1.2.0
+  version: 1.2.1
   uses: []
 ---
 
