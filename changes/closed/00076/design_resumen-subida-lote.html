@@ -82,9 +82,6 @@
 
   .skip-detail {
     margin-top: 0.75rem;
-    background: var(--bg-subtle);
-    border-radius: var(--radius-sm);
-    padding: 0.6rem 0.75rem;
   }
   .skip-detail__title {
     font-size: 0.75rem;
@@ -92,14 +89,33 @@
     color: var(--text-muted);
     margin-bottom: 0.35rem;
   }
-  .skip-detail ul {
-    margin: 0;
-    padding-left: 1.1rem;
-    font-size: 0.8rem;
-    color: var(--text-muted);
+  .report-table-wrap {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
   }
-  .skip-detail li {
-    margin-bottom: 0.15rem;
+  .report-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .report-table th {
+    text-align: left;
+    background: var(--bg-subtle);
+    font-weight: 500;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+  .report-table td {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-neutral);
+    vertical-align: top;
+  }
+  .report-table tr:last-child td {
+    border-bottom: none;
   }
 
   .modal__footer {
@@ -139,10 +155,26 @@
         <div class="summary-line summary-line--skip"><strong>2</strong> omitidos por formato no soportado</div>
         <div class="skip-detail">
           <div class="skip-detail__title">Ficheros omitidos</div>
-          <ul>
-            <li>notas.txt (formato no soportado)</li>
-            <li>boceto.psd (formato no soportado)</li>
-          </ul>
+          <div class="report-table-wrap">
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>Fichero</th>
+                  <th>Motivo</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>notas.txt</td>
+                  <td>Formato no soportado</td>
+                </tr>
+                <tr>
+                  <td>boceto.psd</td>
+                  <td>Formato no soportado</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
       <div class="modal__footer">

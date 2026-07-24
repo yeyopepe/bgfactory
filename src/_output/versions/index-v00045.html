@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Errantes, un juego de mesa de SJ Martínez v.00043</title>
+  <title>Errantes, un juego de mesa de SJ Martínez v.00045</title>
   <style>
 :root {
   --bg-table: #c2c2c2;
@@ -16,6 +16,7 @@
   --text-light: #ffffff;
   --text-muted: #666666;
   --error: #d32f2f; /* estados de error y acciones destructivas */
+  --success: #2e7d32; /* estados de éxito/confirmación positiva */
   --border-neutral: #dcdcdc; /* todos los bordes finos neutros (antes #ddd/#eee sueltos) */
   --bg-subtle: #f0f0f0; /* fondos neutros en reposo (cabecera de tabla, botón secundario) */
   --bg-hover: #e8e8e8; /* cualquier hover neutro (fila, botón secundario, tab) */
@@ -410,6 +411,45 @@ input[type="radio"] {
   font-size: 0.75rem;
   flex-shrink: 0;
   box-shadow: 0 2px 5px rgba(211, 47, 47, 0.4);
+}
+
+.modal__header--success {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal__success-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--success);
+  color: var(--text-light);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  box-shadow: 0 2px 5px rgba(46, 125, 50, 0.4);
+}
+
+.batch-upload-summary-modal__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.batch-upload-summary-modal__table th {
+  padding: 0.5rem;
+  text-align: left;
+  font-weight: 500;
+  background: var(--bg-subtle);
+}
+
+.batch-upload-summary-modal__table td {
+  padding: 0.5rem;
+  border-top: 1px solid var(--border-neutral);
 }
 
 .modal__header-title {
@@ -1489,7 +1529,11 @@ fieldset.modal__section--untitled {
   border-top: 1px solid var(--border-neutral);
 }
 
-.resource-panel__footer button {
+.resource-add {
+  position: relative;
+}
+
+.resource-add__button {
   width: 100%;
   padding: 0.5rem;
   background: var(--accent-blue);
@@ -1500,8 +1544,45 @@ fieldset.modal__section--untitled {
   transition: opacity var(--transition-fast);
 }
 
-.resource-panel__footer button:hover {
+.resource-add__button:hover {
   opacity: 0.9;
+}
+
+.resource-add__menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  width: 100%;
+  background: #fff;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+}
+
+.resource-add__item {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.resource-add__item:not(:last-child) {
+  border-bottom: 1px solid var(--border-neutral);
+}
+
+.resource-add__item:hover {
+  background: var(--bg-hover);
+}
+
+.resource-add__item-label {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.resource-add__hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
 }
 
 /* Resource list (table inside the floating resource panel) */
@@ -1643,7 +1724,7 @@ fieldset.modal__section--untitled {
   </style>
 </head>
 <body>
-  <h1>Errantes, un juego de mesa de SJ Martínez v.00043</h1>
+  <h1>Errantes, un juego de mesa de SJ Martínez v.00045</h1>
   <div id="edit-toolbar"></div>
   <div id="mode-switcher"></div>
   <div id="content"></div>
@@ -1899,7 +1980,7 @@ module.exports.MODES = MODES;
 };
 __modules['data/version.js'] = function(module, exports, require) {
 // Fuente única de la versión actual del prototipo.
-const CURRENT_VERSION = 'v00043';
+const CURRENT_VERSION = 'v00045';
 
 module.exports.CURRENT_VERSION = CURRENT_VERSION;
 };
@@ -5429,7 +5510,7 @@ const WEBP_QUALITY = 0.92;
 // resultado ya leído por FileReader.readAsDataURL(file). Devuelve
 // { dataUrl, fileName, mimeType } — convertido a WebP si procede, o el
 // original tal cual si no aplica o la conversión no puede completarse.
-export async function convertImageToWebP(file, dataUrl) {
+async function convertImageToWebP(file, dataUrl) {
   const original = { dataUrl, fileName: file.name, mimeType: file.type };
 
   const ext = file.name.split('.').pop()?.toLowerCase();
@@ -5458,7 +5539,7 @@ export async function convertImageToWebP(file, dataUrl) {
   }
 }
 
-
+module.exports.convertImageToWebP = convertImageToWebP;
 };
 __modules['ui/helpIcon.js'] = function(module, exports, require) {
 // Icono de ayuda contextual reutilizable ("?"): tooltip para texto plano corto,
@@ -8655,13 +8736,79 @@ function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnR
   }
 }
 
+function createAddMenu({ onAddFile, onAddMultiple, onAddFolder }) {
+  const wrap = document.createElement('div');
+  wrap.className = 'resource-add';
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'resource-add__button';
+  button.textContent = '+ Añadir recurso ▾';
+  wrap.appendChild(button);
+
+  const menu = document.createElement('div');
+  menu.className = 'resource-add__menu';
+  menu.hidden = true;
+
+  function addItem(label, hint, onClick) {
+    const item = document.createElement('div');
+    item.className = 'resource-add__item';
+
+    const itemLabel = document.createElement('div');
+    itemLabel.className = 'resource-add__item-label';
+    itemLabel.textContent = label;
+    item.appendChild(itemLabel);
+
+    if (hint) {
+      const hintEl = document.createElement('div');
+      hintEl.className = 'resource-add__hint';
+      hintEl.textContent = hint;
+      item.appendChild(hintEl);
+    }
+
+    item.addEventListener('click', () => {
+      closeMenu();
+      if (onClick) onClick();
+    });
+    menu.appendChild(item);
+  }
+
+  addItem('Subir fichero', null, onAddFile);
+  addItem('Subir varios ficheros', null, onAddMultiple);
+  addItem('Subir carpeta', 'Solo se tiene en cuenta el primer nivel de la carpeta', onAddFolder);
+
+  wrap.appendChild(menu);
+
+  function closeMenu() {
+    menu.hidden = true;
+    document.removeEventListener('mousedown', handleOutsideClick);
+  }
+
+  function handleOutsideClick(e) {
+    if (!wrap.contains(e.target)) closeMenu();
+  }
+
+  button.addEventListener('click', () => {
+    if (menu.hidden) {
+      menu.hidden = false;
+      document.addEventListener('mousedown', handleOutsideClick);
+    } else {
+      closeMenu();
+    }
+  });
+
+  return wrap;
+}
+
 function renderResourceList(
   container,
   resources,
   {
     onEdit,
     onRemove,
-    onAdd,
+    onAddFile,
+    onAddMultiple,
+    onAddFolder,
     collapsed = false,
     onToggleCollapse,
     onPanelMove,
@@ -8756,14 +8903,7 @@ function renderResourceList(
 
     const footer = document.createElement('div');
     footer.className = 'resource-panel__footer';
-
-    const addButton = document.createElement('button');
-    addButton.type = 'button';
-    addButton.textContent = '+ Añadir recurso';
-    addButton.addEventListener('click', () => {
-      if (onAdd) onAdd();
-    });
-    footer.appendChild(addButton);
+    footer.appendChild(createAddMenu({ onAddFile, onAddMultiple, onAddFolder }));
 
     panel.appendChild(footer);
   }
@@ -8790,6 +8930,104 @@ function renderResourceList(
 
 module.exports.renderResourceList = renderResourceList;
 };
+__modules['ui/batchUploadSummaryModal.js'] = function(module, exports, require) {
+// Modal de resumen tras una subida en lote (varios ficheros o una carpeta,
+// change 00076): cuántos recursos se añadieron y, si los hay, el detalle de
+// los omitidos por formato no soportado (tabla, mismo patrón que
+// ui/importReportModal.js) y/o por estar dentro de una subcarpeta (recuento
+// agregado, sin listar cada fichero). Mismo esqueleto modal-overlay/modal
+// que ui/errorModal.js, con una variante de cabecera de éxito en vez de error.
+
+function openBatchUploadSummaryModal({ added, skippedFormat = [], skippedSubfolderCount = 0 }) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+
+  const header = document.createElement('div');
+  header.className = 'modal__header modal__header--success';
+  const icon = document.createElement('span');
+  icon.className = 'modal__success-icon';
+  icon.textContent = '✓';
+  header.appendChild(icon);
+  const heading = document.createElement('h2');
+  heading.className = 'modal__header-title';
+  heading.textContent = 'Recursos añadidos';
+  header.appendChild(heading);
+  modal.appendChild(header);
+
+  const content = document.createElement('div');
+  content.className = 'modal__content';
+
+  const addedLine = document.createElement('p');
+  addedLine.innerHTML = `<strong>${added}</strong> recursos añadidos correctamente`;
+  content.appendChild(addedLine);
+
+  if (skippedFormat.length > 0) {
+    const skippedLine = document.createElement('p');
+    skippedLine.innerHTML = `<strong>${skippedFormat.length}</strong> omitidos por formato no soportado`;
+    content.appendChild(skippedLine);
+
+    const table = document.createElement('table');
+    table.className = 'batch-upload-summary-modal__table';
+
+    const thead = document.createElement('thead');
+    const headRow = document.createElement('tr');
+    for (const label of ['Fichero', 'Motivo']) {
+      const th = document.createElement('th');
+      th.textContent = label;
+      headRow.appendChild(th);
+    }
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    for (const { name } of skippedFormat) {
+      const tr = document.createElement('tr');
+      const nameCell = document.createElement('td');
+      nameCell.textContent = name;
+      const reasonCell = document.createElement('td');
+      reasonCell.textContent = 'Formato no soportado';
+      tr.appendChild(nameCell);
+      tr.appendChild(reasonCell);
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    content.appendChild(table);
+  }
+
+  if (skippedSubfolderCount > 0) {
+    const subfolderLine = document.createElement('p');
+    subfolderLine.innerHTML = `<strong>${skippedSubfolderCount}</strong> omitidos por estar dentro de una subcarpeta`;
+    content.appendChild(subfolderLine);
+  }
+
+  modal.appendChild(content);
+
+  const footer = document.createElement('div');
+  footer.className = 'modal__footer';
+  const acceptBtn = document.createElement('button');
+  acceptBtn.className = 'btn-accept';
+  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.addEventListener('click', () => overlay.remove());
+  footer.appendChild(acceptBtn);
+  modal.appendChild(footer);
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  let mousedownOnOverlay = false;
+  overlay.addEventListener('mousedown', (e) => {
+    mousedownOnOverlay = e.target === overlay;
+  });
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay && mousedownOnOverlay) overlay.remove();
+  });
+}
+
+module.exports.openBatchUploadSummaryModal = openBatchUploadSummaryModal;
+};
 __modules['modes/edit/editMode.js'] = function(module, exports, require) {
 // Modo edición: mesa infinita con los componentes renderizados sobre ella (seleccionables
 // para editar) + panel flotante con listado de componentes y acciones de edición/borrado.
@@ -8807,6 +9045,7 @@ const { renderComponentsOnTable } = require('ui/componentRenderer.js');
 const { openResourceModal } = require('ui/resourceModal.js');
 const { renderResourceList } = require('ui/resourceList.js');
 const { showErrorModal } = require('ui/errorModal.js');
+const { openBatchUploadSummaryModal } = require('ui/batchUploadSummaryModal.js');
 
 // Selección de la sesión de edición en curso. `renderEditMode` se vuelve a invocar por
 // completo (desde main.js) ante cualquier `components:changed`, así que este estado
@@ -8862,28 +9101,94 @@ function renderEditMode(container) {
   }
   tableContainer.appendChild(resourceListContainer);
 
+  const RESOURCE_ACCEPT = '.png,.jpg,.jpeg,.gif,.svg,.webp,.ttf,.otf,.woff,.woff2';
+
+  // Valida y da de alta un recurso a partir de un `File`. Reutilizada por las
+  // tres vías de subida (única, varios ficheros, carpeta). Devuelve `{ ok: true }`
+  // si se añadió, o `{ ok: false }` si el formato no está soportado (sin avisar
+  // aquí — cada vía decide cómo comunicar los omitidos).
+  async function loadResourceFromFile(file) {
+    const type = resourceTypeForFileName(file.name);
+    if (!type) return { ok: false };
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+    const name = file.name.replace(/\.[^.]+$/, '');
+    const converted = await convertImageToWebP(file, dataUrl);
+    addResource(createResource({ name, type, dataUrl: converted.dataUrl, fileName: converted.fileName, mimeType: converted.mimeType }));
+    return { ok: true };
+  }
+
   const resourceFileInput = document.createElement('input');
   resourceFileInput.type = 'file';
-  resourceFileInput.accept = '.png,.jpg,.jpeg,.gif,.svg,.webp,.ttf,.otf,.woff,.woff2';
+  resourceFileInput.accept = RESOURCE_ACCEPT;
   resourceFileInput.hidden = true;
-  resourceFileInput.addEventListener('change', () => {
+  resourceFileInput.addEventListener('change', async () => {
     const file = resourceFileInput.files[0];
     resourceFileInput.value = '';
     if (!file) return;
-    const type = resourceTypeForFileName(file.name);
-    if (!type) {
+    const result = await loadResourceFromFile(file);
+    if (!result.ok) {
       showErrorModal('Error', 'Formato de fichero no soportado.');
-      return;
     }
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const name = file.name.replace(/\.[^.]+$/, '');
-      const { dataUrl, fileName, mimeType } = await convertImageToWebP(file, reader.result);
-      addResource(createResource({ name, type, dataUrl, fileName, mimeType }));
-    };
-    reader.readAsDataURL(file);
   });
   tableContainer.appendChild(resourceFileInput);
+
+  const resourceFilesInput = document.createElement('input');
+  resourceFilesInput.type = 'file';
+  resourceFilesInput.accept = RESOURCE_ACCEPT;
+  resourceFilesInput.multiple = true;
+  resourceFilesInput.hidden = true;
+  resourceFilesInput.addEventListener('change', async () => {
+    const files = Array.from(resourceFilesInput.files);
+    resourceFilesInput.value = '';
+    if (files.length === 0) return;
+
+    let added = 0;
+    const skippedFormat = [];
+    const results = await Promise.all(files.map((file) => loadResourceFromFile(file)));
+    results.forEach((result, i) => {
+      if (result.ok) added++;
+      else skippedFormat.push({ name: files[i].name });
+    });
+
+    openBatchUploadSummaryModal({ added, skippedFormat });
+  });
+  tableContainer.appendChild(resourceFilesInput);
+
+  const resourceFolderInput = document.createElement('input');
+  resourceFolderInput.type = 'file';
+  resourceFolderInput.accept = RESOURCE_ACCEPT;
+  resourceFolderInput.multiple = true;
+  resourceFolderInput.webkitdirectory = true;
+  resourceFolderInput.hidden = true;
+  resourceFolderInput.addEventListener('change', async () => {
+    const allFiles = Array.from(resourceFolderInput.files);
+    resourceFolderInput.value = '';
+    if (allFiles.length === 0) return;
+
+    const topLevelFiles = allFiles.filter((file) => file.webkitRelativePath.split('/').length === 2);
+    const skippedSubfolderCount = allFiles.length - topLevelFiles.length;
+
+    let added = 0;
+    const skippedFormat = [];
+    const results = await Promise.all(topLevelFiles.map((file) => loadResourceFromFile(file)));
+    results.forEach((result, i) => {
+      if (result.ok) added++;
+      else skippedFormat.push({ name: topLevelFiles[i].name });
+    });
+
+    if (added === 0) {
+      showErrorModal('Aviso', 'No se ha encontrado ningún recurso válido en la carpeta seleccionada.');
+      return;
+    }
+
+    openBatchUploadSummaryModal({ added, skippedFormat, skippedSubfolderCount });
+  });
+  tableContainer.appendChild(resourceFolderInput);
 
   function attemptDeleteResource(resource) {
     const usedByIds = getComponentsUsingResource(resource.id, getComponents());
@@ -9000,7 +9305,9 @@ function renderEditMode(container) {
         });
       },
       onRemove: attemptDeleteResource,
-      onAdd: () => resourceFileInput.click(),
+      onAddFile: () => resourceFileInput.click(),
+      onAddMultiple: () => resourceFilesInput.click(),
+      onAddFolder: () => resourceFolderInput.click(),
       collapsed: resourceCollapsed,
       onToggleCollapse: () => {
         resourceCollapsed = !resourceCollapsed;

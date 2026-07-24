@@ -110,13 +110,79 @@ function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnR
   }
 }
 
+function createAddMenu({ onAddFile, onAddMultiple, onAddFolder }) {
+  const wrap = document.createElement('div');
+  wrap.className = 'resource-add';
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'resource-add__button';
+  button.textContent = '+ Añadir recurso ▾';
+  wrap.appendChild(button);
+
+  const menu = document.createElement('div');
+  menu.className = 'resource-add__menu';
+  menu.hidden = true;
+
+  function addItem(label, hint, onClick) {
+    const item = document.createElement('div');
+    item.className = 'resource-add__item';
+
+    const itemLabel = document.createElement('div');
+    itemLabel.className = 'resource-add__item-label';
+    itemLabel.textContent = label;
+    item.appendChild(itemLabel);
+
+    if (hint) {
+      const hintEl = document.createElement('div');
+      hintEl.className = 'resource-add__hint';
+      hintEl.textContent = hint;
+      item.appendChild(hintEl);
+    }
+
+    item.addEventListener('click', () => {
+      closeMenu();
+      if (onClick) onClick();
+    });
+    menu.appendChild(item);
+  }
+
+  addItem('Subir fichero', null, onAddFile);
+  addItem('Subir varios ficheros', null, onAddMultiple);
+  addItem('Subir carpeta', 'Solo se tiene en cuenta el primer nivel de la carpeta', onAddFolder);
+
+  wrap.appendChild(menu);
+
+  function closeMenu() {
+    menu.hidden = true;
+    document.removeEventListener('mousedown', handleOutsideClick);
+  }
+
+  function handleOutsideClick(e) {
+    if (!wrap.contains(e.target)) closeMenu();
+  }
+
+  button.addEventListener('click', () => {
+    if (menu.hidden) {
+      menu.hidden = false;
+      document.addEventListener('mousedown', handleOutsideClick);
+    } else {
+      closeMenu();
+    }
+  });
+
+  return wrap;
+}
+
 export function renderResourceList(
   container,
   resources,
   {
     onEdit,
     onRemove,
-    onAdd,
+    onAddFile,
+    onAddMultiple,
+    onAddFolder,
     collapsed = false,
     onToggleCollapse,
     onPanelMove,
@@ -134,7 +200,7 @@ export function renderResourceList(
   header.className = 'resource-panel__header';
 
   const title = document.createElement('strong');
-  title.textContent = 'Recursos';
+  title.textContent = `Recursos (${resources.length})`;
   header.appendChild(title);
 
   const toggleButton = document.createElement('button');
@@ -195,7 +261,9 @@ export function renderResourceList(
       filterInput.value = filterText;
       filterInput.addEventListener('input', () => {
         filterText = filterInput.value;
-        renderBody(body, resources.filter((r) => matchesFilter(r, filterText)), { onEdit, onRemove, columnWidths, onColumnResize });
+        const filtered = resources.filter((r) => matchesFilter(r, filterText));
+        title.textContent = `Recursos (${filtered.length})`;
+        renderBody(body, filtered, { onEdit, onRemove, columnWidths, onColumnResize });
       });
       filterBar.appendChild(filterInput);
 
@@ -206,19 +274,14 @@ export function renderResourceList(
 
     const body = document.createElement('div');
     body.className = 'resource-panel__body';
-    renderBody(body, resources.filter((r) => matchesFilter(r, filterText)), { onEdit, onRemove, columnWidths, onColumnResize });
+    const displayedResources = resources.filter((r) => matchesFilter(r, filterText));
+    title.textContent = `Recursos (${displayedResources.length})`;
+    renderBody(body, displayedResources, { onEdit, onRemove, columnWidths, onColumnResize });
     panel.appendChild(body);
 
     const footer = document.createElement('div');
     footer.className = 'resource-panel__footer';
-
-    const addButton = document.createElement('button');
-    addButton.type = 'button';
-    addButton.textContent = '+ Añadir recurso';
-    addButton.addEventListener('click', () => {
-      if (onAdd) onAdd();
-    });
-    footer.appendChild(addButton);
+    footer.appendChild(createAddMenu({ onAddFile, onAddMultiple, onAddFolder }));
 
     panel.appendChild(footer);
   }

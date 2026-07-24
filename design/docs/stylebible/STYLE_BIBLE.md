@@ -20,10 +20,12 @@ Todos los colores viven como custom properties en `:root`. **Nunca hardcodear un
 --bg-card:      #f5f5f5;  /* paneles/tarjetas (listas, panel de edición) */
 --accent-blue:  #2c7dd8;  /* color de acción primario (botones, foco, tabs activas) */
 --accent-blue-dark: #123a66;  /* fondo de la etiqueta identificativa de componente en modo edición (sección 12.3) */
+--accent-blue-light: #eaf3fc;  /* fondo claro para paneles que destacan como interactivos sin usar el azul sólido (cambio 00077) */
 --text-primary: #1a1a1a;  /* texto sobre fondos claros */
 --text-light:   #ffffff;  /* texto sobre fondos oscuros/de acento */
 --text-muted:   #666666;  /* texto secundario */
 --error:        #d32f2f;  /* estados de error y acciones destructivas */
+--success:      #2e7d32;  /* estados de éxito/confirmación positiva (cambio 00076) */
 --border-neutral: #dcdcdc;  /* todos los bordes finos neutros (cambio 00063) */
 --bg-subtle:    #f0f0f0;  /* fondos neutros en reposo: cabecera de tabla, botón secundario (cambio 00063) */
 --bg-hover:     #e8e8e8;  /* cualquier hover neutro: fila, botón secundario, tab (cambio 00063) */
@@ -167,6 +169,13 @@ Patrón estándar para comunicar cualquier error de la app: `showErrorModal(titl
 - Si hay un mensaje técnico adicional (p.ej. el error de un `JSON.parse`), se muestra en un bloque monoespaciado (`.modal__error-detail`) debajo del mensaje principal.
 - Es el único punto de la app para comunicar errores: cualquier error nuevo debe usar `ui/errorModal.js` en vez de `ui/toast.js` u otro aviso ad-hoc — el toast queda reservado a confirmaciones/avisos de éxito, no de error.
 
+## 12.1.1 Modal de éxito
+
+Patrón estándar para confirmar de forma bloqueante un resultado positivo que necesita quedarse visible hasta que el usuario lo cierra (a diferencia de `ui/toast.js`, pensado para confirmaciones breves que no requieren revisar ningún detalle): `.modal__header--success` / `.modal__success-icon` (cambio 00076), equivalente en verde (`var(--success)`) del modal de error de la sección 12.1 — mismo layout de cabecera (icono circular junto al título), mismo `.modal-overlay`/`.modal`, mismo `z-index: 1000`.
+
+- Ejemplo de uso: `ui/batchUploadSummaryModal.js`, resumen tras subir varios recursos o una carpeta a la galería — icono "✓" sobre `var(--success)`, seguido del recuento de añadidos y, si aplica, la tabla de omitidos (reutilizando el patrón de tabla ya documentado en `ui/importReportModal.js`, clase de bloque propia con el mismo CSS que `.import-report-modal__table`).
+- Cualquier aviso de éxito futuro que necesite quedarse visible (no una confirmación breve tipo toast) debe reutilizar este patrón en vez de crear una variante ad-hoc.
+
 ## 12.2 Cursores
 
 Convención general (cambio 00031): cualquier elemento clicable de la app debe mostrar el cursor de dedo (`cursor: pointer`) al pasar el ratón por encima, salvo que ya tenga asignado uno de los cursores más específicos siguientes, que comunican un tipo de interacción concreto y tienen prioridad sobre el genérico:
@@ -213,6 +222,12 @@ Usos de este patrón (todos del cambio 00072):
 - `ui/componentModal.js`, tipo `'ficha'`: sin título, el campo "Forma"; "Fondo" (informativo: selector de tipo + color de fondo con checkbox "Transparente"); "Borde" (informativo: color/grosor — sin checkbox, ya que `bordeGrosor: 0` es en sí mismo "sin borde").
 
 Cualquier grupo de campos futuro con esta misma necesidad (en una pestaña de `componentModal.js` o en cualquier otro modal/sub-modal) debe reutilizar `.modal__section`/`.modal__section--untitled` con el tipo de título que corresponda, en vez de crear un marco o un checkbox de activación ad-hoc.
+
+## 12.7 Menú desplegable de acciones
+
+Patrón para ofrecer varias variantes de una misma acción desde un único botón, cuando no encajan como opciones de una modal ni como botones separados (`ui/resourceList.js`, `createAddMenu`, cambio 00076): un botón (`.resource-add__button`, mismo aspecto que tuviera el botón que sustituye) que despliega un panel flotante (`.resource-add__menu`, `position: absolute`, fondo `var(--accent-blue-light)` para destacar sobre el panel que tiene detrás, `border: 1px solid rgba(44, 125, 216, 0.25)` (tinte derivado de `--accent-blue`), `border-radius: var(--radius-sm)`, `box-shadow: var(--shadow-2)` — nivel 2 de elevación, sección 6) con una lista de ítems (`.resource-add__item`, separados por `border-bottom: 1px solid rgba(44, 125, 216, 0.25)`). Excepción al hover neutro estándar (sección 6): al ser el resaltado de una acción destacada, cada ítem usa hover `var(--accent-blue)` (mismo azul que `.resource-add__button`) en vez de `var(--bg-hover)`, con su etiqueta y nota auxiliar pasando a `var(--text-light)` en ese estado para mantener contraste (cambio 00077). Cada ítem puede llevar, además de su etiqueta (`.resource-add__item-label`, `color: var(--text-primary)` en reposo), una nota auxiliar debajo (`.resource-add__hint`, `font-size: 0.75rem`, `color: var(--text-muted)` en reposo) para aclarar una limitación de esa opción concreta. El menú se abre/cierra al pulsar el botón y se cierra también al hacer click fuera de él o al elegir un ítem — mismo criterio de cierre por click-fuera que ya usan las modales (`overlay` de `.modal-overlay`).
+
+Distinto de una modal (no bloquea el resto de la pantalla, no tiene `overlay`) y distinto de un `<select>` nativo (cada ítem puede llevar contenido adicional, no solo texto plano). Cualquier menú desplegable similar futuro debe reutilizar este patrón en vez de crear uno ad-hoc.
 
 ## 13. Qué NO hacer
 

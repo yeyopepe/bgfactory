@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-24T06:06:03Z",
+  "generatedAt": "2026-07-24T06:50:02Z",
   "basePath": "src",
   "nodes": [
     {
@@ -202,7 +202,7 @@
       "exports": [
         "renderEditMode"
       ],
-      "purpose": "Modo edición: renderiza la mesa infinita con componentes seleccionables, el panel de componentes y el panel de recursos, y orquesta sus modales de alta/edición/borrado."
+      "purpose": "Modo edición: renderiza la mesa infinita con componentes seleccionables, el panel de componentes y el panel de recursos (con las tres vías de subida — fichero único, varios ficheros, carpeta — y su modal de resumen, cambio 00076), y orquesta sus modales de alta/edición/borrado."
     },
     {
       "id": "modes/play/playMode.js",
@@ -212,6 +212,15 @@
         "renderPlayMode"
       ],
       "purpose": "Modo juego: renderiza la mesa infinita con los componentes dibujados genéricamente, conecta las interacciones de juego (arrastrar con efecto de \"levantar\", lanzar dado, voltear carta) y el reordenamiento a order=1 para los componentes con 'Subir al mover/interactuar'."
+    },
+    {
+      "id": "ui/batchUploadSummaryModal.js",
+      "type": "file",
+      "path": "ui/batchUploadSummaryModal.js",
+      "exports": [
+        "openBatchUploadSummaryModal"
+      ],
+      "purpose": "Modal de resumen tras una subida en lote de recursos (varios ficheros o una carpeta, cambio 00076): recuento de añadidos y, si los hay, tabla de omitidos por formato no soportado y recuento de omitidos por estar en una subcarpeta."
     },
     {
       "id": "ui/boardImageModal.js",
@@ -420,7 +429,7 @@
       "exports": [
         "renderResourceList"
       ],
-      "purpose": "Panel flotante análogo al de componentes, con el listado de recursos de la galería y sus acciones de alta/edición/borrado."
+      "purpose": "Panel flotante análogo al de componentes, con el listado de recursos de la galería, sus acciones de alta/edición/borrado, y el menú desplegable de \"+ Añadir recurso\" (fichero único / varios ficheros / carpeta, cambio 00076)."
     },
     {
       "id": "ui/resourceModal.js",
@@ -458,12 +467,6 @@
         "showToast"
       ],
       "purpose": "Muestra un aviso breve no bloqueante en pantalla, usado por ejemplo ante un guardado corrupto o una confirmación de descarga."
-    },
-    {
-      "id": "vendor/marked.js",
-      "type": "file",
-      "path": "vendor/marked.js",
-      "purpose": "Librería de terceros vendorizada 'marked' (parser Markdown CommonMark + GFM) usada por core/markdown.js, sin modificaciones funcionales propias."
     },
     {
       "id": "core/cardProportions.js#getDesignSize",
@@ -897,7 +900,7 @@
       "type": "function",
       "path": "modes/edit/editMode.js",
       "parent": "modes/edit/editMode.js",
-      "purpose": "Renderiza el modo edición completo: mesa infinita con componentes seleccionables, panel de componentes y panel de recursos, cableando sus modales y acciones."
+      "purpose": "Renderiza el modo edición completo: mesa infinita con componentes seleccionables, panel de componentes y panel de recursos (tres inputs de fichero para subida única/múltiple/por carpeta, con loadResourceFromFile como validación común), cableando sus modales y acciones."
     },
     {
       "id": "modes/play/playMode.js#renderPlayMode",
@@ -905,6 +908,13 @@
       "path": "modes/play/playMode.js",
       "parent": "modes/play/playMode.js",
       "purpose": "Renderiza el modo juego: mesa infinita con los componentes dibujados, liftOnDrag activado para el efecto visual de arrastre, y las interacciones de arrastre/tirada de dado/volteo de carta conectadas al estado (incluyendo el reordenamiento a order=1 si corresponde)."
+    },
+    {
+      "id": "ui/batchUploadSummaryModal.js#openBatchUploadSummaryModal",
+      "type": "function",
+      "path": "ui/batchUploadSummaryModal.js",
+      "parent": "ui/batchUploadSummaryModal.js",
+      "purpose": "Construye y muestra la modal de resumen de subida en lote (icono de éxito, líneas de recuento, tabla de ficheros omitidos por formato) a partir de {added, skippedFormat, skippedSubfolderCount}."
     },
     {
       "id": "ui/boardImageModal.js#openBoardImageModal",
@@ -1100,7 +1110,7 @@
       "type": "function",
       "path": "ui/resourceList.js",
       "parent": "ui/resourceList.js",
-      "purpose": "Renderiza el panel flotante con la tabla de recursos de la galería (nombre/tipo/acciones) y gestiona su arrastre, colapso y redimensionado."
+      "purpose": "Renderiza el panel flotante con la tabla de recursos de la galería (nombre/tipo/acciones), el menú desplegable de alta (creado por createAddMenu) y gestiona su arrastre, colapso y redimensionado."
     },
     {
       "id": "ui/resourceModal.js#openResourceModal",
@@ -1312,6 +1322,11 @@
     {
       "source": "modes/edit/editMode.js#renderEditMode",
       "target": "core/resource.js#resourceTypeForFileName",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "ui/batchUploadSummaryModal.js#openBatchUploadSummaryModal",
       "relation": "calls"
     },
     {
@@ -1645,11 +1660,6 @@
       "relation": "imports"
     },
     {
-      "source": "core/markdown.js",
-      "target": "vendor/marked.js",
-      "relation": "imports"
-    },
-    {
       "source": "core/persistence.js",
       "target": "data/version.js",
       "relation": "imports"
@@ -1727,6 +1737,11 @@
     {
       "source": "modes/edit/editMode.js",
       "target": "core/resource.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/edit/editMode.js",
+      "target": "ui/batchUploadSummaryModal.js",
       "relation": "imports"
     },
     {

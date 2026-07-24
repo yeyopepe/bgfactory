@@ -44,6 +44,19 @@ Cuando hay al menos un recurso, la cabecera del panel muestra un cuadro de texto
 - **Disponible en**: modo edición.
 - **Código**: 00042, 00064.
 
+### Subida múltiple y por carpeta de recursos
+
+El botón "+ Añadir recurso" del panel de recursos despliega un menú con tres formas de añadir recursos a la galería, que conviven entre sí sin sustituirse:
+
+- **Subir fichero**: comportamiento original, un único fichero mediante el selector de fichero del sistema.
+- **Subir varios ficheros**: el mismo selector permitiendo marcar varios ficheros a la vez; todos los ficheros válidos elegidos se añaden como recursos independientes, igual que si se hubieran subido uno a uno.
+- **Subir carpeta**: selector de carpeta del sistema de ficheros; se añaden como recursos todos los ficheros válidos que estén directamente dentro de ella — solo el primer nivel, sin entrar en subcarpetas (aviso junto a esta opción del menú recordándolo).
+
+A diferencia de la subida de un único fichero (que corta con un aviso de error si el fichero no es válido, sin añadir nada), en una subida de varios ficheros o de una carpeta se suben todos los ficheros válidos y se omiten los no válidos: al terminar se muestra siempre un aviso resumen con el recuento de recursos añadidos y, si los hay, el detalle de los omitidos por formato no soportado (tabla con el nombre de cada fichero) y el recuento de los omitidos por estar dentro de una subcarpeta. Si una carpeta elegida no tiene ningún elemento válido en su primer nivel (vacía, solo con subcarpetas, o sin ningún formato soportado), se muestra en su lugar un aviso informativo indicando que no se ha encontrado ningún recurso válido, y no se añade nada. Los duplicados por nombre no se comprueban en ninguna de las tres vías, igual que ya ocurría con la subida individual.
+
+- **Disponible en**: modo edición.
+- **Código**: 00076.
+
 ### Conversión automática a WebP al subir imágenes
 
 Al subir una imagen a la galería de recursos — tanto al dar de alta un recurso nuevo desde el panel "Recursos" en modo edición, como al reemplazar el fichero de un recurso ya existente desde su modal de edición — la imagen se convierte automáticamente a formato WebP antes de guardarse (compresión con pérdida, calidad muy alta, imperceptible a la vista), para reducir el espacio que ocupa en el autoguardado del navegador, en el HTML exportado y en el JSON de exportar/importar componentes. El flujo de subida no cambia en nada: mismo selector de fichero, mismos pasos, sin ningún indicador de carga adicional.

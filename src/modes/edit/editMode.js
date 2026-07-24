@@ -16,6 +16,7 @@ import { renderComponentsOnTable } from '../../ui/componentRenderer.js';
 import { openResourceModal } from '../../ui/resourceModal.js';
 import { renderResourceList } from '../../ui/resourceList.js';
 import { showErrorModal } from '../../ui/errorModal.js';
+import { openBatchUploadSummaryModal } from '../../ui/batchUploadSummaryModal.js';
 
 // Selección de la sesión de edición en curso. `renderEditMode` se vuelve a invocar por
 // completo (desde main.js) ante cualquier `components:changed`, así que este estado
@@ -71,28 +72,94 @@ export function renderEditMode(container) {
   }
   tableContainer.appendChild(resourceListContainer);
 
+  const RESOURCE_ACCEPT = '.png,.jpg,.jpeg,.gif,.svg,.webp,.ttf,.otf,.woff,.woff2';
+
+  // Valida y da de alta un recurso a partir de un `File`. Reutilizada por las
+  // tres vías de subida (única, varios ficheros, carpeta). Devuelve `{ ok: true }`
+  // si se añadió, o `{ ok: false }` si el formato no está soportado (sin avisar
+  // aquí — cada vía decide cómo comunicar los omitidos).
+  async function loadResourceFromFile(file) {
+    const type = resourceTypeForFileName(file.name);
+    if (!type) return { ok: false };
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+    const name = file.name.replace(/\.[^.]+$/, '');
+    const converted = await convertImageToWebP(file, dataUrl);
+    addResource(createResource({ name, type, dataUrl: converted.dataUrl, fileName: converted.fileName, mimeType: converted.mimeType }));
+    return { ok: true };
+  }
+
   const resourceFileInput = document.createElement('input');
   resourceFileInput.type = 'file';
-  resourceFileInput.accept = '.png,.jpg,.jpeg,.gif,.svg,.webp,.ttf,.otf,.woff,.woff2';
+  resourceFileInput.accept = RESOURCE_ACCEPT;
   resourceFileInput.hidden = true;
-  resourceFileInput.addEventListener('change', () => {
+  resourceFileInput.addEventListener('change', async () => {
     const file = resourceFileInput.files[0];
     resourceFileInput.value = '';
     if (!file) return;
-    const type = resourceTypeForFileName(file.name);
-    if (!type) {
+    const result = await loadResourceFromFile(file);
+    if (!result.ok) {
       showErrorModal('Error', 'Formato de fichero no soportado.');
-      return;
     }
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const name = file.name.replace(/\.[^.]+$/, '');
-      const { dataUrl, fileName, mimeType } = await convertImageToWebP(file, reader.result);
-      addResource(createResource({ name, type, dataUrl, fileName, mimeType }));
-    };
-    reader.readAsDataURL(file);
   });
   tableContainer.appendChild(resourceFileInput);
+
+  const resourceFilesInput = document.createElement('input');
+  resourceFilesInput.type = 'file';
+  resourceFilesInput.accept = RESOURCE_ACCEPT;
+  resourceFilesInput.multiple = true;
+  resourceFilesInput.hidden = true;
+  resourceFilesInput.addEventListener('change', async () => {
+    const files = Array.from(resourceFilesInput.files);
+    resourceFilesInput.value = '';
+    if (files.length === 0) return;
+
+    let added = 0;
+    const skippedFormat = [];
+    const results = await Promise.all(files.map((file) => loadResourceFromFile(file)));
+    results.forEach((result, i) => {
+      if (result.ok) added++;
+      else skippedFormat.push({ name: files[i].name });
+    });
+
+    openBatchUploadSummaryModal({ added, skippedFormat });
+  });
+  tableContainer.appendChild(resourceFilesInput);
+
+  const resourceFolderInput = document.createElement('input');
+  resourceFolderInput.type = 'file';
+  resourceFolderInput.accept = RESOURCE_ACCEPT;
+  resourceFolderInput.multiple = true;
+  resourceFolderInput.webkitdirectory = true;
+  resourceFolderInput.hidden = true;
+  resourceFolderInput.addEventListener('change', async () => {
+    const allFiles = Array.from(resourceFolderInput.files);
+    resourceFolderInput.value = '';
+    if (allFiles.length === 0) return;
+
+    const topLevelFiles = allFiles.filter((file) => file.webkitRelativePath.split('/').length === 2);
+    const skippedSubfolderCount = allFiles.length - topLevelFiles.length;
+
+    let added = 0;
+    const skippedFormat = [];
+    const results = await Promise.all(topLevelFiles.map((file) => loadResourceFromFile(file)));
+    results.forEach((result, i) => {
+      if (result.ok) added++;
+      else skippedFormat.push({ name: topLevelFiles[i].name });
+    });
+
+    if (added === 0) {
+      showErrorModal('Aviso', 'No se ha encontrado ningún recurso válido en la carpeta seleccionada.');
+      return;
+    }
+
+    openBatchUploadSummaryModal({ added, skippedFormat, skippedSubfolderCount });
+  });
+  tableContainer.appendChild(resourceFolderInput);
 
   function attemptDeleteResource(resource) {
     const usedByIds = getComponentsUsingResource(resource.id, getComponents());
@@ -209,7 +276,9 @@ export function renderEditMode(container) {
         });
       },
       onRemove: attemptDeleteResource,
-      onAdd: () => resourceFileInput.click(),
+      onAddFile: () => resourceFileInput.click(),
+      onAddMultiple: () => resourceFilesInput.click(),
+      onAddFolder: () => resourceFolderInput.click(),
       collapsed: resourceCollapsed,
       onToggleCollapse: () => {
         resourceCollapsed = !resourceCollapsed;

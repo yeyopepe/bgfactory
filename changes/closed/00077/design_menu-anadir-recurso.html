@@ -1,0 +1,129 @@
+<title>Maqueta — Menú "Añadir recurso" destacado</title>
+<style>
+  body {
+    margin: 0;
+    padding: 3rem;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: #f4f4f4;
+    display: flex;
+    gap: 3rem;
+    flex-wrap: wrap;
+  }
+
+  .caption {
+    font-size: 0.8rem;
+    color: #555;
+    margin: 0 0 0.6rem;
+    font-weight: 600;
+  }
+
+  .panel {
+    width: 260px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    padding: 0.75rem;
+  }
+
+  .resource-add {
+    position: relative;
+  }
+
+  .resource-add__button {
+    width: 100%;
+    padding: 0.5rem;
+    background: #2c7dd8;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .resource-add__menu {
+    position: static;
+    margin-top: 6px;
+    width: 100%;
+    background: #eaf3fc; /* nuevo: azul claro, antes #fff */
+    border: 1px solid #bcd9f2;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+
+  .resource-add__item {
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+  }
+
+  .resource-add__item:not(:last-child) {
+    border-bottom: 1px solid #bcd9f2; /* antes gris neutro */
+  }
+
+  .resource-add__item-label {
+    font-size: 0.875rem;
+    color: #333;
+  }
+
+  .resource-add__hint {
+    font-size: 0.75rem;
+    color: #777;
+    margin-top: 0.15rem;
+  }
+
+  /* Estado resaltado (hover/foco) forzado con clase para la maqueta */
+  .resource-add__item--hover {
+    background: #2c7dd8; /* mismo azul que el botón */
+  }
+
+  .resource-add__item--hover .resource-add__item-label {
+    color: #fff;
+  }
+
+  .resource-add__item--hover .resource-add__hint {
+    color: #dcebfa;
+  }
+</style>
+
+<div>
+  <p class="caption">Antes</p>
+  <div class="panel">
+    <div class="resource-add">
+      <button class="resource-add__button" type="button">+ Añadir recurso ▾</button>
+      <div class="resource-add__menu" style="background:#fff; border-color:#ddd;">
+        <div class="resource-add__item" style="border-bottom-color:#ddd;">
+          <div class="resource-add__item-label">Subir fichero</div>
+        </div>
+        <div class="resource-add__item" style="border-bottom-color:#ddd; background:#e8e8e8;">
+          <div class="resource-add__item-label">Subir varios ficheros</div>
+        </div>
+        <div class="resource-add__item">
+          <div class="resource-add__item-label">Subir carpeta</div>
+          <div class="resource-add__hint">Solo se tiene en cuenta el primer nivel de la carpeta</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <p class="caption">Después</p>
+  <div class="panel">
+    <div class="resource-add">
+      <button class="resource-add__button" type="button">+ Añadir recurso ▾</button>
+      <div class="resource-add__menu">
+        <div class="resource-add__item">
+          <div class="resource-add__item-label">Subir fichero</div>
+        </div>
+        <div class="resource-add__item resource-add__item--hover">
+          <div class="resource-add__item-label">Subir varios ficheros</div>
+        </div>
+        <div class="resource-add__item">
+          <div class="resource-add__item-label">Subir carpeta</div>
+          <div class="resource-add__hint">Solo se tiene en cuenta el primer nivel de la carpeta</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

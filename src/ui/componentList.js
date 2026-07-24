@@ -187,7 +187,7 @@ export function renderComponentList(
   header.className = 'component-panel__header';
 
   const title = document.createElement('strong');
-  title.textContent = 'Componentes';
+  title.textContent = `Componentes (${components.length})`;
   header.appendChild(title);
 
   const toggleButton = document.createElement('button');
@@ -251,7 +251,9 @@ export function renderComponentList(
       filterInput.value = filterText;
       filterInput.addEventListener('input', () => {
         filterText = filterInput.value;
-        renderBody(body, sortedComponents.filter((c) => matchesFilter(c, filterText)), components.length, rowHandlers);
+        const filtered = sortedComponents.filter((c) => matchesFilter(c, filterText));
+        title.textContent = `Componentes (${filtered.length})`;
+        renderBody(body, filtered, components.length, rowHandlers);
       });
       filterBar.appendChild(filterInput);
 
@@ -262,7 +264,9 @@ export function renderComponentList(
 
     const body = document.createElement('div');
     body.className = 'component-panel__body';
-    renderBody(body, sortedComponents.filter((c) => matchesFilter(c, filterText)), components.length, rowHandlers);
+    const displayedComponents = sortedComponents.filter((c) => matchesFilter(c, filterText));
+    title.textContent = `Componentes (${displayedComponents.length})`;
+    renderBody(body, displayedComponents, components.length, rowHandlers);
     panel.appendChild(body);
 
     const footer = document.createElement('div');
