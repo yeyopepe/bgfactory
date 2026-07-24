@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-24T05:54:02Z",
+  "generatedAt": "2026-07-24T06:06:03Z",
   "basePath": "src",
   "nodes": [
     {
@@ -71,6 +71,15 @@
         "downloadJson"
       ],
       "purpose": "Genera una copia HTML autocontenida del documento con el estado embebido y dispara su descarga como fichero, además de exportar datos como JSON."
+    },
+    {
+      "id": "core/imageConversion.js",
+      "type": "file",
+      "path": "core/imageConversion.js",
+      "exports": [
+        "convertImageToWebP"
+      ],
+      "purpose": "Convierte imagenes PNG/JPG/JPEG subidas a la galeria de recursos a WebP (calidad alta, con perdida) usando un canvas del navegador, sin depender de otras capas."
     },
     {
       "id": "core/importMerge.js",
@@ -595,6 +604,13 @@
       "path": "core/fileExport.js",
       "parent": "core/fileExport.js",
       "purpose": "Crea un Blob JSON a partir de unos datos y dispara su descarga con el nombre de fichero indicado."
+    },
+    {
+      "id": "core/imageConversion.js#convertImageToWebP",
+      "type": "function",
+      "path": "core/imageConversion.js",
+      "parent": "core/imageConversion.js",
+      "purpose": "Dado un File y su dataUrl ya leido, devuelve {dataUrl, fileName, mimeType} convertidos a WebP si el origen es png/jpg/jpeg, o el original tal cual si no aplica o la conversion falla."
     },
     {
       "id": "core/importMerge.js#mergeImportedGame",
@@ -1280,6 +1296,11 @@
     },
     {
       "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "core/imageConversion.js#convertImageToWebP",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
       "target": "core/resource.js#createResource",
       "relation": "calls"
     },
@@ -1700,6 +1721,11 @@
     },
     {
       "source": "modes/edit/editMode.js",
+      "target": "core/imageConversion.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/edit/editMode.js",
       "target": "core/resource.js",
       "relation": "imports"
     },
@@ -2021,6 +2047,11 @@
     {
       "source": "ui/resourceList.js",
       "target": "ui/tableColumnResize.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/resourceModal.js",
+      "target": "core/imageConversion.js",
       "relation": "imports"
     },
     {

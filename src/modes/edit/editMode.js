@@ -7,6 +7,7 @@ import {
 } from '../../core/state.js';
 import { updateComponent, cloneComponent } from '../../core/component.js';
 import { createResource, resourceTypeForFileName, getComponentsUsingResource } from '../../core/resource.js';
+import { convertImageToWebP } from '../../core/imageConversion.js';
 import { createInfiniteTable } from '../../ui/table.js';
 import { openComponentModal, createDefaultComponent } from '../../ui/componentModal.js';
 import { openComponentTypeModal } from '../../ui/componentTypeModal.js';
@@ -84,9 +85,10 @@ export function renderEditMode(container) {
       return;
     }
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       const name = file.name.replace(/\.[^.]+$/, '');
-      addResource(createResource({ name, type, dataUrl: reader.result, fileName: file.name, mimeType: file.type }));
+      const { dataUrl, fileName, mimeType } = await convertImageToWebP(file, reader.result);
+      addResource(createResource({ name, type, dataUrl, fileName, mimeType }));
     };
     reader.readAsDataURL(file);
   });

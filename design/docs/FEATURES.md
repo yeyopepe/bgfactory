@@ -44,6 +44,15 @@ Cuando hay al menos un recurso, la cabecera del panel muestra un cuadro de texto
 - **Disponible en**: modo edición.
 - **Código**: 00042, 00064.
 
+### Conversión automática a WebP al subir imágenes
+
+Al subir una imagen a la galería de recursos — tanto al dar de alta un recurso nuevo desde el panel "Recursos" en modo edición, como al reemplazar el fichero de un recurso ya existente desde su modal de edición — la imagen se convierte automáticamente a formato WebP antes de guardarse (compresión con pérdida, calidad muy alta, imperceptible a la vista), para reducir el espacio que ocupa en el autoguardado del navegador, en el HTML exportado y en el JSON de exportar/importar componentes. El flujo de subida no cambia en nada: mismo selector de fichero, mismos pasos, sin ningún indicador de carga adicional.
+
+Solo se convierten los formatos de origen PNG, JPG y JPEG; si el fichero subido ya es WebP no se reconvierte, y los SVG (vectoriales) y GIF (pueden ser animados) se guardan siempre tal cual, sin conversión. Si la conversión no puede realizarse por cualquier motivo, el fichero original se guarda sin transformar, sin bloquear la subida ni mostrar ningún error. Esta conversión solo afecta a subidas nuevas a partir de esta funcionalidad; las imágenes ya guardadas no se tocan ni se reconvierten automáticamente — los 38 recursos de imagen por defecto de la galería (ver [Panel flotante de recursos](#panel-flotante-de-recursos-con-filtro-de-texto)) sí se migraron a WebP como parte puntual de esta implementación.
+
+- **Disponible en**: modo edición.
+- **Código**: 00073.
+
 ### Búsqueda de imagen en el modal "Elegir imagen"
 
 La modal "Elegir imagen" (galería en grid de miniatura + nombre, usada al configurar el fondo "Imagen" de [Componente "tablero"](#componente-tablero) y [Componente "ficha"](#componente-ficha), y al elegir la imagen de cada cara de [Componente "carta"](#componente-carta)) muestra un cuadro de texto de búsqueda ("Buscar imagen…") encima de la galería, solo cuando hay al menos una imagen disponible. El filtrado ocurre en tiempo real según se escribe, comparando el texto con el nombre de cada imagen de forma insensible a mayúsculas/minúsculas y a tildes (mismo criterio de normalización que el filtro del panel de recursos, ver sección anterior). Si ninguna imagen coincide, la galería se sustituye por un mensaje indicándolo. Si había una imagen ya seleccionada y el filtro la oculta, la selección se mantiene internamente: "Aceptar" la sigue aplicando si no se cambia de selección. El cuadro de búsqueda se reinicia vacío cada vez que se abre la modal.

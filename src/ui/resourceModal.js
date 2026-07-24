@@ -4,6 +4,7 @@
 // resourceList.js / editMode.js).
 
 import { RESOURCE_TYPES, resourceTypeForFileName } from '../core/resource.js';
+import { convertImageToWebP } from '../core/imageConversion.js';
 import { fontFamilyFor } from './fontFaceRegistry.js';
 
 export function openResourceModal({ resource, onAccept, onDelete }) {
@@ -118,10 +119,11 @@ function renderImageContent(content, workingResource) {
     const file = fileInput.files[0];
     if (!file || resourceTypeForFileName(file.name) !== RESOURCE_TYPES.IMAGE) return;
     const reader = new FileReader();
-    reader.onload = () => {
-      workingResource.dataUrl = reader.result;
-      workingResource.fileName = file.name;
-      workingResource.mimeType = file.type;
+    reader.onload = async () => {
+      const { dataUrl, fileName, mimeType } = await convertImageToWebP(file, reader.result);
+      workingResource.dataUrl = dataUrl;
+      workingResource.fileName = fileName;
+      workingResource.mimeType = mimeType;
       previewImg.src = workingResource.dataUrl;
     };
     reader.readAsDataURL(file);

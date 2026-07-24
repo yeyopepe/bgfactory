@@ -96,7 +96,7 @@ def resolve_module_path(current_rel_path, specifier):
 
 
 IMPORT_PATTERN = re.compile(r"""import\s*\{\s*([^}]+?)\s*\}\s*from\s*['"]([^'"]+)['"]\s*;?""")
-EXPORT_FUNCTION_PATTERN = re.compile(r'export\s+function\s+(\w+)')
+EXPORT_FUNCTION_PATTERN = re.compile(r'export\s+(async\s+)?function\s+(\w+)')
 EXPORT_CONST_PATTERN = re.compile(r'export\s+const\s+(\w+)')
 
 order = []
@@ -145,8 +145,9 @@ for rel_path in order:
     export_names = []
 
     def replace_export_function(m):
-        export_names.append(m.group(1))
-        return f'function {m.group(1)}'
+        export_names.append(m.group(2))
+        async_kw = m.group(1) or ''
+        return f'{async_kw}function {m.group(2)}'
 
     content = EXPORT_FUNCTION_PATTERN.sub(replace_export_function, content)
 

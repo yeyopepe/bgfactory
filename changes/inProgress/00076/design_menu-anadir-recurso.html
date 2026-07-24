@@ -1,0 +1,181 @@
+<title>Maqueta - menu anadir recurso</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --bg-card: #f5f5f5;
+    --accent-blue: #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e8e8e8;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-1: 0 2px 6px rgba(0, 0, 0, 0.10), 0 1px 2px rgba(0, 0, 0, 0.08);
+    --shadow-2: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    display: flex;
+    justify-content: center;
+  }
+
+  .resource-panel {
+    width: 300px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-1);
+    overflow: visible;
+  }
+  .resource-panel__header {
+    padding: 10px 14px;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-neutral);
+    color: var(--text-primary);
+  }
+  .resource-panel__body {
+    padding: 8px 0;
+  }
+  .resource-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--text-primary);
+  }
+  .resource-row__thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: var(--radius-sm);
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-neutral);
+  }
+  .resource-panel__footer {
+    padding: 10px 14px;
+    border-top: 1px solid var(--border-neutral);
+    position: relative;
+  }
+
+  .add-button-wrap {
+    position: relative;
+    display: inline-block;
+  }
+  .add-button {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .add-button .chevron {
+    font-size: 10px;
+    opacity: 0.85;
+  }
+
+  .add-menu {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 0;
+    width: 260px;
+    background: #ffffff;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-2);
+    overflow: hidden;
+  }
+  .add-menu__item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 9px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+  .add-menu__item:last-child {
+    border-bottom: none;
+  }
+  .add-menu__item:hover {
+    background: var(--bg-hover);
+  }
+  .add-menu__item-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .add-menu__icon {
+    width: 16px;
+    text-align: center;
+    opacity: 0.75;
+  }
+  .add-menu__hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    padding-left: 24px;
+  }
+
+  .caption {
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    max-width: 320px;
+  }
+  .wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+</style>
+
+<div class="wrap">
+  <div class="resource-panel">
+    <div class="resource-panel__header">Galeria de recursos</div>
+    <div class="resource-panel__body">
+      <div class="resource-row">
+        <div class="resource-row__thumb"></div>
+        <span>tablero_bosque.png</span>
+      </div>
+      <div class="resource-row">
+        <div class="resource-row__thumb"></div>
+        <span>ficha_heroe.svg</span>
+      </div>
+      <div class="resource-row">
+        <div class="resource-row__thumb"></div>
+        <span>fuente_titulo.woff2</span>
+      </div>
+    </div>
+    <div class="resource-panel__footer">
+      <div class="add-button-wrap">
+        <div class="add-menu">
+          <div class="add-menu__item">
+            <div class="add-menu__item-label"><span class="add-menu__icon">&#128196;</span>Subir fichero</div>
+          </div>
+          <div class="add-menu__item">
+            <div class="add-menu__item-label"><span class="add-menu__icon">&#128203;</span>Subir varios ficheros</div>
+          </div>
+          <div class="add-menu__item">
+            <div class="add-menu__item-label"><span class="add-menu__icon">&#128193;</span>Subir carpeta</div>
+            <div class="add-menu__hint">Solo se tendra en cuenta el primer nivel de la carpeta</div>
+          </div>
+        </div>
+        <button class="add-button" type="button">+ Anadir recurso <span class="chevron">&#9650;</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="caption">Maqueta estatica: menu desplegable del boton "+ Anadir recurso" con las tres opciones de subida.</div>
+</div>

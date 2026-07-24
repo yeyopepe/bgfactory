@@ -1,0 +1,154 @@
+<title>Maqueta - resumen subida en lote</title>
+<style>
+  :root {
+    --accent-blue: #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --error: #d32f2f;
+    --success: #2e7d32;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-2: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px;
+    font-family: system-ui, sans-serif;
+    background: #c2c2c2;
+    display: flex;
+    justify-content: center;
+  }
+  .modal-overlay {
+    position: relative;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 640px;
+    border-radius: var(--radius-lg);
+    padding: 60px 20px;
+  }
+  .modal {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    max-width: 420px;
+    width: 100%;
+  }
+  .modal__header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .modal__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--success);
+    color: white;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  .modal__title {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .modal__content {
+    padding: 1.25rem 1.5rem;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+  }
+  .summary-line {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 0.5rem;
+  }
+  .summary-line strong {
+    font-size: 1.1rem;
+  }
+  .summary-line--ok strong { color: var(--success); }
+  .summary-line--skip strong { color: var(--error); }
+
+  .skip-detail {
+    margin-top: 0.75rem;
+    background: var(--bg-subtle);
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 0.75rem;
+  }
+  .skip-detail__title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+  }
+  .skip-detail ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .skip-detail li {
+    margin-bottom: 0.15rem;
+  }
+
+  .modal__footer {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    justify-content: flex-end;
+  }
+  .modal__footer button {
+    padding: 0.5rem 1rem;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .caption {
+    text-align: center;
+    font-size: 12px;
+    color: #444;
+    margin-top: 10px;
+  }
+  .stack { display: flex; flex-direction: column; align-items: center; }
+</style>
+
+<div class="stack">
+  <div class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <span class="modal__icon">&#10003;</span>
+        <span class="modal__title">Recursos anadidos</span>
+      </div>
+      <div class="modal__content">
+        <div class="summary-line summary-line--ok"><strong>6</strong> recursos anadidos correctamente</div>
+        <div class="summary-line summary-line--skip"><strong>2</strong> omitidos por formato no soportado</div>
+        <div class="skip-detail">
+          <div class="skip-detail__title">Ficheros omitidos</div>
+          <ul>
+            <li>notas.txt (formato no soportado)</li>
+            <li>boceto.psd (formato no soportado)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button type="button">Aceptar</button>
+      </div>
+    </div>
+  </div>
+  <div class="caption">Maqueta estatica: aviso resumen tras subir varios ficheros o una carpeta, con el detalle de los omitidos.</div>
+</div>
