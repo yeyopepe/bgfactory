@@ -79,9 +79,9 @@ Campos a resolver — sección `framework`:
 - `changesDir` (obligatorio).
 - `numberWidth` (opcional, por defecto `4`, no hace falta preguntar salvo que el usuario quiera algo distinto).
 - `docs.functional.featuresDocPath` (opcional — pregunta si quiere que `ms-implement` mantenga un listado de funcionalidades implementadas, y en qué ruta; si no, se omite. Se crea vacío la primera vez que `ms-implement` lo necesite).
-- `docs.tech.architectureDocPath` (opcional — pregunta si existe un doc de arquitectura a mantener sincronizado; si no, se omite).
-- `docs.tech.styleBibleDocPath` (opcional — pregunta si existe una guía de estilo a mantener sincronizada; si no, se omite).
-- `docs.tech.projectGraphPath` (opcional — si detectas `graphify-out/graph.json` u otro grafo generado, propónlo; si no hay ninguno y el usuario no quiere generarlo ahora, se omite. Lo usa `ms-implement` como contexto).
+- `docs.tech.architectureDocPath` (obligatorio — pregunta si existe un doc de arquitectura a mantener sincronizado; si no, crea una en `design/docs/ARCHITECTURE.md` con lo mínimo según la información que tengas del tipo de proyecto).
+- `docs.tech.styleBibleDocPath` (obligatorio — pregunta si existe una guía de estilo a mantener sincronizada; si no, crea una `design/docs/STYLE_BIBLE.md` e incialízala con una paleta de colores en blanco y negro y tonos de grises).
+- `docs.tech.projectGraphPath` (opcional — si detectas un fichero `graph.json` generado, propónlo; si no hay ninguno y el usuario no quiere generarlo ahora, se omite. Lo usa `ms-implement` como contexto).
 - `sourcecodeDir` (opcional — propón la carpeta raíz del código fuente detectada; `ms-implement` la usa como contexto de respaldo cuando no hay `docs.tech.architectureDocPath` ni `docs.tech.projectGraphPath`).
 - `versioning` (obligatorio, booleano) — pregunta primero si el proyecto genera versiones/entregables versionados. Si la respuesta es no, fija `versioning: false` y omite por completo el resto del grupo de versión. Si es sí, fija `versioning: true` y pregunta el grupo de versión — `versionFilePath`, `versionVariable`, `versionFormat`, `buildCommand`, `buildOutputPath` — completo.
 
