@@ -1,0 +1,188 @@
+// Panel flotante con el listado de mazos, usado en modo edición. Análogo a
+// ui/resourceList.js pero simplificado: sin filtro de texto, sin columna
+// "Tipo" (los mazos no tienen tipo) y sin clonar.
+
+import { attachResizeHandle } from './resizeHandle.js';
+
+const MIN_PANEL_WIDTH = 290;
+const MIN_PANEL_BODY_HEIGHT = 96;
+
+function renderBody(body, decks, { onEdit, onRemove } = {}) {
+  body.innerHTML = '';
+
+  if (decks.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'deck-list__empty';
+    empty.textContent = 'No hay mazos todavía.';
+    body.appendChild(empty);
+    return;
+  }
+
+  const table = document.createElement('table');
+  table.className = 'deck-list';
+
+  const thead = document.createElement('thead');
+  const headRow = document.createElement('tr');
+  for (const label of ['Nombre', 'Acciones']) {
+    const th = document.createElement('th');
+    th.textContent = label;
+    headRow.appendChild(th);
+  }
+  thead.appendChild(headRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+
+  for (const deck of decks) {
+    const row = document.createElement('tr');
+
+    const nameCell = document.createElement('td');
+    nameCell.textContent = deck.name;
+    row.appendChild(nameCell);
+
+    const actionsCell = document.createElement('td');
+    actionsCell.className = 'deck-list__actions-cell';
+
+    if (onEdit) {
+      const editButton = document.createElement('button');
+      editButton.type = 'button';
+      editButton.className = 'deck-list__action-btn';
+      editButton.textContent = 'Editar';
+      editButton.addEventListener('click', () => onEdit(deck));
+      actionsCell.appendChild(editButton);
+    }
+
+    if (onRemove) {
+      const removeButton = document.createElement('button');
+      removeButton.type = 'button';
+      removeButton.className = 'deck-list__action-btn deck-list__action-btn--danger';
+      removeButton.textContent = 'Eliminar';
+      removeButton.addEventListener('click', () => onRemove(deck));
+      actionsCell.appendChild(removeButton);
+    }
+
+    row.appendChild(actionsCell);
+    tbody.appendChild(row);
+  }
+
+  table.appendChild(tbody);
+  body.appendChild(table);
+}
+
+export function renderDeckList(
+  container,
+  decks,
+  { onEdit, onRemove, onAdd, collapsed = false, onToggleCollapse, onPanelMove, onPanelResize, bodyHeight = null } = {}
+) {
+  container.innerHTML = '';
+
+  const panel = document.createElement('div');
+  panel.className = 'deck-panel';
+  let body;
+
+  const header = document.createElement('div');
+  header.className = 'deck-panel__header';
+
+  const title = document.createElement('strong');
+  title.textContent = `Mazos (${decks.length})`;
+  header.appendChild(title);
+
+  const toggleButton = document.createElement('button');
+  toggleButton.type = 'button';
+  toggleButton.textContent = collapsed ? '▸' : '▾';
+  toggleButton.addEventListener('click', () => {
+    if (onToggleCollapse) onToggleCollapse();
+  });
+  header.appendChild(toggleButton);
+
+  header.addEventListener('mousedown', (e) => {
+    if (e.button !== 0 || e.target === toggleButton) return;
+    e.preventDefault();
+
+    const startMouseX = e.clientX;
+    const startMouseY = e.clientY;
+    const startLeft = container.offsetLeft;
+    const startTop = container.offsetTop;
+    const parent = container.offsetParent;
+    let currentLeft = startLeft;
+    let currentTop = startTop;
+
+    container.style.left = `${startLeft}px`;
+    container.style.top = `${startTop}px`;
+    container.style.right = 'auto';
+    header.classList.add('grabbing');
+
+    function handleMouseMove(e) {
+      const maxLeft = Math.max(0, parent.clientWidth - container.offsetWidth);
+      const maxTop = Math.max(0, parent.clientHeight - container.offsetHeight);
+      currentLeft = Math.min(Math.max(startLeft + (e.clientX - startMouseX), 0), maxLeft);
+      currentTop = Math.min(Math.max(startTop + (e.clientY - startMouseY), 0), maxTop);
+      container.style.left = `${currentLeft}px`;
+      container.style.top = `${currentTop}px`;
+    }
+
+    function handleMouseUp() {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      header.classList.remove('grabbing');
+      if (onPanelMove) onPanelMove(currentLeft, currentTop);
+    }
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  });
+
+  panel.appendChild(header);
+
+  if (!collapsed) {
+    body = document.createElement('div');
+    body.className = 'deck-panel__body';
+    if (bodyHeight != null) {
+      body.style.height = `${bodyHeight}px`;
+    }
+    renderBody(body, decks, { onEdit, onRemove });
+    panel.appendChild(body);
+
+    const footer = document.createElement('div');
+    footer.className = 'deck-panel__footer';
+
+    const addButton = document.createElement('button');
+    addButton.type = 'button';
+    addButton.textContent = '+ Añadir mazo';
+    addButton.addEventListener('click', () => {
+      if (onAdd) onAdd();
+    });
+    footer.appendChild(addButton);
+
+    panel.appendChild(footer);
+  }
+
+  attachResizeHandle(panel, {
+    axis: collapsed ? 'x' : 'both',
+    getSize: () => ({
+      width: container.getBoundingClientRect().width,
+      height: body ? body.getBoundingClientRect().height : 0,
+    }),
+    clamp: ({ width, height }) => {
+      const parentWidth = container.offsetParent ? container.offsetParent.clientWidth : window.innerWidth;
+      const maxByRightEdge = parentWidth - container.offsetLeft;
+      const clampedWidth = Math.min(Math.max(width, MIN_PANEL_WIDTH), maxByRightEdge);
+      if (!body) return { width: clampedWidth, height };
+      const parentHeight = container.offsetParent ? container.offsetParent.clientHeight : window.innerHeight;
+      const maxByBottomEdge = parentHeight - container.offsetTop;
+      const clampedHeight = Math.min(Math.max(height, MIN_PANEL_BODY_HEIGHT), maxByBottomEdge);
+      return { width: clampedWidth, height: clampedHeight };
+    },
+    onResize: ({ width, height }) => {
+      container.style.width = `${width}px`;
+      if (body) body.style.height = `${height}px`;
+    },
+    onResizeEnd: ({ width, height }) => {
+      container.style.width = `${width}px`;
+      if (body) body.style.height = `${height}px`;
+      if (onPanelResize) onPanelResize(width, height);
+    },
+  });
+
+  container.appendChild(panel);
+}

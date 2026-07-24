@@ -1423,7 +1423,7 @@ fieldset.modal__section--untitled {
 }
 
 .component-panel__body {
-  max-height: 320px;
+  height: 320px;
   overflow-y: auto;
   overflow-x: auto;
 }
@@ -1513,7 +1513,7 @@ fieldset.modal__section--untitled {
 }
 
 .resource-panel__body {
-  max-height: 320px;
+  height: 320px;
   overflow-y: auto;
   overflow-x: auto;
 }
@@ -1638,6 +1638,134 @@ fieldset.modal__section--untitled {
 
 .resource-list__action-btn--danger {
   background: var(--error);
+}
+
+/* Floating deck panel (edit mode), analogous to .resource-panel* but without
+   the filter box or the add-menu (single "+ Añadir mazo" button instead).
+   Stacked below the resource panel on the same (right) side by default. */
+.deck-panel-container {
+  position: absolute;
+  top: 55rem;
+  right: 1rem;
+  width: 400px;
+  z-index: 15;
+}
+
+.deck-panel {
+  position: relative;
+  width: 100%;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+}
+
+.deck-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: var(--bg-toolbar);
+  color: var(--text-light);
+  cursor: grab;
+  user-select: none;
+}
+
+.deck-panel__header.grabbing {
+  cursor: grabbing;
+}
+
+.deck-panel__header button {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.deck-panel__body {
+  height: 320px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.deck-panel__footer {
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--border-neutral);
+}
+
+.deck-panel__footer button {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--accent-blue);
+  color: var(--text-light);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.deck-panel__footer button:hover {
+  opacity: 0.9;
+}
+
+/* Deck list (table inside the floating deck panel) */
+.deck-list {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.deck-list__empty {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1rem;
+}
+
+.deck-list th {
+  padding: 0.5rem;
+  text-align: left;
+  font-weight: 500;
+  background: var(--bg-subtle);
+}
+
+.deck-list td {
+  padding: 0.5rem;
+  border-top: 1px solid var(--border-neutral);
+}
+
+.deck-list__actions-cell {
+  white-space: nowrap;
+}
+
+.deck-list__action-btn {
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.25rem;
+  background: var(--accent-blue);
+  color: var(--text-light);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: opacity var(--transition-fast);
+}
+
+.deck-list__action-btn:hover {
+  opacity: 0.9;
+}
+
+.deck-list__action-btn--danger {
+  background: var(--error);
+}
+
+/* Deck delete confirmation modal (change 00079) — lista de cartas afectadas
+   por el borrado de un mazo en uso. */
+.deck-delete-confirm-modal__list {
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  font-size: 0.875rem;
 }
 
 /* Resource modal previews (image / font) */

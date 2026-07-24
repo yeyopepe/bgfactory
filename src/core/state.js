@@ -12,8 +12,9 @@ const state = {
   decks: [],
 };
 
-let panelState = { collapsed: false, position: null, width: null };
-let resourcePanelState = { collapsed: false, position: null, width: null };
+let panelState = { collapsed: false, position: null, width: null, height: null };
+let resourcePanelState = { collapsed: false, position: null, width: null, height: null };
+let deckPanelState = { collapsed: false, position: null, width: null, height: null };
 // Recuerda si los recursos por defecto (data/defaultResources.js) ya se han
 // sembrado alguna vez en este guardado, para no reponerlos cada vez que el
 // usuario los borra a propósito — ver seedDefaultResources() en main.js.
@@ -48,7 +49,8 @@ export function getComponents() {
 }
 
 export function addComponent(component) {
-  component.order = state.components.length + 1;
+  state.components.forEach((c) => { c.order += 1; });
+  component.order = 1;
   state.components.push(component);
   emit('components:changed', state.components);
 }
@@ -57,15 +59,6 @@ export function replaceComponent(id, updatedComponent) {
   const index = state.components.findIndex((c) => c.id === id);
   if (index === -1) return;
   state.components[index] = updatedComponent;
-  emit('components:changed', state.components);
-}
-
-// Inserta `newComponent` justo debajo de `component` en el orden de la lista, desplazando
-// en +1 al resto de componentes que estuvieran por debajo.
-export function insertComponentAfter(component, newComponent) {
-  newComponent.order = component.order + 0.5;
-  state.components.push(newComponent);
-  compactOrders(state.components);
   emit('components:changed', state.components);
 }
 
@@ -176,7 +169,32 @@ export function addDeck(deck) {
   emit('decks:changed', state.decks);
 }
 
+export function replaceDeck(id, updatedDeck) {
+  const index = state.decks.findIndex((d) => d.id === id);
+  if (index === -1) return;
+  state.decks[index] = updatedDeck;
+  emit('decks:changed', state.decks);
+}
+
+export function removeDeck(id) {
+  state.decks = state.decks.filter((d) => d.id !== id);
+  emit('decks:changed', state.decks);
+}
+
 export function loadDecks(decks) {
   state.decks = decks;
   emit('decks:changed', state.decks);
+}
+
+export function getDeckPanelState() {
+  return deckPanelState;
+}
+
+export function setDeckPanelState(partial) {
+  deckPanelState = { ...deckPanelState, ...partial };
+  emit('deckPanelState:changed', deckPanelState);
+}
+
+export function loadDeckPanelState(newDeckPanelState) {
+  deckPanelState = newDeckPanelState;
 }

@@ -5,7 +5,7 @@
 // core/state.js: recibe y devuelve datos planos, quien la invoca decide cómo
 // aplicarlo al estado (mismo criterio que core/component.js / core/resource.js).
 
-import { createDeck } from './deck.js';
+import { createDeck, isDeckNameTaken } from './deck.js';
 
 const RESOURCE_REF_KEYS = new Set(['imagenResourceId', 'fuenteResourceId']);
 
@@ -133,6 +133,51 @@ function findNameById(id, items) {
   return found ? found.name : id;
 }
 
+// Deduplica nombres de mazos tras el merge por id: para cada mazo cuyo nombre
+// ya aparece antes en la lista, renombra añadiendo " (importado)" (o
+// " (importado n)" si esa forma también colisiona). Devuelve los mazos
+// deduplicated y un array de renombres aplicados.
+function dedupeDeckNames(decks) {
+  const result = [];
+  const seenNames = new Map();
+  const renames = [];
+
+  for (const deck of decks) {
+    const normalizedName = deck.name.trim().toLowerCase();
+
+    if (seenNames.has(normalizedName)) {
+      let newName;
+      const root = `${deck.name} (importado)`;
+      const rootNormalized = root.trim().toLowerCase();
+
+      if (!seenNames.has(rootNormalized)) {
+        newName = root;
+        seenNames.set(rootNormalized, true);
+      } else {
+        let n = 2;
+        while (true) {
+          const candidate = `${deck.name} (importado ${n})`;
+          const candidateNormalized = candidate.trim().toLowerCase();
+          if (!seenNames.has(candidateNormalized)) {
+            newName = candidate;
+            seenNames.set(candidateNormalized, true);
+            break;
+          }
+          n += 1;
+        }
+      }
+
+      renames.push({ deckId: deck.id, oldName: deck.name, newName });
+      result.push({ ...deck, name: newName });
+    } else {
+      seenNames.set(normalizedName, true);
+      result.push(deck);
+    }
+  }
+
+  return { decks: result, renames };
+}
+
 // Punto de entrada: fusiona la selección de una importación con el estado
 // actual, resuelve las referencias rotas resultantes (recurso ausente se
 // descarta, mazo ausente se autocrea) y devuelve el estado final más un
@@ -150,7 +195,10 @@ export function mergeImportedGame({
   allImportedDecks = [],
 }) {
   const { result: resources, idMap: resourceIdMap } = mergeCollection(existingResources, selectedResources, mode, conflictMode);
-  const { result: decks, idMap: deckIdMap } = mergeCollection(existingDecks, selectedDecks, mode, conflictMode);
+  let { result: decks, idMap: deckIdMap } = mergeCollection(existingDecks, selectedDecks, mode, conflictMode);
+
+  const { decks: dedupedDecks, renames: deckRenames } = dedupeDeckNames(decks);
+  decks = dedupedDecks;
 
   const remappedSelectedComponents = remapComponentRefs(selectedComponents, resourceIdMap, deckIdMap);
   const { result: components, insertedIds: importedComponentIds } = mergeCollection(existingComponents, remappedSelectedComponents, mode, conflictMode);
@@ -159,6 +207,14 @@ export function mergeImportedGame({
   const deckIds = new Set(decks.map((d) => d.id));
   const createdDeckIds = new Set();
   const report = [];
+
+  for (const rename of deckRenames) {
+    report.push({
+      tipoError: 'mazoDuplicado',
+      solucion: 'Se renombró el mazo importado para evitar un nombre duplicado',
+      elemento: rename.newName,
+    });
+  }
 
   const finalComponents = components.map((component) => {
     if (!importedComponentIds.has(component.id)) return component;
@@ -180,18 +236,33 @@ export function mergeImportedGame({
 
     const deckId = component.properties?.deckId;
     if (deckId && !deckIds.has(deckId)) {
+      const candidateName = findNameById(deckId, allImportedDecks);
+
       if (!createdDeckIds.has(deckId)) {
-        decks.push(createDeck({ id: deckId, name: findNameById(deckId, allImportedDecks) }));
-        deckIds.add(deckId);
-        createdDeckIds.add(deckId);
+        const existingDeckWithSameName = decks.find(
+          (d) => isDeckNameTaken(candidateName, [d], deckId)
+        );
+
+        if (existingDeckWithSameName) {
+          component.properties.deckId = existingDeckWithSameName.id;
+          report.push({
+            tipoError: 'mazoDuplicado',
+            solucion: 'Se vinculó a un mazo ya existente con el mismo nombre en vez de crear uno duplicado',
+            elemento: candidateName,
+          });
+        } else {
+          decks.push(createDeck({ id: deckId, name: candidateName }));
+          deckIds.add(deckId);
+          createdDeckIds.add(deckId);
+          changed = true;
+          report.push({
+            componentId: component.id,
+            tipoError: 'mazo',
+            solucion: 'Se creó el mazo automáticamente',
+            elemento: candidateName,
+          });
+        }
       }
-      changed = true;
-      report.push({
-        componentId: component.id,
-        tipoError: 'mazo',
-        solucion: 'Se creó el mazo automáticamente',
-        elemento: findNameById(deckId, allImportedDecks),
-      });
     }
 
     return changed ? { ...component } : component;

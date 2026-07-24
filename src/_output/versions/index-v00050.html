@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Errantes, un juego de mesa de SJ Martínez v.00045</title>
+  <title>Errantes, un juego de mesa de SJ Martínez v.00050</title>
   <style>
 :root {
   --bg-table: #c2c2c2;
@@ -12,6 +12,7 @@
   --bg-card: #f5f5f5;
   --accent-blue: #2c7dd8;
   --accent-blue-dark: #123a66;
+  --accent-blue-light: #eaf3fc; /* fondo claro para paneles que destacan como interactivos sin usar el azul sólido (cambio 00077) */
   --text-primary: #1a1a1a;
   --text-light: #ffffff;
   --text-muted: #666666;
@@ -1429,7 +1430,7 @@ fieldset.modal__section--untitled {
 }
 
 .component-panel__body {
-  max-height: 320px;
+  height: 320px;
   overflow-y: auto;
   overflow-x: auto;
 }
@@ -1519,7 +1520,7 @@ fieldset.modal__section--untitled {
 }
 
 .resource-panel__body {
-  max-height: 320px;
+  height: 320px;
   overflow-y: auto;
   overflow-x: auto;
 }
@@ -1553,8 +1554,8 @@ fieldset.modal__section--untitled {
   bottom: calc(100% + 6px);
   left: 0;
   width: 100%;
-  background: #fff;
-  border: 1px solid var(--border-neutral);
+  background: var(--accent-blue-light);
+  border: 1px solid rgba(44, 125, 216, 0.25);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-2);
   overflow: hidden;
@@ -1567,11 +1568,16 @@ fieldset.modal__section--untitled {
 }
 
 .resource-add__item:not(:last-child) {
-  border-bottom: 1px solid var(--border-neutral);
+  border-bottom: 1px solid rgba(44, 125, 216, 0.25);
 }
 
 .resource-add__item:hover {
-  background: var(--bg-hover);
+  background: var(--accent-blue);
+}
+
+.resource-add__item:hover .resource-add__item-label,
+.resource-add__item:hover .resource-add__hint {
+  color: var(--text-light);
 }
 
 .resource-add__item-label {
@@ -1639,6 +1645,134 @@ fieldset.modal__section--untitled {
 
 .resource-list__action-btn--danger {
   background: var(--error);
+}
+
+/* Floating deck panel (edit mode), analogous to .resource-panel* but without
+   the filter box or the add-menu (single "+ Añadir mazo" button instead).
+   Stacked below the resource panel on the same (right) side by default. */
+.deck-panel-container {
+  position: absolute;
+  top: 55rem;
+  right: 1rem;
+  width: 400px;
+  z-index: 15;
+}
+
+.deck-panel {
+  position: relative;
+  width: 100%;
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+}
+
+.deck-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: var(--bg-toolbar);
+  color: var(--text-light);
+  cursor: grab;
+  user-select: none;
+}
+
+.deck-panel__header.grabbing {
+  cursor: grabbing;
+}
+
+.deck-panel__header button {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.deck-panel__body {
+  height: 320px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.deck-panel__footer {
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--border-neutral);
+}
+
+.deck-panel__footer button {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--accent-blue);
+  color: var(--text-light);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.deck-panel__footer button:hover {
+  opacity: 0.9;
+}
+
+/* Deck list (table inside the floating deck panel) */
+.deck-list {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.deck-list__empty {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1rem;
+}
+
+.deck-list th {
+  padding: 0.5rem;
+  text-align: left;
+  font-weight: 500;
+  background: var(--bg-subtle);
+}
+
+.deck-list td {
+  padding: 0.5rem;
+  border-top: 1px solid var(--border-neutral);
+}
+
+.deck-list__actions-cell {
+  white-space: nowrap;
+}
+
+.deck-list__action-btn {
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.25rem;
+  background: var(--accent-blue);
+  color: var(--text-light);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: opacity var(--transition-fast);
+}
+
+.deck-list__action-btn:hover {
+  opacity: 0.9;
+}
+
+.deck-list__action-btn--danger {
+  background: var(--error);
+}
+
+/* Deck delete confirmation modal (change 00079) — lista de cartas afectadas
+   por el borrado de un mazo en uso. */
+.deck-delete-confirm-modal__list {
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  font-size: 0.875rem;
 }
 
 /* Resource modal previews (image / font) */
@@ -1724,7 +1858,7 @@ fieldset.modal__section--untitled {
   </style>
 </head>
 <body>
-  <h1>Errantes, un juego de mesa de SJ Martínez v.00045</h1>
+  <h1>Errantes, un juego de mesa de SJ Martínez v.00050</h1>
   <div id="edit-toolbar"></div>
   <div id="mode-switcher"></div>
   <div id="content"></div>
@@ -1781,8 +1915,9 @@ const state = {
   decks: [],
 };
 
-let panelState = { collapsed: false, position: null, width: null };
-let resourcePanelState = { collapsed: false, position: null, width: null };
+let panelState = { collapsed: false, position: null, width: null, height: null };
+let resourcePanelState = { collapsed: false, position: null, width: null, height: null };
+let deckPanelState = { collapsed: false, position: null, width: null, height: null };
 // Recuerda si los recursos por defecto (data/defaultResources.js) ya se han
 // sembrado alguna vez en este guardado, para no reponerlos cada vez que el
 // usuario los borra a propósito — ver seedDefaultResources() en main.js.
@@ -1817,7 +1952,8 @@ function getComponents() {
 }
 
 function addComponent(component) {
-  component.order = state.components.length + 1;
+  state.components.forEach((c) => { c.order += 1; });
+  component.order = 1;
   state.components.push(component);
   emit('components:changed', state.components);
 }
@@ -1826,15 +1962,6 @@ function replaceComponent(id, updatedComponent) {
   const index = state.components.findIndex((c) => c.id === id);
   if (index === -1) return;
   state.components[index] = updatedComponent;
-  emit('components:changed', state.components);
-}
-
-// Inserta `newComponent` justo debajo de `component` en el orden de la lista, desplazando
-// en +1 al resto de componentes que estuvieran por debajo.
-function insertComponentAfter(component, newComponent) {
-  newComponent.order = component.order + 0.5;
-  state.components.push(newComponent);
-  compactOrders(state.components);
   emit('components:changed', state.components);
 }
 
@@ -1945,9 +2072,34 @@ function addDeck(deck) {
   emit('decks:changed', state.decks);
 }
 
+function replaceDeck(id, updatedDeck) {
+  const index = state.decks.findIndex((d) => d.id === id);
+  if (index === -1) return;
+  state.decks[index] = updatedDeck;
+  emit('decks:changed', state.decks);
+}
+
+function removeDeck(id) {
+  state.decks = state.decks.filter((d) => d.id !== id);
+  emit('decks:changed', state.decks);
+}
+
 function loadDecks(decks) {
   state.decks = decks;
   emit('decks:changed', state.decks);
+}
+
+function getDeckPanelState() {
+  return deckPanelState;
+}
+
+function setDeckPanelState(partial) {
+  deckPanelState = { ...deckPanelState, ...partial };
+  emit('deckPanelState:changed', deckPanelState);
+}
+
+function loadDeckPanelState(newDeckPanelState) {
+  deckPanelState = newDeckPanelState;
 }
 
 module.exports.getState = getState;
@@ -1955,7 +2107,6 @@ module.exports.setMode = setMode;
 module.exports.getComponents = getComponents;
 module.exports.addComponent = addComponent;
 module.exports.replaceComponent = replaceComponent;
-module.exports.insertComponentAfter = insertComponentAfter;
 module.exports.removeComponent = removeComponent;
 module.exports.reorderComponent = reorderComponent;
 module.exports.loadComponents = loadComponents;
@@ -1975,12 +2126,17 @@ module.exports.markResourcesSeeded = markResourcesSeeded;
 module.exports.loadResourcesSeeded = loadResourcesSeeded;
 module.exports.getDecks = getDecks;
 module.exports.addDeck = addDeck;
+module.exports.replaceDeck = replaceDeck;
+module.exports.removeDeck = removeDeck;
 module.exports.loadDecks = loadDecks;
+module.exports.getDeckPanelState = getDeckPanelState;
+module.exports.setDeckPanelState = setDeckPanelState;
+module.exports.loadDeckPanelState = loadDeckPanelState;
 module.exports.MODES = MODES;
 };
 __modules['data/version.js'] = function(module, exports, require) {
 // Fuente única de la versión actual del prototipo.
-const CURRENT_VERSION = 'v00045';
+const CURRENT_VERSION = 'v00050';
 
 module.exports.CURRENT_VERSION = CURRENT_VERSION;
 };
@@ -2309,10 +2465,10 @@ __modules['core/fileExport.js'] = function(module, exports, require) {
 
 const { CURRENT_VERSION } = require('data/version.js');
 
-function buildExportHtml(components, resources, panelState, resourcePanelState, resourcesSeeded, decks) {
+function buildExportHtml(components, resources, panelState, resourcePanelState, resourcesSeeded, decks, deckPanelState) {
   const clone = document.documentElement.cloneNode(true);
   const seedEl = clone.querySelector('#initial-state');
-  seedEl.textContent = JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, decks });
+  seedEl.textContent = JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, decks, deckPanelState });
   return `<!doctype html>\n${clone.outerHTML}`;
 }
 
@@ -2361,15 +2517,16 @@ function parseState(raw) {
   }
   const panelState = (parsed.panelState && typeof parsed.panelState === 'object') ? parsed.panelState : null;
   const resourcePanelState = (parsed.resourcePanelState && typeof parsed.resourcePanelState === 'object') ? parsed.resourcePanelState : null;
+  const deckPanelState = (parsed.deckPanelState && typeof parsed.deckPanelState === 'object') ? parsed.deckPanelState : null;
   const resources = Array.isArray(parsed.resources) ? parsed.resources : [];
   const resourcesSeeded = parsed.resourcesSeeded === true;
   const decks = Array.isArray(parsed.decks) ? parsed.decks : [];
-  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded, decks };
+  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded, decks, deckPanelState };
 }
 
-function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded, decks) {
+function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded, decks, deckPanelState) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, decks }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, decks, deckPanelState }));
   } catch {
     // Cuota excedida u otro fallo de localStorage: el autoguardado se omite
     // silenciosamente, sin interrumpir el uso normal de la aplicación.
@@ -2422,8 +2579,7 @@ module.exports.parseImportedComponents = parseImportedComponents;
 module.exports.buildComponentsExport = buildComponentsExport;
 };
 __modules['core/deck.js'] = function(module, exports, require) {
-// Modelo mínimo de "mazo" (agrupación de cartas). Análogo a core/resource.js,
-// pero sin isResourceInUse: este change no incluye borrado de mazos.
+// Modelo mínimo de "mazo" (agrupación de cartas). Análogo a core/resource.js.
 
 function createDeck({ id, name = '' } = {}) {
   return { id: id || crypto.randomUUID(), name };
@@ -2433,8 +2589,25 @@ function updateDeck(deck, changes) {
   return { ...deck, ...changes };
 }
 
+function isDeckNameTaken(name, decks, excludeId = null) {
+  const normalizedName = name.trim().toLowerCase();
+  return decks.some(
+    (d) => d.name.trim().toLowerCase() === normalizedName && d.id !== excludeId
+  );
+}
+
+// Ids de los componentes tipo 'carta' que referencian `deckId` (vacío si
+// ninguno) — deckId es siempre una propiedad plana de primer nivel en
+// `properties`, a diferencia de las referencias a recursos (sin necesidad de
+// un recorrido profundo tipo collectDeepValues de core/resource.js).
+function getComponentsUsingDeck(deckId, components) {
+  return components.filter((component) => component.type === 'carta' && component.properties?.deckId === deckId).map((component) => component.id);
+}
+
 module.exports.createDeck = createDeck;
 module.exports.updateDeck = updateDeck;
+module.exports.isDeckNameTaken = isDeckNameTaken;
+module.exports.getComponentsUsingDeck = getComponentsUsingDeck;
 };
 __modules['core/importMerge.js'] = function(module, exports, require) {
 // Lógica de fusión de una importación (change 00065): combina la selección de
@@ -2444,7 +2617,7 @@ __modules['core/importMerge.js'] = function(module, exports, require) {
 // core/state.js: recibe y devuelve datos planos, quien la invoca decide cómo
 // aplicarlo al estado (mismo criterio que core/component.js / core/resource.js).
 
-const { createDeck } = require('core/deck.js');
+const { createDeck, isDeckNameTaken } = require('core/deck.js');
 
 const RESOURCE_REF_KEYS = new Set(['imagenResourceId', 'fuenteResourceId']);
 
@@ -2572,6 +2745,51 @@ function findNameById(id, items) {
   return found ? found.name : id;
 }
 
+// Deduplica nombres de mazos tras el merge por id: para cada mazo cuyo nombre
+// ya aparece antes en la lista, renombra añadiendo " (importado)" (o
+// " (importado n)" si esa forma también colisiona). Devuelve los mazos
+// deduplicated y un array de renombres aplicados.
+function dedupeDeckNames(decks) {
+  const result = [];
+  const seenNames = new Map();
+  const renames = [];
+
+  for (const deck of decks) {
+    const normalizedName = deck.name.trim().toLowerCase();
+
+    if (seenNames.has(normalizedName)) {
+      let newName;
+      const root = `${deck.name} (importado)`;
+      const rootNormalized = root.trim().toLowerCase();
+
+      if (!seenNames.has(rootNormalized)) {
+        newName = root;
+        seenNames.set(rootNormalized, true);
+      } else {
+        let n = 2;
+        while (true) {
+          const candidate = `${deck.name} (importado ${n})`;
+          const candidateNormalized = candidate.trim().toLowerCase();
+          if (!seenNames.has(candidateNormalized)) {
+            newName = candidate;
+            seenNames.set(candidateNormalized, true);
+            break;
+          }
+          n += 1;
+        }
+      }
+
+      renames.push({ deckId: deck.id, oldName: deck.name, newName });
+      result.push({ ...deck, name: newName });
+    } else {
+      seenNames.set(normalizedName, true);
+      result.push(deck);
+    }
+  }
+
+  return { decks: result, renames };
+}
+
 // Punto de entrada: fusiona la selección de una importación con el estado
 // actual, resuelve las referencias rotas resultantes (recurso ausente se
 // descarta, mazo ausente se autocrea) y devuelve el estado final más un
@@ -2589,7 +2807,10 @@ function mergeImportedGame({
   allImportedDecks = [],
 }) {
   const { result: resources, idMap: resourceIdMap } = mergeCollection(existingResources, selectedResources, mode, conflictMode);
-  const { result: decks, idMap: deckIdMap } = mergeCollection(existingDecks, selectedDecks, mode, conflictMode);
+  let { result: decks, idMap: deckIdMap } = mergeCollection(existingDecks, selectedDecks, mode, conflictMode);
+
+  const { decks: dedupedDecks, renames: deckRenames } = dedupeDeckNames(decks);
+  decks = dedupedDecks;
 
   const remappedSelectedComponents = remapComponentRefs(selectedComponents, resourceIdMap, deckIdMap);
   const { result: components, insertedIds: importedComponentIds } = mergeCollection(existingComponents, remappedSelectedComponents, mode, conflictMode);
@@ -2598,6 +2819,14 @@ function mergeImportedGame({
   const deckIds = new Set(decks.map((d) => d.id));
   const createdDeckIds = new Set();
   const report = [];
+
+  for (const rename of deckRenames) {
+    report.push({
+      tipoError: 'mazoDuplicado',
+      solucion: 'Se renombró el mazo importado para evitar un nombre duplicado',
+      elemento: rename.newName,
+    });
+  }
 
   const finalComponents = components.map((component) => {
     if (!importedComponentIds.has(component.id)) return component;
@@ -2619,18 +2848,33 @@ function mergeImportedGame({
 
     const deckId = component.properties?.deckId;
     if (deckId && !deckIds.has(deckId)) {
+      const candidateName = findNameById(deckId, allImportedDecks);
+
       if (!createdDeckIds.has(deckId)) {
-        decks.push(createDeck({ id: deckId, name: findNameById(deckId, allImportedDecks) }));
-        deckIds.add(deckId);
-        createdDeckIds.add(deckId);
+        const existingDeckWithSameName = decks.find(
+          (d) => isDeckNameTaken(candidateName, [d], deckId)
+        );
+
+        if (existingDeckWithSameName) {
+          component.properties.deckId = existingDeckWithSameName.id;
+          report.push({
+            tipoError: 'mazoDuplicado',
+            solucion: 'Se vinculó a un mazo ya existente con el mismo nombre en vez de crear uno duplicado',
+            elemento: candidateName,
+          });
+        } else {
+          decks.push(createDeck({ id: deckId, name: candidateName }));
+          deckIds.add(deckId);
+          createdDeckIds.add(deckId);
+          changed = true;
+          report.push({
+            componentId: component.id,
+            tipoError: 'mazo',
+            solucion: 'Se creó el mazo automáticamente',
+            elemento: candidateName,
+          });
+        }
       }
-      changed = true;
-      report.push({
-        componentId: component.id,
-        tipoError: 'mazo',
-        solucion: 'Se creó el mazo automáticamente',
-        elemento: findNameById(deckId, allImportedDecks),
-      });
     }
 
     return changed ? { ...component } : component;
@@ -5103,6 +5347,7 @@ __modules['ui/importReportModal.js'] = function(module, exports, require) {
 const ERROR_LABELS = {
   recurso: 'Recurso no incluido',
   mazo: 'Mazo no incluido',
+  mazoDuplicado: 'Nombre de mazo duplicado',
 };
 
 function openImportReportModal(report) {
@@ -5181,7 +5426,7 @@ __modules['ui/editModeToggle.js'] = function(module, exports, require) {
 // UI para entrar/salir del modo edición: botón de entrada en modo juego,
 // barra de herramientas propia (con botón de salida) en modo edición.
 
-const { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadDecks, getDecks } = require('core/state.js');
+const { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadDecks, getDecks, getDeckPanelState } = require('core/state.js');
 const { buildExportHtml, downloadHtml, downloadJson } = require('core/fileExport.js');
 const { buildComponentsExport, parseImportedComponents } = require('core/persistence.js');
 const { mergeImportedGame } = require('core/importMerge.js');
@@ -5200,7 +5445,7 @@ function currentFileName() {
 }
 
 function saveAs(filename) {
-  const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded(), getDecks());
+  const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded(), getDecks(), getDeckPanelState());
   downloadHtml(filename, html);
   showToast(`Guardado como "${filename}"`);
 }
@@ -6781,7 +7026,7 @@ __modules['ui/componentModal.js'] = function(module, exports, require) {
 
 const { getComponents, getResources, getDecks, addDeck } = require('core/state.js');
 const { createComponent, updateComponent } = require('core/component.js');
-const { createDeck } = require('core/deck.js');
+const { createDeck, isDeckNameTaken } = require('core/deck.js');
 const { createHelpIcon } = require('ui/helpIcon.js');
 const { openBoardPatternModal } = require('ui/boardPatternModal.js');
 const { openBoardImageModal } = require('ui/boardImageModal.js');
@@ -7859,8 +8104,10 @@ function openComponentModal({ component = null, onAccept, onDelete }) {
 
     const newDeckRow = document.createElement('div');
     newDeckRow.style.display = 'none';
-    newDeckRow.style.gap = '0.5rem';
     newDeckRow.style.marginTop = '0.5rem';
+    const newDeckInputRow = document.createElement('div');
+    newDeckInputRow.style.display = 'flex';
+    newDeckInputRow.style.gap = '0.5rem';
     const newDeckInput = document.createElement('input');
     newDeckInput.type = 'text';
     newDeckInput.placeholder = 'Nombre del mazo nuevo';
@@ -7868,8 +8115,14 @@ function openComponentModal({ component = null, onAccept, onDelete }) {
     newDeckCreateBtn.type = 'button';
     newDeckCreateBtn.className = 'btn-cancel';
     newDeckCreateBtn.textContent = 'Crear';
-    newDeckRow.appendChild(newDeckInput);
-    newDeckRow.appendChild(newDeckCreateBtn);
+    newDeckInputRow.appendChild(newDeckInput);
+    newDeckInputRow.appendChild(newDeckCreateBtn);
+    const newDeckError = document.createElement('div');
+    newDeckError.className = 'modal__error';
+    newDeckError.style.display = 'none';
+    newDeckError.style.marginTop = '0.25rem';
+    newDeckRow.appendChild(newDeckInputRow);
+    newDeckRow.appendChild(newDeckError);
 
     function populateDeckSelect() {
       deckSelect.innerHTML = '';
@@ -7894,9 +8147,25 @@ function openComponentModal({ component = null, onAccept, onDelete }) {
     }
     populateDeckSelect();
 
+    function validateNewDeckName() {
+      const name = newDeckInput.value.trim();
+      if (!name) {
+        newDeckError.textContent = 'El nombre no puede estar vacío';
+        newDeckError.style.display = 'block';
+        return false;
+      }
+      if (isDeckNameTaken(name, getDecks())) {
+        newDeckError.textContent = 'Ya existe un mazo con este nombre';
+        newDeckError.style.display = 'block';
+        return false;
+      }
+      newDeckError.style.display = 'none';
+      return true;
+    }
+
     deckSelect.addEventListener('change', () => {
       if (deckSelect.value === NEW_DECK_VALUE) {
-        newDeckRow.style.display = 'flex';
+        newDeckRow.style.display = 'block';
         newDeckInput.focus();
         return;
       }
@@ -7904,9 +8173,11 @@ function openComponentModal({ component = null, onAccept, onDelete }) {
       props.deckId = deckSelect.value || null;
     });
 
+    newDeckInput.addEventListener('input', validateNewDeckName);
+
     newDeckCreateBtn.addEventListener('click', () => {
+      if (!validateNewDeckName()) return;
       const name = newDeckInput.value.trim();
-      if (!name) return;
       const deck = createDeck({ name });
       addDeck(deck);
       props.deckId = deck.id;
@@ -8170,6 +8441,7 @@ const { attachResizeHandle } = require('ui/resizeHandle.js');
 const { attachColumnResizing } = require('ui/tableColumnResize.js');
 
 const MIN_PANEL_WIDTH = 290;
+const MIN_PANEL_BODY_HEIGHT = 96;
 const COMPONENT_LIST_COLUMNS = ['orden', 'id', 'tipo', 'acciones'];
 
 // Estado del cuadro de filtro. El panel de componentes es único en la
@@ -8341,18 +8613,20 @@ function renderComponentList(
     onPanelResize,
     columnWidths = null,
     onColumnResize,
+    bodyHeight = null,
   } = {}
 ) {
   container.innerHTML = '';
 
   const panel = document.createElement('div');
   panel.className = 'component-panel';
+  let body;
 
   const header = document.createElement('div');
   header.className = 'component-panel__header';
 
   const title = document.createElement('strong');
-  title.textContent = 'Componentes';
+  title.textContent = `Componentes (${components.length})`;
   header.appendChild(title);
 
   const toggleButton = document.createElement('button');
@@ -8416,7 +8690,9 @@ function renderComponentList(
       filterInput.value = filterText;
       filterInput.addEventListener('input', () => {
         filterText = filterInput.value;
-        renderBody(body, sortedComponents.filter((c) => matchesFilter(c, filterText)), components.length, rowHandlers);
+        const filtered = sortedComponents.filter((c) => matchesFilter(c, filterText));
+        title.textContent = `Componentes (${filtered.length})`;
+        renderBody(body, filtered, components.length, rowHandlers);
       });
       filterBar.appendChild(filterInput);
 
@@ -8425,9 +8701,14 @@ function renderComponentList(
       filterText = '';
     }
 
-    const body = document.createElement('div');
+    body = document.createElement('div');
     body.className = 'component-panel__body';
-    renderBody(body, sortedComponents.filter((c) => matchesFilter(c, filterText)), components.length, rowHandlers);
+    if (bodyHeight != null) {
+      body.style.height = `${bodyHeight}px`;
+    }
+    const displayedComponents = sortedComponents.filter((c) => matchesFilter(c, filterText));
+    title.textContent = `Componentes (${displayedComponents.length})`;
+    renderBody(body, displayedComponents, components.length, rowHandlers);
     panel.appendChild(body);
 
     const footer = document.createElement('div');
@@ -8445,19 +8726,29 @@ function renderComponentList(
   }
 
   attachResizeHandle(panel, {
-    axis: 'x',
-    getSize: () => ({ width: container.getBoundingClientRect().width, height: 0 }),
-    clamp: ({ width }) => {
+    axis: collapsed ? 'x' : 'both',
+    getSize: () => ({
+      width: container.getBoundingClientRect().width,
+      height: body ? body.getBoundingClientRect().height : 0,
+    }),
+    clamp: ({ width, height }) => {
       const parentWidth = container.offsetParent ? container.offsetParent.clientWidth : window.innerWidth;
       const maxByRightEdge = parentWidth - container.offsetLeft;
-      return { width: Math.min(Math.max(width, MIN_PANEL_WIDTH), maxByRightEdge) };
+      const clampedWidth = Math.min(Math.max(width, MIN_PANEL_WIDTH), maxByRightEdge);
+      if (!body) return { width: clampedWidth, height };
+      const parentHeight = container.offsetParent ? container.offsetParent.clientHeight : window.innerHeight;
+      const maxByBottomEdge = parentHeight - container.offsetTop;
+      const clampedHeight = Math.min(Math.max(height, MIN_PANEL_BODY_HEIGHT), maxByBottomEdge);
+      return { width: clampedWidth, height: clampedHeight };
     },
-    onResize: ({ width }) => {
+    onResize: ({ width, height }) => {
       container.style.width = `${width}px`;
+      if (body) body.style.height = `${height}px`;
     },
-    onResizeEnd: ({ width }) => {
+    onResizeEnd: ({ width, height }) => {
       container.style.width = `${width}px`;
-      if (onPanelResize) onPanelResize(width);
+      if (body) body.style.height = `${height}px`;
+      if (onPanelResize) onPanelResize(width, height);
     },
   });
 
@@ -8632,6 +8923,7 @@ const { attachColumnResizing } = require('ui/tableColumnResize.js');
 const { RESOURCE_TYPES } = require('core/resource.js');
 
 const MIN_PANEL_WIDTH = 290;
+const MIN_PANEL_BODY_HEIGHT = 96;
 const RESOURCE_LIST_COLUMNS = ['nombre', 'tipo', 'acciones'];
 
 const TYPE_LABELS = {
@@ -8815,18 +9107,20 @@ function renderResourceList(
     onPanelResize,
     columnWidths = null,
     onColumnResize,
+    bodyHeight = null,
   } = {}
 ) {
   container.innerHTML = '';
 
   const panel = document.createElement('div');
   panel.className = 'resource-panel';
+  let body;
 
   const header = document.createElement('div');
   header.className = 'resource-panel__header';
 
   const title = document.createElement('strong');
-  title.textContent = 'Recursos';
+  title.textContent = `Recursos (${resources.length})`;
   header.appendChild(title);
 
   const toggleButton = document.createElement('button');
@@ -8887,7 +9181,9 @@ function renderResourceList(
       filterInput.value = filterText;
       filterInput.addEventListener('input', () => {
         filterText = filterInput.value;
-        renderBody(body, resources.filter((r) => matchesFilter(r, filterText)), { onEdit, onRemove, columnWidths, onColumnResize });
+        const filtered = resources.filter((r) => matchesFilter(r, filterText));
+        title.textContent = `Recursos (${filtered.length})`;
+        renderBody(body, filtered, { onEdit, onRemove, columnWidths, onColumnResize });
       });
       filterBar.appendChild(filterInput);
 
@@ -8896,9 +9192,14 @@ function renderResourceList(
       filterText = '';
     }
 
-    const body = document.createElement('div');
+    body = document.createElement('div');
     body.className = 'resource-panel__body';
-    renderBody(body, resources.filter((r) => matchesFilter(r, filterText)), { onEdit, onRemove, columnWidths, onColumnResize });
+    if (bodyHeight != null) {
+      body.style.height = `${bodyHeight}px`;
+    }
+    const displayedResources = resources.filter((r) => matchesFilter(r, filterText));
+    title.textContent = `Recursos (${displayedResources.length})`;
+    renderBody(body, displayedResources, { onEdit, onRemove, columnWidths, onColumnResize });
     panel.appendChild(body);
 
     const footer = document.createElement('div');
@@ -8909,19 +9210,29 @@ function renderResourceList(
   }
 
   attachResizeHandle(panel, {
-    axis: 'x',
-    getSize: () => ({ width: container.getBoundingClientRect().width, height: 0 }),
-    clamp: ({ width }) => {
+    axis: collapsed ? 'x' : 'both',
+    getSize: () => ({
+      width: container.getBoundingClientRect().width,
+      height: body ? body.getBoundingClientRect().height : 0,
+    }),
+    clamp: ({ width, height }) => {
       const parentWidth = container.offsetParent ? container.offsetParent.clientWidth : window.innerWidth;
       const maxByRightEdge = parentWidth - container.offsetLeft;
-      return { width: Math.min(Math.max(width, MIN_PANEL_WIDTH), maxByRightEdge) };
+      const clampedWidth = Math.min(Math.max(width, MIN_PANEL_WIDTH), maxByRightEdge);
+      if (!body) return { width: clampedWidth, height };
+      const parentHeight = container.offsetParent ? container.offsetParent.clientHeight : window.innerHeight;
+      const maxByBottomEdge = parentHeight - container.offsetTop;
+      const clampedHeight = Math.min(Math.max(height, MIN_PANEL_BODY_HEIGHT), maxByBottomEdge);
+      return { width: clampedWidth, height: clampedHeight };
     },
-    onResize: ({ width }) => {
+    onResize: ({ width, height }) => {
       container.style.width = `${width}px`;
+      if (body) body.style.height = `${height}px`;
     },
-    onResizeEnd: ({ width }) => {
+    onResizeEnd: ({ width, height }) => {
       container.style.width = `${width}px`;
-      if (onPanelResize) onPanelResize(width);
+      if (body) body.style.height = `${height}px`;
+      if (onPanelResize) onPanelResize(width, height);
     },
   });
 
@@ -8929,6 +9240,375 @@ function renderResourceList(
 }
 
 module.exports.renderResourceList = renderResourceList;
+};
+__modules['ui/deckList.js'] = function(module, exports, require) {
+// Panel flotante con el listado de mazos, usado en modo edición. Análogo a
+// ui/resourceList.js pero simplificado: sin filtro de texto, sin columna
+// "Tipo" (los mazos no tienen tipo) y sin clonar.
+
+const { attachResizeHandle } = require('ui/resizeHandle.js');
+
+const MIN_PANEL_WIDTH = 290;
+const MIN_PANEL_BODY_HEIGHT = 96;
+
+function renderBody(body, decks, { onEdit, onRemove } = {}) {
+  body.innerHTML = '';
+
+  if (decks.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'deck-list__empty';
+    empty.textContent = 'No hay mazos todavía.';
+    body.appendChild(empty);
+    return;
+  }
+
+  const table = document.createElement('table');
+  table.className = 'deck-list';
+
+  const thead = document.createElement('thead');
+  const headRow = document.createElement('tr');
+  for (const label of ['Nombre', 'Acciones']) {
+    const th = document.createElement('th');
+    th.textContent = label;
+    headRow.appendChild(th);
+  }
+  thead.appendChild(headRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+
+  for (const deck of decks) {
+    const row = document.createElement('tr');
+
+    const nameCell = document.createElement('td');
+    nameCell.textContent = deck.name;
+    row.appendChild(nameCell);
+
+    const actionsCell = document.createElement('td');
+    actionsCell.className = 'deck-list__actions-cell';
+
+    if (onEdit) {
+      const editButton = document.createElement('button');
+      editButton.type = 'button';
+      editButton.className = 'deck-list__action-btn';
+      editButton.textContent = 'Editar';
+      editButton.addEventListener('click', () => onEdit(deck));
+      actionsCell.appendChild(editButton);
+    }
+
+    if (onRemove) {
+      const removeButton = document.createElement('button');
+      removeButton.type = 'button';
+      removeButton.className = 'deck-list__action-btn deck-list__action-btn--danger';
+      removeButton.textContent = 'Eliminar';
+      removeButton.addEventListener('click', () => onRemove(deck));
+      actionsCell.appendChild(removeButton);
+    }
+
+    row.appendChild(actionsCell);
+    tbody.appendChild(row);
+  }
+
+  table.appendChild(tbody);
+  body.appendChild(table);
+}
+
+function renderDeckList(
+  container,
+  decks,
+  { onEdit, onRemove, onAdd, collapsed = false, onToggleCollapse, onPanelMove, onPanelResize, bodyHeight = null } = {}
+) {
+  container.innerHTML = '';
+
+  const panel = document.createElement('div');
+  panel.className = 'deck-panel';
+  let body;
+
+  const header = document.createElement('div');
+  header.className = 'deck-panel__header';
+
+  const title = document.createElement('strong');
+  title.textContent = `Mazos (${decks.length})`;
+  header.appendChild(title);
+
+  const toggleButton = document.createElement('button');
+  toggleButton.type = 'button';
+  toggleButton.textContent = collapsed ? '▸' : '▾';
+  toggleButton.addEventListener('click', () => {
+    if (onToggleCollapse) onToggleCollapse();
+  });
+  header.appendChild(toggleButton);
+
+  header.addEventListener('mousedown', (e) => {
+    if (e.button !== 0 || e.target === toggleButton) return;
+    e.preventDefault();
+
+    const startMouseX = e.clientX;
+    const startMouseY = e.clientY;
+    const startLeft = container.offsetLeft;
+    const startTop = container.offsetTop;
+    const parent = container.offsetParent;
+    let currentLeft = startLeft;
+    let currentTop = startTop;
+
+    container.style.left = `${startLeft}px`;
+    container.style.top = `${startTop}px`;
+    container.style.right = 'auto';
+    header.classList.add('grabbing');
+
+    function handleMouseMove(e) {
+      const maxLeft = Math.max(0, parent.clientWidth - container.offsetWidth);
+      const maxTop = Math.max(0, parent.clientHeight - container.offsetHeight);
+      currentLeft = Math.min(Math.max(startLeft + (e.clientX - startMouseX), 0), maxLeft);
+      currentTop = Math.min(Math.max(startTop + (e.clientY - startMouseY), 0), maxTop);
+      container.style.left = `${currentLeft}px`;
+      container.style.top = `${currentTop}px`;
+    }
+
+    function handleMouseUp() {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      header.classList.remove('grabbing');
+      if (onPanelMove) onPanelMove(currentLeft, currentTop);
+    }
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  });
+
+  panel.appendChild(header);
+
+  if (!collapsed) {
+    body = document.createElement('div');
+    body.className = 'deck-panel__body';
+    if (bodyHeight != null) {
+      body.style.height = `${bodyHeight}px`;
+    }
+    renderBody(body, decks, { onEdit, onRemove });
+    panel.appendChild(body);
+
+    const footer = document.createElement('div');
+    footer.className = 'deck-panel__footer';
+
+    const addButton = document.createElement('button');
+    addButton.type = 'button';
+    addButton.textContent = '+ Añadir mazo';
+    addButton.addEventListener('click', () => {
+      if (onAdd) onAdd();
+    });
+    footer.appendChild(addButton);
+
+    panel.appendChild(footer);
+  }
+
+  attachResizeHandle(panel, {
+    axis: collapsed ? 'x' : 'both',
+    getSize: () => ({
+      width: container.getBoundingClientRect().width,
+      height: body ? body.getBoundingClientRect().height : 0,
+    }),
+    clamp: ({ width, height }) => {
+      const parentWidth = container.offsetParent ? container.offsetParent.clientWidth : window.innerWidth;
+      const maxByRightEdge = parentWidth - container.offsetLeft;
+      const clampedWidth = Math.min(Math.max(width, MIN_PANEL_WIDTH), maxByRightEdge);
+      if (!body) return { width: clampedWidth, height };
+      const parentHeight = container.offsetParent ? container.offsetParent.clientHeight : window.innerHeight;
+      const maxByBottomEdge = parentHeight - container.offsetTop;
+      const clampedHeight = Math.min(Math.max(height, MIN_PANEL_BODY_HEIGHT), maxByBottomEdge);
+      return { width: clampedWidth, height: clampedHeight };
+    },
+    onResize: ({ width, height }) => {
+      container.style.width = `${width}px`;
+      if (body) body.style.height = `${height}px`;
+    },
+    onResizeEnd: ({ width, height }) => {
+      container.style.width = `${width}px`;
+      if (body) body.style.height = `${height}px`;
+      if (onPanelResize) onPanelResize(width, height);
+    },
+  });
+
+  container.appendChild(panel);
+}
+
+module.exports.renderDeckList = renderDeckList;
+};
+__modules['ui/deckModal.js'] = function(module, exports, require) {
+// Modal mínima de alta/edición de un mazo, misma estructura visual que
+// ui/resourceModal.js (overlay/modal/header/content/footer) pero única para
+// ambos casos: sin `deck`, alta (sin botón "Eliminar"); con `deck`, edición.
+
+const { createDeck, updateDeck, isDeckNameTaken } = require('core/deck.js');
+const { getDecks } = require('core/state.js');
+
+function openDeckModal({ deck = null, onAccept, onDelete }) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+
+  const header = document.createElement('div');
+  header.className = 'modal__header';
+  header.textContent = deck ? `Mazo: ${deck.name}` : 'Nuevo mazo';
+  modal.appendChild(header);
+
+  const content = document.createElement('div');
+  content.className = 'modal__content';
+  modal.appendChild(content);
+
+  const nameField = document.createElement('div');
+  nameField.className = 'modal__field';
+  const nameLabel = document.createElement('label');
+  nameLabel.textContent = 'Nombre';
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.value = deck?.name ?? '';
+  const nameError = document.createElement('div');
+  nameError.className = 'modal__error';
+  nameError.style.display = 'none';
+  nameField.appendChild(nameLabel);
+  nameField.appendChild(nameInput);
+  nameField.appendChild(nameError);
+  content.appendChild(nameField);
+
+  const footer = document.createElement('div');
+  footer.className = 'modal__footer';
+  modal.appendChild(footer);
+
+  if (deck) {
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn-eliminar';
+    deleteBtn.textContent = 'Eliminar';
+    deleteBtn.addEventListener('click', () => {
+      onDelete(deck, () => overlay.remove());
+    });
+    footer.appendChild(deleteBtn);
+  }
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn-cancel';
+  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.addEventListener('click', () => overlay.remove());
+  footer.appendChild(cancelBtn);
+
+  const acceptBtn = document.createElement('button');
+  acceptBtn.className = 'btn-accept';
+  acceptBtn.textContent = 'Aceptar';
+  footer.appendChild(acceptBtn);
+
+  function validateName() {
+    const name = nameInput.value.trim();
+    if (!name) {
+      nameError.textContent = 'El nombre no puede estar vacío';
+      nameError.style.display = 'block';
+      return false;
+    }
+    if (isDeckNameTaken(name, getDecks(), deck?.id ?? null)) {
+      nameError.textContent = 'Ya existe un mazo con este nombre';
+      nameError.style.display = 'block';
+      return false;
+    }
+    nameError.style.display = 'none';
+    return true;
+  }
+
+  function updateAcceptState() {
+    acceptBtn.disabled = !validateName();
+  }
+  nameInput.addEventListener('input', updateAcceptState);
+  updateAcceptState();
+
+  acceptBtn.addEventListener('click', () => {
+    if (!validateName()) return;
+    const name = nameInput.value.trim();
+    onAccept(deck ? updateDeck(deck, { name }) : createDeck({ name }));
+    overlay.remove();
+  });
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  let mousedownOnOverlay = false;
+  overlay.addEventListener('mousedown', (e) => {
+    mousedownOnOverlay = e.target === overlay;
+  });
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay && mousedownOnOverlay) overlay.remove();
+  });
+}
+
+module.exports.openDeckModal = openDeckModal;
+};
+__modules['ui/deckDeleteConfirmModal.js'] = function(module, exports, require) {
+// Modal de confirmación para borrar un mazo en uso: a diferencia del bloqueo
+// de ui/errorModal.js (usado por Recursos), aquí sí se permite continuar —
+// muestra la lista de cartas afectadas y, si se acepta, borra el mazo y esas
+// cartas quedan sin mazo asignado (ver modes/edit/editMode.js).
+
+function openDeckDeleteConfirmModal({ deckName, cardIds, onConfirm }) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+
+  const header = document.createElement('div');
+  header.className = 'modal__header';
+  header.textContent = 'Eliminar mazo en uso';
+  modal.appendChild(header);
+
+  const content = document.createElement('div');
+  content.className = 'modal__content';
+
+  const message = document.createElement('p');
+  message.textContent = `El mazo "${deckName}" está siendo usado por las siguientes cartas. Si continúas, se eliminará el mazo y esas cartas quedarán sin mazo asignado.`;
+  content.appendChild(message);
+
+  const list = document.createElement('ul');
+  list.className = 'deck-delete-confirm-modal__list';
+  for (const cardId of cardIds) {
+    const item = document.createElement('li');
+    item.textContent = cardId;
+    list.appendChild(item);
+  }
+  content.appendChild(list);
+
+  modal.appendChild(content);
+
+  const footer = document.createElement('div');
+  footer.className = 'modal__footer';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'btn-cancel';
+  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.addEventListener('click', () => overlay.remove());
+  footer.appendChild(cancelBtn);
+
+  const acceptBtn = document.createElement('button');
+  acceptBtn.className = 'btn-accept';
+  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.addEventListener('click', () => {
+    onConfirm();
+    overlay.remove();
+  });
+  footer.appendChild(acceptBtn);
+
+  modal.appendChild(footer);
+
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+
+  let mousedownOnOverlay = false;
+  overlay.addEventListener('mousedown', (e) => {
+    mousedownOnOverlay = e.target === overlay;
+  });
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay && mousedownOnOverlay) overlay.remove();
+  });
+}
+
+module.exports.openDeckDeleteConfirmModal = openDeckDeleteConfirmModal;
 };
 __modules['ui/batchUploadSummaryModal.js'] = function(module, exports, require) {
 // Modal de resumen tras una subida en lote (varios ficheros o una carpeta,
@@ -9032,10 +9712,12 @@ __modules['modes/edit/editMode.js'] = function(module, exports, require) {
 // Modo edición: mesa infinita con los componentes renderizados sobre ella (seleccionables
 // para editar) + panel flotante con listado de componentes y acciones de edición/borrado.
 
-const { getComponents, addComponent, replaceComponent, removeComponent, reorderComponent, insertComponentAfter, getPanelState, setPanelState,
-  getResources, addResource, replaceResource, removeResource, getResourcePanelState, setResourcePanelState, } = require('core/state.js');
+const { getComponents, addComponent, replaceComponent, removeComponent, reorderComponent, getPanelState, setPanelState,
+  getResources, addResource, replaceResource, removeResource, getResourcePanelState, setResourcePanelState,
+  getDecks, addDeck, replaceDeck, removeDeck, getDeckPanelState, setDeckPanelState, } = require('core/state.js');
 const { updateComponent, cloneComponent } = require('core/component.js');
 const { createResource, resourceTypeForFileName, getComponentsUsingResource } = require('core/resource.js');
+const { getComponentsUsingDeck } = require('core/deck.js');
 const { convertImageToWebP } = require('core/imageConversion.js');
 const { createInfiniteTable } = require('ui/table.js');
 const { openComponentModal, createDefaultComponent } = require('ui/componentModal.js');
@@ -9044,6 +9726,9 @@ const { renderComponentList } = require('ui/componentList.js');
 const { renderComponentsOnTable } = require('ui/componentRenderer.js');
 const { openResourceModal } = require('ui/resourceModal.js');
 const { renderResourceList } = require('ui/resourceList.js');
+const { renderDeckList } = require('ui/deckList.js');
+const { openDeckModal } = require('ui/deckModal.js');
+const { openDeckDeleteConfirmModal } = require('ui/deckDeleteConfirmModal.js');
 const { showErrorModal } = require('ui/errorModal.js');
 const { openBatchUploadSummaryModal } = require('ui/batchUploadSummaryModal.js');
 
@@ -9058,10 +9743,12 @@ let selectedComponentId = null;
 function renderEditMode(container) {
   container.innerHTML = '';
 
-  const { position: panelPosition, width: panelWidth, columnWidths: panelColumnWidths } = getPanelState();
+  const { position: panelPosition, width: panelWidth, height: panelHeight, columnWidths: panelColumnWidths } = getPanelState();
   let collapsed = getPanelState().collapsed;
-  const { position: resourcePanelPosition, width: resourcePanelWidth, columnWidths: resourcePanelColumnWidths } = getResourcePanelState();
+  const { position: resourcePanelPosition, width: resourcePanelWidth, height: resourcePanelHeight, columnWidths: resourcePanelColumnWidths } = getResourcePanelState();
   let resourceCollapsed = getResourcePanelState().collapsed;
+  const { position: deckPanelPosition, width: deckPanelWidth, height: deckPanelHeight } = getDeckPanelState();
+  let deckCollapsed = getDeckPanelState().collapsed;
 
   const layout = document.createElement('div');
   layout.style.display = 'flex';
@@ -9100,6 +9787,19 @@ function renderEditMode(container) {
     resourceListContainer.style.width = `${resourcePanelWidth}px`;
   }
   tableContainer.appendChild(resourceListContainer);
+
+  // Floating panel with the deck list, independent position/width/collapse
+  const deckListContainer = document.createElement('div');
+  deckListContainer.className = 'deck-panel-container';
+  if (deckPanelPosition) {
+    deckListContainer.style.left = `${deckPanelPosition.left}px`;
+    deckListContainer.style.top = `${deckPanelPosition.top}px`;
+    deckListContainer.style.right = 'auto';
+  }
+  if (deckPanelWidth != null) {
+    deckListContainer.style.width = `${deckPanelWidth}px`;
+  }
+  tableContainer.appendChild(deckListContainer);
 
   const RESOURCE_ACCEPT = '.png,.jpg,.jpeg,.gif,.svg,.webp,.ttf,.otf,.woff,.woff2';
 
@@ -9201,6 +9901,28 @@ function renderEditMode(container) {
     return true;
   }
 
+  function attemptDeleteDeck(deck, { onDeleted } = {}) {
+    const affectedIds = getComponentsUsingDeck(deck.id, getComponents());
+    if (affectedIds.length > 0) {
+      openDeckDeleteConfirmModal({
+        deckName: deck.name,
+        cardIds: affectedIds,
+        onConfirm: () => {
+          for (const cardId of affectedIds) {
+            const card = getComponents().find((c) => c.id === cardId);
+            if (card) replaceComponent(cardId, updateComponent(card, { properties: { ...card.properties, deckId: null } }));
+          }
+          removeDeck(deck.id);
+          if (onDeleted) onDeleted();
+        },
+      });
+      return false;
+    }
+    if (!confirm(`¿Eliminar el mazo "${deck.name}"?`)) return false;
+    removeDeck(deck.id);
+    return true;
+  }
+
   function openEditModalFor(component) {
     openComponentModal({
       component,
@@ -9267,7 +9989,7 @@ function renderEditMode(container) {
       onEdit: openEditModalFor,
       onClone: (component) => {
         const clone = cloneComponent(component, getComponents());
-        insertComponentAfter(component, clone);
+        addComponent(clone);
       },
       onRemove: (component) => {
         removeComponent(component.id);
@@ -9285,9 +10007,10 @@ function renderEditMode(container) {
       onPanelMove: (left, top) => {
         setPanelState({ position: { left, top } });
       },
-      onPanelResize: (width) => {
-        setPanelState({ width });
+      onPanelResize: (width, height) => {
+        setPanelState(height ? { width, height } : { width });
       },
+      bodyHeight: panelHeight,
       columnWidths: panelColumnWidths,
       onColumnResize: (columnWidths) => {
         setPanelState({ columnWidths });
@@ -9317,13 +10040,43 @@ function renderEditMode(container) {
       onPanelMove: (left, top) => {
         setResourcePanelState({ position: { left, top } });
       },
-      onPanelResize: (width) => {
-        setResourcePanelState({ width });
+      onPanelResize: (width, height) => {
+        setResourcePanelState(height ? { width, height } : { width });
       },
+      bodyHeight: resourcePanelHeight,
       columnWidths: resourcePanelColumnWidths,
       onColumnResize: (columnWidths) => {
         setResourcePanelState({ columnWidths });
       },
+    });
+  }
+
+  function renderDeckPanel() {
+    renderDeckList(deckListContainer, getDecks(), {
+      onEdit: (deck) => {
+        openDeckModal({
+          deck,
+          onAccept: (updated) => replaceDeck(deck.id, updated),
+          onDelete: (d, closeModal) => attemptDeleteDeck(d, { onDeleted: closeModal }),
+        });
+      },
+      onRemove: (deck) => attemptDeleteDeck(deck),
+      onAdd: () => {
+        openDeckModal({ onAccept: (newDeck) => addDeck(newDeck) });
+      },
+      collapsed: deckCollapsed,
+      onToggleCollapse: () => {
+        deckCollapsed = !deckCollapsed;
+        setDeckPanelState({ collapsed: deckCollapsed });
+        renderDeckPanel();
+      },
+      onPanelMove: (left, top) => {
+        setDeckPanelState({ position: { left, top } });
+      },
+      onPanelResize: (width, height) => {
+        setDeckPanelState(height ? { width, height } : { width });
+      },
+      bodyHeight: deckPanelHeight,
     });
   }
 
@@ -9332,6 +10085,7 @@ function renderEditMode(container) {
   renderTable();
   renderList();
   renderResourcePanel();
+  renderDeckPanel();
 }
 
 module.exports.renderEditMode = renderEditMode;
@@ -9343,7 +10097,8 @@ __modules['main.js'] = function(module, exports, require) {
 const { on } = require('core/eventBus.js');
 const { MODES, getState, addComponent, loadComponents, getComponents, getPanelState, loadPanelState,
   addResource, loadResources, getResources, getResourcePanelState, loadResourcePanelState,
-  getResourcesSeeded, markResourcesSeeded, loadResourcesSeeded, getDecks, loadDecks, } = require('core/state.js');
+  getResourcesSeeded, markResourcesSeeded, loadResourcesSeeded, getDecks, loadDecks,
+  getDeckPanelState, loadDeckPanelState, } = require('core/state.js');
 const { CURRENT_VERSION } = require('data/version.js');
 const { DEFAULT_RESOURCES } = require('data/defaultResources.js');
 const { renderModeSwitcher, renderEditToolbar } = require('ui/editModeToggle.js');
@@ -9379,7 +10134,7 @@ function renderAll() {
 }
 
 function persistState() {
-  saveState(getComponents(), getPanelState(), getResources(), getResourcePanelState(), getResourcesSeeded(), getDecks());
+  saveState(getComponents(), getPanelState(), getResources(), getResourcePanelState(), getResourcesSeeded(), getDecks(), getDeckPanelState());
 }
 
 on('mode:changed', renderAll);
@@ -9390,7 +10145,9 @@ on('resources:changed', renderAll);
 on('resources:changed', persistState);
 on('resources:changed', (resources) => syncFontFaces(resources));
 on('resourcePanelState:changed', persistState);
+on('decks:changed', renderAll);
 on('decks:changed', persistState);
+on('deckPanelState:changed', persistState);
 
 function seedDefaultComponent() {
   const defaultComponent = createComponent({
@@ -9433,6 +10190,9 @@ if (saved?.error) {
   }
   if (saved.resourcePanelState) {
     loadResourcePanelState(saved.resourcePanelState);
+  }
+  if (saved.deckPanelState) {
+    loadDeckPanelState(saved.deckPanelState);
   }
   loadResourcesSeeded(saved.resourcesSeeded === true);
   loadComponents(saved.components);

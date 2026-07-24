@@ -6,6 +6,7 @@ import { attachColumnResizing } from './tableColumnResize.js';
 import { RESOURCE_TYPES } from '../core/resource.js';
 
 const MIN_PANEL_WIDTH = 290;
+const MIN_PANEL_BODY_HEIGHT = 96;
 const RESOURCE_LIST_COLUMNS = ['nombre', 'tipo', 'acciones'];
 
 const TYPE_LABELS = {
@@ -189,12 +190,14 @@ export function renderResourceList(
     onPanelResize,
     columnWidths = null,
     onColumnResize,
+    bodyHeight = null,
   } = {}
 ) {
   container.innerHTML = '';
 
   const panel = document.createElement('div');
   panel.className = 'resource-panel';
+  let body;
 
   const header = document.createElement('div');
   header.className = 'resource-panel__header';
@@ -272,8 +275,11 @@ export function renderResourceList(
       filterText = '';
     }
 
-    const body = document.createElement('div');
+    body = document.createElement('div');
     body.className = 'resource-panel__body';
+    if (bodyHeight != null) {
+      body.style.height = `${bodyHeight}px`;
+    }
     const displayedResources = resources.filter((r) => matchesFilter(r, filterText));
     title.textContent = `Recursos (${displayedResources.length})`;
     renderBody(body, displayedResources, { onEdit, onRemove, columnWidths, onColumnResize });
@@ -287,19 +293,29 @@ export function renderResourceList(
   }
 
   attachResizeHandle(panel, {
-    axis: 'x',
-    getSize: () => ({ width: container.getBoundingClientRect().width, height: 0 }),
-    clamp: ({ width }) => {
+    axis: collapsed ? 'x' : 'both',
+    getSize: () => ({
+      width: container.getBoundingClientRect().width,
+      height: body ? body.getBoundingClientRect().height : 0,
+    }),
+    clamp: ({ width, height }) => {
       const parentWidth = container.offsetParent ? container.offsetParent.clientWidth : window.innerWidth;
       const maxByRightEdge = parentWidth - container.offsetLeft;
-      return { width: Math.min(Math.max(width, MIN_PANEL_WIDTH), maxByRightEdge) };
+      const clampedWidth = Math.min(Math.max(width, MIN_PANEL_WIDTH), maxByRightEdge);
+      if (!body) return { width: clampedWidth, height };
+      const parentHeight = container.offsetParent ? container.offsetParent.clientHeight : window.innerHeight;
+      const maxByBottomEdge = parentHeight - container.offsetTop;
+      const clampedHeight = Math.min(Math.max(height, MIN_PANEL_BODY_HEIGHT), maxByBottomEdge);
+      return { width: clampedWidth, height: clampedHeight };
     },
-    onResize: ({ width }) => {
+    onResize: ({ width, height }) => {
       container.style.width = `${width}px`;
+      if (body) body.style.height = `${height}px`;
     },
-    onResizeEnd: ({ width }) => {
+    onResizeEnd: ({ width, height }) => {
       container.style.width = `${width}px`;
-      if (onPanelResize) onPanelResize(width);
+      if (body) body.style.height = `${height}px`;
+      if (onPanelResize) onPanelResize(width, height);
     },
   });
 

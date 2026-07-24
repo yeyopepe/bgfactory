@@ -6,6 +6,7 @@
 const ERROR_LABELS = {
   recurso: 'Recurso no incluido',
   mazo: 'Mazo no incluido',
+  mazoDuplicado: 'Nombre de mazo duplicado',
 };
 
 export function openImportReportModal(report) {

@@ -2,11 +2,13 @@
 // para editar) + panel flotante con listado de componentes y acciones de edición/borrado.
 
 import {
-  getComponents, addComponent, replaceComponent, removeComponent, reorderComponent, insertComponentAfter, getPanelState, setPanelState,
+  getComponents, addComponent, replaceComponent, removeComponent, reorderComponent, getPanelState, setPanelState,
   getResources, addResource, replaceResource, removeResource, getResourcePanelState, setResourcePanelState,
+  getDecks, addDeck, replaceDeck, removeDeck, getDeckPanelState, setDeckPanelState,
 } from '../../core/state.js';
 import { updateComponent, cloneComponent } from '../../core/component.js';
 import { createResource, resourceTypeForFileName, getComponentsUsingResource } from '../../core/resource.js';
+import { getComponentsUsingDeck } from '../../core/deck.js';
 import { convertImageToWebP } from '../../core/imageConversion.js';
 import { createInfiniteTable } from '../../ui/table.js';
 import { openComponentModal, createDefaultComponent } from '../../ui/componentModal.js';
@@ -15,6 +17,9 @@ import { renderComponentList } from '../../ui/componentList.js';
 import { renderComponentsOnTable } from '../../ui/componentRenderer.js';
 import { openResourceModal } from '../../ui/resourceModal.js';
 import { renderResourceList } from '../../ui/resourceList.js';
+import { renderDeckList } from '../../ui/deckList.js';
+import { openDeckModal } from '../../ui/deckModal.js';
+import { openDeckDeleteConfirmModal } from '../../ui/deckDeleteConfirmModal.js';
 import { showErrorModal } from '../../ui/errorModal.js';
 import { openBatchUploadSummaryModal } from '../../ui/batchUploadSummaryModal.js';
 
@@ -29,10 +34,12 @@ let selectedComponentId = null;
 export function renderEditMode(container) {
   container.innerHTML = '';
 
-  const { position: panelPosition, width: panelWidth, columnWidths: panelColumnWidths } = getPanelState();
+  const { position: panelPosition, width: panelWidth, height: panelHeight, columnWidths: panelColumnWidths } = getPanelState();
   let collapsed = getPanelState().collapsed;
-  const { position: resourcePanelPosition, width: resourcePanelWidth, columnWidths: resourcePanelColumnWidths } = getResourcePanelState();
+  const { position: resourcePanelPosition, width: resourcePanelWidth, height: resourcePanelHeight, columnWidths: resourcePanelColumnWidths } = getResourcePanelState();
   let resourceCollapsed = getResourcePanelState().collapsed;
+  const { position: deckPanelPosition, width: deckPanelWidth, height: deckPanelHeight } = getDeckPanelState();
+  let deckCollapsed = getDeckPanelState().collapsed;
 
   const layout = document.createElement('div');
   layout.style.display = 'flex';
@@ -71,6 +78,19 @@ export function renderEditMode(container) {
     resourceListContainer.style.width = `${resourcePanelWidth}px`;
   }
   tableContainer.appendChild(resourceListContainer);
+
+  // Floating panel with the deck list, independent position/width/collapse
+  const deckListContainer = document.createElement('div');
+  deckListContainer.className = 'deck-panel-container';
+  if (deckPanelPosition) {
+    deckListContainer.style.left = `${deckPanelPosition.left}px`;
+    deckListContainer.style.top = `${deckPanelPosition.top}px`;
+    deckListContainer.style.right = 'auto';
+  }
+  if (deckPanelWidth != null) {
+    deckListContainer.style.width = `${deckPanelWidth}px`;
+  }
+  tableContainer.appendChild(deckListContainer);
 
   const RESOURCE_ACCEPT = '.png,.jpg,.jpeg,.gif,.svg,.webp,.ttf,.otf,.woff,.woff2';
 
@@ -172,6 +192,28 @@ export function renderEditMode(container) {
     return true;
   }
 
+  function attemptDeleteDeck(deck, { onDeleted } = {}) {
+    const affectedIds = getComponentsUsingDeck(deck.id, getComponents());
+    if (affectedIds.length > 0) {
+      openDeckDeleteConfirmModal({
+        deckName: deck.name,
+        cardIds: affectedIds,
+        onConfirm: () => {
+          for (const cardId of affectedIds) {
+            const card = getComponents().find((c) => c.id === cardId);
+            if (card) replaceComponent(cardId, updateComponent(card, { properties: { ...card.properties, deckId: null } }));
+          }
+          removeDeck(deck.id);
+          if (onDeleted) onDeleted();
+        },
+      });
+      return false;
+    }
+    if (!confirm(`¿Eliminar el mazo "${deck.name}"?`)) return false;
+    removeDeck(deck.id);
+    return true;
+  }
+
   function openEditModalFor(component) {
     openComponentModal({
       component,
@@ -238,7 +280,7 @@ export function renderEditMode(container) {
       onEdit: openEditModalFor,
       onClone: (component) => {
         const clone = cloneComponent(component, getComponents());
-        insertComponentAfter(component, clone);
+        addComponent(clone);
       },
       onRemove: (component) => {
         removeComponent(component.id);
@@ -256,9 +298,10 @@ export function renderEditMode(container) {
       onPanelMove: (left, top) => {
         setPanelState({ position: { left, top } });
       },
-      onPanelResize: (width) => {
-        setPanelState({ width });
+      onPanelResize: (width, height) => {
+        setPanelState(height ? { width, height } : { width });
       },
+      bodyHeight: panelHeight,
       columnWidths: panelColumnWidths,
       onColumnResize: (columnWidths) => {
         setPanelState({ columnWidths });
@@ -288,13 +331,43 @@ export function renderEditMode(container) {
       onPanelMove: (left, top) => {
         setResourcePanelState({ position: { left, top } });
       },
-      onPanelResize: (width) => {
-        setResourcePanelState({ width });
+      onPanelResize: (width, height) => {
+        setResourcePanelState(height ? { width, height } : { width });
       },
+      bodyHeight: resourcePanelHeight,
       columnWidths: resourcePanelColumnWidths,
       onColumnResize: (columnWidths) => {
         setResourcePanelState({ columnWidths });
       },
+    });
+  }
+
+  function renderDeckPanel() {
+    renderDeckList(deckListContainer, getDecks(), {
+      onEdit: (deck) => {
+        openDeckModal({
+          deck,
+          onAccept: (updated) => replaceDeck(deck.id, updated),
+          onDelete: (d, closeModal) => attemptDeleteDeck(d, { onDeleted: closeModal }),
+        });
+      },
+      onRemove: (deck) => attemptDeleteDeck(deck),
+      onAdd: () => {
+        openDeckModal({ onAccept: (newDeck) => addDeck(newDeck) });
+      },
+      collapsed: deckCollapsed,
+      onToggleCollapse: () => {
+        deckCollapsed = !deckCollapsed;
+        setDeckPanelState({ collapsed: deckCollapsed });
+        renderDeckPanel();
+      },
+      onPanelMove: (left, top) => {
+        setDeckPanelState({ position: { left, top } });
+      },
+      onPanelResize: (width, height) => {
+        setDeckPanelState(height ? { width, height } : { width });
+      },
+      bodyHeight: deckPanelHeight,
     });
   }
 
@@ -303,4 +376,5 @@ export function renderEditMode(container) {
   renderTable();
   renderList();
   renderResourcePanel();
+  renderDeckPanel();
 }

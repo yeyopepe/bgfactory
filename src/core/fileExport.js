@@ -4,10 +4,10 @@
 
 import { CURRENT_VERSION } from '../data/version.js';
 
-export function buildExportHtml(components, resources, panelState, resourcePanelState, resourcesSeeded, decks) {
+export function buildExportHtml(components, resources, panelState, resourcePanelState, resourcesSeeded, decks, deckPanelState) {
   const clone = document.documentElement.cloneNode(true);
   const seedEl = clone.querySelector('#initial-state');
-  seedEl.textContent = JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, decks });
+  seedEl.textContent = JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, decks, deckPanelState });
   return `<!doctype html>\n${clone.outerHTML}`;
 }
 

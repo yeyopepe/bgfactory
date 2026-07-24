@@ -3,7 +3,7 @@
 
 import { getComponents, getResources, getDecks, addDeck } from '../core/state.js';
 import { createComponent, updateComponent } from '../core/component.js';
-import { createDeck } from '../core/deck.js';
+import { createDeck, isDeckNameTaken } from '../core/deck.js';
 import { createHelpIcon } from './helpIcon.js';
 import { openBoardPatternModal } from './boardPatternModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
@@ -1081,8 +1081,10 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
     const newDeckRow = document.createElement('div');
     newDeckRow.style.display = 'none';
-    newDeckRow.style.gap = '0.5rem';
     newDeckRow.style.marginTop = '0.5rem';
+    const newDeckInputRow = document.createElement('div');
+    newDeckInputRow.style.display = 'flex';
+    newDeckInputRow.style.gap = '0.5rem';
     const newDeckInput = document.createElement('input');
     newDeckInput.type = 'text';
     newDeckInput.placeholder = 'Nombre del mazo nuevo';
@@ -1090,8 +1092,14 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     newDeckCreateBtn.type = 'button';
     newDeckCreateBtn.className = 'btn-cancel';
     newDeckCreateBtn.textContent = 'Crear';
-    newDeckRow.appendChild(newDeckInput);
-    newDeckRow.appendChild(newDeckCreateBtn);
+    newDeckInputRow.appendChild(newDeckInput);
+    newDeckInputRow.appendChild(newDeckCreateBtn);
+    const newDeckError = document.createElement('div');
+    newDeckError.className = 'modal__error';
+    newDeckError.style.display = 'none';
+    newDeckError.style.marginTop = '0.25rem';
+    newDeckRow.appendChild(newDeckInputRow);
+    newDeckRow.appendChild(newDeckError);
 
     function populateDeckSelect() {
       deckSelect.innerHTML = '';
@@ -1116,9 +1124,25 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     }
     populateDeckSelect();
 
+    function validateNewDeckName() {
+      const name = newDeckInput.value.trim();
+      if (!name) {
+        newDeckError.textContent = 'El nombre no puede estar vacío';
+        newDeckError.style.display = 'block';
+        return false;
+      }
+      if (isDeckNameTaken(name, getDecks())) {
+        newDeckError.textContent = 'Ya existe un mazo con este nombre';
+        newDeckError.style.display = 'block';
+        return false;
+      }
+      newDeckError.style.display = 'none';
+      return true;
+    }
+
     deckSelect.addEventListener('change', () => {
       if (deckSelect.value === NEW_DECK_VALUE) {
-        newDeckRow.style.display = 'flex';
+        newDeckRow.style.display = 'block';
         newDeckInput.focus();
         return;
       }
@@ -1126,9 +1150,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       props.deckId = deckSelect.value || null;
     });
 
+    newDeckInput.addEventListener('input', validateNewDeckName);
+
     newDeckCreateBtn.addEventListener('click', () => {
+      if (!validateNewDeckName()) return;
       const name = newDeckInput.value.trim();
-      if (!name) return;
       const deck = createDeck({ name });
       addDeck(deck);
       props.deckId = deck.id;

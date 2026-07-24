@@ -18,15 +18,16 @@ function parseState(raw) {
   }
   const panelState = (parsed.panelState && typeof parsed.panelState === 'object') ? parsed.panelState : null;
   const resourcePanelState = (parsed.resourcePanelState && typeof parsed.resourcePanelState === 'object') ? parsed.resourcePanelState : null;
+  const deckPanelState = (parsed.deckPanelState && typeof parsed.deckPanelState === 'object') ? parsed.deckPanelState : null;
   const resources = Array.isArray(parsed.resources) ? parsed.resources : [];
   const resourcesSeeded = parsed.resourcesSeeded === true;
   const decks = Array.isArray(parsed.decks) ? parsed.decks : [];
-  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded, decks };
+  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded, decks, deckPanelState };
 }
 
-export function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded, decks) {
+export function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded, decks, deckPanelState) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, decks }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, decks, deckPanelState }));
   } catch {
     // Cuota excedida u otro fallo de localStorage: el autoguardado se omite
     // silenciosamente, sin interrumpir el uso normal de la aplicación.
