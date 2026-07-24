@@ -31,6 +31,19 @@ import { openBatchUploadSummaryModal } from '../../ui/batchUploadSummaryModal.js
 // persisten en el autoguardado.
 let selectedComponentId = null;
 
+// Atajo de teclado SUPR (`ui/globalShortcuts.js`) sin ninguna modal abierta: reutiliza
+// el mismo camino de borrado que ya usa la fila de `ui/componentList.js` (confirmación
+// con el mismo texto, luego `removeComponent`), sin resetear `selectedComponentId` para
+// no introducir una diferencia de comportamiento nueva respecto a ese camino existente.
+export function deleteSelectedComponent() {
+  if (!selectedComponentId) return;
+  const component = getComponents().find((c) => c.id === selectedComponentId);
+  if (!component) return;
+  if (confirm(`¿Eliminar el componente "${component.id}"?`)) {
+    removeComponent(component.id);
+  }
+}
+
 export function renderEditMode(container) {
   container.innerHTML = '';
 

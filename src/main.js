@@ -11,8 +11,9 @@ import {
 import { CURRENT_VERSION } from './data/version.js';
 import { DEFAULT_RESOURCES } from './data/defaultResources.js';
 import { renderModeSwitcher, renderEditToolbar } from './ui/editModeToggle.js';
+import { initGlobalShortcuts } from './ui/globalShortcuts.js';
 import { renderPlayMode } from './modes/play/playMode.js';
-import { renderEditMode } from './modes/edit/editMode.js';
+import { renderEditMode, deleteSelectedComponent } from './modes/edit/editMode.js';
 import { createComponent } from './core/component.js';
 import { createResource } from './core/resource.js';
 import { saveState, loadState, readSeedState } from './core/persistence.js';
@@ -57,6 +58,11 @@ on('resourcePanelState:changed', persistState);
 on('decks:changed', renderAll);
 on('decks:changed', persistState);
 on('deckPanelState:changed', persistState);
+
+initGlobalShortcuts({
+  isEditMode: () => getState().mode === MODES.EDIT,
+  onDeleteSelected: () => deleteSelectedComponent(),
+});
 
 function seedDefaultComponent() {
   const defaultComponent = createComponent({

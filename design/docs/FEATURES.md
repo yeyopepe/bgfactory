@@ -221,6 +221,19 @@ En modo edición, la etiqueta identificativa se muestra siempre, para cualquier 
 - **Disponible en**: modo juego (tooltip nativo del navegador al dejar el ratón quieto sobre el componente, solo si el componente tiene "Mostrar tooltip" activado) y modo edición (una pequeña etiqueta propia anclada en la esquina superior izquierda del componente, visible en los mismos momentos en que ya se resalta con el contorno azul discontinuo: al pasar el ratón por encima o cuando está seleccionado, sin depender de ningún checkbox).
 - **Código**: 00032, 00034.
 
+### Atajos de teclado en modo edición
+
+Tres atajos de teclado generales, equivalentes directos de botones ya existentes — no añaden ninguna acción, confirmación ni validación nueva, solo un disparador rápido de lo que ya existe:
+
+- **ESC**: equivale al botón "Cancelar" (o "Cerrar", en ventanas que solo tienen ese botón de cierre) de la ventana modal que esté abierta en ese momento. Con varias modales abiertas a la vez (una lanzada desde dentro de otra), solo afecta a la última abierta, sin cerrar las de debajo.
+- **INTRO**: equivale al botón "Aceptar" de la modal abierta, si la tiene y no está deshabilitado (p. ej. por una validación no superada) — en ventanas que solo tienen "Cerrar" no hace nada, al no existir botón "Aceptar". Con el foco en un cuadro de texto de varias líneas (p. ej. el contenido de un documento), Intro sigue insertando un salto de línea con normalidad en vez de disparar "Aceptar".
+- **SUPR**: equivale al botón "Suprimir"/"Eliminar" de la modal abierta, si la tiene; si no hay ninguna modal abierta pero hay un componente seleccionado en el panel flotante o en la mesa, lo elimina directamente (mismo efecto que su botón "Eliminar" habitual, con la misma confirmación previa). Con el foco en cualquier campo de texto no interfiere con borrar caracteres mientras se escribe.
+
+Cuando el botón equivalente no existe en el contexto actual (p. ej. INTRO en una ventana que solo tiene "Cerrar", o SUPR sin ninguna modal abierta y sin ningún componente seleccionado), la tecla no hace nada. Todas las vías de borrado siguen pidiendo la misma confirmación que ya pedían sus botones equivalentes.
+
+- **Disponible en**: modo edición.
+- **Código**: 00078.
+
 ## Persistencia y guardado
 
 ### Autoguardado en el navegador
