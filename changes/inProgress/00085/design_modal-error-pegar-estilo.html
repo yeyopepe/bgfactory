@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Modal — Error al pegar estilo</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e8e8e8;
+    --error: #d32f2f;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-2: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+  .modal-overlay-static {
+    background: rgba(0,0,0,0.5);
+    padding: 3rem;
+    border-radius: var(--radius-lg);
+    display: inline-block;
+  }
+  .modal {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    width: 420px;
+    max-width: 500px;
+    color: var(--text-primary);
+  }
+
+  /* Reflejo fiel de .modal__header--error / .modal__error-icon (ui/errorModal.js + main.css) */
+  .modal__header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .modal__error-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--error);
+    color: var(--text-light);
+    font-size: 0.75rem;
+    flex-shrink: 0;
+    font-weight: bold;
+  }
+  .modal__header-title {
+    margin: 0;
+    font-size: 1.125rem;
+    color: var(--text-primary);
+  }
+
+  .modal__content { padding: 1rem; }
+  .modal__content p { margin: 0; font-size: 0.875rem; line-height: 1.5; }
+
+  /* Tabla de detalle — mismo patrón que .import-report-modal__table (STYLE_BIBLE.md sección 12.1.1) */
+  .error-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+    margin-top: 0.75rem;
+  }
+  .error-detail-table th {
+    padding: 0.5rem;
+    text-align: left;
+    font-weight: 500;
+    background: var(--bg-subtle);
+  }
+  .error-detail-table td {
+    padding: 0.5rem;
+    border-top: 1px solid var(--border-neutral);
+  }
+
+  .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  .btn-cancel {
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+  }
+  .btn-cancel:hover { background: var(--bg-hover); }
+
+  .caption {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.75rem;
+    margin-top: 0.75rem;
+    opacity: 0.85;
+    max-width: 420px;
+  }
+</style>
+</head>
+<body>
+  <div>
+    <div class="modal-overlay-static">
+      <div class="modal">
+        <div class="modal__header">
+          <span class="modal__error-icon">!</span>
+          <h2 class="modal__header-title">No se pudo pegar el estilo</h2>
+        </div>
+        <div class="modal__content">
+          <p>El estilo copiado hace referencia a elementos que ya no existen en el proyecto. No se ha modificado nada de esta carta.</p>
+          <table class="error-detail-table">
+            <thead>
+              <tr>
+                <th>Elemento</th>
+                <th>Referencia</th>
+                <th>Detalle</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Mazo</td>
+                <td>Mazo</td>
+                <td>"Cartas de Evento" ya no existe</td>
+              </tr>
+              <tr>
+                <td>Cara frontal</td>
+                <td>Imagen de fondo</td>
+                <td>Recurso ya no existe</td>
+              </tr>
+              <tr>
+                <td>Cara frontal</td>
+                <td>Tipografía (cuadro de texto "Título")</td>
+                <td>Recurso ya no existe</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal__footer">
+          <button class="btn-cancel">Cerrar</button>
+        </div>
+      </div>
+    </div>
+    <div class="caption">Maqueta: error al pulsar "Pegar estilo" cuando algo referenciado por el estilo copiado (mazo, imagen, tipografía) ya no existe — mismo patrón que showErrorModal, con el detalle en tabla (mismo criterio que import-report-modal__table); ningún cambio se aplica a la carta</div>
+  </div>
+</body>
+</html>

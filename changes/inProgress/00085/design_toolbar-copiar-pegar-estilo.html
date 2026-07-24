@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Modal de configuración de carta — Copiar/Pegar estilo</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --bg-toolbar: #333333;
+    --accent-blue: #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e8e8e8;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-1: 0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);
+    --shadow-2: 0 4px 20px rgba(0,0,0,0.15);
+    --transition-fast: 150ms ease;
+    --success: #2e7d32;
+    --section-accent: #5b5f97;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    padding: 2rem;
+    color: var(--text-primary);
+    display: flex;
+    justify-content: center;
+  }
+  .modal-overlay-static {
+    background: rgba(0,0,0,0.5);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    display: inline-block;
+  }
+  .modal {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    width: 460px;
+    max-width: 92vw;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal__header {
+    padding: 1rem;
+    font-size: 1.125rem;
+    font-weight: 500;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+
+  /* Pestañas — reflejo fiel de .modal__tabs / .modal__tab de main.css */
+  .modal__tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+  .modal__tab {
+    padding: 0.75rem 1rem;
+    background: var(--bg-hover);
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    border-bottom: 2px solid transparent;
+  }
+  .modal__tab.active {
+    background: #fff;
+    color: var(--text-primary);
+    border-bottom-color: var(--accent-blue);
+  }
+
+  .modal__content { padding: 1.5rem; }
+
+  .modal__field { margin-bottom: 1rem; }
+  .modal__field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+  .modal__field select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+
+  /* Sección propia — reflejo fiel de fieldset.modal__section / legend.modal__section-title
+     (STYLE_BIBLE.md sección 12.6), variante meramente informativa */
+  fieldset.modal__section {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    margin: 1rem -0.25rem 0;
+    padding: 1rem 1.25rem;
+  }
+  fieldset.modal__section > *:last-child { margin-bottom: 0; }
+  legend.modal__section-title {
+    padding: 0 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--section-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .style-actions-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .style-actions-row .btn { flex: 1; }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background var(--transition-fast), opacity var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+  .btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; flex-shrink: 0; }
+  .btn-cancel { background: var(--bg-subtle); color: var(--text-primary); }
+  .btn-cancel:hover { background: var(--bg-hover); }
+  .btn-cancel:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-cancel:disabled:hover { background: var(--bg-subtle); }
+
+  .modal__hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0.5rem 0 0;
+  }
+
+  .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+  .btn-accept { background: var(--accent-blue); color: var(--text-light); }
+
+  .toast {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    background: var(--bg-toolbar);
+    color: var(--text-light);
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-1);
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .toast__icon { color: var(--success); font-weight: bold; }
+
+  .caption {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.75rem;
+    margin-top: 0.75rem;
+    opacity: 0.85;
+    max-width: 460px;
+  }
+</style>
+</head>
+<body>
+  <div>
+    <div class="modal-overlay-static">
+      <div class="modal">
+        <div class="modal__header">Editar componente</div>
+        <div class="modal__tabs">
+          <button class="modal__tab">Generales</button>
+          <button class="modal__tab active">Específicas</button>
+        </div>
+        <div class="modal__content">
+          <div class="modal__field">
+            <label>Proporción</label>
+            <select><option>Poker vertical (5:7)</option></select>
+          </div>
+
+          <div class="modal__field">
+            <label>Mazo</label>
+            <select><option>Cartas de Evento</option></select>
+          </div>
+
+          <div class="modal__field">
+            <button class="btn btn-cancel" style="width:100%">Editar diseño de la carta</button>
+          </div>
+
+          <!-- Bloque nuevo de este cambio: sección propia, no un modal__field suelto -->
+          <fieldset class="modal__section">
+            <legend class="modal__section-title">Estilo de la carta</legend>
+            <div class="style-actions-row">
+              <button class="btn btn-cancel" title="Elegir qué copiar (proporción, mazo, cara frontal, cara trasera)">
+                <svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="1.5"/><path d="M5 15V5a1.5 1.5 0 0 1 1.5-1.5H15"/></svg>
+                Copiar estilo
+              </button>
+              <button class="btn btn-cancel" disabled title="Pegar estilo (nada copiado)">
+                <svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="16" rx="1.5"/><path d="M9 4h6v2H9z"/></svg>
+                Pegar estilo
+              </button>
+            </div>
+            <p class="modal__hint">Copia/pega solo los elementos que elijas: proporción, mazo, cara frontal y/o cara trasera.</p>
+          </fieldset>
+        </div>
+        <div class="modal__footer">
+          <button class="btn-cancel">Cancelar</button>
+          <button class="btn-accept">Aceptar</button>
+        </div>
+      </div>
+    </div>
+    <div class="caption">Maqueta: pestaña "Específicas" de la modal de configuración de una carta (ya existente, con Proporción/Mazo/"Editar diseño de la carta"), con la sección nueva "Estilo de la carta" — "Pegar estilo" deshabilitado sin nada copiado. Ver también design_modal-seleccion-elementos-estilo.html y design_modal-error-pegar-estilo.html</div>
+  </div>
+
+  <div class="toast">
+    <span class="toast__icon">✓</span>
+    Estilo copiado
+  </div>
+</body>
+</html>

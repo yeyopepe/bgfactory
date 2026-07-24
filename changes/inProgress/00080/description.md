@@ -7,6 +7,8 @@
 quiero crear un script en /src/scripts para generar una nueva versión pero solo la mesa de juego, sin el modo edición. Para ello supongo que es más fácil primero tener marcadores en el código que diferencien código exclusivo de cada código para que el script pueda hacer limpieza, no solo eliminar el botón del modo edición.
 No hace falta borrar el 100% del código del modo edición, pero sí todo lo que sea exclusivo de ese modo. Lo que sea compartido o del modo juego, se queda
 
+**Ampliación:** añade que además se deben eliminar todos los recursos que no están siendo usados en ningún elemento del juego.
+
 ## Descripción completa
 
 Se quiere un script nuevo, independiente del script de build actual, que genere una variante del entregable jugable en la que solo exista el modo mesa de juego: sin el botón para entrar en modo edición, sin la barra de herramientas de edición, sin los paneles de gestión de componentes/recursos, sin las ventanas de configuración/edición ni las de exportar/importar partida. Todo lo que hoy es exclusivo del modo edición desaparece de esta variante; todo lo que es compartido con el modo juego (el modelo de datos de los componentes, el autoguardado, la mesa infinita, la interacción con fichas/dados/cartas, etc.) se mantiene igual que hoy.
@@ -29,6 +31,22 @@ Quién puede usar este script: es una herramienta para quien desarrolla el proye
 
 Sin componente visual: es una herramienta de generación de fichero, no añade ni cambia ninguna pantalla ni elemento de interfaz.
 
+## Ampliación: eliminar recursos no usados en el entregable de solo mesa
+
+Además de recortar el código exclusivo de modo edición, el script nuevo de "solo mesa" debe eliminar de la galería de recursos (imágenes y tipografías) de la partida que empaqueta cualquier recurso que ningún elemento del juego esté usando, para que el entregable no cargue con recursos que nunca se van a ver.
+
+Preguntas de alcance resueltas con el usuario:
+
+- **¿Qué cuenta como "recurso usado"?** Un recurso está en uso si algún componente lo referencia, en cualquier profundidad de sus propiedades (imagen de fondo de un tablero/ficha, tipografía de un dado, imagen o tipografía de cualquier cara de una carta, etc.), sea cual sea el tipo de componente o de recurso — la misma noción de "en uso" que ya impide hoy borrar un recurso a mano desde el panel de edición.
+- **¿Se eliminan también los recursos por defecto (los 38 con los que arranca una partida nueva: fondos de localización, mochila, objetos, reversos de evento) si no los usa ningún componente?** Sí, sin trato especial: se les aplica la misma comprobación que a cualquier recurso subido a mano — si no están en uso, se eliminan igual del entregable de solo mesa.
+- **¿Esta limpieza afecta también al proceso de build oficial (`build.py`, versiones normales con mesa + edición)?** No. Es exclusiva del script nuevo de solo mesa; `build.py` sigue generando las versiones oficiales tal cual, sin tocar recursos.
+
+Casos límite: si la partida empaquetada no tiene ningún componente (mesa vacía), todos sus recursos se consideran no usados y se eliminan igualmente — es el mismo criterio aplicado sin excepción, no un caso especial a evitar.
+
+Quién puede usarlo: sigue siendo la misma herramienta de desarrollo de antes, sin cambios de alcance en quién la ejecuta.
+
+Sin componente visual: esta ampliación tampoco añade ni cambia ninguna pantalla ni elemento de interfaz.
+
 ## Apuntes técnicos
 
 - El script de build actual (`src/scripts/build.py`) empaqueta el entregable recorriendo el grafo de imports ES estático a partir de `src/main.js` (funciones `visit_module`/`IMPORT_PATTERN`); no hay ningún tipo de eliminación de código muerto más allá de esa alcanzabilidad. Por eso ocultar el botón de modo edición no basta por sí solo: `src/modes/edit/editMode.js` y todo el subárbol de `src/ui/*.js` que solo él importa siguen siendo alcanzables (y por tanto incluidos en el bundle) mientras `src/main.js` siga importándolos.
@@ -44,3 +62,5 @@ Sin componente visual: es una herramienta de generación de fichero, no añade n
 - El script nuevo NO debe escribir en `src/data/version.js` ni incrementar `CURRENT_VERSION` — debe leer la versión actual tal cual (mismo patrón de lectura que ya usa `build.py`) y usarla solo para nombrar su fichero de salida, en una carpeta propia distinta de `src/_output/versions/` (p. ej. `src/_output/gameOnly/`), con un nombre que la distinga de las builds oficiales (p. ej. `index-mesa-v{XXXX}.html`).
 - Nota de contexto para el futuro (no bloquea esta implementación): el usuario prevé que la skill `ms-version` desaparecerá más adelante, y que cualquier lógica que hoy dependa de esa skill debería vivir directamente en los scripts de build. Revisado `.claude/skills/ms-version/SKILL.md`: hoy ya es un wrapper fino que solo ejecuta `buildCommand` (`python ./src/scripts/build.py`) y verifica el resultado — toda la lógica real (incrementar versión, generar el bundle) ya vive en `build.py`, no en la skill. No hay nada que migrar ahora mismo; el script nuevo de solo-mesa debe seguir el mismo principio, quedando autocontenido en Python sin depender de ninguna skill para su lógica.
 - `.claude/ms-context.json` no tiene (ni necesita) ningún campo para este script nuevo: no forma parte del proceso de versión del framework (`framework.versioning`/`buildCommand`/`buildOutputPath` siguen apuntando solo a `build.py`).
+- **Recursos: base de datos ya existente para "en uso" (reutilizable, no hace falta reimplementarla):** `core/resource.js` ya expone `isResourceInUse(resourceId, components)` y `getComponentsUsingResource(resourceId, components)`, apoyadas en el helper `collectDeepValues(value)` que recorre `component.properties` en profundidad — es exactamente la comprobación que necesita esta ampliación, aplicada a cada recurso de `getResources()`/`resources` contra la lista de componentes de la partida empaquetada.
+- **Punto abierto para `ms-how` (no resuelto en este análisis funcional):** hoy el script de "solo mesa" (según lo documentado más arriba) solo recorta código, partiendo de la misma semilla vacía que usa `build.py` (`#initial-state` de `src/index.html`, sin componentes ni recursos en uso todavía). Para que esta limpieza de recursos tenga efecto real hace falta que el script opere sobre una partida ya diseñada (con sus componentes y su galería de recursos reales) en vez de una mesa vacía — si no, al no haber componentes, se eliminarían siempre los 38 recursos por defecto sin excepción. De dónde saca el script esa partida (un fichero ya exportado que se le pase como entrada, el `localStorage` de desarrollo, u otra vía) es una decisión técnica que debe resolver `ms-how` al planificar la solución, no algo ya decidido en esta descripción funcional.
