@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-24T11:30:42Z",
+  "generatedAt": "2026-07-25T10:20:38Z",
   "basePath": "src",
   "nodes": [
     {
@@ -218,7 +218,7 @@
       "exports": [
         "renderPlayMode"
       ],
-      "purpose": "Modo juego: renderiza la mesa infinita con los componentes interactuables (mover, lanzar dado, voltear carta) sin listados ni edición."
+      "purpose": "Modo juego: renderiza la mesa infinita con los componentes interactuables (mover, lanzar dado, voltear carta, menú contextual de click derecho con bloquear/desbloquear) sin listados ni edición."
     },
     {
       "id": "ui/batchUploadSummaryModal.js",
@@ -298,7 +298,7 @@
         "getComponentsBounds",
         "renderComponentsOnTable"
       ],
-      "purpose": "Renderiza los componentes de juego sobre la mesa infinita, con toda la interacción visual específica de cada tipo (mover, redimensionar, lanzar dado, voltear carta...)."
+      "purpose": "Renderiza los componentes de juego sobre la mesa infinita, con toda la interacción visual específica de cada tipo (mover, redimensionar, lanzar dado, voltear carta, menú contextual, indicador de candado...)."
     },
     {
       "id": "ui/componentTypeModal.js",
@@ -308,6 +308,15 @@
         "openComponentTypeModal"
       ],
       "purpose": "Modal previa al alta de un componente para elegir su tipo antes de abrir la modal de configuración."
+    },
+    {
+      "id": "ui/contextMenu.js",
+      "type": "file",
+      "path": "ui/contextMenu.js",
+      "exports": [
+        "openContextMenu"
+      ],
+      "purpose": "Menú contextual genérico posicionado junto al cursor, con secciones general/específica separadas por un separador opcional, singleton y cierre por click fuera/ESC/selección de ítem."
     },
     {
       "id": "ui/deckDeleteConfirmModal.js",
@@ -1005,7 +1014,7 @@
       "type": "function",
       "path": "modes/play/playMode.js",
       "parent": "modes/play/playMode.js",
-      "purpose": "Renderiza el modo juego completo: mesa con componentes interactuables (mover, lanzar dado, voltear carta)."
+      "purpose": "Renderiza el modo juego completo: mesa con componentes interactuables (mover, lanzar dado, voltear carta) y menú contextual de click derecho (selección transitoria + bloquear/desbloquear)."
     },
     {
       "id": "ui/batchUploadSummaryModal.js#openBatchUploadSummaryModal",
@@ -1082,7 +1091,7 @@
       "type": "function",
       "path": "ui/componentRenderer.js",
       "parent": "ui/componentRenderer.js",
-      "purpose": "Renderiza todos los componentes sobre la mesa infinita con su interacción (mover, redimensionar, seleccionar, interactuar)."
+      "purpose": "Renderiza todos los componentes sobre la mesa infinita con su interacción (mover, redimensionar, seleccionar, interactuar, abrir menú contextual con onContextMenu, mostrar indicador de candado con showLockIndicator)."
     },
     {
       "id": "ui/componentTypeModal.js#openComponentTypeModal",
@@ -1090,6 +1099,13 @@
       "path": "ui/componentTypeModal.js",
       "parent": "ui/componentTypeModal.js",
       "purpose": "Abre la modal previa al alta para elegir el tipo de componente a crear."
+    },
+    {
+      "id": "ui/contextMenu.js#openContextMenu",
+      "type": "function",
+      "path": "ui/contextMenu.js",
+      "parent": "ui/contextMenu.js",
+      "purpose": "Abre (cerrando cualquier otro ya abierto) un menú contextual en (x, y) con las filas de generalItems y, si hay alguna, specificItems tras un separador; invoca onClose al cerrarse por cualquier vía."
     },
     {
       "id": "ui/deckDeleteConfirmModal.js#openDeckDeleteConfirmModal",
@@ -1572,6 +1588,11 @@
     },
     {
       "source": "modes/play/playMode.js#renderPlayMode",
+      "target": "ui/contextMenu.js#openContextMenu",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/play/playMode.js#renderPlayMode",
       "target": "ui/diceResultModal.js#openDiceResultModal",
       "relation": "calls"
     },
@@ -2028,6 +2049,11 @@
     {
       "source": "modes/play/playMode.js",
       "target": "ui/componentRenderer.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/play/playMode.js",
+      "target": "ui/contextMenu.js",
       "relation": "imports"
     },
     {
