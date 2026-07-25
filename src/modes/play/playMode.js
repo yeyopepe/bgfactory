@@ -16,6 +16,39 @@ import { openContextMenu } from '../../ui/contextMenu.js';
 // juego más allá de este, ligado siempre al menú contextual abierto.
 let selectedComponentId = null;
 
+const interactionsByType = {
+  'texto': [
+    { label: 'Clic izquierdo', value: 'Ninguno' },
+    { label: 'Doble clic izquierdo', value: 'Ninguno' },
+    { label: 'Clic derecho', value: 'Abrir este menú' },
+  ],
+  'tablero': [
+    { label: 'Clic izquierdo', value: 'Ninguno' },
+    { label: 'Doble clic izquierdo', value: 'Ninguno' },
+    { label: 'Clic derecho', value: 'Abrir este menú' },
+  ],
+  'documento': [
+    { label: 'Clic izquierdo', value: 'Ninguno' },
+    { label: 'Doble clic izquierdo', value: 'Ninguno' },
+    { label: 'Clic derecho', value: 'Abrir este menú' },
+  ],
+  'ficha': [
+    { label: 'Clic izquierdo', value: 'Ninguno' },
+    { label: 'Doble clic izquierdo', value: 'Ninguno' },
+    { label: 'Clic derecho', value: 'Abrir este menú' },
+  ],
+  'dado': [
+    { label: 'Clic izquierdo', value: 'Lanzar el dado' },
+    { label: 'Doble clic izquierdo', value: 'Ver el resultado en grande' },
+    { label: 'Clic derecho', value: 'Abrir este menú' },
+  ],
+  'carta': [
+    { label: 'Clic izquierdo', value: 'Voltear la carta' },
+    { label: 'Doble clic izquierdo', value: 'Ninguno' },
+    { label: 'Clic derecho', value: 'Abrir este menú' },
+  ],
+};
+
 function createLockIcon(open) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 24 24');
@@ -79,6 +112,7 @@ export function renderPlayMode(container) {
               },
             },
           ],
+          interactionItems: interactionsByType[component.type] || [],
           onClose: () => {
             selectedComponentId = null;
             renderTable();

@@ -5,7 +5,7 @@
     "overrides": {
       "ms-status": { "model": "claude-haiku-4-5-20251001", "effort": "medium" },
       "ms-todo": { "model": "claude-haiku-4-5-20251001", "effort": "medium" },
-      "ms-fast": { "model": "claude-haiku-4-5-20251001", "effort": "medium" },
+      "ms-fast": { "model": "claude-haiku-4-5-20251001", "effort": "high" },
       "ms-do": { "model": "claude-haiku-4-5-20251001", "effort": "high" }
     }
   },

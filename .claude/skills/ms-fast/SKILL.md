@@ -3,9 +3,9 @@ name: ms-fast
 description: Aplica directamente un cambio muy pequeño y de análisis casi nulo (typo, ajuste de un valor/constante, texto, un estilo puntual...), sin pasar por el flujo inProgress→plan→implementado del resto del framework. Nunca toca arquitectura ni biblia de estilo. Si al analizarlo resulta que afecta a arquitectura/estilo, falta información, o toca más de 2 ficheros, no implementa nada: avisa al usuario e invoca ms-new con su petición para iniciar la definición de un change. Si procede, aplica el cambio y documenta directamente en {changesDir}/implemented/fast-<título>_<yyyyMMdd>/description.md. Parte del framework ms-*. Trigger: /ms-fast <descripción>, o cuando el usuario pide explícitamente "algo rápido"/"un fast" para un cambio trivial.
 argument-hint: <descripción del cambio a aplicar>
 model: claude-haiku-4-5-20251001
-effort: medium
+effort: high
 metadata:
-  version: 1.2.3
+  version: 1.2.4
   uses: [ms-internal-tech-analysis, ms-new]
 ---
 

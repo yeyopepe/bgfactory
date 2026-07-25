@@ -84,11 +84,11 @@ export function openCardEditorModal({ component, onAccept }) {
   adjustImageBtn.className = 'btn-cancel card-editor-modal__adjust-image';
   adjustImageBtn.textContent = 'Ajustar imagen…';
   adjustImageBtn.addEventListener('click', () => openAdjustSession());
-  content.appendChild(adjustImageBtn);
 
   function renderFaces() {
     facesRow.innerHTML = '';
     facesRow.appendChild(renderFace('caraFrontal', 'Cara frontal'));
+    facesRow.appendChild(adjustImageBtn);
     facesRow.appendChild(renderFace('caraTrasera', 'Cara trasera'));
     adjustImageBtn.disabled = !working.caraFrontal.imagenResourceId && !working.caraTrasera.imagenResourceId;
   }
@@ -121,6 +121,7 @@ export function openCardEditorModal({ component, onAccept }) {
           height: designHeight,
           resource: frontalResource,
           adjustment: working.caraFrontal.ajusteImagen,
+          transparencia: working.caraFrontal.transparenciaImagen,
         },
         {
           key: 'caraTrasera',
@@ -130,12 +131,23 @@ export function openCardEditorModal({ component, onAccept }) {
           height: designHeight,
           resource: traseraResource,
           adjustment: working.caraTrasera.ajusteImagen,
+          transparencia: working.caraTrasera.transparenciaImagen,
         },
       ],
       initialFocusKey: initialKey,
       onAccept: (adjustments) => {
-        working.caraFrontal.ajusteImagen = adjustments.caraFrontal;
-        working.caraTrasera.ajusteImagen = adjustments.caraTrasera;
+        working.caraFrontal.ajusteImagen = {
+          zoom: adjustments.caraFrontal.zoom,
+          posX: adjustments.caraFrontal.posX,
+          posY: adjustments.caraFrontal.posY,
+        };
+        working.caraFrontal.transparenciaImagen = adjustments.caraFrontal.transparencia;
+        working.caraTrasera.ajusteImagen = {
+          zoom: adjustments.caraTrasera.zoom,
+          posX: adjustments.caraTrasera.posX,
+          posY: adjustments.caraTrasera.posY,
+        };
+        working.caraTrasera.transparenciaImagen = adjustments.caraTrasera.transparencia;
         renderFaces();
       },
     });
@@ -255,56 +267,6 @@ export function openCardEditorModal({ component, onAccept }) {
     borderRowInner.appendChild(borderWidthField);
     borderField.appendChild(borderRowInner);
     actionsRow.appendChild(borderField);
-
-    // Transparencia de la imagen de fondo de esta cara (solo si tiene imagen)
-    if (cara.imagenResourceId) {
-      const opacityField = document.createElement('div');
-      opacityField.className = 'modal__field';
-      opacityField.style.width = '100%';
-      const opacityLabel = document.createElement('label');
-      opacityLabel.textContent = 'Transparencia';
-      const opacityRow = document.createElement('div');
-      opacityRow.className = 'card-editor-modal__opacity-row';
-
-      const opacitySlider = document.createElement('input');
-      opacitySlider.type = 'range';
-      opacitySlider.min = 0;
-      opacitySlider.max = 100;
-      opacitySlider.value = cara.transparenciaImagen ?? 0;
-
-      const opacityNumber = document.createElement('input');
-      opacityNumber.type = 'number';
-      opacityNumber.min = 0;
-      opacityNumber.max = 100;
-      opacityNumber.value = cara.transparenciaImagen ?? 0;
-
-      const opacityPercent = document.createElement('span');
-      opacityPercent.textContent = '%';
-
-      function applyTransparencia(value) {
-        cara.transparenciaImagen = value;
-        if (faceImg) faceImg.style.opacity = String(1 - value / 100);
-      }
-
-      opacitySlider.addEventListener('input', () => {
-        const value = parseInt(opacitySlider.value, 10);
-        opacityNumber.value = value;
-        applyTransparencia(value);
-      });
-      opacityNumber.addEventListener('input', () => {
-        const parsed = parseInt(opacityNumber.value, 10);
-        const value = Number.isNaN(parsed) ? 0 : Math.min(Math.max(parsed, 0), 100);
-        opacitySlider.value = value;
-        applyTransparencia(value);
-      });
-
-      opacityRow.appendChild(opacitySlider);
-      opacityRow.appendChild(opacityNumber);
-      opacityRow.appendChild(opacityPercent);
-      opacityField.appendChild(opacityLabel);
-      opacityField.appendChild(opacityRow);
-      actionsRow.appendChild(opacityField);
-    }
 
     const addTextBoxBtn = document.createElement('button');
     addTextBoxBtn.type = 'button';

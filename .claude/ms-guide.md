@@ -36,6 +36,16 @@ Ejemplo de `.claude/ms-context.json` ya configurado en este proyecto:
 
 ```json
 {
+  "skillModels": {
+    "_instructions": "Tras editar 'default' o 'overrides' de esta seccion, ejecuta desde la raiz del repo: python .claude/skills/ms-init/scripts/sync-skill-models.py -- reescribe el campo 'model'/'effort' en el frontmatter de cada SKILL.md 'ms-*' segun lo que quede configurado aqui. El harness de Claude Code solo lee ese frontmatter, no este JSON, asi que sin ejecutar el script los cambios de aqui no tienen efecto.",
+    "default": { "model": "claude-sonnet-5", "effort": "medium" },
+    "overrides": {
+      "ms-status": { "model": "claude-haiku-4-5-20251001", "effort": "medium" },
+      "ms-todo": { "model": "claude-haiku-4-5-20251001", "effort": "medium" },
+      "ms-fast": { "model": "claude-haiku-4-5-20251001", "effort": "high" },
+      "ms-do": { "model": "claude-haiku-4-5-20251001", "effort": "high" }
+    }
+  },
   "framework": {
     "sourcecodeDir": "src",
     "changesDir": "changes",
@@ -46,7 +56,7 @@ Ejemplo de `.claude/ms-context.json` ya configurado en este proyecto:
       },
       "tech": {
         "architectureDocPath": "design/docs/ARCHITECTURE.md",
-        "styleBibleDocPath": "design/docs/STYLE_BIBLE.md",
+        "styleBibleDocPath": "design/docs/stylebible/STYLE_BIBLE.md",
         "projectGraphPath": "src/_graph/graph.json"
       }
     }
@@ -61,6 +71,21 @@ Ejemplo de `.claude/ms-context.json` ya configurado en este proyecto:
 ```
 
 Todos los campos de `framework` (excepto `changesDir`) son opcionales — el framework funciona sin `docs.tech.architectureDocPath`, `docs.functional.featuresDocPath`, `docs.tech.styleBibleDocPath` o `docs.tech.projectGraphPath`, simplemente usa menos contexto al analizar y no mantiene esos documentos sincronizados.
+
+#### Elegir el modelo/esfuerzo de cada skill: `skillModels`
+
+`.claude/ms-context.json` también puede incluir una sección opcional `skillModels` que decide con qué modelo (Sonnet, Haiku...) y esfuerzo corre cada skill `ms-*` del proyecto — por ejemplo, para bajar a Haiku las skills más mecánicas (`ms-status`, `ms-todo`) o subir el esfuerzo de las que implementan código (`ms-do`, `ms-fast`) sin tocar las que razonan sobre arquitectura.
+
+- `default`: modelo/esfuerzo que aplica a cualquier skill `ms-*` sin entrada propia en `overrides`.
+- `overrides`: una entrada por nombre de skill (el `name:` de su `SKILL.md`) para las que necesiten algo distinto del `default`.
+
+Importante: el harness de Claude Code solo lee el campo `model`/`effort` del frontmatter de cada `SKILL.md`, no este JSON — `skillModels` es solo la fuente de verdad declarativa. Tras editar `default` u `overrides`, hay que ejecutar desde la raíz del repo:
+
+```
+python .claude/skills/ms-init/scripts/sync-skill-models.py
+```
+
+Este script reescribe el frontmatter `model`/`effort` de cada `SKILL.md` `ms-*` según lo configurado, sin lo cual los cambios en `ms-context.json` no tienen ningún efecto. Es un script determinista (sin LLM); puede ejecutarse manualmente en cualquier momento tras editar `skillModels` a mano, o pedirle a `ms-init` que lo haga por ti la próxima vez que lo invoques.
 
 ## Guía de uso rápida: el flujo natural
 

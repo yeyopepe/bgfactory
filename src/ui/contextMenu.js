@@ -37,9 +37,46 @@ function addRow(menu, { icon, label, onClick }) {
   menu.appendChild(item);
 }
 
+function addInfoSection(menu, interactionItems) {
+  const separator = document.createElement('div');
+  separator.className = 'context-menu__separator';
+  menu.appendChild(separator);
+
+  const infoBlock = document.createElement('div');
+  infoBlock.className = 'context-menu__info';
+
+  const title = document.createElement('div');
+  title.className = 'context-menu__info-title';
+  title.textContent = 'Interacciones';
+  infoBlock.appendChild(title);
+
+  for (const item of interactionItems) {
+    const row = document.createElement('div');
+    row.className = 'context-menu__info-row';
+
+    const label = document.createElement('span');
+    label.className = 'context-menu__info-label';
+    label.textContent = item.label;
+    row.appendChild(label);
+
+    const value = document.createElement('span');
+    value.className = 'context-menu__info-value';
+    if (item.value === 'Ninguno') {
+      value.classList.add('context-menu__info-value--none');
+    }
+    value.textContent = item.value;
+    row.appendChild(value);
+
+    infoBlock.appendChild(row);
+  }
+
+  menu.appendChild(infoBlock);
+}
+
 // `generalItems`/`specificItems`: `{ icon: SVGElement, label: string, onClick: () => void }[]`.
 // El separador entre ambas secciones solo se dibuja si `specificItems` no está vacío.
-export function openContextMenu({ x, y, generalItems = [], specificItems = [], onClose } = {}) {
+// `interactionItems`: `{ label: string, value: string }[]` — sección de solo lectura al final del menú.
+export function openContextMenu({ x, y, generalItems = [], specificItems = [], interactionItems = [], onClose } = {}) {
   closeCurrentMenu();
 
   const menu = document.createElement('div');
@@ -54,6 +91,10 @@ export function openContextMenu({ x, y, generalItems = [], specificItems = [], o
     separator.className = 'context-menu__separator';
     menu.appendChild(separator);
     for (const item of specificItems) addRow(menu, item);
+  }
+
+  if (interactionItems.length > 0) {
+    addInfoSection(menu, interactionItems);
   }
 
   document.body.appendChild(menu);

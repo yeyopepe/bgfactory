@@ -79,6 +79,7 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
       zoom: entry.adjustment?.zoom ?? 100,
       posX: entry.adjustment?.posX ?? 50,
       posY: entry.adjustment?.posY ?? 50,
+      transparencia: entry.transparencia ?? 0,
     };
 
     const entryScale = PREVIEW_MAX_SIDE / Math.max(entry.width, entry.height);
@@ -119,7 +120,10 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   }
 
   function updatePreview(key) {
-    if (imgEls[key]) applyImageAdjustStyle(imgEls[key], state[key]);
+    if (imgEls[key]) {
+      applyImageAdjustStyle(imgEls[key], state[key]);
+      imgEls[key].style.opacity = String(1 - state[key].transparencia / 100);
+    }
   }
   for (const entry of entries) updatePreview(entry.key);
 
@@ -138,6 +142,10 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
     if (focusedKey) {
       zoomInput.value = state[focusedKey].zoom;
       zoomTextInput.value = state[focusedKey].zoom;
+      if (opacitySlider) {
+        opacitySlider.value = state[focusedKey].transparencia;
+        opacityTextInput.value = state[focusedKey].transparencia;
+      }
     }
   }
 
@@ -231,6 +239,60 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   zoomField.appendChild(zoomValue);
   content.appendChild(zoomField);
 
+  const hasTransparencia = entries.some((entry) => entry.transparencia !== undefined);
+  let opacitySlider = null;
+  let opacityTextInput = null;
+
+  if (hasTransparencia) {
+    const opacityField = document.createElement('div');
+    opacityField.className = 'modal__field';
+    const opacityLabel = document.createElement('label');
+    opacityLabel.textContent = 'Transparencia';
+
+    opacitySlider = document.createElement('input');
+    opacitySlider.type = 'range';
+    opacitySlider.min = 0;
+    opacitySlider.max = 100;
+    opacitySlider.value = focusedKey ? state[focusedKey].transparencia : 0;
+
+    const opacityValue = document.createElement('div');
+    opacityValue.className = 'image-adjust-modal__opacity-value';
+    opacityTextInput = document.createElement('input');
+    opacityTextInput.type = 'text';
+    opacityTextInput.value = opacitySlider.value;
+    const opacityUnit = document.createElement('span');
+    opacityUnit.textContent = '%';
+    opacityValue.appendChild(opacityTextInput);
+    opacityValue.appendChild(opacityUnit);
+
+    opacitySlider.addEventListener('input', () => {
+      state[focusedKey].transparencia = parseInt(opacitySlider.value, 10);
+      opacityTextInput.value = state[focusedKey].transparencia;
+      updatePreview(focusedKey);
+    });
+
+    function commitOpacityTextInput() {
+      const parsed = parseInt(opacityTextInput.value, 10);
+      if (Number.isNaN(parsed)) {
+        opacityTextInput.value = state[focusedKey].transparencia;
+        return;
+      }
+      state[focusedKey].transparencia = clamp(parsed, 0, 100);
+      opacityTextInput.value = state[focusedKey].transparencia;
+      opacitySlider.value = state[focusedKey].transparencia;
+      updatePreview(focusedKey);
+    }
+    opacityTextInput.addEventListener('change', commitOpacityTextInput);
+    opacityTextInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') opacityTextInput.blur();
+    });
+
+    opacityField.appendChild(opacityLabel);
+    opacityField.appendChild(opacitySlider);
+    opacityField.appendChild(opacityValue);
+    content.appendChild(opacityField);
+  }
+
   refreshFocusClasses();
 
   const cancelBtn = document.createElement('button');
@@ -250,7 +312,17 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
     if (onAccept) {
       if (faces) {
         const adjustments = {};
-        for (const entry of entries) adjustments[entry.key] = { ...state[entry.key] };
+        for (const entry of entries) {
+          const result = {
+            zoom: state[entry.key].zoom,
+            posX: state[entry.key].posX,
+            posY: state[entry.key].posY,
+          };
+          if (hasTransparencia) {
+            result.transparencia = state[entry.key].transparencia;
+          }
+          adjustments[entry.key] = result;
+        }
         onAccept(adjustments);
       } else {
         onAccept({ ...state.__single__ });
