@@ -5,6 +5,7 @@ import { MODES, getState, setMode, getComponents, getResources, getPanelState, g
 import { buildExportHtml, downloadHtml, downloadJson } from '../core/fileExport.js';
 import { buildComponentsExport, parseImportedComponents } from '../core/persistence.js';
 import { mergeImportedGame } from '../core/importMerge.js';
+import { convertFichaToCarta } from '../core/fichaMigration.js';
 import { getComponentsBounds } from './componentRenderer.js';
 import { fitToBounds } from './table.js';
 import { showToast } from './toast.js';
@@ -13,6 +14,7 @@ import { openExportSelectionModal } from './exportSelectionModal.js';
 import { openImportSelectionModal } from './importSelectionModal.js';
 import { openImportConfirmModal } from './importConfirmModal.js';
 import { openImportReportModal } from './importReportModal.js';
+import { openFichaConversionErrorModal } from './fichaConversionErrorModal.js';
 
 function currentFileName() {
   const fromPath = decodeURIComponent(location.pathname.split('/').pop() || '');
@@ -43,6 +45,24 @@ function openExportFlow() {
   });
 }
 
+function convertSelectedFichas(components) {
+  const converted = [];
+  const errors = [];
+  for (const component of components) {
+    if (component.type === 'ficha') {
+      const { component: convertedComponent, error } = convertFichaToCarta(component);
+      if (error) {
+        errors.push({ id: component.id, motivo: error });
+      } else {
+        converted.push(convertedComponent);
+      }
+    } else {
+      converted.push(component);
+    }
+  }
+  return { components: converted, errors };
+}
+
 function importComponentsFromFile(file) {
   const reader = new FileReader();
   reader.onload = () => {
@@ -59,24 +79,43 @@ function importComponentsFromFile(file) {
       onAccept: ({ componentIds, resourceIds, deckIds }) => {
         openImportConfirmModal({
           onAccept: ({ mode, conflictMode }) => {
-            const { components, resources, decks, report } = mergeImportedGame({
-              mode,
-              conflictMode,
-              existingComponents: getComponents(),
-              existingResources: getResources(),
-              existingDecks: getDecks(),
-              selectedComponents: byIds(result.components, componentIds),
-              selectedResources: byIds(result.resources, resourceIds),
-              selectedDecks: byIds(result.decks, deckIds),
-              allImportedResources: result.resources,
-              allImportedDecks: result.decks,
-            });
+            const selectedComponents = byIds(result.components, componentIds);
+            const { components: convertedComponents, errors: fichaErrors } = convertSelectedFichas(selectedComponents);
 
-            loadComponents(components);
-            loadResources(resources);
-            loadDecks(decks);
+            function applyImportedSelection(componentsToImport) {
+              const { components, resources, decks, report } = mergeImportedGame({
+                mode,
+                conflictMode,
+                existingComponents: getComponents(),
+                existingResources: getResources(),
+                existingDecks: getDecks(),
+                selectedComponents: componentsToImport,
+                selectedResources: byIds(result.resources, resourceIds),
+                selectedDecks: byIds(result.decks, deckIds),
+                allImportedResources: result.resources,
+                allImportedDecks: result.decks,
+              });
 
-            if (report.length > 0) openImportReportModal(report);
+              loadComponents(components);
+              loadResources(resources);
+              loadDecks(decks);
+
+              if (report.length > 0) openImportReportModal(report);
+            }
+
+            if (fichaErrors.length > 0) {
+              openFichaConversionErrorModal({
+                errors: fichaErrors,
+                onAbort: () => {
+                  // No hacer nada — la partida actual queda intacta
+                },
+                onContinue: () => {
+                  applyImportedSelection(convertedComponents);
+                },
+              });
+            } else {
+              applyImportedSelection(convertedComponents);
+            }
           },
         });
       },

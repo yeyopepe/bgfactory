@@ -779,31 +779,6 @@ fieldset.modal__section--untitled {
 /* Ficha component (00029): cuadrado o círculo con borde/fondo configurables.
    Gana la misma sombra de contacto nivel 1 que el resto de piezas de juego,
    para sentirse hecha del mismo material que tablero/dado/carta. */
-.ficha {
-  box-shadow: var(--shadow-1);
-}
-
-.ficha--selectable {
-  cursor: pointer;
-}
-
-.ficha--selectable:hover {
-  outline: 2px dashed var(--accent-blue);
-}
-
-.ficha--selectable.ficha--selected {
-  outline: 3px dashed var(--accent-blue);
-  outline-offset: 4px;
-}
-
-.ficha--selectable:hover .component-id-label,
-.ficha--selectable.ficha--selected .component-id-label {
-  display: block;
-}
-
-.ficha--movable {
-  cursor: move;
-}
 
 /* Carta component (00053): rectángulo de proporción configurable con
    esquinas ligeramente redondeadas (--radius-lg, sección 5 de

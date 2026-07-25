@@ -2,6 +2,7 @@
 // Cualquier cambio se notifica vía eventBus para que la UI se refresque.
 
 import { emit } from './eventBus.js';
+import { migrateFichaComponents } from './fichaMigration.js';
 
 export const MODES = { PLAY: 'play', EDIT: 'edit' };
 
@@ -91,8 +92,9 @@ export function reorderComponent(id, rawOrder) {
 }
 
 export function loadComponents(components) {
-  compactOrders(components);
-  state.components = components;
+  const migratedComponents = migrateFichaComponents(components);
+  compactOrders(migratedComponents);
+  state.components = migratedComponents;
   emit('components:changed', state.components);
 }
 

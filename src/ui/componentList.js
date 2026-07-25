@@ -3,6 +3,7 @@
 
 import { attachResizeHandle } from './resizeHandle.js';
 import { attachColumnResizing } from './tableColumnResize.js';
+import { COMPONENT_TYPE_LABELS } from './componentRenderer.js';
 
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
@@ -99,7 +100,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onRemov
     row.appendChild(idCell);
 
     const typeCell = document.createElement('td');
-    typeCell.textContent = component.type;
+    typeCell.textContent = COMPONENT_TYPE_LABELS[component.type] || component.type;
     row.appendChild(typeCell);
 
     const actionsCell = document.createElement('td');
