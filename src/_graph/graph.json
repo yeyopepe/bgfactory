@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-25T12:55:50Z",
+  "generatedAt": "2026-07-25T14:21:35Z",
   "basePath": "src",
   "nodes": [
     {
@@ -62,6 +62,16 @@
         "on"
       ],
       "purpose": "Simple pub/sub event system for layer decoupling."
+    },
+    {
+      "id": "core/fichaMigration.js",
+      "type": "file",
+      "path": "core/fichaMigration.js",
+      "exports": [
+        "migrateFichaComponent",
+        "migrateFichaProperties"
+      ],
+      "purpose": "Pure mapping module that migrates the extinct 'ficha' component type to 'carta' properties."
     },
     {
       "id": "core/fileExport.js",
@@ -283,7 +293,6 @@
         "DEFAULT_CARTA_PROPERTIES",
         "DEFAULT_DADO_PROPERTIES",
         "DEFAULT_DOCUMENTO_PROPERTIES",
-        "DEFAULT_FICHA_PROPERTIES",
         "createDefaultComponent",
         "openComponentModal"
       ],
@@ -446,6 +455,15 @@
         "openImportConfirmModal"
       ],
       "purpose": "Modal confirming import of game file."
+    },
+    {
+      "id": "ui/importConversionErrorModal.js",
+      "type": "file",
+      "path": "ui/importConversionErrorModal.js",
+      "exports": [
+        "openImportConversionErrorModal"
+      ],
+      "purpose": "Modal shown before applying an import when some selected fichas fail to convert, letting the user continue without them or abort."
     },
     {
       "id": "ui/importReportModal.js",
@@ -658,6 +676,20 @@
       "path": "core/eventBus.js",
       "parent": "core/eventBus.js",
       "purpose": "Subscribes handler to named event."
+    },
+    {
+      "id": "core/fichaMigration.js#migrateFichaComponent",
+      "type": "function",
+      "path": "core/fichaMigration.js",
+      "parent": "core/fichaMigration.js",
+      "purpose": "Wraps migrateFichaProperties to produce a full carta component from a ficha component."
+    },
+    {
+      "id": "core/fichaMigration.js#migrateFichaProperties",
+      "type": "function",
+      "path": "core/fichaMigration.js",
+      "parent": "core/fichaMigration.js",
+      "purpose": "Maps ficha properties to carta properties, returning a best-effort result plus any conversion errors."
     },
     {
       "id": "core/fileExport.js#buildExportHtml",
@@ -1227,6 +1259,13 @@
       "purpose": "Confirms game import action."
     },
     {
+      "id": "ui/importConversionErrorModal.js#openImportConversionErrorModal",
+      "type": "function",
+      "path": "ui/importConversionErrorModal.js",
+      "parent": "ui/importConversionErrorModal.js",
+      "purpose": "Opens the ficha conversion error modal with the affected components and Abort/Continue actions."
+    },
+    {
       "id": "ui/importReportModal.js#openImportReportModal",
       "type": "function",
       "path": "ui/importReportModal.js",
@@ -1329,6 +1368,16 @@
     {
       "source": "core/eventBus.js#on",
       "target": "core/eventBus.js#off",
+      "relation": "calls"
+    },
+    {
+      "source": "core/fichaMigration.js#migrateFichaComponent",
+      "target": "core/fichaMigration.js#migrateFichaProperties",
+      "relation": "calls"
+    },
+    {
+      "source": "core/fichaMigration.js#migrateFichaProperties",
+      "target": "core/cardProportions.js#getProporcionRatio",
       "relation": "calls"
     },
     {
@@ -1742,11 +1791,6 @@
       "relation": "calls"
     },
     {
-      "source": "ui/componentModal.js#openComponentModal",
-      "target": "ui/imageAdjustModal.js#openImageAdjustModal",
-      "relation": "calls"
-    },
-    {
       "source": "ui/componentRenderer.js#renderComponentsOnTable",
       "target": "core/cardProportions.js#getProporcionRatio",
       "relation": "calls"
@@ -1872,6 +1916,11 @@
       "relation": "calls"
     },
     {
+      "source": "core/fichaMigration.js",
+      "target": "core/cardProportions.js",
+      "relation": "imports"
+    },
+    {
       "source": "core/fileExport.js",
       "target": "data/version.js",
       "relation": "imports"
@@ -1894,6 +1943,11 @@
     {
       "source": "core/state.js",
       "target": "core/eventBus.js",
+      "relation": "imports"
+    },
+    {
+      "source": "core/state.js",
+      "target": "core/fichaMigration.js",
       "relation": "imports"
     },
     {
@@ -2172,11 +2226,6 @@
       "relation": "imports"
     },
     {
-      "source": "ui/componentModal.js",
-      "target": "ui/imageAdjustModal.js",
-      "relation": "imports"
-    },
-    {
       "source": "ui/componentRenderer.js",
       "target": "core/cardProportions.js",
       "relation": "imports"
@@ -2243,6 +2292,11 @@
     },
     {
       "source": "ui/editModeToggle.js",
+      "target": "core/fichaMigration.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/editModeToggle.js",
       "target": "core/fileExport.js",
       "relation": "imports"
     },
@@ -2279,6 +2333,11 @@
     {
       "source": "ui/editModeToggle.js",
       "target": "ui/importConfirmModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/editModeToggle.js",
+      "target": "ui/importConversionErrorModal.js",
       "relation": "imports"
     },
     {

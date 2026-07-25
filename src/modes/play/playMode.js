@@ -32,11 +32,6 @@ const interactionsByType = {
     { label: 'Doble clic izquierdo', value: 'Ninguno' },
     { label: 'Clic derecho', value: 'Abrir este menú' },
   ],
-  'ficha': [
-    { label: 'Clic izquierdo', value: 'Ninguno' },
-    { label: 'Doble clic izquierdo', value: 'Ninguno' },
-    { label: 'Clic derecho', value: 'Abrir este menú' },
-  ],
   'dado': [
     { label: 'Clic izquierdo', value: 'Lanzar el dado' },
     { label: 'Doble clic izquierdo', value: 'Ver el resultado en grande' },

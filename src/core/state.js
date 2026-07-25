@@ -2,6 +2,7 @@
 // Cualquier cambio se notifica vía eventBus para que la UI se refresque.
 
 import { emit } from './eventBus.js';
+import { migrateFichaComponent } from './fichaMigration.js';
 
 export const MODES = { PLAY: 'play', EDIT: 'edit' };
 
@@ -90,7 +91,20 @@ export function reorderComponent(id, rawOrder) {
   emit('components:changed', state.components);
 }
 
+// Migra en el sitio (sustituyendo cada entrada del array) cualquier componente
+// de tipo 'ficha' (tipo eliminado en el cambio 00087) a 'carta', best-effort
+// e ignorando siempre los errores de conversión — igual que la migración
+// silenciosa de `order` de más arriba, nunca debe bloquear el arranque.
+function migrateFichas(components) {
+  for (let i = 0; i < components.length; i += 1) {
+    if (components[i].type === 'ficha') {
+      components[i] = migrateFichaComponent(components[i]).component;
+    }
+  }
+}
+
 export function loadComponents(components) {
+  migrateFichas(components);
   compactOrders(components);
   state.components = components;
   emit('components:changed', state.components);

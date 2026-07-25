@@ -1,7 +1,7 @@
 // Editor reutilizable de ajuste de imagen (posición/zoom) sobre la forma de un
 // componente (cuadrada o circular). Genérico y agnóstico del tipo de
 // componente que lo use — pensado para que cualquier tipo futuro con fondo de
-// imagen (no solo 'ficha') pueda reutilizarlo sin cambios.
+// imagen pueda reutilizarlo sin cambios.
 //
 // El recorte base lo resuelve el propio navegador (`object-fit: cover` sobre
 // un <img>), evitando tener que calcular a mano las dimensiones naturales de
@@ -58,10 +58,11 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   footer.className = 'modal__footer';
   modal.appendChild(footer);
 
-  // Entradas normalizadas: sin `faces`, un único stage anónimo (caso
-  // 'ficha', un solo recurso); con `faces`, N stages en posición fija (el
-  // orden del array decide la columna, no se reordenan nunca) — usado por
-  // ui/cardEditorModal.js para las dos caras de una carta.
+  // Entradas normalizadas: sin `faces`, un único stage anónimo (un solo
+  // recurso, para un tipo futuro con una sola imagen de fondo); con `faces`,
+  // N stages en posición fija (el orden del array decide la columna, no se
+  // reordenan nunca) — usado por ui/cardEditorModal.js para las dos caras de
+  // una carta.
   const entries = faces || [{ key: '__single__', label: null, shape, width, height, resource, adjustment }];
 
   const stagesRow = document.createElement('div');
