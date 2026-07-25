@@ -115,8 +115,10 @@ En modo juego, cada componente puede tener desmarcado individualmente el checkbo
 
 En modo juego, cada componente sobre la mesa muestra siempre uno de tres cursores según la interacción disponible en ese momento: indicador de arrastre si se puede mover, dedo de "se puede pulsar" si solo responde a un click (p. ej. un dado bloqueado, que siempre se puede lanzar, o una carta bloqueada, que siempre se puede voltear, aunque ninguno de los dos se pueda mover), o el de la propia mesa al arrastrarla para desplazar la vista. Esta misma convención de mostrar el cursor de dedo en cualquier elemento pulsable de la app (botones, pestañas, filas de listado, checkboxes...) que no tenga ya un cursor más específico aplica también al resto de la interfaz, en ambos modos.
 
-- **Disponible en**: modo edición (arrastre y redimensionado siempre disponibles); modo juego (arrastre solo para los componentes con "Bloqueado" desmarcado, lo que incluye siempre a "Ficha" y "Carta" salvo que se marque a mano). La posición y el tamaño resultantes se reflejan en ambos modos; el cursor de dedo en elementos pulsables, en toda la app.
-- **Código**: 00006, 00009, 00015, 00018, 00019, 00020, 00029, 00031, 00049, 00053.
+En modo edición, cualquier componente con "Bloqueado" marcado muestra además una pequeña insignia de candado superpuesta en una esquina, para poder identificar de un vistazo qué componentes quedarán fijos en la partida sin necesidad de abrir su modal de configuración. En modo juego no se muestra esta insignia (el estado de bloqueo solo se percibe ahí a través del menú contextual, ver [Menú contextual de componente en modo juego](#menú-contextual-de-componente-en-modo-juego)).
+
+- **Disponible en**: modo edición (arrastre y redimensionado siempre disponibles; insignia de candado sobre los componentes bloqueados); modo juego (arrastre solo para los componentes con "Bloqueado" desmarcado, lo que incluye siempre a "Ficha" y "Carta" salvo que se marque a mano). La posición y el tamaño resultantes se reflejan en ambos modos; el cursor de dedo en elementos pulsables, en toda la app.
+- **Código**: 00006, 00009, 00015, 00018, 00019, 00020, 00029, 00031, 00049, 00053, 00088.
 
 ### Componente "cuadro de texto"
 
@@ -220,6 +222,15 @@ En modo edición, la etiqueta identificativa se muestra siempre, para cualquier 
 
 - **Disponible en**: modo juego (tooltip nativo del navegador al dejar el ratón quieto sobre el componente, solo si el componente tiene "Mostrar tooltip" activado) y modo edición (una pequeña etiqueta propia anclada en la esquina superior izquierda del componente, visible en los mismos momentos en que ya se resalta con el contorno azul discontinuo: al pasar el ratón por encima o cuando está seleccionado, sin depender de ningún checkbox).
 - **Código**: 00032, 00034.
+
+### Menú contextual de componente en modo juego
+
+En modo juego, pulsar el botón derecho del ratón sobre un componente de la mesa lo selecciona (resaltado con el mismo contorno discontinuo que ya usa el modo edición) y abre, junto al cursor, un menú contextual con una fila "Bloquear"/"Desbloquear" (el texto refleja la acción disponible según si el componente está bloqueado o no en ese momento), cada una con su icono. El menú queda preparado para admitir en el futuro acciones específicas según el tipo de componente, separadas de esta por una línea divisoria, pero por ahora solo incluye esta acción general.
+
+Pulsar el botón derecho sobre otro componente mientras hay un menú abierto cierra el anterior, cambia la selección al nuevo y abre el menú sobre este. El menú (y la selección asociada) se cierra al hacer click fuera de él, al pulsar ESC, o al elegir la acción disponible. Esta selección es estado momentáneo de la sesión de juego en curso, igual que la de modo edición: no se persiste, se pierde al recargar la página.
+
+- **Disponible en**: modo juego.
+- **Código**: 00088.
 
 ### Atajos de teclado en modo edición
 

@@ -221,6 +221,21 @@ function createIdentifierLabel(component) {
   return label;
 }
 
+// Indicador de bloqueo (cambio 00088): insignia superpuesta en una esquina del
+// componente, solo pintada en modo edición (`showLockIndicator`) cuando
+// `component.bloqueado` es `true` — en modo juego el bloqueo solo se percibe a
+// través del menú contextual, nunca con este indicador.
+function createLockBadge() {
+  const badge = document.createElement('span');
+  badge.className = 'component-lock-badge';
+  badge.innerHTML =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+    '<rect x="5" y="11" width="14" height="9" rx="1.5"/>' +
+    '<path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/>' +
+    '</svg>';
+  return badge;
+}
+
 export function getComponentsBounds(components) {
   if (!components.length) return null;
 
@@ -279,7 +294,7 @@ function applyFlipFeedbackIfChanged(carta, componentId, caraActual) {
   }, 250));
 }
 
-export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, onCartaFlip, identifyMode, liftOnDrag = false } = {}) {
+export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, onCartaFlip, onContextMenu, identifyMode, liftOnDrag = false, showLockIndicator = false } = {}) {
   worldEl.innerHTML = '';
 
   // El componente con `order` más alto se dibuja primero (queda por debajo); el de
@@ -310,6 +325,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (identifyMode === 'tooltip' && component.mostrarTooltip) textBox.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') textBox.appendChild(createIdentifierLabel(component));
+      if (showLockIndicator && component.bloqueado) textBox.appendChild(createLockBadge());
 
       if (onSelect) {
         textBox.classList.add('text-box--selectable');
@@ -320,6 +336,14 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         textBox.addEventListener('click', (e) => {
           e.stopPropagation();
           onToggleSelect(component);
+        });
+      }
+
+      if (onContextMenu) {
+        textBox.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onContextMenu(component, e);
         });
       }
 
@@ -406,6 +430,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (identifyMode === 'tooltip' && component.mostrarTooltip) board.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') board.appendChild(createIdentifierLabel(component));
+      if (showLockIndicator && component.bloqueado) board.appendChild(createLockBadge());
 
       const props = component.properties || {};
       const bordeColor = props.bordeColor || '#000000';
@@ -470,6 +495,14 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         board.addEventListener('click', (e) => {
           e.stopPropagation();
           onToggleSelect(component);
+        });
+      }
+
+      if (onContextMenu) {
+        board.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onContextMenu(component, e);
         });
       }
 
@@ -548,6 +581,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (identifyMode === 'tooltip' && component.mostrarTooltip) dice.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') dice.appendChild(createIdentifierLabel(component));
+      if (showLockIndicator && component.bloqueado) dice.appendChild(createLockBadge());
 
       const props = component.properties || {};
       const colorCuerpo = props.colorCuerpo || '#888888';
@@ -591,6 +625,14 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         dice.addEventListener('click', (e) => {
           e.stopPropagation();
           onToggleSelect(component);
+        });
+      }
+
+      if (onContextMenu) {
+        dice.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onContextMenu(component, e);
         });
       }
 
@@ -724,6 +766,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (identifyMode === 'tooltip' && component.mostrarTooltip) documentViewer.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') documentViewer.appendChild(createIdentifierLabel(component));
+      if (showLockIndicator && component.bloqueado) documentViewer.appendChild(createLockBadge());
 
       const content = document.createElement('div');
       content.className = 'document-viewer__content';
@@ -767,6 +810,14 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         documentViewer.addEventListener('click', (e) => {
           e.stopPropagation();
           onToggleSelect(component);
+        });
+      }
+
+      if (onContextMenu) {
+        documentViewer.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onContextMenu(component, e);
         });
       }
 
@@ -858,6 +909,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (identifyMode === 'tooltip' && component.mostrarTooltip) ficha.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') ficha.appendChild(createIdentifierLabel(component));
+      if (showLockIndicator && component.bloqueado) ficha.appendChild(createLockBadge());
 
       const bordeColor = props.bordeColor || '#000000';
       const bordeGrosor = props.bordeGrosor ?? 2;
@@ -910,6 +962,14 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         ficha.addEventListener('click', (e) => {
           e.stopPropagation();
           onToggleSelect(component);
+        });
+      }
+
+      if (onContextMenu) {
+        ficha.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onContextMenu(component, e);
         });
       }
 
@@ -1005,6 +1065,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (identifyMode === 'tooltip' && component.mostrarTooltip) carta.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') carta.appendChild(createIdentifierLabel(component));
+      if (showLockIndicator && component.bloqueado) carta.appendChild(createLockBadge());
 
       const caraActual = props.caraActual === 'frontal' ? 'frontal' : 'trasera';
       const cara = caraActual === 'frontal' ? props.caraFrontal : props.caraTrasera;
@@ -1063,6 +1124,14 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         carta.addEventListener('click', (e) => {
           e.stopPropagation();
           onToggleSelect(component);
+        });
+      }
+
+      if (onContextMenu) {
+        carta.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onContextMenu(component, e);
         });
       }
 
