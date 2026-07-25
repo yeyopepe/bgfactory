@@ -38,7 +38,7 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
-export function openImageAdjustModal({ shape, width, height, resource, adjustment, onAccept, faces, initialFocusKey }) {
+export function openImageAdjustModal({ shape, width, height, resource, adjustment, transparencia, onAccept, faces, initialFocusKey }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 

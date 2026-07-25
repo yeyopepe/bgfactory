@@ -1,0 +1,233 @@
+<title>Mockup — Editor de cartas (tras el fix)</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f5f7;
+    --modal-bg: #ffffff;
+    --text: #1c1c1e;
+    --text-muted: #6e6e73;
+    --border: #d7d7db;
+    --accent-blue: #0a66ff;
+    --bg-subtle: #f2f2f4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+  .caption {
+    position: fixed;
+    top: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    background: var(--modal-bg);
+    border: 1px solid var(--border);
+    padding: 0.35rem 0.9rem;
+    border-radius: 999px;
+  }
+  .modal-overlay {
+    position: relative;
+    background: rgba(0,0,0,0.35);
+    padding: 2rem;
+    border-radius: 12px;
+  }
+  .modal {
+    background: var(--modal-bg);
+    border-radius: 10px;
+    max-width: 920px;
+    width: 920px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+  }
+  .modal__header {
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal__content {
+    padding: 1.5rem;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .modal__footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+  }
+  .btn-cancel, .btn-accept {
+    padding: 0.5rem 1.1rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg-subtle);
+    font-size: 0.9rem;
+    cursor: default;
+  }
+  .btn-accept {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+  }
+  .card-editor-modal__toolbar {
+    max-width: 16rem;
+    margin-bottom: 1.5rem;
+  }
+  .modal__field label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+  }
+  select, input[type="color"], input[type="number"] {
+    width: 100%;
+    padding: 0.4rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+  input[type="color"] { padding: 0.2rem; height: 2.1rem; }
+
+  .card-editor-modal__faces {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    /* Sin fila de Transparencia, las dos columnas caben siempre lado a lado:
+       ya no hay reflow a una sola columna al elegir imagen. */
+  }
+  .card-editor-modal__face {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    width: 260px;
+  }
+  .card-editor-modal__face-label {
+    font-weight: 500;
+    font-size: 0.875rem;
+  }
+  .card-editor-modal__canvas {
+    position: relative;
+    overflow: hidden;
+    background: #eee;
+    border-radius: 8px;
+  }
+  .card-editor-modal__canvas img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .card-editor-modal__canvas.empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border: 1px dashed var(--border);
+  }
+  .card-editor-modal__face-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    width: 100%;
+    align-items: stretch;
+  }
+  .card-editor-modal__face-actions button.chip {
+    align-self: center;
+  }
+  .chip {
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg-subtle);
+    font-size: 0.85rem;
+    cursor: default;
+  }
+  .card-editor-modal__border-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin: 0.2rem 0 0;
+  }
+  .border-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .border-row > div { flex: 1; }
+
+  .note {
+    margin-top: 1.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    border-top: 1px dashed var(--border);
+    padding-top: 0.75rem;
+  }
+  .note strong { color: var(--text); }
+</style>
+
+<div class="caption">Mockup — no funcional — Editor de cartas, pantalla única (con o sin imagen elegida)</div>
+
+<div class="modal-overlay">
+  <div class="modal card-editor-modal">
+    <div class="modal__header">Editor de cartas</div>
+    <div class="modal__content">
+      <div class="card-editor-modal__toolbar modal__field">
+        <label>Proporción</label>
+        <select><option>Poker estándar vertical (5:7)</option></select>
+      </div>
+
+      <div class="card-editor-modal__faces">
+        <div class="card-editor-modal__face">
+          <div class="card-editor-modal__face-label">Cara frontal</div>
+          <div class="card-editor-modal__canvas" style="width:220px;height:308px;">
+            <img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='308'%3E%3Crect width='220' height='308' fill='%23c9a26a'/%3E%3Ccircle cx='110' cy='150' r='60' fill='%23b5895a'/%3E%3C/svg%3E" alt="">
+          </div>
+          <div class="card-editor-modal__face-actions">
+            <button class="chip">Elegir imagen…</button>
+            <p class="card-editor-modal__border-title">Borde</p>
+            <div class="border-row">
+              <div class="modal__field"><label>Color</label><input type="color" value="#000000"></div>
+              <div class="modal__field"><label>Grosor (px)</label><input type="number" value="0"></div>
+            </div>
+            <button class="chip">+ Texto</button>
+          </div>
+        </div>
+
+        <div class="card-editor-modal__face">
+          <div class="card-editor-modal__face-label">Cara trasera</div>
+          <div class="card-editor-modal__canvas empty" style="width:220px;height:308px;">Sin imagen</div>
+          <div class="card-editor-modal__face-actions">
+            <button class="chip">Elegir imagen…</button>
+            <p class="card-editor-modal__border-title">Borde</p>
+            <div class="border-row">
+              <div class="modal__field"><label>Color</label><input type="color" value="#000000"></div>
+              <div class="modal__field"><label>Grosor (px)</label><input type="number" value="0"></div>
+            </div>
+            <button class="chip">+ Texto</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="chip" style="display:block; margin: 1.25rem auto 0;">Ajustar imagen…</button>
+
+      <div class="note">
+        <strong>Qué cambia respecto a hoy:</strong> el control de Transparencia ya no aparece aquí (se ha movido al editor de ajuste de imagen, ver el otro mockup). Al no depender de si una cara tiene imagen o no, esta pantalla mantiene siempre el mismo layout de dos columnas — ya no "cambia de aspecto" al elegir una imagen.
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn-cancel">Cancelar</button>
+      <button class="btn-accept">Aceptar</button>
+    </div>
+  </div>
+</div>
