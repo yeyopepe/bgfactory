@@ -13,6 +13,8 @@ import { openExportSelectionModal } from './exportSelectionModal.js';
 import { openImportSelectionModal } from './importSelectionModal.js';
 import { openImportConfirmModal } from './importConfirmModal.js';
 import { openImportReportModal } from './importReportModal.js';
+import { openImportConversionErrorModal } from './importConversionErrorModal.js';
+import { migrateFichaComponent } from '../core/fichaMigration.js';
 
 function currentFileName() {
   const fromPath = decodeURIComponent(location.pathname.split('/').pop() || '');
@@ -59,24 +61,54 @@ function importComponentsFromFile(file) {
       onAccept: ({ componentIds, resourceIds, deckIds }) => {
         openImportConfirmModal({
           onAccept: ({ mode, conflictMode }) => {
-            const { components, resources, decks, report } = mergeImportedGame({
-              mode,
-              conflictMode,
-              existingComponents: getComponents(),
-              existingResources: getResources(),
-              existingDecks: getDecks(),
-              selectedComponents: byIds(result.components, componentIds),
-              selectedResources: byIds(result.resources, resourceIds),
-              selectedDecks: byIds(result.decks, deckIds),
-              allImportedResources: result.resources,
-              allImportedDecks: result.decks,
+            const selectedComponents = byIds(result.components, componentIds);
+
+            const migratedSelectedComponents = [];
+            const conversionErrors = [];
+            for (const component of selectedComponents) {
+              if (component.type !== 'ficha') {
+                migratedSelectedComponents.push(component);
+                continue;
+              }
+              const { component: migrated, errors } = migrateFichaComponent(component);
+              migratedSelectedComponents.push(migrated);
+              if (errors.length > 0) conversionErrors.push({ componentId: component.id, errors });
+            }
+
+            const proceedWithImport = (components) => {
+              const { components: mergedComponents, resources, decks, report } = mergeImportedGame({
+                mode,
+                conflictMode,
+                existingComponents: getComponents(),
+                existingResources: getResources(),
+                existingDecks: getDecks(),
+                selectedComponents: components,
+                selectedResources: byIds(result.resources, resourceIds),
+                selectedDecks: byIds(result.decks, deckIds),
+                allImportedResources: result.resources,
+                allImportedDecks: result.decks,
+              });
+
+              loadComponents(mergedComponents);
+              loadResources(resources);
+              loadDecks(decks);
+
+              if (report.length > 0) openImportReportModal(report);
+            };
+
+            if (conversionErrors.length === 0) {
+              proceedWithImport(migratedSelectedComponents);
+              return;
+            }
+
+            openImportConversionErrorModal({
+              errors: conversionErrors,
+              onContinue: () => {
+                const errorIds = new Set(conversionErrors.map((e) => e.componentId));
+                proceedWithImport(migratedSelectedComponents.filter((c) => !errorIds.has(c.id)));
+              },
+              onAbort: () => {},
             });
-
-            loadComponents(components);
-            loadResources(resources);
-            loadDecks(decks);
-
-            if (report.length > 0) openImportReportModal(report);
           },
         });
       },

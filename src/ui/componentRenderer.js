@@ -16,7 +16,6 @@ const MIN_BOARD_SIZE = 40;
 const MIN_DADO_SIZE = 40;
 const MIN_DOCUMENTO_WIDTH = 80;
 const MIN_DOCUMENTO_HEIGHT = 80;
-const MIN_FICHA_SIZE = 20;
 const MIN_CARTA_WIDTH = 60;
 const MIN_CARTA_HEIGHT = 60;
 const DOCUMENTO_IFRAME_LOAD_TIMEOUT_MS = 3000;
@@ -191,23 +190,8 @@ const COMPONENT_TYPE_LABELS = {
   tablero: 'Tablero',
   dado: 'Dado',
   documento: 'Documento',
-  ficha: 'Ficha',
-  carta: 'Carta',
+  carta: 'Carta/Ficha',
 };
-
-// Reduce el tamaño de fuente de `el` (ya insertado en el DOM) hasta que quepa
-// dentro de maxWidth×maxHeight, con un mínimo para evitar bucles largos con
-// texto vacío/absurdo — usado por el fondo "Texto" de la ficha (00029), que
-// siempre se autoajusta sin tamaño de fuente manual configurable.
-function fitTextToBox(el, maxWidth, maxHeight, minFontSize = 6) {
-  if (maxWidth <= 0 || maxHeight <= 0) return;
-  let fontSize = Math.max(minFontSize, Math.floor(Math.min(maxWidth, maxHeight)));
-  el.style.fontSize = `${fontSize}px`;
-  while (fontSize > minFontSize && (el.scrollWidth > maxWidth || el.scrollHeight > maxHeight)) {
-    fontSize -= 1;
-    el.style.fontSize = `${fontSize}px`;
-  }
-}
 
 export function formatComponentIdentifier(component) {
   const typeLabel = COMPONENT_TYPE_LABELS[component.type] || component.type;
@@ -884,162 +868,6 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       worldEl.appendChild(documentViewer);
-    } else if (component.type === 'ficha') {
-      const ficha = document.createElement('div');
-      ficha.className = 'ficha';
-      ficha.style.position = 'absolute';
-      ficha.style.top = `${component.y ?? 100}px`;
-      ficha.style.left = `${component.x ?? 100}px`;
-      ficha.style.boxSizing = 'border-box';
-      const width = component.width ?? MIN_FICHA_SIZE;
-      const height = component.height ?? MIN_FICHA_SIZE;
-      ficha.style.width = `${width}px`;
-      ficha.style.height = `${height}px`;
-
-      const props = component.properties || {};
-      const forma = props.forma || 'circular';
-      ficha.style.borderRadius = forma === 'circular' ? '50%' : '0';
-
-      const fichaContent = document.createElement('div');
-      fichaContent.style.position = 'absolute';
-      fichaContent.style.inset = '0';
-      fichaContent.style.overflow = 'hidden';
-      fichaContent.style.borderRadius = forma === 'circular' ? '50%' : '0';
-      ficha.appendChild(fichaContent);
-
-      if (identifyMode === 'tooltip' && component.mostrarTooltip) ficha.title = formatComponentIdentifier(component);
-      if (identifyMode === 'label') ficha.appendChild(createIdentifierLabel(component));
-      if (showLockIndicator && component.bloqueado) ficha.appendChild(createLockBadge());
-
-      const bordeColor = props.bordeColor || '#000000';
-      const bordeGrosor = props.bordeGrosor ?? 2;
-      if (bordeGrosor > 0) {
-        ficha.style.borderStyle = 'solid';
-        ficha.style.borderWidth = `${bordeGrosor}px`;
-        ficha.style.borderColor = bordeColor;
-      } else {
-        ficha.style.borderStyle = 'none';
-      }
-
-      const fondoTipo = props.fondoTipo || 'color';
-      let textSpanToFit = null;
-
-      fichaContent.style.backgroundColor = props.colorFondo || 'transparent';
-
-      if (fondoTipo === 'imagen') {
-        const resource = getResources().find((r) => r.id === props.imagenResourceId);
-        if (resource) {
-          const img = document.createElement('img');
-          img.src = resource.dataUrl;
-          img.draggable = false;
-          img.style.position = 'absolute';
-          img.style.top = '0';
-          img.style.left = '0';
-          img.style.width = '100%';
-          img.style.height = '100%';
-          img.style.pointerEvents = 'none';
-          img.style.borderRadius = forma === 'circular' ? '50%' : '0';
-          applyImageAdjustStyle(img, props.ajusteImagen);
-          fichaContent.appendChild(img);
-        }
-      } else if (fondoTipo === 'texto') {
-        fichaContent.style.display = 'flex';
-        fichaContent.style.alignItems = 'center';
-        fichaContent.style.justifyContent = 'center';
-        const textSpan = document.createElement('span');
-        textSpan.style.whiteSpace = 'nowrap';
-        textSpan.textContent = props.texto || '';
-        fichaContent.appendChild(textSpan);
-        textSpanToFit = textSpan;
-      }
-
-      if (onSelect) {
-        ficha.classList.add('ficha--selectable');
-        ficha.addEventListener('dblclick', () => onSelect(component));
-      }
-
-      if (onToggleSelect) {
-        ficha.addEventListener('click', (e) => {
-          e.stopPropagation();
-          onToggleSelect(component);
-        });
-      }
-
-      if (onContextMenu) {
-        ficha.addEventListener('contextmenu', (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onContextMenu(component, e);
-        });
-      }
-
-      if (component.id === selectedId) {
-        ficha.classList.add('ficha--selected');
-      }
-
-      if (onMove && canMove(component)) {
-        ficha.classList.add('ficha--movable');
-
-        let startMouseX = 0;
-        let startMouseY = 0;
-        let startX = component.x ?? 100;
-        let startY = component.y ?? 100;
-        let currentX = startX;
-        let currentY = startY;
-
-        function handleMouseMove(e) {
-          const zoom = getWorldZoom(worldEl);
-          currentX = startX + (e.clientX - startMouseX) / zoom;
-          currentY = startY + (e.clientY - startMouseY) / zoom;
-          ficha.style.left = `${currentX}px`;
-          ficha.style.top = `${currentY}px`;
-        }
-
-        function handleMouseUp() {
-          document.removeEventListener('mousemove', handleMouseMove);
-          document.removeEventListener('mouseup', handleMouseUp);
-          if (liftOnDrag) endDragLift(ficha);
-          if (currentX === startX && currentY === startY) return;
-          onMove(component, currentX, currentY);
-        }
-
-        ficha.addEventListener('mousedown', (e) => {
-          if (e.button !== 0) return;
-          e.stopPropagation();
-          if (liftOnDrag) beginDragLift(ficha, worldEl);
-          startMouseX = e.clientX;
-          startMouseY = e.clientY;
-          startX = component.x ?? 100;
-          startY = component.y ?? 100;
-          document.addEventListener('mousemove', handleMouseMove);
-          document.addEventListener('mouseup', handleMouseUp);
-        });
-      }
-
-      if (onResize && component.id === selectedId) {
-        attachResizeHandle(ficha, {
-          axis: 'both',
-          getScale: () => getWorldZoom(worldEl),
-          getSize: () => ({ width, height }),
-          clamp: ({ width, height }) => ({
-            width: Math.max(width, MIN_FICHA_SIZE),
-            height: Math.max(height, MIN_FICHA_SIZE),
-          }),
-          onResize: ({ width, height }) => {
-            ficha.style.width = `${width}px`;
-            ficha.style.height = `${height}px`;
-          },
-          onResizeEnd: ({ width, height }) => {
-            onResize(component, width, height);
-          },
-        });
-      }
-
-      worldEl.appendChild(ficha);
-
-      if (textSpanToFit) {
-        fitTextToBox(textSpanToFit, width - bordeGrosor * 2 - 8, height - bordeGrosor * 2 - 8);
-      }
     } else if (component.type === 'carta') {
       const props = component.properties || {};
       const cartaBorderRadius = props.proporcion === 'circular' ? '50%' : '8px';

@@ -776,35 +776,6 @@ fieldset.modal__section--untitled {
   cursor: move;
 }
 
-/* Ficha component (00029): cuadrado o círculo con borde/fondo configurables.
-   Gana la misma sombra de contacto nivel 1 que el resto de piezas de juego,
-   para sentirse hecha del mismo material que tablero/dado/carta. */
-.ficha {
-  box-shadow: var(--shadow-1);
-}
-
-.ficha--selectable {
-  cursor: pointer;
-}
-
-.ficha--selectable:hover {
-  outline: 2px dashed var(--accent-blue);
-}
-
-.ficha--selectable.ficha--selected {
-  outline: 3px dashed var(--accent-blue);
-  outline-offset: 4px;
-}
-
-.ficha--selectable:hover .component-id-label,
-.ficha--selectable.ficha--selected .component-id-label {
-  display: block;
-}
-
-.ficha--movable {
-  cursor: move;
-}
-
 /* Carta component (00053): rectángulo de proporción configurable con
    esquinas ligeramente redondeadas (--radius-lg, sección 5 de
    STYLE_BIBLE.md, "contenedores destacados"). Gana la misma sombra de
@@ -1182,6 +1153,13 @@ fieldset.modal__section--untitled {
 .import-report-modal__table td {
   padding: 0.5rem;
   border-top: 1px solid var(--border-neutral);
+}
+
+/* Celda de error dentro de .import-report-modal__table (change 00087, aviso
+   de errores de conversión de fichas al importar) — mismo tono que
+   .modal__error-icon/.modal__error-detail para destacar el motivo del error. */
+.error-cell {
+  color: var(--error);
 }
 
 /* Dice font modal — sub-modal "Tipo de fuente" (list of font resources, each
