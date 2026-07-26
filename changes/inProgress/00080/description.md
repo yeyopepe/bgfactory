@@ -4,10 +4,24 @@
 
 ## Prompt original del usuario
 
-quiero crear un script en /src/scripts para generar una nueva versión pero solo la mesa de juego, sin el modo edición. Para ello supongo que es más fácil primero tener marcadores en el código que diferencien código exclusivo de cada código para que el script pueda hacer limpieza, no solo eliminar el botón del modo edición.
+quiero crear un script /src/scripts/build_game.py para generar una nueva versión pero solo la mesa de juego, sin el modo edición. Para ello supongo que es más fácil primero tener marcadores en el código que diferencien código exclusivo de cada código para que el script pueda hacer limpieza, no solo eliminar el botón del modo edición.
 No hace falta borrar el 100% del código del modo edición, pero sí todo lo que sea exclusivo de ese modo. Lo que sea compartido o del modo juego, se queda
 
 **Ampliación:** añade que además se deben eliminar todos los recursos que no están siendo usados en ningún elemento del juego.
+
+**Ampliación:** añade que también se debe crear otro script `build_distribute_game.py` que funcione análogo a `build_distribute_editor.py` pero usando `build_game.py` para ofuscar y generar la versión con el sufijo `-game.obf`.
+
+Al final deberíamos tener:
+- build.py -> versión completa de todo sin ofuscar
+- build_game.py -> versión solo modo juego sin ofuscar
+- build_distribute_editor.py -> versión ofuscada de build.py
+- build_distribute_game.py -> versión ofuscada de build_game.py
+
+las versiones:
+- index-vXXXXX.html -> versión completa de todo sin ofuscar
+- index-vXXXXX-game.html -> versión solo modo juego sin ofuscar
+- index-vXXXXX-editor.obf.html -> versión completa ofuscada a partir de index-vXXXXX.html
+- index-vXXXXX-game.obf.html -> versión completa ofuscada a partir de index-vXXXXX-game.html
 
 ## Descripción completa
 
@@ -47,6 +61,28 @@ Quién puede usarlo: sigue siendo la misma herramienta de desarrollo de antes, s
 
 Sin componente visual: esta ampliación tampoco añade ni cambia ninguna pantalla ni elemento de interfaz.
 
+## Ampliación: script de distribución ofuscada para la variante de solo mesa
+
+Además de `build_game.py` (que genera la variante de solo mesa sin ofuscar), se quiere un script hermano `build_distribute_game.py` que haga con esa variante lo mismo que hoy hace `build_distribute_editor.py` con la build completa: partir del HTML generado, extraer el bundle JS embebido, ofuscarlo y escribir un entregable final con el bundle ya ofuscado, listo para distribuir sin que se pueda leer el código fuente con facilidad.
+
+Con esto, al terminar esta entrada del proyecto quedan cuatro scripts de build/distribución relacionados, cada uno con su fichero de salida:
+
+- `build.py` → build completa (mesa + edición) sin ofuscar → `index-vXXXXX.html`
+- `build_game.py` → build de solo mesa (sin modo edición) sin ofuscar → `index-vXXXXX-game.html`
+- `build_distribute_editor.py` → build completa ofuscada, a partir de `index-vXXXXX.html` → `index-vXXXXX-editor.obf.html`
+- `build_distribute_game.py` → build de solo mesa ofuscada, a partir de `index-vXXXXX-game.html` → `index-vXXXXX-game.obf.html`
+
+Preguntas de alcance resueltas con el usuario:
+
+- **¿Dónde se guardan `index-vXXXXX-game.html` y `index-vXXXXX-game.obf.html`?** En la misma carpeta que ya usan hoy las builds oficiales (`src/_output/versions/`), junto a `index-vXXXXX.html` y `index-vXXXXX-editor.obf.html` — se distinguen entre sí solo por el sufijo del nombre de fichero, no por la carpeta. Esto sustituye lo que se había apuntado antes en Apuntes técnicos sobre usar una carpeta propia separada para la variante de solo mesa: queda descartado, todas las variantes conviven en `src/_output/versions/`.
+- **¿Con qué ajustes se ofusca?** Los mismos que ya usa `build_distribute_editor.py` hoy, para mantener consistencia entre las dos variantes ofuscadas del entregable.
+- **¿Convive con `build_distribute_editor.py` o lo sustituye?** Convive: es un script nuevo e independiente, ninguno de los dos reemplaza al otro y pueden ejecutarse por separado.
+- **¿Qué pasa si `build_game.py` o el ofuscador fallan al generar la variante ofuscada de solo mesa?** Igual que hoy en `build_distribute_editor.py`: el script se detiene con un error claro, sin generar un entregable a medias.
+
+Quién puede usarlo: la misma herramienta de desarrollo que el resto de scripts de esta familia — se ejecuta a mano desde terminal, no es funcionalidad para el jugador final.
+
+Sin componente visual: es una herramienta de generación de fichero, no añade ni cambia ninguna pantalla ni elemento de interfaz.
+
 ## Apuntes técnicos
 
 - El script de build actual (`src/scripts/build.py`) empaqueta el entregable recorriendo el grafo de imports ES estático a partir de `src/main.js` (funciones `visit_module`/`IMPORT_PATTERN`); no hay ningún tipo de eliminación de código muerto más allá de esa alcanzabilidad. Por eso ocultar el botón de modo edición no basta por sí solo: `src/modes/edit/editMode.js` y todo el subárbol de `src/ui/*.js` que solo él importa siguen siendo alcanzables (y por tanto incluidos en el bundle) mientras `src/main.js` siga importándolos.
@@ -59,7 +95,8 @@ Sin componente visual: esta ampliación tampoco añade ni cambia ninguna pantall
   - Como estos son los únicos puntos de marcado manual y el mecanismo de grafo cubre el resto automáticamente, conviene además dejar como convención para el futuro (recomendable documentarlo en `ARCHITECTURE.md`/`STYLE_BIBLE.md` durante la implementación, a valorar por `ms-implement`) que cualquier funcionalidad nueva de modo edición se añada preferentemente en un fichero propio en vez de inline dentro de estos tres — así cae en el caso "se detecta solo" y no en el caso "hay que acordarse del marcador".
 - Dado que la prioridad es que el modo juego quede completo (no que la limpieza de edición sea perfecta), no hace falta que el script incluya una comprobación exhaustiva de que no ha quedado ningún resto de edición en el bundle final — basta con que el fallo por marcador de bloque mal formado (ver "Casos límite" arriba) impida generar un entregable corrupto o a medias. Un resto de edición que se cuele por un marcador olvidado en el futuro es un defecto menor a corregir cuando se detecte, no algo que deba bloquear el script.
 - `src/core/state.js` mantiene el campo `mode`/`MODES.EDIT`/`setMode()` sin cambios: es infraestructura compartida mínima (el propio modelo de "modo" de la app), no se considera código exclusivo de edición a recortar.
-- El script nuevo NO debe escribir en `src/data/version.js` ni incrementar `CURRENT_VERSION` — debe leer la versión actual tal cual (mismo patrón de lectura que ya usa `build.py`) y usarla solo para nombrar su fichero de salida, en una carpeta propia distinta de `src/_output/versions/` (p. ej. `src/_output/gameOnly/`), con un nombre que la distinga de las builds oficiales (p. ej. `index-mesa-v{XXXX}.html`).
+- El script nuevo NO debe escribir en `src/data/version.js` ni incrementar `CURRENT_VERSION` — debe leer la versión actual tal cual (mismo patrón de lectura que ya usa `build.py`) y usarla solo para nombrar su fichero de salida. **Actualizado tras la ampliación de `build_distribute_game.py`:** el fichero de salida va en `src/_output/versions/`, la misma carpeta que usa `build.py` (no una carpeta propia separada), con nombre `index-v{XXXX}-game.html` — el sufijo `-game` es lo único que lo distingue de la build completa `index-v{XXXX}.html`. Esto sustituye la idea anterior de carpeta propia (`src/_output/gameOnly/`) y nombre `index-mesa-v{XXXX}.html`, descartada por el usuario a favor de un esquema de nombres unificado entre las cuatro variantes (ver sección "Ampliación: script de distribución ofuscada").
+- `build_distribute_game.py` es análogo a `build_distribute_editor.py` (`src/scripts/build_distribute_editor.py`): mismo patrón de ejecutar el build previo (aquí `build_game.py` en vez de `build.py`), extraer el bloque `<script>` del bundle con una regex sobre el HTML resultante, ofuscarlo vía `npx javascript-obfuscator` con los mismos `OBFUSCATOR_ARGS`, reinsertarlo y escribir el resultado con el sufijo correspondiente (`-game.obf` en vez de `_editor.obf`) junto al fichero de entrada. Punto a resolver por `ms-how`: el patrón de sufijo exacto usado hoy en código es `_editor.obf.html` (guion bajo), mientras que el esquema de nombres acordado en esta ampliación usa guion (`-editor.obf.html`, `-game.obf.html`) — conviene unificar el criterio (¿se renombra también el existente a guion, o se usa guion bajo también para el nuevo?) al planificar la solución técnica, no es una decisión ya tomada en este análisis funcional.
 - Nota de contexto para el futuro (no bloquea esta implementación): el usuario prevé que la skill `ms-version` desaparecerá más adelante, y que cualquier lógica que hoy dependa de esa skill debería vivir directamente en los scripts de build. Revisado `.claude/skills/ms-version/SKILL.md`: hoy ya es un wrapper fino que solo ejecuta `buildCommand` (`python ./src/scripts/build.py`) y verifica el resultado — toda la lógica real (incrementar versión, generar el bundle) ya vive en `build.py`, no en la skill. No hay nada que migrar ahora mismo; el script nuevo de solo-mesa debe seguir el mismo principio, quedando autocontenido en Python sin depender de ninguna skill para su lógica.
 - `.claude/ms-context.json` no tiene (ni necesita) ningún campo para este script nuevo: no forma parte del proceso de versión del framework (`framework.versioning`/`buildCommand`/`buildOutputPath` siguen apuntando solo a `build.py`).
 - **Recursos: base de datos ya existente para "en uso" (reutilizable, no hace falta reimplementarla):** `core/resource.js` ya expone `isResourceInUse(resourceId, components)` y `getComponentsUsingResource(resourceId, components)`, apoyadas en el helper `collectDeepValues(value)` que recorre `component.properties` en profundidad — es exactamente la comprobación que necesita esta ampliación, aplicada a cada recurso de `getResources()`/`resources` contra la lista de componentes de la partida empaquetada.

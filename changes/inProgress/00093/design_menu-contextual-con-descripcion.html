@@ -1,0 +1,178 @@
+<title>Maqueta — Menú contextual con línea de descripción</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --accent-blue: #2c7dd8;
+    --accent-blue-light: #eaf3fc;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --radius-sm: 4px;
+    --shadow-2: 0 4px 20px rgba(0,0,0,0.15);
+    --transition-fast: 150ms ease;
+  }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .scene {
+    position: relative;
+    width: 420px;
+    height: 320px;
+  }
+  .fake-dice {
+    position: absolute;
+    left: 40px;
+    top: 40px;
+    width: 100px;
+    height: 100px;
+    background: #9a9a9a;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #1a1a1a;
+    font-weight: 600;
+    outline: 2px dashed var(--accent-blue);
+    outline-offset: 3px;
+  }
+
+  .context-menu {
+    position: absolute;
+    left: 160px;
+    top: 30px;
+    background: var(--accent-blue-light);
+    border: 1px solid rgba(44, 125, 216, 0.25);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-2);
+    min-width: 220px;
+    overflow: hidden;
+    font-size: 0.875rem;
+  }
+
+  .context-menu__description {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.6rem 0.9rem;
+    cursor: default;
+  }
+  .context-menu__description-main {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .context-menu__description-extra {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .context-menu__separator {
+    border-top: 1px solid rgba(44, 125, 216, 0.25);
+  }
+
+  .context-menu__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(44, 125, 216, 0.25);
+    transition: background var(--transition-fast), color var(--transition-fast);
+  }
+  .context-menu__item:last-of-type { border-bottom: none; }
+  .context-menu__item:hover {
+    background: var(--accent-blue);
+    color: var(--text-light);
+  }
+  .context-menu__item-icon {
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .context-menu__item-icon svg { width: 100%; height: 100%; }
+
+  .context-menu__info {
+    padding: 0.6rem 0.9rem;
+    cursor: default;
+  }
+  .context-menu__info-title {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+  .context-menu__info-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 0.8125rem;
+    padding: 0.15rem 0;
+  }
+  .context-menu__info-label { color: var(--text-primary); }
+  .context-menu__info-value { color: var(--text-primary); }
+  .context-menu__info-value--none {
+    font-style: italic;
+    opacity: 0.6;
+  }
+
+  .caption {
+    position: absolute;
+    bottom: -2rem;
+    left: 0;
+    font-size: 0.8rem;
+    color: #333;
+  }
+</style>
+
+<div class="scene">
+  <div class="fake-dice">4</div>
+
+  <div class="context-menu">
+    <div class="context-menu__description">
+      <span class="context-menu__description-main">Dado: 3fa8c1e2</span>
+      <span class="context-menu__description-extra">6 caras</span>
+    </div>
+
+    <div class="context-menu__separator"></div>
+
+    <div class="context-menu__item">
+      <span class="context-menu__item-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="5" y="11" width="14" height="9" rx="1.5"></rect>
+          <path stroke-linecap="round" d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+        </svg>
+      </span>
+      <span>Bloquear</span>
+    </div>
+
+    <div class="context-menu__separator"></div>
+
+    <div class="context-menu__info">
+      <div class="context-menu__info-title">Interacciones</div>
+      <div class="context-menu__info-row">
+        <span class="context-menu__info-label">Clic izquierdo</span>
+        <span class="context-menu__info-value">Lanzar el dado</span>
+      </div>
+      <div class="context-menu__info-row">
+        <span class="context-menu__info-label">Doble clic izquierdo</span>
+        <span class="context-menu__info-value">Ver el resultado en grande</span>
+      </div>
+      <div class="context-menu__info-row">
+        <span class="context-menu__info-label">Clic derecho</span>
+        <span class="context-menu__info-value">Abrir este menú</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="caption">Maqueta ilustrativa — no funcional. Ejemplo con un Dado (tipo + id + nº de caras).</div>
+</div>
