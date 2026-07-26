@@ -3,9 +3,10 @@
 import { getComponents, replaceComponent, reorderComponent } from '../../core/state.js';
 import { updateComponent } from '../../core/component.js';
 import { createInfiniteTable } from '../../ui/table.js';
-import { renderComponentsOnTable } from '../../ui/componentRenderer.js';
+import { renderComponentsOnTable, formatComponentIdentifier } from '../../ui/componentRenderer.js';
 import { openDiceResultModal } from '../../ui/diceResultModal.js';
 import { openContextMenu } from '../../ui/contextMenu.js';
+import { getPosibleValores } from '../../core/dice.js';
 
 // Selección del menú contextual de modo juego (cambio 00088), estado transitorio de
 // la sesión de juego en curso: `renderPlayMode` se vuelve a invocar por completo
@@ -95,9 +96,16 @@ export function renderPlayMode(container) {
         renderTable();
 
         const bloqueado = component.bloqueado === true;
+        let extra;
+        if (component.type === 'dado') {
+          extra = `${getPosibleValores(component.properties || {}).length} caras`;
+        } else if (component.type === 'tablero') {
+          extra = `${Math.round(component.width)}x${Math.round(component.height)}`;
+        }
         openContextMenu({
           x: event.clientX,
           y: event.clientY,
+          description: { main: formatComponentIdentifier(component), extra },
           generalItems: [
             {
               icon: createLockIcon(bloqueado),

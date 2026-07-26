@@ -37,6 +37,29 @@ function addRow(menu, { icon, label, onClick }) {
   menu.appendChild(item);
 }
 
+function addDescriptionSection(menu, description) {
+  const block = document.createElement('div');
+  block.className = 'context-menu__description';
+
+  const main = document.createElement('span');
+  main.className = 'context-menu__description-main';
+  main.textContent = description.main;
+  block.appendChild(main);
+
+  if (description.extra) {
+    const extra = document.createElement('span');
+    extra.className = 'context-menu__description-extra';
+    extra.textContent = description.extra;
+    block.appendChild(extra);
+  }
+
+  menu.appendChild(block);
+
+  const separator = document.createElement('div');
+  separator.className = 'context-menu__separator';
+  menu.appendChild(separator);
+}
+
 function addInfoSection(menu, interactionItems) {
   const separator = document.createElement('div');
   separator.className = 'context-menu__separator';
@@ -76,13 +99,17 @@ function addInfoSection(menu, interactionItems) {
 // `generalItems`/`specificItems`: `{ icon: SVGElement, label: string, onClick: () => void }[]`.
 // El separador entre ambas secciones solo se dibuja si `specificItems` no está vacío.
 // `interactionItems`: `{ label: string, value: string }[]` — sección de solo lectura al final del menú.
-export function openContextMenu({ x, y, generalItems = [], specificItems = [], interactionItems = [], onClose } = {}) {
+// `description`: `{ main: string, extra?: string }` — línea de solo lectura al principio del menú,
+// separada del resto por un separador que se dibuja siempre que se pase `description`.
+export function openContextMenu({ x, y, generalItems = [], specificItems = [], interactionItems = [], description, onClose } = {}) {
   closeCurrentMenu();
 
   const menu = document.createElement('div');
   menu.className = 'context-menu';
   menu.style.left = `${x}px`;
   menu.style.top = `${y}px`;
+
+  if (description) addDescriptionSection(menu, description);
 
   for (const item of generalItems) addRow(menu, item);
 

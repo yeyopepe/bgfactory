@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-25T14:21:35Z",
+  "generatedAt": "2026-07-26T06:43:44Z",
   "basePath": "src",
   "nodes": [
     {
@@ -228,7 +228,19 @@
       "exports": [
         "renderPlayMode"
       ],
-      "purpose": "Play mode: infinite table rendering with context menu and interactions."
+      "purpose": "Modo juego: renderiza la mesa infinita con los componentes, gestionando arrastre, lanzamiento de dado, volteo de carta y el menú contextual de click derecho (con su línea de descripción del componente y la acción de bloquear/desbloquear)."
+    },
+    {
+      "id": "scripts/obfuscate_bundle.js",
+      "type": "file",
+      "path": "scripts/obfuscate_bundle.js",
+      "purpose": "Script Node.js standalone que ofusca un fichero JS con el bundle vendorizado de javascript-obfuscator, sin depender de npm/npx."
+    },
+    {
+      "id": "scripts/vendor/javascript-obfuscator.browser.js",
+      "type": "file",
+      "path": "scripts/vendor/javascript-obfuscator.browser.js",
+      "purpose": "Bundle UMD de terceros (javascript-obfuscator, build browser) vendorizado tal cual, usado por scripts/obfuscate_bundle.js."
     },
     {
       "id": "ui/batchUploadSummaryModal.js",
@@ -325,7 +337,7 @@
       "exports": [
         "openContextMenu"
       ],
-      "purpose": "Context menu for right-click actions on components in play mode."
+      "purpose": "Menú contextual genérico posicionado junto al cursor: pinta, en orden, una línea opcional de descripción de solo lectura del elemento, la sección general de acciones, la sección específica por tipo, y una sección informativa de solo lectura con las interacciones disponibles; gestiona apertura/cierre (click fuera, ESC, elegir fila) con comportamiento singleton."
     },
     {
       "id": "ui/deckDeleteConfirmModal.js",
@@ -1046,7 +1058,7 @@
       "type": "function",
       "path": "modes/play/playMode.js",
       "parent": "modes/play/playMode.js",
-      "purpose": "Renders play mode with interactive components."
+      "purpose": "Monta el modo juego sobre el contenedor dado: crea la mesa infinita y vuelve a dibujar los componentes conectando sus interacciones (mover, lanzar dado, voltear carta, menú contextual con descripción del componente y acción de bloqueo) a los cambios de estado."
     },
     {
       "id": "ui/batchUploadSummaryModal.js#openBatchUploadSummaryModal",
@@ -1137,7 +1149,7 @@
       "type": "function",
       "path": "ui/contextMenu.js",
       "parent": "ui/contextMenu.js",
-      "purpose": "Opens right-click context menu at cursor."
+      "purpose": "Abre (cerrando cualquier menú previo) el menú contextual en la posición indicada, con la línea de descripción, las secciones de acciones y la sección de interacciones que se le pasen, reajustando su posición para no salirse de la ventana."
     },
     {
       "id": "ui/deckDeleteConfirmModal.js#openDeckDeleteConfirmModal",
@@ -1632,6 +1644,11 @@
     },
     {
       "source": "modes/play/playMode.js#renderPlayMode",
+      "target": "ui/componentRenderer.js#formatComponentIdentifier",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/play/playMode.js#renderPlayMode",
       "target": "ui/componentRenderer.js#renderComponentsOnTable",
       "relation": "calls"
     },
@@ -2093,6 +2110,11 @@
     {
       "source": "modes/play/playMode.js",
       "target": "core/component.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/play/playMode.js",
+      "target": "core/dice.js",
       "relation": "imports"
     },
     {

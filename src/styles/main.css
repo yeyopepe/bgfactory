@@ -1605,6 +1605,25 @@ fieldset.modal__section--untitled {
   border-top: 1px solid rgba(44, 125, 216, 0.25);
 }
 
+.context-menu__description {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.5rem 0.75rem;
+  cursor: default;
+}
+
+.context-menu__description-main {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.context-menu__description-extra {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
 .context-menu__info {
   padding: 0.5rem 0;
   cursor: default;

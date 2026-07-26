@@ -220,12 +220,12 @@ En modo edición, la etiqueta identificativa se muestra siempre, para cualquier 
 
 ### Menú contextual de componente en modo juego
 
-En modo juego, pulsar el botón derecho del ratón sobre un componente de la mesa lo selecciona (resaltado con el mismo contorno discontinuo que ya usa el modo edición) y abre, junto al cursor, un menú contextual con una fila "Bloquear"/"Desbloquear" (el texto refleja la acción disponible según si el componente está bloqueado o no en ese momento), cada una con su icono. El menú queda preparado para admitir en el futuro acciones específicas según el tipo de componente, separadas de esta por una línea divisoria, pero por ahora solo incluye esta acción general.
+En modo juego, pulsar el botón derecho del ratón sobre un componente de la mesa lo selecciona (resaltado con el mismo contorno discontinuo que ya usa el modo edición) y abre, junto al cursor, un menú contextual. La primera fila es siempre una línea de solo lectura (no se puede pulsar) con la descripción del componente: su tipo e identificador ("Tipo: id", el mismo formato que ya se usa en otras partes de la app) y, según el tipo, una propiedad adicional que ayuda a distinguirlo de otros del mismo tipo — el número de caras configuradas para un dado, o el tamaño actual del tablero en formato "AAxBB" (ancho x alto); "Texto", "Documento" y "Carta/Ficha" no añaden ninguna propiedad extra. Esta línea se calcula en el momento de abrir el menú a partir del estado actual del componente y desaparece al cerrarlo. Separada de ella por una línea divisoria, sigue una fila "Bloquear"/"Desbloquear" (el texto refleja la acción disponible según si el componente está bloqueado o no en ese momento), con su icono. El menú queda preparado para admitir en el futuro acciones específicas según el tipo de componente, separadas de esta por otra línea divisoria, pero por ahora solo incluye esta acción general.
 
 Pulsar el botón derecho sobre otro componente mientras hay un menú abierto cierra el anterior, cambia la selección al nuevo y abre el menú sobre este. El menú (y la selección asociada) se cierra al hacer click fuera de él, al pulsar ESC, o al elegir la acción disponible. Esta selección es estado momentáneo de la sesión de juego en curso, igual que la de modo edición: no se persiste, se pierde al recargar la página.
 
 - **Disponible en**: modo juego.
-- **Código**: 00088.
+- **Código**: 00088, 00093.
 
 ### Atajos de teclado en modo edición
 
