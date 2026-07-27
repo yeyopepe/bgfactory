@@ -38,6 +38,15 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
+// Recortes de silueta exacta (aristas rectas) para las dos formas hexagonales
+// (cambio 00089), además de 'circular'/'cuadrada'. Mismos polígonos que
+// core/cardProportions.js — se mantienen duplicados aquí a propósito, para
+// que este módulo siga sin depender del catálogo de proporciones de carta.
+const HEX_CLIP_PATHS = {
+  'hex-vertical': 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+  'hex-horizontal': 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
+};
+
 export function openImageAdjustModal({ shape, width, height, resource, adjustment, transparencia, onAccept, faces, initialFocusKey }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -105,6 +114,7 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
     mask.style.width = `${maskWidth}px`;
     mask.style.height = `${maskHeight}px`;
     mask.style.borderRadius = entry.shape === 'circular' ? '50%' : '0';
+    mask.style.clipPath = HEX_CLIP_PATHS[entry.shape] || 'none';
     stage.appendChild(mask);
     maskEls[entry.key] = mask;
 

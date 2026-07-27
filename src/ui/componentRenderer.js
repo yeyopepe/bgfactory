@@ -8,7 +8,7 @@ import { getPosibleValores, tirarDado } from '../core/dice.js';
 import { markdownToHtml } from '../core/markdown.js';
 import { sanitizeHtml } from '../core/sanitizeHtml.js';
 import { applyImageAdjustStyle } from './imageAdjustModal.js';
-import { getProporcionRatio, CARD_DESIGN_WIDTH } from '../core/cardProportions.js';
+import { getProporcionRatio, getCartaShapeCss, CARD_DESIGN_WIDTH } from '../core/cardProportions.js';
 
 const MIN_TEXT_BOX_WIDTH = 40;
 const MIN_TEXT_BOX_HEIGHT = 24;
@@ -43,44 +43,76 @@ function shadeColor(hex, percent) {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-// Dibuja una rejilla de hexágonos "flat-top" que ocupa el máximo espacio
-// posible de un lienzo width×height con el número de filas/columnas dado,
-// sin recortar ningún hexágono (puede dejar un margen mínimo inevitable en
-// los bordes, ver description.md 00019 "ajuste exacto de las casillas").
-function renderHexGrid(svgEl, width, height, filas, columnas, color, grosor) {
+// Dibuja una rejilla de hexágonos que ocupa el máximo espacio posible de un
+// lienzo width×height con el número de filas/columnas dado, sin recortar
+// ningún hexágono (puede dejar un margen mínimo inevitable en los bordes,
+// ver description.md 00019 "ajuste exacto de las casillas"). `orientation`
+// distingue las dos orientaciones (cambio 00089): 'flat' dibuja hexágonos
+// "flat-top" (vértices izquierda/derecha, desfase de rejilla por columna);
+// 'pointy' dibuja hexágonos "pointy-top" (vértices arriba/abajo, desfase de
+// rejilla por fila) — misma geometría que 'flat' con filas/columnas y
+// ancho/alto intercambiados.
+function renderHexGrid(svgEl, width, height, filas, columnas, color, grosor, orientation = 'flat') {
   const SVG_NS = 'http://www.w3.org/2000/svg';
   svgEl.innerHTML = '';
   svgEl.setAttribute('width', width);
   svgEl.setAttribute('height', height);
 
-  const aByWidth = width / (2 + 1.5 * (columnas - 1));
-  const aByHeight = height / (Math.sqrt(3) * filas + (columnas > 1 ? Math.sqrt(3) / 2 : 0));
-  const a = Math.max(0, Math.min(aByWidth, aByHeight));
-  if (a === 0) return;
+  const points = [];
+  if (orientation === 'pointy') {
+    const aByWidth = width / (Math.sqrt(3) * columnas + (filas > 1 ? Math.sqrt(3) / 2 : 0));
+    const aByHeight = height / (2 + 1.5 * (filas - 1));
+    const a = Math.max(0, Math.min(aByWidth, aByHeight));
+    if (a === 0) return;
 
-  const hexHeight = Math.sqrt(3) * a;
-  const gridWidth = 2 * a + 1.5 * a * (columnas - 1);
-  const gridHeight = hexHeight * filas + (columnas > 1 ? hexHeight / 2 : 0);
-  const offsetX = (width - gridWidth) / 2 + a;
-  const offsetY = (height - gridHeight) / 2 + hexHeight / 2;
+    const hexWidth = Math.sqrt(3) * a;
+    const gridWidth = hexWidth * columnas + (filas > 1 ? hexWidth / 2 : 0);
+    const gridHeight = 2 * a + 1.5 * a * (filas - 1);
+    const offsetX = (width - gridWidth) / 2 + hexWidth / 2;
+    const offsetY = (height - gridHeight) / 2 + a;
 
-  for (let col = 0; col < columnas; col++) {
-    const cx = offsetX + col * 1.5 * a;
-    const colOffsetY = col % 2 === 1 ? hexHeight / 2 : 0;
     for (let row = 0; row < filas; row++) {
-      const cy = offsetY + row * hexHeight + colOffsetY;
-      const points = [];
-      for (let i = 0; i < 6; i++) {
-        const angle = (Math.PI / 180) * (60 * i);
-        points.push(`${cx + a * Math.cos(angle)},${cy + a * Math.sin(angle)}`);
+      const cy = offsetY + row * 1.5 * a;
+      const rowOffsetX = row % 2 === 1 ? hexWidth / 2 : 0;
+      for (let col = 0; col < columnas; col++) {
+        const cx = offsetX + col * hexWidth + rowOffsetX;
+        drawHexagon(cx, cy, a, 30);
       }
-      const polygon = document.createElementNS(SVG_NS, 'polygon');
-      polygon.setAttribute('points', points.join(' '));
-      polygon.setAttribute('fill', 'none');
-      polygon.setAttribute('stroke', color);
-      polygon.setAttribute('stroke-width', String(grosor));
-      svgEl.appendChild(polygon);
     }
+  } else {
+    const aByWidth = width / (2 + 1.5 * (columnas - 1));
+    const aByHeight = height / (Math.sqrt(3) * filas + (columnas > 1 ? Math.sqrt(3) / 2 : 0));
+    const a = Math.max(0, Math.min(aByWidth, aByHeight));
+    if (a === 0) return;
+
+    const hexHeight = Math.sqrt(3) * a;
+    const gridWidth = 2 * a + 1.5 * a * (columnas - 1);
+    const gridHeight = hexHeight * filas + (columnas > 1 ? hexHeight / 2 : 0);
+    const offsetX = (width - gridWidth) / 2 + a;
+    const offsetY = (height - gridHeight) / 2 + hexHeight / 2;
+
+    for (let col = 0; col < columnas; col++) {
+      const cx = offsetX + col * 1.5 * a;
+      const colOffsetY = col % 2 === 1 ? hexHeight / 2 : 0;
+      for (let row = 0; row < filas; row++) {
+        const cy = offsetY + row * hexHeight + colOffsetY;
+        drawHexagon(cx, cy, a, 0);
+      }
+    }
+  }
+
+  function drawHexagon(cx, cy, a, startAngleDeg) {
+    const pts = [];
+    for (let i = 0; i < 6; i++) {
+      const angle = (Math.PI / 180) * (startAngleDeg + 60 * i);
+      pts.push(`${cx + a * Math.cos(angle)},${cy + a * Math.sin(angle)}`);
+    }
+    const polygon = document.createElementNS(SVG_NS, 'polygon');
+    polygon.setAttribute('points', pts.join(' '));
+    polygon.setAttribute('fill', 'none');
+    polygon.setAttribute('stroke', color);
+    polygon.setAttribute('stroke-width', String(grosor));
+    svgEl.appendChild(polygon);
   }
 }
 
@@ -445,8 +477,19 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         const patronFilas = props.patronFilas || 8;
         const patronColumnas = props.patronColumnas || 8;
 
-        if (props.patronForma === 'hexagonal') {
-          hexGridToRender = { patronFilas, patronColumnas, patronColor, patronGrosor };
+        // 'hexagonal' es el valor guardado antes del cambio 00089 (una sola
+        // orientación) — se interpreta como alias de 'hex-horizontal', la
+        // orientación que ya dibujaba antes de dividirse en dos.
+        const patronForma = props.patronForma === 'hexagonal' ? 'hex-horizontal' : props.patronForma;
+
+        if (patronForma === 'hex-vertical' || patronForma === 'hex-horizontal') {
+          hexGridToRender = {
+            patronFilas,
+            patronColumnas,
+            patronColor,
+            patronGrosor,
+            orientation: patronForma === 'hex-vertical' ? 'pointy' : 'flat',
+          };
         } else {
           const cellWidth = width / patronColumnas;
           const cellHeight = height / patronFilas;
@@ -467,7 +510,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         svg.style.left = '0';
         svg.style.pointerEvents = 'none';
         board.appendChild(svg);
-        renderHexGrid(svg, width - bordeGrosor * 2, height - bordeGrosor * 2, hexGridToRender.patronFilas, hexGridToRender.patronColumnas, hexGridToRender.patronColor, hexGridToRender.patronGrosor);
+        renderHexGrid(svg, width - bordeGrosor * 2, height - bordeGrosor * 2, hexGridToRender.patronFilas, hexGridToRender.patronColumnas, hexGridToRender.patronColor, hexGridToRender.patronGrosor, hexGridToRender.orientation);
       }
 
       if (onSelect) {
@@ -870,10 +913,12 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       worldEl.appendChild(documentViewer);
     } else if (component.type === 'carta') {
       const props = component.properties || {};
-      const cartaBorderRadius = props.proporcion === 'circular' ? '50%' : '8px';
+      const { borderRadius: cartaBorderRadius, clipPath: cartaClipPath } = getCartaShapeCss(props.proporcion);
+      const isHexCarta = props.proporcion === 'hex-vertical' || props.proporcion === 'hex-horizontal';
 
       const carta = document.createElement('div');
       carta.className = 'carta';
+      carta.classList.toggle('carta--hex', isHexCarta);
       carta.style.position = 'absolute';
       carta.style.top = `${component.y ?? 100}px`;
       carta.style.left = `${component.x ?? 100}px`;
@@ -884,25 +929,26 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       carta.style.width = `${width}px`;
       carta.style.height = `${height}px`;
 
+      const caraActual = props.caraActual === 'frontal' ? 'frontal' : 'trasera';
+      const cara = caraActual === 'frontal' ? props.caraFrontal : props.caraTrasera;
+      const renderScale = width / CARD_DESIGN_WIDTH;
+
       const cartaContent = document.createElement('div');
       cartaContent.style.position = 'absolute';
       cartaContent.style.inset = '0';
+      cartaContent.style.boxSizing = 'border-box';
       cartaContent.style.overflow = 'hidden';
       cartaContent.style.borderRadius = cartaBorderRadius;
+      cartaContent.style.clipPath = cartaClipPath;
+      cartaContent.style.backgroundColor = '#ffffff';
+      cartaContent.style.border = (cara?.bordeGrosor ?? 0) > 0 ? `${cara.bordeGrosor}px solid ${cara.bordeColor || '#000000'}` : 'none';
       carta.appendChild(cartaContent);
 
       if (identifyMode === 'tooltip' && component.mostrarTooltip) carta.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') carta.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && component.bloqueado) carta.appendChild(createLockBadge());
 
-      const caraActual = props.caraActual === 'frontal' ? 'frontal' : 'trasera';
-      const cara = caraActual === 'frontal' ? props.caraFrontal : props.caraTrasera;
-      const renderScale = width / CARD_DESIGN_WIDTH;
-
       applyFlipFeedbackIfChanged(carta, component.id, caraActual);
-
-      carta.style.backgroundColor = '#ffffff';
-      carta.style.border = (cara?.bordeGrosor ?? 0) > 0 ? `${cara.bordeGrosor}px solid ${cara.bordeColor || '#000000'}` : 'none';
 
       const resource = cara?.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;
       if (resource) {

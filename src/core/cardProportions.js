@@ -3,19 +3,43 @@
 // espíritu a data/defaultResources.js: sin dependencias de otras capas.
 
 export const CARD_PROPORTIONS = [
-  { value: '5:7', label: 'Poker estándar vertical (5:7)', ratio: 5 / 7 },
-  { value: '7:5', label: 'Poker estándar horizontal (7:5)', ratio: 7 / 5 },
-  { value: 'tarot-h', label: 'Tarot estándar vertical (70 × 120 mm)', ratio: 70 / 120 },
-  { value: 'tarot-v', label: 'Tarot estándar horizontal (120 × 70 mm)', ratio: 120 / 70 },
-  { value: '1:1', label: 'Cuadrada (1:1)', ratio: 1 },
-  { value: 'circular', label: 'Circular', ratio: 1 },
+  { value: '5:7', label: 'Poker estándar vertical (5:7)', ratio: 5 / 7, shape: 'rect' },
+  { value: '7:5', label: 'Poker estándar horizontal (7:5)', ratio: 7 / 5, shape: 'rect' },
+  { value: 'tarot-h', label: 'Tarot estándar vertical (70 × 120 mm)', ratio: 70 / 120, shape: 'rect' },
+  { value: 'tarot-v', label: 'Tarot estándar horizontal (120 × 70 mm)', ratio: 120 / 70, shape: 'rect' },
+  { value: '1:1', label: 'Cuadrada (1:1)', ratio: 1, shape: 'rect' },
+  { value: 'circular', label: 'Circular', ratio: 1, shape: 'circular' },
+  { value: 'hex-vertical', label: 'Hexagonal (vértices arriba/abajo)', ratio: Math.sqrt(3) / 2, shape: 'hex-vertical' },
+  { value: 'hex-horizontal', label: 'Hexagonal (vértices izquierda/derecha)', ratio: 2 / Math.sqrt(3), shape: 'hex-horizontal' },
 ];
 
 const DEFAULT_PROPORTION = '5:7';
 
+// Polígonos de recorte exacto (silueta de aristas rectas, sin bisel) para las
+// proporciones hexagonales. Expresados en porcentajes: como el contenedor ya
+// tiene el ratio ancho:alto correcto de un hexágono regular (ver `ratio` de
+// arriba), el polígono no necesita conocer el tamaño real en píxeles.
+const HEX_CLIP_PATHS = {
+  'hex-vertical': 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+  'hex-horizontal': 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
+};
+
 export function getProporcionRatio(value) {
   const found = CARD_PROPORTIONS.find((p) => p.value === value);
   return found ? found.ratio : CARD_PROPORTIONS.find((p) => p.value === DEFAULT_PROPORTION).ratio;
+}
+
+// Devuelve el `border-radius`/`clip-path` a aplicar según la proporción: las
+// cinco proporciones rectangulares/cuadrada usan el radio de "contenedores
+// destacados" (STYLE_BIBLE.md sección 5), "Circular" recorta en redondo, y
+// las dos hexagonales recortan por polígono exacto (border-radius no puede
+// producir una silueta de aristas rectas).
+export function getCartaShapeCss(value) {
+  const found = CARD_PROPORTIONS.find((p) => p.value === value);
+  const shape = found ? found.shape : 'rect';
+  if (shape === 'circular') return { borderRadius: '50%', clipPath: 'none' };
+  if (HEX_CLIP_PATHS[shape]) return { borderRadius: '0', clipPath: HEX_CLIP_PATHS[shape] };
+  return { borderRadius: '8px', clipPath: 'none' };
 }
 
 // Ancho de referencia, en "unidades de diseño", en el que se guardan

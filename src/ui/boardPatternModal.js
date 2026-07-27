@@ -28,7 +28,11 @@ export function openBoardPatternModal({ properties, onAccept }) {
   const working = {
     patronColor: properties.patronColor || '#000000',
     patronGrosor: properties.patronGrosor || 1,
-    patronForma: properties.patronForma || 'cuadrada',
+    // 'hexagonal' es el valor guardado antes del cambio 00089 (una sola
+    // orientación) — se normaliza a su alias 'hex-horizontal' al abrir la
+    // modal, de forma que el desplegable muestre la opción equivalente y,
+    // al aceptar, quede guardado ya con el valor nuevo.
+    patronForma: properties.patronForma === 'hexagonal' ? 'hex-horizontal' : (properties.patronForma || 'cuadrada'),
     patronFilas: properties.patronFilas || 8,
     patronColumnas: properties.patronColumnas || 8,
   };
@@ -81,7 +85,8 @@ export function openBoardPatternModal({ properties, onAccept }) {
   const shapeSelect = document.createElement('select');
   const shapeOptions = [
     { value: 'cuadrada', label: 'Cuadrada' },
-    { value: 'hexagonal', label: 'Hexagonal' },
+    { value: 'hex-vertical', label: 'Hexagonal (vértices arriba/abajo)' },
+    { value: 'hex-horizontal', label: 'Hexagonal (vértices izquierda/derecha)' },
   ];
   for (const { value, label } of shapeOptions) {
     const option = document.createElement('option');

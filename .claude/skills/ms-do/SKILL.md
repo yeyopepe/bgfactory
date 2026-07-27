@@ -2,10 +2,10 @@
 name: ms-do
 description: Implementa un change/fix cuyo plan.md ya está escrito en {changesDir}/inProgress/{xxxx}/ — edita el código según la solución técnica, actualiza la documentación sincronizada, regenera el grafo de contexto si aplica, y mueve la entrada a {changesDir}/implemented. Parte del framework ms-*. Trigger: /ms-do <xxxx>, o cuando el usuario pide implementar un cambio/fix ya planificado por ms-how (normalmente encadenado automáticamente desde ella).
 argument-hint: <xxxx del cambio/fix ya planificado>
-model: claude-haiku-4-5-20251001
-effort: high
+model: claude-sonnet-5
+effort: medium
 metadata:
-  version: 1.1.1
+  version: 1.1.2
   uses: [ms-internal-workflow, ms-internal-graph]
 ---
 

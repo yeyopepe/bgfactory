@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-26T06:43:44Z",
+  "generatedAt": "2026-07-27T07:49:31Z",
   "basePath": "src",
   "nodes": [
     {
@@ -9,10 +9,11 @@
       "exports": [
         "CARD_DESIGN_WIDTH",
         "CARD_PROPORTIONS",
+        "getCartaShapeCss",
         "getDesignSize",
         "getProporcionRatio"
       ],
-      "purpose": "Utilities for calculating card aspect ratios and proportions."
+      "purpose": "Data module with card proportion definitions, ratio calculations, and hexagonal/circular shape CSS generation."
     },
     {
       "id": "core/component.js",
@@ -24,7 +25,7 @@
         "nextCloneId",
         "updateComponent"
       ],
-      "purpose": "Model factory for game components (cards, tokens, boards) with generic extensible structure."
+      "purpose": "Component model factory: creates, updates, and clones game components with validation."
     },
     {
       "id": "core/deck.js",
@@ -36,7 +37,7 @@
         "isDeckNameTaken",
         "updateDeck"
       ],
-      "purpose": "Deck management: creation, updates, and association with card components."
+      "purpose": "Deck management: creates decks, checks usage by cards, validates deck names."
     },
     {
       "id": "core/dice.js",
@@ -50,7 +51,7 @@
         "parseListaValores",
         "tirarDado"
       ],
-      "purpose": "Dice logic: value validation, sorting results, and roll mechanics."
+      "purpose": "Dice logic: roll outcomes, face validation, and result calculation."
     },
     {
       "id": "core/eventBus.js",
@@ -61,7 +62,7 @@
         "off",
         "on"
       ],
-      "purpose": "Simple pub/sub event system for layer decoupling."
+      "purpose": "Simple pub-sub event bus for communicating state changes across layers."
     },
     {
       "id": "core/fichaMigration.js",
@@ -71,7 +72,7 @@
         "migrateFichaComponent",
         "migrateFichaProperties"
       ],
-      "purpose": "Pure mapping module that migrates the extinct 'ficha' component type to 'carta' properties."
+      "purpose": "Migrates legacy 'ficha' (token) components to new 'carta' (card) type."
     },
     {
       "id": "core/fileExport.js",
@@ -82,7 +83,7 @@
         "downloadHtml",
         "downloadJson"
       ],
-      "purpose": "Game export to standalone HTML file and JSON format."
+      "purpose": "Exports game state to HTML file or JSON for download."
     },
     {
       "id": "core/imageConversion.js",
@@ -91,7 +92,7 @@
       "exports": [
         "convertImageToWebP"
       ],
-      "purpose": "Image processing: format conversion to WebP."
+      "purpose": "Image format conversion to WebP for storage optimization."
     },
     {
       "id": "core/importMerge.js",
@@ -101,7 +102,7 @@
         "mergeImportedGame",
         "nextImportedId"
       ],
-      "purpose": "Merging imported game data with current state."
+      "purpose": "Merges imported components/resources/decks with existing game state."
     },
     {
       "id": "core/markdown.js",
@@ -110,7 +111,7 @@
       "exports": [
         "markdownToHtml"
       ],
-      "purpose": "Markdown parsing to HTML for component text."
+      "purpose": "Markdown to HTML converter using vendored marked.js library."
     },
     {
       "id": "core/persistence.js",
@@ -123,7 +124,7 @@
         "readSeedState",
         "saveState"
       ],
-      "purpose": "Save/load game state from localStorage and JSON import."
+      "purpose": "Saves and loads game state from localStorage and files."
     },
     {
       "id": "core/resource.js",
@@ -137,7 +138,7 @@
         "resourceTypeForFileName",
         "updateResource"
       ],
-      "purpose": "Resource management (images, fonts) with usage tracking."
+      "purpose": "Resource (image/font) gallery management and usage tracking."
     },
     {
       "id": "core/sanitizeHtml.js",
@@ -146,7 +147,7 @@
       "exports": [
         "sanitizeHtml"
       ],
-      "purpose": "HTML sanitization to prevent XSS."
+      "purpose": "HTML sanitization to prevent script injection in saved state."
     },
     {
       "id": "core/state.js",
@@ -185,7 +186,7 @@
         "setPanelState",
         "setResourcePanelState"
       ],
-      "purpose": "Central application state: mode, components, resources, decks, and UI panel state."
+      "purpose": "Global game state management: components, resources, decks, UI panels."
     },
     {
       "id": "data/defaultResources.js",
@@ -194,7 +195,7 @@
       "exports": [
         "DEFAULT_RESOURCES"
       ],
-      "purpose": "Default gallery resources bundled with the app."
+      "purpose": "Default gallery resources (images, fonts) bundled with app."
     },
     {
       "id": "data/version.js",
@@ -203,13 +204,13 @@
       "exports": [
         "CURRENT_VERSION"
       ],
-      "purpose": "Current app version string."
+      "purpose": "Application version metadata."
     },
     {
       "id": "main.js",
       "type": "file",
       "path": "main.js",
-      "purpose": "Application bootstrap: state hydration, mode switching, rendering orchestration."
+      "purpose": "Application bootstrap: initializes modes and connects all layers."
     },
     {
       "id": "modes/edit/editMode.js",
@@ -219,7 +220,7 @@
         "deleteSelectedComponent",
         "renderEditMode"
       ],
-      "purpose": "Edit mode: component/resource/deck management with infinit table and floating panels."
+      "purpose": "Edit mode UI: infinite table, component/resource/deck panels, modals."
     },
     {
       "id": "modes/play/playMode.js",
@@ -228,19 +229,19 @@
       "exports": [
         "renderPlayMode"
       ],
-      "purpose": "Modo juego: renderiza la mesa infinita con los componentes, gestionando arrastre, lanzamiento de dado, volteo de carta y el menú contextual de click derecho (con su línea de descripción del componente y la acción de bloquear/desbloquear)."
+      "purpose": "Play mode UI: infinite table with playable components and context menu."
     },
     {
       "id": "scripts/obfuscate_bundle.js",
       "type": "file",
       "path": "scripts/obfuscate_bundle.js",
-      "purpose": "Script Node.js standalone que ofusca un fichero JS con el bundle vendorizado de javascript-obfuscator, sin depender de npm/npx."
+      "purpose": "Build script for obfuscating final HTML bundle."
     },
     {
       "id": "scripts/vendor/javascript-obfuscator.browser.js",
       "type": "file",
       "path": "scripts/vendor/javascript-obfuscator.browser.js",
-      "purpose": "Bundle UMD de terceros (javascript-obfuscator, build browser) vendorizado tal cual, usado por scripts/obfuscate_bundle.js."
+      "purpose": "Third-party obfuscation library (vendored)."
     },
     {
       "id": "ui/batchUploadSummaryModal.js",
@@ -249,7 +250,7 @@
       "exports": [
         "openBatchUploadSummaryModal"
       ],
-      "purpose": "Modal showing summary of batch resource upload results."
+      "purpose": "Modal showing summary of batch file/folder upload results."
     },
     {
       "id": "ui/boardImageModal.js",
@@ -258,7 +259,7 @@
       "exports": [
         "openBoardImageModal"
       ],
-      "purpose": "Modal for selecting and configuring board background image."
+      "purpose": "Modal for selecting board background image."
     },
     {
       "id": "ui/boardPatternModal.js",
@@ -267,7 +268,7 @@
       "exports": [
         "openBoardPatternModal"
       ],
-      "purpose": "Modal for configuring grid pattern on boards."
+      "purpose": "Modal for configuring board grid pattern."
     },
     {
       "id": "ui/cardEditorModal.js",
@@ -276,7 +277,7 @@
       "exports": [
         "openCardEditorModal"
       ],
-      "purpose": "Modal for editing card-specific content and faces."
+      "purpose": "Card design editor: image, text boxes, borders for both card faces."
     },
     {
       "id": "ui/cardTextBoxModal.js",
@@ -285,7 +286,7 @@
       "exports": [
         "openCardTextBoxModal"
       ],
-      "purpose": "Modal for editing text content in card face."
+      "purpose": "Modal for editing individual text box on card face."
     },
     {
       "id": "ui/componentList.js",
@@ -294,7 +295,7 @@
       "exports": [
         "renderComponentList"
       ],
-      "purpose": "Component table in edit mode with filtering and actions."
+      "purpose": "Renders component list table in edit mode panel."
     },
     {
       "id": "ui/componentModal.js",
@@ -308,7 +309,7 @@
         "createDefaultComponent",
         "openComponentModal"
       ],
-      "purpose": "Modal for creating/editing component properties."
+      "purpose": "Modal for creating/editing component properties by type."
     },
     {
       "id": "ui/componentRenderer.js",
@@ -319,7 +320,7 @@
         "getComponentsBounds",
         "renderComponentsOnTable"
       ],
-      "purpose": "Rendering components on infinite table with selection, drag, interactions."
+      "purpose": "Renders game components on table: cards, dice, boards, text, documents."
     },
     {
       "id": "ui/componentTypeModal.js",
@@ -328,7 +329,7 @@
       "exports": [
         "openComponentTypeModal"
       ],
-      "purpose": "Modal for selecting component type on creation."
+      "purpose": "Modal for selecting component type when creating new component."
     },
     {
       "id": "ui/contextMenu.js",
@@ -337,7 +338,7 @@
       "exports": [
         "openContextMenu"
       ],
-      "purpose": "Menú contextual genérico posicionado junto al cursor: pinta, en orden, una línea opcional de descripción de solo lectura del elemento, la sección general de acciones, la sección específica por tipo, y una sección informativa de solo lectura con las interacciones disponibles; gestiona apertura/cierre (click fuera, ESC, elegir fila) con comportamiento singleton."
+      "purpose": "Context menu for component actions in play mode."
     },
     {
       "id": "ui/deckDeleteConfirmModal.js",
@@ -346,7 +347,7 @@
       "exports": [
         "openDeckDeleteConfirmModal"
       ],
-      "purpose": "Modal warning about cards using a deck being deleted."
+      "purpose": "Modal confirming deck deletion with affected cards list."
     },
     {
       "id": "ui/deckList.js",
@@ -355,7 +356,7 @@
       "exports": [
         "renderDeckList"
       ],
-      "purpose": "Deck table in edit mode with add/edit/delete actions."
+      "purpose": "Renders deck list table in edit mode panel."
     },
     {
       "id": "ui/deckModal.js",
@@ -373,7 +374,7 @@
       "exports": [
         "openDiceFontModal"
       ],
-      "purpose": "Modal for selecting dice font."
+      "purpose": "Modal for selecting dice result text font."
     },
     {
       "id": "ui/diceResultModal.js",
@@ -382,7 +383,7 @@
       "exports": [
         "openDiceResultModal"
       ],
-      "purpose": "Modal displaying enlarged dice roll result."
+      "purpose": "Modal displaying large dice result."
     },
     {
       "id": "ui/editModeToggle.js",
@@ -392,7 +393,7 @@
         "renderEditToolbar",
         "renderModeSwitcher"
       ],
-      "purpose": "Buttons to enter/exit edit mode."
+      "purpose": "Renders mode switch buttons and edit toolbar."
     },
     {
       "id": "ui/elementSelectionModal.js",
@@ -401,7 +402,7 @@
       "exports": [
         "createElementSelectionGroups"
       ],
-      "purpose": "Modal for selecting options from grouped list."
+      "purpose": "Modal for multi-select with group headers."
     },
     {
       "id": "ui/errorModal.js",
@@ -410,7 +411,7 @@
       "exports": [
         "showErrorModal"
       ],
-      "purpose": "Simple error notification modal."
+      "purpose": "Universal error message dialog."
     },
     {
       "id": "ui/exportSelectionModal.js",
@@ -419,7 +420,7 @@
       "exports": [
         "openExportSelectionModal"
       ],
-      "purpose": "Modal for choosing what to export."
+      "purpose": "Modal for selecting elements to export to JSON file."
     },
     {
       "id": "ui/fontFaceRegistry.js",
@@ -429,7 +430,7 @@
         "fontFamilyFor",
         "syncFontFaces"
       ],
-      "purpose": "Font face management from resources."
+      "purpose": "Registers and manages @font-face CSS for gallery fonts."
     },
     {
       "id": "ui/globalShortcuts.js",
@@ -438,7 +439,7 @@
       "exports": [
         "initGlobalShortcuts"
       ],
-      "purpose": "Global keyboard shortcuts (delete, etc)."
+      "purpose": "Keyboard shortcuts for edit mode (ESC, Enter, Delete)."
     },
     {
       "id": "ui/helpIcon.js",
@@ -447,7 +448,7 @@
       "exports": [
         "createHelpIcon"
       ],
-      "purpose": "Inline help icon with tooltip."
+      "purpose": "Tooltip help icon component."
     },
     {
       "id": "ui/imageAdjustModal.js",
@@ -457,7 +458,7 @@
         "applyImageAdjustStyle",
         "openImageAdjustModal"
       ],
-      "purpose": "Modal for adjusting image scale/position/opacity."
+      "purpose": "Modal for adjusting image position and zoom with preview."
     },
     {
       "id": "ui/importConfirmModal.js",
@@ -466,7 +467,7 @@
       "exports": [
         "openImportConfirmModal"
       ],
-      "purpose": "Modal confirming import of game file."
+      "purpose": "Modal for confirming import mode and ID conflict handling."
     },
     {
       "id": "ui/importConversionErrorModal.js",
@@ -475,7 +476,7 @@
       "exports": [
         "openImportConversionErrorModal"
       ],
-      "purpose": "Modal shown before applying an import when some selected fichas fail to convert, letting the user continue without them or abort."
+      "purpose": "Modal showing conversion errors for ficha migration."
     },
     {
       "id": "ui/importReportModal.js",
@@ -484,7 +485,7 @@
       "exports": [
         "openImportReportModal"
       ],
-      "purpose": "Modal showing import result details."
+      "purpose": "Modal showing import result summary with any warnings."
     },
     {
       "id": "ui/importSelectionModal.js",
@@ -493,7 +494,7 @@
       "exports": [
         "openImportSelectionModal"
       ],
-      "purpose": "Modal for selecting resources to import."
+      "purpose": "Modal for selecting elements to import from JSON file."
     },
     {
       "id": "ui/resizeHandle.js",
@@ -502,7 +503,7 @@
       "exports": [
         "attachResizeHandle"
       ],
-      "purpose": "Resize handle for dragging panel/component edges."
+      "purpose": "Drag handle for resizing components and panels."
     },
     {
       "id": "ui/resourceList.js",
@@ -511,7 +512,7 @@
       "exports": [
         "renderResourceList"
       ],
-      "purpose": "Resource table in edit mode with add/edit/delete actions."
+      "purpose": "Renders resource gallery list in edit mode panel."
     },
     {
       "id": "ui/resourceModal.js",
@@ -520,7 +521,7 @@
       "exports": [
         "openResourceModal"
       ],
-      "purpose": "Modal for editing resource properties."
+      "purpose": "Modal for editing resource (image/font) name or data."
     },
     {
       "id": "ui/table.js",
@@ -530,7 +531,7 @@
         "createInfiniteTable",
         "fitToBounds"
       ],
-      "purpose": "Infinite pan/zoom table surface for components."
+      "purpose": "Infinite scrolling table component for lists."
     },
     {
       "id": "ui/tableColumnResize.js",
@@ -539,7 +540,7 @@
       "exports": [
         "attachColumnResizing"
       ],
-      "purpose": "Column resize handling for resource/component tables."
+      "purpose": "Column width dragging for tables."
     },
     {
       "id": "ui/toast.js",
@@ -548,475 +549,482 @@
       "exports": [
         "showToast"
       ],
-      "purpose": "Temporary notification toast."
+      "purpose": "Transient notification messages."
     },
     {
       "id": "vendor/marked.js",
       "type": "file",
       "path": "vendor/marked.js",
-      "purpose": "Marked markdown parser library."
+      "purpose": "Third-party Markdown parser library (vendored marked v18.0.6)."
+    },
+    {
+      "id": "core/cardProportions.js#getCartaShapeCss",
+      "type": "function",
+      "path": "core/cardProportions.js",
+      "parent": "core/cardProportions.js",
+      "purpose": "Generates CSS clip-path or border-radius styles for card shapes (rectangular, circular, hexagonal)."
     },
     {
       "id": "core/cardProportions.js#getDesignSize",
       "type": "function",
       "path": "core/cardProportions.js",
       "parent": "core/cardProportions.js",
-      "purpose": "Returns standard card design dimensions."
+      "purpose": "Calculates design-time dimensions for card proportions based on reference width."
     },
     {
       "id": "core/cardProportions.js#getProporcionRatio",
       "type": "function",
       "path": "core/cardProportions.js",
       "parent": "core/cardProportions.js",
-      "purpose": "Calculates aspect ratio for card dimensions."
+      "purpose": "Returns the aspect ratio for a given card proportion value with fallback default."
     },
     {
       "id": "core/component.js#cloneComponent",
       "type": "function",
       "path": "core/component.js",
       "parent": "core/component.js",
-      "purpose": "Creates a deep clone of a component with offset position."
+      "purpose": "Creates a full copy of a component with incremented ID and offset position."
     },
     {
       "id": "core/component.js#createComponent",
       "type": "function",
       "path": "core/component.js",
       "parent": "core/component.js",
-      "purpose": "Factory function for creating component objects with defaults."
+      "purpose": "Creates a new component with default values, generating unique ID and initial position."
     },
     {
       "id": "core/component.js#nextCloneId",
       "type": "function",
       "path": "core/component.js",
       "parent": "core/component.js",
-      "purpose": "Calculates next available clone ID for a component."
+      "purpose": "Generates the next available clone ID for a component based on existing clones."
     },
     {
       "id": "core/component.js#updateComponent",
       "type": "function",
       "path": "core/component.js",
       "parent": "core/component.js",
-      "purpose": "Immutable component update returning new object."
+      "purpose": "Updates component properties while preserving required fields and structure."
     },
     {
       "id": "core/deck.js#createDeck",
       "type": "function",
       "path": "core/deck.js",
       "parent": "core/deck.js",
-      "purpose": "Factory function for deck objects."
+      "purpose": "Creates a new deck with unique ID and name."
     },
     {
       "id": "core/deck.js#getComponentsUsingDeck",
       "type": "function",
       "path": "core/deck.js",
       "parent": "core/deck.js",
-      "purpose": "Finds all card components using a given deck."
+      "purpose": "Returns all cards (components) assigned to a specific deck."
     },
     {
       "id": "core/deck.js#isDeckNameTaken",
       "type": "function",
       "path": "core/deck.js",
       "parent": "core/deck.js",
-      "purpose": "Checks if deck name already exists."
+      "purpose": "Checks if a deck name is already in use (normalized comparison)."
     },
     {
       "id": "core/deck.js#updateDeck",
       "type": "function",
       "path": "core/deck.js",
       "parent": "core/deck.js",
-      "purpose": "Immutable deck update."
+      "purpose": "Updates deck properties."
     },
     {
       "id": "core/dice.js#esResultadoValido",
       "type": "function",
       "path": "core/dice.js",
       "parent": "core/dice.js",
-      "purpose": "Validates a die result against configured values."
+      "purpose": "Validates if a result is valid for current dice configuration."
     },
     {
       "id": "core/dice.js#getPosibleValores",
       "type": "function",
       "path": "core/dice.js",
       "parent": "core/dice.js",
-      "purpose": "Extracts unique possible values from die configuration."
+      "purpose": "Returns all possible dice outcomes based on current configuration."
     },
     {
       "id": "core/dice.js#getResultadoInicial",
       "type": "function",
       "path": "core/dice.js",
       "parent": "core/dice.js",
-      "purpose": "Gets initial die result for display."
+      "purpose": "Calculates the initial result when dice configuration changes."
     },
     {
       "id": "core/dice.js#isListaValoresValida",
       "type": "function",
       "path": "core/dice.js",
       "parent": "core/dice.js",
-      "purpose": "Validates die value list format."
+      "purpose": "Validates a comma-separated list of dice face values."
     },
     {
       "id": "core/dice.js#parseListaValores",
       "type": "function",
       "path": "core/dice.js",
       "parent": "core/dice.js",
-      "purpose": "Parses comma-separated die values."
+      "purpose": "Parses and normalizes a comma-separated list of dice values."
     },
     {
       "id": "core/dice.js#tirarDado",
       "type": "function",
       "path": "core/dice.js",
       "parent": "core/dice.js",
-      "purpose": "Rolls die and returns random valid value."
+      "purpose": "Rolls the dice and returns a random outcome."
     },
     {
       "id": "core/eventBus.js#emit",
       "type": "function",
       "path": "core/eventBus.js",
       "parent": "core/eventBus.js",
-      "purpose": "Publishes event to all subscribers."
+      "purpose": "Publishes an event synchronously to all registered listeners."
     },
     {
       "id": "core/eventBus.js#off",
       "type": "function",
       "path": "core/eventBus.js",
       "parent": "core/eventBus.js",
-      "purpose": "Unsubscribes handler from event."
+      "purpose": "Unregisters a listener from an event type."
     },
     {
       "id": "core/eventBus.js#on",
       "type": "function",
       "path": "core/eventBus.js",
       "parent": "core/eventBus.js",
-      "purpose": "Subscribes handler to named event."
+      "purpose": "Registers a listener for a specific event type."
     },
     {
       "id": "core/fichaMigration.js#migrateFichaComponent",
       "type": "function",
       "path": "core/fichaMigration.js",
       "parent": "core/fichaMigration.js",
-      "purpose": "Wraps migrateFichaProperties to produce a full carta component from a ficha component."
+      "purpose": "Converts a ficha component to carta with appropriate proportions and design."
     },
     {
       "id": "core/fichaMigration.js#migrateFichaProperties",
       "type": "function",
       "path": "core/fichaMigration.js",
       "parent": "core/fichaMigration.js",
-      "purpose": "Maps ficha properties to carta properties, returning a best-effort result plus any conversion errors."
+      "purpose": "Transforms ficha-specific properties to carta format."
     },
     {
       "id": "core/fileExport.js#buildExportHtml",
       "type": "function",
       "path": "core/fileExport.js",
       "parent": "core/fileExport.js",
-      "purpose": "Generates standalone HTML file with embedded assets."
+      "purpose": "Assembles the complete self-contained HTML file with embedded state."
     },
     {
       "id": "core/fileExport.js#downloadHtml",
       "type": "function",
       "path": "core/fileExport.js",
       "parent": "core/fileExport.js",
-      "purpose": "Triggers download of HTML export."
+      "purpose": "Triggers browser download of HTML export with custom filename."
     },
     {
       "id": "core/fileExport.js#downloadJson",
       "type": "function",
       "path": "core/fileExport.js",
       "parent": "core/fileExport.js",
-      "purpose": "Triggers download of JSON export."
+      "purpose": "Exports selected components/resources/decks as JSON file."
     },
     {
       "id": "core/imageConversion.js#convertImageToWebP",
       "type": "function",
       "path": "core/imageConversion.js",
       "parent": "core/imageConversion.js",
-      "purpose": "Converts image to WebP format."
+      "purpose": "Converts image to WebP format or returns original if conversion fails."
     },
     {
       "id": "core/importMerge.js#mergeImportedGame",
       "type": "function",
       "path": "core/importMerge.js",
       "parent": "core/importMerge.js",
-      "purpose": "Merges imported game state with current state."
+      "purpose": "Combines imported elements with current state, handling ID conflicts."
     },
     {
       "id": "core/importMerge.js#nextImportedId",
       "type": "function",
       "path": "core/importMerge.js",
       "parent": "core/importMerge.js",
-      "purpose": "Generates unique ID for imported component."
+      "purpose": "Generates a unique imported ID by appending '-imported' suffix."
     },
     {
       "id": "core/markdown.js#markdownToHtml",
       "type": "function",
       "path": "core/markdown.js",
       "parent": "core/markdown.js",
-      "purpose": "Converts markdown text to sanitized HTML."
+      "purpose": "Converts CommonMark/GFM text to sanitized HTML."
     },
     {
       "id": "core/persistence.js#buildComponentsExport",
       "type": "function",
       "path": "core/persistence.js",
       "parent": "core/persistence.js",
-      "purpose": "Formats components for JSON export."
+      "purpose": "Formats components/resources/decks for JSON export."
     },
     {
       "id": "core/persistence.js#loadState",
       "type": "function",
       "path": "core/persistence.js",
       "parent": "core/persistence.js",
-      "purpose": "Retrieves saved game from localStorage."
+      "purpose": "Loads game state from localStorage or seed data."
     },
     {
       "id": "core/persistence.js#parseImportedComponents",
       "type": "function",
       "path": "core/persistence.js",
       "parent": "core/persistence.js",
-      "purpose": "Parses components from imported JSON."
+      "purpose": "Parses JSON from imported file."
     },
     {
       "id": "core/persistence.js#readSeedState",
       "type": "function",
       "path": "core/persistence.js",
       "parent": "core/persistence.js",
-      "purpose": "Reads initial seed from data element."
+      "purpose": "Extracts embedded game state from HTML script tag."
     },
     {
       "id": "core/persistence.js#saveState",
       "type": "function",
       "path": "core/persistence.js",
       "parent": "core/persistence.js",
-      "purpose": "Persists game state to localStorage."
+      "purpose": "Saves current game state to localStorage."
     },
     {
       "id": "core/resource.js#createResource",
       "type": "function",
       "path": "core/resource.js",
       "parent": "core/resource.js",
-      "purpose": "Factory function for resource objects."
+      "purpose": "Creates a new gallery resource with type detection."
     },
     {
       "id": "core/resource.js#getComponentsUsingResource",
       "type": "function",
       "path": "core/resource.js",
       "parent": "core/resource.js",
-      "purpose": "Finds all components using a resource."
+      "purpose": "Returns all components that reference a specific resource."
     },
     {
       "id": "core/resource.js#isResourceInUse",
       "type": "function",
       "path": "core/resource.js",
       "parent": "core/resource.js",
-      "purpose": "Checks if resource is referenced by any component."
+      "purpose": "Checks if a resource is referenced by any component."
     },
     {
       "id": "core/resource.js#resourceTypeForFileName",
       "type": "function",
       "path": "core/resource.js",
       "parent": "core/resource.js",
-      "purpose": "Determines resource type from file extension."
+      "purpose": "Determines resource type (image/font) from file extension."
     },
     {
       "id": "core/resource.js#updateResource",
       "type": "function",
       "path": "core/resource.js",
       "parent": "core/resource.js",
-      "purpose": "Immutable resource update."
+      "purpose": "Updates resource name or replaces resource data."
     },
     {
       "id": "core/sanitizeHtml.js#sanitizeHtml",
       "type": "function",
       "path": "core/sanitizeHtml.js",
       "parent": "core/sanitizeHtml.js",
-      "purpose": "Removes dangerous HTML/scripts via DOMPurify."
+      "purpose": "Removes script tags, event handlers, and javascript: protocols from HTML."
     },
     {
       "id": "core/state.js#addComponent",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Adds component with auto-assigned order=1."
+      "purpose": "Adds new component with automatic ordering."
     },
     {
       "id": "core/state.js#addDeck",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Adds new deck to state."
+      "purpose": "Adds new deck."
     },
     {
       "id": "core/state.js#addResource",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Adds new resource to state."
+      "purpose": "Adds new resource to gallery."
     },
     {
       "id": "core/state.js#getComponents",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Returns current component list."
+      "purpose": "Returns list of all components."
     },
     {
       "id": "core/state.js#getDeckPanelState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Returns deck panel UI state."
+      "purpose": "Returns deck panel state."
     },
     {
       "id": "core/state.js#getDecks",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Returns current deck list."
+      "purpose": "Returns list of all decks."
     },
     {
       "id": "core/state.js#getPanelState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Returns component panel UI state."
+      "purpose": "Returns component panel state (position, size, collapsed)."
     },
     {
       "id": "core/state.js#getResourcePanelState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Returns resource panel UI state."
+      "purpose": "Returns resource panel state."
     },
     {
       "id": "core/state.js#getResources",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Returns current resource list."
+      "purpose": "Returns gallery resource list."
     },
     {
       "id": "core/state.js#getResourcesSeeded",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Returns whether default resources were seeded."
+      "purpose": "Returns whether default resources have been marked as seeded."
     },
     {
       "id": "core/state.js#getState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Returns entire application state object."
+      "purpose": "Returns complete current game state."
     },
     {
       "id": "core/state.js#loadComponents",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Loads components into state."
+      "purpose": "Loads components from saved state with order migration."
     },
     {
       "id": "core/state.js#loadDeckPanelState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Loads deck panel state."
+      "purpose": "Loads deck panel state from saved state."
     },
     {
       "id": "core/state.js#loadDecks",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Loads decks into state."
+      "purpose": "Loads decks from saved state."
     },
     {
       "id": "core/state.js#loadPanelState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Loads component panel state."
+      "purpose": "Loads panel state from saved state."
     },
     {
       "id": "core/state.js#loadResourcePanelState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Loads resource panel state."
+      "purpose": "Loads resource panel state from saved state."
     },
     {
       "id": "core/state.js#loadResources",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Loads resources into state."
+      "purpose": "Loads resources from saved state."
     },
     {
       "id": "core/state.js#loadResourcesSeeded",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Sets default resources seeded flag."
+      "purpose": "Loads seeding status of default resources."
     },
     {
       "id": "core/state.js#markResourcesSeeded",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Marks default resources as seeded."
+      "purpose": "Marks default resources as loaded."
     },
     {
       "id": "core/state.js#removeComponent",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Removes component and recompacts order."
+      "purpose": "Removes component and recompacts order values."
     },
     {
       "id": "core/state.js#removeDeck",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Removes deck from state."
+      "purpose": "Removes deck."
     },
     {
       "id": "core/state.js#removeResource",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Removes resource from state."
+      "purpose": "Removes resource from gallery."
     },
     {
       "id": "core/state.js#reorderComponent",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Moves component to new z-order position."
+      "purpose": "Changes component stacking order."
     },
     {
       "id": "core/state.js#replaceComponent",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Updates component triggering re-render."
+      "purpose": "Updates component and emits change event."
     },
     {
       "id": "core/state.js#replaceDeck",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Updates deck triggering re-render."
+      "purpose": "Updates deck and emits change event."
     },
     {
       "id": "core/state.js#replaceResource",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Updates resource triggering re-render."
+      "purpose": "Updates resource and emits change event."
     },
     {
       "id": "core/state.js#setDeckPanelState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Updates deck panel UI state."
+      "purpose": "Updates deck panel state."
     },
     {
       "id": "core/state.js#setMode",
@@ -1030,42 +1038,42 @@
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Updates component panel UI state."
+      "purpose": "Updates component panel state."
     },
     {
       "id": "core/state.js#setResourcePanelState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Updates resource panel UI state."
+      "purpose": "Updates resource panel state."
     },
     {
       "id": "modes/edit/editMode.js#deleteSelectedComponent",
       "type": "function",
       "path": "modes/edit/editMode.js",
       "parent": "modes/edit/editMode.js",
-      "purpose": "Deletes currently selected component with confirmation."
+      "purpose": "Deletes currently selected component after confirmation."
     },
     {
       "id": "modes/edit/editMode.js#renderEditMode",
       "type": "function",
       "path": "modes/edit/editMode.js",
       "parent": "modes/edit/editMode.js",
-      "purpose": "Renders edit mode UI with panels and infinite table."
+      "purpose": "Renders complete edit mode interface with all panels."
     },
     {
       "id": "modes/play/playMode.js#renderPlayMode",
       "type": "function",
       "path": "modes/play/playMode.js",
       "parent": "modes/play/playMode.js",
-      "purpose": "Monta el modo juego sobre el contenedor dado: crea la mesa infinita y vuelve a dibujar los componentes conectando sus interacciones (mover, lanzar dado, voltear carta, menú contextual con descripción del componente y acción de bloqueo) a los cambios de estado."
+      "purpose": "Renders game table with interactive components."
     },
     {
       "id": "ui/batchUploadSummaryModal.js#openBatchUploadSummaryModal",
       "type": "function",
       "path": "ui/batchUploadSummaryModal.js",
       "parent": "ui/batchUploadSummaryModal.js",
-      "purpose": "Shows batch upload results."
+      "purpose": "Displays upload summary with success/failure counts."
     },
     {
       "id": "ui/boardImageModal.js#openBoardImageModal",
@@ -1079,28 +1087,28 @@
       "type": "function",
       "path": "ui/boardPatternModal.js",
       "parent": "ui/boardPatternModal.js",
-      "purpose": "Opens board pattern configuration dialog."
+      "purpose": "Opens board pattern configuration (squares or hexagons)."
     },
     {
       "id": "ui/cardEditorModal.js#openCardEditorModal",
       "type": "function",
       "path": "ui/cardEditorModal.js",
       "parent": "ui/cardEditorModal.js",
-      "purpose": "Opens card face editor dialog."
+      "purpose": "Opens dedicated card design interface."
     },
     {
       "id": "ui/cardTextBoxModal.js#openCardTextBoxModal",
       "type": "function",
       "path": "ui/cardTextBoxModal.js",
       "parent": "ui/cardTextBoxModal.js",
-      "purpose": "Opens text box editor for card face."
+      "purpose": "Opens text box property editor."
     },
     {
       "id": "ui/componentList.js#renderComponentList",
       "type": "function",
       "path": "ui/componentList.js",
       "parent": "ui/componentList.js",
-      "purpose": "Renders component table in edit mode panel."
+      "purpose": "Builds component list table with ID, type, and actions."
     },
     {
       "id": "ui/componentModal.js#createDefaultComponent",
@@ -1114,196 +1122,196 @@
       "type": "function",
       "path": "ui/componentModal.js",
       "parent": "ui/componentModal.js",
-      "purpose": "Opens component creation/edit dialog."
+      "purpose": "Opens component edit/create dialog."
     },
     {
       "id": "ui/componentRenderer.js#formatComponentIdentifier",
       "type": "function",
       "path": "ui/componentRenderer.js",
       "parent": "ui/componentRenderer.js",
-      "purpose": "Formats component identifier string."
+      "purpose": "Formats component type and ID for tooltip/label display."
     },
     {
       "id": "ui/componentRenderer.js#getComponentsBounds",
       "type": "function",
       "path": "ui/componentRenderer.js",
       "parent": "ui/componentRenderer.js",
-      "purpose": "Calculates bounding box of multiple components."
+      "purpose": "Calculates bounding box containing all components."
     },
     {
       "id": "ui/componentRenderer.js#renderComponentsOnTable",
       "type": "function",
       "path": "ui/componentRenderer.js",
       "parent": "ui/componentRenderer.js",
-      "purpose": "Renders all components on infinite table with interactions."
+      "purpose": "Creates and updates visual representation of all components."
     },
     {
       "id": "ui/componentTypeModal.js#openComponentTypeModal",
       "type": "function",
       "path": "ui/componentTypeModal.js",
       "parent": "ui/componentTypeModal.js",
-      "purpose": "Opens component type selection dialog."
+      "purpose": "Shows available component types for selection."
     },
     {
       "id": "ui/contextMenu.js#openContextMenu",
       "type": "function",
       "path": "ui/contextMenu.js",
       "parent": "ui/contextMenu.js",
-      "purpose": "Abre (cerrando cualquier menú previo) el menú contextual en la posición indicada, con la línea de descripción, las secciones de acciones y la sección de interacciones que se le pasen, reajustando su posición para no salirse de la ventana."
+      "purpose": "Opens right-click menu with lock toggle."
     },
     {
       "id": "ui/deckDeleteConfirmModal.js#openDeckDeleteConfirmModal",
       "type": "function",
       "path": "ui/deckDeleteConfirmModal.js",
       "parent": "ui/deckDeleteConfirmModal.js",
-      "purpose": "Warns about cards affected by deck deletion."
+      "purpose": "Shows affected cards before deleting deck."
     },
     {
       "id": "ui/deckList.js#renderDeckList",
       "type": "function",
       "path": "ui/deckList.js",
       "parent": "ui/deckList.js",
-      "purpose": "Renders deck table in edit mode panel."
+      "purpose": "Builds deck list table with name and actions."
     },
     {
       "id": "ui/deckModal.js#openDeckModal",
       "type": "function",
       "path": "ui/deckModal.js",
       "parent": "ui/deckModal.js",
-      "purpose": "Opens deck creation/edit dialog."
+      "purpose": "Opens deck create/edit dialog."
     },
     {
       "id": "ui/diceFontModal.js#openDiceFontModal",
       "type": "function",
       "path": "ui/diceFontModal.js",
       "parent": "ui/diceFontModal.js",
-      "purpose": "Opens dice font selection dialog."
+      "purpose": "Opens font selection with preview."
     },
     {
       "id": "ui/diceResultModal.js#openDiceResultModal",
       "type": "function",
       "path": "ui/diceResultModal.js",
       "parent": "ui/diceResultModal.js",
-      "purpose": "Opens enlarged dice result display."
+      "purpose": "Shows zoomed dice outcome."
     },
     {
       "id": "ui/editModeToggle.js#renderEditToolbar",
       "type": "function",
       "path": "ui/editModeToggle.js",
       "parent": "ui/editModeToggle.js",
-      "purpose": "Renders edit mode exit button toolbar."
+      "purpose": "Shows exit-edit button and tools in edit mode."
     },
     {
       "id": "ui/editModeToggle.js#renderModeSwitcher",
       "type": "function",
       "path": "ui/editModeToggle.js",
       "parent": "ui/editModeToggle.js",
-      "purpose": "Renders play/edit mode switcher buttons."
+      "purpose": "Shows enter-edit button in play mode."
     },
     {
       "id": "ui/elementSelectionModal.js#createElementSelectionGroups",
       "type": "function",
       "path": "ui/elementSelectionModal.js",
       "parent": "ui/elementSelectionModal.js",
-      "purpose": "Formats elements into grouped option list."
+      "purpose": "Builds grouped selection UI from elements."
     },
     {
       "id": "ui/errorModal.js#showErrorModal",
       "type": "function",
       "path": "ui/errorModal.js",
       "parent": "ui/errorModal.js",
-      "purpose": "Shows error notification to user."
+      "purpose": "Displays error message to user."
     },
     {
       "id": "ui/exportSelectionModal.js#openExportSelectionModal",
       "type": "function",
       "path": "ui/exportSelectionModal.js",
       "parent": "ui/exportSelectionModal.js",
-      "purpose": "Opens export options dialog."
+      "purpose": "Shows export selection checkboxes."
     },
     {
       "id": "ui/fontFaceRegistry.js#fontFamilyFor",
       "type": "function",
       "path": "ui/fontFaceRegistry.js",
       "parent": "ui/fontFaceRegistry.js",
-      "purpose": "Returns CSS font-family for resource."
+      "purpose": "Returns CSS font-family name for a font resource."
     },
     {
       "id": "ui/fontFaceRegistry.js#syncFontFaces",
       "type": "function",
       "path": "ui/fontFaceRegistry.js",
       "parent": "ui/fontFaceRegistry.js",
-      "purpose": "Loads font faces from resources into page."
+      "purpose": "Adds @font-face rules for font resources."
     },
     {
       "id": "ui/globalShortcuts.js#initGlobalShortcuts",
       "type": "function",
       "path": "ui/globalShortcuts.js",
       "parent": "ui/globalShortcuts.js",
-      "purpose": "Initializes keyboard shortcuts."
+      "purpose": "Registers global keyboard event listeners."
     },
     {
       "id": "ui/helpIcon.js#createHelpIcon",
       "type": "function",
       "path": "ui/helpIcon.js",
       "parent": "ui/helpIcon.js",
-      "purpose": "Creates help icon element with tooltip."
+      "purpose": "Creates question mark icon with tooltip."
     },
     {
       "id": "ui/imageAdjustModal.js#applyImageAdjustStyle",
       "type": "function",
       "path": "ui/imageAdjustModal.js",
       "parent": "ui/imageAdjustModal.js",
-      "purpose": "Applies image transform to component."
+      "purpose": "Applies CSS styles for image zoom and pan."
     },
     {
       "id": "ui/imageAdjustModal.js#openImageAdjustModal",
       "type": "function",
       "path": "ui/imageAdjustModal.js",
       "parent": "ui/imageAdjustModal.js",
-      "purpose": "Opens image scale/position/opacity dialog."
+      "purpose": "Opens image adjustment interface."
     },
     {
       "id": "ui/importConfirmModal.js#openImportConfirmModal",
       "type": "function",
       "path": "ui/importConfirmModal.js",
       "parent": "ui/importConfirmModal.js",
-      "purpose": "Confirms game import action."
+      "purpose": "Shows merge options for import."
     },
     {
       "id": "ui/importConversionErrorModal.js#openImportConversionErrorModal",
       "type": "function",
       "path": "ui/importConversionErrorModal.js",
       "parent": "ui/importConversionErrorModal.js",
-      "purpose": "Opens the ficha conversion error modal with the affected components and Abort/Continue actions."
+      "purpose": "Displays legacy component conversion issues."
     },
     {
       "id": "ui/importReportModal.js#openImportReportModal",
       "type": "function",
       "path": "ui/importReportModal.js",
       "parent": "ui/importReportModal.js",
-      "purpose": "Shows import results and conflicts."
+      "purpose": "Displays import completion report."
     },
     {
       "id": "ui/importSelectionModal.js#openImportSelectionModal",
       "type": "function",
       "path": "ui/importSelectionModal.js",
       "parent": "ui/importSelectionModal.js",
-      "purpose": "Opens resource selection for import."
+      "purpose": "Shows import selection checkboxes."
     },
     {
       "id": "ui/resizeHandle.js#attachResizeHandle",
       "type": "function",
       "path": "ui/resizeHandle.js",
       "parent": "ui/resizeHandle.js",
-      "purpose": "Adds draggable resize handle to element."
+      "purpose": "Adds resize handle to element with constraint logic."
     },
     {
       "id": "ui/resourceList.js#renderResourceList",
       "type": "function",
       "path": "ui/resourceList.js",
       "parent": "ui/resourceList.js",
-      "purpose": "Renders resource table in edit mode panel."
+      "purpose": "Builds filterable resource table with upload option."
     },
     {
       "id": "ui/resourceModal.js#openResourceModal",
@@ -1317,28 +1325,28 @@
       "type": "function",
       "path": "ui/table.js",
       "parent": "ui/table.js",
-      "purpose": "Creates pan/zoom infinite table surface."
+      "purpose": "Creates scrollable table with row rendering."
     },
     {
       "id": "ui/table.js#fitToBounds",
       "type": "function",
       "path": "ui/table.js",
       "parent": "ui/table.js",
-      "purpose": "Pans/zooms to show given bounds."
+      "purpose": "Constrains element position within screen bounds."
     },
     {
       "id": "ui/tableColumnResize.js#attachColumnResizing",
       "type": "function",
       "path": "ui/tableColumnResize.js",
       "parent": "ui/tableColumnResize.js",
-      "purpose": "Enables column resizing on table headers."
+      "purpose": "Enables manual column width adjustment."
     },
     {
       "id": "ui/toast.js#showToast",
       "type": "function",
       "path": "ui/toast.js",
       "parent": "ui/toast.js",
-      "purpose": "Displays temporary notification."
+      "purpose": "Displays temporary success/info notification."
     }
   ],
   "edges": [
@@ -1669,6 +1677,11 @@
     },
     {
       "source": "ui/cardEditorModal.js#openCardEditorModal",
+      "target": "core/cardProportions.js#getCartaShapeCss",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/cardEditorModal.js#openCardEditorModal",
       "target": "core/cardProportions.js#getDesignSize",
       "relation": "calls"
     },
@@ -1805,6 +1818,11 @@
     {
       "source": "ui/componentModal.js#openComponentModal",
       "target": "ui/helpIcon.js#createHelpIcon",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentRenderer.js#renderComponentsOnTable",
+      "target": "core/cardProportions.js#getCartaShapeCss",
       "relation": "calls"
     },
     {

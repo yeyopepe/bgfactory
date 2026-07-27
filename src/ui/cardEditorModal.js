@@ -4,7 +4,7 @@
 // ui/componentModal.js cuando el componente es de tipo 'carta'.
 
 import { getResources } from '../core/state.js';
-import { CARD_PROPORTIONS, getProporcionRatio, getDesignSize } from '../core/cardProportions.js';
+import { CARD_PROPORTIONS, getProporcionRatio, getDesignSize, getCartaShapeCss } from '../core/cardProportions.js';
 import { applyImageAdjustStyle, openImageAdjustModal } from './imageAdjustModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
 import { openCardTextBoxModal } from './cardTextBoxModal.js';
@@ -109,7 +109,12 @@ export function openCardEditorModal({ component, onAccept }) {
       ? getResources().find((r) => r.id === working.caraTrasera.imagenResourceId)
       : null;
 
-    const faceShape = working.proporcion === 'circular' ? 'circular' : 'cuadrada';
+    const faceShape =
+      working.proporcion === 'circular' ||
+      working.proporcion === 'hex-vertical' ||
+      working.proporcion === 'hex-horizontal'
+        ? working.proporcion
+        : 'cuadrada';
 
     openImageAdjustModal({
       faces: [
@@ -173,7 +178,9 @@ export function openCardEditorModal({ component, onAccept }) {
     canvas.style.width = `${canvasWidth}px`;
     canvas.style.height = `${canvasHeight}px`;
     canvas.style.boxSizing = 'border-box';
-    canvas.style.borderRadius = working.proporcion === 'circular' ? '50%' : '8px';
+    const canvasShape = getCartaShapeCss(working.proporcion);
+    canvas.style.borderRadius = canvasShape.borderRadius;
+    canvas.style.clipPath = canvasShape.clipPath;
     canvas.style.border = (cara.bordeGrosor ?? 0) > 0 ? `${cara.bordeGrosor}px solid ${cara.bordeColor || '#000000'}` : '';
     faceCol.appendChild(canvas);
 
