@@ -1,4 +1,4 @@
-# Estado del proyecto — {nombreProyecto} — {estado}
+# Estado del proyecto — {estado}
 
 *Generado: {fechaGeneracion}*
 

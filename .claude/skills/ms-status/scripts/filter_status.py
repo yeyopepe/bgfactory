@@ -25,8 +25,8 @@ Para cada entrada de la carpeta de estado se calculan cuatro columnas:
     mtime de la propia carpeta.
 
 La plantilla (STATUS.filtered.template.md, en la carpeta del skill) define
-el formato de salida: un cuerpo con placeholders {nombreProyecto}, {estado},
-{fechaGeneracion} y {filas}, mas dos lineas de comentario HTML que el script
+el formato de salida: un cuerpo con placeholders {estado}, {fechaGeneracion} y
+{filas}, mas dos lineas de comentario HTML que el script
 extrae y no imprime:
   <!-- ROW_TEMPLATE: ... -->   patron de una fila, con {código}/{tipo}/{descripción}/{fecha}
   <!-- EMPTY_TEMPLATE: ... --> texto a usar en {filas} si no hay entradas
@@ -93,12 +93,6 @@ def load_changes_dir(root: Path, override: str | None) -> Path:
             "para completarlo."
         )
     return root / framework["changesDir"]
-
-
-def load_project_name(root: Path) -> str:
-    context_path = root / ".claude" / "ms-context.json"
-    context = json.loads(context_path.read_text(encoding="utf-8"))
-    return context.get("project", {}).get("name") or "(sin nombre)"
 
 
 DESCRIPTION_MAX_CHARS = 250
@@ -195,7 +189,7 @@ ROW_TEMPLATE_RE = re.compile(r"<!--\s*ROW_TEMPLATE:\s*(.+?)\s*-->\n?")
 EMPTY_TEMPLATE_RE = re.compile(r"<!--\s*EMPTY_TEMPLATE:\s*(.+?)\s*-->\n?")
 
 
-def render_report(result: dict, root: Path) -> str:
+def render_report(result: dict) -> str:
     template_text = TEMPLATE_PATH.read_text(encoding="utf-8")
     row_match = ROW_TEMPLATE_RE.search(template_text)
     empty_match = EMPTY_TEMPLATE_RE.search(template_text)
@@ -225,7 +219,6 @@ def render_report(result: dict, root: Path) -> str:
         filas = empty_template.format(estado=result["state"])
 
     return body.format(
-        nombreProyecto=load_project_name(root),
         estado=result["state"],
         fechaGeneracion=datetime.now().strftime("%Y-%m-%d"),
         filas=filas,
@@ -248,7 +241,7 @@ def main() -> None:
     root = repo_root()
     changes_dir = load_changes_dir(root, args.changes_dir)
     result = collect(changes_dir, args.state)
-    print(render_report(result, root))
+    print(render_report(result))
 
 
 if __name__ == "__main__":

@@ -23,15 +23,19 @@ eliminan enteras (cabecera incluida) cuando no aplican:
   <!-- SECTION:fast --> ... <!-- /SECTION:fast -->
   <!-- SECTION:avisos --> ... <!-- /SECTION:avisos -->
 
+La seccion "Cambios fast implementados" se omite por defecto aunque haya
+entradas fast: solo se incluye si se pasa --show-fast (usar unicamente
+cuando el usuario la pida explicitamente).
+
 No escribe nada en disco: imprime el markdown final por stdout.
 
 Uso:
   python render_status.py
   python render_status.py --changes-dir changes
+  python render_status.py --show-fast
 """
 
 import argparse
-import json
 import re
 import sys
 from datetime import datetime
@@ -46,11 +50,6 @@ FECHA_RE = re.compile(r"\*\*Fecha\*\*\s*[:—-]\s*(.+)")
 
 ROW_RE_TEMPLATE = r"<!--\s*{name}:\s*(.+?)\s*-->\n?"
 SECTION_RE_TEMPLATE = r"<!--\s*SECTION:{name}\s*-->\n?(.*?)<!--\s*/SECTION:{name}\s*-->\n?"
-
-
-def load_project_name(root: Path) -> str:
-    context = json.loads((root / ".claude" / "ms-context.json").read_text(encoding="utf-8"))
-    return context.get("project", {}).get("name") or "(sin nombre)"
 
 
 def extract_fecha(entry_dir: Path) -> str:
@@ -95,7 +94,7 @@ def entry_lines(entries: list[dict], row_template: str, empty_template: str) -> 
     )
 
 
-def render(result: dict, changes_dir: Path, root: Path) -> str:
+def render(result: dict, changes_dir: Path, show_fast: bool = False) -> str:
     states = result["states"]
     totals = result["totalsByType"]
 
@@ -133,11 +132,10 @@ def render(result: dict, changes_dir: Path, root: Path) -> str:
     todo_entries = states.get("todo", {}).get("entries", [])
 
     body = apply_section(template_text, "sinDescripcion", keep=bool(sin_descripcion))
-    body = apply_section(body, "fast", keep=bool(fast_entries))
+    body = apply_section(body, "fast", keep=show_fast and bool(fast_entries))
     body = apply_section(body, "avisos", keep=bool(result["warnings"]))
 
     body = body.format(
-        nombreProyecto=load_project_name(root),
         fechaGeneracion=datetime.now().strftime("%Y-%m-%d"),
         todoTotal=states.get("todo", {}).get("total", 0),
         inProgressChange=state_count("inProgress", "change"),
@@ -183,6 +181,12 @@ def main() -> None:
         help="Ruta a {changesDir} relativa a la raiz del repo. Si no se indica, "
         "se lee de .claude/ms-context.json.",
     )
+    parser.add_argument(
+        "--show-fast",
+        action="store_true",
+        help="Incluye la seccion 'Cambios fast implementados'. Omitida por defecto: "
+        "solo pasar este flag cuando el usuario la pida explicitamente.",
+    )
     args = parser.parse_args()
 
     if hasattr(sys.stdout, "reconfigure"):
@@ -191,7 +195,7 @@ def main() -> None:
     root = repo_root()
     changes_dir = load_changes_dir(root, args.changes_dir)
     result = collect(changes_dir)
-    print(render(result, changes_dir, root))
+    print(render(result, changes_dir, show_fast=args.show_fast))
 
 
 if __name__ == "__main__":

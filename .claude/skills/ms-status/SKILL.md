@@ -5,7 +5,7 @@ argument-hint: "[todo|<estado>]"
 model: claude-haiku-4-5-20251001
 effort: medium
 metadata:
-  version: 1.6.1
+  version: 1.7.0
   uses: []
 ---
 
@@ -78,6 +78,12 @@ python .claude/skills/ms-status/scripts/render_status.py
 ```
 
 El script reutiliza internamente la misma recopilación del paso 1, aplica el mapeo completo (incluida la regla de la columna Fast solo en `implemented`/`closed`, las tres listas de "En progreso" con sus casos vacíos, y omitir por completo las secciones de "Cambios fast implementados"/"Avisos" cuando no aplican) e imprime por stdout el informe en markdown ya listo — no es JSON, no vuelvas a aplicar la plantilla tú ni reformatees nada, limítate a pegar la salida tal cual como respuesta.
+
+Por defecto la sección **"Cambios fast implementados" se omite**, aunque existan entradas fast (el total de la columna Fast en la tabla sigue mostrándose). Solo inclúyela si el usuario la pide explícitamente en este turno (p.ej. "enséñame también los fast", "detalla los cambios fast"), añadiendo el flag `--show-fast`:
+
+```
+python .claude/skills/ms-status/scripts/render_status.py --show-fast
+```
 
 No inventes datos que no estén en la salida del script (p.ej. no le asignes un tipo a una entrada `unknown` solo por adivinarlo del nombre de la carpeta).
 

@@ -21,11 +21,5 @@
         "projectGraphPath": "src/_graph/graph.json"
       }
     }
-  },
-  "project": {
-    "name": "Errantes",
-    "summary": "Prototipo digital jugable en navegador del juego de mesa Errantes",
-    "stack": ["JavaScript vanilla (ES modules)", "HTML/CSS", "Python build script"],
-    "notes": "El entregable es un único HTML autocontenido por versión, generado sin Node.js"
   }
 }
