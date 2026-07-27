@@ -42,6 +42,37 @@ export function getCartaShapeCss(value) {
   return { borderRadius: '8px', clipPath: 'none' };
 }
 
+// Recorte interior (concéntrico, más pequeño) para simular un borde de
+// grosor uniforme en las proporciones hexagonales, donde `border` CSS no
+// sirve (ver fix 00096): al ser siempre un hexágono regular (su `ratio`
+// fuerza esa proporción), desplazar las seis aristas hacia dentro `bordePx`
+// equivale a escalar los vértices del polígono desde el centro por un
+// factor `s` calculado a partir de la apotema (mitad del lado que queda
+// perpendicular a los vértices agudos: `width/2` en 'hex-vertical',
+// `height/2` en 'hex-horizontal'). Devuelve `null` si la proporción no es
+// hexagonal o si no hay borde que simular.
+export function getHexInnerClipPath(proporcionValue, width, height, bordePx) {
+  const found = CARD_PROPORTIONS.find((p) => p.value === proporcionValue);
+  const shape = found ? found.shape : null;
+  const path = shape ? HEX_CLIP_PATHS[shape] : null;
+  if (!path || !(bordePx > 0)) return null;
+
+  const apothem = shape === 'hex-vertical' ? width / 2 : height / 2;
+  const scale = Math.max(0, 1 - bordePx / apothem);
+
+  const points = path
+    .slice(path.indexOf('(') + 1, -1)
+    .split(',')
+    .map((pair) => {
+      const [x, y] = pair.trim().split(' ').map((n) => parseFloat(n));
+      const sx = 50 + scale * (x - 50);
+      const sy = 50 + scale * (y - 50);
+      return `${sx}% ${sy}%`;
+    });
+
+  return `polygon(${points.join(', ')})`;
+}
+
 // Ancho de referencia, en "unidades de diseño", en el que se guardan
 // x/y/width/height/tamañoFuente de los cuadros de texto de una cara. La
 // proporción de la carta es siempre fija salvo cambio explícito, así que un

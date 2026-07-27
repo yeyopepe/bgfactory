@@ -8,7 +8,7 @@ import { getPosibleValores, tirarDado } from '../core/dice.js';
 import { markdownToHtml } from '../core/markdown.js';
 import { sanitizeHtml } from '../core/sanitizeHtml.js';
 import { applyImageAdjustStyle } from './imageAdjustModal.js';
-import { getProporcionRatio, getCartaShapeCss, CARD_DESIGN_WIDTH } from '../core/cardProportions.js';
+import { getProporcionRatio, getCartaShapeCss, getHexInnerClipPath, CARD_DESIGN_WIDTH } from '../core/cardProportions.js';
 
 const MIN_TEXT_BOX_WIDTH = 40;
 const MIN_TEXT_BOX_HEIGHT = 24;
@@ -940,9 +940,35 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       cartaContent.style.overflow = 'hidden';
       cartaContent.style.borderRadius = cartaBorderRadius;
       cartaContent.style.clipPath = cartaClipPath;
-      cartaContent.style.backgroundColor = '#ffffff';
-      cartaContent.style.border = (cara?.bordeGrosor ?? 0) > 0 ? `${cara.bordeGrosor}px solid ${cara.bordeColor || '#000000'}` : 'none';
       carta.appendChild(cartaContent);
+
+      // Las proporciones hexagonales no pueden usar `border` CSS (dibuja
+      // siempre paralelo a la caja rectangular, no a las aristas del
+      // hexágono recortado con clip-path) — en su lugar, dos capas de
+      // clip-path anidadas: esta capa exterior rellena del color de borde,
+      // y `cartaInner` (más abajo) recorta el contenido con un hexágono
+      // concéntrico más pequeño, dejando visible el anillo entre ambas
+      // como borde de grosor uniforme (fix 00096).
+      const hexInnerClipPath = isHexCarta ? getHexInnerClipPath(props.proporcion, width, height, cara?.bordeGrosor ?? 0) : null;
+      let contentParent = cartaContent;
+      if (isHexCarta) {
+        cartaContent.style.backgroundColor = hexInnerClipPath ? (cara.bordeColor || '#000000') : '#ffffff';
+        cartaContent.style.border = 'none';
+        if (hexInnerClipPath) {
+          const cartaInner = document.createElement('div');
+          cartaInner.style.position = 'absolute';
+          cartaInner.style.inset = '0';
+          cartaInner.style.boxSizing = 'border-box';
+          cartaInner.style.overflow = 'hidden';
+          cartaInner.style.clipPath = hexInnerClipPath;
+          cartaInner.style.backgroundColor = '#ffffff';
+          cartaContent.appendChild(cartaInner);
+          contentParent = cartaInner;
+        }
+      } else {
+        cartaContent.style.backgroundColor = '#ffffff';
+        cartaContent.style.border = (cara?.bordeGrosor ?? 0) > 0 ? `${cara.bordeGrosor}px solid ${cara.bordeColor || '#000000'}` : 'none';
+      }
 
       if (identifyMode === 'tooltip' && component.mostrarTooltip) carta.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') carta.appendChild(createIdentifierLabel(component));
@@ -961,7 +987,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         img.style.pointerEvents = 'none';
         img.style.opacity = String(1 - (cara.transparenciaImagen ?? 0) / 100);
         applyImageAdjustStyle(img, cara.ajusteImagen);
-        cartaContent.appendChild(img);
+        contentParent.appendChild(img);
       }
 
       for (const textBox of cara?.textBoxes || []) {
@@ -986,7 +1012,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           textEl.style.fontFamily = fontFamilyFor(fontResource.id);
         }
         textEl.textContent = textBox.contenido || '';
-        cartaContent.appendChild(textEl);
+        contentParent.appendChild(textEl);
       }
 
       if (onSelect) {

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-27T07:49:31Z",
+  "generatedAt": "2026-07-27T09:57:04Z",
   "basePath": "src",
   "nodes": [
     {
@@ -11,9 +11,10 @@
         "CARD_PROPORTIONS",
         "getCartaShapeCss",
         "getDesignSize",
+        "getHexInnerClipPath",
         "getProporcionRatio"
       ],
-      "purpose": "Data module with card proportion definitions, ratio calculations, and hexagonal/circular shape CSS generation."
+      "purpose": "Data module with card proportion definitions, ratio calculations, hexagonal/circular shape CSS generation, and the concentric-hexagon clip-path used to render a uniform border on hexagonal cards."
     },
     {
       "id": "core/component.js",
@@ -236,12 +237,6 @@
       "type": "file",
       "path": "scripts/obfuscate_bundle.js",
       "purpose": "Build script for obfuscating final HTML bundle."
-    },
-    {
-      "id": "scripts/vendor/javascript-obfuscator.browser.js",
-      "type": "file",
-      "path": "scripts/vendor/javascript-obfuscator.browser.js",
-      "purpose": "Third-party obfuscation library (vendored)."
     },
     {
       "id": "ui/batchUploadSummaryModal.js",
@@ -552,12 +547,6 @@
       "purpose": "Transient notification messages."
     },
     {
-      "id": "vendor/marked.js",
-      "type": "file",
-      "path": "vendor/marked.js",
-      "purpose": "Third-party Markdown parser library (vendored marked v18.0.6)."
-    },
-    {
       "id": "core/cardProportions.js#getCartaShapeCss",
       "type": "function",
       "path": "core/cardProportions.js",
@@ -570,6 +559,13 @@
       "path": "core/cardProportions.js",
       "parent": "core/cardProportions.js",
       "purpose": "Calculates design-time dimensions for card proportions based on reference width."
+    },
+    {
+      "id": "core/cardProportions.js#getHexInnerClipPath",
+      "type": "function",
+      "path": "core/cardProportions.js",
+      "parent": "core/cardProportions.js",
+      "purpose": "Computes a smaller, concentric hexagon clip-path (scaled from center) to render a uniform-width border on hexagonal card proportions, exploiting that their fixed ratio always produces a regular hexagon."
     },
     {
       "id": "core/cardProportions.js#getProporcionRatio",
@@ -1687,6 +1683,11 @@
     },
     {
       "source": "ui/cardEditorModal.js#openCardEditorModal",
+      "target": "core/cardProportions.js#getHexInnerClipPath",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/cardEditorModal.js#openCardEditorModal",
       "target": "core/state.js#getResources",
       "relation": "calls"
     },
@@ -1827,6 +1828,11 @@
     },
     {
       "source": "ui/componentRenderer.js#renderComponentsOnTable",
+      "target": "core/cardProportions.js#getHexInnerClipPath",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentRenderer.js#renderComponentsOnTable",
       "target": "core/cardProportions.js#getProporcionRatio",
       "relation": "calls"
     },
@@ -1963,11 +1969,6 @@
     {
       "source": "core/importMerge.js",
       "target": "core/deck.js",
-      "relation": "imports"
-    },
-    {
-      "source": "core/markdown.js",
-      "target": "vendor/marked.js",
       "relation": "imports"
     },
     {

@@ -4,7 +4,7 @@
 // ui/componentModal.js cuando el componente es de tipo 'carta'.
 
 import { getResources } from '../core/state.js';
-import { CARD_PROPORTIONS, getProporcionRatio, getDesignSize, getCartaShapeCss } from '../core/cardProportions.js';
+import { CARD_PROPORTIONS, getProporcionRatio, getDesignSize, getCartaShapeCss, getHexInnerClipPath } from '../core/cardProportions.js';
 import { applyImageAdjustStyle, openImageAdjustModal } from './imageAdjustModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
 import { openCardTextBoxModal } from './cardTextBoxModal.js';
@@ -167,6 +167,7 @@ export function openCardEditorModal({ component, onAccept }) {
 
     const faceCol = document.createElement('div');
     faceCol.className = 'card-editor-modal__face';
+    faceCol.style.width = `${canvasWidth}px`;
 
     const faceLabel = document.createElement('div');
     faceLabel.className = 'card-editor-modal__face-label';
@@ -178,11 +179,41 @@ export function openCardEditorModal({ component, onAccept }) {
     canvas.style.width = `${canvasWidth}px`;
     canvas.style.height = `${canvasHeight}px`;
     canvas.style.boxSizing = 'border-box';
+    canvas.style.overflow = 'hidden';
     const canvasShape = getCartaShapeCss(working.proporcion);
     canvas.style.borderRadius = canvasShape.borderRadius;
     canvas.style.clipPath = canvasShape.clipPath;
-    canvas.style.border = (cara.bordeGrosor ?? 0) > 0 ? `${cara.bordeGrosor}px solid ${cara.bordeColor || '#000000'}` : '';
     faceCol.appendChild(canvas);
+
+    const isHexCanvas = working.proporcion === 'hex-vertical' || working.proporcion === 'hex-horizontal';
+
+    const canvasInner = document.createElement('div');
+    canvasInner.style.position = 'absolute';
+    canvasInner.style.inset = '0';
+    canvasInner.style.boxSizing = 'border-box';
+    canvasInner.style.overflow = 'hidden';
+    canvas.appendChild(canvasInner);
+
+    // Ver fix 00096: las proporciones hexagonales no pueden usar `border`
+    // CSS (dibuja paralelo a la caja rectangular, no a las aristas del
+    // hexágono recortado con clip-path) — en su lugar, `canvas` (capa
+    // exterior) se rellena del color de borde y `canvasInner` (donde va
+    // el contenido) se recorta con un hexágono concéntrico más pequeño,
+    // dejando visible el anillo entre ambos como borde de grosor uniforme.
+    function applyCanvasBorder() {
+      const bordeGrosor = cara.bordeGrosor ?? 0;
+      if (isHexCanvas) {
+        const hexInnerClipPath = getHexInnerClipPath(working.proporcion, canvasWidth, canvasHeight, bordeGrosor);
+        canvas.style.border = 'none';
+        canvas.style.backgroundColor = hexInnerClipPath ? (cara.bordeColor || '#000000') : '';
+        canvasInner.style.clipPath = hexInnerClipPath || 'none';
+      } else {
+        canvas.style.backgroundColor = '';
+        canvas.style.border = bordeGrosor > 0 ? `${bordeGrosor}px solid ${cara.bordeColor || '#000000'}` : '';
+        canvasInner.style.clipPath = 'none';
+      }
+    }
+    applyCanvasBorder();
 
     let faceImg = null;
     const resource = cara.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;
@@ -196,11 +227,11 @@ export function openCardEditorModal({ component, onAccept }) {
       faceImg.style.pointerEvents = 'none';
       faceImg.style.opacity = String(1 - (cara.transparenciaImagen ?? 0) / 100);
       applyImageAdjustStyle(faceImg, cara.ajusteImagen);
-      canvas.appendChild(faceImg);
+      canvasInner.appendChild(faceImg);
     }
 
     for (const textBox of cara.textBoxes) {
-      canvas.appendChild(renderTextBox(caraKey, textBox, previewScale));
+      canvasInner.appendChild(renderTextBox(caraKey, textBox, previewScale));
     }
 
     const actionsRow = document.createElement('div');
@@ -248,7 +279,7 @@ export function openCardEditorModal({ component, onAccept }) {
     borderColorInput.value = cara.bordeColor || '#000000';
     borderColorInput.addEventListener('input', () => {
       cara.bordeColor = borderColorInput.value;
-      canvas.style.border = (cara.bordeGrosor ?? 0) > 0 ? `${cara.bordeGrosor}px solid ${cara.bordeColor || '#000000'}` : '';
+      applyCanvasBorder();
     });
     borderColorField.appendChild(borderColorLabel);
     borderColorField.appendChild(borderColorInput);
@@ -265,7 +296,7 @@ export function openCardEditorModal({ component, onAccept }) {
     borderWidthInput.addEventListener('input', () => {
       const parsed = parseInt(borderWidthInput.value, 10);
       cara.bordeGrosor = Number.isNaN(parsed) ? 0 : Math.min(Math.max(parsed, 0), 20);
-      canvas.style.border = (cara.bordeGrosor ?? 0) > 0 ? `${cara.bordeGrosor}px solid ${cara.bordeColor || '#000000'}` : '';
+      applyCanvasBorder();
     });
     borderWidthField.appendChild(borderWidthLabel);
     borderWidthField.appendChild(borderWidthInput);

@@ -1016,7 +1016,8 @@ fieldset.modal__section--untitled {
 
 /* Card editor modal (00053) — editor de las dos caras de una carta a la vez */
 .card-editor-modal {
-  max-width: 1100px;
+  width: fit-content;
+  max-width: min(1100px, 90vw);
 }
 
 .card-editor-modal__toolbar {
@@ -1025,7 +1026,7 @@ fieldset.modal__section--untitled {
 
 .card-editor-modal__faces {
   display: flex;
-  gap: 1.5rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
   justify-content: center;
 }
@@ -1057,7 +1058,9 @@ fieldset.modal__section--untitled {
 }
 
 .card-editor-modal__adjust-image {
-  align-self: center;
+  align-self: flex-start;
+  margin-top: 8.75rem;
+  padding: 0.5rem 0.75rem;
 }
 
 .card-editor-modal__textbox {
