@@ -243,6 +243,17 @@ La línea de descripción (`description`, cambio 00093, `ui/contextMenu.js`) ide
 
 Cualquier menú contextual futuro debe reutilizar este patrón en vez de crear uno ad-hoc — mismo criterio que ya se sigue con `.resize-handle` (sección 11), `.help-icon` (sección 12) o `.resource-add__menu` (sección 12.7).
 
+## 12.9 Copiar/Pegar estilo de un componente
+
+Patrón para permitir copiar el estilo visual de un componente y pegarlo en otro del mismo tipo (`ui/componentModal.js` + `core/styleClipboard.js`, cambio 00085, implementado hoy solo para `'carta'`): convenio general de la app — si en el futuro se amplía a otros tipos de componente, debe verse y comportarse igual, cambiando únicamente la lista de elementos del checklist.
+
+- **Sección propia en la modal de configuración**: dentro de la pestaña específica del tipo, un `fieldset.modal__section` "Estilo de \<tipo\>" (variante meramente informativa, sección 12.6) con una fila de dos botones `.style-actions-row` (`display: flex; gap: 0.5rem`, cada botón `.btn-cancel` con `flex: 1`) — "Copiar estilo" y "Pegar estilo" — y un `p.modal__hint` debajo (`font-size: 0.75rem`, `color: var(--text-muted)`) explicando qué se copia/pega. "Pegar estilo" se muestra `disabled` (con `title` indicando el motivo) mientras no haya nada copiado en la sesión — `.btn-cancel:disabled` sigue el mismo criterio genérico de deshabilitado que el resto de botones (`opacity: 0.5; cursor: not-allowed`, sin `transform` en hover, sección 9).
+- **Modal de selección al copiar**: un único grupo fijo (no una colección dinámica) con las clases BEM ya existentes de la sección 12.5 (`element-selection-group`/`__select-all`/`__list`/`__item`), todos los ítems marcados por defecto, cada uno con una nota auxiliar opcional a la derecha (`.element-selection-group__item-hint`, `font-size: 0.75rem`, `color: var(--text-muted)`, `margin-left: auto` — mismo criterio que `.resource-add__hint` de la sección 12.7) con el valor actual de ese elemento. Botón de confirmar deshabilitado si no queda ningún ítem marcado.
+- **Confirmación de copia**: `ui/toast.js` (sección 12.1.1 — no una modal, es una confirmación breve que no requiere revisar ningún detalle) con el texto "Estilo copiado".
+- **Error al pegar**: si algo de lo copiado ya no es válido en el proyecto (referencia a un mazo/recurso eliminado), modal de error con la cabecera estándar (`modal__header--error`/`modal__error-icon`, sección 12.1) y el detalle en una tabla — reutilizando **tal cual, sin CSS propio**, `.import-report-modal`/`.import-report-modal__table` (sección 12.4), con las columnas que correspondan al dominio (para "Copiar/Pegar estilo": Elemento/Referencia/Detalle). El pegado es todo o nada: si hay cualquier incidencia, no se aplica ningún cambio al destino. Solo botón "Cerrar" (sin acción alternativa de "continuar sin eso", a diferencia de `ui/importConversionErrorModal.js`, sección 12.4).
+
+Cualquier tipo de componente futuro que incorpore "Copiar/Pegar estilo" debe reutilizar este mismo patrón — sección, checklist, toast y modal de error — cambiando solo qué elementos concretos aparecen en el checklist.
+
 ## 13. Qué NO hacer
 
 - No introducir un segundo sistema de tokens de color (Tailwind, otra paleta) — extender `:root` en `main.css`.

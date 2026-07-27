@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-27T09:57:04Z",
+  "generatedAt": "2026-07-27T11:06:28Z",
   "basePath": "src",
   "nodes": [
     {
@@ -188,6 +188,18 @@
         "setResourcePanelState"
       ],
       "purpose": "Global game state management: components, resources, decks, UI panels."
+    },
+    {
+      "id": "core/styleClipboard.js",
+      "type": "file",
+      "path": "core/styleClipboard.js",
+      "exports": [
+        "getStyleClipboard",
+        "hasStyleClipboard",
+        "setStyleClipboard",
+        "validateStyleClipboardForPaste"
+      ],
+      "purpose": "Portapapeles en memoria de 'Copiar/Pegar estilo' de una carta: guarda un único estilo copiado (nunca persistido) y valida sus referencias (mazo, imágenes, tipografías) antes de pegarlo."
     },
     {
       "id": "data/defaultResources.js",
@@ -517,6 +529,24 @@
         "openResourceModal"
       ],
       "purpose": "Modal for editing resource (image/font) name or data."
+    },
+    {
+      "id": "ui/styleClipboardErrorModal.js",
+      "type": "file",
+      "path": "ui/styleClipboardErrorModal.js",
+      "exports": [
+        "openStyleClipboardPasteErrorModal"
+      ],
+      "purpose": "Modal de error al pegar estilo cuando alguna referencia copiada (mazo, imagen, tipografía) ya no existe, reutilizando la cabecera de error y la tabla de import-report-modal."
+    },
+    {
+      "id": "ui/styleClipboardSelectionModal.js",
+      "type": "file",
+      "path": "ui/styleClipboardSelectionModal.js",
+      "exports": [
+        "openStyleClipboardSelectionModal"
+      ],
+      "purpose": "Modal de selección al pulsar 'Copiar estilo' sobre una carta: checklist fijo de 5 elementos (Generales, Proporción, Mazo, Cara frontal, Cara trasera) reutilizando las clases BEM de la lista de selección agrupada."
     },
     {
       "id": "ui/table.js",
@@ -1044,6 +1074,34 @@
       "purpose": "Updates resource panel state."
     },
     {
+      "id": "core/styleClipboard.js#getStyleClipboard",
+      "type": "function",
+      "path": "core/styleClipboard.js",
+      "parent": "core/styleClipboard.js",
+      "purpose": "Devuelve el estilo copiado actualmente, o null si no hay nada copiado."
+    },
+    {
+      "id": "core/styleClipboard.js#hasStyleClipboard",
+      "type": "function",
+      "path": "core/styleClipboard.js",
+      "parent": "core/styleClipboard.js",
+      "purpose": "Indica si hay un estilo copiado en la sesión actual, usado para habilitar/deshabilitar el botón 'Pegar estilo'."
+    },
+    {
+      "id": "core/styleClipboard.js#setStyleClipboard",
+      "type": "function",
+      "path": "core/styleClipboard.js",
+      "parent": "core/styleClipboard.js",
+      "purpose": "Guarda en el portapapeles los bloques de estilo marcados al copiar (generales, proporción, mazo, cara frontal y/o trasera), clonándolos en profundidad y sustituyendo cualquier copia anterior."
+    },
+    {
+      "id": "core/styleClipboard.js#validateStyleClipboardForPaste",
+      "type": "function",
+      "path": "core/styleClipboard.js",
+      "parent": "core/styleClipboard.js",
+      "purpose": "Comprueba que el mazo y los recursos (imágenes/tipografías) referenciados por los bloques presentes en el estilo copiado sigan existiendo, devolviendo la lista de incidencias encontradas."
+    },
+    {
       "id": "modes/edit/editMode.js#deleteSelectedComponent",
       "type": "function",
       "path": "modes/edit/editMode.js",
@@ -1315,6 +1373,20 @@
       "path": "ui/resourceModal.js",
       "parent": "ui/resourceModal.js",
       "purpose": "Opens resource edit dialog."
+    },
+    {
+      "id": "ui/styleClipboardErrorModal.js#openStyleClipboardPasteErrorModal",
+      "type": "function",
+      "path": "ui/styleClipboardErrorModal.js",
+      "parent": "ui/styleClipboardErrorModal.js",
+      "purpose": "Muestra la tabla de incidencias (elemento/referencia/detalle) que impiden pegar el estilo copiado, sin aplicar ningún cambio a la carta destino."
+    },
+    {
+      "id": "ui/styleClipboardSelectionModal.js#openStyleClipboardSelectionModal",
+      "type": "function",
+      "path": "ui/styleClipboardSelectionModal.js",
+      "parent": "ui/styleClipboardSelectionModal.js",
+      "purpose": "Abre el checklist de elementos copiables de una carta y devuelve, al confirmar, qué bloques ha marcado el usuario."
     },
     {
       "id": "ui/table.js#createInfiniteTable",
@@ -1798,6 +1870,26 @@
     },
     {
       "source": "ui/componentModal.js#openComponentModal",
+      "target": "core/styleClipboard.js#getStyleClipboard",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
+      "target": "core/styleClipboard.js#hasStyleClipboard",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
+      "target": "core/styleClipboard.js#setStyleClipboard",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
+      "target": "core/styleClipboard.js#validateStyleClipboardForPaste",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
       "target": "ui/boardImageModal.js#openBoardImageModal",
       "relation": "calls"
     },
@@ -1819,6 +1911,21 @@
     {
       "source": "ui/componentModal.js#openComponentModal",
       "target": "ui/helpIcon.js#createHelpIcon",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
+      "target": "ui/styleClipboardErrorModal.js#openStyleClipboardPasteErrorModal",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
+      "target": "ui/styleClipboardSelectionModal.js#openStyleClipboardSelectionModal",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
+      "target": "ui/toast.js#showToast",
       "relation": "calls"
     },
     {
@@ -2243,6 +2350,11 @@
     },
     {
       "source": "ui/componentModal.js",
+      "target": "core/styleClipboard.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentModal.js",
       "target": "ui/boardImageModal.js",
       "relation": "imports"
     },
@@ -2264,6 +2376,21 @@
     {
       "source": "ui/componentModal.js",
       "target": "ui/helpIcon.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentModal.js",
+      "target": "ui/styleClipboardErrorModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentModal.js",
+      "target": "ui/styleClipboardSelectionModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentModal.js",
+      "target": "ui/toast.js",
       "relation": "imports"
     },
     {
@@ -2449,6 +2576,16 @@
     {
       "source": "ui/resourceModal.js",
       "target": "ui/fontFaceRegistry.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/styleClipboardSelectionModal.js",
+      "target": "core/cardProportions.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/styleClipboardSelectionModal.js",
+      "target": "core/state.js",
       "relation": "imports"
     },
     {

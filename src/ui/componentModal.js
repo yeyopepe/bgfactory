@@ -11,6 +11,10 @@ import { openDiceFontModal } from './diceFontModal.js';
 import { openCardEditorModal } from './cardEditorModal.js';
 import { CARD_PROPORTIONS, getProporcionRatio } from '../core/cardProportions.js';
 import { isListaValoresValida, esResultadoValido, getResultadoInicial } from '../core/dice.js';
+import { setStyleClipboard, getStyleClipboard, hasStyleClipboard, validateStyleClipboardForPaste } from '../core/styleClipboard.js';
+import { openStyleClipboardSelectionModal } from './styleClipboardSelectionModal.js';
+import { openStyleClipboardPasteErrorModal } from './styleClipboardErrorModal.js';
+import { showToast } from './toast.js';
 
 const DEFAULT_BOARD_SIZE = 200;
 const DEFAULT_DADO_SIZE = 100;
@@ -68,6 +72,14 @@ export const DEFAULT_CARTA_PROPERTIES = {
     transparenciaImagen: 0,
   },
 };
+
+function cloneFace(face) {
+  return {
+    ...face,
+    ajusteImagen: { ...face.ajusteImagen },
+    textBoxes: face.textBoxes.map((tb) => ({ ...tb })),
+  };
+}
 
 function cloneCartaProperties(properties) {
   return {
@@ -920,6 +932,97 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     });
     editField.appendChild(editBtn);
     container.appendChild(editField);
+
+    // Estilo de la carta — Copiar/Pegar estilo (change 00085)
+    const styleSection = document.createElement('fieldset');
+    styleSection.className = 'modal__section';
+    const styleLegend = document.createElement('legend');
+    styleLegend.className = 'modal__section-title';
+    styleLegend.textContent = 'Estilo de la carta';
+    styleSection.appendChild(styleLegend);
+
+    const styleActionsRow = document.createElement('div');
+    styleActionsRow.className = 'style-actions-row';
+
+    const copyStyleBtn = document.createElement('button');
+    copyStyleBtn.type = 'button';
+    copyStyleBtn.className = 'btn-cancel';
+    copyStyleBtn.textContent = 'Copiar estilo';
+    copyStyleBtn.addEventListener('click', () => {
+      openStyleClipboardSelectionModal({
+        component: workingComponent,
+        onAccept: (selection) => {
+          const data = {};
+          if (selection.generales) {
+            data.generales = {
+              bloqueado: workingComponent.bloqueado,
+              mostrarTooltip: workingComponent.mostrarTooltip,
+              subirAlMoverInteractuar: workingComponent.subirAlMoverInteractuar,
+            };
+          }
+          if (selection.proporcion) data.proporcion = props.proporcion;
+          if (selection.deckId) {
+            data.deckId = props.deckId;
+            const deck = props.deckId ? getDecks().find((d) => d.id === props.deckId) : null;
+            data.deckName = deck ? deck.name : null;
+          }
+          if (selection.caraFrontal) data.caraFrontal = props.caraFrontal;
+          if (selection.caraTrasera) data.caraTrasera = props.caraTrasera;
+          setStyleClipboard(data);
+          showToast('Estilo copiado');
+          pasteStyleBtn.disabled = false;
+          pasteStyleBtn.title = '';
+        },
+      });
+    });
+    styleActionsRow.appendChild(copyStyleBtn);
+
+    const pasteStyleBtn = document.createElement('button');
+    pasteStyleBtn.type = 'button';
+    pasteStyleBtn.className = 'btn-cancel';
+    pasteStyleBtn.textContent = 'Pegar estilo';
+    pasteStyleBtn.disabled = !hasStyleClipboard();
+    pasteStyleBtn.title = hasStyleClipboard() ? '' : 'Pegar estilo (nada copiado)';
+    pasteStyleBtn.addEventListener('click', () => {
+      const clip = getStyleClipboard();
+      const incidencias = validateStyleClipboardForPaste(clip, { decks: getDecks(), resources: getResources() });
+      if (incidencias.length > 0) {
+        openStyleClipboardPasteErrorModal(incidencias);
+        return;
+      }
+
+      if (clip.generales) {
+        workingComponent.bloqueado = clip.generales.bloqueado;
+        workingComponent.mostrarTooltip = clip.generales.mostrarTooltip;
+        workingComponent.subirAlMoverInteractuar = clip.generales.subirAlMoverInteractuar;
+        moveCheckbox.checked = workingComponent.bloqueado;
+        tooltipCheckbox.checked = workingComponent.mostrarTooltip;
+        upOnMoveCheckbox.checked = workingComponent.subirAlMoverInteractuar;
+      }
+      if ('deckId' in clip && clip.deckId !== undefined) {
+        props.deckId = clip.deckId;
+        populateDeckSelect();
+      }
+      if (clip.caraFrontal) props.caraFrontal = cloneFace(clip.caraFrontal);
+      if (clip.caraTrasera) props.caraTrasera = cloneFace(clip.caraTrasera);
+      if (clip.proporcion) {
+        props.proporcion = clip.proporcion;
+        proporcionSelect.value = clip.proporcion;
+        const width = workingComponent.width || DEFAULT_CARTA_WIDTH;
+        workingComponent.width = width;
+        workingComponent.height = width / getProporcionRatio(props.proporcion);
+      }
+    });
+    styleActionsRow.appendChild(pasteStyleBtn);
+
+    styleSection.appendChild(styleActionsRow);
+
+    const styleHint = document.createElement('p');
+    styleHint.className = 'modal__hint';
+    styleHint.textContent = 'Copia/pega solo los elementos que elijas: generales, proporción, mazo, cara frontal y/o cara trasera.';
+    styleSection.appendChild(styleHint);
+
+    container.appendChild(styleSection);
   }
 
   renderSpecificTab();

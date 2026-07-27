@@ -520,6 +520,32 @@ fieldset.modal__section--untitled {
   padding-top: 1rem;
 }
 
+/* Fila de botones de acción dentro de una sección de modal (change 00085,
+   "Estilo de la carta" — Copiar/Pegar estilo). */
+.style-actions-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.style-actions-row .btn-cancel {
+  flex: 1;
+}
+
+/* Texto auxiliar bajo un grupo de campos/sección (change 00085). */
+.modal__hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0.5rem 0 0;
+}
+
+/* Nota auxiliar a la derecha de un ítem de checklist (change 00085,
+   ui/styleClipboardSelectionModal.js) — mismo criterio que .resource-add__hint. */
+.element-selection-group__item-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-left: auto;
+}
+
 .modal__footer {
   padding: 1rem;
   border-top: 1px solid var(--border-neutral);
@@ -544,6 +570,15 @@ fieldset.modal__section--untitled {
 
 .btn-cancel:hover {
   background: var(--bg-hover);
+}
+
+.btn-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-cancel:disabled:hover {
+  background: var(--bg-subtle);
 }
 
 .btn-accept {
