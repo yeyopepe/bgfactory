@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Modal reducida — propiedades de una Copia</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --accent-blue: #2c7dd8;
+    --accent-blue-light: #eaf3fc;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e8e8e8;
+    --error: #d32f2f;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-2: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+  .modal-overlay-static {
+    background: rgba(0,0,0,0.5);
+    padding: 3rem;
+    border-radius: var(--radius-lg);
+    display: inline-block;
+  }
+  .modal {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    width: 380px;
+    color: var(--text-primary);
+  }
+
+  /* Reflejo de .modal__header / tabs (ui/componentModal.js) — sin tabs aquí, cabecera simple */
+  .modal__header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    font-size: 1.125rem;
+  }
+
+  .modal__content { padding: 1rem; }
+
+  .copy-modal__field {
+    margin-bottom: 0.9rem;
+  }
+  .copy-modal__field label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .copy-modal__field .value {
+    font-size: 0.9375rem;
+    padding: 0.5rem 0.6rem;
+    background: var(--bg-subtle);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-neutral);
+  }
+
+  /* Aviso informativo — mismo lenguaje que .resource-add__hint pero destacado, no de error */
+  .copy-modal__notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    background: var(--accent-blue-light);
+    border: 1px solid var(--accent-blue);
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 0.75rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+  }
+  .copy-modal__notice-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    font-size: 0.6875rem;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .modal__footer .spacer { flex: 1; }
+
+  .btn-cancel, .btn-accept, .btn-delete {
+    padding: 0.5rem 1.25rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+  }
+  .btn-delete { background: var(--error); color: var(--text-light); }
+  .btn-delete:hover { background: #b71c1c; }
+  .btn-cancel { background: var(--bg-subtle); color: var(--text-primary); }
+  .btn-cancel:hover { background: var(--bg-hover); }
+  .btn-accept { background: var(--accent-blue); color: var(--text-light); }
+
+  .caption {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.75rem;
+    margin-top: 0.75rem;
+    opacity: 0.9;
+    max-width: 420px;
+  }
+</style>
+</head>
+<body>
+  <div>
+    <div class="modal-overlay-static">
+      <div class="modal">
+        <div class="modal__header">Propiedades del componente</div>
+        <div class="modal__content">
+          <div class="copy-modal__field">
+            <label>Id</label>
+            <div class="value">dado-principal-COPY-001</div>
+          </div>
+
+          <div class="copy-modal__notice">
+            <span class="copy-modal__notice-icon">i</span>
+            <span>Este componente es una copia de otro elemento. Sus propiedades no se pueden editar aquí: se sincronizan automáticamente con el original.</span>
+          </div>
+
+          <div class="copy-modal__field">
+            <label>Elemento original</label>
+            <div class="value">dado-principal</div>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button class="btn-delete">Eliminar</button>
+          <span class="spacer"></span>
+          <button class="btn-cancel">Cancelar</button>
+          <button class="btn-accept">Aceptar</button>
+        </div>
+      </div>
+    </div>
+    <div class="caption">Maqueta: modal de propiedades reducida al editar/abrir un componente de tipo Copia — solo id, aviso, id del original y los tres botones (sin pestañas "Generales"/"Específicas").</div>
+  </div>
+</body>
+</html>

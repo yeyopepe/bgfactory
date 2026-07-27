@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Panel de componentes — columna "Copia" y acción "Copiar"</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --accent-blue: #2c7dd8;
+    --accent-blue-light: #eaf3fc;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e8e8e8;
+    --error: #d32f2f;
+    --success: #2e7d32;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-2: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* Reflejo de .component-panel (ui/componentList.js + main.css) */
+  .component-panel {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    width: 560px;
+    color: var(--text-primary);
+    overflow: hidden;
+  }
+  .component-panel__header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-subtle);
+  }
+  .component-panel__header strong { font-size: 0.9375rem; }
+  .component-panel__header button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+
+  .component-panel__body { max-height: 320px; overflow: auto; }
+
+  table.component-list {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+  }
+  .component-list thead th {
+    padding: 0.5rem;
+    text-align: left;
+    font-weight: 500;
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border-neutral);
+    white-space: nowrap;
+  }
+  .component-list td {
+    padding: 0.5rem;
+    border-top: 1px solid var(--border-neutral);
+    vertical-align: middle;
+  }
+  .component-list__row:hover { background: var(--bg-hover); }
+  .component-list__row--selected { background: var(--accent-blue-light); }
+  .component-list__row--copy { color: var(--text-primary); }
+  .component-list__row--copy .component-list__id-cell { font-style: italic; color: var(--text-muted); }
+
+  .component-list__order-input {
+    width: 42px;
+    padding: 0.2rem 0.3rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    text-align: center;
+  }
+
+  .copy-flag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+  }
+  .copy-flag--yes {
+    background: var(--accent-blue-light);
+    color: var(--accent-blue);
+    border: 1px solid var(--accent-blue);
+    font-weight: bold;
+    font-size: 0.75rem;
+  }
+  .copy-flag--no { color: var(--border-neutral); font-size: 0.75rem; }
+
+  .component-list__action-btn {
+    padding: 0.3rem 0.6rem;
+    margin-right: 0.25rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.75rem;
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+  }
+  .component-list__action-btn:hover { background: var(--bg-hover); }
+  .component-list__action-btn--copy {
+    background: var(--accent-blue-light);
+    color: var(--accent-blue-dark, #123a66);
+  }
+  .component-list__action-btn--danger {
+    background: var(--error);
+    color: var(--text-light);
+  }
+  .component-list__action-btn--danger:hover { background: #b71c1c; }
+
+  .component-panel__footer {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--border-neutral);
+  }
+  .component-panel__footer button {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+    background: var(--accent-blue);
+    color: var(--text-light);
+  }
+
+  .caption {
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.75rem;
+    margin-top: 0.75rem;
+    opacity: 0.9;
+    max-width: 560px;
+  }
+  .legend {
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-light);
+    opacity: 0.85;
+    max-width: 560px;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+  <div>
+    <div class="component-panel">
+      <div class="component-panel__header">
+        <strong>Componentes (4)</strong>
+        <button>▾</button>
+      </div>
+      <div class="component-panel__body">
+        <table class="component-list">
+          <thead>
+            <tr>
+              <th>Orden</th>
+              <th>Id</th>
+              <th>Tipo</th>
+              <th>Copia</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="component-list__row">
+              <td><input class="component-list__order-input" type="number" value="1" /></td>
+              <td class="component-list__id-cell">dado-principal</td>
+              <td>dado</td>
+              <td><span class="copy-flag copy-flag--no">—</span></td>
+              <td>
+                <button class="component-list__action-btn">Editar</button>
+                <button class="component-list__action-btn">Clonar</button>
+                <button class="component-list__action-btn component-list__action-btn--copy">Copiar</button>
+                <button class="component-list__action-btn component-list__action-btn--danger">Eliminar</button>
+              </td>
+            </tr>
+            <tr class="component-list__row component-list__row--selected component-list__row--copy">
+              <td><input class="component-list__order-input" type="number" value="2" /></td>
+              <td class="component-list__id-cell">dado-principal-COPY-001</td>
+              <td>dado</td>
+              <td><span class="copy-flag copy-flag--yes">✓</span></td>
+              <td>
+                <button class="component-list__action-btn">Editar</button>
+                <button class="component-list__action-btn component-list__action-btn--danger">Eliminar</button>
+              </td>
+            </tr>
+            <tr class="component-list__row component-list__row--copy">
+              <td><input class="component-list__order-input" type="number" value="3" /></td>
+              <td class="component-list__id-cell">dado-principal-COPY-002</td>
+              <td>dado</td>
+              <td><span class="copy-flag copy-flag--yes">✓</span></td>
+              <td>
+                <button class="component-list__action-btn">Editar</button>
+                <button class="component-list__action-btn component-list__action-btn--danger">Eliminar</button>
+              </td>
+            </tr>
+            <tr class="component-list__row">
+              <td><input class="component-list__order-input" type="number" value="4" /></td>
+              <td class="component-list__id-cell">carta-evento-3</td>
+              <td>carta</td>
+              <td><span class="copy-flag copy-flag--no">—</span></td>
+              <td>
+                <button class="component-list__action-btn">Editar</button>
+                <button class="component-list__action-btn">Clonar</button>
+                <button class="component-list__action-btn component-list__action-btn--copy">Copiar</button>
+                <button class="component-list__action-btn component-list__action-btn--danger">Eliminar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="component-panel__footer">
+        <button>+ Añadir componente</button>
+      </div>
+    </div>
+    <div class="legend">
+      Fila 1 ("dado-principal"): elemento original, con acciones completas incluyendo el nuevo botón "Copiar" (junto a "Clonar").<br/>
+      Filas 2 y 3: dos copias vinculadas a "dado-principal" (id con sufijo -COPY-001/-COPY-002, columna "Copia" marcada). Sus filas solo ofrecen "Editar" (abre la modal reducida) y "Eliminar" — sin "Clonar" ni "Copiar".<br/>
+      Fila 4 ("carta-evento-3"): otro original sin copias, columna "Copia" vacía.
+    </div>
+    <div class="caption">Maqueta: panel flotante de componentes con la nueva columna "Copia" (booleana) y el nuevo botón "Copiar" en la fila de un original; las filas de copia muestran acciones reducidas.</div>
+  </div>
+</body>
+</html>
