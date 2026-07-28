@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mockup — Editor de cartas más grande</title>
+<style>
+  :root {
+    --bg-table:     #c2c2c2;
+    --bg-toolbar:   #333333;
+    --bg-card:      #f5f5f5;
+    --accent-blue:  #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-light:   #ffffff;
+    --text-muted:   #666666;
+    --border-neutral: #dcdcdc;
+    --bg-subtle:    #f0f0f0;
+    --radius-sm:    4px;
+    --radius-lg:    8px;
+    --shadow-2:     0 4px 20px rgba(0,0,0,0.15);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    padding: 2rem;
+  }
+  h1 {
+    font-size: 1.125rem;
+    text-align: center;
+    color: var(--text-primary);
+    margin: 0 0 2rem 0;
+  }
+  .compare {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .col-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .col-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: -0.5rem;
+  }
+
+  .modal {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    overflow: hidden;
+  }
+  .modal__header {
+    background: var(--bg-toolbar);
+    color: var(--text-light);
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  .modal__content {
+    padding: 1rem;
+  }
+
+  .faces {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .face {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .face-label {
+    font-weight: 500;
+    font-size: 0.8125rem;
+    color: var(--text-primary);
+  }
+  .canvas {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid var(--border-neutral);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .canvas-box {
+    border: 1px dashed rgba(44,125,216,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    background: rgba(44,125,216,0.06);
+  }
+
+  /* ---- Actual: modal max-width 1100px -> escalado a 480px de maqueta ---- */
+  .modal--current { width: 480px; }
+  .modal--current .canvas { width: 113px; height: 158px; }
+  .modal--current .canvas-box { width: 76%; height: 30%; font-size: 0.6rem; }
+
+  /* ---- Propuesto: modal max-width 1500px -> escalado a 620px de maqueta ---- */
+  .modal--proposed { width: 620px; }
+  .modal--proposed .canvas { width: 166px; height: 232px; }
+  .modal--proposed .canvas-box { width: 76%; height: 30%; font-size: 0.85rem; }
+
+  .toolbar-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+  <h1>Comparativa — tamaño actual vs. propuesto del editor de cartas (proporción representada a escala)</h1>
+
+  <div class="compare">
+
+    <div class="col">
+      <div class="col-label">Actual</div>
+      <div class="col-sub">modal max-width: 1100px · lienzo: 260px</div>
+      <div class="modal modal--current">
+        <div class="modal__header">Editar diseño de carta</div>
+        <div class="modal__content">
+          <div class="faces">
+            <div class="face">
+              <div class="face-label">Cara frontal</div>
+              <div class="canvas">
+                <div class="canvas-box">Ataque +2</div>
+              </div>
+            </div>
+            <div class="face">
+              <div class="face-label">Cara trasera</div>
+              <div class="canvas">
+                <div class="canvas-box">Dorso</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="col-label">Propuesto</div>
+      <div class="col-sub">modal max-width: 1500px · lienzo: 380px</div>
+      <div class="modal modal--proposed">
+        <div class="modal__header">Editar diseño de carta</div>
+        <div class="modal__content">
+          <div class="faces">
+            <div class="face">
+              <div class="face-label">Cara frontal</div>
+              <div class="canvas">
+                <div class="canvas-box">Ataque +2</div>
+              </div>
+            </div>
+            <div class="face">
+              <div class="face-label">Cara trasera</div>
+              <div class="canvas">
+                <div class="canvas-box">Dorso</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="toolbar-hint" style="margin-top:2rem;">Nota: maqueta a escala reducida respecto al navegador real, solo para comparar la proporción de crecimiento entre ambos tamaños (~45% más grande en cada lienzo).</p>
+
+</body>
+</html>

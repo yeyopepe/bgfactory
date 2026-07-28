@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mockup — Alineación de texto en cuadro de carta</title>
+<style>
+  :root {
+    --bg-table:     #c2c2c2;
+    --bg-toolbar:   #333333;
+    --bg-card:      #f5f5f5;
+    --accent-blue:  #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --accent-blue-light: #eaf3fc;
+    --text-primary: #1a1a1a;
+    --text-light:   #ffffff;
+    --text-muted:   #666666;
+    --border-neutral: #dcdcdc;
+    --bg-subtle:    #f0f0f0;
+    --bg-hover:     #e8e8e8;
+    --radius-sm:    4px;
+    --radius-lg:    8px;
+    --shadow-1:     0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);
+    --shadow-2:     0 4px 20px rgba(0,0,0,0.15);
+    --transition-fast: 150ms ease;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    padding: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  /* ---------- Modal de edición del cuadro de texto ---------- */
+  .modal-overlay {
+    position: static;
+    background: transparent;
+  }
+  .modal {
+    background: white;
+    width: 380px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    overflow: hidden;
+  }
+  .modal__header {
+    background: var(--bg-toolbar);
+    color: var(--text-light);
+    padding: 1rem;
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+  .modal__content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal__field {
+    margin-top: 1rem;
+  }
+  .modal__field:first-child { margin-top: 0; }
+  .modal__field label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+  }
+  .modal__field textarea,
+  .modal__field input[type="number"] {
+    width: 100%;
+    font-size: 0.875rem;
+    padding: 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+  }
+  .modal__field-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+  }
+  .modal__footer {
+    padding: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    border-top: 1px solid var(--border-neutral);
+  }
+
+  .btn-cancel, .btn-accept, .btn-eliminar {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background var(--transition-fast), opacity var(--transition-fast);
+  }
+  .btn-cancel { background: var(--bg-subtle); color: var(--text-primary); }
+  .btn-accept { background: var(--accent-blue); color: var(--text-light); }
+  .btn-eliminar { background: #d32f2f; color: var(--text-light); margin-right: auto; }
+
+  .font-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .font-row span { color: var(--text-muted); font-size: 0.875rem; }
+
+  /* ---------- Grupos de alineación (nuevo) ---------- */
+  .align-fields-row {
+    display: flex;
+    gap: 1rem;
+  }
+  .align-field {
+    flex: 1;
+  }
+  .align-group {
+    display: flex;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    width: fit-content;
+  }
+  .align-group__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    background: var(--bg-subtle);
+    border: none;
+    border-right: 1px solid var(--border-neutral);
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: background var(--transition-fast), color var(--transition-fast);
+  }
+  .align-group__btn:last-child { border-right: none; }
+  .align-group__btn:hover { background: var(--bg-hover); }
+  .align-group__btn.active {
+    background: var(--accent-blue);
+    color: var(--text-light);
+  }
+  .align-group__btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.6; }
+
+  /* ---------- Márgenes por lateral (nuevo) ---------- */
+  .margin-fields-row {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .margin-field {
+    flex: 1;
+  }
+  .margin-field label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  .margin-field input {
+    width: 100%;
+    font-size: 0.875rem;
+    padding: 0.4rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+  }
+
+  /* ---------- Vista previa de la carta ---------- */
+  .preview-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .preview-title {
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    text-align: center;
+  }
+  .preview-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 130px);
+    gap: 1rem;
+  }
+  .card-sample {
+    width: 130px;
+    height: 182px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-1);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border-neutral);
+  }
+  .card-sample__caption {
+    position: absolute;
+    bottom: -1.4rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+  .card-sample__box {
+    position: absolute;
+    top: 30px;
+    left: 12px;
+    right: 12px;
+    height: 90px;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    padding: 4px;
+    border: 1px dashed rgba(44,125,216,0.35);
+  }
+  .h-left { text-align: left; }
+  .h-center { text-align: center; }
+  .h-right { text-align: right; }
+  .v-top { justify-content: flex-start; }
+  .v-center { justify-content: center; }
+  .v-bottom { justify-content: flex-end; }
+</style>
+</head>
+<body>
+
+  <div class="preview-wrap">
+    <div class="preview-title">Formulario de edición del cuadro de texto<br>(cardTextBoxModal.js)</div>
+    <div class="modal-overlay">
+      <div class="modal">
+        <div class="modal__header">Editar cuadro de texto</div>
+        <div class="modal__content">
+
+          <div class="modal__field">
+            <label>Contenido</label>
+            <textarea rows="2">Ataque +2</textarea>
+          </div>
+
+          <div class="modal__field">
+            <label>Tipografía</label>
+            <div class="font-row">
+              <button class="btn-cancel" type="button">Elegir tipografía</button>
+              <span>Por defecto</span>
+            </div>
+          </div>
+
+          <!-- NUEVO: grupos de alineación, antes de "Tamaño de fuente" -->
+          <div class="modal__field align-fields-row">
+            <div class="align-field">
+              <label>Alineación horizontal</label>
+              <div class="align-group">
+                <button class="align-group__btn active" type="button" title="Izquierda" aria-label="Izquierda">
+                  <svg viewBox="0 0 16 16"><line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="10" y2="8"/><line x1="2" y1="12" x2="12" y2="12"/></svg>
+                </button>
+                <button class="align-group__btn" type="button" title="Centro" aria-label="Centro">
+                  <svg viewBox="0 0 16 16"><line x1="2" y1="4" x2="14" y2="4"/><line x1="4" y1="8" x2="12" y2="8"/><line x1="3" y1="12" x2="13" y2="12"/></svg>
+                </button>
+                <button class="align-group__btn" type="button" title="Derecha" aria-label="Derecha">
+                  <svg viewBox="0 0 16 16"><line x1="2" y1="4" x2="14" y2="4"/><line x1="6" y1="8" x2="14" y2="8"/><line x1="4" y1="12" x2="14" y2="12"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="align-field">
+              <label>Alineación vertical</label>
+              <div class="align-group">
+                <button class="align-group__btn active" type="button" title="Arriba" aria-label="Arriba">
+                  <svg viewBox="0 0 16 16"><line x1="2" y1="2" x2="14" y2="2"/><line x1="8" y1="5" x2="8" y2="14"/><polyline points="5,8 8,5 11,8"/></svg>
+                </button>
+                <button class="align-group__btn" type="button" title="Centro" aria-label="Centro">
+                  <svg viewBox="0 0 16 16"><line x1="2" y1="8" x2="14" y2="8"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="8" y1="10" x2="8" y2="14"/><polyline points="5,4 8,2 11,4"/><polyline points="5,12 8,14 11,12"/></svg>
+                </button>
+                <button class="align-group__btn" type="button" title="Abajo" aria-label="Abajo">
+                  <svg viewBox="0 0 16 16"><line x1="2" y1="14" x2="14" y2="14"/><line x1="8" y1="2" x2="8" y2="11"/><polyline points="5,8 8,11 11,8"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- NUEVO: márgenes por lateral, debajo de la alineación -->
+          <div class="modal__field">
+            <label>Margen (px)</label>
+            <div class="margin-fields-row">
+              <div class="margin-field">
+                <label>Arriba</label>
+                <input type="number" value="0" min="0">
+              </div>
+              <div class="margin-field">
+                <label>Derecha</label>
+                <input type="number" value="0" min="0">
+              </div>
+              <div class="margin-field">
+                <label>Abajo</label>
+                <input type="number" value="0" min="0">
+              </div>
+              <div class="margin-field">
+                <label>Izquierda</label>
+                <input type="number" value="0" min="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="modal__field">
+            <label>Tamaño de fuente</label>
+            <input type="number" value="16" min="4" max="200">
+          </div>
+
+          <div class="modal__field">
+            <label>Color</label>
+            <input type="color" value="#1a1a1a" style="width:100%; height:34px; padding:2px; border:1px solid var(--border-neutral); border-radius:var(--radius-sm);">
+          </div>
+
+        </div>
+        <div class="modal__footer">
+          <button class="btn-eliminar" type="button">Eliminar</button>
+          <button class="btn-cancel" type="button">Cancelar</button>
+          <button class="btn-accept" type="button">Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="preview-wrap">
+    <div class="preview-title">Efecto sobre la carta según la<br>alineación elegida (ejemplo)</div>
+    <div class="preview-grid">
+      <div class="card-sample">
+        <div class="card-sample__box h-left v-top">Ataque +2</div>
+        <div class="card-sample__caption">Izquierda / Arriba</div>
+      </div>
+      <div class="card-sample">
+        <div class="card-sample__box h-center v-top">Ataque +2</div>
+        <div class="card-sample__caption">Centro / Arriba</div>
+      </div>
+      <div class="card-sample">
+        <div class="card-sample__box h-right v-top">Ataque +2</div>
+        <div class="card-sample__caption">Derecha / Arriba</div>
+      </div>
+      <div class="card-sample">
+        <div class="card-sample__box h-left v-center">Ataque +2</div>
+        <div class="card-sample__caption">Izquierda / Centro</div>
+      </div>
+      <div class="card-sample">
+        <div class="card-sample__box h-center v-center">Ataque +2</div>
+        <div class="card-sample__caption">Centro / Centro</div>
+      </div>
+      <div class="card-sample">
+        <div class="card-sample__box h-right v-bottom">Ataque +2</div>
+        <div class="card-sample__caption">Derecha / Abajo</div>
+      </div>
+      <div class="card-sample">
+        <div class="card-sample__box h-center v-center" style="top:42px; left:24px; right:24px; height:66px;">Ataque +2</div>
+        <div class="card-sample__caption">Centro / Centro,<br>con margen</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

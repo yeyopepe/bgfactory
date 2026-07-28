@@ -48,11 +48,11 @@ export function deleteSelectedComponent() {
 export function renderEditMode(container) {
   container.innerHTML = '';
 
-  const { position: panelPosition, width: panelWidth, height: panelHeight, columnWidths: panelColumnWidths } = getPanelState();
+  const { position: panelPosition, width: panelWidth } = getPanelState();
   let collapsed = getPanelState().collapsed;
-  const { position: resourcePanelPosition, width: resourcePanelWidth, height: resourcePanelHeight, columnWidths: resourcePanelColumnWidths } = getResourcePanelState();
+  const { position: resourcePanelPosition, width: resourcePanelWidth } = getResourcePanelState();
   let resourceCollapsed = getResourcePanelState().collapsed;
-  const { position: deckPanelPosition, width: deckPanelWidth, height: deckPanelHeight } = getDeckPanelState();
+  const { position: deckPanelPosition, width: deckPanelWidth } = getDeckPanelState();
   let deckCollapsed = getDeckPanelState().collapsed;
 
   const layout = document.createElement('div');
@@ -332,8 +332,8 @@ export function renderEditMode(container) {
       onPanelResize: (width, height) => {
         setPanelState(height ? { width, height } : { width });
       },
-      bodyHeight: panelHeight,
-      columnWidths: panelColumnWidths,
+      bodyHeight: getPanelState().height,
+      columnWidths: getPanelState().columnWidths,
       onColumnResize: (columnWidths) => {
         setPanelState({ columnWidths });
       },
@@ -365,8 +365,8 @@ export function renderEditMode(container) {
       onPanelResize: (width, height) => {
         setResourcePanelState(height ? { width, height } : { width });
       },
-      bodyHeight: resourcePanelHeight,
-      columnWidths: resourcePanelColumnWidths,
+      bodyHeight: getResourcePanelState().height,
+      columnWidths: getResourcePanelState().columnWidths,
       onColumnResize: (columnWidths) => {
         setResourcePanelState({ columnWidths });
       },
@@ -398,7 +398,7 @@ export function renderEditMode(container) {
       onPanelResize: (width, height) => {
         setDeckPanelState(height ? { width, height } : { width });
       },
-      bodyHeight: deckPanelHeight,
+      bodyHeight: getDeckPanelState().height,
     });
   }
 
