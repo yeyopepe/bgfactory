@@ -6,6 +6,8 @@
 
 "Botón para exportar la lista de componentes a CSV — con los campos: tipo, id, contenido de 'mazo' (si es de tipo carta), imagen asociada (si la tienen), número de caras (si es de tipo dado)." (idea original apuntada en changes/todo/n8w3z)
 
+"en este listado hay que añadir una columna titulada Cantidad que lleva el número de copias que tiene este elemento (más él mismo). ejemplo: si una carta con id ASDF tiene 5 copias, en la columna cantidad debe aparecer el número 6"
+
 ## Descripción completa
 
 Se añade, en modo edición, un botón "Exportar CSV" junto a los botones existentes "Exportar"/"Importar" (JSON) y "Guardar" de la barra de edición. Al pulsarlo, descarga directamente un fichero CSV con una fila por cada componente actual del juego — sin selección previa ni modal intermedia, a diferencia de "Exportar" (JSON), que sí permite elegir qué incluir.
@@ -14,6 +16,7 @@ El CSV tiene las siguientes columnas:
 
 - **id**: identificador del componente.
 - **tipo**: tipo del componente (cuadro de texto, tablero, dado, visor de documentos, ficha, carta, etc).
+- **Cantidad**: número de copias vinculadas que tiene este componente (ver funcionalidad "Copia" del proyecto), más él mismo. Por ejemplo, un componente con 5 copias vinculadas muestra el valor 6. Aplica a cualquier tipo de componente, no solo a cartas. Un componente sin copias vinculadas muestra 1. Una fila que es en sí misma una copia siempre muestra 1 (una copia no puede tener copias propias).
 - **proporción**: proporción del componente (si aplica)
 - **mazo**: nombre del mazo al que pertenece la carta (solo aplica a tipo "carta"; queda vacío si la carta no tiene mazo asignado, o si el componente no es de tipo carta).
 - **imagenFrontal**: nombre de la imagen asociada a la cara frontal de la carta. Vacío si esa cara en concreto no tiene ninguna imagen asignada
@@ -38,3 +41,7 @@ flowchart TD
     B -- Sí --> D["Genera CSV (UTF-8 BOM, separador ';')\ncon una fila por componente"]
     D --> E["Descarga el fichero CSV"]
 ```
+
+## Apuntes técnicos
+
+- La funcionalidad "Copia" (change 00097) vincula una copia a su original mediante el campo `copyOf` del componente (`copyOf === id del original`), de forma unidireccional (la copia apunta al original, el original no tiene lista de sus copias). No existe hoy ningún helper que cuente cuántas copias tiene un componente; `ms-how` deberá calcularlo recorriendo `components` y contando coincidencias de `copyOf`, siguiendo el mismo patrón ya usado en `core/state.js` (`syncCopyWithOriginal`, `removeComponent`) y en `nextCopyId` (`core/component.js`).

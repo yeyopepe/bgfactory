@@ -6,7 +6,7 @@ import { attachColumnResizing } from './tableColumnResize.js';
 
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
-const COMPONENT_LIST_COLUMNS = ['orden', 'id', 'tipo', 'acciones'];
+const COMPONENT_LIST_COLUMNS = ['orden', 'id', 'tipo', 'copia', 'acciones'];
 
 // Estado del cuadro de filtro. El panel de componentes es único en la
 // página, así que basta con estado de módulo para que sobreviva a los
@@ -26,7 +26,7 @@ function matchesFilter(component, query) {
   );
 }
 
-function renderBody(body, displayedComponents, total, { onEdit, onClone, onRemove, onSelectRow, onReorder, selectedId, columnWidths, onColumnResize } = {}) {
+function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy, onRemove, onSelectRow, onReorder, selectedId, columnWidths, onColumnResize } = {}) {
   body.innerHTML = '';
 
   if (displayedComponents.length === 0) {
@@ -47,7 +47,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onRemov
 
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
-  const headLabels = { orden: 'Orden', id: 'Id', tipo: 'Tipo', acciones: 'Acciones' };
+  const headLabels = { orden: 'Orden', id: 'Id', tipo: 'Tipo', copia: 'Copia', acciones: 'Acciones' };
   for (const key of COMPONENT_LIST_COLUMNS) {
     const th = document.createElement('th');
     th.dataset.col = key;
@@ -102,6 +102,11 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onRemov
     typeCell.textContent = component.type;
     row.appendChild(typeCell);
 
+    const copyCell = document.createElement('td');
+    copyCell.className = 'component-list__copy-cell';
+    copyCell.textContent = component.copyOf ? '✓' : '';
+    row.appendChild(copyCell);
+
     const actionsCell = document.createElement('td');
     actionsCell.className = 'component-list__actions-cell';
 
@@ -117,7 +122,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onRemov
       actionsCell.appendChild(editButton);
     }
 
-    if (onClone) {
+    if (onClone && !component.copyOf) {
       const cloneButton = document.createElement('button');
       cloneButton.type = 'button';
       cloneButton.className = 'component-list__action-btn';
@@ -127,6 +132,18 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onRemov
         onClone(component);
       });
       actionsCell.appendChild(cloneButton);
+    }
+
+    if (onCopy && !component.copyOf) {
+      const copyButton = document.createElement('button');
+      copyButton.type = 'button';
+      copyButton.className = 'component-list__action-btn';
+      copyButton.textContent = 'Copiar';
+      copyButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        onCopy(component);
+      });
+      actionsCell.appendChild(copyButton);
     }
 
     if (onRemove) {
@@ -166,6 +183,7 @@ export function renderComponentList(
   {
     onEdit,
     onClone,
+    onCopy,
     onRemove,
     onSelectRow,
     onAdd,
@@ -242,7 +260,7 @@ export function renderComponentList(
 
   if (!collapsed) {
     const sortedComponents = [...components].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-    const rowHandlers = { onEdit, onClone, onRemove, onSelectRow, onReorder, selectedId, columnWidths, onColumnResize };
+    const rowHandlers = { onEdit, onClone, onCopy, onRemove, onSelectRow, onReorder, selectedId, columnWidths, onColumnResize };
 
     if (components.length > 0) {
       const filterBar = document.createElement('div');

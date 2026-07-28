@@ -24,7 +24,7 @@ La pestaña "Generales" incluye también el checkbox "Bloqueado" (marcado por de
 
 ### Panel flotante de componentes, con selección, resaltado, arrastre y redimensionado
 
-Panel flotante sobre la mesa (por defecto en la esquina superior derecha), colapsable, con el listado de componentes en tabla (columnas Id, Tipo, Acciones). El botón "Editar" abre la modal de edición; "Clonar" (entre "Editar" y "Eliminar") crea de inmediato, sin pedir confirmación, una copia completa e independiente del componente; "Eliminar" borra el componente, pidiendo confirmación previa. Al hacer click sobre una fila, o directamente sobre la representación del componente en la mesa, se selecciona (selección única, con toggle al volver a hacer click en cualquiera de los dos sitios) y se resalta con un contorno discontinuo la representación del componente en la mesa. La tabla soporta scroll vertical si el contenido supera la altura disponible.
+Panel flotante sobre la mesa (por defecto en la esquina superior derecha), colapsable, con el listado de componentes en tabla (columnas Id, Tipo, Copia, Acciones — esta última, ver [Elementos tipo Copia, vinculados y sincronizados con un original](#elementos-tipo-copia-vinculados-y-sincronizados-con-un-original)). El botón "Editar" abre la modal de edición; "Clonar" (entre "Editar" y "Eliminar") crea de inmediato, sin pedir confirmación, una copia completa e independiente del componente; "Copiar" crea de inmediato, igual que "Clonar" pero sin independencia posterior, un elemento tipo Copia vinculado y sincronizado con el original (ver enlace anterior); "Eliminar" borra el componente, pidiendo confirmación previa. En la fila de un componente que ya es en sí mismo una Copia, no aparecen los botones "Clonar" ni "Copiar" (no se admiten copias de copias), solo "Editar" y "Eliminar". Al hacer click sobre una fila, o directamente sobre la representación del componente en la mesa, se selecciona (selección única, con toggle al volver a hacer click en cualquiera de los dos sitios) y se resalta con un contorno discontinuo la representación del componente en la mesa. La tabla soporta scroll vertical si el contenido supera la altura disponible.
 
 Al clonar: el id del clon se construye a partir del id del original quitándole cualquier sufijo `(n)` que ya tuviera (para que los clones de un clon compartan la misma familia) y añadiéndole `(n)` con el siguiente entero libre para esa raíz (p. ej. "abc" → "abc(1)"; si "abc(1)" ya existe → "abc(2)"; si se elimina "abc(1)" y no queda otro clon de esa raíz, el hueco "abc(1)" se reutiliza). El clon se coloca siempre en el primer puesto del orden de apilado (queda por encima de todos, igual que un componente creado desde cero — ver [Orden de apilado en la mesa](#orden-de-apilado-en-la-mesa)) y aparece en la mesa con un pequeño desplazamiento respecto a la posición del original, mismo criterio que al añadir un componente nuevo, para no quedar superpuesto. Tras clonar no se abre ninguna modal: el clon queda ya creado y visible, y puede editarse después con "Editar" como cualquier otro componente.
 
@@ -33,7 +33,26 @@ El panel puede arrastrarse por la pantalla agarrando su cabecera (restringido al
 La tabla incluye además una primera columna "Orden" con un cuadro de texto numérico por fila (ver [Orden de apilado en la mesa](#orden-de-apilado-en-la-mesa)).
 
 - **Disponible en**: modo edición.
-- **Código**: 00005, 00007, 00009, 00014, 00027, 00043, 00064, 00066, 00083.
+- **Código**: 00005, 00007, 00009, 00014, 00027, 00043, 00064, 00066, 00083, 00097.
+
+### Elementos tipo Copia, vinculados y sincronizados con un original
+
+A diferencia de "Clonar" (copia completa e independiente desde el instante en que se crea), el botón "Copiar" de cada fila del panel de componentes (ver [Panel flotante de componentes](#panel-flotante-de-componentes-con-selección-resaltado-arrastre-y-redimensionado)) crea de inmediato, sin ninguna modal previa, un elemento tipo Copia que queda permanentemente vinculado a su original y sincronizado con él mientras ambos existan en la partida.
+
+**Identificador**: el id de una Copia es siempre el id del original con el sufijo `-COPY-XXX` (número de 3 dígitos, el primer hueco libre entre las copias de ese mismo original — si se borra una copia y no queda otra con ese hueco, se reutiliza al crear la siguiente). Si se cambia el id del original desde su modal de edición, se renombran automáticamente los ids de todas sus copias vinculadas, conservando el mismo sufijo y sustituyendo solo el prefijo.
+
+**Qué se sincroniza automáticamente** en cuanto se edita el original: su tipo visual, nombre, imagen, ancho/alto, y todas las propiedades de configuración/diseño específicas de su tipo (color, fondo, proporción, mazo asignado, diseño de caras de una carta, configuración de caras de un dado, contenido de un documento/texto, etc. — es decir, todo lo editable desde la modal de configuración del elemento). **Qué NO se sincroniza**, quedando siempre independiente por copia: la posición en la mesa, el orden de apilado, el estado "Bloqueado", y el resultado de cualquier interacción de juego propia del tipo (el resultado actual de un dado, la cara mostrada de una carta) — cada copia puede moverse, bloquearse/desbloquearse, lanzar su propio dado o voltear su propia carta de forma independiente, sin afectar al original ni a otras copias del mismo original.
+
+**Edición de una Copia**: no puede editarse de ninguna manera a través de su propia modal — al abrirla (desde "Editar" en su fila, o al hacer click/doble click sobre su representación en la mesa) se muestra una modal reducida, sin pestañas, con el id de la copia (solo lectura), un aviso indicando que es una copia de otro elemento, el id del elemento original, y tres botones: "Eliminar" (borra solo esa copia, con la misma confirmación estándar del resto de la app), "Cancelar" y "Aceptar" (ambos se limitan a cerrar la modal sin cambios, ya que no hay nada editable que confirmar).
+
+**No se admiten copias de copias**: los botones "Copiar" y "Clonar" no aparecen en la fila de un componente que ya es una Copia — solo "Editar" y "Eliminar".
+
+**Borrado en cascada**: al eliminar el elemento original se eliminan automáticamente todas sus copias vinculadas, para no dejar copias huérfanas. Eliminar una copia individual (desde su fila o desde su modal reducida) no afecta al original ni a las demás copias.
+
+**Alta**: "Copia" no es un tipo seleccionable en la modal previa "+ Añadir componente" (sigue siendo Cuadro de texto/Tablero/Dado/Visor de documentos/Carta-Ficha) — un elemento tipo Copia solo puede nacer copiando un componente ya existente.
+
+- **Disponible en**: modo edición (creación, edición reducida y borrado); el resultado de la sincronización y la posición/estado independiente de cada copia se reflejan también en modo juego, igual que cualquier otro componente.
+- **Código**: 00097.
 
 ### Panel flotante de recursos, con filtro de texto
 

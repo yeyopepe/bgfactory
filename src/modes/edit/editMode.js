@@ -6,12 +6,13 @@ import {
   getResources, addResource, replaceResource, removeResource, getResourcePanelState, setResourcePanelState,
   getDecks, addDeck, replaceDeck, removeDeck, getDeckPanelState, setDeckPanelState,
 } from '../../core/state.js';
-import { updateComponent, cloneComponent } from '../../core/component.js';
+import { updateComponent, cloneComponent, createCopy } from '../../core/component.js';
 import { createResource, resourceTypeForFileName, getComponentsUsingResource } from '../../core/resource.js';
 import { getComponentsUsingDeck } from '../../core/deck.js';
 import { convertImageToWebP } from '../../core/imageConversion.js';
 import { createInfiniteTable } from '../../ui/table.js';
 import { openComponentModal, createDefaultComponent } from '../../ui/componentModal.js';
+import { openCopyComponentModal } from '../../ui/copyComponentModal.js';
 import { openComponentTypeModal } from '../../ui/componentTypeModal.js';
 import { renderComponentList } from '../../ui/componentList.js';
 import { renderComponentsOnTable } from '../../ui/componentRenderer.js';
@@ -228,6 +229,18 @@ export function renderEditMode(container) {
   }
 
   function openEditModalFor(component) {
+    if (component.copyOf) {
+      openCopyComponentModal({
+        component,
+        onDelete: (deletedComponent) => {
+          if (selectedComponentId === deletedComponent.id) {
+            selectedComponentId = null;
+          }
+          removeComponent(deletedComponent.id);
+        },
+      });
+      return;
+    }
     openComponentModal({
       component,
       onAccept: (updated, isNew) => {
@@ -295,6 +308,10 @@ export function renderEditMode(container) {
       onClone: (component) => {
         const clone = cloneComponent(component, getComponents());
         addComponent(clone);
+      },
+      onCopy: (component) => {
+        const copy = createCopy(component, getComponents());
+        addComponent(copy);
       },
       onRemove: (component) => {
         removeComponent(component.id);

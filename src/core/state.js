@@ -3,6 +3,7 @@
 
 import { emit } from './eventBus.js';
 import { migrateFichaComponent } from './fichaMigration.js';
+import { syncCopyWithOriginal, renameCopyId } from './component.js';
 
 export const MODES = { PLAY: 'play', EDIT: 'edit' };
 
@@ -60,11 +61,31 @@ export function replaceComponent(id, updatedComponent) {
   const index = state.components.findIndex((c) => c.id === id);
   if (index === -1) return;
   state.components[index] = updatedComponent;
+
+  // Si lo que se acaba de actualizar es un original (no una copia), propaga los
+  // campos sincronizables a todas sus copias vinculadas, renombrando también su
+  // id/copyOf si el id del original ha cambiado (ver core/component.js).
+  if (!updatedComponent.copyOf) {
+    const idChanged = updatedComponent.id !== id;
+    state.components.forEach((c, i) => {
+      if (c.copyOf !== id) return;
+      let updatedCopy = syncCopyWithOriginal(c, updatedComponent);
+      if (idChanged) {
+        updatedCopy = { ...updatedCopy, copyOf: updatedComponent.id, id: renameCopyId(c.id, id, updatedComponent.id) };
+      }
+      state.components[i] = updatedCopy;
+    });
+  }
+
   emit('components:changed', state.components);
 }
 
 export function removeComponent(id) {
-  state.components = state.components.filter((c) => c.id !== id);
+  const idsToRemove = new Set([id]);
+  for (const c of state.components) {
+    if (c.copyOf === id) idsToRemove.add(c.id);
+  }
+  state.components = state.components.filter((c) => !idsToRemove.has(c.id));
   compactOrders(state.components);
   emit('components:changed', state.components);
 }

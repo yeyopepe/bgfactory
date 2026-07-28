@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-27T11:06:28Z",
+  "generatedAt": "2026-07-27T14:29:09Z",
   "basePath": "src",
   "nodes": [
     {
@@ -23,7 +23,11 @@
       "exports": [
         "cloneComponent",
         "createComponent",
+        "createCopy",
         "nextCloneId",
+        "nextCopyId",
+        "renameCopyId",
+        "syncCopyWithOriginal",
         "updateComponent"
       ],
       "purpose": "Component model factory: creates, updates, and clones game components with validation."
@@ -251,6 +255,12 @@
       "purpose": "Build script for obfuscating final HTML bundle."
     },
     {
+      "id": "scripts/vendor/javascript-obfuscator.browser.js",
+      "type": "file",
+      "path": "scripts/vendor/javascript-obfuscator.browser.js",
+      "purpose": "Librería de terceros vendorizada (javascript-obfuscator) usada por el script de build para ofuscar el bundle final."
+    },
+    {
       "id": "ui/batchUploadSummaryModal.js",
       "type": "file",
       "path": "ui/batchUploadSummaryModal.js",
@@ -346,6 +356,15 @@
         "openContextMenu"
       ],
       "purpose": "Context menu for component actions in play mode."
+    },
+    {
+      "id": "ui/copyComponentModal.js",
+      "type": "file",
+      "path": "ui/copyComponentModal.js",
+      "exports": [
+        "openCopyComponentModal"
+      ],
+      "purpose": "Modal reducida y de solo lectura para un componente de tipo Copia: muestra su id, un aviso de vinculación y el id del original, con Eliminar/Cancelar/Aceptar."
     },
     {
       "id": "ui/deckDeleteConfirmModal.js",
@@ -577,6 +596,12 @@
       "purpose": "Transient notification messages."
     },
     {
+      "id": "vendor/marked.js",
+      "type": "file",
+      "path": "vendor/marked.js",
+      "purpose": "Librería de terceros vendorizada (marked v18.0.6) que convierte Markdown (CommonMark + GFM) a HTML, usada por core/markdown.js."
+    },
+    {
       "id": "core/cardProportions.js#getCartaShapeCss",
       "type": "function",
       "path": "core/cardProportions.js",
@@ -619,11 +644,39 @@
       "purpose": "Creates a new component with default values, generating unique ID and initial position."
     },
     {
+      "id": "core/component.js#createCopy",
+      "type": "function",
+      "path": "core/component.js",
+      "parent": "core/component.js",
+      "purpose": "Crea una copia vinculada de un componente (id con sufijo -COPY-XXX y copyOf al original), análoga a cloneComponent pero con el vínculo de sincronización."
+    },
+    {
       "id": "core/component.js#nextCloneId",
       "type": "function",
       "path": "core/component.js",
       "parent": "core/component.js",
       "purpose": "Generates the next available clone ID for a component based on existing clones."
+    },
+    {
+      "id": "core/component.js#nextCopyId",
+      "type": "function",
+      "path": "core/component.js",
+      "parent": "core/component.js",
+      "purpose": "Calcula el siguiente id de copia libre para un original, buscando el primer sufijo -COPY-XXX no usado entre sus copias vinculadas (por copyOf)."
+    },
+    {
+      "id": "core/component.js#renameCopyId",
+      "type": "function",
+      "path": "core/component.js",
+      "parent": "core/component.js",
+      "purpose": "Renombra el id de una copia al cambiar el id de su original, conservando el sufijo -COPY-XXX y sustituyendo solo el prefijo."
+    },
+    {
+      "id": "core/component.js#syncCopyWithOriginal",
+      "type": "function",
+      "path": "core/component.js",
+      "parent": "core/component.js",
+      "purpose": "Aplica sobre una copia los campos sincronizables del original (tipo, nombre, imagen, tamaño, properties de configuración/diseño), preservando la posición, el orden, el bloqueado y las properties de estado de interacción de juego propias de la copia."
     },
     {
       "id": "core/component.js#updateComponent",
@@ -1214,6 +1267,13 @@
       "purpose": "Opens right-click menu with lock toggle."
     },
     {
+      "id": "ui/copyComponentModal.js#openCopyComponentModal",
+      "type": "function",
+      "path": "ui/copyComponentModal.js",
+      "parent": "ui/copyComponentModal.js",
+      "purpose": "Abre la modal reducida de una Copia (sin pestañas ni campos editables); Eliminar borra solo esa copia, Cancelar/Aceptar cierran sin cambios."
+    },
+    {
       "id": "ui/deckDeleteConfirmModal.js#openDeckDeleteConfirmModal",
       "type": "function",
       "path": "ui/deckDeleteConfirmModal.js",
@@ -1429,6 +1489,11 @@
       "relation": "calls"
     },
     {
+      "source": "core/component.js#createCopy",
+      "target": "core/component.js#nextCopyId",
+      "relation": "calls"
+    },
+    {
       "source": "core/dice.js#esResultadoValido",
       "target": "core/dice.js#getPosibleValores",
       "relation": "calls"
@@ -1530,6 +1595,16 @@
     },
     {
       "source": "core/state.js#replaceComponent",
+      "target": "core/component.js#renameCopyId",
+      "relation": "calls"
+    },
+    {
+      "source": "core/state.js#replaceComponent",
+      "target": "core/component.js#syncCopyWithOriginal",
+      "relation": "calls"
+    },
+    {
+      "source": "core/state.js#replaceComponent",
       "target": "core/eventBus.js#emit",
       "relation": "calls"
     },
@@ -1605,6 +1680,11 @@
     },
     {
       "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "core/component.js#createCopy",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
       "target": "core/component.js#updateComponent",
       "relation": "calls"
     },
@@ -1661,6 +1741,11 @@
     {
       "source": "modes/edit/editMode.js#renderEditMode",
       "target": "ui/componentTypeModal.js#openComponentTypeModal",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "ui/copyComponentModal.js#openCopyComponentModal",
       "relation": "calls"
     },
     {
@@ -2079,8 +2164,18 @@
       "relation": "imports"
     },
     {
+      "source": "core/markdown.js",
+      "target": "vendor/marked.js",
+      "relation": "imports"
+    },
+    {
       "source": "core/persistence.js",
       "target": "data/version.js",
+      "relation": "imports"
+    },
+    {
+      "source": "core/state.js",
+      "target": "core/component.js",
       "relation": "imports"
     },
     {
@@ -2196,6 +2291,11 @@
     {
       "source": "modes/edit/editMode.js",
       "target": "ui/componentTypeModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/edit/editMode.js",
+      "target": "ui/copyComponentModal.js",
       "relation": "imports"
     },
     {
