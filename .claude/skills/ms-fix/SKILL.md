@@ -4,7 +4,7 @@ description: Analiza un bug o comportamiento roto reportado por el usuario, lo d
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.1.0
+  version: 1.2.0
   uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-how]
 ---
 
@@ -15,6 +15,8 @@ Analiza, documenta e implementa un fix (comportamiento roto) sobre el proyecto �
 Un fix es, por naturaleza, un cambio acotado: el análisis y la solución deben centrarse **única y exclusivamente en corregir el bug reportado**, con el menor cambio posible. Nada de aprovechar para refactorizar, renombrar o tocar código no relacionado con la causa raíz — eso, si hace falta, es un `ms-change` aparte.
 
 Esta skill no implementa nada por sí misma: documenta la intención y encadena directamente la skill `ms-how`, que es quien analiza la causa raíz técnica y escribe el `plan.md`, y que a su vez (si se confirma) encadena `ms-do` para implementar.
+
+**Los mockups y diagramas son el eje central de la definición de un fix, no un añadido opcional.** Siempre que el fix lo permita, el comportamiento esperado debe quedar fijado mediante una representación visual — no solo prosa — y esa representación debe quedar **validada por el usuario**, no solo generada. Casos válidos (no excluyentes): **cambios visuales o de estilo** → maqueta(s) HTML (`design_*.html`, paso 3); **flujos o interacciones rotos** (una secuencia de pasos, una transición de estados) → diagrama Mermaid dentro de `description.md` (paso 2). Solo prescinde de ambos si el fix no tiene de verdad ninguna dimensión visual ni de flujo representable.
 
 **Fuente de la verdad.** Para distinguir qué hace hoy el proyecto de lo que el usuario cree que hace, la única fuente de verdad es la documentación técnica y el código real — no asunciones ni memoria de la conversación. Para reunir ese contexto, invoca la skill `ms-internal-tech-analysis` (herramienta Skill) pasándole un resumen del bug que se está analizando, en vez de leer tú mismo `framework.docs.tech` o explorar el código a ciegas: ella lee primero la documentación técnica configurada y explora código solo si hace falta, devolviendo el contexto reunido y cualquier incongruencia entre documentación y código (en ese caso el código manda). Si detecta alguna incongruencia, anótala en **Apuntes técnicos** al documentar (paso 2) para que `ms-how` la tenga en cuenta más adelante. Tampoco cuenta como fuente de verdad el contenido de otros cambios/fixes que existan bajo `{changesDir}/**` (su `description.md` o `plan.md`, estén en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto.
 
@@ -40,6 +42,7 @@ Si la funcionalidad que se describe incorpora un flujo, una secuencia de pasos/d
    - No debe tener funcionalidad real: nada de JavaScript que reaccione a eventos, ni llamadas a red, ni estado — como mucho, JS puramente decorativo si hiciera falta para el aspecto visual.
    - Ha de ser autocontenido: solo HTML, CSS y SVG, todo incrustado en el propio fichero (sin ficheros externos, sin CDNs, sin imports).
 
-4. **Encadenar la planificación.** Invoca directamente la skill `ms-how` (herramienta Skill) sobre ese mismo `xxxx`, indicando explícitamente que es un fix y que su análisis y solución deben limitarse estrictamente a corregir el bug documentado — cambio mínimo, sin ampliar alcance ni tocar nada no relacionado con la causa raíz. No le pidas al usuario que invoque `ms-how` por separado: continúa tú mismo con ese flujo (análisis → `plan.md` → confirmación → `ms-do` implementa → mueve a `implemented`), tal como lo define `ms-how`.
+4. **Validar la representación visual con el usuario.** Si el paso 2 incluyó algún diagrama Mermaid o el paso 3 generó algún `design_*.html`, preséntaselos al usuario (ruta de cada `design_*.html` y el diagrama) y pídele que confirme si reflejan el comportamiento esperado o qué cambiaría, antes de encadenar la planificación. Si pide cambios, ajusta y vuelve a presentarlo hasta que lo confirme. Si el fix no generó ningún diagrama ni `design_*.html`, omite este paso.
+5. **Encadenar la planificación.** Invoca directamente la skill `ms-how` (herramienta Skill) sobre ese mismo `xxxx`, indicando explícitamente que es un fix y que su análisis y solución deben limitarse estrictamente a corregir el bug documentado — cambio mínimo, sin ampliar alcance ni tocar nada no relacionado con la causa raíz. No le pidas al usuario que invoque `ms-how` por separado: continúa tú mismo con ese flujo (análisis → `plan.md` → confirmación → `ms-do` implementa → mueve a `implemented`), tal como lo define `ms-how`.
 
 No escribas tú mismo el documento de fix ni calcules el número `xxxx` — eso lo hace `ms-internal-workflow` para mantener un único sitio con esa lógica. No escribas tú mismo el `plan.md` ni toques código directamente — eso lo hacen `ms-how` y `ms-do` para mantener un único sitio con esa lógica.
