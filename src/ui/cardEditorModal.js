@@ -5,12 +5,13 @@
 
 import { getResources } from '../core/state.js';
 import { CARD_PROPORTIONS, getProporcionRatio, getDesignSize, getCartaShapeCss, getHexInnerClipPath } from '../core/cardProportions.js';
+import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
 import { applyImageAdjustStyle, openImageAdjustModal } from './imageAdjustModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
 import { openCardTextBoxModal } from './cardTextBoxModal.js';
 import { attachResizeHandle } from './resizeHandle.js';
 
-const CANVAS_MAX_SIDE = 260;
+const CANVAS_MAX_SIDE = 380;
 const MIN_TEXT_BOX_DESIGN_SIZE = 20;
 
 function cloneCara(cara) {
@@ -256,6 +257,28 @@ export function openCardEditorModal({ component, onAccept }) {
     });
     actionsRow.appendChild(chooseImageBtn);
 
+    const addTextBoxBtn = document.createElement('button');
+    addTextBoxBtn.type = 'button';
+    addTextBoxBtn.className = 'btn-cancel';
+    addTextBoxBtn.textContent = '+ Texto';
+    addTextBoxBtn.addEventListener('click', () => {
+      const w = designWidth * 0.5;
+      const h = designHeight * 0.15;
+      cara.textBoxes.push({
+        id: crypto.randomUUID(),
+        contenido: '',
+        fuenteResourceId: null,
+        tamañoFuente: 16,
+        color: '#000000',
+        x: (designWidth - w) / 2,
+        y: (designHeight - h) / 2,
+        width: w,
+        height: h,
+      });
+      renderFaces();
+    });
+    actionsRow.appendChild(addTextBoxBtn);
+
     // Borde de la carta completa (por cara). Fila color+grosor con la misma
     // excepción de estilo inline que ya usa componentModal.js (STYLE_BIBLE sección 8).
     const borderTitle = document.createElement('p');
@@ -306,28 +329,6 @@ export function openCardEditorModal({ component, onAccept }) {
     borderField.appendChild(borderRowInner);
     actionsRow.appendChild(borderField);
 
-    const addTextBoxBtn = document.createElement('button');
-    addTextBoxBtn.type = 'button';
-    addTextBoxBtn.className = 'btn-cancel';
-    addTextBoxBtn.textContent = '+ Texto';
-    addTextBoxBtn.addEventListener('click', () => {
-      const w = designWidth * 0.5;
-      const h = designHeight * 0.15;
-      cara.textBoxes.push({
-        id: crypto.randomUUID(),
-        contenido: '',
-        fuenteResourceId: null,
-        tamañoFuente: 16,
-        color: '#000000',
-        x: (designWidth - w) / 2,
-        y: (designHeight - h) / 2,
-        width: w,
-        height: h,
-      });
-      renderFaces();
-    });
-    actionsRow.appendChild(addTextBoxBtn);
-
     faceCol.appendChild(actionsRow);
 
     return faceCol;
@@ -347,6 +348,9 @@ export function openCardEditorModal({ component, onAccept }) {
       ? `${textBox.bordeGrosor ?? 2}px ${textBox.bordeTipo === 'punteada' ? 'dashed' : 'solid'} ${textBox.bordeColor || '#000000'}`
       : 'none';
     el.style.backgroundColor = textBox.colorFondo || 'transparent';
+    el.style.display = 'flex';
+    el.style.flexDirection = 'column';
+    Object.assign(el.style, getTextBoxLayoutStyle(textBox, previewScale));
     el.textContent = textBox.contenido || '';
 
     el.addEventListener('dblclick', (e) => {

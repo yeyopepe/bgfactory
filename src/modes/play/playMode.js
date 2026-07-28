@@ -69,7 +69,7 @@ export function renderPlayMode(container) {
   const table = createInfiniteTable(container);
 
   function renderTable() {
-    renderComponentsOnTable(table.worldEl, getComponents(), {
+    renderComponentsOnTable(table.worldEl, getComponents().filter((component) => !component.oculto), {
       identifyMode: 'tooltip',
       liftOnDrag: true,
       selectedId: selectedComponentId,

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Propuesta visual — Insignia de "Oculto" sobre la mesa (modo edición)</title>
+<style>
+  :root {
+    --bg-table:     #c2c2c2;
+    --bg-toolbar:   #333333;
+    --bg-card:      #f5f5f5;
+    --accent-blue:  #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --text-primary: #1a1a1a;
+    --text-light:   #ffffff;
+    --text-muted:   #666666;
+    --border-neutral: #dcdcdc;
+    --radius-sm:    4px;
+    --radius-lg:    8px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-toolbar);
+  }
+  .note {
+    color: var(--text-light);
+    padding: 14px 20px;
+    font-size: 0.8rem;
+    max-width: 640px;
+  }
+  .table {
+    position: relative;
+    background: var(--bg-table);
+    height: 420px;
+    margin: 0 20px 20px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+
+  /* --- Componente genérico de ejemplo --- */
+  .component {
+    position: absolute;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+  .component-caption {
+    position: absolute;
+    bottom: -22px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.72rem;
+  }
+
+  /* Carta 1: sin marcas */
+  .carta-normal {
+    top: 40px; left: 60px; width: 100px; height: 140px;
+    background: #fff;
+    border: 1px solid var(--border-neutral);
+  }
+
+  /* Carta 2: bloqueada (candado ya existente, esquina superior derecha) */
+  .carta-bloqueada {
+    top: 40px; left: 220px; width: 100px; height: 140px;
+    background: #fff;
+    border: 1px solid var(--border-neutral);
+  }
+
+  /* Carta 3: oculta (insignia nueva propuesta, esquina inferior derecha) */
+  .carta-oculta {
+    top: 40px; left: 380px; width: 100px; height: 140px;
+    background: #fff;
+    border: 1px solid var(--border-neutral);
+    opacity: 0.55; /* atenuación propuesta para distinguirla también por contraste, no solo por la insignia */
+  }
+
+  /* Carta 4: bloqueada + oculta a la vez (conviven ambas insignias) */
+  .carta-ambas {
+    top: 40px; left: 540px; width: 100px; height: 140px;
+    background: #fff;
+    border: 1px solid var(--border-neutral);
+    opacity: 0.55;
+  }
+
+  .badge {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(0,0,0,.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .badge svg { width: 11px; height: 11px; fill: none; stroke: #fff; stroke-width: 1.6; }
+
+  .badge--lock { top: -8px; right: -8px; }
+  .badge--hidden { bottom: -8px; right: -8px; }
+
+  .legend {
+    display: flex;
+    gap: 28px;
+    padding: 0 20px 24px;
+    color: var(--text-light);
+    font-size: 0.78rem;
+    flex-wrap: wrap;
+  }
+  .legend__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .legend__badge {
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(0,0,0,.55);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .legend__badge svg { width: 11px; height: 11px; fill: none; stroke: #fff; stroke-width: 1.6; }
+</style>
+</head>
+<body>
+  <div class="note">
+    Maqueta de aspecto — mesa en modo edición con cuatro cartas de ejemplo: sin marcas, "Bloqueado" (insignia de candado ya existente, esquina superior derecha), "Oculto" (insignia nueva propuesta — icono de ojo tachado, esquina inferior derecha, más una ligera atenuación del propio componente para distinguirlo también sin fijarse en la insignia) y con ambas marcas activas a la vez (conviven sin solaparse). En modo juego ninguna de las dos insignias se muestra; el componente "Oculto" directamente no se dibuja.
+  </div>
+  <div class="table">
+    <div class="component carta-normal">
+      <div class="component-caption">Sin marcas</div>
+    </div>
+
+    <div class="component carta-bloqueada">
+      <div class="badge badge--lock">
+        <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      </div>
+      <div class="component-caption">Bloqueado</div>
+    </div>
+
+    <div class="component carta-oculta">
+      <div class="badge badge--hidden">
+        <svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="21" x2="21" y2="3"/></svg>
+      </div>
+      <div class="component-caption">Oculto (nuevo)</div>
+    </div>
+
+    <div class="component carta-ambas">
+      <div class="badge badge--lock">
+        <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      </div>
+      <div class="badge badge--hidden">
+        <svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="21" x2="21" y2="3"/></svg>
+      </div>
+      <div class="component-caption">Bloqueado + Oculto</div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="legend__item">
+      <span class="legend__badge"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+      Candado — ya existente, "Bloqueado" activo
+    </div>
+    <div class="legend__item">
+      <span class="legend__badge"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="21" x2="21" y2="3"/></svg></span>
+      Ojo tachado — nueva, "Oculto" activo
+    </div>
+  </div>
+</body>
+</html>

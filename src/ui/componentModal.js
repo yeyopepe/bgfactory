@@ -222,6 +222,25 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   }));
   generalContent.appendChild(moveField);
 
+  const hiddenField = document.createElement('div');
+  hiddenField.className = 'modal__field modal__field--checkbox';
+  const hiddenCheckbox = document.createElement('input');
+  hiddenCheckbox.type = 'checkbox';
+  hiddenCheckbox.checked = workingComponent.oculto ?? false;
+  const hiddenLabel = document.createElement('label');
+  hiddenLabel.textContent = 'Oculto';
+
+  hiddenCheckbox.addEventListener('change', () => {
+    workingComponent.oculto = hiddenCheckbox.checked;
+  });
+
+  hiddenField.appendChild(hiddenCheckbox);
+  hiddenField.appendChild(hiddenLabel);
+  hiddenField.appendChild(createHelpIcon({
+    text: 'Si está marcado, este componente deja de aparecer por completo en Modo Juego (no se ve, no ocupa espacio, no es interactuable). En Modo Edición se sigue mostrando con normalidad, con una insignia que indica que no aparecerá en la partida.',
+  }));
+  generalContent.appendChild(hiddenField);
+
   const tooltipField = document.createElement('div');
   tooltipField.className = 'modal__field modal__field--checkbox';
   const tooltipCheckbox = document.createElement('input');
@@ -956,6 +975,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
           if (selection.generales) {
             data.generales = {
               bloqueado: workingComponent.bloqueado,
+              oculto: workingComponent.oculto,
               mostrarTooltip: workingComponent.mostrarTooltip,
               subirAlMoverInteractuar: workingComponent.subirAlMoverInteractuar,
             };
@@ -993,9 +1013,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
       if (clip.generales) {
         workingComponent.bloqueado = clip.generales.bloqueado;
+        workingComponent.oculto = clip.generales.oculto;
         workingComponent.mostrarTooltip = clip.generales.mostrarTooltip;
         workingComponent.subirAlMoverInteractuar = clip.generales.subirAlMoverInteractuar;
         moveCheckbox.checked = workingComponent.bloqueado;
+        hiddenCheckbox.checked = workingComponent.oculto;
         tooltipCheckbox.checked = workingComponent.mostrarTooltip;
         upOnMoveCheckbox.checked = workingComponent.subirAlMoverInteractuar;
       }

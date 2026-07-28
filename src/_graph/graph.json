@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-28T07:14:22Z",
+  "generatedAt": "2026-07-28T11:12:57Z",
   "basePath": "src",
   "nodes": [
     {
@@ -204,6 +204,15 @@
         "validateStyleClipboardForPaste"
       ],
       "purpose": "Portapapeles en memoria de 'Copiar/Pegar estilo' de una carta: guarda un único estilo copiado (nunca persistido) y valida sus referencias (mazo, imágenes, tipografías) antes de pegarlo."
+    },
+    {
+      "id": "core/textBoxLayout.js",
+      "type": "file",
+      "path": "core/textBoxLayout.js",
+      "exports": [
+        "getTextBoxLayoutStyle"
+      ],
+      "purpose": "Modulo de datos puro (sin dependencias de otras capas) que traduce la alineacion y los margenes de un TextBox de carta a estilos de layout flex."
     },
     {
       "id": "data/defaultResources.js",
@@ -676,7 +685,7 @@
       "type": "function",
       "path": "core/component.js",
       "parent": "core/component.js",
-      "purpose": "Aplica sobre una copia los campos sincronizables del original (tipo, nombre, imagen, tamaño, properties de configuración/diseño), preservando la posición, el orden, el bloqueado y las properties de estado de interacción de juego propias de la copia."
+      "purpose": "Aplica sobre una copia los campos sincronizables del original (tipo, nombre, imagen, tamaño, properties de configuración/diseño), preservando la posición, el orden, y el bloqueado/oculto de la propia copia, que quedan siempre independientes."
     },
     {
       "id": "core/component.js#updateComponent",
@@ -1155,6 +1164,13 @@
       "purpose": "Comprueba que el mazo y los recursos (imágenes/tipografías) referenciados por los bloques presentes en el estilo copiado sigan existiendo, devolviendo la lista de incidencias encontradas."
     },
     {
+      "id": "core/textBoxLayout.js#getTextBoxLayoutStyle",
+      "type": "function",
+      "path": "core/textBoxLayout.js",
+      "parent": "core/textBoxLayout.js",
+      "purpose": "Dado un TextBox y una escala, devuelve justifyContent/textAlign y los cuatro padding (ya escalados y en px) segun su alineacion horizontal/vertical y sus cuatro margenes."
+    },
+    {
       "id": "modes/edit/editMode.js#deleteSelectedComponent",
       "type": "function",
       "path": "modes/edit/editMode.js",
@@ -1250,7 +1266,7 @@
       "type": "function",
       "path": "ui/componentRenderer.js",
       "parent": "ui/componentRenderer.js",
-      "purpose": "Creates and updates visual representation of all components."
+      "purpose": "Creates and updates visual representation of all components, including the optional lock (showLockIndicator) and hidden (showHiddenIndicator) edit-mode badges."
     },
     {
       "id": "ui/componentTypeModal.js#openComponentTypeModal",
@@ -1850,6 +1866,11 @@
     },
     {
       "source": "ui/cardEditorModal.js#openCardEditorModal",
+      "target": "core/textBoxLayout.js#getTextBoxLayoutStyle",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/cardEditorModal.js#openCardEditorModal",
       "target": "ui/boardImageModal.js#openBoardImageModal",
       "relation": "calls"
     },
@@ -2051,6 +2072,11 @@
     {
       "source": "ui/componentRenderer.js#renderComponentsOnTable",
       "target": "core/state.js#getResources",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentRenderer.js#renderComponentsOnTable",
+      "target": "core/textBoxLayout.js#getTextBoxLayoutStyle",
       "relation": "calls"
     },
     {
@@ -2385,6 +2411,11 @@
     },
     {
       "source": "ui/cardEditorModal.js",
+      "target": "core/textBoxLayout.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/cardEditorModal.js",
       "target": "ui/boardImageModal.js",
       "relation": "imports"
     },
@@ -2516,6 +2547,11 @@
     {
       "source": "ui/componentRenderer.js",
       "target": "core/state.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentRenderer.js",
+      "target": "core/textBoxLayout.js",
       "relation": "imports"
     },
     {

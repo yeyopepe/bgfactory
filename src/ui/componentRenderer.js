@@ -9,6 +9,7 @@ import { markdownToHtml } from '../core/markdown.js';
 import { sanitizeHtml } from '../core/sanitizeHtml.js';
 import { applyImageAdjustStyle } from './imageAdjustModal.js';
 import { getProporcionRatio, getCartaShapeCss, getHexInnerClipPath, CARD_DESIGN_WIDTH } from '../core/cardProportions.js';
+import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
 
 const MIN_TEXT_BOX_WIDTH = 40;
 const MIN_TEXT_BOX_HEIGHT = 24;
@@ -252,6 +253,24 @@ function createLockBadge() {
   return badge;
 }
 
+// Indicador de "Oculto" (cambio 00100): insignia superpuesta, solo pintada en modo
+// edición (`showHiddenIndicator`) cuando `component.oculto` es `true` — en modo juego
+// el componente oculto directamente no se renderiza, no hace falta indicador ahí.
+// Anclada en la esquina inferior derecha (a diferencia de la de candado, en la
+// superior derecha) para que ambas puedan convivir sin superponerse cuando un
+// componente está bloqueado y oculto a la vez.
+function createHiddenBadge() {
+  const badge = document.createElement('span');
+  badge.className = 'component-hidden-badge';
+  badge.innerHTML =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+    '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<circle cx="12" cy="12" r="3"/>' +
+    '<line x1="3" y1="21" x2="21" y2="3" stroke-linecap="round"/>' +
+    '</svg>';
+  return badge;
+}
+
 export function getComponentsBounds(components) {
   if (!components.length) return null;
 
@@ -310,7 +329,7 @@ function applyFlipFeedbackIfChanged(carta, componentId, caraActual) {
   }, 250));
 }
 
-export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, onCartaFlip, onContextMenu, identifyMode, liftOnDrag = false, showLockIndicator = false } = {}) {
+export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, onCartaFlip, onContextMenu, identifyMode, liftOnDrag = false, showLockIndicator = false, showHiddenIndicator = false } = {}) {
   worldEl.innerHTML = '';
 
   // El componente con `order` más alto se dibuja primero (queda por debajo); el de
@@ -342,6 +361,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (identifyMode === 'tooltip' && component.mostrarTooltip) textBox.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') textBox.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && component.bloqueado) textBox.appendChild(createLockBadge());
+      if (showHiddenIndicator && component.oculto) textBox.appendChild(createHiddenBadge());
 
       if (onSelect) {
         textBox.classList.add('text-box--selectable');
@@ -447,6 +467,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (identifyMode === 'tooltip' && component.mostrarTooltip) board.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') board.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && component.bloqueado) board.appendChild(createLockBadge());
+      if (showHiddenIndicator && component.oculto) board.appendChild(createHiddenBadge());
 
       const props = component.properties || {};
       const bordeColor = props.bordeColor || '#000000';
@@ -609,6 +630,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (identifyMode === 'tooltip' && component.mostrarTooltip) dice.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') dice.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && component.bloqueado) dice.appendChild(createLockBadge());
+      if (showHiddenIndicator && component.oculto) dice.appendChild(createHiddenBadge());
 
       const props = component.properties || {};
       const colorCuerpo = props.colorCuerpo || '#888888';
@@ -794,6 +816,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (identifyMode === 'tooltip' && component.mostrarTooltip) documentViewer.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') documentViewer.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && component.bloqueado) documentViewer.appendChild(createLockBadge());
+      if (showHiddenIndicator && component.oculto) documentViewer.appendChild(createHiddenBadge());
 
       const content = document.createElement('div');
       content.className = 'document-viewer__content';
@@ -973,6 +996,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (identifyMode === 'tooltip' && component.mostrarTooltip) carta.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') carta.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && component.bloqueado) carta.appendChild(createLockBadge());
+      if (showHiddenIndicator && component.oculto) carta.appendChild(createHiddenBadge());
 
       applyFlipFeedbackIfChanged(carta, component.id, caraActual);
 
@@ -1007,6 +1031,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         textEl.style.wordBreak = 'break-word';
         textEl.style.whiteSpace = 'pre-wrap';
         textEl.style.pointerEvents = 'none';
+        textEl.style.display = 'flex';
+        textEl.style.flexDirection = 'column';
+        textEl.style.boxSizing = 'border-box';
+        Object.assign(textEl.style, getTextBoxLayoutStyle(textBox, renderScale));
         const fontResource = textBox.fuenteResourceId ? getResources().find((r) => r.id === textBox.fuenteResourceId) : null;
         if (fontResource) {
           textEl.style.fontFamily = fontFamilyFor(fontResource.id);

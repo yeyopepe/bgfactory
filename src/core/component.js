@@ -4,7 +4,7 @@
 // El campo `order` gobierna el apilado visual en la mesa (ver core/state.js,
 // que es quien lo asigna/recalcula: aquí solo se declara con valor por defecto).
 
-export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = true, mostrarTooltip = false, subirAlMoverInteractuar = false, order = null, copyOf = null } = {}) {
+export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = true, mostrarTooltip = false, subirAlMoverInteractuar = false, oculto = false, order = null, copyOf = null } = {}) {
   return {
     id: crypto.randomUUID(),
     type,
@@ -18,6 +18,7 @@ export function createComponent({ type = 'generico', name = '', properties = {},
     bloqueado,
     mostrarTooltip,
     subirAlMoverInteractuar,
+    oculto,
     order,
     copyOf,
   };
@@ -116,10 +117,10 @@ export function renameCopyId(copyId, oldOriginalId, newOriginalId) {
 
 // Aplica sobre `copy` los campos sincronizables de `original`: tipo visual, nombre,
 // imagen, ancho/alto, y las propiedades específicas de configuración/diseño del tipo
-// (todo lo editable desde `ui/componentModal.js`, salvo `bloqueado`, que queda siempre
-// independiente por copia). Las propiedades de estado de interacción de juego de la
-// propia copia (ver NON_SYNCED_PROPERTY_KEYS) se conservan tal cual. `x`, `y`, `order`
-// y `bloqueado` de la copia tampoco se tocan.
+// (todo lo editable desde `ui/componentModal.js`, salvo `bloqueado`/`oculto`, que quedan
+// siempre independientes por copia). Las propiedades de estado de interacción de juego de
+// la propia copia (ver NON_SYNCED_PROPERTY_KEYS) se conservan tal cual. `x`, `y`, `order`,
+// `bloqueado` y `oculto` de la copia tampoco se tocan.
 export function syncCopyWithOriginal(copy, original) {
   const { synced: syncedProperties } = splitSyncedProperties(original.type, original.properties);
   const { nonSynced: ownNonSyncedProperties } = splitSyncedProperties(copy.type, copy.properties);
