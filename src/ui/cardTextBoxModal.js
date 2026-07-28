@@ -242,6 +242,56 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete }) {
   colorField.appendChild(colorInput);
   content.appendChild(colorField);
 
+  // Estilo de texto: negrita/cursiva/subrayado, interruptores independientes
+  // y combinables (a diferencia de createAlignGroup, ninguno excluye a los
+  // demás), mismo lenguaje visual .align-group/.align-group__btn.
+  const STYLE_TOGGLE_OPTIONS = [
+    {
+      prop: 'negrita',
+      label: 'Negrita',
+      icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h5.2a2.8 2.8 0 0 1 0 5.6H5z"/><path d="M5 9.1h5.9a2.9 2.9 0 0 1 0 5.8H5z"/></svg>',
+    },
+    {
+      prop: 'cursiva',
+      label: 'Cursiva',
+      icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="11" y1="3.5" x2="7" y2="14.5"/><line x1="6" y1="14.5" x2="10" y2="14.5"/><line x1="8" y1="3.5" x2="12" y2="3.5"/></svg>',
+    },
+    {
+      prop: 'subrayado',
+      label: 'Subrayado',
+      icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3v5.5a4 4 0 0 0 8 0V3"/><line x1="4" y1="15" x2="14" y2="15"/></svg>',
+    },
+  ];
+
+  working.negrita = working.negrita || false;
+  working.cursiva = working.cursiva || false;
+  working.subrayado = working.subrayado || false;
+
+  const styleField = document.createElement('div');
+  styleField.className = 'modal__field';
+  const styleLabel = document.createElement('label');
+  styleLabel.textContent = 'Estilo de texto';
+  styleField.appendChild(styleLabel);
+
+  const styleGroup = document.createElement('div');
+  styleGroup.className = 'align-group';
+  for (const { prop, label, icon } of STYLE_TOGGLE_OPTIONS) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'align-group__btn';
+    btn.title = label;
+    btn.setAttribute('aria-label', label);
+    btn.innerHTML = icon;
+    btn.classList.toggle('active', working[prop]);
+    btn.addEventListener('click', () => {
+      working[prop] = !working[prop];
+      btn.classList.toggle('active', working[prop]);
+    });
+    styleGroup.appendChild(btn);
+  }
+  styleField.appendChild(styleGroup);
+  content.appendChild(styleField);
+
   // Borde
   const borderSection = document.createElement('fieldset');
   borderSection.className = 'modal__section';

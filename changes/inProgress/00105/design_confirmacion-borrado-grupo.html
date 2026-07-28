@@ -1,0 +1,101 @@
+<title>Maqueta — Confirmación de borrado de grupo en uso</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --bg-card: #f5f5f5;
+    --accent-blue: #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --error: #d32f2f;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-2: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    margin: 0;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    color: var(--text-primary);
+  }
+  .modal {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    width: 380px;
+    overflow: hidden;
+  }
+  .modal__header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+  .modal__body { padding: 1rem; font-size: 0.875rem; }
+  .modal__body p { margin: 0 0 0.75rem; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+  th { background: var(--bg-subtle); font-weight: 500; }
+  .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  .btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .btn-cancel { background: var(--bg-subtle); color: var(--text-primary); }
+  .btn-danger { background: var(--error); color: var(--text-light); }
+  .caption {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+    max-width: 380px;
+  }
+  .wrap { display: flex; flex-direction: column; align-items: center; }
+</style>
+
+<div class="wrap">
+  <div class="modal">
+    <div class="modal__header">Eliminar grupo "Ambientación exterior"</div>
+    <div class="modal__body">
+      <p>Este grupo está siendo usado por los siguientes elementos. Si continúas, se eliminará el grupo y quedarán como "Sin grupo":</p>
+      <table>
+        <thead><tr><th>Id</th><th>Tipo</th></tr></thead>
+        <tbody>
+          <tr><td>tablero-01</td><td>Tablero</td></tr>
+          <tr><td>carta-goblin-03</td><td>Carta/Ficha</td></tr>
+          <tr><td>texto-titulo-bosque</td><td>Cuadro de texto</td></tr>
+          <tr><td>dado-encuentros</td><td>Dado</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn-cancel">Cancelar</button>
+      <button class="btn btn-danger">Eliminar de todas formas</button>
+    </div>
+  </div>
+  <p class="caption">A diferencia de la versión actual (solo listaba cartas), ahora se muestra id y tipo de cada elemento afectado, ya que un grupo puede contener elementos de distintos tipos.</p>
+</div>

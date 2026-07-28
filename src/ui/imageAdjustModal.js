@@ -22,7 +22,7 @@
 // La misma combinación se usa tanto aquí como en el renderizado final
 // (`ui/componentRenderer.js`), vía `applyImageAdjustStyle`.
 
-const PREVIEW_MAX_SIDE = 220;
+const PREVIEW_MAX_SIDE = 390;
 
 export function applyImageAdjustStyle(imgEl, adjustment) {
   const { zoom = 100, posX = 50, posY = 50 } = adjustment || {};
@@ -52,7 +52,7 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   overlay.className = 'modal-overlay';
 
   const modal = document.createElement('div');
-  modal.className = 'modal';
+  modal.className = 'modal image-adjust-modal--large';
 
   const header = document.createElement('div');
   header.className = 'modal__header';

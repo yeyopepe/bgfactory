@@ -1023,6 +1023,9 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         textEl.style.height = `${textBox.height * renderScale}px`;
         textEl.style.fontSize = `${(textBox.tamañoFuente || 16) * renderScale}px`;
         textEl.style.color = textBox.color || '#000000';
+        textEl.style.fontWeight = textBox.negrita ? 'bold' : 'normal';
+        textEl.style.fontStyle = textBox.cursiva ? 'italic' : 'normal';
+        textEl.style.textDecoration = textBox.subrayado ? 'underline' : 'none';
         textEl.style.border = textBox.bordeActivo
           ? `${textBox.bordeGrosor ?? 2}px ${textBox.bordeTipo === 'punteada' ? 'dashed' : 'solid'} ${textBox.bordeColor || '#000000'}`
           : 'none';

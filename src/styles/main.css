@@ -1055,6 +1055,19 @@ fieldset.modal__section--untitled {
   max-width: min(1500px, 95vw);
 }
 
+.card-editor-modal .modal__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Image adjust modal (00102) — ventana de ajuste de imagen de una o dos
+   caras, mismo criterio de ancho variable que .card-editor-modal */
+.image-adjust-modal--large {
+  width: fit-content;
+  max-width: min(1500px, 95vw);
+}
+
 .card-editor-modal__toolbar {
   max-width: 16rem;
 }
@@ -1119,6 +1132,11 @@ fieldset.modal__section--untitled {
 
 .card-editor-modal__textbox:hover {
   outline: 1px dashed var(--accent-blue);
+}
+
+.card-editor-modal__textbox--selected {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
 }
 
 /* Element selection modal (change 00065) — exportar/importar con selección.
@@ -1377,13 +1395,13 @@ fieldset.modal__section--untitled {
   transform: none;
 }
 
-/* Floating component panel (edit mode) */
+/* Floating component panel (edit mode). z-index is assigned dynamically in JS
+   (editMode.js, applyPanelStackOrder, cambio 00101), not fixed here. */
 .component-panel-container {
   position: absolute;
   top: 1rem;
   right: 1rem;
   width: 400px;
-  z-index: 15;
 }
 
 .component-panel {
@@ -1467,13 +1485,13 @@ fieldset.modal__section--untitled {
 }
 
 /* Floating resource panel (edit mode), analogous to .component-panel*.
-   Stacked below the component panel on the same (right) side by default. */
+   Stacked below the component panel on the same (right) side by default.
+   z-index is assigned dynamically in JS (editMode.js, applyPanelStackOrder, cambio 00101). */
 .resource-panel-container {
   position: absolute;
   top: 28rem;
   right: 1rem;
   width: 400px;
-  z-index: 15;
 }
 
 .resource-panel {
@@ -1816,13 +1834,13 @@ fieldset.modal__section--untitled {
 
 /* Floating deck panel (edit mode), analogous to .resource-panel* but without
    the filter box or the add-menu (single "+ Añadir mazo" button instead).
-   Stacked below the resource panel on the same (right) side by default. */
+   Stacked below the resource panel on the same (right) side by default.
+   z-index is assigned dynamically in JS (editMode.js, applyPanelStackOrder, cambio 00101). */
 .deck-panel-container {
   position: absolute;
   top: 55rem;
   right: 1rem;
   width: 400px;
-  z-index: 15;
 }
 
 .deck-panel {

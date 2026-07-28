@@ -32,6 +32,25 @@ import { openBatchUploadSummaryModal } from '../../ui/batchUploadSummaryModal.js
 // persisten en el autoguardado.
 let selectedComponentId = null;
 
+// Orden de apilado (z-index) de los paneles flotantes del modo edición, de abajo a
+// arriba — cambio 00101. Vive fuera de `renderEditMode` por el mismo motivo que
+// `selectedComponentId`: sobrevive a los remontados completos que disparan
+// `components:changed`/`resources:changed`/`decks:changed`. No se persiste en
+// `core/state.js`: es transitorio, se resetea al recargar la página.
+let panelStackOrder = ['component', 'resource', 'deck'];
+
+function bringPanelToFront(key, panelsByKey) {
+  panelStackOrder = panelStackOrder.filter((k) => k !== key);
+  panelStackOrder.push(key);
+  applyPanelStackOrder(panelsByKey);
+}
+
+function applyPanelStackOrder(panelsByKey) {
+  panelStackOrder.forEach((key, index) => {
+    panelsByKey[key].style.zIndex = String(15 + index);
+  });
+}
+
 // Atajo de teclado SUPR (`ui/globalShortcuts.js`) sin ninguna modal abierta: reutiliza
 // el mismo camino de borrado que ya usa la fila de `ui/componentList.js` (confirmación
 // con el mismo texto, luego `removeComponent`), sin resetear `selectedComponentId` para
@@ -105,6 +124,17 @@ export function renderEditMode(container) {
     deckListContainer.style.width = `${deckPanelWidth}px`;
   }
   tableContainer.appendChild(deckListContainer);
+
+  // Traer al frente la ventana flotante interactuada (cambio 00101): captura para no
+  // depender de que ningún listener interno haga o no `stopPropagation`, y sin
+  // `preventDefault` para no interferir con el arrastre (`mousedown` en la cabecera,
+  // ver `ui/componentList.js`/`ui/resourceList.js`/`ui/deckList.js`) ni con clicks
+  // normales de botones/filas/campos.
+  const panelsByKey = { component: listContainer, resource: resourceListContainer, deck: deckListContainer };
+  listContainer.addEventListener('mousedown', () => bringPanelToFront('component', panelsByKey), true);
+  resourceListContainer.addEventListener('mousedown', () => bringPanelToFront('resource', panelsByKey), true);
+  deckListContainer.addEventListener('mousedown', () => bringPanelToFront('deck', panelsByKey), true);
+  applyPanelStackOrder(panelsByKey);
 
   const RESOURCE_ACCEPT = '.png,.jpg,.jpeg,.gif,.svg,.webp,.ttf,.otf,.woff,.woff2';
 

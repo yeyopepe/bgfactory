@@ -10,9 +10,28 @@ import { applyImageAdjustStyle, openImageAdjustModal } from './imageAdjustModal.
 import { openBoardImageModal } from './boardImageModal.js';
 import { openCardTextBoxModal } from './cardTextBoxModal.js';
 import { attachResizeHandle } from './resizeHandle.js';
+import { createHelpIcon } from './helpIcon.js';
 
 const CANVAS_MAX_SIDE = 380;
 const MIN_TEXT_BOX_DESIGN_SIZE = 20;
+
+const HELP_HTML = `
+  <ul>
+    <li>Elegir la <b>proporción/forma</b> de la carta.</li>
+    <li>Elegir una <b>imagen</b> para cada cara (frontal/trasera) y ajustarla (zoom, posición, transparencia).</li>
+    <li>Configurar el <b>borde</b> de la carta (color y grosor), de forma independiente por cara.</li>
+    <li><b>Añadir</b> un cuadro de texto nuevo a una cara.</li>
+    <li><b>Mover</b> un cuadro de texto arrastrándolo con el ratón.</li>
+    <li><b>Redimensionar</b> un cuadro de texto arrastrando su esquina.</li>
+    <li><b>Editar</b> el contenido y el estilo de un cuadro de texto (haciendo doble clic sobre él).</li>
+    <li><b>Seleccionar</b> un cuadro de texto con un clic y moverlo con precisión usando las flechas del teclado (1px, o 10px con Shift).</li>
+    <li><b>Aceptar</b> o <b>cancelar</b> los cambios hechos en el editor.</li>
+  </ul>
+`;
+
+function isTextEditableElement(el) {
+  return el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement;
+}
 
 function cloneCara(cara) {
   return {
@@ -34,7 +53,10 @@ export function openCardEditorModal({ component, onAccept }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Editor de cartas';
+  const headerTitle = document.createElement('span');
+  headerTitle.textContent = 'Editor de cartas';
+  header.appendChild(headerTitle);
+  header.appendChild(createHelpIcon({ html: HELP_HTML }));
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -51,6 +73,42 @@ export function openCardEditorModal({ component, onAccept }) {
     caraFrontal: cloneCara(props.caraFrontal),
     caraTrasera: cloneCara(props.caraTrasera),
   };
+
+  let selected = null;
+
+  function selectTextBox(caraKey, id) {
+    selected = { caraKey, id };
+    renderFaces();
+  }
+
+  function deselectTextBox() {
+    if (!selected) return;
+    selected = null;
+    renderFaces();
+  }
+
+  function handleKeyDown(e) {
+    if (!selected) return;
+    if (isTextEditableElement(document.activeElement)) return;
+    if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+    e.preventDefault();
+    const cara = working[selected.caraKey];
+    const textBox = cara.textBoxes.find((tb) => tb.id === selected.id);
+    if (!textBox) return;
+    const step = e.shiftKey ? 10 : 1;
+    if (e.key === 'ArrowUp') textBox.y -= step;
+    if (e.key === 'ArrowDown') textBox.y += step;
+    if (e.key === 'ArrowLeft') textBox.x -= step;
+    if (e.key === 'ArrowRight') textBox.x += step;
+    renderFaces();
+  }
+
+  document.addEventListener('keydown', handleKeyDown);
+
+  function cleanup() {
+    document.removeEventListener('keydown', handleKeyDown);
+    overlay.remove();
+  }
 
   // Toolbar: proporción
   const toolbar = document.createElement('div');
@@ -193,6 +251,9 @@ export function openCardEditorModal({ component, onAccept }) {
     canvasInner.style.inset = '0';
     canvasInner.style.boxSizing = 'border-box';
     canvasInner.style.overflow = 'hidden';
+    canvasInner.addEventListener('click', (e) => {
+      if (e.target === canvasInner) deselectTextBox();
+    });
     canvas.appendChild(canvasInner);
 
     // Ver fix 00096: las proporciones hexagonales no pueden usar `border`
@@ -337,6 +398,9 @@ export function openCardEditorModal({ component, onAccept }) {
   function renderTextBox(caraKey, textBox, previewScale) {
     const el = document.createElement('div');
     el.className = 'card-editor-modal__textbox';
+    if (selected?.caraKey === caraKey && selected?.id === textBox.id) {
+      el.classList.add('card-editor-modal__textbox--selected');
+    }
     el.style.position = 'absolute';
     el.style.left = `${textBox.x * previewScale}px`;
     el.style.top = `${textBox.y * previewScale}px`;
@@ -344,6 +408,9 @@ export function openCardEditorModal({ component, onAccept }) {
     el.style.height = `${textBox.height * previewScale}px`;
     el.style.fontSize = `${textBox.tamañoFuente * previewScale}px`;
     el.style.color = textBox.color || '#000000';
+    el.style.fontWeight = textBox.negrita ? 'bold' : 'normal';
+    el.style.fontStyle = textBox.cursiva ? 'italic' : 'normal';
+    el.style.textDecoration = textBox.subrayado ? 'underline' : 'none';
     el.style.border = textBox.bordeActivo
       ? `${textBox.bordeGrosor ?? 2}px ${textBox.bordeTipo === 'punteada' ? 'dashed' : 'solid'} ${textBox.bordeColor || '#000000'}`
       : 'none';
@@ -353,8 +420,14 @@ export function openCardEditorModal({ component, onAccept }) {
     Object.assign(el.style, getTextBoxLayoutStyle(textBox, previewScale));
     el.textContent = textBox.contenido || '';
 
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectTextBox(caraKey, textBox.id);
+    });
+
     el.addEventListener('dblclick', (e) => {
       e.stopPropagation();
+      deselectTextBox();
       openCardTextBoxModal({
         textBox,
         onAccept: (updated) => {
@@ -423,7 +496,7 @@ export function openCardEditorModal({ component, onAccept }) {
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
   cancelBtn.textContent = 'Cancelar';
-  cancelBtn.addEventListener('click', () => overlay.remove());
+  cancelBtn.addEventListener('click', () => cleanup());
   footer.appendChild(cancelBtn);
 
   const acceptBtn = document.createElement('button');
@@ -437,7 +510,7 @@ export function openCardEditorModal({ component, onAccept }) {
         caraTrasera: working.caraTrasera,
       });
     }
-    overlay.remove();
+    cleanup();
   });
   footer.appendChild(acceptBtn);
 
@@ -449,6 +522,6 @@ export function openCardEditorModal({ component, onAccept }) {
     mousedownOnOverlay = e.target === overlay;
   });
   overlay.addEventListener('click', (e) => {
-    if (e.target === overlay && mousedownOnOverlay) overlay.remove();
+    if (e.target === overlay && mousedownOnOverlay) cleanup();
   });
 }

@@ -1,0 +1,141 @@
+<title>Maqueta — Selección de cuadro de texto en el editor de cartas</title>
+<style>
+  :root {
+    --accent-blue: #2c7dd8;
+    --border-neutral: #d0d0d0;
+    --text-muted: #6b6b6b;
+    --text-primary: #1a1a1a;
+    --bg-card: #f5f5f5;
+  }
+  body {
+    font-family: system-ui, sans-serif;
+    color: var(--text-primary);
+    padding: 2rem;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 1.3rem; margin-bottom: 0.25rem; }
+  p.lead { color: var(--text-muted); margin-top: 0; margin-bottom: 2rem; }
+  .row {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+  }
+  .sample {
+    text-align: center;
+  }
+  .sample h2 {
+    font-size: 0.95rem;
+    margin: 0 0 0.75rem 0;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .card-editor-modal__canvas {
+    position: relative;
+    width: 260px;
+    height: 340px;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid var(--border-neutral);
+    border-radius: 4px;
+  }
+  .card-editor-modal__textbox {
+    position: absolute;
+    left: 40px;
+    top: 120px;
+    width: 180px;
+    height: 90px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    color: #1a1a1a;
+    background: transparent;
+    cursor: move;
+    user-select: none;
+    padding: 0.5rem;
+    text-align: center;
+  }
+  /* Estado normal: sin marca */
+  .state-normal .card-editor-modal__textbox { }
+
+  /* Estado hover: patrón ya existente hoy en el editor de cartas */
+  .state-hover .card-editor-modal__textbox {
+    outline: 1px dashed var(--accent-blue);
+  }
+
+  /* Estado seleccionado: indicador nuevo de este cambio, distinto del hover */
+  .state-selected .card-editor-modal__textbox {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 1px rgba(44, 125, 216, 0.15);
+  }
+
+  .caption {
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    max-width: 260px;
+  }
+
+  .keys {
+    display: inline-flex;
+    gap: 0.15rem;
+    vertical-align: middle;
+  }
+  .key {
+    display: inline-block;
+    min-width: 1.4em;
+    padding: 0.1em 0.35em;
+    border: 1px solid var(--border-neutral);
+    border-radius: 4px;
+    background: var(--bg-card);
+    font-size: 0.75rem;
+    font-family: ui-monospace, monospace;
+    box-shadow: 0 1px 0 var(--border-neutral);
+  }
+
+  .legend {
+    background: var(--bg-card);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+  .legend b { color: var(--accent-blue); }
+</style>
+
+<h1>Selección de cuadro de texto y movimiento con flechas</h1>
+<p class="lead">Maqueta puramente visual — sin funcionalidad real. Muestra los tres estados del cuadro de texto dentro del lienzo del editor de cartas.</p>
+
+<div class="row">
+  <div class="sample state-normal">
+    <h2>Sin interactuar</h2>
+    <div class="card-editor-modal__canvas">
+      <div class="card-editor-modal__textbox">Texto de ejemplo</div>
+    </div>
+    <p class="caption">Estado actual, sin cambios: no hay ninguna marca visual.</p>
+  </div>
+
+  <div class="sample state-hover">
+    <h2>Al pasar el ratón (hover)</h2>
+    <div class="card-editor-modal__canvas">
+      <div class="card-editor-modal__textbox">Texto de ejemplo</div>
+    </div>
+    <p class="caption">Ya existe hoy: contorno discontinuo fino de acento.</p>
+  </div>
+
+  <div class="sample state-selected">
+    <h2>Seleccionado (nuevo)</h2>
+    <div class="card-editor-modal__canvas">
+      <div class="card-editor-modal__textbox">Texto de ejemplo</div>
+    </div>
+    <p class="caption">Nuevo indicador de este cambio: contorno sólido y separado del cuadro, claramente distinguible del hover. Con el cuadro en este estado, las flechas <span class="keys"><span class="key">↑</span><span class="key">↓</span><span class="key">←</span><span class="key">→</span></span> lo mueven 1px, y <span class="key">Shift</span>+flecha lo mueve 10px.</p>
+  </div>
+</div>
+
+<div class="legend">
+  <b>Nota:</b> el indicador de selección es independiente del borde propio del contenido del cuadro (activable/configurable en su modal de edición) — ambos pueden convivir a la vez sin confundirse.
+</div>

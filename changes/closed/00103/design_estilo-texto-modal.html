@@ -1,0 +1,345 @@
+<title>Diseño 00103 — Estilo de texto (negrita/cursiva/subrayado)</title>
+<style>
+  /* Tokens copiados literalmente de src/styles/main.css :root */
+  :root {
+    --bg-table: #c2c2c2;
+    --bg-card: #f5f5f5;
+    --accent-blue: #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --error: #d32f2f;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e8e8e8;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-1: 0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);
+    --shadow-2: 0 4px 20px rgba(0,0,0,0.15);
+    --section-accent: #5b5f97;
+  }
+  body {
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    padding: 2rem;
+    color: var(--text-primary);
+  }
+  h2 { font-size: 1.125rem; margin: 0 0 0.5rem; }
+  .note { max-width: 900px; font-size: 0.8125rem; color: var(--text-muted); margin: 0 0 1.5rem; }
+  .layout { display: flex; gap: 2.5rem; align-items: flex-start; flex-wrap: wrap; }
+
+  /* ===== Modal: reglas copiadas literalmente de main.css ===== */
+  .modal {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    max-width: 500px;
+    width: 460px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal__header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  .modal__content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+  }
+  .modal__field { margin-bottom: 1rem; }
+  .modal__field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+  .modal__field input[type="text"],
+  .modal__field input[type="number"],
+  .modal__field input[type="color"],
+  .modal__field select,
+  .modal__field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.875rem;
+  }
+  .modal__field input[type="color"] { height: 40px; cursor: pointer; padding: 2px; }
+  .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+  .btn-cancel, .btn-accept, .btn-eliminar {
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+  }
+  .btn-cancel { background: var(--bg-subtle); color: var(--text-primary); }
+  .btn-accept { background: var(--accent-blue); color: var(--text-light); }
+  .btn-eliminar { background: var(--error); color: var(--text-light); margin-right: auto; }
+
+  /* ===== Secciones encuadradas (Borde / Fondo), copiadas de main.css ===== */
+  fieldset.modal__section {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    margin: 1rem -0.75rem 0;
+    padding: 1rem 1.25rem;
+  }
+  fieldset.modal__section > *:last-child { margin-bottom: 0; }
+  legend.modal__section-title {
+    padding: 0 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--section-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  legend.modal__section-title--toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+  legend.modal__section-title--toggle input[type="checkbox"] { margin: 0; }
+
+  /* ===== .align-group: clase ya existente (Style Bible 12.10), reutilizada
+     tal cual tanto por "Posición del texto" (ya implementado, elección única
+     por eje) como por el nuevo "Estilo de texto" (interruptores combinables,
+     puede haber varios .active a la vez). ===== */
+  .align-group { display: flex; gap: 0.25rem; }
+  .align-group__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+  .align-group__btn:hover { background: var(--bg-hover); }
+  .align-group__btn.active { background: var(--accent-blue); color: var(--text-light); }
+
+  .row-flex { display: flex; gap: 1rem; }
+  .row-flex > div { flex: 1; }
+  .margin-row { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+  .margin-row > div { flex: 1; }
+  .margin-row label { font-size: 0.8125rem; }
+
+  .highlight-new {
+    background: #eaf3fc;
+    border: 1px dashed var(--accent-blue);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 0.75rem 0.25rem;
+    margin: 0 -0.25rem 1rem;
+  }
+  .highlight-new__tag {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.35rem;
+  }
+
+  /* ===== Carta de previsualización, reglas copiadas de main.css ===== */
+  .preview-wrap { display: flex; flex-direction: column; gap: 0.5rem; }
+  .preview-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+  .carta {
+    width: 220px;
+    height: 308px; /* proporción 5:7 por defecto */
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-1);
+    background: #fdf6e3;
+    position: relative;
+    overflow: hidden;
+  }
+  .carta__text-box {
+    position: absolute;
+    top: 130px;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    padding: 4px;
+    color: #1a1a1a;
+    font-size: 15px;
+    border: 2px dashed #444;
+  }
+  .carta__text-box--styled { font-weight: bold; font-style: italic; text-decoration: underline; }
+</style>
+
+<h2>Cambio 00103 — Negrita / Cursiva / Subrayado en cuadros de texto de carta</h2>
+<p class="note">
+  Maqueta de <code>ui/cardTextBoxModal.js</code> tal como está implementado hoy (Contenido, Tipografía,
+  Posición del texto, Tamaño de fuente, Color, Borde, Fondo), con la única fila nueva de este cambio
+  resaltada: <strong>"Estilo de texto"</strong>, justo tras "Color".
+</p>
+
+<div class="layout">
+  <div>
+    <div class="modal">
+      <div class="modal__header">Editar cuadro de texto</div>
+      <div class="modal__content">
+
+        <div class="modal__field">
+          <label>Contenido</label>
+          <textarea rows="3">Ataque: 3 de fuego. Aturde al objetivo 1 turno.</textarea>
+        </div>
+
+        <div class="modal__field">
+          <label>Tipografía</label>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <button class="btn-cancel" type="button">Elegir tipografía</button>
+            <span style="color:var(--text-muted); font-size:0.875rem;">Por defecto</span>
+          </div>
+        </div>
+
+        <div class="modal__field">
+          <label>Posición del texto en el cuadro</label>
+          <div class="row-flex">
+            <div class="align-group">
+              <button class="align-group__btn active" type="button" title="Alinear a la izquierda" aria-label="Alinear a la izquierda">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="4" x2="16" y2="4"/><line x1="2" y1="9" x2="11" y2="9"/><line x1="2" y1="14" x2="14" y2="14"/></svg>
+              </button>
+              <button class="align-group__btn" type="button" title="Centrar horizontalmente" aria-label="Centrar horizontalmente">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="4" x2="16" y2="4"/><line x1="4.5" y1="9" x2="13.5" y2="9"/><line x1="3" y1="14" x2="15" y2="14"/></svg>
+              </button>
+              <button class="align-group__btn" type="button" title="Alinear a la derecha" aria-label="Alinear a la derecha">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="4" x2="16" y2="4"/><line x1="7" y1="9" x2="16" y2="9"/><line x1="4" y1="14" x2="16" y2="14"/></svg>
+              </button>
+            </div>
+            <div class="align-group">
+              <button class="align-group__btn active" type="button" title="Alinear arriba" aria-label="Alinear arriba">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="3" x2="16" y2="3"/><line x1="9" y1="3" x2="9" y2="15"/><line x1="5.5" y1="7" x2="9" y2="3"/><line x1="12.5" y1="7" x2="9" y2="3"/></svg>
+              </button>
+              <button class="align-group__btn" type="button" title="Centrar verticalmente" aria-label="Centrar verticalmente">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="9" x2="16" y2="9"/><line x1="9" y1="3" x2="9" y2="15"/><line x1="5.5" y1="5.5" x2="9" y2="2.5"/><line x1="12.5" y1="5.5" x2="9" y2="2.5"/><line x1="5.5" y1="12.5" x2="9" y2="15.5"/><line x1="12.5" y1="12.5" x2="9" y2="15.5"/></svg>
+              </button>
+              <button class="align-group__btn" type="button" title="Alinear abajo" aria-label="Alinear abajo">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="15" x2="16" y2="15"/><line x1="9" y1="3" x2="9" y2="15"/><line x1="5.5" y1="11" x2="9" y2="15"/><line x1="12.5" y1="11" x2="9" y2="15"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="margin-row">
+            <div><label>Arriba</label><input type="number" min="0" value="0" /></div>
+            <div><label>Derecha</label><input type="number" min="0" value="0" /></div>
+            <div><label>Abajo</label><input type="number" min="0" value="0" /></div>
+            <div><label>Izquierda</label><input type="number" min="0" value="0" /></div>
+          </div>
+        </div>
+
+        <div class="modal__field">
+          <label>Tamaño de fuente</label>
+          <input type="number" min="4" max="200" value="16" />
+        </div>
+
+        <div class="modal__field">
+          <label>Color</label>
+          <input type="color" value="#1a1a1a" />
+        </div>
+
+        <div class="highlight-new">
+          <span class="highlight-new__tag">Nuevo en este cambio</span>
+          <div class="modal__field" style="margin-bottom:0.75rem;">
+            <label>Estilo de texto</label>
+            <div class="align-group">
+              <button class="align-group__btn active" type="button" title="Negrita" aria-label="Negrita">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 3.5h5.2a2.8 2.8 0 0 1 0 5.6H5z"/>
+                  <path d="M5 9.1h5.9a2.9 2.9 0 0 1 0 5.8H5z"/>
+                </svg>
+              </button>
+              <button class="align-group__btn active" type="button" title="Cursiva" aria-label="Cursiva">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <line x1="11" y1="3.5" x2="7" y2="14.5"/>
+                  <line x1="6" y1="14.5" x2="10" y2="14.5"/>
+                  <line x1="8" y1="3.5" x2="12" y2="3.5"/>
+                </svg>
+              </button>
+              <button class="align-group__btn active" type="button" title="Subrayado" aria-label="Subrayado">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                  <path d="M5 3v5.5a4 4 0 0 0 8 0V3"/>
+                  <line x1="4" y1="15" x2="14" y2="15"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <fieldset class="modal__section">
+          <legend class="modal__section-title modal__section-title--toggle">
+            <input type="checkbox" />
+            Borde
+          </legend>
+          <div class="modal__field">
+            <div class="row-flex">
+              <div>
+                <label>Color del borde</label>
+                <input type="color" value="#000000" disabled />
+              </div>
+              <div>
+                <label>Grosor</label>
+                <input type="number" min="1" max="20" value="2" disabled />
+              </div>
+            </div>
+          </div>
+          <div class="modal__field">
+            <label>Tipo de línea</label>
+            <select disabled>
+              <option>Continua</option>
+              <option>Punteada</option>
+            </select>
+          </div>
+        </fieldset>
+
+        <fieldset class="modal__section">
+          <legend class="modal__section-title">Fondo</legend>
+          <div class="modal__field">
+            <label>Color de fondo</label>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <input type="color" value="#ffffff" style="width:60px;" disabled />
+              <input type="checkbox" checked />
+              <label style="margin:0;">Transparente</label>
+            </div>
+          </div>
+        </fieldset>
+
+      </div>
+      <div class="modal__footer">
+        <button class="btn-eliminar" type="button">Eliminar</button>
+        <button class="btn-cancel" type="button">Cancelar</button>
+        <button class="btn-accept" type="button">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="preview-wrap">
+    <span class="preview-label">Resultado sobre la carta (mesa / editor)</span>
+    <div class="carta">
+      <div class="carta__text-box carta__text-box--styled">Ataque: 3 de fuego. Aturde al objetivo 1 turno.</div>
+    </div>
+    <span class="preview-label" style="margin-top:1rem;">Sin ningún estilo activado (por defecto)</span>
+    <div class="carta">
+      <div class="carta__text-box">Ataque: 3 de fuego. Aturde al objetivo 1 turno.</div>
+    </div>
+  </div>
+</div>

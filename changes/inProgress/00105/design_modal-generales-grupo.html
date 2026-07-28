@@ -1,0 +1,202 @@
+<title>Maqueta — Pestaña Generales con selector de Grupo</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --bg-toolbar: #333333;
+    --bg-card: #f5f5f5;
+    --accent-blue: #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --error: #d32f2f;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e8e8e8;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-2: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    margin: 0;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    color: var(--text-primary);
+  }
+  .modal {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    width: 420px;
+    overflow: hidden;
+  }
+  .modal__header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    font-size: 1.125rem;
+    font-weight: 500;
+  }
+  .modal__tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+  .modal__tab {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+  }
+  .modal__tab--active {
+    color: var(--accent-blue);
+    border-bottom-color: var(--accent-blue);
+    font-weight: 500;
+  }
+  .modal__body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .modal__field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+  .modal__field input[type="text"],
+  .modal__field select {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--text-primary);
+  }
+  .modal__field--checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .modal__field--checkbox label {
+    margin-bottom: 0;
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .help-icon {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-neutral);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+  }
+  .section-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    border-top: 1px dashed var(--border-neutral);
+    padding-top: 0.75rem;
+  }
+  .highlight {
+    outline: 2px dashed var(--accent-blue);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    background: var(--accent-blue-light, #eaf3fc);
+    position: relative;
+  }
+  .highlight::before {
+    content: "NUEVO";
+    position: absolute;
+    top: -0.6rem;
+    left: 0.5rem;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    font-size: 0.6rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+  }
+  .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+  .btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .btn-cancel { background: var(--bg-subtle); color: var(--text-primary); }
+  .btn-accept { background: var(--accent-blue); color: var(--text-light); }
+  .caption {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+  }
+</style>
+
+<div>
+  <div class="modal">
+    <div class="modal__header">Editar componente — "tablero-01" (Tablero)</div>
+    <div class="modal__tabs">
+      <div class="modal__tab modal__tab--active">Generales</div>
+      <div class="modal__tab">Específicas</div>
+    </div>
+    <div class="modal__body">
+      <div class="modal__field">
+        <label>Id</label>
+        <input type="text" value="tablero-01" readonly>
+      </div>
+
+      <div class="modal__field highlight">
+        <label>Grupo <span class="help-icon">?</span></label>
+        <select>
+          <option>Sin grupo</option>
+          <option selected>Ambientación exterior</option>
+          <option>Cartas de evento</option>
+          <option>+ Crear nuevo grupo…</option>
+        </select>
+      </div>
+
+      <div class="section-label">Comportamiento</div>
+
+      <div class="modal__field--checkbox">
+        <label><input type="checkbox" checked> Bloqueado <span class="help-icon">?</span></label>
+      </div>
+      <div class="modal__field--checkbox">
+        <label><input type="checkbox"> Oculto <span class="help-icon">?</span></label>
+      </div>
+      <div class="modal__field--checkbox">
+        <label><input type="checkbox"> Mostrar tooltip <span class="help-icon">?</span></label>
+      </div>
+      <div class="modal__field--checkbox">
+        <label><input type="checkbox"> Subir al mover/interactuar <span class="help-icon">?</span></label>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn-cancel">Cancelar</button>
+      <button class="btn btn-accept">Aceptar</button>
+    </div>
+  </div>
+  <p class="caption">El selector "Grupo" (resaltado) aparece ahora en la pestaña "Generales" para cualquier tipo de elemento — aquí, un "Tablero" — no solo para "Carta/Ficha".</p>
+</div>
