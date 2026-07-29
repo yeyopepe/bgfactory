@@ -4,7 +4,7 @@ description: Inicializa el framework ms-* (change/fix/workflow) en el proyecto a
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.4.0
+  version: 1.5.0
   uses: [ms-internal-graph]
 ---
 
@@ -77,8 +77,19 @@ Campos a resolver — sección `framework`:
 - `changesDir` (obligatorio).
 - `numberWidth` (opcional, por defecto `4`, no hace falta preguntar salvo que el usuario quiera algo distinto).
 - `docs.functional.featuresDocPath` (opcional — pregunta si quiere que `ms-do` mantenga un listado de funcionalidades implementadas, y en qué ruta; si no, se omite. Se crea vacío la primera vez que `ms-do` lo necesite).
-- `docs.tech.architectureDocPath` (obligatorio — pregunta si existe un doc de arquitectura a mantener sincronizado; si no, crea una en `design/docs/ARCHITECTURE.md` con lo mínimo según la información que tengas del tipo de proyecto).
-- `docs.tech.styleBibleDocPath` (obligatorio — pregunta si existe una guía de estilo a mantener sincronizada; si no, crea una `design/docs/STYLE_BIBLE.md` e incialízala con una paleta de colores en blanco y negro y tonos de grises).
+- `docs.tech.architectureDocPath` y `docs.tech.styleBibleDocPath` (ambos obligatorios — pregunta si el usuario ya tiene un doc de arquitectura y/o una guía de estilo que mantener sincronizados):
+  - Si el usuario ya tiene alguno de los dos (o lo has detectado en el paso 2), usa esa ruta tal cual.
+  - Si al usuario **le falta alguno de los dos** (no tiene ese documento técnico todavía), no lo generes a ciegas: hazle estas preguntas básicas en texto libre antes de crearlo (solo las que hagan falta según qué documento falte):
+    1. ¿De qué va el proyecto?
+    2. ¿Qué tecnologías quieres usar?
+    3. ¿Qué estilo tendrá o a qué se parecerá?
+
+    Con las respuestas, genera una **primera versión reducida** (no una documentación completa) de cada documento que falte:
+    - Arquitectura (por defecto `design/docs/ARCHITECTURE.md`): resumen del proyecto (respuesta 1) y stack/tecnologías elegidas (respuesta 2), como punto de partida mínimo que `ms-do` irá ampliando con cada cambio implementado.
+    - Guía de estilo (por defecto `design/docs/STYLE_BIBLE.md`): a partir de la respuesta 3 sobre estilo/referencias; si el usuario no da detalles suficientes para definir una paleta, cae en la paleta neutra en blanco, negro y tonos de grises ya prevista por defecto.
+
+    Si alguna de estas preguntas ya se ha respondido al recoger la sección `project` (más abajo), no la repitas — reutiliza esa respuesta.
+    Deja claro al usuario que son versiones iniciales mínimas y que se irán enriqueciendo con cada `ms-do`.
 - `docs.tech.projectGraphPath` (opcional — si detectas un fichero `graph.json` generado, propónlo; si no hay ninguno y el usuario no quiere generarlo ahora, se omite. Lo usa `ms-how` como contexto).
 - `sourcecodeDir` (opcional — propón la carpeta raíz del código fuente detectada; `ms-how` la usa como contexto de respaldo cuando no hay `docs.tech.architectureDocPath` ni `docs.tech.projectGraphPath`).
 
