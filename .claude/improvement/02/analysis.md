@@ -72,13 +72,31 @@ Ver `results.md` para la tabla completa. Resumen:
 | 2 | Evitar que `ms-how` reinvoque `ms-internal-tech-analysis` si `ms-new` ya reunió ese contexto | **Descartada (ya resuelta por el harness)** | `ms-internal-tech-analysis` no usa `$ARGUMENTS` en el cuerpo → su contenido renderizado es idéntico en cada invocación. Documentación oficial: reinvocaciones con contenido idéntico en la misma sesión no reinyectan el cuerpo, solo una nota corta. Sin coste real dentro de una sesión continua. |
 | 3 | Evitar que `ms-do` reinvoque `ms-internal-workflow` si `ms-new`/`ms-how` ya la invocó antes | **Descartada (ya resuelta por el harness)** | Mismo motivo que la propuesta 2. |
 | 4 | Recortar la `description` más larga (`ms-status`) sin perder inequivocidad | **Implementada** | Ver §3. Commit `7a85dd6`. |
-| 5 | Dar a `ms-new` apoyo de script para sus partes deterministas (como ya tienen `ms-status`/`ms-init`/`ms-internal-graph`) | **Pendiente de decisión** | `ms-new` es el `SKILL.md` más pesado (3.884 tokens_est de cuerpo, el único de los 11 sin ningún script de apoyo). Refactor más grande y con más riesgo de tocar comportamiento (los pasos 0/0.1/0.2 tienen ramas condicionales de negocio, no solo mecánica de fichero) — no se ha implementado sin decisión explícita. |
+| 5 | Dar a `ms-new` apoyo de script para sus partes deterministas (como ya tienen `ms-status`/`ms-init`/`ms-internal-graph`) | **Pendiente de decisión** | Los pasos 0/0.1/0.2 tienen ramas condicionales de negocio (no solo mecánica de fichero, a diferencia de p.ej. `next-change-number.py`), así que ofrecen menos margen de delegar en script sin más riesgo de tocar comportamiento. No implementado sin decisión explícita. |
+| 6 | (surge al revisar si el punto 2 quedaba agotado con la propuesta 4) Recortar el cuerpo de `ms-new` moviendo sus dos ramas alternativas — modo `todo` y "ampliar entrada existente" — a ficheros aparte, leídos solo cuando esa rama aplica | **Implementada** | `ms-new` era el `SKILL.md` con el cuerpo más pesado de los 11 (3.884 tokens_est) y sin ningún script de apoyo. De ese cuerpo, ~1.417 tokens_est (~36%) correspondían a dos secciones mutuamente excluyentes con el flujo principal y entre sí (conversión desde `todo/`, y ampliación de una entrada ya en curso), que se cargaban siempre aunque solo una — o ninguna — aplicase a la invocación en curso. Ver §6. |
 
 ### Nota derivada (relevante para el punto 8, no accionada aquí)
 
 Al reconstruir la cadena de invocación real vía `metadata.uses` de cada `SKILL.md`, el ciclo completo `ms-new → ms-how → ms-do` invoca dos veces tanto a `ms-internal-workflow` como a `ms-internal-tech-analysis`. Gracias al comportamiento descrito en §1 (dedup de contenido idéntico), esto **no es un problema real** mientras el ciclo completo ocurra en una sola sesión continua. Sí sería un problema si se adoptara la propuesta del punto 1 del informe original de dividir el ciclo en sub-conversaciones independientes — cada sub-conversación nueva forzaría recargar esas skills internas desde cero. Apunte para cuando se aborde el punto 1 y el punto 8.
 
-## 5. Pendiente / próximos pasos
+## 6. Segunda iteración: recorte del cuerpo de `ms-new`
+
+Al revisar si el punto 2 quedaba agotado con solo la propuesta 4 (recorte de `ms-status`), se comprobó sistemáticamente la `description` de las 10 skills restantes contra su propio cuerpo: ninguna repetía el patrón de `ms-status` (duplicar mecánica ya explicada en el cuerpo). Pero esa revisión sí encontró una oportunidad distinta y más grande, en el propio cuerpo de `ms-new`: dos secciones —"0.2 Comprobar si se invoca a partir de una idea de `todo/`" y "Ampliar una entrada ya en `inProgress`"— son ramas alternativas, mutuamente excluyentes con el flujo principal ("Pasos") y entre sí, que sin embargo se cargaban siempre al invocar la skill, aplicara o no esa rama a la petición en curso. Juntas sumaban ~1.417 tokens_est (~36%) del cuerpo de `ms-new`, que era además el más pesado de los 11 SKILL.md y el único sin ningún script de apoyo.
+
+**Cambio aplicado:** se extrajo el contenido íntegro de ambas secciones a `ms-new/todo-mode.md` y `ms-new/extend-entry.md`, dejando en `SKILL.md` solo el criterio de detección de cada rama (ya presente en los pasos `0.1`/`0.2`) más una instrucción de "lee y sigue completo `<fichero>.md`". El comportamiento no cambia: cuando la rama aplica, se sigue leyendo y ejecutando exactamente el mismo procedimiento, solo que como fichero aparte en vez de en línea; cuando no aplica (caso más común: cambio nuevo desde cero), ese contenido deja de cargarse.
+
+**Resultado medido** (mismo procedimiento del §2.3, `scripts/measure_skills.py`):
+
+| Métrica | Antes | Después | Δ |
+|---|---:|---:|---:|
+| Cuerpo de `ms-new` (coste de invocarla en el caso común: cambio nuevo) | 3.884 tokens_est | 2.676 tokens_est | ‑1.208 (‑31,1 %) |
+| `todo-mode.md` + `extend-entry.md` (coste solo si la rama correspondiente aplica) | 0 (ya incluido en el cuerpo) | 1.411 tokens_est | — |
+
+El "gran total teórico" (cota superior si se invocaran las 11 skills y se leyeran todos sus auxiliares) sube ligeramente (48.629 → 48.832) porque ese indicador asume que **todo** se lee siempre, incluidos ahora los dos ficheros nuevos — no es la métrica relevante para este cambio. La que importa es el coste real de invocar `ms-new` en el caso mayoritario (cambio nuevo desde cero), que baja un 31%.
+
+Commit de este cambio: ver historial de `.claude/skills/ms-new/`.
+
+## 7. Pendiente / próximos pasos
 
 - Decidir si se implementa la propuesta 5 (script de apoyo para `ms-new`).
 - Valorar si merece la pena reportar como feedback a Anthropic/Claude Code la ausencia de un flag "invocable por Claude, sin `description` en el listado de enrutamiento por defecto" — cubriría el caso de skills internas como las de este framework.

@@ -5,7 +5,7 @@ argument-hint: "[xxxx | todo <código>] <descripción del cambio>"
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.8.0
+  version: 1.9.0
   uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-how]
 ---
 
@@ -38,7 +38,7 @@ Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta con
 
 Si el usuario, al invocar esta skill, indica un código de cambio/fix (`xxxx`) — p.ej. `/ms-new 0001 ...` o "añade esto al cambio 0001" — comprueba si existe esa carpeta **exactamente** en `{changesDir}/inProgress/{xxxx}/`.
 
-- **Si existe y el usuario te da información nueva**: no es un cambio nuevo, sino una ampliación de esa entrada ya en curso. Ve directamente a la sección [Ampliar una entrada ya en `inProgress`](#ampliar-una-entrada-ya-en-inprogress) y no sigas con los pasos de más abajo.
+- **Si existe y el usuario te da información nueva**: no es un cambio nuevo, sino una ampliación de esa entrada ya en curso. Lee y sigue completo [`extend-entry.md`](extend-entry.md) de esta misma carpeta — no sigas con los pasos de más abajo.
 - **Si existe, pero el usuario no te está añadiendo información nueva**: significa que debes revisar y reanalizar el cambio. Posibles causas:
    - Hace mucho tiempo que se escribió el fichero `description.md` y pueden haber funcionalidades nuevas ya implementadas.
    - El usuario puede haber editado `description.md` a mano e introducido cambios.
@@ -47,20 +47,9 @@ Si el usuario, al invocar esta skill, indica un código de cambio/fix (`xxxx`) �
 
 ## 0.2 Comprobar si se invoca a partir de una idea de `todo/`
 
-Si el usuario invoca esta skill como `/ms-new todo <código>` (o pide explícitamente "convierte la idea `<código>` de todo en un change"), esta entrada no nace de una petición nueva del usuario en el chat, sino del contenido ya apuntado por `ms-todo`:
+Si el usuario invoca esta skill como `/ms-new todo <código>` (o pide explícitamente "convierte la idea `<código>` de todo en un change"), esta entrada no nace de una petición nueva del usuario en el chat, sino del contenido ya apuntado por `ms-todo`: lee y sigue completo [`todo-mode.md`](todo-mode.md) de esta misma carpeta antes de continuar.
 
-1. Comprueba que existe **exactamente** `{changesDir}/todo/{código}/description.md`. Si no existe, dile al usuario que no hay ninguna idea con ese código en `todo/` y detente ahí (no inventes ni asumas un código parecido).
-2. Lee ese `description.md` completo (secciones `## Idea`, `## Código` y `## Notas`) y, si los hay, sus ficheros `design_*.html` de esa misma carpeta. Este es el contenido a analizar y documentar — úsalo como si fuera la petición del usuario para el resto del proceso, en vez de esperar una descripción nueva en el chat. Si el usuario añadió también contexto adicional al invocar la skill, súmalo al análisis.
-3. Pregunta al usuario si quiere desarrollar la idea contigo antes de continuar. 
-
-```
-¿Quieres que refinemos esta idea ("<nombre de la idea>") antes de escribirla o documento el cambio con la información actual?
-```
-
-Si confirma, propón ideas y charla con él hasta refinar un poco más la idea antes de continuar con el punto 4. Si no quiere, pasa al punto4.
-4. Continúa con el proceso habitual desde el paso 1 de "Pasos" (anticipar dudas, documentar con `ms-internal-workflow`, propuesta visual), usando ese contenido como base. Si había `design_*.html` en la idea de `todo/`, tenlos en cuenta al construir la propuesta visual del paso 3 (no los copies tal cual sin más: son solo un boceto de partida, no una maqueta ya validada).
-5. **Solo si el paso 2 de "Pasos" termina con éxito** (la entrada ya existe en `{changesDir}/inProgress/{xxxx}/`), borra automáticamente `{changesDir}/todo/{código}/` entera (`description.md` y cualquier `design_*.html` que tuviera), sin pedir confirmación al usuario — el borrado es una limpieza automática del origen ya migrado, no una acción destructiva que requiera aprobación. Si el paso 2 no llega a completarse, deja la idea tal cual en `todo/`.
-6. En el paso 4 de "Pasos" (indicar el siguiente paso), menciona también que la idea `{código}` de `todo/` ha quedado convertida en el cambio `{xxxx}` y borrada de `todo/`.
+Si no se invocó así, sigue con el proceso habitual desde el paso 1 de "Pasos".
 
 ## Pasos
 
@@ -94,12 +83,4 @@ No escribas tú mismo el documento de cambio ni calcules el número `xxxx` — e
 
 ## Ampliar una entrada ya en `inProgress`
 
-Cuando el paso 0.1 detecta que el `xxxx` indicado ya existe en `{changesDir}/inProgress/{xxxx}/`, no se crea una entrada nueva: se amplía la que ya hay.
-
-1. **Leer lo ya documentado.** Abre `{changesDir}/inProgress/{xxxx}/description.md` para entender qué se pidió originalmente, y comprueba si ya existen ficheros `design_*.html` en esa misma carpeta.
-2. **Entender la ampliación.** Aplica el mismo análisis del paso 1 de "Pasos" (casos límite, convivencia con lo existente, alcance de datos, quién puede usarlo, definición visual de alto nivel), pero centrado en lo que se pide añadir o modificar ahora **sobre** lo ya documentado, no desde cero. Propón tú las respuestas razonables y preséntaselas al usuario para confirmar, igual que en el flujo habitual.
-3. **Actualizar `description.md` directamente** (sin invocar `ms-internal-workflow`, que solo sabe crear entradas nuevas): añade la ampliación a la **Descripción completa** dejando claro qué es lo nuevo respecto a lo ya escrito, y añade el nuevo prompt del usuario a continuación del original en **Prompt original del usuario** (sin borrar el existente). No cambies el **Código** ni el **Tipo** ya fijados. Si lo que se añade incorpora un flujo, secuencia de pasos/decisiones o interacción entre estados/componentes, represéntalo con un diagrama Mermaid junto con las notas imprescindibles, igual que en el paso 2 de "Pasos". Mantén la misma separación que usa `ms-internal-workflow` al crear la entrada: la **Descripción completa** es solo funcional, entendible por cualquier persona no técnica, sin ficheros, funciones ni clases; si al analizar la ampliación (p.ej. revisando código existente para las dudas de alcance) surge información técnica que convenga anotar, añádela a **Apuntes técnicos** en vez de a la Descripción completa — crea esa sección al final del documento si la entrada todavía no la tenía.
-4. **Actualizar la propuesta visual si procede.** Si la ampliación introduce, modifica o elimina elementos visuales: crea nuevos ficheros `design_<descripción>.html` para los elementos nuevos, y edita (no borres sin más) los `design_*.html` existentes que la ampliación cambie, siguiendo las mismas reglas del paso 3 de "Pasos" (maqueta autocontenida en HTML+CSS+SVG, sin funcionalidad real). Si la ampliación no toca nada visual, deja los ficheros existentes tal cual.
-5. **Validar con el usuario lo que haya cambiado visualmente.** Si el paso 3 añadió/editó un diagrama Mermaid o el paso 4 creó/editó algún `design_*.html`, preséntaselo al usuario (igual que en el paso 4 de "Pasos") y pídele que confirme antes de seguir. Si la ampliación no tocó nada visual ni de flujo, omite este paso.
-6. **Avisar si hay `plan.md`.** Si `{changesDir}/inProgress/{xxxx}/plan.md` ya existe (es decir, ya se había planificado con `ms-how`), dile al usuario que esta ampliación puede dejar ese plan desactualizado y que conviene volver a invocar `ms-how` sobre `{xxxx}` para regenerarlo.
-7. **Indicar el siguiente paso.** Confirma que `{changesDir}/inProgress/{xxxx}/description.md` (y, si procede, sus `design_*.html`, ya validados) quedan actualizados con la ampliación, y recuerda que para planificar/implementar debe invocarse `ms-how` sobre ese mismo `xxxx`.
+Cuando el paso 0.1 detecta que el `xxxx` indicado ya existe en `{changesDir}/inProgress/{xxxx}/`, no se crea una entrada nueva: se amplía la que ya hay. Procedimiento completo en [`extend-entry.md`](extend-entry.md) de esta misma carpeta.

@@ -1,12 +1,14 @@
 # Punto 2 — Resultados de las pruebas
 
-Cambio evaluado: recorte de la `description` de `ms-status` (commit `7a85dd6`), sin tocar cuerpo ni comportamiento.
+Dos cambios evaluados:
+1. Recorte de la `description` de `ms-status` (commit `7a85dd6`), sin tocar cuerpo ni comportamiento.
+2. Extracción de las dos ramas alternativas del cuerpo de `ms-new` (`todo-mode.md`, `extend-entry.md`), cargadas solo cuando aplican en vez de siempre.
 
-Procedimiento: ver `analysis.md` §2. Snapshots crudos en `data/before.json` (estado del commit anterior a `7a85dd6`) y `data/after.json` (estado tras el cambio), generados con `scripts/measure_skills.py`.
+Procedimiento: ver `analysis.md` §2. Snapshots crudos en `data/before.json` (estado del commit anterior a `7a85dd6`), `data/after.json` (tras el cambio 1) y `data/after2-ms-new-split.json` (tras el cambio 2), generados con `scripts/measure_skills.py`.
 
 Columna **Origen del dato**: indica si el valor es una **estimación** (proxy `chars/4`, sin tokenizer real disponible en este entorno — ver limitación en `analysis.md` §2.2) o una **medición directa** (conteo exacto, sin proxy).
 
-## Métricas del cambio implementado
+## Métricas — cambio 1: recorte de `description` de `ms-status`
 
 | Métrica | Antes | Después | Δ | Origen del dato | Método |
 |---|---:|---:|---:|---|---|
@@ -14,7 +16,23 @@ Columna **Origen del dato**: indica si el valor es una **estimación** (proxy `c
 | `description` de `ms-status` — tokens | 271 | 156 | ‑115 (‑42,4 %) | **Estimación** (proxy chars/4) | `scripts/measure_skills.py` |
 | Impuesto fijo por tarea — suma `description` de las 11 skills `ms-*` | 1.478 | 1.363 | ‑115 (‑7,8 %) | **Estimación** (proxy chars/4) | `scripts/measure_skills.py`, campo `totals.description_tokens_est` |
 | Cuerpo de `ms-status` (coste solo si se invoca) | 1.668 | 1.668 | 0 | **Estimación** (proxy chars/4) | Sin cambios — control de que el recorte no tocó el cuerpo |
-| Gran total teórico (11 `SKILL.md` + todos sus auxiliares, si se invocaran todas) | 48.743 | 48.629 | ‑114 | **Estimación** (proxy chars/4) | `scripts/measure_skills.py`, campo `totals.grand_total_tokens_est` |
+
+## Métricas — cambio 2: extracción de ramas alternativas de `ms-new`
+
+| Métrica | Antes | Después | Δ | Origen del dato | Método |
+|---|---:|---:|---:|---|---|
+| Cuerpo de `ms-new` (coste de invocarla en el caso común: cambio nuevo desde cero) | 3.884 tokens_est | 2.676 tokens_est | ‑1.208 (‑31,1 %) | **Estimación** (proxy chars/4) | `scripts/measure_skills.py` |
+| `todo-mode.md` + `extend-entry.md` (coste solo si esa rama aplica a la invocación) | 0 (antes incluido siempre en el cuerpo) | 1.411 tokens_est | — | **Estimación** (proxy chars/4) | `scripts/measure_skills.py`, campo `aux_files_tokens_est` |
+
+## Gran total teórico (contexto, no usar como métrica principal de ningún cambio)
+
+| Momento | Gran total teórico (11 `SKILL.md` + todos sus auxiliares si se leyeran todos) | Origen del dato |
+|---|---:|---|
+| Antes de ambos cambios | 48.743 | **Estimación** (proxy chars/4) |
+| Tras cambio 1 (`ms-status`) | 48.629 | **Estimación** (proxy chars/4) |
+| Tras cambio 2 (`ms-new`) | 48.832 | **Estimación** (proxy chars/4) |
+
+Esta cifra sube ligeramente tras el cambio 2 porque asume que **todo** se lee siempre, incluidos los dos ficheros nuevos de `ms-new` — no refleja el ahorro real, que está en el coste de invocar `ms-new` en el caso mayoritario (tabla anterior, ‑31,1 %). No usar esta fila para valorar si un cambio de este tipo (mover contenido condicional a fichero aparte) mejora o empeora las cosas.
 
 ## Propuestas descartadas — verificación de que no requieren cambio
 
