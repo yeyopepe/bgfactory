@@ -51,3 +51,12 @@ Cálculo estático a partir de `metadata.uses` de cada `SKILL.md` (cadena `ms-ne
 | Con deduplicación del harness (ciclo completo en una sola sesión, comportamiento por defecto hoy) | ~13.097 | **Estimación** (mismo cálculo, descontando la 2ª invocación de `ms-internal-workflow` y `ms-internal-tech-analysis` según el comportamiento documentado) |
 
 Ninguna de las dos cifras de esta última tabla ha sido medida en una ejecución real del ciclo (no se ha invocado `ms-new`/`ms-how`/`ms-do` en vivo para este punto) — quedan como estimación derivada del grafo estático, pendientes de contraste si se aborda el punto 8.
+
+## Recomendaciones de uso
+
+Guía práctica para quien use el framework `ms-*` en este repo, derivada de lo encontrado al medir este punto (no son cambios de código, son hábitos de uso):
+
+- **Mantén el ciclo `ms-new → ms-how → ms-do` en una sola sesión continua siempre que puedas.** El ahorro por deduplicación de skills internas (`ms-internal-workflow`, `ms-internal-tech-analysis` — ver `analysis.md` §1 y la fila "Con deduplicación" de la tabla de arriba) solo aplica dentro de la misma sesión. Cortar la conversación entre fases (p.ej. documentar el change hoy y planificarlo/implementarlo en otra sesión mañana) es legítimo y a veces necesario, pero fuerza recargar esas skills internas desde cero en la sesión nueva — un coste que de otro modo no existiría.
+- **En sesiones muy largas con muchas skills invocadas, si `ms-new`/`ms-how`/`ms-do` dejan de comportarse como se espera, reinvócalas explícitamente antes de seguir.** Claude Code solo conserva un presupuesto combinado de 25.000 tokens para las skills ya cargadas tras una auto-compactación del contexto; en un ciclo largo con varias skills de por medio, las invocadas más pronto pueden quedar fuera de ese presupuesto y perder su contenido completo.
+- **No copies ni compartas `ms-new/SKILL.md` suelto, sin `todo-mode.md` y `extend-entry.md`.** Desde el cambio de §6, esos dos ficheros son parte necesaria de la skill (los flujos de conversión desde `todo/` y de ampliación de una entrada existente dependen de ellos) — moverla a otro repo o plantilla sin la carpeta completa deja esas dos rutas rotas.
+- No hay recomendación de uso para la propuesta 5 (script de apoyo para `ms-new`): sigue pendiente de decisión y no se ha implementado nada que afecte a cómo se usa la skill hoy.
