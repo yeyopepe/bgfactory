@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mazo — mesa de juego</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --bg-toolbar: #333333;
+    --bg-card: #f5f5f5;
+    --accent-blue: #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-1: 0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    color: var(--text-primary);
+    padding: 2rem;
+  }
+  h1 {
+    font-size: 1.25rem;
+    margin: 0 0 0.25rem;
+  }
+  p.lead {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    margin: 0 0 2rem;
+  }
+  .scenes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+  }
+  .scene {
+    background: rgba(255,255,255,0.35);
+    border: 1px dashed rgba(0,0,0,0.15);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+  }
+  .scene h2 {
+    font-size: 0.9375rem;
+    margin: 0 0 1rem;
+    color: var(--text-primary);
+  }
+  .table-area {
+    position: relative;
+    width: 340px;
+    height: 260px;
+  }
+
+  /* --- Mazo: caja con pila de cartas, dorso de la carta de arriba --- */
+  .mazo {
+    position: absolute;
+    width: 130px;
+    height: 182px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-1);
+    overflow: visible;
+  }
+  .mazo__stack {
+    position: absolute;
+    inset: 0;
+  }
+  /* Capas de detrás de la pila, ligero desplazamiento para dar sensación de grosor */
+  .mazo__stack::before,
+  .mazo__stack::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-lg);
+    background: #d8d2c4;
+    border: 1px solid rgba(0,0,0,0.12);
+  }
+  .mazo__stack::before {
+    transform: translate(4px, 4px);
+    background: #cfc8b8;
+  }
+  .mazo__stack::after {
+    transform: translate(2px, 2px);
+    background: #d8d2c4;
+  }
+  .mazo__top {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(135deg, #2c4f7d 0%, #1c3352 100%);
+    border: 3px solid #0d1b2e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .mazo__top-pattern {
+    width: 70%;
+    height: 70%;
+    border: 2px solid rgba(255,255,255,0.35);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mazo__top-pattern svg { width: 42%; height: 42%; opacity: 0.55; }
+  .mazo--selectable:hover { outline: 2px dashed var(--accent-blue); }
+
+  /* --- Mazo vacío: imagen/gráfico por defecto --- */
+  .mazo--empty .mazo__top {
+    background: var(--bg-card);
+    border: 2px dashed var(--border-neutral);
+  }
+  .mazo--empty .mazo__top-pattern {
+    border: none;
+  }
+  .mazo--empty .mazo__top-pattern svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.35;
+  }
+  .mazo--empty .mazo__stack::before,
+  .mazo--empty .mazo__stack::after {
+    display: none;
+  }
+
+  .mazo__label {
+    position: absolute;
+    left: 2px;
+    top: -1.6rem;
+    background: var(--accent-blue-dark);
+    color: var(--text-light);
+    font-size: 0.72rem;
+    line-height: 1.4;
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+  }
+
+  /* --- Carta sacada del mazo, boca arriba --- */
+  .carta-sacada {
+    position: absolute;
+    width: 130px;
+    height: 182px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-1);
+    background: #f7e9c8;
+    border: 2px solid #a9782f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0.75rem;
+  }
+  .carta-sacada__content {
+    font-size: 0.8125rem;
+    color: #5c3d0e;
+  }
+  .carta-sacada__content strong {
+    display: block;
+    font-size: 1.5rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .arrow {
+    position: absolute;
+    top: 50%;
+    color: var(--text-muted);
+    font-size: 1.5rem;
+  }
+
+  .caption {
+    margin-top: 1rem;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    max-width: 320px;
+  }
+</style>
+</head>
+<body>
+  <h1>Mazo — aspecto en la mesa</h1>
+  <p class="lead">Maqueta visual del nuevo componente "Mazo": caja apilada con el dorso de la carta de arriba, estado vacío, y resultado al sacar una carta en modo juego.</p>
+
+  <div class="scenes">
+    <div class="scene">
+      <h2>Mazo con cartas (dorso visible)</h2>
+      <div class="table-area">
+        <div class="mazo mazo--selectable" style="left: 40px; top: 30px;">
+          <span class="mazo__label">Mazo: eventos</span>
+          <div class="mazo__stack"></div>
+          <div class="mazo__top">
+            <div class="mazo__top-pattern">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"><path d="M12 2 L14 9 L21 9 L15.5 13.5 L17.5 21 L12 16.5 L6.5 21 L8.5 13.5 L3 9 L10 9 Z"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="caption">Un click en modo juego saca la carta de arriba; el dorso mostrado corresponde siempre a la carta que quede arriba en cada momento.</p>
+    </div>
+
+    <div class="scene">
+      <h2>Mazo vacío</h2>
+      <div class="table-area">
+        <div class="mazo mazo--empty mazo--selectable" style="left: 40px; top: 30px;">
+          <span class="mazo__label">Mazo: eventos</span>
+          <div class="mazo__stack"></div>
+          <div class="mazo__top">
+            <div class="mazo__top-pattern">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="caption">Sin cartas dentro, se muestra una imagen/gráfico neutro por defecto en vez del dorso de ninguna carta.</p>
+    </div>
+
+    <div class="scene">
+      <h2>Al hacer click: sale la carta de arriba</h2>
+      <div class="table-area">
+        <div class="mazo mazo--selectable" style="left: 20px; top: 30px;">
+          <span class="mazo__label">Mazo: eventos</span>
+          <div class="mazo__stack"></div>
+          <div class="mazo__top">
+            <div class="mazo__top-pattern">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"><path d="M12 2 L14 9 L21 9 L15.5 13.5 L17.5 21 L12 16.5 L6.5 21 L8.5 13.5 L3 9 L10 9 Z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="arrow" style="left: 165px;">→</div>
+        <div class="carta-sacada" style="left: 195px; top: 30px;">
+          <div class="carta-sacada__content">
+            <strong>⚔</strong>
+            Emboscada nocturna
+          </div>
+        </div>
+      </div>
+      <p class="caption">La carta sacada se coloca junto al mazo, boca arriba (cara frontal), por encima del resto en el orden de apilado.</p>
+    </div>
+  </div>
+</body>
+</html>

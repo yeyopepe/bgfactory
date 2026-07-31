@@ -1,18 +1,18 @@
 // Lógica de fusión de una importación (change 00065): combina la selección de
-// componentes/recursos/mazos leída de un fichero con el estado actual del
+// componentes/recursos/grupos leída de un fichero con el estado actual del
 // juego, según el modo elegido (añadir/sobrescribir) y el comportamiento ante
 // id duplicado (sobrescribir/mantener ambos). Sin dependencias de DOM ni de
 // core/state.js: recibe y devuelve datos planos, quien la invoca decide cómo
 // aplicarlo al estado (mismo criterio que core/component.js / core/resource.js).
 
-import { createDeck, isDeckNameTaken } from './deck.js';
+import { createGroup, isGroupNameTaken } from './group.js';
 
 const RESOURCE_REF_KEYS = new Set(['imagenResourceId', 'fuenteResourceId']);
 
 // Calcula el siguiente id libre para `baseId` con el sufijo "-imported" (o
 // "-imported(n)" si también choca), análogo a nextCloneId (core/component.js)
 // pero genérico: opera sobre el conjunto de ids ya usados que le pasen,
-// indistintamente de si son de componente, recurso o mazo.
+// indistintamente de si son de componente, recurso o grupo.
 export function nextImportedId(baseId, usedIds) {
   const root = `${baseId}-imported`;
   if (!usedIds.has(root)) return root;
@@ -64,21 +64,19 @@ function mergeCollection(existing, selected, mode, conflictMode) {
 }
 
 // Reconstruye `value` reescribiendo cualquier referencia a un recurso
-// (imagenResourceId/fuenteResourceId) o a un mazo (deckId) presente en el
-// mapa de renombrado correspondiente, en cualquier nivel de anidamiento.
-function remapRefsDeep(value, resourceIdMap, deckIdMap) {
+// (imagenResourceId/fuenteResourceId) presente en el mapa de renombrado
+// correspondiente, en cualquier nivel de anidamiento.
+function remapRefsDeep(value, resourceIdMap) {
   if (Array.isArray(value)) {
-    return value.map((item) => remapRefsDeep(item, resourceIdMap, deckIdMap));
+    return value.map((item) => remapRefsDeep(item, resourceIdMap));
   }
   if (value && typeof value === 'object') {
     const out = {};
     for (const [key, item] of Object.entries(value)) {
       if (RESOURCE_REF_KEYS.has(key) && typeof item === 'string' && resourceIdMap.has(item)) {
         out[key] = resourceIdMap.get(item);
-      } else if (key === 'deckId' && typeof item === 'string' && deckIdMap.has(item)) {
-        out[key] = deckIdMap.get(item);
       } else {
-        out[key] = remapRefsDeep(item, resourceIdMap, deckIdMap);
+        out[key] = remapRefsDeep(item, resourceIdMap);
       }
     }
     return out;
@@ -87,15 +85,20 @@ function remapRefsDeep(value, resourceIdMap, deckIdMap) {
 }
 
 // Reescribe, solo en los componentes seleccionados para importar, las
-// referencias a recursos/mazos cuyo id se haya renombrado por conflicto
+// referencias a recursos/grupos cuyo id se haya renombrado por conflicto
 // ("mantener ambos"). Los componentes ya existentes no se tocan aquí.
-function remapComponentRefs(components, resourceIdMap, deckIdMap) {
-  if (resourceIdMap.size === 0 && deckIdMap.size === 0) return components;
+// `grupoId` es una propiedad plana de primer nivel del componente (cambio
+// 00105), igual que `image`, así que se remapea aquí en vez de dentro de
+// remapRefsDeep (que solo recorre `properties`).
+function remapComponentRefs(components, resourceIdMap, groupIdMap) {
+  if (resourceIdMap.size === 0 && groupIdMap.size === 0) return components;
   return components.map((component) => {
     let image = component.image;
     if (typeof image === 'string' && resourceIdMap.has(image)) image = resourceIdMap.get(image);
-    const properties = remapRefsDeep(component.properties ?? {}, resourceIdMap, deckIdMap);
-    return { ...component, image, properties };
+    let grupoId = component.grupoId;
+    if (typeof grupoId === 'string' && groupIdMap.has(grupoId)) grupoId = groupIdMap.get(grupoId);
+    const properties = remapRefsDeep(component.properties ?? {}, resourceIdMap);
+    return { ...component, image, grupoId, properties };
   });
 }
 
@@ -133,21 +136,21 @@ function findNameById(id, items) {
   return found ? found.name : id;
 }
 
-// Deduplica nombres de mazos tras el merge por id: para cada mazo cuyo nombre
-// ya aparece antes en la lista, renombra añadiendo " (importado)" (o
-// " (importado n)" si esa forma también colisiona). Devuelve los mazos
+// Deduplica nombres de grupos tras el merge por id: para cada grupo cuyo
+// nombre ya aparece antes en la lista, renombra añadiendo " (importado)" (o
+// " (importado n)" si esa forma también colisiona). Devuelve los grupos
 // deduplicated y un array de renombres aplicados.
-function dedupeDeckNames(decks) {
+function dedupeGroupNames(groups) {
   const result = [];
   const seenNames = new Map();
   const renames = [];
 
-  for (const deck of decks) {
-    const normalizedName = deck.name.trim().toLowerCase();
+  for (const group of groups) {
+    const normalizedName = group.name.trim().toLowerCase();
 
     if (seenNames.has(normalizedName)) {
       let newName;
-      const root = `${deck.name} (importado)`;
+      const root = `${group.name} (importado)`;
       const rootNormalized = root.trim().toLowerCase();
 
       if (!seenNames.has(rootNormalized)) {
@@ -156,7 +159,7 @@ function dedupeDeckNames(decks) {
       } else {
         let n = 2;
         while (true) {
-          const candidate = `${deck.name} (importado ${n})`;
+          const candidate = `${group.name} (importado ${n})`;
           const candidateNormalized = candidate.trim().toLowerCase();
           if (!seenNames.has(candidateNormalized)) {
             newName = candidate;
@@ -167,51 +170,51 @@ function dedupeDeckNames(decks) {
         }
       }
 
-      renames.push({ deckId: deck.id, oldName: deck.name, newName });
-      result.push({ ...deck, name: newName });
+      renames.push({ groupId: group.id, oldName: group.name, newName });
+      result.push({ ...group, name: newName });
     } else {
       seenNames.set(normalizedName, true);
-      result.push(deck);
+      result.push(group);
     }
   }
 
-  return { decks: result, renames };
+  return { groups: result, renames };
 }
 
 // Punto de entrada: fusiona la selección de una importación con el estado
 // actual, resuelve las referencias rotas resultantes (recurso ausente se
-// descarta, mazo ausente se autocrea) y devuelve el estado final más un
+// descarta, grupo ausente se autocrea) y devuelve el estado final más un
 // informe de los avisos generados (una fila por referencia rota detectada).
 export function mergeImportedGame({
   mode,
   conflictMode,
   existingComponents,
   existingResources,
-  existingDecks,
+  existingGroups,
   selectedComponents,
   selectedResources,
-  selectedDecks,
+  selectedGroups,
   allImportedResources = [],
-  allImportedDecks = [],
+  allImportedGroups = [],
 }) {
   const { result: resources, idMap: resourceIdMap } = mergeCollection(existingResources, selectedResources, mode, conflictMode);
-  let { result: decks, idMap: deckIdMap } = mergeCollection(existingDecks, selectedDecks, mode, conflictMode);
+  let { result: groups, idMap: groupIdMap } = mergeCollection(existingGroups, selectedGroups, mode, conflictMode);
 
-  const { decks: dedupedDecks, renames: deckRenames } = dedupeDeckNames(decks);
-  decks = dedupedDecks;
+  const { groups: dedupedGroups, renames: groupRenames } = dedupeGroupNames(groups);
+  groups = dedupedGroups;
 
-  const remappedSelectedComponents = remapComponentRefs(selectedComponents, resourceIdMap, deckIdMap);
+  const remappedSelectedComponents = remapComponentRefs(selectedComponents, resourceIdMap, groupIdMap);
   const { result: components, insertedIds: importedComponentIds } = mergeCollection(existingComponents, remappedSelectedComponents, mode, conflictMode);
 
   const resourceIds = new Set(resources.map((r) => r.id));
-  const deckIds = new Set(decks.map((d) => d.id));
-  const createdDeckIds = new Set();
+  const groupIds = new Set(groups.map((g) => g.id));
+  const createdGroupIds = new Set();
   const report = [];
 
-  for (const rename of deckRenames) {
+  for (const rename of groupRenames) {
     report.push({
-      tipoError: 'mazoDuplicado',
-      solucion: 'Se renombró el mazo importado para evitar un nombre duplicado',
+      tipoError: 'grupoDuplicado',
+      solucion: 'Se renombró el grupo importado para evitar un nombre duplicado',
       elemento: rename.newName,
     });
   }
@@ -234,31 +237,31 @@ export function mergeImportedGame({
       }
     }
 
-    const deckId = component.properties?.deckId;
-    if (deckId && !deckIds.has(deckId)) {
-      const candidateName = findNameById(deckId, allImportedDecks);
+    const grupoId = component.grupoId;
+    if (grupoId && !groupIds.has(grupoId)) {
+      const candidateName = findNameById(grupoId, allImportedGroups);
 
-      if (!createdDeckIds.has(deckId)) {
-        const existingDeckWithSameName = decks.find(
-          (d) => isDeckNameTaken(candidateName, [d], deckId)
+      if (!createdGroupIds.has(grupoId)) {
+        const existingGroupWithSameName = groups.find(
+          (g) => isGroupNameTaken(candidateName, [g], grupoId)
         );
 
-        if (existingDeckWithSameName) {
-          component.properties.deckId = existingDeckWithSameName.id;
+        if (existingGroupWithSameName) {
+          component.grupoId = existingGroupWithSameName.id;
           report.push({
-            tipoError: 'mazoDuplicado',
-            solucion: 'Se vinculó a un mazo ya existente con el mismo nombre en vez de crear uno duplicado',
+            tipoError: 'grupoDuplicado',
+            solucion: 'Se vinculó a un grupo ya existente con el mismo nombre en vez de crear uno duplicado',
             elemento: candidateName,
           });
         } else {
-          decks.push(createDeck({ id: deckId, name: candidateName }));
-          deckIds.add(deckId);
-          createdDeckIds.add(deckId);
+          groups.push(createGroup({ id: grupoId, name: candidateName }));
+          groupIds.add(grupoId);
+          createdGroupIds.add(grupoId);
           changed = true;
           report.push({
             componentId: component.id,
-            tipoError: 'mazo',
-            solucion: 'Se creó el mazo automáticamente',
+            tipoError: 'grupo',
+            solucion: 'Se creó el grupo automáticamente',
             elemento: candidateName,
           });
         }
@@ -268,5 +271,5 @@ export function mergeImportedGame({
     return changed ? { ...component } : component;
   });
 
-  return { components: finalComponents, resources, decks, report };
+  return { components: finalComponents, resources, groups, report };
 }

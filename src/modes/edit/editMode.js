@@ -4,11 +4,11 @@
 import {
   getComponents, addComponent, replaceComponent, removeComponent, reorderComponent, getPanelState, setPanelState,
   getResources, addResource, replaceResource, removeResource, getResourcePanelState, setResourcePanelState,
-  getDecks, addDeck, replaceDeck, removeDeck, getDeckPanelState, setDeckPanelState,
+  getGroups, addGroup, replaceGroup, removeGroup, getGroupPanelState, setGroupPanelState,
 } from '../../core/state.js';
 import { updateComponent, cloneComponent, createCopy } from '../../core/component.js';
 import { createResource, resourceTypeForFileName, getComponentsUsingResource } from '../../core/resource.js';
-import { getComponentsUsingDeck } from '../../core/deck.js';
+import { getComponentsUsingGroup } from '../../core/group.js';
 import { convertImageToWebP } from '../../core/imageConversion.js';
 import { createInfiniteTable } from '../../ui/table.js';
 import { openComponentModal, createDefaultComponent } from '../../ui/componentModal.js';
@@ -18,9 +18,9 @@ import { renderComponentList } from '../../ui/componentList.js';
 import { renderComponentsOnTable } from '../../ui/componentRenderer.js';
 import { openResourceModal } from '../../ui/resourceModal.js';
 import { renderResourceList } from '../../ui/resourceList.js';
-import { renderDeckList } from '../../ui/deckList.js';
-import { openDeckModal } from '../../ui/deckModal.js';
-import { openDeckDeleteConfirmModal } from '../../ui/deckDeleteConfirmModal.js';
+import { renderGroupList } from '../../ui/groupList.js';
+import { openGroupModal } from '../../ui/groupModal.js';
+import { openGroupDeleteConfirmModal } from '../../ui/groupDeleteConfirmModal.js';
 import { showErrorModal } from '../../ui/errorModal.js';
 import { openBatchUploadSummaryModal } from '../../ui/batchUploadSummaryModal.js';
 
@@ -35,9 +35,9 @@ let selectedComponentId = null;
 // Orden de apilado (z-index) de los paneles flotantes del modo edición, de abajo a
 // arriba — cambio 00101. Vive fuera de `renderEditMode` por el mismo motivo que
 // `selectedComponentId`: sobrevive a los remontados completos que disparan
-// `components:changed`/`resources:changed`/`decks:changed`. No se persiste en
+// `components:changed`/`resources:changed`/`groups:changed`. No se persiste en
 // `core/state.js`: es transitorio, se resetea al recargar la página.
-let panelStackOrder = ['component', 'resource', 'deck'];
+let panelStackOrder = ['component', 'resource', 'group'];
 
 function bringPanelToFront(key, panelsByKey) {
   panelStackOrder = panelStackOrder.filter((k) => k !== key);
@@ -71,8 +71,8 @@ export function renderEditMode(container) {
   let collapsed = getPanelState().collapsed;
   const { position: resourcePanelPosition, width: resourcePanelWidth } = getResourcePanelState();
   let resourceCollapsed = getResourcePanelState().collapsed;
-  const { position: deckPanelPosition, width: deckPanelWidth } = getDeckPanelState();
-  let deckCollapsed = getDeckPanelState().collapsed;
+  const { position: groupPanelPosition, width: groupPanelWidth } = getGroupPanelState();
+  let groupCollapsed = getGroupPanelState().collapsed;
 
   const layout = document.createElement('div');
   layout.style.display = 'flex';
@@ -112,28 +112,28 @@ export function renderEditMode(container) {
   }
   tableContainer.appendChild(resourceListContainer);
 
-  // Floating panel with the deck list, independent position/width/collapse
-  const deckListContainer = document.createElement('div');
-  deckListContainer.className = 'deck-panel-container';
-  if (deckPanelPosition) {
-    deckListContainer.style.left = `${deckPanelPosition.left}px`;
-    deckListContainer.style.top = `${deckPanelPosition.top}px`;
-    deckListContainer.style.right = 'auto';
+  // Floating panel with the group list, independent position/width/collapse
+  const groupListContainer = document.createElement('div');
+  groupListContainer.className = 'group-panel-container';
+  if (groupPanelPosition) {
+    groupListContainer.style.left = `${groupPanelPosition.left}px`;
+    groupListContainer.style.top = `${groupPanelPosition.top}px`;
+    groupListContainer.style.right = 'auto';
   }
-  if (deckPanelWidth != null) {
-    deckListContainer.style.width = `${deckPanelWidth}px`;
+  if (groupPanelWidth != null) {
+    groupListContainer.style.width = `${groupPanelWidth}px`;
   }
-  tableContainer.appendChild(deckListContainer);
+  tableContainer.appendChild(groupListContainer);
 
   // Traer al frente la ventana flotante interactuada (cambio 00101): captura para no
   // depender de que ningún listener interno haga o no `stopPropagation`, y sin
   // `preventDefault` para no interferir con el arrastre (`mousedown` en la cabecera,
-  // ver `ui/componentList.js`/`ui/resourceList.js`/`ui/deckList.js`) ni con clicks
+  // ver `ui/componentList.js`/`ui/resourceList.js`/`ui/groupList.js`) ni con clicks
   // normales de botones/filas/campos.
-  const panelsByKey = { component: listContainer, resource: resourceListContainer, deck: deckListContainer };
+  const panelsByKey = { component: listContainer, resource: resourceListContainer, group: groupListContainer };
   listContainer.addEventListener('mousedown', () => bringPanelToFront('component', panelsByKey), true);
   resourceListContainer.addEventListener('mousedown', () => bringPanelToFront('resource', panelsByKey), true);
-  deckListContainer.addEventListener('mousedown', () => bringPanelToFront('deck', panelsByKey), true);
+  groupListContainer.addEventListener('mousedown', () => bringPanelToFront('group', panelsByKey), true);
   applyPanelStackOrder(panelsByKey);
 
   const RESOURCE_ACCEPT = '.png,.jpg,.jpeg,.gif,.svg,.webp,.ttf,.otf,.woff,.woff2';
@@ -236,25 +236,29 @@ export function renderEditMode(container) {
     return true;
   }
 
-  function attemptDeleteDeck(deck, { onDeleted } = {}) {
-    const affectedIds = getComponentsUsingDeck(deck.id, getComponents());
+  function attemptDeleteGroup(group, { onDeleted } = {}) {
+    const affectedIds = getComponentsUsingGroup(group.id, getComponents());
     if (affectedIds.length > 0) {
-      openDeckDeleteConfirmModal({
-        deckName: deck.name,
-        cardIds: affectedIds,
+      const affectedComponents = affectedIds
+        .map((id) => getComponents().find((c) => c.id === id))
+        .filter(Boolean)
+        .map((c) => ({ id: c.id, type: c.type }));
+      openGroupDeleteConfirmModal({
+        groupName: group.name,
+        affectedComponents,
         onConfirm: () => {
-          for (const cardId of affectedIds) {
-            const card = getComponents().find((c) => c.id === cardId);
-            if (card) replaceComponent(cardId, updateComponent(card, { properties: { ...card.properties, deckId: null } }));
+          for (const componentId of affectedIds) {
+            const component = getComponents().find((c) => c.id === componentId);
+            if (component) replaceComponent(componentId, updateComponent(component, { grupoId: null }));
           }
-          removeDeck(deck.id);
+          removeGroup(group.id);
           if (onDeleted) onDeleted();
         },
       });
       return false;
     }
-    if (!confirm(`¿Eliminar el mazo "${deck.name}"?`)) return false;
-    removeDeck(deck.id);
+    if (!confirm(`¿Eliminar el grupo "${group.name}"?`)) return false;
+    removeGroup(group.id);
     return true;
   }
 
@@ -404,32 +408,32 @@ export function renderEditMode(container) {
     });
   }
 
-  function renderDeckPanel() {
-    renderDeckList(deckListContainer, getDecks(), {
-      onEdit: (deck) => {
-        openDeckModal({
-          deck,
-          onAccept: (updated) => replaceDeck(deck.id, updated),
-          onDelete: (d, closeModal) => attemptDeleteDeck(d, { onDeleted: closeModal }),
+  function renderGroupPanel() {
+    renderGroupList(groupListContainer, getGroups(), getComponents(), {
+      onEdit: (group) => {
+        openGroupModal({
+          group,
+          onAccept: (updated) => replaceGroup(group.id, updated),
+          onDelete: (g, closeModal) => attemptDeleteGroup(g, { onDeleted: closeModal }),
         });
       },
-      onRemove: (deck) => attemptDeleteDeck(deck),
+      onRemove: (group) => attemptDeleteGroup(group),
       onAdd: () => {
-        openDeckModal({ onAccept: (newDeck) => addDeck(newDeck) });
+        openGroupModal({ onAccept: (newGroup) => addGroup(newGroup) });
       },
-      collapsed: deckCollapsed,
+      collapsed: groupCollapsed,
       onToggleCollapse: () => {
-        deckCollapsed = !deckCollapsed;
-        setDeckPanelState({ collapsed: deckCollapsed });
-        renderDeckPanel();
+        groupCollapsed = !groupCollapsed;
+        setGroupPanelState({ collapsed: groupCollapsed });
+        renderGroupPanel();
       },
       onPanelMove: (left, top) => {
-        setDeckPanelState({ position: { left, top } });
+        setGroupPanelState({ position: { left, top } });
       },
       onPanelResize: (width, height) => {
-        setDeckPanelState(height ? { width, height } : { width });
+        setGroupPanelState(height ? { width, height } : { width });
       },
-      bodyHeight: getDeckPanelState().height,
+      bodyHeight: getGroupPanelState().height,
     });
   }
 
@@ -438,5 +442,5 @@ export function renderEditMode(container) {
   renderTable();
   renderList();
   renderResourcePanel();
-  renderDeckPanel();
+  renderGroupPanel();
 }

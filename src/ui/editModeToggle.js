@@ -1,7 +1,7 @@
 // UI para entrar/salir del modo edición: botón de entrada en modo juego,
 // barra de herramientas propia (con botón de salida) en modo edición.
 
-import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadDecks, getDecks, getDeckPanelState } from '../core/state.js';
+import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadGroups, getGroups, getGroupPanelState } from '../core/state.js';
 import { buildExportHtml, downloadHtml, downloadJson } from '../core/fileExport.js';
 import { buildComponentsExport, parseImportedComponents } from '../core/persistence.js';
 import { mergeImportedGame } from '../core/importMerge.js';
@@ -22,7 +22,7 @@ function currentFileName() {
 }
 
 function saveAs(filename) {
-  const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded(), getDecks(), getDeckPanelState());
+  const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded(), getGroups(), getGroupPanelState());
   downloadHtml(filename, html);
   showToast(`Guardado como "${filename}"`);
 }
@@ -36,10 +36,10 @@ function openExportFlow() {
   openExportSelectionModal({
     components: getComponents(),
     resources: getResources(),
-    decks: getDecks(),
+    groups: getGroups(),
     defaultFilename: 'errantes-componentes.json',
-    onAccept: ({ filename, componentIds, resourceIds, deckIds }) => {
-      const data = buildComponentsExport(byIds(getComponents(), componentIds), byIds(getResources(), resourceIds), byIds(getDecks(), deckIds));
+    onAccept: ({ filename, componentIds, resourceIds, groupIds }) => {
+      const data = buildComponentsExport(byIds(getComponents(), componentIds), byIds(getResources(), resourceIds), byIds(getGroups(), groupIds));
       downloadJson(filename.endsWith('.json') ? filename : `${filename}.json`, data);
     },
   });
@@ -57,8 +57,8 @@ function importComponentsFromFile(file) {
     openImportSelectionModal({
       components: result.components,
       resources: result.resources,
-      decks: result.decks,
-      onAccept: ({ componentIds, resourceIds, deckIds }) => {
+      groups: result.groups,
+      onAccept: ({ componentIds, resourceIds, groupIds }) => {
         openImportConfirmModal({
           onAccept: ({ mode, conflictMode }) => {
             const selectedComponents = byIds(result.components, componentIds);
@@ -76,22 +76,22 @@ function importComponentsFromFile(file) {
             }
 
             const proceedWithImport = (components) => {
-              const { components: mergedComponents, resources, decks, report } = mergeImportedGame({
+              const { components: mergedComponents, resources, groups, report } = mergeImportedGame({
                 mode,
                 conflictMode,
                 existingComponents: getComponents(),
                 existingResources: getResources(),
-                existingDecks: getDecks(),
+                existingGroups: getGroups(),
                 selectedComponents: components,
                 selectedResources: byIds(result.resources, resourceIds),
-                selectedDecks: byIds(result.decks, deckIds),
+                selectedGroups: byIds(result.groups, groupIds),
                 allImportedResources: result.resources,
-                allImportedDecks: result.decks,
+                allImportedGroups: result.groups,
               });
 
               loadComponents(mergedComponents);
               loadResources(resources);
-              loadDecks(decks);
+              loadGroups(groups);
 
               if (report.length > 0) openImportReportModal(report);
             };

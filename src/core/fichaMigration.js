@@ -91,7 +91,6 @@ export function migrateFichaProperties(fichaProperties) {
 
   const cartaProperties = {
     proporcion,
-    deckId: null,
     caraActual: 'frontal',
     caraFrontal: { ...cara, ajusteImagen: { ...cara.ajusteImagen }, textBoxes: cara.textBoxes.map((tb) => ({ ...tb })) },
     caraTrasera: { ...cara, ajusteImagen: { ...cara.ajusteImagen }, textBoxes: cara.textBoxes.map((tb) => ({ ...tb })) },
@@ -103,7 +102,7 @@ export function migrateFichaProperties(fichaProperties) {
 export function migrateFichaComponent(component) {
   const { properties, errors } = migrateFichaProperties(component.properties);
   return {
-    component: { ...component, type: 'carta', properties },
+    component: { ...component, type: 'carta', properties, grupoId: null },
     errors,
   };
 }

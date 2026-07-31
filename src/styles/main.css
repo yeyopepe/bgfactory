@@ -1832,18 +1832,18 @@ fieldset.modal__section--untitled {
   background: var(--error);
 }
 
-/* Floating deck panel (edit mode), analogous to .resource-panel* but without
-   the filter box or the add-menu (single "+ Añadir mazo" button instead).
+/* Floating group panel (edit mode), analogous to .resource-panel* but without
+   the filter box or the add-menu (single "+ Añadir grupo" button instead).
    Stacked below the resource panel on the same (right) side by default.
    z-index is assigned dynamically in JS (editMode.js, applyPanelStackOrder, cambio 00101). */
-.deck-panel-container {
+.group-panel-container {
   position: absolute;
   top: 55rem;
   right: 1rem;
   width: 400px;
 }
 
-.deck-panel {
+.group-panel {
   position: relative;
   width: 100%;
   background: var(--bg-card);
@@ -1852,7 +1852,7 @@ fieldset.modal__section--untitled {
   box-shadow: var(--shadow-1);
 }
 
-.deck-panel__header {
+.group-panel__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1863,11 +1863,11 @@ fieldset.modal__section--untitled {
   user-select: none;
 }
 
-.deck-panel__header.grabbing {
+.group-panel__header.grabbing {
   cursor: grabbing;
 }
 
-.deck-panel__header button {
+.group-panel__header button {
   background: none;
   border: none;
   color: inherit;
@@ -1875,18 +1875,18 @@ fieldset.modal__section--untitled {
   cursor: pointer;
 }
 
-.deck-panel__body {
+.group-panel__body {
   height: 320px;
   overflow-y: auto;
   overflow-x: auto;
 }
 
-.deck-panel__footer {
+.group-panel__footer {
   padding: 0.5rem 1rem;
   border-top: 1px solid var(--border-neutral);
 }
 
-.deck-panel__footer button {
+.group-panel__footer button {
   width: 100%;
   padding: 0.5rem;
   background: var(--accent-blue);
@@ -1897,40 +1897,44 @@ fieldset.modal__section--untitled {
   transition: opacity var(--transition-fast);
 }
 
-.deck-panel__footer button:hover {
+.group-panel__footer button:hover {
   opacity: 0.9;
 }
 
-/* Deck list (table inside the floating deck panel) */
-.deck-list {
+/* Group list (table inside the floating group panel) */
+.group-list {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
 }
 
-.deck-list__empty {
+.group-list__empty {
   color: var(--text-muted);
   text-align: center;
   padding: 1rem;
 }
 
-.deck-list th {
+.group-list th {
   padding: 0.5rem;
   text-align: left;
   font-weight: 500;
   background: var(--bg-subtle);
 }
 
-.deck-list td {
+.group-list td {
   padding: 0.5rem;
   border-top: 1px solid var(--border-neutral);
 }
 
-.deck-list__actions-cell {
+.group-list__count-cell {
+  text-align: center;
+}
+
+.group-list__actions-cell {
   white-space: nowrap;
 }
 
-.deck-list__action-btn {
+.group-list__action-btn {
   padding: 0.25rem 0.5rem;
   margin-right: 0.25rem;
   background: var(--accent-blue);
@@ -1942,17 +1946,17 @@ fieldset.modal__section--untitled {
   transition: opacity var(--transition-fast);
 }
 
-.deck-list__action-btn:hover {
+.group-list__action-btn:hover {
   opacity: 0.9;
 }
 
-.deck-list__action-btn--danger {
+.group-list__action-btn--danger {
   background: var(--error);
 }
 
-/* Deck delete confirmation modal (change 00079) — lista de cartas afectadas
-   por el borrado de un mazo en uso. */
-.deck-delete-confirm-modal__list {
+/* Group delete confirmation modal (change 00079) — lista de elementos afectados
+   por el borrado de un grupo en uso. */
+.group-delete-confirm-modal__list {
   max-height: 200px;
   overflow-y: auto;
   margin: 0.5rem 0;

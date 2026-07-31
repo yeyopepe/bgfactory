@@ -1,31 +1,33 @@
-// Panel flotante con el listado de mazos, usado en modo edición. Análogo a
+// Panel flotante con el listado de grupos, usado en modo edición. Análogo a
 // ui/resourceList.js pero simplificado: sin filtro de texto, sin columna
-// "Tipo" (los mazos no tienen tipo) y sin clonar.
+// "Tipo" (los grupos no tienen tipo) y sin clonar.
 
 import { attachResizeHandle } from './resizeHandle.js';
+import { getComponentsUsingGroup } from '../core/group.js';
 
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
 
-function renderBody(body, decks, { onEdit, onRemove } = {}) {
+function renderBody(body, groups, components, { onEdit, onRemove } = {}) {
   body.innerHTML = '';
 
-  if (decks.length === 0) {
+  if (groups.length === 0) {
     const empty = document.createElement('p');
-    empty.className = 'deck-list__empty';
-    empty.textContent = 'No hay mazos todavía.';
+    empty.className = 'group-list__empty';
+    empty.textContent = 'No hay grupos todavía.';
     body.appendChild(empty);
     return;
   }
 
   const table = document.createElement('table');
-  table.className = 'deck-list';
+  table.className = 'group-list';
 
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
-  for (const label of ['Nombre', 'Acciones']) {
+  for (const label of ['Nombre', 'Elementos', 'Acciones']) {
     const th = document.createElement('th');
     th.textContent = label;
+    if (label === 'Elementos') th.className = 'group-list__count-cell';
     headRow.appendChild(th);
   }
   thead.appendChild(headRow);
@@ -33,31 +35,36 @@ function renderBody(body, decks, { onEdit, onRemove } = {}) {
 
   const tbody = document.createElement('tbody');
 
-  for (const deck of decks) {
+  for (const group of groups) {
     const row = document.createElement('tr');
 
     const nameCell = document.createElement('td');
-    nameCell.textContent = deck.name;
+    nameCell.textContent = group.name;
     row.appendChild(nameCell);
 
+    const countCell = document.createElement('td');
+    countCell.className = 'group-list__count-cell';
+    countCell.textContent = String(getComponentsUsingGroup(group.id, components).length);
+    row.appendChild(countCell);
+
     const actionsCell = document.createElement('td');
-    actionsCell.className = 'deck-list__actions-cell';
+    actionsCell.className = 'group-list__actions-cell';
 
     if (onEdit) {
       const editButton = document.createElement('button');
       editButton.type = 'button';
-      editButton.className = 'deck-list__action-btn';
+      editButton.className = 'group-list__action-btn';
       editButton.textContent = 'Editar';
-      editButton.addEventListener('click', () => onEdit(deck));
+      editButton.addEventListener('click', () => onEdit(group));
       actionsCell.appendChild(editButton);
     }
 
     if (onRemove) {
       const removeButton = document.createElement('button');
       removeButton.type = 'button';
-      removeButton.className = 'deck-list__action-btn deck-list__action-btn--danger';
+      removeButton.className = 'group-list__action-btn group-list__action-btn--danger';
       removeButton.textContent = 'Eliminar';
-      removeButton.addEventListener('click', () => onRemove(deck));
+      removeButton.addEventListener('click', () => onRemove(group));
       actionsCell.appendChild(removeButton);
     }
 
@@ -69,22 +76,23 @@ function renderBody(body, decks, { onEdit, onRemove } = {}) {
   body.appendChild(table);
 }
 
-export function renderDeckList(
+export function renderGroupList(
   container,
-  decks,
+  groups,
+  components,
   { onEdit, onRemove, onAdd, collapsed = false, onToggleCollapse, onPanelMove, onPanelResize, bodyHeight = null } = {}
 ) {
   container.innerHTML = '';
 
   const panel = document.createElement('div');
-  panel.className = 'deck-panel';
+  panel.className = 'group-panel';
   let body;
 
   const header = document.createElement('div');
-  header.className = 'deck-panel__header';
+  header.className = 'group-panel__header';
 
   const title = document.createElement('strong');
-  title.textContent = `Mazos (${decks.length})`;
+  title.textContent = `Grupos (${groups.length})`;
   header.appendChild(title);
 
   const toggleButton = document.createElement('button');
@@ -136,19 +144,19 @@ export function renderDeckList(
 
   if (!collapsed) {
     body = document.createElement('div');
-    body.className = 'deck-panel__body';
+    body.className = 'group-panel__body';
     if (bodyHeight != null) {
       body.style.height = `${bodyHeight}px`;
     }
-    renderBody(body, decks, { onEdit, onRemove });
+    renderBody(body, groups, components, { onEdit, onRemove });
     panel.appendChild(body);
 
     const footer = document.createElement('div');
-    footer.className = 'deck-panel__footer';
+    footer.className = 'group-panel__footer';
 
     const addButton = document.createElement('button');
     addButton.type = 'button';
-    addButton.textContent = '+ Añadir mazo';
+    addButton.textContent = '+ Añadir grupo';
     addButton.addEventListener('click', () => {
       if (onAdd) onAdd();
     });

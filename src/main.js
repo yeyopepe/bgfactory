@@ -5,8 +5,8 @@ import { on } from './core/eventBus.js';
 import {
   MODES, getState, addComponent, loadComponents, getComponents, getPanelState, loadPanelState,
   addResource, loadResources, getResources, getResourcePanelState, loadResourcePanelState,
-  getResourcesSeeded, markResourcesSeeded, loadResourcesSeeded, getDecks, loadDecks,
-  getDeckPanelState, loadDeckPanelState,
+  getResourcesSeeded, markResourcesSeeded, loadResourcesSeeded, getGroups, loadGroups,
+  getGroupPanelState, loadGroupPanelState,
 } from './core/state.js';
 import { CURRENT_VERSION } from './data/version.js';
 import { DEFAULT_RESOURCES } from './data/defaultResources.js';
@@ -44,7 +44,7 @@ function renderAll() {
 }
 
 function persistState() {
-  saveState(getComponents(), getPanelState(), getResources(), getResourcePanelState(), getResourcesSeeded(), getDecks(), getDeckPanelState());
+  saveState(getComponents(), getPanelState(), getResources(), getResourcePanelState(), getResourcesSeeded(), getGroups(), getGroupPanelState());
 }
 
 on('mode:changed', renderAll);
@@ -55,9 +55,9 @@ on('resources:changed', renderAll);
 on('resources:changed', persistState);
 on('resources:changed', (resources) => syncFontFaces(resources));
 on('resourcePanelState:changed', persistState);
-on('decks:changed', renderAll);
-on('decks:changed', persistState);
-on('deckPanelState:changed', persistState);
+on('groups:changed', renderAll);
+on('groups:changed', persistState);
+on('groupPanelState:changed', persistState);
 
 initGlobalShortcuts({
   isEditMode: () => getState().mode === MODES.EDIT,
@@ -106,13 +106,13 @@ if (saved?.error) {
   if (saved.resourcePanelState) {
     loadResourcePanelState(saved.resourcePanelState);
   }
-  if (saved.deckPanelState) {
-    loadDeckPanelState(saved.deckPanelState);
+  if (saved.groupPanelState) {
+    loadGroupPanelState(saved.groupPanelState);
   }
   loadResourcesSeeded(saved.resourcesSeeded === true);
   loadComponents(saved.components);
   loadResources(saved.resources);
-  loadDecks(saved.decks ?? []);
+  loadGroups(saved.groups ?? []);
   if (!getResourcesSeeded()) {
     seedDefaultResources();
   }
@@ -122,7 +122,7 @@ if (saved?.error) {
     loadResourcesSeeded(seed.resourcesSeeded === true);
     loadComponents(seed.components);
     loadResources(seed.resources);
-    loadDecks(seed.decks ?? []);
+    loadGroups(seed.groups ?? []);
     if (!getResourcesSeeded()) {
       seedDefaultResources();
     }

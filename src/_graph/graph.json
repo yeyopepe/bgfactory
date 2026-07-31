@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-28T12:37:35Z",
+  "generatedAt": "2026-07-31T08:53:01Z",
   "basePath": "src",
   "nodes": [
     {
@@ -31,18 +31,6 @@
         "updateComponent"
       ],
       "purpose": "Modelo genérico de componente de juego: construcción/actualización, clonado, y el mecanismo de Copia vinculada (creación, renombrado e id, y sincronización de campos con el original)."
-    },
-    {
-      "id": "core/deck.js",
-      "type": "file",
-      "path": "core/deck.js",
-      "exports": [
-        "createDeck",
-        "getComponentsUsingDeck",
-        "isDeckNameTaken",
-        "updateDeck"
-      ],
-      "purpose": "Modelo mínimo de mazo de cartas: alta/edición, comprobación de nombre duplicado y búsqueda de las cartas que referencian un mazo."
     },
     {
       "id": "core/dice.js",
@@ -89,6 +77,18 @@
         "downloadJson"
       ],
       "purpose": "Genera una copia autocontenida del HTML actual con el estado embebido y dispara la descarga de ficheros HTML/JSON."
+    },
+    {
+      "id": "core/group.js",
+      "type": "file",
+      "path": "core/group.js",
+      "exports": [
+        "createGroup",
+        "getComponentsUsingGroup",
+        "isGroupNameTaken",
+        "updateGroup"
+      ],
+      "purpose": "Modelo minimo de grupo (agrupacion de elementos de cualquier tipo): crear/actualizar, validar nombre unico y listar componentes que pertenecen a un grupo."
     },
     {
       "id": "core/imageConversion.js",
@@ -161,32 +161,32 @@
       "exports": [
         "MODES",
         "addComponent",
-        "addDeck",
+        "addGroup",
         "addResource",
         "getComponents",
-        "getDeckPanelState",
-        "getDecks",
+        "getGroupPanelState",
+        "getGroups",
         "getPanelState",
         "getResourcePanelState",
         "getResources",
         "getResourcesSeeded",
         "getState",
         "loadComponents",
-        "loadDeckPanelState",
-        "loadDecks",
+        "loadGroupPanelState",
+        "loadGroups",
         "loadPanelState",
         "loadResourcePanelState",
         "loadResources",
         "loadResourcesSeeded",
         "markResourcesSeeded",
         "removeComponent",
-        "removeDeck",
+        "removeGroup",
         "removeResource",
         "reorderComponent",
         "replaceComponent",
-        "replaceDeck",
+        "replaceGroup",
         "replaceResource",
-        "setDeckPanelState",
+        "setGroupPanelState",
         "setMode",
         "setPanelState",
         "setResourcePanelState"
@@ -353,6 +353,7 @@
       "type": "file",
       "path": "ui/componentTypeModal.js",
       "exports": [
+        "getComponentTypeLabel",
         "openComponentTypeModal"
       ],
       "purpose": "Modal previa al alta de un componente para elegir su tipo, antes de abrir la modal de configuración."
@@ -374,33 +375,6 @@
         "openCopyComponentModal"
       ],
       "purpose": "Modal reducida y de solo lectura para un componente de tipo Copia: muestra el id del original y permite eliminarla, sin nada editable."
-    },
-    {
-      "id": "ui/deckDeleteConfirmModal.js",
-      "type": "file",
-      "path": "ui/deckDeleteConfirmModal.js",
-      "exports": [
-        "openDeckDeleteConfirmModal"
-      ],
-      "purpose": "Modal de confirmación para borrar un mazo en uso, mostrando las cartas afectadas que quedarán sin mazo asignado si se continúa."
-    },
-    {
-      "id": "ui/deckList.js",
-      "type": "file",
-      "path": "ui/deckList.js",
-      "exports": [
-        "renderDeckList"
-      ],
-      "purpose": "Panel flotante y colapsable con el listado de mazos en modo edición: tabla de nombre y acciones (editar/eliminar)."
-    },
-    {
-      "id": "ui/deckModal.js",
-      "type": "file",
-      "path": "ui/deckModal.js",
-      "exports": [
-        "openDeckModal"
-      ],
-      "purpose": "Modal mínima de alta/edición de un mazo, con validación de nombre no vacío y no duplicado."
     },
     {
       "id": "ui/diceFontModal.js",
@@ -475,6 +449,33 @@
         "initGlobalShortcuts"
       ],
       "purpose": "Atajos de teclado globales (ESC/INTRO/SUPR) equivalentes a los botones ya existentes de cada modal/contexto, sin introducir acciones nuevas."
+    },
+    {
+      "id": "ui/groupDeleteConfirmModal.js",
+      "type": "file",
+      "path": "ui/groupDeleteConfirmModal.js",
+      "exports": [
+        "openGroupDeleteConfirmModal"
+      ],
+      "purpose": "Modal de confirmacion para borrar un grupo en uso, mostrando la lista de elementos afectados (id y tipo) antes de borrarlo."
+    },
+    {
+      "id": "ui/groupList.js",
+      "type": "file",
+      "path": "ui/groupList.js",
+      "exports": [
+        "renderGroupList"
+      ],
+      "purpose": "Panel flotante con el listado de grupos en modo edicion (tabla Nombre/Elementos/Acciones, sin filtro ni columna Tipo; Elementos muestra el recuento de componentes asignados a cada grupo)."
+    },
+    {
+      "id": "ui/groupModal.js",
+      "type": "file",
+      "path": "ui/groupModal.js",
+      "exports": [
+        "openGroupModal"
+      ],
+      "purpose": "Modal minima de alta/edicion de un grupo (campo Nombre, validacion de duplicados, boton Eliminar en modo edicion)."
     },
     {
       "id": "ui/helpIcon.js",
@@ -695,34 +696,6 @@
       "purpose": "Devuelve un componente con los cambios indicados aplicados, fusionando properties en profundidad."
     },
     {
-      "id": "core/deck.js#createDeck",
-      "type": "function",
-      "path": "core/deck.js",
-      "parent": "core/deck.js",
-      "purpose": "Crea un objeto de mazo con id generado (o el indicado) y nombre."
-    },
-    {
-      "id": "core/deck.js#getComponentsUsingDeck",
-      "type": "function",
-      "path": "core/deck.js",
-      "parent": "core/deck.js",
-      "purpose": "Devuelve los ids de los componentes tipo 'carta' que referencian un mazo dado."
-    },
-    {
-      "id": "core/deck.js#isDeckNameTaken",
-      "type": "function",
-      "path": "core/deck.js",
-      "parent": "core/deck.js",
-      "purpose": "Comprueba si un nombre de mazo ya está en uso por otro mazo, ignorando mayúsculas/espacios."
-    },
-    {
-      "id": "core/deck.js#updateDeck",
-      "type": "function",
-      "path": "core/deck.js",
-      "parent": "core/deck.js",
-      "purpose": "Devuelve un mazo con los cambios indicados aplicados."
-    },
-    {
       "id": "core/dice.js#esResultadoValido",
       "type": "function",
       "path": "core/dice.js",
@@ -819,6 +792,34 @@
       "path": "core/fileExport.js",
       "parent": "core/fileExport.js",
       "purpose": "Dispara la descarga de unos datos como fichero JSON, vía Blob y enlace temporal."
+    },
+    {
+      "id": "core/group.js#createGroup",
+      "type": "function",
+      "path": "core/group.js",
+      "parent": "core/group.js",
+      "purpose": "Crea un objeto grupo nuevo con id (generado si no se pasa) y nombre."
+    },
+    {
+      "id": "core/group.js#getComponentsUsingGroup",
+      "type": "function",
+      "path": "core/group.js",
+      "parent": "core/group.js",
+      "purpose": "Devuelve los ids de los componentes de cualquier tipo cuyo grupoId coincide con el grupo indicado."
+    },
+    {
+      "id": "core/group.js#isGroupNameTaken",
+      "type": "function",
+      "path": "core/group.js",
+      "parent": "core/group.js",
+      "purpose": "Comprueba si un nombre de grupo ya esta en uso por otro grupo, normalizando mayusculas/minusculas y espacios."
+    },
+    {
+      "id": "core/group.js#updateGroup",
+      "type": "function",
+      "path": "core/group.js",
+      "parent": "core/group.js",
+      "purpose": "Devuelve una copia de un grupo con los cambios indicados aplicados."
     },
     {
       "id": "core/imageConversion.js#convertImageToWebP",
@@ -933,11 +934,11 @@
       "purpose": "Añade un componente nuevo al estado, colocándolo en la primera posición de apilado (order = 1) y desplazando al resto."
     },
     {
-      "id": "core/state.js#addDeck",
+      "id": "core/state.js#addGroup",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Añade un mazo nuevo al estado y notifica el cambio."
+      "purpose": "Anade un grupo nuevo a la coleccion de grupos del estado y emite groups:changed."
     },
     {
       "id": "core/state.js#addResource",
@@ -954,18 +955,18 @@
       "purpose": "Devuelve la lista actual de componentes del estado."
     },
     {
-      "id": "core/state.js#getDeckPanelState",
+      "id": "core/state.js#getGroupPanelState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Devuelve el estado actual (posición/ancho/alto/colapso) del panel flotante de mazos."
+      "purpose": "Devuelve el estado actual (posicion/ancho/colapso) del panel flotante de grupos."
     },
     {
-      "id": "core/state.js#getDecks",
+      "id": "core/state.js#getGroups",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Devuelve la lista actual de mazos del estado."
+      "purpose": "Devuelve la coleccion de grupos del estado."
     },
     {
       "id": "core/state.js#getPanelState",
@@ -1010,18 +1011,18 @@
       "purpose": "Carga una lista de componentes en el estado, migrando fichas antiguas y recompactando su order."
     },
     {
-      "id": "core/state.js#loadDeckPanelState",
+      "id": "core/state.js#loadGroupPanelState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Reemplaza el estado del panel de mazos con uno cargado (p. ej. desde un guardado)."
+      "purpose": "Sustituye el estado del panel de grupos por el indicado, sin emitir evento (usado al hidratar desde guardado)."
     },
     {
-      "id": "core/state.js#loadDecks",
+      "id": "core/state.js#loadGroups",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Carga una lista de mazos en el estado y notifica el cambio."
+      "purpose": "Sustituye la coleccion de grupos por la indicada y emite groups:changed."
     },
     {
       "id": "core/state.js#loadPanelState",
@@ -1066,11 +1067,11 @@
       "purpose": "Elimina un componente del estado junto a sus copias vinculadas, recompactando el order restante."
     },
     {
-      "id": "core/state.js#removeDeck",
+      "id": "core/state.js#removeGroup",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Elimina un mazo del estado y notifica el cambio."
+      "purpose": "Elimina un grupo de la coleccion por id y emite groups:changed."
     },
     {
       "id": "core/state.js#removeResource",
@@ -1094,11 +1095,11 @@
       "purpose": "Sustituye un componente del estado por su versión actualizada, propagando los cambios sincronizables a sus copias vinculadas."
     },
     {
-      "id": "core/state.js#replaceDeck",
+      "id": "core/state.js#replaceGroup",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Sustituye un mazo del estado por su versión actualizada y notifica el cambio."
+      "purpose": "Sustituye un grupo existente por una version actualizada y emite groups:changed."
     },
     {
       "id": "core/state.js#replaceResource",
@@ -1108,11 +1109,11 @@
       "purpose": "Sustituye un recurso del estado por su versión actualizada y notifica el cambio."
     },
     {
-      "id": "core/state.js#setDeckPanelState",
+      "id": "core/state.js#setGroupPanelState",
       "type": "function",
       "path": "core/state.js",
       "parent": "core/state.js",
-      "purpose": "Fusiona cambios parciales en el estado del panel de mazos y notifica el cambio."
+      "purpose": "Actualiza parcialmente el estado del panel de grupos y emite groupPanelState:changed."
     },
     {
       "id": "core/state.js#setMode",
@@ -1269,6 +1270,13 @@
       "purpose": "Renderiza todos los componentes sobre la mesa infinita, con su apilado, indicadores e interacciones (mover, redimensionar, lanzar dado, voltear carta, menú contextual)."
     },
     {
+      "id": "ui/componentTypeModal.js#getComponentTypeLabel",
+      "type": "function",
+      "path": "ui/componentTypeModal.js",
+      "parent": "ui/componentTypeModal.js",
+      "purpose": "Devuelve la etiqueta visible de un tipo de componente (p.ej. 'carta' -> 'Carta/Ficha') a partir del catalogo de tipos."
+    },
+    {
       "id": "ui/componentTypeModal.js#openComponentTypeModal",
       "type": "function",
       "path": "ui/componentTypeModal.js",
@@ -1288,27 +1296,6 @@
       "path": "ui/copyComponentModal.js",
       "parent": "ui/copyComponentModal.js",
       "purpose": "Abre la modal reducida de solo lectura de un componente de tipo Copia."
-    },
-    {
-      "id": "ui/deckDeleteConfirmModal.js#openDeckDeleteConfirmModal",
-      "type": "function",
-      "path": "ui/deckDeleteConfirmModal.js",
-      "parent": "ui/deckDeleteConfirmModal.js",
-      "purpose": "Abre la modal de confirmación para borrar un mazo en uso, listando las cartas afectadas."
-    },
-    {
-      "id": "ui/deckList.js#renderDeckList",
-      "type": "function",
-      "path": "ui/deckList.js",
-      "parent": "ui/deckList.js",
-      "purpose": "Renderiza el panel flotante con el listado de mazos y sus acciones de fila."
-    },
-    {
-      "id": "ui/deckModal.js#openDeckModal",
-      "type": "function",
-      "path": "ui/deckModal.js",
-      "parent": "ui/deckModal.js",
-      "purpose": "Abre la modal de alta/edición de un mazo, con validación de nombre."
     },
     {
       "id": "ui/diceFontModal.js#openDiceFontModal",
@@ -1379,6 +1366,27 @@
       "path": "ui/globalShortcuts.js",
       "parent": "ui/globalShortcuts.js",
       "purpose": "Registra los atajos de teclado globales (ESC/INTRO/SUPR) equivalentes a los botones ya existentes de cada contexto."
+    },
+    {
+      "id": "ui/groupDeleteConfirmModal.js#openGroupDeleteConfirmModal",
+      "type": "function",
+      "path": "ui/groupDeleteConfirmModal.js",
+      "parent": "ui/groupDeleteConfirmModal.js",
+      "purpose": "Abre la modal de confirmacion de borrado de un grupo en uso, con la lista de elementos afectados y el callback de confirmacion."
+    },
+    {
+      "id": "ui/groupList.js#renderGroupList",
+      "type": "function",
+      "path": "ui/groupList.js",
+      "parent": "ui/groupList.js",
+      "purpose": "Renderiza el panel flotante de grupos (tabla con columna de recuento de elementos, cabecera arrastrable, pie con boton anadir) dentro del contenedor indicado."
+    },
+    {
+      "id": "ui/groupModal.js#openGroupModal",
+      "type": "function",
+      "path": "ui/groupModal.js",
+      "parent": "ui/groupModal.js",
+      "purpose": "Abre la modal de alta/edicion de un grupo, validando el nombre en vivo y devolviendo el grupo creado/actualizado al aceptar."
     },
     {
       "id": "ui/helpIcon.js#createHelpIcon",
@@ -1551,12 +1559,12 @@
     },
     {
       "source": "core/importMerge.js#mergeImportedGame",
-      "target": "core/deck.js#createDeck",
+      "target": "core/group.js#createGroup",
       "relation": "calls"
     },
     {
       "source": "core/importMerge.js#mergeImportedGame",
-      "target": "core/deck.js#isDeckNameTaken",
+      "target": "core/group.js#isGroupNameTaken",
       "relation": "calls"
     },
     {
@@ -1565,7 +1573,7 @@
       "relation": "calls"
     },
     {
-      "source": "core/state.js#addDeck",
+      "source": "core/state.js#addGroup",
       "target": "core/eventBus.js#emit",
       "relation": "calls"
     },
@@ -1580,7 +1588,7 @@
       "relation": "calls"
     },
     {
-      "source": "core/state.js#loadDecks",
+      "source": "core/state.js#loadGroups",
       "target": "core/eventBus.js#emit",
       "relation": "calls"
     },
@@ -1595,7 +1603,7 @@
       "relation": "calls"
     },
     {
-      "source": "core/state.js#removeDeck",
+      "source": "core/state.js#removeGroup",
       "target": "core/eventBus.js#emit",
       "relation": "calls"
     },
@@ -1625,7 +1633,7 @@
       "relation": "calls"
     },
     {
-      "source": "core/state.js#replaceDeck",
+      "source": "core/state.js#replaceGroup",
       "target": "core/eventBus.js#emit",
       "relation": "calls"
     },
@@ -1635,7 +1643,7 @@
       "relation": "calls"
     },
     {
-      "source": "core/state.js#setDeckPanelState",
+      "source": "core/state.js#setGroupPanelState",
       "target": "core/eventBus.js#emit",
       "relation": "calls"
     },
@@ -1706,7 +1714,7 @@
     },
     {
       "source": "modes/edit/editMode.js#renderEditMode",
-      "target": "core/deck.js#getComponentsUsingDeck",
+      "target": "core/group.js#getComponentsUsingGroup",
       "relation": "calls"
     },
     {
@@ -1766,22 +1774,22 @@
     },
     {
       "source": "modes/edit/editMode.js#renderEditMode",
-      "target": "ui/deckDeleteConfirmModal.js#openDeckDeleteConfirmModal",
-      "relation": "calls"
-    },
-    {
-      "source": "modes/edit/editMode.js#renderEditMode",
-      "target": "ui/deckList.js#renderDeckList",
-      "relation": "calls"
-    },
-    {
-      "source": "modes/edit/editMode.js#renderEditMode",
-      "target": "ui/deckModal.js#openDeckModal",
-      "relation": "calls"
-    },
-    {
-      "source": "modes/edit/editMode.js#renderEditMode",
       "target": "ui/errorModal.js#showErrorModal",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "ui/groupDeleteConfirmModal.js#openGroupDeleteConfirmModal",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "ui/groupList.js#renderGroupList",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "ui/groupModal.js#openGroupModal",
       "relation": "calls"
     },
     {
@@ -1936,16 +1944,6 @@
     },
     {
       "source": "ui/componentModal.js#openComponentModal",
-      "target": "core/deck.js#createDeck",
-      "relation": "calls"
-    },
-    {
-      "source": "ui/componentModal.js#openComponentModal",
-      "target": "core/deck.js#isDeckNameTaken",
-      "relation": "calls"
-    },
-    {
-      "source": "ui/componentModal.js#openComponentModal",
       "target": "core/dice.js#esResultadoValido",
       "relation": "calls"
     },
@@ -1961,7 +1959,17 @@
     },
     {
       "source": "ui/componentModal.js#openComponentModal",
-      "target": "core/state.js#addDeck",
+      "target": "core/group.js#createGroup",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
+      "target": "core/group.js#isGroupNameTaken",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
+      "target": "core/state.js#addGroup",
       "relation": "calls"
     },
     {
@@ -1971,7 +1979,7 @@
     },
     {
       "source": "ui/componentModal.js#openComponentModal",
-      "target": "core/state.js#getDecks",
+      "target": "core/state.js#getGroups",
       "relation": "calls"
     },
     {
@@ -2105,31 +2113,6 @@
       "relation": "calls"
     },
     {
-      "source": "ui/deckList.js#renderDeckList",
-      "target": "ui/resizeHandle.js#attachResizeHandle",
-      "relation": "calls"
-    },
-    {
-      "source": "ui/deckModal.js#openDeckModal",
-      "target": "core/deck.js#createDeck",
-      "relation": "calls"
-    },
-    {
-      "source": "ui/deckModal.js#openDeckModal",
-      "target": "core/deck.js#isDeckNameTaken",
-      "relation": "calls"
-    },
-    {
-      "source": "ui/deckModal.js#openDeckModal",
-      "target": "core/deck.js#updateDeck",
-      "relation": "calls"
-    },
-    {
-      "source": "ui/deckModal.js#openDeckModal",
-      "target": "core/state.js#getDecks",
-      "relation": "calls"
-    },
-    {
       "source": "ui/diceFontModal.js#openDiceFontModal",
       "target": "ui/fontFaceRegistry.js#fontFamilyFor",
       "relation": "calls"
@@ -2157,6 +2140,31 @@
     {
       "source": "ui/exportSelectionModal.js#openExportSelectionModal",
       "target": "ui/elementSelectionModal.js#createElementSelectionGroups",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/groupList.js#renderGroupList",
+      "target": "ui/resizeHandle.js#attachResizeHandle",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/groupModal.js#openGroupModal",
+      "target": "core/group.js#createGroup",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/groupModal.js#openGroupModal",
+      "target": "core/group.js#isGroupNameTaken",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/groupModal.js#openGroupModal",
+      "target": "core/group.js#updateGroup",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/groupModal.js#openGroupModal",
+      "target": "core/state.js#getGroups",
       "relation": "calls"
     },
     {
@@ -2191,7 +2199,7 @@
     },
     {
       "source": "core/importMerge.js",
-      "target": "core/deck.js",
+      "target": "core/group.js",
       "relation": "imports"
     },
     {
@@ -2286,7 +2294,7 @@
     },
     {
       "source": "modes/edit/editMode.js",
-      "target": "core/deck.js",
+      "target": "core/group.js",
       "relation": "imports"
     },
     {
@@ -2331,22 +2339,22 @@
     },
     {
       "source": "modes/edit/editMode.js",
-      "target": "ui/deckDeleteConfirmModal.js",
-      "relation": "imports"
-    },
-    {
-      "source": "modes/edit/editMode.js",
-      "target": "ui/deckList.js",
-      "relation": "imports"
-    },
-    {
-      "source": "modes/edit/editMode.js",
-      "target": "ui/deckModal.js",
-      "relation": "imports"
-    },
-    {
-      "source": "modes/edit/editMode.js",
       "target": "ui/errorModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/edit/editMode.js",
+      "target": "ui/groupDeleteConfirmModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/edit/editMode.js",
+      "target": "ui/groupList.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/edit/editMode.js",
+      "target": "ui/groupModal.js",
       "relation": "imports"
     },
     {
@@ -2476,12 +2484,12 @@
     },
     {
       "source": "ui/componentModal.js",
-      "target": "core/deck.js",
+      "target": "core/dice.js",
       "relation": "imports"
     },
     {
       "source": "ui/componentModal.js",
-      "target": "core/dice.js",
+      "target": "core/group.js",
       "relation": "imports"
     },
     {
@@ -2580,21 +2588,6 @@
       "relation": "imports"
     },
     {
-      "source": "ui/deckList.js",
-      "target": "ui/resizeHandle.js",
-      "relation": "imports"
-    },
-    {
-      "source": "ui/deckModal.js",
-      "target": "core/deck.js",
-      "relation": "imports"
-    },
-    {
-      "source": "ui/deckModal.js",
-      "target": "core/state.js",
-      "relation": "imports"
-    },
-    {
       "source": "ui/diceFontModal.js",
       "target": "core/resource.js",
       "relation": "imports"
@@ -2690,6 +2683,31 @@
       "relation": "imports"
     },
     {
+      "source": "ui/groupDeleteConfirmModal.js",
+      "target": "ui/componentTypeModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/groupList.js",
+      "target": "core/group.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/groupList.js",
+      "target": "ui/resizeHandle.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/groupModal.js",
+      "target": "core/group.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/groupModal.js",
+      "target": "core/state.js",
+      "relation": "imports"
+    },
+    {
       "source": "ui/importSelectionModal.js",
       "target": "ui/elementSelectionModal.js",
       "relation": "imports"
@@ -2727,11 +2745,6 @@
     {
       "source": "ui/styleClipboardSelectionModal.js",
       "target": "core/cardProportions.js",
-      "relation": "imports"
-    },
-    {
-      "source": "ui/styleClipboardSelectionModal.js",
-      "target": "core/state.js",
       "relation": "imports"
     },
     {

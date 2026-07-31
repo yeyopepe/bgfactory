@@ -18,16 +18,20 @@ function parseState(raw) {
   }
   const panelState = (parsed.panelState && typeof parsed.panelState === 'object') ? parsed.panelState : null;
   const resourcePanelState = (parsed.resourcePanelState && typeof parsed.resourcePanelState === 'object') ? parsed.resourcePanelState : null;
-  const deckPanelState = (parsed.deckPanelState && typeof parsed.deckPanelState === 'object') ? parsed.deckPanelState : null;
+  // Compatibilidad hacia atrás (cambio 00105, "Mazo" → "Grupo"): un guardado hecho con
+  // la app anterior a este cambio tiene estas dos colecciones bajo las claves antiguas
+  // `decks`/`deckPanelState` — se siguen leyendo si las nuevas no están presentes.
+  const groupPanelStateRaw = parsed.groupPanelState ?? parsed.deckPanelState;
+  const groupPanelState = (groupPanelStateRaw && typeof groupPanelStateRaw === 'object') ? groupPanelStateRaw : null;
   const resources = Array.isArray(parsed.resources) ? parsed.resources : [];
   const resourcesSeeded = parsed.resourcesSeeded === true;
-  const decks = Array.isArray(parsed.decks) ? parsed.decks : [];
-  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded, decks, deckPanelState };
+  const groups = Array.isArray(parsed.groups) ? parsed.groups : (Array.isArray(parsed.decks) ? parsed.decks : []);
+  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded, groups, groupPanelState };
 }
 
-export function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded, decks, deckPanelState) {
+export function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded, groups, groupPanelState) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, decks, deckPanelState }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, groups, groupPanelState }));
   } catch {
     // Cuota excedida u otro fallo de localStorage: el autoguardado se omite
     // silenciosamente, sin interrumpir el uso normal de la aplicación.
@@ -62,13 +66,13 @@ export function parseImportedComponents(raw) {
     return { error: true, detail: 'El fichero no contiene un listado de componentes válido.' };
   }
   const resources = Array.isArray(parsed.resources) ? parsed.resources : [];
-  const decks = Array.isArray(parsed.decks) ? parsed.decks : [];
-  return { components: parsed.components, resources, decks };
+  const groups = Array.isArray(parsed.groups) ? parsed.groups : (Array.isArray(parsed.decks) ? parsed.decks : []);
+  return { components: parsed.components, resources, groups };
 }
 
-// JSON ligero con los componentes, todos los recursos y los mazos (a diferencia
+// JSON ligero con los componentes, todos los recursos y los grupos (a diferencia
 // de "Guardar", que exporta la app completa) — pensado para sobrevivir a
 // cambios de versión de la app, sin incluir la configuración del panel flotante.
-export function buildComponentsExport(components, resources, decks) {
-  return { version: CURRENT_VERSION, components, resources, decks };
+export function buildComponentsExport(components, resources, groups) {
+  return { version: CURRENT_VERSION, components, resources, groups };
 }

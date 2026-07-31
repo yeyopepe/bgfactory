@@ -10,6 +10,11 @@ const COMPONENT_TYPES = [
   { value: 'carta', label: 'Carta/Ficha' },
 ];
 
+export function getComponentTypeLabel(type) {
+  const entry = COMPONENT_TYPES.find((t) => t.value === type);
+  return entry ? entry.label : type;
+}
+
 export function openComponentTypeModal({ onAccept }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';

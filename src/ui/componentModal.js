@@ -1,9 +1,9 @@
 // Modal for creating/editing components with tabs.
 // Generically handles different component types via type-specific tab content.
 
-import { getComponents, getResources, getDecks, addDeck } from '../core/state.js';
+import { getComponents, getResources, getGroups, addGroup } from '../core/state.js';
 import { createComponent, updateComponent } from '../core/component.js';
-import { createDeck, isDeckNameTaken } from '../core/deck.js';
+import { createGroup, isGroupNameTaken } from '../core/group.js';
 import { createHelpIcon } from './helpIcon.js';
 import { openBoardPatternModal } from './boardPatternModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
@@ -53,7 +53,6 @@ export const DEFAULT_DOCUMENTO_PROPERTIES = {
 
 export const DEFAULT_CARTA_PROPERTIES = {
   proporcion: '5:7',
-  deckId: null,
   caraActual: 'trasera',
   caraFrontal: {
     imagenResourceId: null,
@@ -278,6 +277,104 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     text: 'Si está marcado, este componente se coloca automáticamente encima de todos los demás cada vez que se mueve o se interactúa con él (voltear, lanzar) en Modo Juego.',
   }));
   generalContent.appendChild(upOnMoveField);
+
+  // Grupo (cambio 00105): propiedad general de cualquier tipo de componente,
+  // antes exclusiva de "Carta/Ficha" bajo el nombre "Mazo".
+  const groupField = document.createElement('div');
+  groupField.className = 'modal__field';
+  const groupLabel = document.createElement('label');
+  groupLabel.textContent = 'Grupo';
+  const groupSelect = document.createElement('select');
+  const NEW_GROUP_VALUE = '__new__';
+
+  const newGroupRow = document.createElement('div');
+  newGroupRow.style.display = 'none';
+  newGroupRow.style.marginTop = '0.5rem';
+  const newGroupInputRow = document.createElement('div');
+  newGroupInputRow.style.display = 'flex';
+  newGroupInputRow.style.gap = '0.5rem';
+  const newGroupInput = document.createElement('input');
+  newGroupInput.type = 'text';
+  newGroupInput.placeholder = 'Nombre del grupo nuevo';
+  const newGroupCreateBtn = document.createElement('button');
+  newGroupCreateBtn.type = 'button';
+  newGroupCreateBtn.className = 'btn-cancel';
+  newGroupCreateBtn.textContent = 'Crear';
+  newGroupInputRow.appendChild(newGroupInput);
+  newGroupInputRow.appendChild(newGroupCreateBtn);
+  const newGroupError = document.createElement('div');
+  newGroupError.className = 'modal__error';
+  newGroupError.style.display = 'none';
+  newGroupError.style.marginTop = '0.25rem';
+  newGroupRow.appendChild(newGroupInputRow);
+  newGroupRow.appendChild(newGroupError);
+
+  function populateGroupSelect() {
+    groupSelect.innerHTML = '';
+    const noneOption = document.createElement('option');
+    noneOption.value = '';
+    noneOption.textContent = 'Sin grupo';
+    if (!workingComponent.grupoId) noneOption.selected = true;
+    groupSelect.appendChild(noneOption);
+
+    for (const group of getGroups()) {
+      const option = document.createElement('option');
+      option.value = group.id;
+      option.textContent = group.name;
+      if (group.id === workingComponent.grupoId) option.selected = true;
+      groupSelect.appendChild(option);
+    }
+
+    const newOption = document.createElement('option');
+    newOption.value = NEW_GROUP_VALUE;
+    newOption.textContent = '+ Crear nuevo grupo…';
+    groupSelect.appendChild(newOption);
+  }
+  populateGroupSelect();
+
+  function validateNewGroupName() {
+    const name = newGroupInput.value.trim();
+    if (!name) {
+      newGroupError.textContent = 'El nombre no puede estar vacío';
+      newGroupError.style.display = 'block';
+      return false;
+    }
+    if (isGroupNameTaken(name, getGroups())) {
+      newGroupError.textContent = 'Ya existe un grupo con este nombre';
+      newGroupError.style.display = 'block';
+      return false;
+    }
+    newGroupError.style.display = 'none';
+    return true;
+  }
+
+  groupSelect.addEventListener('change', () => {
+    if (groupSelect.value === NEW_GROUP_VALUE) {
+      newGroupRow.style.display = 'block';
+      newGroupInput.focus();
+      return;
+    }
+    newGroupRow.style.display = 'none';
+    workingComponent.grupoId = groupSelect.value || null;
+  });
+
+  newGroupInput.addEventListener('input', validateNewGroupName);
+
+  newGroupCreateBtn.addEventListener('click', () => {
+    if (!validateNewGroupName()) return;
+    const name = newGroupInput.value.trim();
+    const group = createGroup({ name });
+    addGroup(group);
+    workingComponent.grupoId = group.id;
+    newGroupRow.style.display = 'none';
+    newGroupInput.value = '';
+    populateGroupSelect();
+  });
+
+  groupField.appendChild(groupLabel);
+  groupField.appendChild(groupSelect);
+  groupField.appendChild(newGroupRow);
+  generalContent.appendChild(groupField);
 
   function validateId() {
     const newId = idInput.value.trim();
@@ -831,103 +928,6 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     proporcionField.appendChild(proporcionSelect);
     container.appendChild(proporcionField);
 
-    // Mazo
-    const deckField = document.createElement('div');
-    deckField.className = 'modal__field';
-    const deckLabel = document.createElement('label');
-    deckLabel.textContent = 'Mazo';
-    const deckSelect = document.createElement('select');
-    const NEW_DECK_VALUE = '__new__';
-
-    const newDeckRow = document.createElement('div');
-    newDeckRow.style.display = 'none';
-    newDeckRow.style.marginTop = '0.5rem';
-    const newDeckInputRow = document.createElement('div');
-    newDeckInputRow.style.display = 'flex';
-    newDeckInputRow.style.gap = '0.5rem';
-    const newDeckInput = document.createElement('input');
-    newDeckInput.type = 'text';
-    newDeckInput.placeholder = 'Nombre del mazo nuevo';
-    const newDeckCreateBtn = document.createElement('button');
-    newDeckCreateBtn.type = 'button';
-    newDeckCreateBtn.className = 'btn-cancel';
-    newDeckCreateBtn.textContent = 'Crear';
-    newDeckInputRow.appendChild(newDeckInput);
-    newDeckInputRow.appendChild(newDeckCreateBtn);
-    const newDeckError = document.createElement('div');
-    newDeckError.className = 'modal__error';
-    newDeckError.style.display = 'none';
-    newDeckError.style.marginTop = '0.25rem';
-    newDeckRow.appendChild(newDeckInputRow);
-    newDeckRow.appendChild(newDeckError);
-
-    function populateDeckSelect() {
-      deckSelect.innerHTML = '';
-      const noneOption = document.createElement('option');
-      noneOption.value = '';
-      noneOption.textContent = 'Sin mazo';
-      if (!props.deckId) noneOption.selected = true;
-      deckSelect.appendChild(noneOption);
-
-      for (const deck of getDecks()) {
-        const option = document.createElement('option');
-        option.value = deck.id;
-        option.textContent = deck.name;
-        if (deck.id === props.deckId) option.selected = true;
-        deckSelect.appendChild(option);
-      }
-
-      const newOption = document.createElement('option');
-      newOption.value = NEW_DECK_VALUE;
-      newOption.textContent = '+ Crear nuevo mazo…';
-      deckSelect.appendChild(newOption);
-    }
-    populateDeckSelect();
-
-    function validateNewDeckName() {
-      const name = newDeckInput.value.trim();
-      if (!name) {
-        newDeckError.textContent = 'El nombre no puede estar vacío';
-        newDeckError.style.display = 'block';
-        return false;
-      }
-      if (isDeckNameTaken(name, getDecks())) {
-        newDeckError.textContent = 'Ya existe un mazo con este nombre';
-        newDeckError.style.display = 'block';
-        return false;
-      }
-      newDeckError.style.display = 'none';
-      return true;
-    }
-
-    deckSelect.addEventListener('change', () => {
-      if (deckSelect.value === NEW_DECK_VALUE) {
-        newDeckRow.style.display = 'block';
-        newDeckInput.focus();
-        return;
-      }
-      newDeckRow.style.display = 'none';
-      props.deckId = deckSelect.value || null;
-    });
-
-    newDeckInput.addEventListener('input', validateNewDeckName);
-
-    newDeckCreateBtn.addEventListener('click', () => {
-      if (!validateNewDeckName()) return;
-      const name = newDeckInput.value.trim();
-      const deck = createDeck({ name });
-      addDeck(deck);
-      props.deckId = deck.id;
-      newDeckRow.style.display = 'none';
-      newDeckInput.value = '';
-      populateDeckSelect();
-    });
-
-    deckField.appendChild(deckLabel);
-    deckField.appendChild(deckSelect);
-    deckField.appendChild(newDeckRow);
-    container.appendChild(deckField);
-
     // Editor de diseño
     const editField = document.createElement('div');
     editField.className = 'modal__field';
@@ -973,19 +973,17 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
         onAccept: (selection) => {
           const data = {};
           if (selection.generales) {
+            const grupo = workingComponent.grupoId ? getGroups().find((g) => g.id === workingComponent.grupoId) : null;
             data.generales = {
               bloqueado: workingComponent.bloqueado,
               oculto: workingComponent.oculto,
               mostrarTooltip: workingComponent.mostrarTooltip,
               subirAlMoverInteractuar: workingComponent.subirAlMoverInteractuar,
+              grupoId: workingComponent.grupoId,
+              grupoName: grupo ? grupo.name : null,
             };
           }
           if (selection.proporcion) data.proporcion = props.proporcion;
-          if (selection.deckId) {
-            data.deckId = props.deckId;
-            const deck = props.deckId ? getDecks().find((d) => d.id === props.deckId) : null;
-            data.deckName = deck ? deck.name : null;
-          }
           if (selection.caraFrontal) data.caraFrontal = props.caraFrontal;
           if (selection.caraTrasera) data.caraTrasera = props.caraTrasera;
           setStyleClipboard(data);
@@ -1005,7 +1003,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     pasteStyleBtn.title = hasStyleClipboard() ? '' : 'Pegar estilo (nada copiado)';
     pasteStyleBtn.addEventListener('click', () => {
       const clip = getStyleClipboard();
-      const incidencias = validateStyleClipboardForPaste(clip, { decks: getDecks(), resources: getResources() });
+      const incidencias = validateStyleClipboardForPaste(clip, { groups: getGroups(), resources: getResources() });
       if (incidencias.length > 0) {
         openStyleClipboardPasteErrorModal(incidencias);
         return;
@@ -1016,14 +1014,12 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
         workingComponent.oculto = clip.generales.oculto;
         workingComponent.mostrarTooltip = clip.generales.mostrarTooltip;
         workingComponent.subirAlMoverInteractuar = clip.generales.subirAlMoverInteractuar;
+        workingComponent.grupoId = clip.generales.grupoId;
         moveCheckbox.checked = workingComponent.bloqueado;
         hiddenCheckbox.checked = workingComponent.oculto;
         tooltipCheckbox.checked = workingComponent.mostrarTooltip;
         upOnMoveCheckbox.checked = workingComponent.subirAlMoverInteractuar;
-      }
-      if ('deckId' in clip && clip.deckId !== undefined) {
-        props.deckId = clip.deckId;
-        populateDeckSelect();
+        populateGroupSelect();
       }
       if (clip.caraFrontal) props.caraFrontal = cloneFace(clip.caraFrontal);
       if (clip.caraTrasera) props.caraTrasera = cloneFace(clip.caraTrasera);
@@ -1041,7 +1037,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
     const styleHint = document.createElement('p');
     styleHint.className = 'modal__hint';
-    styleHint.textContent = 'Copia/pega solo los elementos que elijas: generales, proporción, mazo, cara frontal y/o cara trasera.';
+    styleHint.textContent = 'Copia/pega solo los elementos que elijas: generales (incluye el grupo), proporción, cara frontal y/o cara trasera.';
     styleSection.appendChild(styleHint);
 
     container.appendChild(styleSection);

@@ -15,15 +15,15 @@ function cloneFace(face) {
 }
 
 // `data` solo debe incluir las claves de los bloques marcados al copiar:
-// { generales, proporcion, deckId, deckName, caraFrontal, caraTrasera }.
+// { generales, proporcion, caraFrontal, caraTrasera }. `generales` (cambio
+// 00105) incluye ahora también `grupoId`/`grupoName` (este último de solo
+// lectura, para el mensaje de error si el grupo deja de existir al pegar).
 // Los bloques copiados se clonan en profundidad para que futuras ediciones
 // de la carta origen no muten el portapapeles ya guardado.
 export function setStyleClipboard(data) {
   clipboard = {
     generales: data.generales ? { ...data.generales } : undefined,
     proporcion: data.proporcion,
-    deckId: 'deckId' in data ? data.deckId : undefined,
-    deckName: data.deckName,
     caraFrontal: data.caraFrontal ? cloneFace(data.caraFrontal) : undefined,
     caraTrasera: data.caraTrasera ? cloneFace(data.caraTrasera) : undefined,
   };
@@ -40,17 +40,17 @@ export function hasStyleClipboard() {
 // Recorre solo los bloques presentes en `clip` (no los de la carta destino) y
 // devuelve la lista de referencias que ya no existen en el proyecto —
 // `[]` si todo es válido. Función pura: no toca el estado ni el portapapeles.
-export function validateStyleClipboardForPaste(clip, { decks, resources }) {
+export function validateStyleClipboardForPaste(clip, { groups, resources }) {
   const incidencias = [];
   if (!clip) return incidencias;
 
-  if ('deckId' in clip && clip.deckId !== undefined && clip.deckId !== null) {
-    const exists = decks.some((d) => d.id === clip.deckId);
+  if (clip.generales && clip.generales.grupoId != null) {
+    const exists = groups.some((g) => g.id === clip.generales.grupoId);
     if (!exists) {
       incidencias.push({
-        elemento: 'Mazo',
-        referencia: 'Mazo',
-        detalle: `"${clip.deckName || clip.deckId}" ya no existe`,
+        elemento: 'Generales',
+        referencia: 'Grupo',
+        detalle: `"${clip.generales.grupoName || clip.generales.grupoId}" ya no existe`,
       });
     }
   }

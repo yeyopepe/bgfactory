@@ -1,18 +1,18 @@
 // Modal de selección al pulsar "Copiar estilo" sobre una carta (change
-// 00085): checklist de un único grupo fijo de 5 elementos (Generales,
-// Proporción, Mazo, Cara frontal, Cara trasera), todos marcados por defecto.
-// No reutiliza ui/elementSelectionModal.js (pensada para colecciones
-// dinámicas con id/label) — construye su propio marcado reutilizando las
-// mismas clases BEM `.element-selection-group*` (STYLE_BIBLE.md sección
-// 12.5) para heredar el mismo lenguaje visual sin duplicar CSS.
+// 00085; checklist reducido a 4 elementos y "Grupo" integrado en el bloque
+// "Generales" en el cambio 00105): checklist de un único grupo fijo de 4
+// elementos (Generales, Proporción, Cara frontal, Cara trasera), todos
+// marcados por defecto. No reutiliza ui/elementSelectionModal.js (pensada
+// para colecciones dinámicas con id/label) — construye su propio marcado
+// reutilizando las mismas clases BEM `.element-selection-group*`
+// (STYLE_BIBLE.md sección 12.5) para heredar el mismo lenguaje visual sin
+// duplicar CSS.
 
-import { getDecks } from '../core/state.js';
 import { CARD_PROPORTIONS } from '../core/cardProportions.js';
 
 const ITEMS = [
-  { key: 'generales', label: 'Generales', hint: 'Bloqueado, tooltip, subir al interactuar' },
+  { key: 'generales', label: 'Generales', hint: 'Bloqueado, tooltip, subir al interactuar, grupo' },
   { key: 'proporcion', label: 'Proporción' },
-  { key: 'deckId', label: 'Mazo' },
   { key: 'caraFrontal', label: 'Cara frontal' },
   { key: 'caraTrasera', label: 'Cara trasera' },
 ];
@@ -22,11 +22,6 @@ function hintFor(key, component) {
   if (key === 'proporcion') {
     const entry = CARD_PROPORTIONS.find((p) => p.value === props.proporcion);
     return entry ? entry.label : props.proporcion;
-  }
-  if (key === 'deckId') {
-    if (!props.deckId) return 'Sin mazo';
-    const deck = getDecks().find((d) => d.id === props.deckId);
-    return deck ? deck.name : 'Sin mazo';
   }
   return null;
 }
