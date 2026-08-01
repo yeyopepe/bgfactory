@@ -14,6 +14,7 @@ import { createHelpIcon } from './helpIcon.js';
 
 const CANVAS_MAX_SIDE = 380;
 const MIN_TEXT_BOX_DESIGN_SIZE = 20;
+const DUPLICATE_TEXT_BOX_OFFSET = 20;
 
 const HELP_HTML = `
   <ul>
@@ -437,6 +438,17 @@ export function openCardEditorModal({ component, onAccept }) {
         onDelete: () => {
           const cara = working[caraKey];
           cara.textBoxes = cara.textBoxes.filter((tb) => tb.id !== textBox.id);
+          renderFaces();
+        },
+        onDuplicate: (workingTextBox) => {
+          Object.assign(textBox, workingTextBox);
+          const cara = working[caraKey];
+          cara.textBoxes.push({
+            ...workingTextBox,
+            id: crypto.randomUUID(),
+            x: workingTextBox.x + DUPLICATE_TEXT_BOX_OFFSET,
+            y: workingTextBox.y + DUPLICATE_TEXT_BOX_OFFSET,
+          });
           renderFaces();
         },
       });

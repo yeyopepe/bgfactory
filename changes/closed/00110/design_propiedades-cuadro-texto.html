@@ -1,0 +1,215 @@
+<title>Duplicar cuadro de texto — maqueta</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --bg-card: #f5f5f5;
+    --accent-blue: #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --error: #d32f2f;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e8e8e8;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-2: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .note {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    background: rgba(255,255,255,0.9);
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    max-width: 260px;
+  }
+  .modal-overlay {
+    background: rgba(0,0,0,0.5);
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+  }
+  .modal {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    width: 360px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .modal__header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    font-size: 1.125rem;
+    color: var(--text-primary);
+  }
+  .modal__content {
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .modal__field { display: flex; flex-direction: column; gap: 0.25rem; }
+  .modal__field label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  .modal__field textarea,
+  .modal__field input[type="number"] {
+    font-family: inherit;
+    font-size: 0.875rem;
+    padding: 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    resize: none;
+  }
+  .modal__section {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    margin: 0;
+  }
+  .modal__section-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #5b5f97;
+    padding: 0 0.25rem;
+  }
+  .align-group {
+    display: inline-flex;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    width: fit-content;
+  }
+  .align-group__btn {
+    background: var(--bg-subtle);
+    border: none;
+    border-right: 1px solid var(--border-neutral);
+    padding: 0.4rem 0.5rem;
+    color: var(--text-primary);
+    cursor: default;
+  }
+  .align-group__btn:last-child { border-right: none; }
+  .align-group__btn.active {
+    background: var(--accent-blue);
+    color: var(--text-light);
+  }
+  .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+  .btn-cancel, .btn-accept, .btn-eliminar {
+    padding: 0.5rem 1.25rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: default;
+    font-size: 0.875rem;
+  }
+  .btn-cancel { background: var(--bg-subtle); color: var(--text-primary); }
+  .btn-accept { background: var(--accent-blue); color: var(--text-light); }
+  .btn-eliminar { background: var(--error); color: var(--text-light); margin-right: auto; }
+  .btn-duplicar {
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+    border: 1px solid var(--accent-blue);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .btn-duplicar svg { flex: none; }
+  .highlight-callout {
+    position: relative;
+  }
+  .highlight-callout::before {
+    content: "Nuevo";
+    position: absolute;
+    top: -1.6rem;
+    left: 0;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.15rem 0.45rem;
+    border-radius: var(--radius-sm);
+    letter-spacing: 0.02em;
+  }
+</style>
+
+<div class="note">
+  Maqueta de la ventana "Editar cuadro de texto" (editor de cartas), con el
+  nuevo botón "Duplicar" en el pie, junto a Eliminar/Cancelar/Aceptar.
+  Solo aspecto — sin funcionalidad real.
+</div>
+
+<div class="modal-overlay">
+  <div class="modal">
+    <div class="modal__header">Editar cuadro de texto</div>
+    <div class="modal__content">
+      <div class="modal__field">
+        <label>Contenido</label>
+        <textarea rows="3" readonly>Guarda tu vida</textarea>
+      </div>
+
+      <div class="modal__field">
+        <label>Posición del texto en el cuadro</label>
+        <div style="display:flex; gap:1rem;">
+          <div class="align-group">
+            <span class="align-group__btn active">≡</span>
+            <span class="align-group__btn">≡</span>
+            <span class="align-group__btn">≡</span>
+          </div>
+          <div class="align-group">
+            <span class="align-group__btn active">⇡</span>
+            <span class="align-group__btn">⇕</span>
+            <span class="align-group__btn">⇣</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal__field">
+        <label>Tamaño de fuente</label>
+        <input type="number" value="16" readonly style="width: 6rem;">
+      </div>
+
+      <fieldset class="modal__section">
+        <legend class="modal__section-title">Fondo</legend>
+        <div style="font-size:0.8rem; color:var(--text-muted);">Transparente</div>
+      </fieldset>
+    </div>
+
+    <div class="modal__footer">
+      <button class="btn-eliminar" type="button">Eliminar</button>
+      <button class="btn-duplicar highlight-callout" type="button">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4">
+          <rect x="1.5" y="3.5" width="8" height="9" rx="1"/>
+          <rect x="4.5" y="0.5" width="8" height="9" rx="1" fill="white"/>
+        </svg>
+        Duplicar
+      </button>
+      <button class="btn-cancel" type="button">Cancelar</button>
+      <button class="btn-accept" type="button">Aceptar</button>
+    </div>
+  </div>
+</div>

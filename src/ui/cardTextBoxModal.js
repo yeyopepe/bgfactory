@@ -5,7 +5,7 @@
 import { openDiceFontModal } from './diceFontModal.js';
 import { getResources } from '../core/state.js';
 
-export function openCardTextBoxModal({ textBox, onAccept, onDelete }) {
+export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -440,6 +440,15 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete }) {
     overlay.remove();
   });
   footer.appendChild(deleteBtn);
+
+  const duplicateBtn = document.createElement('button');
+  duplicateBtn.className = 'btn-cancel';
+  duplicateBtn.textContent = 'Duplicar';
+  duplicateBtn.addEventListener('click', () => {
+    if (onDuplicate) onDuplicate(working);
+    overlay.remove();
+  });
+  footer.appendChild(duplicateBtn);
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-01T07:55:19Z",
+  "generatedAt": "2026-08-01T08:29:02Z",
   "basePath": "src",
   "nodes": [
     {
@@ -312,7 +312,7 @@
       "exports": [
         "openCardEditorModal"
       ],
-      "purpose": "Editor de cartas: modal grande para diseñar a la vez las dos caras (imagen, borde, cuadros de texto) de un componente 'carta', con selección de cuadro de texto (clic), movimiento fino con flechas del teclado, e icono de ayuda con el listado de funcionalidades del editor (cambio 00104)."
+      "purpose": "Editor de cartas: modal grande para diseñar a la vez las dos caras (imagen, borde, cuadros de texto) de un componente 'carta', con selección de cuadro de texto (clic), movimiento fino con flechas del teclado, duplicado de un cuadro de texto en la misma cara (cambio 00110), e icono de ayuda con el listado de funcionalidades del editor (cambio 00104)."
     },
     {
       "id": "ui/cardTextBoxModal.js",
@@ -321,7 +321,7 @@
       "exports": [
         "openCardTextBoxModal"
       ],
-      "purpose": "Sub-modal de edición de un cuadro de texto de una cara de carta: contenido, tipografía, alineación/márgenes, tamaño, color y borde."
+      "purpose": "Sub-modal de edición de un cuadro de texto de una cara de carta: contenido, tipografía, alineación/márgenes, tamaño, color, borde y un botón \"Duplicar\" (cambio 00110) que aplica los cambios en curso al original y crea una copia desplazada en la misma cara."
     },
     {
       "id": "ui/componentList.js",
@@ -1234,14 +1234,14 @@
       "type": "function",
       "path": "ui/cardEditorModal.js",
       "parent": "ui/cardEditorModal.js",
-      "purpose": "Abre el editor de cartas para diseñar a la vez la cara frontal y trasera de un componente 'carta', gestionando selección global de cuadro de texto, su movimiento con flechas del teclado y el icono de ayuda de la cabecera."
+      "purpose": "Abre el editor de cartas para diseñar a la vez la cara frontal y trasera de un componente 'carta', gestionando selección global de cuadro de texto, su movimiento con flechas del teclado, su duplicado en la misma cara (cambio 00110) y el icono de ayuda de la cabecera."
     },
     {
       "id": "ui/cardTextBoxModal.js#openCardTextBoxModal",
       "type": "function",
       "path": "ui/cardTextBoxModal.js",
       "parent": "ui/cardTextBoxModal.js",
-      "purpose": "Abre la sub-modal de edición de un cuadro de texto de una cara de carta."
+      "purpose": "Abre la sub-modal de edición de un cuadro de texto de una cara de carta, con callbacks onAccept/onDelete/onDuplicate (cambio 00110) para aplicar cambios, borrar o duplicar el cuadro de texto."
     },
     {
       "id": "ui/componentList.js#renderComponentList",
