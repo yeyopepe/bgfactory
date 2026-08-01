@@ -10,6 +10,7 @@ import { applyImageAdjustStyle, openImageAdjustModal } from './imageAdjustModal.
 import { openBoardImageModal } from './boardImageModal.js';
 import { openCardTextBoxModal } from './cardTextBoxModal.js';
 import { attachResizeHandle } from './resizeHandle.js';
+import { fontFamilyFor } from './fontFaceRegistry.js';
 import { createHelpIcon } from './helpIcon.js';
 
 const CANVAS_MAX_SIDE = 380;
@@ -409,6 +410,10 @@ export function openCardEditorModal({ component, onAccept }) {
     el.style.height = `${textBox.height * previewScale}px`;
     el.style.fontSize = `${textBox.tamañoFuente * previewScale}px`;
     el.style.color = textBox.color || '#000000';
+    const fontResource = textBox.fuenteResourceId ? getResources().find((r) => r.id === textBox.fuenteResourceId) : null;
+    if (fontResource) {
+      el.style.fontFamily = fontFamilyFor(fontResource.id);
+    }
     el.style.fontWeight = textBox.negrita ? 'bold' : 'normal';
     el.style.fontStyle = textBox.cursiva ? 'italic' : 'normal';
     el.style.textDecoration = textBox.subrayado ? 'underline' : 'none';

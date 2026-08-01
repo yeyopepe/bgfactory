@@ -554,7 +554,7 @@ fieldset.modal__section--untitled {
   justify-content: flex-end;
 }
 
-.btn-cancel, .btn-accept, .btn-eliminar {
+.btn-cancel, .btn-duplicate, .btn-accept, .btn-eliminar {
   padding: 0.5rem 1.5rem;
   border: none;
   border-radius: var(--radius-sm);
@@ -563,21 +563,21 @@ fieldset.modal__section--untitled {
   transition: background var(--transition-fast), opacity var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.btn-cancel {
+.btn-cancel, .btn-duplicate {
   background: var(--bg-subtle);
   color: var(--text-primary);
 }
 
-.btn-cancel:hover {
+.btn-cancel:hover, .btn-duplicate:hover {
   background: var(--bg-hover);
 }
 
-.btn-cancel:disabled {
+.btn-cancel:disabled, .btn-duplicate:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.btn-cancel:disabled:hover {
+.btn-cancel:disabled:hover, .btn-duplicate:disabled:hover {
   background: var(--bg-subtle);
 }
 

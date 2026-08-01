@@ -1,65 +1,111 @@
 ## (a) Anotaciones funcionales
 
-- **Fuera de alcance**: soporte de proporciones especiales para "Mazo" (circular/hexagonal, como sí tiene "Carta/Ficha"). El mazo es siempre una caja rectangular de esquinas redondeadas, redimensionable libremente (como "Tablero"/"Visor de documentos"), sin propiedad "Proporción".
-- **Fuera de alcance**: cualquier límite al número de cartas que puede contener un mazo, o validación de que las cartas que se metan sean "del mismo tipo" entre sí (cualquier carta se puede meter en cualquier mazo).
-- **Fuera de alcance**: deshacer/rehacer la acción de barajar o de sacar una carta.
-- **Duda resuelta con el usuario**: ¿las cartas que están dentro de un mazo deben verse en modo edición (como "Oculto", con una insignia identificativa) o directamente no dibujarse en ningún modo? Se confirma la segunda opción — una carta dentro de un mazo **no se dibuja en la mesa en ningún modo** (ni edición ni juego). Sigue apareciendo con normalidad en el panel flotante de Componentes (columna Id/Tipo), que es la vía para localizarla y editar su diseño sin tener que sacarla antes del mazo.
-- **Efecto secundario aceptado**: si una carta que está dentro de un mazo estaba seleccionada en el panel de componentes de modo edición (resaltado en la mesa), al no dibujarse no se ve ningún resaltado — no es un bug, es consecuencia directa de la decisión anterior.
+- **Fuera de alcance**: proporciones especiales para "Mazo" (circular/hexagonal). Solo es una caja rectangular, con una orientación "Vertical"/"Horizontal" (ver tarea 6), sin más formas.
+- **Fuera de alcance**: límite al número de cartas de un mazo, o validación de que las cartas metidas sean "compatibles" entre sí.
+- **Fuera de alcance**: deshacer/rehacer barajar, sacar una carta, o meter cartas en un mazo (arrastrando o desde el menú).
+- **Duda resuelta con el usuario**: las cartas dentro de un mazo no se dibujan en la mesa en **ningún** modo (ni edición ni juego) — solo "Oculto" se comporta de forma distinta entre modos, esto no. Siguen visibles en el panel flotante de Componentes.
+- **Dependencia ya resuelta**: la parte de "arrastrar cartas seleccionadas sobre un mazo" (tarea 7) se dejó pendiente en `description.md` por depender de selección múltiple de componentes, que no existía. Los cambios 00108 (selección múltiple con Ctrl) y 00109 (fix de arrastre en bloque en vivo) ya están implementados y cerrados — la dependencia está resuelta, esta parte se incluye ya en el plan.
+- **Interpretación técnica de "el cursor está sobre un mazo al soltar"** (tarea 7): se implementa como solape entre el rectángulo `(x, y, width, height)` de la carta arrastrada en su posición final y el de cada mazo — no como un test de punto exacto contra la posición del ratón. Es el criterio de "drop" más robusto y habitual (igual de válido para el caso de una única carta que para varias) y evita tener que exponer coordenadas de mundo del cursor desde `ui/componentRenderer.js` hasta la capa de modo.
+- **Confirmación de "añadir al mazo"** (tarea 7): se usa `confirm()` nativo (mismo patrón que ya usa `attemptDeleteComponents` para un único componente en `modes/edit/editMode.js`), no una modal de listado como `ui/bulkDeleteConfirmModal.js` — a diferencia de un borrado (irreversible), meter cartas en un mazo es una acción reversible y de bajo riesgo (las cartas se pueden volver a sacar con "Ver contenido..."), no justifica una modal de detalle.
+- **Cambiar la orientación de un mazo ya creado** intercambia su `width`/`height` actuales (transpone la caja), en vez de resetear a un tamaño por defecto — conserva cualquier redimensionado manual que ya se hubiera hecho.
 
 ## (b) Solución técnica
 
-1. **`core/deck.js`** (fichero nuevo — el nombre queda libre tras el cambio 00105, que retiró el `core/deck.js` antiguo): módulo puro sin dependencias de otras capas, mismo patrón que `core/dice.js`/`core/group.js`.
-   - `shuffleCartaIds(cartaIds)`: devuelve una copia del array reordenada con Fisher-Yates y `Math.random()` (mismo generador que ya usa `core/dice.js`, `tirarDado`), sin mutar el array recibido.
-   - `getCartaIdsEnAlgunMazo(components)`: devuelve un `Set` con todos los ids de carta referenciados por `properties.cartaIds` de cualquier componente `type === 'mazo'` de la lista — punto único reutilizado por `modes/play/playMode.js` y `modes/edit/editMode.js` para excluir esas cartas del renderizado de la mesa (ver tarea 5).
+### 1. `core/deck.js` (fichero nuevo)
 
-2. **`ui/componentTypeModal.js`**: añadir `{ value: 'mazo', label: 'Mazo' }` a `COMPONENT_TYPES`, como sexta entrada (tras `'carta'`).
+Módulo puro, sin dependencias de otras capas (mismo patrón que `core/dice.js`/`core/group.js`):
 
-3. **`ui/componentModal.js`**:
-   - Añadir `DEFAULT_MAZO_PROPERTIES = { cartaIds: [] }` y una constante `DEFAULT_MAZO_WIDTH`/`DEFAULT_MAZO_HEIGHT` (reutilizar el mismo tamaño por defecto que ya usa "Carta/Ficha", `180 × 180/getProporcionRatio('5:7')`, para que un mazo recién creado tenga un aspecto de caja de cartas razonable de partida — sin forzar esa proporción al redimensionar, a diferencia de "Carta/Ficha", ver tarea 5).
-   - En `createDefaultComponent(type)`, añadir la rama `else if (type === 'mazo')`: fija `width`/`height` a esos valores por defecto, `bloqueado: true` (igual que el resto de tipos salvo "Carta/Ficha" — el click de sacar carta no depende de este flag, mismo criterio que "Dado"/"Carta" con sus propias interacciones), `subirAlMoverInteractuar: true` (pieza que se interactúa activamente, mismo criterio que "Dado"/"Carta/Ficha"), `properties: { ...DEFAULT_MAZO_PROPERTIES }`.
-   - En la función que decide el contenido de la pestaña "Específicas" (rama `workingComponent.type === 'carta'` actual, sección con los `else if`), añadir `else if (workingComponent.type === 'mazo')` → nueva función `renderMazoSpecificFields(container)`: muestra solo un texto informativo de solo lectura con el número de cartas que contiene (`workingComponent.properties.cartaIds.length`) — no hay ningún campo editable propio del mazo desde esta modal (el contenido se gestiona desde el juego, no desde la configuración).
+- `shuffleCartaIds(cartaIds)`: copia barajada con Fisher-Yates + `Math.random()`, sin mutar el array recibido.
+- `getCartaIdsEnAlgunMazo(components)`: `Set` con todos los ids de carta referenciados por `properties.cartaIds` de cualquier componente `type === 'mazo'` — reutilizado por `modes/play/playMode.js` y `modes/edit/editMode.js` para excluir esas cartas del renderizado de la mesa.
+- `MAZO_REVEAL_GAP = 20`: separación en píxeles entre el mazo y su zona de revelado.
+- `getMazoRevealZoneRect(mazo)`: `{ x, y, width, height }` de la zona de revelado — `x: (mazo.x ?? 100) + (mazo.width ?? DEFAULT) + MAZO_REVEAL_GAP`, `y: mazo.y ?? 100`, mismo `width`/`height` que el propio mazo. Único punto de cálculo, reutilizado por el renderizado (tarea 5) y por cualquier acción que coloque una carta revelada (tareas 5 y 4).
+- `rectsOverlap(a, b)`: solape de dos rectángulos `{x, y, width, height}` — usado por la tarea 7 (drop sobre un mazo).
 
-4. **`ui/componentRenderer.js`**:
-   - Añadir `mazo: 'Mazo'` a `COMPONENT_TYPE_LABELS` (usado por `formatComponentIdentifier`, etiqueta de identificación, línea de descripción del menú contextual, etc. — sale "gratis" en todos esos puntos).
-   - Extraer de la rama `'carta'` existente (bloque que pinta la imagen de fondo + `textBoxes` de `cara`) una función local `paintCartaFace(contentParent, cara, renderScale)` con exactamente la misma lógica ya implementada (imagen vía `applyImageAdjustStyle`, bucle de `textBoxes` con `getTextBoxLayoutStyle`), sin cambiar su comportamiento — solo para poder reutilizarla también desde la rama nueva `'mazo'`, evitando duplicar ~50 líneas.
-   - Nueva rama `else if (component.type === 'mazo')`, siguiendo el mismo patrón estructural que `'tablero'`/`'documento'` (caja rectangular simple, `border-radius: var(--radius-lg)`, sombra de contacto nivel 1 — reutilizar la clase `.carta` para heredar ese aspecto sin duplicar CSS, ya que visualmente es "una carta boca abajo"):
-     - Calcula la carta de arriba: `const cartaIds = component.properties?.cartaIds || []; const cartaArriba = cartaIds.length > 0 ? getComponents().find((c) => c.id === cartaIds[0]) : null;`.
-     - Si hay `cartaArriba`: pinta su `properties.caraTrasera` con `paintCartaFace`, escalando con `renderScale = width / CARD_DESIGN_WIDTH` (mismo criterio que `'carta'`, desacoplado del tamaño real de `cartaArriba` en la mesa — el mazo tiene su propia caja).
-     - Si no hay ninguna carta (`cartaIds.length === 0`, o la referencia quedó huérfana): pinta un placeholder neutro por defecto — helper local nuevo `renderMazoEmptyPlaceholder(container, width, height)`, un icono SVG simple (p. ej. silueta de baraja) dibujado directamente en JS, mismo criterio que `renderDiceSilhouette` de `'dado'` (sin depender de ningún recurso de la galería).
-     - `onSelect`/`onToggleSelect`/`selectedId` (clase `mazo--selected`)/`onContextMenu`/`identifyMode`/`showLockIndicator`/`showHiddenIndicator`: mismo cableado que el resto de tipos, sin lógica especial.
-     - `onMove`/`canMove`: igual que el resto (arrastre libre si `canMove(component)`).
-     - `onResize`: redimensionado libre en ambos ejes (como `'tablero'`/`'documento'`), `clamp` con un mínimo propio `MIN_MAZO_WIDTH`/`MIN_MAZO_HEIGHT` (reutilizar los mismos mínimos que ya usa `'carta'`, `60×60`, por coherencia de tamaño de pieza).
-     - Nuevo parámetro `onMazoDraw` en la firma de `renderComponentsOnTable` (junto a `onDiceResult`/`onCartaFlip`): si se pasa, un click sobre el mazo (clase `mazo--clickable`, mismo criterio que `carta--clickable`) invoca `onMazoDraw(component)` — sin lógica de vaciado/no-op aquí (la decide quien la pase, ver tarea 5), igual que `onCartaFlip` tampoco decide nada por sí mismo.
+### 2. Alta del tipo "Mazo"
 
-5. **`modes/play/playMode.js`** (mecánica de juego, exclusiva de este modo salvo el filtrado del punto 5.1 que también aplica en edición):
-   - 5.1. Calcular `const cartasEnMazo = getCartaIdsEnAlgunMazo(getComponents());` y cambiar el filtro de `renderTable()` de `.filter((component) => !component.oculto)` a `.filter((component) => !component.oculto && !cartasEnMazo.has(component.id))`.
-   - 5.2. Nuevo callback `onMazoDraw: (component) => { ... }` pasado a `renderComponentsOnTable`:
-     - Lee `cartaIds = component.properties?.cartaIds || []`; si está vacío, no hace nada (rama "No ocurre nada" del diagrama de `description.md`).
-     - Si no está vacío: `topId = cartaIds[0]`, busca la carta (`getComponents().find(c => c.id === topId)`) — si por algún motivo ya no existe (referencia huérfana), la descarta de `cartaIds` igualmente sin más acción, como limpieza defensiva.
-     - `replaceComponent(mazo.id, updateComponent(mazo, { properties: { cartaIds: cartaIds.slice(1) } }))`.
-     - Si la carta existe: la reposiciona junto al mazo (`x/y` del mazo + mismo desplazamiento +30/+30 que ya usa `cloneComponent`/`createCopy`), la pone boca arriba (`properties: { caraActual: 'frontal' }`) con `replaceComponent`, y `reorderComponent(carta.id, 1)` para que quede al frente del apilado — mismo criterio que ya usa `onMove`/`onDiceResult`/`onCartaFlip` de este módulo para "subir al interactuar", pero aquí incondicional (equivalente a "nace"/reaparece en la mesa, igual que `addComponent`/`cloneComponent`).
-   - 5.3. `onContextMenu`: extender la construcción de `extra` (ya existente para `'dado'`/`'tablero'`) con una rama `else if (component.type === 'mazo') extra = \`${(component.properties?.cartaIds || []).length} cartas\`;` — así el nº de cartas aparece en la línea de descripción del menú, mismo patrón ya usado por el resto de tipos (resuelve el punto 4 de la duda técnica: no hace falta ninguna fila nueva en `ui/contextMenu.js`).
-   - 5.4. `specificItems` de `openContextMenu`, hoy siempre `[]` (parámetro reservado sin uso todavía): construir según `component.type`:
-     - `'mazo'`: `[{ icon: <icono barajar>, label: 'Barajar', onClick: () => replaceComponent(component.id, updateComponent(component, { properties: { cartaIds: shuffleCartaIds(component.properties?.cartaIds || []) } })) }]`.
-     - `'carta'`: si `getComponents().some(c => c.type === 'mazo')` es `true`, `[{ icon: <icono>, label: 'Meter en mazo...', onClick: () => openInsertIntoMazoModal({ carta: component, mazos: getComponents().filter(c => c.type === 'mazo') }) }]`; si no hay ningún mazo, array vacío (la fila no se ofrece, como pide `description.md`).
-   - 5.5. Nuevo fichero **`ui/insertIntoMazoModal.js`**, mismo patrón estructural que una sub-modal simple sin tabs (p. ej. `ui/boardPatternModal.js`): expone `openInsertIntoMazoModal({ carta, mazos, onAccept })` — un `<select>` con los mazos disponibles (opción mostrada con `formatComponentIdentifier(mazo)`, reutilizando la función ya exportada de `ui/componentRenderer.js`) y un grupo de dos botones tipo `.align-group`/`.align-group__btn` (opción única, mismo patrón que la alineación de `ui/cardTextBoxModal.js`, `STYLE_BIBLE.md` sección 12.10) para elegir "Arriba del todo"/"Abajo del todo"; footer "Cancelar"/"Aceptar". `onAccept({ mazoId, posicion })` con `posicion: 'arriba' | 'abajo'`.
-     - En `playMode.js`, el `onClick` de "Meter en mazo..." abre esta modal con `onAccept: ({ mazoId, posicion }) => { const mazo = getComponents().find(c => c.id === mazoId); const cartaIds = mazo.properties?.cartaIds || []; const nuevaLista = posicion === 'arriba' ? [carta.id, ...cartaIds] : [...cartaIds, carta.id]; replaceComponent(mazo.id, updateComponent(mazo, { properties: { cartaIds: nuevaLista } })); }`. No hace falta modificar la propia carta (deja de dibujarse por el filtro de la tarea 5.1, calculado a partir del mazo, no de un campo propio de la carta).
+- `ui/componentTypeModal.js`: añadir `{ value: 'mazo', label: 'Mazo' }` a `COMPONENT_TYPES`.
+- `ui/componentRenderer.js`: añadir `mazo: 'Mazo'` a `COMPONENT_TYPE_LABELS`.
+- `ui/componentModal.js`:
+  - `DEFAULT_MAZO_PROPERTIES = { cartaIds: [], orientacion: 'vertical' }`.
+  - `DEFAULT_MAZO_WIDTH = 180`, `DEFAULT_MAZO_HEIGHT = DEFAULT_MAZO_WIDTH / getProporcionRatio('5:7')` (reutiliza `core/cardProportions.js`, mismo criterio de tamaño que "Carta/Ficha").
+  - `createDefaultComponent(type)`, rama `else if (type === 'mazo')`: `width/height` según orientación por defecto (`'vertical'` → tal cual; si en el futuro se cambiara el valor por defecto a horizontal, ya bastaría con transponer aquí), `bloqueado: true`, `subirAlMoverInteractuar: true` (pieza que se interactúa activamente, mismo criterio que "Dado"/"Carta"), `properties: { ...DEFAULT_MAZO_PROPERTIES }`.
 
-6. **`modes/edit/editMode.js`**: aplicar el mismo filtro que 5.1 a la llamada de `renderTable()` (línea `renderComponentsOnTable(table.worldEl, getComponents(), {...})`) — `getComponents().filter((component) => !getCartaIdsEnAlgunMazo(getComponents()).has(component.id))` (aquí no se filtra por `oculto`, ya que en modo edición un componente oculto sí se sigue mostrando — solo se añade la exclusión nueva). La llamada a `renderComponentList` (panel flotante de Componentes) no cambia: sigue recibiendo `getComponents()` completo, sin filtrar, para que las cartas dentro de un mazo sigan siendo localizables y editables desde ahí.
+### 3. Pestaña "Específicas" del mazo (modo edición)
 
-7. **Iconos**: los nuevos iconos de menú contextual ("Barajar", "Meter en mazo...") se construyen igual que `createLockIcon` de `playMode.js` (SVG inline con `createElementNS`), sin depender de ninguna librería de iconos.
+En `ui/componentModal.js`, rama nueva `else if (workingComponent.type === 'mazo')` → `renderMazoSpecificFields(container)`:
+
+- Texto informativo de solo lectura: `"${cartaIds.length} cartas"`.
+- Desplegable "Orientación" (`Vertical`/`Horizontal`) ligado a `workingComponent.properties.orientacion`; al cambiar, transpone `workingComponent.width`/`workingComponent.height` (intercambia ambos valores) — aplicado de inmediato sobre `workingComponent` (mismo criterio de aplicación inmediata dentro de `properties` que ya tienen `proporcion` de carta o "Pegar estilo", según la nota ya existente en `ARCHITECTURE.md` sobre `workingComponent`).
+- Botón "Ver contenido del mazo" (ver tarea 4) — abre `openMazoContentModal` sobre el componente ya guardado en el estado (no sobre `workingComponent`, para que "Sacar" opere siempre sobre datos reales, consistentes con lo que haya en `core/state.js` en cada momento, incluso si la modal de propiedades sigue abierta detrás).
+
+### 4. `ui/mazoContentModal.js` (fichero nuevo) — "Ver contenido del mazo"
+
+Sub-modal sin tabs, mismo patrón estructural que `ui/boardImageModal.js` pero con filas en vez de grid: `openMazoContentModal({ mazoId, onSacar })`.
+
+- Lee el mazo actual con `getComponents().find((c) => c.id === mazoId)` en cada (re)render interno de la propia modal (no recibe el objeto por parámetro, para poder refrescarse sola tras cada "Sacar" sin cerrarse).
+- Si `cartaIds.length === 0`: mensaje "Este mazo no tiene cartas".
+- Si no: una fila por carta (mismo orden que `cartaIds`, arriba primero), cada una con:
+  - Miniatura con el diseño real de la cara frontal de esa carta — reutiliza `paintCartaFace` (extraída de `ui/componentRenderer.js`, ver tarea 5) sobre un contenedor pequeño de proporción fija (mismo criterio de escala que ya usa la mesa: `renderScale = anchoMiniatura / CARD_DESIGN_WIDTH`). Si la carta referenciada ya no existe (id huérfano), la fila se omite (limpieza silenciosa, igual que en el resto del módulo).
+  - El id de la carta.
+  - Botón "Sacar", que invoca `onSacar(cartaId)` (la mutación real la hace quien abre la modal — `modes/play/playMode.js` o el flujo de `ui/componentModal.js`/`editMode.js`, ver tarea 3 y 5 —, no la propia modal) y, tras invocarlo, vuelve a pintar el cuerpo de la modal leyendo el mazo actualizado (sin cerrarla).
+- Footer con un único botón "Cerrar".
+
+### 5. Renderizado del mazo en la mesa (`ui/componentRenderer.js`)
+
+- Extraer de la rama `'carta'` (bloque que pinta imagen de fondo + `textBoxes` de una cara) una función local `paintCartaFace(contentParent, cara, renderScale)` con exactamente la misma lógica ya existente, sin cambiar su comportamiento — reutilizada por la rama `'mazo'` y por `ui/mazoContentModal.js` (tarea 4).
+- Nueva rama `else if (component.type === 'mazo')`, mismo patrón estructural que `'tablero'`/`'documento'` (caja rectangular, reutilizando la clase `.carta` para heredar `border-radius: var(--radius-lg)` + sombra nivel 1 sin duplicar CSS — visualmente "una carta boca abajo"):
+  - `cartaIds = component.properties?.cartaIds || []`; `cartaArriba = cartaIds.length ? getComponents().find((c) => c.id === cartaIds[0]) : null`.
+  - Si `cartaArriba`: `paintCartaFace` sobre `cartaArriba.properties.caraTrasera`, `renderScale = width / CARD_DESIGN_WIDTH`.
+  - Si no: helper local nuevo `renderMazoEmptyPlaceholder(container, width, height)` — icono SVG simple dibujado en JS, mismo criterio que `renderDiceSilhouette` de `'dado'` (sin depender de ningún recurso de la galería).
+  - `onSelect`/`onToggleSelect`/`selectedIds` (clase `mazo--selected`)/`onContextMenu`/`identifyMode`/`showLockIndicator`/`showHiddenIndicator`/`onMove`/`canMove`: mismo cableado que el resto de tipos, sin lógica especial (el bloque de arrastre múltiple ya sale "gratis" vía `getBlockDragTargets`, aplicable si algún día se selecciona un mazo junto con otros elementos — no es el caso relevante de este cambio, pero no hay que excluirlo).
+  - `onResize`: libre en ambos ejes (como `'tablero'`), `clamp` con mínimo propio `MIN_MAZO_WIDTH`/`MIN_MAZO_HEIGHT` (`60×60`, mismo mínimo que "Carta/Ficha").
+  - **Zona de revelado**: tras pintar la caja del mazo, calcular `getMazoRevealZoneRect(component)` (`core/deck.js`) y añadir al `worldEl` (como elemento hermano, no hijo del mazo, ya que su posición no depende del recorte/tamaño de la caja) un `div` decorativo con borde punteado y el texto centrado "Carta revelada" — sin listeners, sin selección, sin `onContextMenu`. Se pinta siempre que se pinta el mazo (los dos modos), tenga o no cartas.
+  - Nuevo parámetro `onMazoDraw` en la firma de `renderComponentsOnTable`: si se pasa, un click sobre el mazo (clase `mazo--clickable`) lo invoca con `onMazoDraw(component)` — sin lógica de vaciado aquí (la decide quien lo pase, tarea 6).
+
+### 6. Mecánica de juego en `modes/play/playMode.js`
+
+- Filtro de `renderTable()`: `.filter((c) => !c.oculto && !getCartaIdsEnAlgunMazo(getComponents()).has(c.id))`.
+- `onMazoDraw: (mazo) => { ... }`:
+  - `cartaIds = mazo.properties?.cartaIds || []`; si vacío, no hace nada.
+  - `topId = cartaIds[0]`; `carta = getComponents().find((c) => c.id === topId)`.
+  - `replaceComponent(mazo.id, updateComponent(mazo, { properties: { cartaIds: cartaIds.slice(1) } }))`.
+  - Si `carta` existe (limpieza defensiva si no): calcular `{ x, y } = getMazoRevealZoneRect(mazo)`, `replaceComponent(carta.id, updateComponent(carta, { x, y, properties: { caraActual: 'frontal' } }))`, `reorderComponent(carta.id, 1)`.
+- `onContextMenu`: extender `extra` con `else if (component.type === 'mazo') extra = \`${(component.properties?.cartaIds || []).length} cartas\`;`.
+- `specificItems`:
+  - `'mazo'`: `[{ icon: <barajar>, label: 'Barajar', onClick: () => replaceComponent(component.id, updateComponent(component, { properties: { cartaIds: shuffleCartaIds(component.properties?.cartaIds || []) } })) }, { icon: <ojo>, label: 'Ver contenido...', onClick: () => openMazoContentModal({ mazoId: component.id, onSacar: (cartaId) => sacarCartaDeMazo(component.id, cartaId) }) }]`.
+  - `'carta'`: si existe algún `type === 'mazo'`, añade `{ icon: <carta-en-caja>, label: 'Meter en mazo...', onClick: () => openInsertIntoMazoModal(...) }` (ver tarea 8); si no hay ningún mazo, no se añade nada.
+  - Extraer una función compartida `sacarCartaDeMazo(mazoId, cartaId)` (dentro de `playMode.js`, reutilizada tanto por `onMazoDraw` — con `cartaId` fijo a la de arriba — como por el callback `onSacar` de "Ver contenido...") que generaliza la lógica de la tarea anterior a "sacar una carta cualquiera, no solo la de arriba": quita `cartaId` de `cartaIds` (esté donde esté en el array), reposiciona esa carta en `getMazoRevealZoneRect(mazo)`, `caraActual: 'frontal'`, `reorderComponent(cartaId, 1)`.
+
+### 7. Arrastrar cartas seleccionadas sobre un mazo (`modes/edit/editMode.js`)
+
+En el `onMove` de `renderTable()` (el que ya gestiona el arrastre en bloque de la selección múltiple, cambio 00108/00109):
+
+1. Determinar el conjunto de componentes implicados en el arrastre: si `selectedComponentIds.size > 1 && selectedComponentIds.has(component.id)`, es toda la selección; si no, es solo `[component]` (cubre igual el caso de una única carta seleccionada, o de una carta arrastrada sin selección previa — mismo criterio en ambos, ver anotación (a)).
+2. Aplicar las nuevas posiciones tal como ya hace hoy el código (sin cambios en esa parte).
+3. Si **todos** los componentes de ese conjunto son `type === 'carta'`: buscar el primer mazo (`getComponents().filter((c) => c.type === 'mazo')`) cuyo rectángulo (`rectsOverlap`, `core/deck.js`) solape con el rectángulo final de `component` (la carta que se soltó directamente, con sus `x`/`y` ya actualizados y su `width`/`height`).
+4. Si hay solape con un mazo: `confirm('¿Añadir la(s) N carta(s) seleccionada(s) al mazo "<id>"?')`.
+   - Si acepta: para cada componente del conjunto, `replaceComponent(mazo.id, updateComponent(mazo, { properties: { cartaIds: [...cartaIds, carta.id] } }))` (acumulando sobre el mismo mazo, en cualquier orden — basta iterar el conjunto y añadir uno a uno al final).
+   - Si cancela, o no hay solape, o la selección no es 100% cartas: no se hace nada más (las cartas quedan en la mesa en su nueva posición, ya aplicada en el paso 2).
+
+### 8. "Meter en mazo..." (menú contextual de carta, ya planificado en la versión anterior del plan, sin cambios de fondo)
+
+- `ui/insertIntoMazoModal.js` (fichero nuevo): `openInsertIntoMazoModal({ carta, mazos, onAccept })` — `<select>` de mazos (`formatComponentIdentifier(mazo)`) + `.align-group` de dos botones ("Arriba del todo"/"Abajo del todo"); footer "Cancelar"/"Aceptar"; `onAccept({ mazoId, posicion })`.
+- En `playMode.js`, al aceptar: añade `carta.id` al principio o al final de `cartaIds` del mazo elegido (`replaceComponent`); no toca la carta (deja de dibujarse por el filtro de la tarea 6, calculado a partir del mazo).
 
 ## (c) Cambios de arquitectura
 
-`design/docs/ARCHITECTURE.md` necesita, tras implementar:
-- Sección 4 ("Modelo de datos de componente"): añadir "Mazo" a la lista de "Tipos de componente implementados" (séptimo tipo, tras "Carta/Ficha"), documentando `properties.cartaIds` y la regla de exclusión de renderizado de las cartas referenciadas.
-- Sección 5 (`ui/componentRenderer.js`): documentar el nuevo parámetro `onMazoDraw` de `renderComponentsOnTable`, y la extracción de `paintCartaFace` como helper compartido entre `'carta'` y `'mazo'`.
-- Sección 5: documentar el nuevo módulo `core/deck.js` (`shuffleCartaIds`, `getCartaIdsEnAlgunMazo`) y `ui/insertIntoMazoModal.js`.
-- Sección 3 (modo juego) y la descripción de `modes/edit/editMode.js`: documentar el filtrado de cartas-dentro-de-mazo en la mesa (ambos modos), y que el panel de Componentes no aplica ese filtro.
-- Sección 8 ("Funcionalidades transversales a revisar al añadir un elemento nuevo"): ya cubierto por el propio análisis de este plan (tipo nuevo, renderizado, menú contextual) — no hace falta ningún ajuste transversal adicional (no es una colección nueva a nivel de `state.js`, no referencia recursos de la galería, no necesita `clamp` de proporción fija).
+`design/docs/ARCHITECTURE.md`, tras implementar:
+
+- Sección 4: añadir "Mazo" a "Tipos de componente implementados" (séptimo tipo), documentando `properties.cartaIds`/`properties.orientacion`, la regla de exclusión de renderizado de las cartas referenciadas, y que no admite proporciones especiales (solo transposición vertical/horizontal).
+- Sección 5 (`ui/componentRenderer.js`): nuevo parámetro `onMazoDraw`, extracción de `paintCartaFace` compartida con la rama `'mazo'`, y la zona de revelado como elemento decorativo hermano del mazo (no seleccionable).
+- Sección 5: nuevos módulos `core/deck.js` (`shuffleCartaIds`, `getCartaIdsEnAlgunMazo`, `getMazoRevealZoneRect`, `rectsOverlap`), `ui/mazoContentModal.js`, `ui/insertIntoMazoModal.js`.
+- Sección 3 (modo juego) y descripción de `modes/edit/editMode.js`: filtrado de cartas-dentro-de-mazo en la mesa (ambos modos, panel de Componentes sin filtrar); nueva mecánica de arrastrar la selección de cartas sobre un mazo (apoyada en la selección múltiple del cambio 00108) para meterlas todas de golpe.
+- Sección 8 ("Funcionalidades transversales"): no se necesita ningún ajuste adicional — el tipo nuevo no es una colección a nivel de `state.js`, no referencia recursos de la galería directamente (solo a través de la carta que referencia), y su `clamp` de redimensionado es libre, sin proporción fija.
 
 ## (d) Cambios en estilo
 
-`design/docs/stylebible/STYLE_BIBLE.md` necesita, tras implementar:
-- Sección 12.8 (menú contextual): documentar el primer uso real de `specificItems` (hasta ahora reservado sin uso), con "Barajar" (mazo) y "Meter en mazo..." (carta) como ejemplos.
-- Nota breve en la sección de "Carta"/piezas de juego (o donde documenten `.carta`) indicando que "Mazo" reutiliza la misma clase `.carta` (radio `--radius-lg`, sombra nivel 1) por ser visualmente "una carta boca abajo", sin introducir una clase nueva de bloque para su caja — la variación se limita al contenido interior (dorso de la carta de arriba, o el placeholder de mazo vacío).
+`design/docs/stylebible/STYLE_BIBLE.md`, tras implementar:
+
+- Sección 12.8 (menú contextual): primer uso real de `specificItems` (hasta ahora reservado sin uso) — "Barajar"/"Ver contenido..." (mazo) y "Meter en mazo..." (carta) como ejemplos.
+- Nota en la documentación de "Carta"/piezas de juego: "Mazo" reutiliza la clase `.carta` (radio `--radius-lg`, sombra nivel 1) por ser visualmente "una carta boca abajo", sin clase de bloque nueva para la caja.
+- Nueva entrada de estilo para la "zona de revelado" (`.mazo-reveal-zone` o nombre equivalente en `main.css`): recuadro decorativo con borde punteado neutro (mismo `var(--border-neutral)`/`var(--text-muted)` que el resto de elementos informativos de solo lectura de la app, p. ej. `.context-menu__info-row`), sin sombra ni fondo sólido, `pointer-events: none`.

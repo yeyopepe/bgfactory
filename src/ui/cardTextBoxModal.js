@@ -442,7 +442,7 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   footer.appendChild(deleteBtn);
 
   const duplicateBtn = document.createElement('button');
-  duplicateBtn.className = 'btn-cancel';
+  duplicateBtn.className = 'btn-duplicate';
   duplicateBtn.textContent = 'Duplicar';
   duplicateBtn.addEventListener('click', () => {
     if (onDuplicate) onDuplicate(working);

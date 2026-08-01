@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-01T08:29:02Z",
+  "generatedAt": "2026-08-01T08:48:39Z",
   "basePath": "src",
   "nodes": [
     {
@@ -1905,6 +1905,11 @@
     },
     {
       "source": "ui/cardEditorModal.js#openCardEditorModal",
+      "target": "ui/fontFaceRegistry.js#fontFamilyFor",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/cardEditorModal.js#openCardEditorModal",
       "target": "ui/helpIcon.js#createHelpIcon",
       "relation": "calls"
     },
@@ -2461,6 +2466,11 @@
     {
       "source": "ui/cardEditorModal.js",
       "target": "ui/cardTextBoxModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/cardEditorModal.js",
+      "target": "ui/fontFaceRegistry.js",
       "relation": "imports"
     },
     {
