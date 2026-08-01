@@ -9,6 +9,7 @@ import {
 import { updateComponent, cloneComponent, createCopy } from '../../core/component.js';
 import { createResource, resourceTypeForFileName, getComponentsUsingResource } from '../../core/resource.js';
 import { getComponentsUsingGroup } from '../../core/group.js';
+import { getCartaIdsEnAlgunMazo, rectsOverlap } from '../../core/deck.js';
 import { convertImageToWebP } from '../../core/imageConversion.js';
 import { createInfiniteTable } from '../../ui/table.js';
 import { openComponentModal, createDefaultComponent } from '../../ui/componentModal.js';
@@ -76,6 +77,30 @@ function attemptDeleteComponents(components) {
       selectedComponentIds.clear();
     },
   });
+}
+
+// Arrastrar cartas seleccionadas sobre un mazo (cambio 00106): si todo el grupo
+// arrastrado (la selección múltiple si el componente soltado forma parte de
+// ella, o solo él si no) son cartas, y su rectángulo final solapa con el de
+// algún mazo, se pregunta si se quieren añadir todas al mazo. "El cursor está
+// sobre un mazo al soltar" se interpreta como solape de rectángulos (posición
+// final de la carta soltada), no como un test de punto exacto del ratón.
+function attemptDropOnMazo(groupIds, draggedRect) {
+  const groupComponents = groupIds.map((id) => getComponents().find((c) => c.id === id)).filter(Boolean);
+  if (groupComponents.length === 0 || !groupComponents.every((c) => c.type === 'carta')) return;
+
+  const mazo = getComponents()
+    .filter((c) => c.type === 'mazo')
+    .find((m) => rectsOverlap(draggedRect, { x: m.x ?? 100, y: m.y ?? 100, width: m.width ?? 100, height: m.height ?? 100 }));
+  if (!mazo) return;
+
+  const pregunta = groupComponents.length > 1
+    ? `¿Añadir las ${groupComponents.length} cartas seleccionadas al mazo "${mazo.id}"?`
+    : `¿Añadir la carta "${groupComponents[0].id}" al mazo "${mazo.id}"?`;
+  if (!confirm(pregunta)) return;
+
+  const cartaIds = [...(mazo.properties?.cartaIds || []), ...groupComponents.map((c) => c.id)];
+  replaceComponent(mazo.id, updateComponent(mazo, { properties: { cartaIds } }));
 }
 
 // Atajo de teclado SUPR (`ui/globalShortcuts.js`) sin ninguna modal abierta: reutiliza
@@ -350,7 +375,8 @@ export function renderEditMode(container) {
   }
 
   function renderTable() {
-    renderComponentsOnTable(table.worldEl, getComponents(), {
+    const cartasEnMazo = getCartaIdsEnAlgunMazo(getComponents());
+    renderComponentsOnTable(table.worldEl, getComponents().filter((c) => !cartasEnMazo.has(c.id)), {
       identifyMode: 'label',
       showLockIndicator: true,
       showHiddenIndicator: true,
@@ -358,10 +384,14 @@ export function renderEditMode(container) {
       onToggleSelect: toggleSelect,
       selectedIds: selectedComponentIds,
       onMove: (component, x, y) => {
-        if (selectedComponentIds.size > 1 && selectedComponentIds.has(component.id)) {
+        const group = selectedComponentIds.size > 1 && selectedComponentIds.has(component.id)
+          ? [...selectedComponentIds]
+          : [component.id];
+
+        if (group.length > 1) {
           const dx = x - (component.x ?? 0);
           const dy = y - (component.y ?? 0);
-          for (const id of selectedComponentIds) {
+          for (const id of group) {
             const c = getComponents().find((comp) => comp.id === id);
             if (!c) continue;
             const newX = c.id === component.id ? x : (c.x ?? 0) + dx;
@@ -371,6 +401,8 @@ export function renderEditMode(container) {
         } else {
           replaceComponent(component.id, updateComponent(component, { x, y }));
         }
+
+        attemptDropOnMazo(group, { x, y, width: component.width ?? 100, height: component.height ?? 100 });
       },
       onResize: (component, width, height) => {
         replaceComponent(component.id, updateComponent(component, { width, height }));

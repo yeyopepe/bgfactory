@@ -855,6 +855,117 @@ fieldset.modal__section--untitled {
   cursor: pointer;
 }
 
+/* Mazo (cambio 00106): reutiliza la clase .carta (radio --radius-lg, sombra
+   nivel 1) por ser visualmente "una carta boca abajo" — sin clase de bloque
+   nueva para su caja, solo este modificador para el cursor de "sacar carta". */
+.mazo--clickable {
+  cursor: pointer;
+}
+
+/* Etiqueta con el número de cartas del mazo: a diferencia de .component-id-label
+   (solo en hover/selección), esta es siempre visible, en los dos modos. Mismo
+   aspecto que .component-id-label, anclada encima de la caja en vez de dentro
+   de su esquina. */
+.mazo-count-label {
+  position: absolute;
+  top: -1.6rem;
+  left: 2px;
+  white-space: nowrap;
+  background: var(--accent-blue-dark);
+  color: var(--text-light);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+/* Zona de revelado del mazo: recuadro decorativo, no interactivo, que marca
+   dónde aparecerán las cartas al sacarlas — mismo tono neutro que una fila
+   informativa de solo lectura (p. ej. .context-menu__info-row). */
+.mazo-reveal-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.5rem;
+  border: 2px dashed var(--border-neutral);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
+/* Modal "Ver contenido del mazo" (ui/mazoContentModal.js) */
+.mazo-contenido__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.mazo-contenido__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
+}
+
+.mazo-contenido__item:hover {
+  background: var(--bg-hover);
+}
+
+.mazo-contenido__thumb {
+  position: relative;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 58px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-neutral);
+  background: #ffffff;
+}
+
+.mazo-contenido__id {
+  flex: 1 1 auto;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mazo-contenido__empty {
+  padding: 1.5rem 0.5rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* .btn-sacar sigue la excepción histórica .btn-cancel/.btn-accept/.btn-eliminar
+   (STYLE_BIBLE.md sección 7): botón standalone que no cuelga de ningún bloque
+   BEM existente. */
+.btn-sacar {
+  flex: 0 0 auto;
+  padding: 0.35rem 0.65rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.btn-sacar:hover {
+  background: var(--accent-blue);
+  color: var(--text-light);
+}
+
 /* Component type modal — list of selectable component types before creating one */
 .component-type-modal__list {
   display: flex;

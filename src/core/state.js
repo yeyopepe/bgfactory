@@ -3,7 +3,8 @@
 
 import { emit } from './eventBus.js';
 import { migrateFichaComponent } from './fichaMigration.js';
-import { syncCopyWithOriginal, renameCopyId } from './component.js';
+import { syncCopyWithOriginal, renameCopyId, updateComponent } from './component.js';
+import { computeSacarCartaDeMazo } from './deck.js';
 
 export const MODES = { PLAY: 'play', EDIT: 'edit' };
 
@@ -110,6 +111,24 @@ export function reorderComponent(id, rawOrder) {
   component.order = newOrder;
 
   emit('components:changed', state.components);
+}
+
+// Saca `cartaId` de la lista de `mazoId` (esté donde esté en la pila, no solo
+// arriba del todo) y la revela en la mesa boca arriba, dentro de la zona de
+// revelado del mazo (core/deck.js). Reutilizada tanto desde el modo juego
+// (click sobre el mazo, y "Ver contenido..." de su menú contextual) como
+// desde el modo edición (botón "Ver contenido del mazo" en las propiedades
+// del mazo) — vive aquí, no en `modes/play/playMode.js`, porque `ui/*` no
+// puede importar de `modes/*` (ver ARCHITECTURE.md, capas).
+export function sacarCartaDeMazo(mazoId, cartaId) {
+  const mazo = state.components.find((c) => c.id === mazoId);
+  const carta = state.components.find((c) => c.id === cartaId);
+  if (!mazo || !carta) return;
+  const changes = computeSacarCartaDeMazo(mazo, carta);
+  if (!changes) return;
+  replaceComponent(mazo.id, updateComponent(mazo, { properties: changes.mazoProperties }));
+  replaceComponent(carta.id, updateComponent(carta, changes.cartaChanges));
+  reorderComponent(carta.id, 1);
 }
 
 // Migra en el sitio (sustituyendo cada entrada del array) cualquier componente

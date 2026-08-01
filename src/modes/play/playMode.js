@@ -1,12 +1,15 @@
 // Modo juego: mesa infinita con los componentes renderizados directamente sobre ella.
 
-import { getComponents, replaceComponent, reorderComponent } from '../../core/state.js';
+import { getComponents, replaceComponent, reorderComponent, sacarCartaDeMazo } from '../../core/state.js';
 import { updateComponent } from '../../core/component.js';
 import { createInfiniteTable } from '../../ui/table.js';
 import { renderComponentsOnTable, formatComponentIdentifier } from '../../ui/componentRenderer.js';
 import { openDiceResultModal } from '../../ui/diceResultModal.js';
 import { openContextMenu } from '../../ui/contextMenu.js';
 import { getPosibleValores } from '../../core/dice.js';
+import { getCartaIdsEnAlgunMazo, shuffleCartaIds } from '../../core/deck.js';
+import { openMazoContentModal } from '../../ui/mazoContentModal.js';
+import { openInsertIntoMazoModal } from '../../ui/insertIntoMazoModal.js';
 
 // Selección del menú contextual de modo juego (cambio 00088), estado transitorio de
 // la sesión de juego en curso: `renderPlayMode` se vuelve a invocar por completo
@@ -43,6 +46,11 @@ const interactionsByType = {
     { label: 'Doble clic izquierdo', value: 'Ninguno' },
     { label: 'Clic derecho', value: 'Abrir este menú' },
   ],
+  'mazo': [
+    { label: 'Clic izquierdo', value: 'Sacar la carta de arriba' },
+    { label: 'Doble clic izquierdo', value: 'Ninguno' },
+    { label: 'Clic derecho', value: 'Abrir este menú' },
+  ],
 };
 
 function createLockIcon(open) {
@@ -65,11 +73,50 @@ function createLockIcon(open) {
   return svg;
 }
 
+function createShuffleIcon() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.innerHTML =
+    '<path d="M4 4h4l6 6 6-6h0" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M4 20h4l6-6 6 6h0" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M17 4h3v3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M17 20h3v-3" stroke-linecap="round" stroke-linejoin="round"/>';
+  return svg;
+}
+
+function createEyeIcon() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.innerHTML =
+    '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<circle cx="12" cy="12" r="3"/>';
+  return svg;
+}
+
+function createInsertIcon() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.innerHTML =
+    '<rect x="4" y="3" width="12" height="16" rx="2"/>' +
+    '<path d="M9 21h6a2 2 0 0 0 2-2V9l-6-6H9a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2Z" stroke-linecap="round" stroke-linejoin="round"/>';
+  return svg;
+}
+
 export function renderPlayMode(container) {
   const table = createInfiniteTable(container);
 
   function renderTable() {
-    renderComponentsOnTable(table.worldEl, getComponents().filter((component) => !component.oculto), {
+    const cartasEnMazo = getCartaIdsEnAlgunMazo(getComponents());
+    renderComponentsOnTable(table.worldEl, getComponents().filter((component) => !component.oculto && !cartasEnMazo.has(component.id)), {
       identifyMode: 'tooltip',
       liftOnDrag: true,
       selectedIds: selectedComponentId ? new Set([selectedComponentId]) : new Set(),
@@ -91,6 +138,12 @@ export function renderPlayMode(container) {
         replaceComponent(component.id, updateComponent(component, { properties: { caraActual: nuevaCara } }));
         if (component.subirAlMoverInteractuar) reorderComponent(component.id, 1);
       },
+      onMazoDraw: (mazo) => {
+        const cartaIds = mazo.properties?.cartaIds || [];
+        if (cartaIds.length === 0) return;
+        sacarCartaDeMazo(mazo.id, cartaIds[0]);
+        if (mazo.subirAlMoverInteractuar) reorderComponent(mazo.id, 1);
+      },
       onContextMenu: (component, event) => {
         selectedComponentId = component.id;
         renderTable();
@@ -101,7 +154,54 @@ export function renderPlayMode(container) {
           extra = `${getPosibleValores(component.properties || {}).length} caras`;
         } else if (component.type === 'tablero') {
           extra = `${Math.round(component.width)}x${Math.round(component.height)}`;
+        } else if (component.type === 'mazo') {
+          extra = `${(component.properties?.cartaIds || []).length} cartas`;
         }
+
+        const specificItems = [];
+        if (component.type === 'mazo') {
+          specificItems.push({
+            icon: createShuffleIcon(),
+            label: 'Barajar',
+            onClick: () => {
+              replaceComponent(component.id, updateComponent(component, {
+                properties: { cartaIds: shuffleCartaIds(component.properties?.cartaIds || []) },
+              }));
+            },
+          });
+          specificItems.push({
+            icon: createEyeIcon(),
+            label: 'Ver contenido...',
+            onClick: () => {
+              openMazoContentModal({
+                mazoId: component.id,
+                onSacar: (cartaId) => sacarCartaDeMazo(component.id, cartaId),
+              });
+            },
+          });
+        } else if (component.type === 'carta') {
+          const mazos = getComponents().filter((c) => c.type === 'mazo');
+          if (mazos.length > 0) {
+            specificItems.push({
+              icon: createInsertIcon(),
+              label: 'Meter en mazo...',
+              onClick: () => {
+                openInsertIntoMazoModal({
+                  carta: component,
+                  mazos,
+                  onAccept: ({ mazoId, posicion }) => {
+                    const mazo = getComponents().find((c) => c.id === mazoId);
+                    if (!mazo) return;
+                    const cartaIds = mazo.properties?.cartaIds || [];
+                    const nuevaLista = posicion === 'arriba' ? [component.id, ...cartaIds] : [...cartaIds, component.id];
+                    replaceComponent(mazo.id, updateComponent(mazo, { properties: { cartaIds: nuevaLista } }));
+                  },
+                });
+              },
+            });
+          }
+        }
+
         openContextMenu({
           x: event.clientX,
           y: event.clientY,
@@ -115,6 +215,7 @@ export function renderPlayMode(container) {
               },
             },
           ],
+          specificItems,
           interactionItems: interactionsByType[component.type] || [],
           onClose: () => {
             selectedComponentId = null;

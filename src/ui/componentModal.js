@@ -1,7 +1,7 @@
 // Modal for creating/editing components with tabs.
 // Generically handles different component types via type-specific tab content.
 
-import { getComponents, getResources, getGroups, addGroup } from '../core/state.js';
+import { getComponents, getResources, getGroups, addGroup, sacarCartaDeMazo } from '../core/state.js';
 import { createComponent, updateComponent } from '../core/component.js';
 import { createGroup, isGroupNameTaken } from '../core/group.js';
 import { createHelpIcon } from './helpIcon.js';
@@ -15,12 +15,20 @@ import { setStyleClipboard, getStyleClipboard, hasStyleClipboard, validateStyleC
 import { openStyleClipboardSelectionModal } from './styleClipboardSelectionModal.js';
 import { openStyleClipboardPasteErrorModal } from './styleClipboardErrorModal.js';
 import { showToast } from './toast.js';
+import { openMazoContentModal } from './mazoContentModal.js';
 
 const DEFAULT_BOARD_SIZE = 200;
 const DEFAULT_DADO_SIZE = 100;
 const DEFAULT_DOCUMENTO_WIDTH = 240;
 const DEFAULT_DOCUMENTO_HEIGHT = 320;
 const DEFAULT_CARTA_WIDTH = 180;
+const DEFAULT_MAZO_WIDTH = 180;
+const DEFAULT_MAZO_HEIGHT = DEFAULT_MAZO_WIDTH / getProporcionRatio('5:7');
+
+export const MAZO_ORIENTACIONES = [
+  { value: 'vertical', label: 'Vertical' },
+  { value: 'horizontal', label: 'Horizontal' },
+];
 
 export const DEFAULT_BOARD_PROPERTIES = {
   bordeColor: '#000000',
@@ -72,6 +80,11 @@ export const DEFAULT_CARTA_PROPERTIES = {
   },
 };
 
+export const DEFAULT_MAZO_PROPERTIES = {
+  cartaIds: [],
+  orientacion: 'vertical',
+};
+
 function cloneFace(face) {
   return {
     ...face,
@@ -120,6 +133,11 @@ export function createDefaultComponent(type) {
     component.bloqueado = false;
     component.subirAlMoverInteractuar = true;
     component.properties = cloneCartaProperties(DEFAULT_CARTA_PROPERTIES);
+  } else if (type === 'mazo') {
+    component.width = DEFAULT_MAZO_WIDTH;
+    component.height = DEFAULT_MAZO_HEIGHT;
+    component.subirAlMoverInteractuar = true;
+    component.properties = { ...DEFAULT_MAZO_PROPERTIES };
   }
   return component;
 }
@@ -520,6 +538,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       renderDocumentoSpecificFields(specificContent);
     } else if (workingComponent.type === 'carta') {
       renderCartaSpecificFields(specificContent);
+    } else if (workingComponent.type === 'mazo') {
+      renderMazoSpecificFields(specificContent);
     } else {
       const empty = document.createElement('p');
       empty.textContent = 'Sin propiedades específicas';
@@ -1041,6 +1061,60 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     styleSection.appendChild(styleHint);
 
     container.appendChild(styleSection);
+  }
+
+  function renderMazoSpecificFields(container) {
+    const props = workingComponent.properties;
+
+    const countHint = document.createElement('p');
+    countHint.className = 'modal__hint';
+    countHint.textContent = `${(props.cartaIds || []).length} cartas`;
+    container.appendChild(countHint);
+
+    // Orientación: intercambia width/height al cambiar, para transponer la
+    // caja del mazo conservando cualquier redimensionado manual ya hecho.
+    const orientacionField = document.createElement('div');
+    orientacionField.className = 'modal__field';
+    const orientacionLabel = document.createElement('label');
+    orientacionLabel.textContent = 'Orientación';
+    const orientacionSelect = document.createElement('select');
+    for (const { value, label } of MAZO_ORIENTACIONES) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      if (value === (props.orientacion || DEFAULT_MAZO_PROPERTIES.orientacion)) option.selected = true;
+      orientacionSelect.appendChild(option);
+    }
+    orientacionSelect.addEventListener('change', () => {
+      if (orientacionSelect.value !== props.orientacion) {
+        const width = workingComponent.width;
+        const height = workingComponent.height;
+        workingComponent.width = height;
+        workingComponent.height = width;
+      }
+      props.orientacion = orientacionSelect.value;
+    });
+    orientacionField.appendChild(orientacionLabel);
+    orientacionField.appendChild(orientacionSelect);
+    container.appendChild(orientacionField);
+
+    // Ver contenido del mazo: opera siempre sobre el componente ya guardado en
+    // el estado (mazoId), no sobre workingComponent, para que "Sacar" refleje
+    // siempre los datos reales aunque esta modal de propiedades siga abierta.
+    const contentField = document.createElement('div');
+    contentField.className = 'modal__field';
+    const contentBtn = document.createElement('button');
+    contentBtn.type = 'button';
+    contentBtn.className = 'btn-cancel';
+    contentBtn.textContent = 'Ver contenido del mazo';
+    contentBtn.addEventListener('click', () => {
+      openMazoContentModal({
+        mazoId: workingComponent.id,
+        onSacar: (cartaId) => sacarCartaDeMazo(workingComponent.id, cartaId),
+      });
+    });
+    contentField.appendChild(contentBtn);
+    container.appendChild(contentField);
   }
 
   renderSpecificTab();

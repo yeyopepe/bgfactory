@@ -1,0 +1,14 @@
+## (a) Anotaciones funcionales
+
+- **Fuera de alcance**: cualquier otro ajuste o mejora sobre el arrastre de cartas, el mazo, o la selección múltiple — este fix se limita estrictamente a restaurar el Ctrl+click roto por la regresión, sin tocar nada más.
+- **Causa raíz confirmada**: en `ui/componentRenderer.js`, rama `component.type === 'carta'`, el listener `mousedown` del bloque `if (onMove && canMove(component))` (añadido por el cambio fast "ajustes visuales del mazo") reordena el nodo `carta` (y los de `blockDragTargets`) al final de `worldEl` de forma incondicional, en cuanto se pulsa el botón del ratón — antes de saber si el gesto va a ser un simple click o un arrastre real. Reordenar un nodo del DOM durante el propio `mousedown` impide que el navegador sintetice el evento `click` posterior sobre ese nodo, que es el que dispara `onToggleSelect(component, e)` (y con él, la lectura de `event.ctrlKey`/`metaKey` que usa `toggleSelect` en `modes/edit/editMode.js` para la selección múltiple). Confirmado con `ms-internal-tech-analysis`: es el único punto de todo `ui/componentRenderer.js` que reordena el DOM en `mousedown` — el resto de tipos, y el propio efecto de "levantar" (`liftOnDrag`/`beginDragLift`), solo reordenan en el primer `mousemove` real, nunca en `mousedown`.
+
+## (b) Solución técnica
+
+1. **`ui/componentRenderer.js`**, rama `component.type === 'carta'`: mover el "traer al frente" del listener `mousedown` al primer `mousemove` real, mismo patrón exacto que ya usa `liftOnDrag`/`beginDragLift` dentro de `handleMouseMove` (gestionado con un flag booleano para que solo ocurra una vez por gesto de arrastre, no en cada `mousemove`).
+   - Añadir una variable de estado `broughtToFront` (booleana, `false` al iniciar cada gesto, junto a `lifted`/`blockDragTargets`).
+   - En `handleMouseMove`, justo donde ya se comprueba `if (liftOnDrag && !lifted) { ... }`, añadir un bloque hermano `if (!broughtToFront) { broughtToFront = true; for (const target of blockDragTargets) worldEl.appendChild(target.el); worldEl.appendChild(carta); }` — así el reordenamiento del DOM solo se dispara si de verdad hay movimiento (arrastre confirmado), nunca en un simple click sin desplazamiento.
+   - Quitar las dos líneas `worldEl.appendChild(...)` del listener `mousedown`, dejándolo tal como estaba antes del cambio fast (solo calcula `blockDragTargets`, sin tocar el DOM).
+   - Reiniciar `broughtToFront = false` en `handleMouseUp` (mismo sitio donde ya se reinicia `lifted = false`), para que el siguiente gesto de arrastre vuelva a evaluarlo desde cero.
+
+Este cambio conserva el comportamiento pedido en el ajuste anterior (la carta que se arrastra de verdad se ve por encima de todo, incluido un mazo) sin interferir con un click simple (con o sin Ctrl), que ya no dispara ningún reordenamiento del DOM.

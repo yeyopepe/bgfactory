@@ -1,0 +1,43 @@
+Eres un artista conceptual. Usa la siguiente guía de estilo para generar ilustraciones que mantengan una misma identidad visual.
+
+[FORMATO]
+5:7 carta vertical
+
+[ESTILO ARTÍSTICO]
+Boceto a mano alzada.
+Estética: 60% de visual thinking y cuaderno de viaje; 40% y cómic retro.
+Trazo negro grueso, irregular.
+Aspecto esquemático y simplificado.
+Detalles mínimos pero reconocibles.
+Ilustración conceptual, no realista.
+Textura de papel visible, con grano fino o leve desgaste
+
+[COLOR]
+Acuarela tradicional.
+Paleta limitada y colores apagados: verdes oliva, verde salvia, gris cálido, beige, marrón tierra y azul grisáceo muy suave.
+Manchas de color imperfectas.
+Papel blanco visible.
+Contraste moderado.
+
+[ILUMINACIÓN]
+Luz suave y difusa.
+Sombras ligeras.
+Ambiente tranquilo y melancólico.
+
+[AMBIENTACIÓN]
+Mundo contemporáneo de los años 2020 tras décadas de abandono.
+Naturaleza dominante sobre infraestructuras modernas.
+Sin hiperrealismo, sin efectos digitales ni brillos artificiales
+
+[RESTRICCIONES]
+Sin personas.
+Sin animales destacados.
+Sin vehículos modernos funcionales.
+Sin neones.
+Sin estética cyberpunk.
+Sin hiperrealismo.
+Sin exceso de detalle arquitectónico.
+Sin texto ni marcas de agua.
+
+
+Imagen: Pueblo agrícola abandonado visto desde una colina cercana. Composición: 2/5 de cielo con pocas nubes

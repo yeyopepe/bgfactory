@@ -8,6 +8,7 @@ const COMPONENT_TYPES = [
   { value: 'dado', label: 'Dado' },
   { value: 'documento', label: 'Visor de documentos' },
   { value: 'carta', label: 'Carta/Ficha' },
+  { value: 'mazo', label: 'Mazo' },
 ];
 
 export function getComponentTypeLabel(type) {

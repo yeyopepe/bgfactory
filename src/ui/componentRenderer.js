@@ -2,7 +2,7 @@
 // Unlike ui/table.js (agnostic), this module knows the component model.
 
 import { attachResizeHandle } from './resizeHandle.js';
-import { getResources } from '../core/state.js';
+import { getComponents, getResources } from '../core/state.js';
 import { fontFamilyFor } from './fontFaceRegistry.js';
 import { getPosibleValores, tirarDado } from '../core/dice.js';
 import { markdownToHtml } from '../core/markdown.js';
@@ -10,6 +10,7 @@ import { sanitizeHtml } from '../core/sanitizeHtml.js';
 import { applyImageAdjustStyle } from './imageAdjustModal.js';
 import { getProporcionRatio, getCartaShapeCss, getHexInnerClipPath, CARD_DESIGN_WIDTH } from '../core/cardProportions.js';
 import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
+import { getMazoRevealZoneRect } from '../core/deck.js';
 
 const MIN_TEXT_BOX_WIDTH = 40;
 const MIN_TEXT_BOX_HEIGHT = 24;
@@ -19,6 +20,8 @@ const MIN_DOCUMENTO_WIDTH = 80;
 const MIN_DOCUMENTO_HEIGHT = 80;
 const MIN_CARTA_WIDTH = 60;
 const MIN_CARTA_HEIGHT = 60;
+const MIN_MAZO_WIDTH = 60;
+const MIN_MAZO_HEIGHT = 60;
 const DOCUMENTO_IFRAME_LOAD_TIMEOUT_MS = 3000;
 const DICE_ROLL_DURATION_MS = 1000;
 const DICE_ROLL_INTERVAL_MS = 70;
@@ -224,6 +227,7 @@ const COMPONENT_TYPE_LABELS = {
   dado: 'Dado',
   documento: 'Documento',
   carta: 'Carta/Ficha',
+  mazo: 'Mazo',
 };
 
 export function formatComponentIdentifier(component) {
@@ -269,6 +273,101 @@ function createHiddenBadge() {
     '<line x1="3" y1="21" x2="21" y2="3" stroke-linecap="round"/>' +
     '</svg>';
   return badge;
+}
+
+// Pinta la imagen de fondo (si tiene) y los textBoxes de una cara de carta
+// (`cara`: caraFrontal/caraTrasera de una carta, mismo shape en los dos) sobre
+// `contentParent`, escalando x/y/width/height/tamañoFuente ("unidades de
+// diseño", ver core/cardProportions.js) por `renderScale`. Extraída de la
+// rama 'carta' de renderComponentsOnTable para reutilizarla tal cual desde la
+// rama 'mazo' (pinta el dorso de la carta de arriba) y desde
+// ui/mazoContentModal.js (miniaturas de la cara frontal de cada carta).
+export function paintCartaFace(contentParent, cara, renderScale) {
+  const resource = cara?.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;
+  if (resource) {
+    const img = document.createElement('img');
+    img.src = resource.dataUrl;
+    img.draggable = false;
+    img.style.position = 'absolute';
+    img.style.top = '0';
+    img.style.left = '0';
+    img.style.pointerEvents = 'none';
+    img.style.opacity = String(1 - (cara.transparenciaImagen ?? 0) / 100);
+    applyImageAdjustStyle(img, cara.ajusteImagen);
+    contentParent.appendChild(img);
+  }
+
+  for (const textBox of cara?.textBoxes || []) {
+    const textEl = document.createElement('div');
+    textEl.style.position = 'absolute';
+    textEl.style.left = `${textBox.x * renderScale}px`;
+    textEl.style.top = `${textBox.y * renderScale}px`;
+    textEl.style.width = `${textBox.width * renderScale}px`;
+    textEl.style.height = `${textBox.height * renderScale}px`;
+    textEl.style.fontSize = `${(textBox.tamañoFuente || 16) * renderScale}px`;
+    textEl.style.color = textBox.color || '#000000';
+    textEl.style.fontWeight = textBox.negrita ? 'bold' : 'normal';
+    textEl.style.fontStyle = textBox.cursiva ? 'italic' : 'normal';
+    textEl.style.textDecoration = textBox.subrayado ? 'underline' : 'none';
+    textEl.style.border = textBox.bordeActivo
+      ? `${textBox.bordeGrosor ?? 2}px ${textBox.bordeTipo === 'punteada' ? 'dashed' : 'solid'} ${textBox.bordeColor || '#000000'}`
+      : 'none';
+    textEl.style.backgroundColor = textBox.colorFondo || 'transparent';
+    textEl.style.overflow = 'hidden';
+    textEl.style.wordBreak = 'break-word';
+    textEl.style.whiteSpace = 'pre-wrap';
+    textEl.style.pointerEvents = 'none';
+    textEl.style.display = 'flex';
+    textEl.style.flexDirection = 'column';
+    textEl.style.boxSizing = 'border-box';
+    Object.assign(textEl.style, getTextBoxLayoutStyle(textBox, renderScale));
+    const fontResource = textBox.fuenteResourceId ? getResources().find((r) => r.id === textBox.fuenteResourceId) : null;
+    if (fontResource) {
+      textEl.style.fontFamily = fontFamilyFor(fontResource.id);
+    }
+    textEl.textContent = textBox.contenido || '';
+    contentParent.appendChild(textEl);
+  }
+}
+
+// Placeholder neutro para un mazo sin cartas (cambio 00106): icono simple
+// dibujado en JS, mismo criterio que renderDiceSilhouette de 'dado' — sin
+// depender de ningún recurso de la galería.
+function renderMazoEmptyPlaceholder(container, width, height) {
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('fill', 'none');
+  icon.setAttribute('stroke', 'currentColor');
+  icon.setAttribute('stroke-width', '1.5');
+  icon.style.position = 'absolute';
+  icon.style.top = '50%';
+  icon.style.left = '50%';
+  icon.style.width = `${Math.min(width, height) * 0.4}px`;
+  icon.style.height = `${Math.min(width, height) * 0.4}px`;
+  icon.style.transform = 'translate(-50%, -50%)';
+  icon.style.color = 'var(--text-muted)';
+  icon.innerHTML =
+    '<rect x="4" y="3" width="16" height="18" rx="2"/>' +
+    '<line x1="8" y1="8" x2="16" y2="8"/>' +
+    '<line x1="8" y1="12" x2="16" y2="12"/>';
+  container.appendChild(icon);
+}
+
+// Zona de revelado del mazo (cambio 00106): recuadro decorativo, no
+// seleccionable ni interactuable, que marca dónde aparecerán las cartas al
+// sacarlas — siempre pegado al lado derecho del mazo, misma altura/anchura.
+function renderMazoRevealZone(worldEl, mazo) {
+  const rect = getMazoRevealZoneRect(mazo);
+  const zone = document.createElement('div');
+  zone.className = 'mazo-reveal-zone';
+  zone.style.position = 'absolute';
+  zone.style.left = `${rect.x}px`;
+  zone.style.top = `${rect.y}px`;
+  zone.style.width = `${rect.width}px`;
+  zone.style.height = `${rect.height}px`;
+  zone.textContent = 'Carta revelada';
+  worldEl.appendChild(zone);
+  return zone;
 }
 
 export function getComponentsBounds(components) {
@@ -329,7 +428,7 @@ function applyFlipFeedbackIfChanged(carta, componentId, caraActual) {
   }, 250));
 }
 
-export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedIds = new Set(), onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, onCartaFlip, onContextMenu, identifyMode, liftOnDrag = false, showLockIndicator = false, showHiddenIndicator = false } = {}) {
+export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedIds = new Set(), onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, onCartaFlip, onMazoDraw, onContextMenu, identifyMode, liftOnDrag = false, showLockIndicator = false, showHiddenIndicator = false } = {}) {
   worldEl.innerHTML = '';
 
   // El componente con `order` más alto se dibuja primero (queda por debajo); el de
@@ -1055,51 +1154,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       applyFlipFeedbackIfChanged(carta, component.id, caraActual);
 
-      const resource = cara?.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;
-      if (resource) {
-        const img = document.createElement('img');
-        img.src = resource.dataUrl;
-        img.draggable = false;
-        img.style.position = 'absolute';
-        img.style.top = '0';
-        img.style.left = '0';
-        img.style.pointerEvents = 'none';
-        img.style.opacity = String(1 - (cara.transparenciaImagen ?? 0) / 100);
-        applyImageAdjustStyle(img, cara.ajusteImagen);
-        contentParent.appendChild(img);
-      }
-
-      for (const textBox of cara?.textBoxes || []) {
-        const textEl = document.createElement('div');
-        textEl.style.position = 'absolute';
-        textEl.style.left = `${textBox.x * renderScale}px`;
-        textEl.style.top = `${textBox.y * renderScale}px`;
-        textEl.style.width = `${textBox.width * renderScale}px`;
-        textEl.style.height = `${textBox.height * renderScale}px`;
-        textEl.style.fontSize = `${(textBox.tamañoFuente || 16) * renderScale}px`;
-        textEl.style.color = textBox.color || '#000000';
-        textEl.style.fontWeight = textBox.negrita ? 'bold' : 'normal';
-        textEl.style.fontStyle = textBox.cursiva ? 'italic' : 'normal';
-        textEl.style.textDecoration = textBox.subrayado ? 'underline' : 'none';
-        textEl.style.border = textBox.bordeActivo
-          ? `${textBox.bordeGrosor ?? 2}px ${textBox.bordeTipo === 'punteada' ? 'dashed' : 'solid'} ${textBox.bordeColor || '#000000'}`
-          : 'none';
-        textEl.style.backgroundColor = textBox.colorFondo || 'transparent';
-        textEl.style.overflow = 'hidden';
-        textEl.style.wordBreak = 'break-word';
-        textEl.style.whiteSpace = 'pre-wrap';
-        textEl.style.pointerEvents = 'none';
-        textEl.style.display = 'flex';
-        textEl.style.flexDirection = 'column';
-        textEl.style.boxSizing = 'border-box';
-        Object.assign(textEl.style, getTextBoxLayoutStyle(textBox, renderScale));
-        const fontResource = textBox.fuenteResourceId ? getResources().find((r) => r.id === textBox.fuenteResourceId) : null;
-        if (fontResource) {
-          textEl.style.fontFamily = fontFamilyFor(fontResource.id);
-        }
-        textEl.textContent = textBox.contenido || '';
-        contentParent.appendChild(textEl);
-      }
+      paintCartaFace(contentParent, cara, renderScale);
 
       if (onSelect) {
         carta.classList.add('carta--selectable');
@@ -1135,6 +1190,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         let currentX = startX;
         let currentY = startY;
         let lifted = false;
+        let broughtToFront = false;
         let blockDragTargets = [];
 
         function handleMouseMove(e) {
@@ -1149,6 +1205,18 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
             target.el.style.left = `${target.startX + dx}px`;
             target.el.style.top = `${target.startY + dy}px`;
           }
+          // Traer al frente del DOM solo al confirmarse un arrastre real (primer
+          // `mousemove`, no en `mousedown`, mismo patrón que `liftOnDrag` más abajo)
+          // — reordenar el DOM ya en `mousedown` impide que el navegador sintetice
+          // el `click` posterior (rompía Ctrl+click de la selección múltiple, fix 00113).
+          // Independiente de `liftOnDrag` (exclusivo de modo juego): en modo edición
+          // no hay efecto de "levantar" (sombra), pero la carta debe verse por encima
+          // de cualquier otro elemento, incluido un mazo, mientras dura el arrastre.
+          if (!broughtToFront) {
+            broughtToFront = true;
+            for (const target of blockDragTargets) worldEl.appendChild(target.el);
+            worldEl.appendChild(carta);
+          }
           if (liftOnDrag && !lifted) {
             lifted = true;
             beginDragLift(carta, worldEl);
@@ -1160,6 +1228,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           document.removeEventListener('mouseup', handleMouseUp);
           if (lifted) endDragLift(carta);
           lifted = false;
+          broughtToFront = false;
           if (currentX === startX && currentY === startY) return;
           onMove(component, currentX, currentY);
         }
@@ -1220,6 +1289,163 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       worldEl.appendChild(carta);
+    } else if (component.type === 'mazo') {
+      const props = component.properties || {};
+      const cartaIds = props.cartaIds || [];
+
+      const mazo = document.createElement('div');
+      elementsById.set(component.id, mazo);
+      mazo.className = 'carta';
+      mazo.style.position = 'absolute';
+      mazo.style.top = `${component.y ?? 100}px`;
+      mazo.style.left = `${component.x ?? 100}px`;
+      mazo.style.boxSizing = 'border-box';
+      const width = component.width ?? MIN_MAZO_WIDTH;
+      const height = component.height ?? MIN_MAZO_HEIGHT;
+      mazo.style.width = `${width}px`;
+      mazo.style.height = `${height}px`;
+
+      const mazoContent = document.createElement('div');
+      mazoContent.style.position = 'absolute';
+      mazoContent.style.inset = '0';
+      mazoContent.style.boxSizing = 'border-box';
+      mazoContent.style.overflow = 'hidden';
+      mazoContent.style.borderRadius = 'var(--radius-lg)';
+      mazoContent.style.backgroundColor = '#ffffff';
+      mazo.appendChild(mazoContent);
+
+      const cartaArriba = cartaIds.length > 0 ? getComponents().find((c) => c.id === cartaIds[0]) : null;
+      if (cartaArriba) {
+        const renderScale = width / CARD_DESIGN_WIDTH;
+        paintCartaFace(mazoContent, cartaArriba.properties?.caraTrasera, renderScale);
+      } else {
+        renderMazoEmptyPlaceholder(mazoContent, width, height);
+      }
+
+      if (identifyMode === 'tooltip') mazo.title = 'Pulsa para sacar la primera carta.';
+      if (identifyMode === 'label') mazo.appendChild(createIdentifierLabel(component));
+      if (showLockIndicator && component.bloqueado) mazo.appendChild(createLockBadge());
+      if (showHiddenIndicator && component.oculto) mazo.appendChild(createHiddenBadge());
+
+      const countLabel = document.createElement('span');
+      countLabel.className = 'mazo-count-label';
+      countLabel.textContent = `${cartaIds.length} cartas`;
+      mazo.appendChild(countLabel);
+
+      const revealZone = renderMazoRevealZone(worldEl, component);
+
+      if (onSelect) {
+        mazo.classList.add('carta--selectable');
+        mazo.addEventListener('dblclick', () => onSelect(component));
+      }
+
+      if (onToggleSelect) {
+        mazo.addEventListener('click', (e) => {
+          e.stopPropagation();
+          onToggleSelect(component, e);
+        });
+      }
+
+      if (onContextMenu) {
+        mazo.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onContextMenu(component, e);
+        });
+      }
+
+      if (selectedIds.has(component.id)) {
+        mazo.classList.add('carta--selected');
+      }
+
+      if (onMove && canMove(component)) {
+        mazo.classList.add('carta--movable');
+
+        let startMouseX = 0;
+        let startMouseY = 0;
+        let startX = component.x ?? 100;
+        let startY = component.y ?? 100;
+        let currentX = startX;
+        let currentY = startY;
+        let lifted = false;
+        let blockDragTargets = [];
+
+        function handleMouseMove(e) {
+          const zoom = getWorldZoom(worldEl);
+          currentX = startX + (e.clientX - startMouseX) / zoom;
+          currentY = startY + (e.clientY - startMouseY) / zoom;
+          mazo.style.left = `${currentX}px`;
+          mazo.style.top = `${currentY}px`;
+          const dx = currentX - startX;
+          const dy = currentY - startY;
+          for (const target of blockDragTargets) {
+            target.el.style.left = `${target.startX + dx}px`;
+            target.el.style.top = `${target.startY + dy}px`;
+          }
+          // La zona de revelado debe seguir al mazo en vivo durante el arrastre,
+          // no solo al soltar (fix 00114) — mismo cálculo que el render inicial.
+          const revealRect = getMazoRevealZoneRect({ x: currentX, y: currentY, width, height });
+          revealZone.style.left = `${revealRect.x}px`;
+          revealZone.style.top = `${revealRect.y}px`;
+          if (liftOnDrag && !lifted) {
+            lifted = true;
+            beginDragLift(mazo, worldEl);
+          }
+        }
+
+        function handleMouseUp() {
+          document.removeEventListener('mousemove', handleMouseMove);
+          document.removeEventListener('mouseup', handleMouseUp);
+          if (lifted) endDragLift(mazo);
+          lifted = false;
+          if (currentX === startX && currentY === startY) return;
+          onMove(component, currentX, currentY);
+        }
+
+        mazo.addEventListener('mousedown', (e) => {
+          if (e.button !== 0) return;
+          e.stopPropagation();
+          startMouseX = e.clientX;
+          startMouseY = e.clientY;
+          startX = component.x ?? 100;
+          startY = component.y ?? 100;
+          blockDragTargets = getBlockDragTargets(component);
+          document.addEventListener('mousemove', handleMouseMove);
+          document.addEventListener('mouseup', handleMouseUp);
+        });
+      }
+
+      if (onResize && selectedIds.size === 1 && selectedIds.has(component.id)) {
+        attachResizeHandle(mazo, {
+          axis: 'both',
+          getScale: () => getWorldZoom(worldEl),
+          getSize: () => ({ width, height }),
+          clamp: ({ width, height }) => ({
+            width: Math.max(width, MIN_MAZO_WIDTH),
+            height: Math.max(height, MIN_MAZO_HEIGHT),
+          }),
+          onResize: ({ width, height }) => {
+            mazo.style.width = `${width}px`;
+            mazo.style.height = `${height}px`;
+          },
+          onResizeEnd: ({ width, height }) => {
+            onResize(component, width, height);
+          },
+        });
+      }
+
+      // Sacar la carta de arriba: siempre disponible con un click, mismo
+      // criterio que el volteo de 'carta' o el lanzamiento de 'dado' (no
+      // depende de "Bloqueado", que solo condiciona el arrastre).
+      if (onMazoDraw) {
+        mazo.classList.add('mazo--clickable');
+        mazo.addEventListener('click', (e) => {
+          e.stopPropagation();
+          onMazoDraw(component);
+        });
+      }
+
+      worldEl.appendChild(mazo);
     }
   }
 }

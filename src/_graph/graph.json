@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-01T08:48:39Z",
+  "generatedAt": "2026-08-01T10:06:16Z",
   "basePath": "src",
   "nodes": [
     {
@@ -31,6 +31,20 @@
         "updateComponent"
       ],
       "purpose": "Modelo genérico de componente de juego: construcción/actualización, clonado, y el mecanismo de Copia vinculada (creación, renombrado e id, y sincronización de campos con el original)."
+    },
+    {
+      "id": "core/deck.js",
+      "type": "file",
+      "path": "core/deck.js",
+      "exports": [
+        "MAZO_REVEAL_GAP",
+        "computeSacarCartaDeMazo",
+        "getCartaIdsEnAlgunMazo",
+        "getMazoRevealZoneRect",
+        "rectsOverlap",
+        "shuffleCartaIds"
+      ],
+      "purpose": "Lógica pura del componente \"Mazo\": barajar, calcular la zona de revelado y los ids de carta ya dentro de algún mazo, y computar el resultado de sacar una carta de la pila."
     },
     {
       "id": "core/dice.js",
@@ -186,6 +200,7 @@
         "replaceComponent",
         "replaceGroup",
         "replaceResource",
+        "sacarCartaDeMazo",
         "setGroupPanelState",
         "setMode",
         "setPanelState",
@@ -341,6 +356,8 @@
         "DEFAULT_CARTA_PROPERTIES",
         "DEFAULT_DADO_PROPERTIES",
         "DEFAULT_DOCUMENTO_PROPERTIES",
+        "DEFAULT_MAZO_PROPERTIES",
+        "MAZO_ORIENTACIONES",
         "createDefaultComponent",
         "openComponentModal"
       ],
@@ -353,6 +370,7 @@
       "exports": [
         "formatComponentIdentifier",
         "getComponentsBounds",
+        "paintCartaFace",
         "renderComponentsOnTable"
       ],
       "purpose": "Renderiza los componentes de juego (de cualquier tipo) sobre la mesa infinita, con sus interacciones (mover, redimensionar, lanzar dado, voltear carta, menú contextual, indicadores)."
@@ -542,6 +560,24 @@
       "purpose": "Primera modal del flujo de importar: elige qué componentes/recursos/mazos del fichero leído se importan."
     },
     {
+      "id": "ui/insertIntoMazoModal.js",
+      "type": "file",
+      "path": "ui/insertIntoMazoModal.js",
+      "exports": [
+        "openInsertIntoMazoModal"
+      ],
+      "purpose": "Modal \"Meter en mazo...\": elegir el mazo destino y si la carta se coloca arriba o abajo del todo de su pila."
+    },
+    {
+      "id": "ui/mazoContentModal.js",
+      "type": "file",
+      "path": "ui/mazoContentModal.js",
+      "exports": [
+        "openMazoContentModal"
+      ],
+      "purpose": "Modal \"Ver contenido del mazo\": lista las cartas de un mazo (miniatura de cara frontal + id) con un botón \"Sacar\" por fila, refrescándose sola tras cada extracción."
+    },
+    {
       "id": "ui/resizeHandle.js",
       "type": "file",
       "path": "ui/resizeHandle.js",
@@ -703,6 +739,41 @@
       "path": "core/component.js",
       "parent": "core/component.js",
       "purpose": "Devuelve un componente con los cambios indicados aplicados, fusionando properties en profundidad."
+    },
+    {
+      "id": "core/deck.js#computeSacarCartaDeMazo",
+      "type": "function",
+      "path": "core/deck.js",
+      "parent": "core/deck.js",
+      "purpose": "Calcula, de forma pura, los cambios necesarios para sacar una carta cualquiera de un mazo y revelarla en su zona de revelado."
+    },
+    {
+      "id": "core/deck.js#getCartaIdsEnAlgunMazo",
+      "type": "function",
+      "path": "core/deck.js",
+      "parent": "core/deck.js",
+      "purpose": "Devuelve el conjunto de ids de carta referenciados por algún mazo, usado para excluirlas del renderizado normal de la mesa."
+    },
+    {
+      "id": "core/deck.js#getMazoRevealZoneRect",
+      "type": "function",
+      "path": "core/deck.js",
+      "parent": "core/deck.js",
+      "purpose": "Calcula el rectángulo de la zona de revelado de un mazo (pegada a su lado derecho, misma altura/anchura)."
+    },
+    {
+      "id": "core/deck.js#rectsOverlap",
+      "type": "function",
+      "path": "core/deck.js",
+      "parent": "core/deck.js",
+      "purpose": "Comprueba si dos rectángulos {x,y,width,height} se solapan."
+    },
+    {
+      "id": "core/deck.js#shuffleCartaIds",
+      "type": "function",
+      "path": "core/deck.js",
+      "parent": "core/deck.js",
+      "purpose": "Devuelve una copia barajada (Fisher-Yates) de una lista de ids de carta."
     },
     {
       "id": "core/dice.js#esResultadoValido",
@@ -1118,6 +1189,13 @@
       "purpose": "Sustituye un recurso del estado por su versión actualizada y notifica el cambio."
     },
     {
+      "id": "core/state.js#sacarCartaDeMazo",
+      "type": "function",
+      "path": "core/state.js",
+      "parent": "core/state.js",
+      "purpose": "Saca una carta de un mazo (esté donde esté en la pila) y la revela en la mesa, aplicando los cambios calculados por core/deck.js."
+    },
+    {
       "id": "core/state.js#setGroupPanelState",
       "type": "function",
       "path": "core/state.js",
@@ -1277,6 +1355,13 @@
       "path": "ui/componentRenderer.js",
       "parent": "ui/componentRenderer.js",
       "purpose": "Calcula la caja delimitadora (min/max x/y) que engloba a todos los componentes dados."
+    },
+    {
+      "id": "ui/componentRenderer.js#paintCartaFace",
+      "type": "function",
+      "path": "ui/componentRenderer.js",
+      "parent": "ui/componentRenderer.js",
+      "purpose": "Pinta la imagen de fondo y los cuadros de texto de una cara de carta sobre un contenedor, reutilizada por la carta en la mesa, el mazo y las miniaturas de ui/mazoContentModal.js."
     },
     {
       "id": "ui/componentRenderer.js#renderComponentsOnTable",
@@ -1454,6 +1539,20 @@
       "purpose": "Abre la primera modal del flujo de importar, para elegir qué elementos del fichero leído se importan."
     },
     {
+      "id": "ui/insertIntoMazoModal.js#openInsertIntoMazoModal",
+      "type": "function",
+      "path": "ui/insertIntoMazoModal.js",
+      "parent": "ui/insertIntoMazoModal.js",
+      "purpose": "Abre la modal \"Meter en mazo...\" y devuelve el mazo elegido y la posición (arriba/abajo) al aceptar."
+    },
+    {
+      "id": "ui/mazoContentModal.js#openMazoContentModal",
+      "type": "function",
+      "path": "ui/mazoContentModal.js",
+      "parent": "ui/mazoContentModal.js",
+      "purpose": "Abre la modal \"Ver contenido del mazo\" para un mazo dado, delegando la extracción de cada carta en el callback onSacar."
+    },
+    {
       "id": "ui/resizeHandle.js#attachResizeHandle",
       "type": "function",
       "path": "ui/resizeHandle.js",
@@ -1531,6 +1630,11 @@
     {
       "source": "core/component.js#createCopy",
       "target": "core/component.js#nextCopyId",
+      "relation": "calls"
+    },
+    {
+      "source": "core/deck.js#computeSacarCartaDeMazo",
+      "target": "core/deck.js#getMazoRevealZoneRect",
       "relation": "calls"
     },
     {
@@ -1659,6 +1763,26 @@
       "relation": "calls"
     },
     {
+      "source": "core/state.js#sacarCartaDeMazo",
+      "target": "core/component.js#updateComponent",
+      "relation": "calls"
+    },
+    {
+      "source": "core/state.js#sacarCartaDeMazo",
+      "target": "core/deck.js#computeSacarCartaDeMazo",
+      "relation": "calls"
+    },
+    {
+      "source": "core/state.js#sacarCartaDeMazo",
+      "target": "core/state.js#reorderComponent",
+      "relation": "calls"
+    },
+    {
+      "source": "core/state.js#sacarCartaDeMazo",
+      "target": "core/state.js#replaceComponent",
+      "relation": "calls"
+    },
+    {
       "source": "core/state.js#setGroupPanelState",
       "target": "core/eventBus.js#emit",
       "relation": "calls"
@@ -1726,6 +1850,11 @@
     {
       "source": "modes/edit/editMode.js#renderEditMode",
       "target": "core/component.js#updateComponent",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/edit/editMode.js#renderEditMode",
+      "target": "core/deck.js#getCartaIdsEnAlgunMazo",
       "relation": "calls"
     },
     {
@@ -1830,6 +1959,16 @@
     },
     {
       "source": "modes/play/playMode.js#renderPlayMode",
+      "target": "core/deck.js#getCartaIdsEnAlgunMazo",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/play/playMode.js#renderPlayMode",
+      "target": "core/deck.js#shuffleCartaIds",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/play/playMode.js#renderPlayMode",
       "target": "core/state.js#getComponents",
       "relation": "calls"
     },
@@ -1841,6 +1980,11 @@
     {
       "source": "modes/play/playMode.js#renderPlayMode",
       "target": "core/state.js#replaceComponent",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/play/playMode.js#renderPlayMode",
+      "target": "core/state.js#sacarCartaDeMazo",
       "relation": "calls"
     },
     {
@@ -1861,6 +2005,16 @@
     {
       "source": "modes/play/playMode.js#renderPlayMode",
       "target": "ui/diceResultModal.js#openDiceResultModal",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/play/playMode.js#renderPlayMode",
+      "target": "ui/insertIntoMazoModal.js#openInsertIntoMazoModal",
+      "relation": "calls"
+    },
+    {
+      "source": "modes/play/playMode.js#renderPlayMode",
+      "target": "ui/mazoContentModal.js#openMazoContentModal",
       "relation": "calls"
     },
     {
@@ -1944,6 +2098,11 @@
       "relation": "calls"
     },
     {
+      "source": "ui/componentModal.js",
+      "target": "core/cardProportions.js#getProporcionRatio",
+      "relation": "calls"
+    },
+    {
       "source": "ui/componentModal.js#createDefaultComponent",
       "target": "core/cardProportions.js#getProporcionRatio",
       "relation": "calls"
@@ -2010,6 +2169,11 @@
     },
     {
       "source": "ui/componentModal.js#openComponentModal",
+      "target": "core/state.js#sacarCartaDeMazo",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
       "target": "core/styleClipboard.js#getStyleClipboard",
       "relation": "calls"
     },
@@ -2055,6 +2219,11 @@
     },
     {
       "source": "ui/componentModal.js#openComponentModal",
+      "target": "ui/mazoContentModal.js#openMazoContentModal",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
       "target": "ui/styleClipboardErrorModal.js#openStyleClipboardPasteErrorModal",
       "relation": "calls"
     },
@@ -2066,6 +2235,26 @@
     {
       "source": "ui/componentModal.js#openComponentModal",
       "target": "ui/toast.js#showToast",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentRenderer.js#paintCartaFace",
+      "target": "core/state.js#getResources",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentRenderer.js#paintCartaFace",
+      "target": "core/textBoxLayout.js#getTextBoxLayoutStyle",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentRenderer.js#paintCartaFace",
+      "target": "ui/fontFaceRegistry.js#fontFamilyFor",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentRenderer.js#paintCartaFace",
+      "target": "ui/imageAdjustModal.js#applyImageAdjustStyle",
       "relation": "calls"
     },
     {
@@ -2081,6 +2270,11 @@
     {
       "source": "ui/componentRenderer.js#renderComponentsOnTable",
       "target": "core/cardProportions.js#getProporcionRatio",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentRenderer.js#renderComponentsOnTable",
+      "target": "core/deck.js#getMazoRevealZoneRect",
       "relation": "calls"
     },
     {
@@ -2105,12 +2299,12 @@
     },
     {
       "source": "ui/componentRenderer.js#renderComponentsOnTable",
-      "target": "core/state.js#getResources",
+      "target": "core/state.js#getComponents",
       "relation": "calls"
     },
     {
       "source": "ui/componentRenderer.js#renderComponentsOnTable",
-      "target": "core/textBoxLayout.js#getTextBoxLayoutStyle",
+      "target": "core/state.js#getResources",
       "relation": "calls"
     },
     {
@@ -2120,12 +2314,12 @@
     },
     {
       "source": "ui/componentRenderer.js#renderComponentsOnTable",
-      "target": "ui/fontFaceRegistry.js#fontFamilyFor",
+      "target": "ui/componentRenderer.js#paintCartaFace",
       "relation": "calls"
     },
     {
       "source": "ui/componentRenderer.js#renderComponentsOnTable",
-      "target": "ui/imageAdjustModal.js#applyImageAdjustStyle",
+      "target": "ui/fontFaceRegistry.js#fontFamilyFor",
       "relation": "calls"
     },
     {
@@ -2199,6 +2393,21 @@
       "relation": "calls"
     },
     {
+      "source": "ui/insertIntoMazoModal.js#openInsertIntoMazoModal",
+      "target": "ui/componentRenderer.js#formatComponentIdentifier",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/mazoContentModal.js#openMazoContentModal",
+      "target": "core/state.js#getComponents",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/mazoContentModal.js#openMazoContentModal",
+      "target": "ui/componentRenderer.js#paintCartaFace",
+      "relation": "calls"
+    },
+    {
       "source": "ui/resourceList.js#renderResourceList",
       "target": "ui/resizeHandle.js#attachResizeHandle",
       "relation": "calls"
@@ -2236,6 +2445,11 @@
     {
       "source": "core/state.js",
       "target": "core/component.js",
+      "relation": "imports"
+    },
+    {
+      "source": "core/state.js",
+      "target": "core/deck.js",
       "relation": "imports"
     },
     {
@@ -2311,6 +2525,11 @@
     {
       "source": "modes/edit/editMode.js",
       "target": "core/component.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/edit/editMode.js",
+      "target": "core/deck.js",
       "relation": "imports"
     },
     {
@@ -2405,6 +2624,11 @@
     },
     {
       "source": "modes/play/playMode.js",
+      "target": "core/deck.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/play/playMode.js",
       "target": "core/dice.js",
       "relation": "imports"
     },
@@ -2426,6 +2650,16 @@
     {
       "source": "modes/play/playMode.js",
       "target": "ui/diceResultModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/play/playMode.js",
+      "target": "ui/insertIntoMazoModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/play/playMode.js",
+      "target": "ui/mazoContentModal.js",
       "relation": "imports"
     },
     {
@@ -2565,6 +2799,11 @@
     },
     {
       "source": "ui/componentModal.js",
+      "target": "ui/mazoContentModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentModal.js",
       "target": "ui/styleClipboardErrorModal.js",
       "relation": "imports"
     },
@@ -2581,6 +2820,11 @@
     {
       "source": "ui/componentRenderer.js",
       "target": "core/cardProportions.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentRenderer.js",
+      "target": "core/deck.js",
       "relation": "imports"
     },
     {
@@ -2746,6 +2990,26 @@
     {
       "source": "ui/importSelectionModal.js",
       "target": "ui/elementSelectionModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/insertIntoMazoModal.js",
+      "target": "ui/componentRenderer.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/mazoContentModal.js",
+      "target": "core/cardProportions.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/mazoContentModal.js",
+      "target": "core/state.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/mazoContentModal.js",
+      "target": "ui/componentRenderer.js",
       "relation": "imports"
     },
     {
