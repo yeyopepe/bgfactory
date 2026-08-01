@@ -329,16 +329,35 @@ function applyFlipFeedbackIfChanged(carta, componentId, caraActual) {
   }, 250));
 }
 
-export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedId = null, onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, onCartaFlip, onContextMenu, identifyMode, liftOnDrag = false, showLockIndicator = false, showHiddenIndicator = false } = {}) {
+export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedIds = new Set(), onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, onCartaFlip, onContextMenu, identifyMode, liftOnDrag = false, showLockIndicator = false, showHiddenIndicator = false } = {}) {
   worldEl.innerHTML = '';
 
   // El componente con `order` más alto se dibuja primero (queda por debajo); el de
   // `order = 1` se dibuja el último (appendChild posterior = por encima visualmente).
   const stackedComponents = [...components].sort((a, b) => (b.order ?? 0) - (a.order ?? 0));
 
+  // Selección múltiple (cambio 00108): registro de elemento DOM por id, para poder
+  // mover en vivo (durante el propio arrastre, no solo al soltar) al resto de
+  // componentes seleccionados cuando se arrastra uno de ellos.
+  const elementsById = new Map();
+
+  function getBlockDragTargets(component) {
+    if (!(selectedIds.size > 1 && selectedIds.has(component.id))) return [];
+    const targets = [];
+    for (const id of selectedIds) {
+      if (id === component.id) continue;
+      const el = elementsById.get(id);
+      const other = components.find((c) => c.id === id);
+      if (!el || !other) continue;
+      targets.push({ el, startX: other.x ?? 100, startY: other.y ?? 100 });
+    }
+    return targets;
+  }
+
   for (const component of stackedComponents) {
     if (component.type === 'texto') {
       const textBox = document.createElement('div');
+      elementsById.set(component.id, textBox);
       textBox.className = 'text-box';
       textBox.style.position = 'absolute';
       textBox.style.top = `${component.y ?? 100}px`;
@@ -371,7 +390,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (onToggleSelect) {
         textBox.addEventListener('click', (e) => {
           e.stopPropagation();
-          onToggleSelect(component);
+          onToggleSelect(component, e);
         });
       }
 
@@ -383,7 +402,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         });
       }
 
-      if (component.id === selectedId) {
+      if (selectedIds.has(component.id)) {
         textBox.classList.add('text-box--selected');
       }
 
@@ -396,6 +415,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         let startY = component.y ?? 100;
         let currentX = startX;
         let currentY = startY;
+        let blockDragTargets = [];
 
         function handleMouseMove(e) {
           const zoom = getWorldZoom(worldEl);
@@ -403,6 +423,12 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           currentY = startY + (e.clientY - startMouseY) / zoom;
           textBox.style.left = `${currentX}px`;
           textBox.style.top = `${currentY}px`;
+          const dx = currentX - startX;
+          const dy = currentY - startY;
+          for (const target of blockDragTargets) {
+            target.el.style.left = `${target.startX + dx}px`;
+            target.el.style.top = `${target.startY + dy}px`;
+          }
         }
 
         function handleMouseUp() {
@@ -421,12 +447,13 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           startMouseY = e.clientY;
           startX = component.x ?? 100;
           startY = component.y ?? 100;
+          blockDragTargets = getBlockDragTargets(component);
           document.addEventListener('mousemove', handleMouseMove);
           document.addEventListener('mouseup', handleMouseUp);
         });
       }
 
-      if (onResize && component.id === selectedId) {
+      if (onResize && selectedIds.size === 1 && selectedIds.has(component.id)) {
         attachResizeHandle(textBox, {
           axis: 'both',
           getScale: () => getWorldZoom(worldEl),
@@ -455,6 +482,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       worldEl.appendChild(textBox);
     } else if (component.type === 'tablero') {
       const board = document.createElement('div');
+      elementsById.set(component.id, board);
       board.className = 'board';
       board.style.position = 'absolute';
       board.style.top = `${component.y ?? 100}px`;
@@ -542,7 +570,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (onToggleSelect) {
         board.addEventListener('click', (e) => {
           e.stopPropagation();
-          onToggleSelect(component);
+          onToggleSelect(component, e);
         });
       }
 
@@ -554,7 +582,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         });
       }
 
-      if (component.id === selectedId) {
+      if (selectedIds.has(component.id)) {
         board.classList.add('board--selected');
       }
 
@@ -567,6 +595,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         let startY = component.y ?? 100;
         let currentX = startX;
         let currentY = startY;
+        let blockDragTargets = [];
 
         function handleMouseMove(e) {
           const zoom = getWorldZoom(worldEl);
@@ -574,6 +603,12 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           currentY = startY + (e.clientY - startMouseY) / zoom;
           board.style.left = `${currentX}px`;
           board.style.top = `${currentY}px`;
+          const dx = currentX - startX;
+          const dy = currentY - startY;
+          for (const target of blockDragTargets) {
+            target.el.style.left = `${target.startX + dx}px`;
+            target.el.style.top = `${target.startY + dy}px`;
+          }
         }
 
         function handleMouseUp() {
@@ -592,12 +627,13 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           startMouseY = e.clientY;
           startX = component.x ?? 100;
           startY = component.y ?? 100;
+          blockDragTargets = getBlockDragTargets(component);
           document.addEventListener('mousemove', handleMouseMove);
           document.addEventListener('mouseup', handleMouseUp);
         });
       }
 
-      if (onResize && component.id === selectedId) {
+      if (onResize && selectedIds.size === 1 && selectedIds.has(component.id)) {
         attachResizeHandle(board, {
           axis: 'both',
           getScale: () => getWorldZoom(worldEl),
@@ -619,6 +655,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       worldEl.appendChild(board);
     } else if (component.type === 'dado') {
       const dice = document.createElement('div');
+      elementsById.set(component.id, dice);
       dice.className = 'dice';
       dice.style.position = 'absolute';
       dice.style.top = `${component.y ?? 100}px`;
@@ -673,7 +710,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (onToggleSelect) {
         dice.addEventListener('click', (e) => {
           e.stopPropagation();
-          onToggleSelect(component);
+          onToggleSelect(component, e);
         });
       }
 
@@ -685,7 +722,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         });
       }
 
-      if (component.id === selectedId) {
+      if (selectedIds.has(component.id)) {
         dice.classList.add('dice--selected');
       }
 
@@ -698,6 +735,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         let startY = component.y ?? 100;
         let currentX = startX;
         let currentY = startY;
+        let blockDragTargets = [];
 
         function handleMouseMove(e) {
           const zoom = getWorldZoom(worldEl);
@@ -705,6 +743,12 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           currentY = startY + (e.clientY - startMouseY) / zoom;
           dice.style.left = `${currentX}px`;
           dice.style.top = `${currentY}px`;
+          const dx = currentX - startX;
+          const dy = currentY - startY;
+          for (const target of blockDragTargets) {
+            target.el.style.left = `${target.startX + dx}px`;
+            target.el.style.top = `${target.startY + dy}px`;
+          }
         }
 
         function handleMouseUp() {
@@ -723,6 +767,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           startMouseY = e.clientY;
           startX = component.x ?? 100;
           startY = component.y ?? 100;
+          blockDragTargets = getBlockDragTargets(component);
           document.addEventListener('mousemove', handleMouseMove);
           document.addEventListener('mouseup', handleMouseUp);
         });
@@ -730,7 +775,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         dice.classList.add('dice--clickable');
       }
 
-      if (onResize && component.id === selectedId) {
+      if (onResize && selectedIds.size === 1 && selectedIds.has(component.id)) {
         attachResizeHandle(dice, {
           axis: 'both',
           getScale: () => getWorldZoom(worldEl),
@@ -804,6 +849,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       worldEl.appendChild(dice);
     } else if (component.type === 'documento') {
       const documentViewer = document.createElement('div');
+      elementsById.set(component.id, documentViewer);
       documentViewer.className = 'document-viewer';
       documentViewer.style.position = 'absolute';
       documentViewer.style.top = `${component.y ?? 100}px`;
@@ -859,7 +905,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (onToggleSelect) {
         documentViewer.addEventListener('click', (e) => {
           e.stopPropagation();
-          onToggleSelect(component);
+          onToggleSelect(component, e);
         });
       }
 
@@ -871,7 +917,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         });
       }
 
-      if (component.id === selectedId) {
+      if (selectedIds.has(component.id)) {
         documentViewer.classList.add('document-viewer--selected');
       }
 
@@ -884,6 +930,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         let startY = component.y ?? 100;
         let currentX = startX;
         let currentY = startY;
+        let blockDragTargets = [];
 
         function handleMouseMove(e) {
           const zoom = getWorldZoom(worldEl);
@@ -891,6 +938,12 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           currentY = startY + (e.clientY - startMouseY) / zoom;
           documentViewer.style.left = `${currentX}px`;
           documentViewer.style.top = `${currentY}px`;
+          const dx = currentX - startX;
+          const dy = currentY - startY;
+          for (const target of blockDragTargets) {
+            target.el.style.left = `${target.startX + dx}px`;
+            target.el.style.top = `${target.startY + dy}px`;
+          }
         }
 
         function handleMouseUp() {
@@ -909,12 +962,13 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           startMouseY = e.clientY;
           startX = component.x ?? 100;
           startY = component.y ?? 100;
+          blockDragTargets = getBlockDragTargets(component);
           document.addEventListener('mousemove', handleMouseMove);
           document.addEventListener('mouseup', handleMouseUp);
         });
       }
 
-      if (onResize && component.id === selectedId) {
+      if (onResize && selectedIds.size === 1 && selectedIds.has(component.id)) {
         attachResizeHandle(documentViewer, {
           axis: 'both',
           getScale: () => getWorldZoom(worldEl),
@@ -940,6 +994,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       const isHexCarta = props.proporcion === 'hex-vertical' || props.proporcion === 'hex-horizontal';
 
       const carta = document.createElement('div');
+      elementsById.set(component.id, carta);
       carta.className = 'carta';
       carta.classList.toggle('carta--hex', isHexCarta);
       carta.style.position = 'absolute';
@@ -1054,7 +1109,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (onToggleSelect) {
         carta.addEventListener('click', (e) => {
           e.stopPropagation();
-          onToggleSelect(component);
+          onToggleSelect(component, e);
         });
       }
 
@@ -1066,7 +1121,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         });
       }
 
-      if (component.id === selectedId) {
+      if (selectedIds.has(component.id)) {
         carta.classList.add('carta--selected');
       }
 
@@ -1080,6 +1135,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         let currentX = startX;
         let currentY = startY;
         let lifted = false;
+        let blockDragTargets = [];
 
         function handleMouseMove(e) {
           const zoom = getWorldZoom(worldEl);
@@ -1087,6 +1143,12 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           currentY = startY + (e.clientY - startMouseY) / zoom;
           carta.style.left = `${currentX}px`;
           carta.style.top = `${currentY}px`;
+          const dx = currentX - startX;
+          const dy = currentY - startY;
+          for (const target of blockDragTargets) {
+            target.el.style.left = `${target.startX + dx}px`;
+            target.el.style.top = `${target.startY + dy}px`;
+          }
           if (liftOnDrag && !lifted) {
             lifted = true;
             beginDragLift(carta, worldEl);
@@ -1109,12 +1171,13 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           startMouseY = e.clientY;
           startX = component.x ?? 100;
           startY = component.y ?? 100;
+          blockDragTargets = getBlockDragTargets(component);
           document.addEventListener('mousemove', handleMouseMove);
           document.addEventListener('mouseup', handleMouseUp);
         });
       }
 
-      if (onResize && component.id === selectedId) {
+      if (onResize && selectedIds.size === 1 && selectedIds.has(component.id)) {
         attachResizeHandle(carta, {
           axis: 'both',
           getScale: () => getWorldZoom(worldEl),

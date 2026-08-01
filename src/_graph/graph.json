@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-31T08:53:01Z",
+  "generatedAt": "2026-08-01T07:55:19Z",
   "basePath": "src",
   "nodes": [
     {
@@ -295,6 +295,15 @@
         "openBoardPatternModal"
       ],
       "purpose": "Sub-modal para configurar el color/patrón de cuadrícula (forma, filas, columnas) del fondo de un componente 'tablero'."
+    },
+    {
+      "id": "ui/bulkDeleteConfirmModal.js",
+      "type": "file",
+      "path": "ui/bulkDeleteConfirmModal.js",
+      "exports": [
+        "openBulkDeleteConfirmModal"
+      ],
+      "purpose": "Modal de confirmacion que enumera los componentes afectados (id y tipo) antes de borrar en bloque una seleccion multiple de componentes en modo edicion (cambio 00108), mismo patron que groupDeleteConfirmModal.js."
     },
     {
       "id": "ui/cardEditorModal.js",
@@ -1212,6 +1221,13 @@
       "path": "ui/boardPatternModal.js",
       "parent": "ui/boardPatternModal.js",
       "purpose": "Abre la sub-modal de configuración del color y patrón de cuadrícula de fondo de un tablero."
+    },
+    {
+      "id": "ui/bulkDeleteConfirmModal.js#openBulkDeleteConfirmModal",
+      "type": "function",
+      "path": "ui/bulkDeleteConfirmModal.js",
+      "parent": "ui/bulkDeleteConfirmModal.js",
+      "purpose": "Abre la modal de confirmacion de borrado en bloque, mostrando la lista de componentes a eliminar y ejecutando onConfirm si se acepta."
     },
     {
       "id": "ui/cardEditorModal.js#openCardEditorModal",
@@ -2314,6 +2330,11 @@
     },
     {
       "source": "modes/edit/editMode.js",
+      "target": "ui/bulkDeleteConfirmModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/edit/editMode.js",
       "target": "ui/componentList.js",
       "relation": "imports"
     },
@@ -2410,6 +2431,11 @@
     {
       "source": "ui/boardImageModal.js",
       "target": "core/resource.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/bulkDeleteConfirmModal.js",
+      "target": "ui/componentTypeModal.js",
       "relation": "imports"
     },
     {

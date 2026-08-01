@@ -72,7 +72,7 @@ export function renderPlayMode(container) {
     renderComponentsOnTable(table.worldEl, getComponents().filter((component) => !component.oculto), {
       identifyMode: 'tooltip',
       liftOnDrag: true,
-      selectedId: selectedComponentId,
+      selectedIds: selectedComponentId ? new Set([selectedComponentId]) : new Set(),
       onMove: (component, x, y) => {
         replaceComponent(component.id, updateComponent(component, { x, y }));
         if (component.subirAlMoverInteractuar) reorderComponent(component.id, 1);

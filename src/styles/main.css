@@ -1964,6 +1964,16 @@ fieldset.modal__section--untitled {
   font-size: 0.875rem;
 }
 
+/* Bulk delete confirmation modal (change 00108) — lista de componentes afectados
+   por el borrado en bloque de una selección múltiple en modo edición. */
+.bulk-delete-confirm-modal__list {
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  font-size: 0.875rem;
+}
+
 /* Resource modal previews (image / font) */
 .resource-modal__image-preview,
 .resource-modal__font-preview {

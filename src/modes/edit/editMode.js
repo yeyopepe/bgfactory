@@ -21,6 +21,7 @@ import { renderResourceList } from '../../ui/resourceList.js';
 import { renderGroupList } from '../../ui/groupList.js';
 import { openGroupModal } from '../../ui/groupModal.js';
 import { openGroupDeleteConfirmModal } from '../../ui/groupDeleteConfirmModal.js';
+import { openBulkDeleteConfirmModal } from '../../ui/bulkDeleteConfirmModal.js';
 import { showErrorModal } from '../../ui/errorModal.js';
 import { openBatchUploadSummaryModal } from '../../ui/batchUploadSummaryModal.js';
 
@@ -30,11 +31,15 @@ import { openBatchUploadSummaryModal } from '../../ui/batchUploadSummaryModal.js
 // un componente cualquiera. El colapso/posición/ancho del panel y el ancho de sus
 // columnas, en cambio, viven en `core/state.js` (`panelState`) porque sí se
 // persisten en el autoguardado.
-let selectedComponentId = null;
+// Selección múltiple (cambio 00108): conjunto de ids, en vez de un único id — Ctrl+clic
+// añade/quita un elemento sin tocar el resto; clic normal reemplaza la selección
+// completa por ese único elemento (o la vacía si ya era el único seleccionado, mismo
+// toggle que existía antes de este cambio con un solo elemento).
+let selectedComponentIds = new Set();
 
 // Orden de apilado (z-index) de los paneles flotantes del modo edición, de abajo a
 // arriba — cambio 00101. Vive fuera de `renderEditMode` por el mismo motivo que
-// `selectedComponentId`: sobrevive a los remontados completos que disparan
+// `selectedComponentIds`: sobrevive a los remontados completos que disparan
 // `components:changed`/`resources:changed`/`groups:changed`. No se persiste en
 // `core/state.js`: es transitorio, se resetea al recargar la página.
 let panelStackOrder = ['component', 'resource', 'group'];
@@ -51,17 +56,35 @@ function applyPanelStackOrder(panelsByKey) {
   });
 }
 
+// Borra uno o varios componentes, con la confirmación que corresponda (cambio 00108):
+// un único elemento mantiene el `confirm()` nativo de siempre; dos o más abren
+// `ui/bulkDeleteConfirmModal.js`, que enumera todos los afectados antes de confirmar.
+function attemptDeleteComponents(components) {
+  if (components.length === 0) return;
+  if (components.length === 1) {
+    const component = components[0];
+    if (confirm(`¿Eliminar el componente "${component.id}"?`)) {
+      removeComponent(component.id);
+      selectedComponentIds.delete(component.id);
+    }
+    return;
+  }
+  openBulkDeleteConfirmModal({
+    components,
+    onConfirm: () => {
+      for (const component of components) removeComponent(component.id);
+      selectedComponentIds.clear();
+    },
+  });
+}
+
 // Atajo de teclado SUPR (`ui/globalShortcuts.js`) sin ninguna modal abierta: reutiliza
 // el mismo camino de borrado que ya usa la fila de `ui/componentList.js` (confirmación
-// con el mismo texto, luego `removeComponent`), sin resetear `selectedComponentId` para
-// no introducir una diferencia de comportamiento nueva respecto a ese camino existente.
+// con el mismo texto para un único elemento, o la modal de borrado en bloque si hay
+// más de uno seleccionado), aplicado a toda la selección múltiple actual.
 export function deleteSelectedComponent() {
-  if (!selectedComponentId) return;
-  const component = getComponents().find((c) => c.id === selectedComponentId);
-  if (!component) return;
-  if (confirm(`¿Eliminar el componente "${component.id}"?`)) {
-    removeComponent(component.id);
-  }
+  const components = getComponents().filter((c) => selectedComponentIds.has(c.id));
+  attemptDeleteComponents(components);
 }
 
 export function renderEditMode(container) {
@@ -267,9 +290,7 @@ export function renderEditMode(container) {
       openCopyComponentModal({
         component,
         onDelete: (deletedComponent) => {
-          if (selectedComponentId === deletedComponent.id) {
-            selectedComponentId = null;
-          }
+          selectedComponentIds.delete(deletedComponent.id);
           removeComponent(deletedComponent.id);
         },
       });
@@ -281,9 +302,7 @@ export function renderEditMode(container) {
         replaceComponent(component.id, updated);
       },
       onDelete: (deletedComponent) => {
-        if (selectedComponentId === deletedComponent.id) {
-          selectedComponentId = null;
-        }
+        selectedComponentIds.delete(deletedComponent.id);
         removeComponent(deletedComponent.id);
       },
     });
@@ -304,9 +323,7 @@ export function renderEditMode(container) {
             replaceComponent(newComponent.id, updated);
           },
           onDelete: (deletedComponent) => {
-            if (selectedComponentId === deletedComponent.id) {
-              selectedComponentId = null;
-            }
+            selectedComponentIds.delete(deletedComponent.id);
             removeComponent(deletedComponent.id);
           },
         });
@@ -314,8 +331,20 @@ export function renderEditMode(container) {
     });
   }
 
-  function toggleSelect(component) {
-    selectedComponentId = selectedComponentId === component.id ? null : component.id;
+  function toggleSelect(component, event) {
+    const ctrl = event && (event.ctrlKey || event.metaKey);
+    if (ctrl) {
+      if (selectedComponentIds.has(component.id)) {
+        selectedComponentIds.delete(component.id);
+      } else {
+        selectedComponentIds.add(component.id);
+      }
+    } else if (selectedComponentIds.size === 1 && selectedComponentIds.has(component.id)) {
+      selectedComponentIds.clear();
+    } else {
+      selectedComponentIds.clear();
+      selectedComponentIds.add(component.id);
+    }
     renderList();
     renderTable();
   }
@@ -327,9 +356,21 @@ export function renderEditMode(container) {
       showHiddenIndicator: true,
       onSelect: openEditModalFor,
       onToggleSelect: toggleSelect,
-      selectedId: selectedComponentId,
+      selectedIds: selectedComponentIds,
       onMove: (component, x, y) => {
-        replaceComponent(component.id, updateComponent(component, { x, y }));
+        if (selectedComponentIds.size > 1 && selectedComponentIds.has(component.id)) {
+          const dx = x - (component.x ?? 0);
+          const dy = y - (component.y ?? 0);
+          for (const id of selectedComponentIds) {
+            const c = getComponents().find((comp) => comp.id === id);
+            if (!c) continue;
+            const newX = c.id === component.id ? x : (c.x ?? 0) + dx;
+            const newY = c.id === component.id ? y : (c.y ?? 0) + dy;
+            replaceComponent(c.id, updateComponent(c, { x: newX, y: newY }));
+          }
+        } else {
+          replaceComponent(component.id, updateComponent(component, { x, y }));
+        }
       },
       onResize: (component, width, height) => {
         replaceComponent(component.id, updateComponent(component, { width, height }));
@@ -348,12 +389,17 @@ export function renderEditMode(container) {
         const copy = createCopy(component, getComponents());
         addComponent(copy);
       },
-      onRemove: (component) => {
+      onRemove: (component, { bulk } = {}) => {
+        if (bulk) {
+          attemptDeleteComponents(getComponents().filter((c) => selectedComponentIds.has(c.id)));
+          return;
+        }
+        selectedComponentIds.delete(component.id);
         removeComponent(component.id);
       },
       onAdd: openAddModal,
       onReorder: (component, newOrder) => reorderComponent(component.id, newOrder),
-      selectedId: selectedComponentId,
+      selectedIds: selectedComponentIds,
       collapsed,
       onSelectRow: toggleSelect,
       onToggleCollapse: () => {
