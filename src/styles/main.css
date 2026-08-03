@@ -1250,6 +1250,23 @@ fieldset.modal__section--untitled {
   outline-offset: 2px;
 }
 
+/* Figura geométrica del editor de cartas (cambio 00118): bloque hermano de
+   .card-editor-modal__textbox, mismas reglas de selección/hover y el mismo
+   .resize-handle en la esquina — sin tipografía ni contenido de texto propio. */
+.card-editor-modal__shape {
+  cursor: move;
+  user-select: none;
+}
+
+.card-editor-modal__shape:hover {
+  outline: 1px dashed var(--accent-blue);
+}
+
+.card-editor-modal__shape--selected {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
 /* Element selection modal (change 00065) — exportar/importar con selección.
    Más ancha que el modal por defecto (500px) para dejar sitio a los tres
    bloques de checklist, segunda excepción de max-width propio junto a

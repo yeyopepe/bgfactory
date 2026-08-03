@@ -298,6 +298,21 @@ export function paintCartaFace(contentParent, cara, renderScale) {
     contentParent.appendChild(img);
   }
 
+  for (const shape of cara?.formas || []) {
+    const shapeEl = document.createElement('div');
+    shapeEl.style.position = 'absolute';
+    shapeEl.style.left = `${shape.x * renderScale}px`;
+    shapeEl.style.top = `${shape.y * renderScale}px`;
+    shapeEl.style.width = `${shape.width * renderScale}px`;
+    shapeEl.style.height = `${shape.height * renderScale}px`;
+    shapeEl.style.borderRadius = shape.tipo === 'circular' ? '50%' : '0';
+    shapeEl.style.backgroundColor = shape.colorFondo || 'transparent';
+    shapeEl.style.border = shape.bordeActivo !== false ? `${shape.bordeGrosor}px solid ${shape.bordeColor || '#000000'}` : 'none';
+    shapeEl.style.boxSizing = 'border-box';
+    shapeEl.style.pointerEvents = 'none';
+    contentParent.appendChild(shapeEl);
+  }
+
   for (const textBox of cara?.textBoxes || []) {
     const textEl = document.createElement('div');
     textEl.style.position = 'absolute';

@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Opción A — Menú desplegable "+ Añadir elemento"</title>
+<style>
+  :root {
+    --bg-table:     #c2c2c2;
+    --bg-toolbar:   #333333;
+    --bg-card:      #f5f5f5;
+    --accent-blue:  #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --accent-blue-light: #eaf3fc;
+    --text-primary: #1a1a1a;
+    --text-light:   #ffffff;
+    --text-muted:   #666666;
+    --border-neutral: #dcdcdc;
+    --bg-subtle:    #f0f0f0;
+    --bg-hover:     #e8e8e8;
+    --radius-sm:    4px;
+    --radius-lg:    8px;
+    --shadow-1:     0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);
+    --shadow-2:     0 4px 20px rgba(0,0,0,0.15);
+    --transition-fast: 150ms ease;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+  .caption {
+    text-align: center;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+  }
+  .wrap { display: flex; flex-direction: column; align-items: center; }
+  .face-col {
+    width: 260px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-1);
+    padding: 1rem;
+  }
+  .canvas {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 5 / 7;
+    background: repeating-conic-gradient(#e6e6e6 0% 25%, #ededed 0% 50%) 0 0/16px 16px;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+  }
+  .fake-textbox {
+    position: absolute;
+    left: 15%;
+    top: 8%;
+    width: 70%;
+    height: 14%;
+    font-size: 0.7rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .fake-shape {
+    position: absolute;
+    left: 30%;
+    top: 40%;
+    width: 40%;
+    height: 30%;
+    border-radius: 50%;
+    background: var(--accent-blue-light);
+    border: 2px solid var(--accent-blue);
+  }
+  .actions-row {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .add-btn-wrap { position: relative; }
+  .add-btn {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background var(--transition-fast);
+  }
+  .add-btn:hover { background: var(--bg-hover); }
+  .add-btn svg { flex-shrink: 0; }
+  .add-menu {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    left: 0;
+    width: 100%;
+    background: var(--accent-blue-light);
+    border: 1px solid rgba(44, 125, 216, 0.25);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-2);
+    overflow: hidden;
+    z-index: 10;
+  }
+  .add-menu__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid rgba(44, 125, 216, 0.25);
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+  }
+  .add-menu__item:last-child { border-bottom: none; }
+  .add-menu__item:hover,
+  .add-menu__item.demo-hover {
+    background: var(--accent-blue);
+    color: var(--text-light);
+  }
+  .add-menu__item svg { flex-shrink: 0; }
+  .border-section {
+    margin-top: 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+  }
+  .border-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #5b5f97;
+    margin: 0 0 0.5rem 0;
+  }
+  .border-fields { display: flex; gap: 0.5rem; }
+  .border-fields > div { flex: 1; }
+  .border-fields label { display: block; font-size: 0.75rem; font-weight: 500; margin-bottom: 0.25rem; }
+  .border-fields input[type="color"] { width: 100%; height: 28px; border: 1px solid var(--border-neutral); border-radius: var(--radius-sm); padding: 0; }
+  .border-fields input[type="number"] { width: 100%; padding: 0.25rem 0.5rem; border: 1px solid var(--border-neutral); border-radius: var(--radius-sm); font-size: 0.8125rem; }
+  .note { max-width: 260px; font-size: 0.8125rem; color: var(--text-muted); margin-top: 1rem; text-align: center; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="caption">Opción A — Un único botón "+ Añadir elemento" con menú desplegable</p>
+    <div class="face-col">
+      <div class="canvas">
+        <div class="fake-textbox">Texto de ejemplo</div>
+        <div class="fake-shape"></div>
+      </div>
+      <div class="actions-row">
+        <div class="add-btn-wrap">
+          <button class="add-btn" type="button">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Añadir elemento
+          </button>
+          <div class="add-menu">
+            <div class="add-menu__item demo-hover">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              Imagen de fondo
+            </div>
+            <div class="add-menu__item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+              Cuadro de texto
+            </div>
+            <div class="add-menu__item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/></svg>
+              Figura geométrica
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="border-section">
+        <p class="border-title">Borde de la carta</p>
+        <div class="border-fields">
+          <div><label>Color</label><input type="color" value="#000000" /></div>
+          <div><label>Grosor (px)</label><input type="number" value="0" /></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">Un único botón "Añadir elemento" abre un menú (mismo patrón ya usado en el panel "Recursos" para "+ Añadir recurso"). Cada fila del menú es un tipo distinto: Imagen de fondo, Cuadro de texto, Figura geométrica. Añadir un cuarto tipo en el futuro solo añade una fila más, sin tocar el layout de la fila de acciones.</p>
+  </div>
+</body>
+</html>

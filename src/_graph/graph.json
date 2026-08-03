@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-03T08:48:46Z",
+  "generatedAt": "2026-08-03T09:26:53Z",
   "basePath": "src",
   "nodes": [
     {
@@ -339,7 +339,16 @@
       "exports": [
         "openCardEditorModal"
       ],
-      "purpose": "Editor de cartas: modal grande para diseñar a la vez las dos caras (imagen, borde, cuadros de texto) de un componente 'carta', con selección de cuadro de texto (clic), movimiento fino con flechas del teclado, duplicado de un cuadro de texto en la misma cara (cambio 00110), e icono de ayuda con el listado de funcionalidades del editor (cambio 00104)."
+      "purpose": "Editor de las dos caras de una carta: proporción/esquinas, imagen de fondo, figuras geométricas y cuadros de texto por cara (añadidos desde un menú desplegable 'Añadir elemento'), con selección, arrastre, redimensión, edición y borde propio de la carta."
+    },
+    {
+      "id": "ui/cardShapeModal.js",
+      "type": "file",
+      "path": "ui/cardShapeModal.js",
+      "exports": [
+        "openCardShapeModal"
+      ],
+      "purpose": "Sub-modal de edición de una figura geométrica (círculo/elipse o cuadrado) de una cara de carta, con tipo, color de fondo y color/grosor de borde; abierta con doble click desde ui/cardEditorModal.js."
     },
     {
       "id": "ui/cardTextBoxModal.js",
@@ -1345,7 +1354,14 @@
       "type": "function",
       "path": "ui/cardEditorModal.js",
       "parent": "ui/cardEditorModal.js",
-      "purpose": "Abre el editor de cartas para diseñar a la vez la cara frontal y trasera de un componente 'carta', gestionando selección global de cuadro de texto, su movimiento con flechas del teclado, su duplicado en la misma cara (cambio 00110) y el icono de ayuda de la cabecera."
+      "purpose": "Abre el editor de cartas: gestiona el estado de trabajo de ambas caras (imagen, formas, textBoxes, borde), su renderizado y el guardado final al aceptar."
+    },
+    {
+      "id": "ui/cardShapeModal.js#openCardShapeModal",
+      "type": "function",
+      "path": "ui/cardShapeModal.js",
+      "parent": "ui/cardShapeModal.js",
+      "purpose": "Abre la modal de configuración de una figura (tipo círculo/cuadrado, fondo, borde) con botones Eliminar/Duplicar/Cancelar/Aceptar, mismo patrón que openCardTextBoxModal."
     },
     {
       "id": "ui/cardTextBoxModal.js#openCardTextBoxModal",
@@ -1394,7 +1410,7 @@
       "type": "function",
       "path": "ui/componentRenderer.js",
       "parent": "ui/componentRenderer.js",
-      "purpose": "Pinta la imagen de fondo y los cuadros de texto de una cara de carta sobre un contenedor, reutilizada por la carta en la mesa, el mazo y las miniaturas de ui/mazoContentModal.js."
+      "purpose": "Pinta la imagen de fondo, las figuras geométricas y los cuadros de texto de una cara de carta sobre un contenedor dado, escalados por renderScale; reutilizado por la carta en la mesa y por la miniatura del mazo."
     },
     {
       "id": "ui/componentRenderer.js#renderComponentsOnTable",
@@ -2092,6 +2108,11 @@
     },
     {
       "source": "ui/cardEditorModal.js#openCardEditorModal",
+      "target": "ui/cardShapeModal.js#openCardShapeModal",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/cardEditorModal.js#openCardEditorModal",
       "target": "ui/cardTextBoxModal.js#openCardTextBoxModal",
       "relation": "calls"
     },
@@ -2748,6 +2769,11 @@
     {
       "source": "ui/cardEditorModal.js",
       "target": "ui/boardImageModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/cardEditorModal.js",
+      "target": "ui/cardShapeModal.js",
       "relation": "imports"
     },
     {

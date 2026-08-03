@@ -42,16 +42,6 @@
 
 
 
-## Combate
-
-- Por cada vez que aparezca un nuevo enemigo en la localización del jugador realiza una secuencia de combate:
-  - El jugador tira sus dados de combate 
-  - El jugador puede tirar de nuevo 1 dado por cada arma que tenga en una mano (Max 2)
-  - Resuelve los dados
-- Cada vez que el jugador entre en una localización:
-  1. Tirar los dados de encuentro requeridos y añade enemigos a las localización
-  2. Secuencia de combate
-
 
 ## Secuencia de turnos
 
@@ -78,3 +68,24 @@ Cuando termina el domingo (y la semana):
 
 
 ## Termina la partida
+
+
+## Acciones
+### Moverse
+
+### Comerciar
+
+### Subir el nivel de asentamiento
+Para subir en 1 el nivel de asentamiento hace falta reunir en esa localización la cantidad de basura requerida. Las fichas de basura se pueden ir dejando encima de la carta de la localización hasta reunir el número indicado, en ese momento:
+1. Se sube el nivel de asentamiento
+2. Las fichas de basura se meten de nuevo en la bolsa de saqueo
+
+### Combate
+
+- Por cada vez que aparezca un nuevo enemigo en la localización del jugador realiza una secuencia de combate:
+  - El jugador tira sus dados de combate 
+  - El jugador puede tirar de nuevo 1 dado por cada arma que tenga en una mano (Max 2)
+  - Resuelve los dados
+- Cada vez que el jugador entre en una localización:
+  1. Tirar los dados de encuentro requeridos y añade enemigos a las localización
+  2. Secuencia de combate
