@@ -202,6 +202,9 @@ export function renderComponentList(
     bodyHeight = null,
   } = {}
 ) {
+  const previousBody = container.querySelector('.component-panel__body');
+  const previousScrollTop = previousBody ? previousBody.scrollTop : 0;
+
   container.innerHTML = '';
 
   const panel = document.createElement('div');
@@ -296,6 +299,7 @@ export function renderComponentList(
     title.textContent = `Componentes (${displayedComponents.length})`;
     renderBody(body, displayedComponents, components.length, rowHandlers);
     panel.appendChild(body);
+    body.scrollTop = previousScrollTop;
 
     const footer = document.createElement('div');
     footer.className = 'component-panel__footer';

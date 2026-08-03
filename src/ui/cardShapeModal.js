@@ -25,6 +25,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   const working = { ...shape };
   working.tipo = working.tipo || 'circular';
   working.colorFondo = working.colorFondo ?? '';
+  working.colorFondoTransparencia = working.colorFondoTransparencia ?? 0;
   working.bordeColor = working.bordeColor || '#000000';
   working.bordeGrosor = working.bordeGrosor ?? 2;
   working.bordeActivo = working.bordeActivo ?? true;
@@ -108,10 +109,60 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   bgTransparentLabel.textContent = 'Transparente';
   bgTransparentLabel.style.margin = 0;
 
+  const bgOpacityField = document.createElement('div');
+  bgOpacityField.className = 'modal__field';
+  const bgOpacityLabel = document.createElement('label');
+  bgOpacityLabel.textContent = 'Nivel de transparencia';
+
+  const bgOpacitySlider = document.createElement('input');
+  bgOpacitySlider.type = 'range';
+  bgOpacitySlider.min = 0;
+  bgOpacitySlider.max = 100;
+  bgOpacitySlider.value = working.colorFondoTransparencia;
+
+  const bgOpacityValue = document.createElement('div');
+  bgOpacityValue.className = 'modal__opacity-value';
+  const bgOpacityTextInput = document.createElement('input');
+  bgOpacityTextInput.type = 'text';
+  bgOpacityTextInput.value = bgOpacitySlider.value;
+  const bgOpacityUnit = document.createElement('span');
+  bgOpacityUnit.textContent = '%';
+  bgOpacityValue.appendChild(bgOpacityTextInput);
+  bgOpacityValue.appendChild(bgOpacityUnit);
+
+  bgOpacitySlider.disabled = bgTransparentCheckbox.checked;
+  bgOpacityTextInput.disabled = bgTransparentCheckbox.checked;
+
+  bgOpacitySlider.addEventListener('input', () => {
+    working.colorFondoTransparencia = parseInt(bgOpacitySlider.value, 10);
+    bgOpacityTextInput.value = working.colorFondoTransparencia;
+  });
+
+  function commitBgOpacityTextInput() {
+    const parsed = parseInt(bgOpacityTextInput.value, 10);
+    if (Number.isNaN(parsed)) {
+      bgOpacityTextInput.value = working.colorFondoTransparencia;
+      return;
+    }
+    working.colorFondoTransparencia = Math.min(Math.max(parsed, 0), 100);
+    bgOpacityTextInput.value = working.colorFondoTransparencia;
+    bgOpacitySlider.value = working.colorFondoTransparencia;
+  }
+  bgOpacityTextInput.addEventListener('change', commitBgOpacityTextInput);
+  bgOpacityTextInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') bgOpacityTextInput.blur();
+  });
+
+  bgOpacityField.appendChild(bgOpacityLabel);
+  bgOpacityField.appendChild(bgOpacitySlider);
+  bgOpacityField.appendChild(bgOpacityValue);
+
   bgColorInput.disabled = bgTransparentCheckbox.checked;
 
   bgTransparentCheckbox.addEventListener('change', () => {
     bgColorInput.disabled = bgTransparentCheckbox.checked;
+    bgOpacitySlider.disabled = bgTransparentCheckbox.checked;
+    bgOpacityTextInput.disabled = bgTransparentCheckbox.checked;
     working.colorFondo = bgTransparentCheckbox.checked ? '' : bgColorInput.value;
   });
 
@@ -125,6 +176,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   bgColorField.appendChild(bgColorLabel);
   bgColorField.appendChild(bgColorContainer);
   bgSection.appendChild(bgColorField);
+  bgSection.appendChild(bgOpacityField);
   content.appendChild(bgSection);
 
   // Borde: línea simple (sin bisel), mismo patrón de checkbox activador que

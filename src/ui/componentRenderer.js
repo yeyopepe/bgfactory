@@ -11,6 +11,7 @@ import { applyImageAdjustStyle } from './imageAdjustModal.js';
 import { getProporcionRatio, getCartaShapeCss, getHexInnerClipPath, CARD_DESIGN_WIDTH } from '../core/cardProportions.js';
 import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
 import { getMazoRevealZoneRect } from '../core/deck.js';
+import { hexToRgba } from '../core/colorUtils.js';
 import { isInteractionActive } from '../core/interactions.js';
 
 const MIN_TEXT_BOX_WIDTH = 40;
@@ -306,7 +307,7 @@ export function paintCartaFace(contentParent, cara, renderScale) {
     shapeEl.style.width = `${shape.width * renderScale}px`;
     shapeEl.style.height = `${shape.height * renderScale}px`;
     shapeEl.style.borderRadius = shape.tipo === 'circular' ? '50%' : '0';
-    shapeEl.style.backgroundColor = shape.colorFondo || 'transparent';
+    shapeEl.style.backgroundColor = hexToRgba(shape.colorFondo, shape.colorFondoTransparencia ?? 0);
     shapeEl.style.border = shape.bordeActivo !== false ? `${shape.bordeGrosor}px solid ${shape.bordeColor || '#000000'}` : 'none';
     shapeEl.style.boxSizing = 'border-box';
     shapeEl.style.pointerEvents = 'none';
@@ -328,7 +329,7 @@ export function paintCartaFace(contentParent, cara, renderScale) {
     textEl.style.border = textBox.bordeActivo
       ? `${textBox.bordeGrosor ?? 2}px ${textBox.bordeTipo === 'punteada' ? 'dashed' : 'solid'} ${textBox.bordeColor || '#000000'}`
       : 'none';
-    textEl.style.backgroundColor = textBox.colorFondo || 'transparent';
+    textEl.style.backgroundColor = hexToRgba(textBox.colorFondo, textBox.colorFondoTransparencia ?? 0);
     textEl.style.overflow = 'hidden';
     textEl.style.wordBreak = 'break-word';
     textEl.style.whiteSpace = 'pre-wrap';
@@ -381,6 +382,7 @@ function renderMazoRevealZone(worldEl, mazo) {
   zone.style.top = `${rect.y}px`;
   zone.style.width = `${rect.width}px`;
   zone.style.height = `${rect.height}px`;
+  zone.style.borderRadius = mazo.properties?.forma === 'circular' ? '50%' : '';
   zone.textContent = 'Carta revelada';
   worldEl.appendChild(zone);
   return zone;
@@ -1310,6 +1312,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
     } else if (component.type === 'mazo') {
       const props = component.properties || {};
       const cartaIds = props.cartaIds || [];
+      const mazoBorderRadius = props.forma === 'circular' ? '50%' : 'var(--radius-lg)';
 
       const mazo = document.createElement('div');
       elementsById.set(component.id, mazo);
@@ -1318,6 +1321,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       mazo.style.top = `${component.y ?? 100}px`;
       mazo.style.left = `${component.x ?? 100}px`;
       mazo.style.boxSizing = 'border-box';
+      mazo.style.borderRadius = mazoBorderRadius;
       const width = component.width ?? MIN_MAZO_WIDTH;
       const height = component.height ?? MIN_MAZO_HEIGHT;
       mazo.style.width = `${width}px`;
@@ -1328,7 +1332,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       mazoContent.style.inset = '0';
       mazoContent.style.boxSizing = 'border-box';
       mazoContent.style.overflow = 'hidden';
-      mazoContent.style.borderRadius = 'var(--radius-lg)';
+      mazoContent.style.borderRadius = mazoBorderRadius;
       mazoContent.style.backgroundColor = '#ffffff';
       mazo.appendChild(mazoContent);
 
@@ -1347,7 +1351,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       const countLabel = document.createElement('span');
       countLabel.className = 'mazo-count-label';
-      countLabel.textContent = `${cartaIds.length} cartas`;
+      countLabel.textContent = `${component.id} — ${cartaIds.length} cartas`;
       mazo.appendChild(countLabel);
 
       const revealZone = renderMazoRevealZone(worldEl, component);

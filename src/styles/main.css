@@ -1160,6 +1160,19 @@ fieldset.modal__section--untitled {
   text-align: center;
 }
 
+.modal__opacity-value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.modal__opacity-value input[type="text"] {
+  width: 4rem;
+  text-align: center;
+}
+
 /* Card editor modal (00053) — editor de las dos caras de una carta a la vez */
 .card-editor-modal {
   width: fit-content;

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-03T09:26:53Z",
+  "generatedAt": "2026-08-03T11:35:49Z",
   "basePath": "src",
   "nodes": [
     {
@@ -16,6 +16,15 @@
         "isRectShape"
       ],
       "purpose": "Catálogo puro de proporciones de carta (ratio y forma) y helpers para derivar el border-radius/clip-path (incluida la opción de esquinas redondeadas u cuadradas) y el tamaño de diseño de cada proporción, sin depender de otras capas."
+    },
+    {
+      "id": "core/colorUtils.js",
+      "type": "file",
+      "path": "core/colorUtils.js",
+      "exports": [
+        "hexToRgba"
+      ],
+      "purpose": "Convierte un color hex a rgba aplicando un nivel de transparencia (0-100), usado para pintar el fondo semitransparente de TextBox/Forma en la carta."
     },
     {
       "id": "core/component.js",
@@ -378,6 +387,7 @@
         "DEFAULT_DADO_PROPERTIES",
         "DEFAULT_DOCUMENTO_PROPERTIES",
         "DEFAULT_MAZO_PROPERTIES",
+        "MAZO_FORMAS",
         "MAZO_ORIENTACIONES",
         "createDefaultComponent",
         "openComponentModal"
@@ -711,6 +721,13 @@
       "path": "core/cardProportions.js",
       "parent": "core/cardProportions.js",
       "purpose": "Indica si una proporción de carta usa silueta rectangular/cuadrada (a diferencia de circular/hexagonal), usado para decidir cuándo mostrar el control de esquinas redondeadas."
+    },
+    {
+      "id": "core/colorUtils.js#hexToRgba",
+      "type": "function",
+      "path": "core/colorUtils.js",
+      "parent": "core/colorUtils.js",
+      "purpose": "Devuelve una cadena rgba(r,g,b,alpha) a partir de un color hex y un porcentaje de transparencia (alpha = 1 - transparencia/100); vacío/nulo da 'transparent'."
     },
     {
       "id": "core/component.js#cloneComponent",
@@ -2093,6 +2110,11 @@
     },
     {
       "source": "ui/cardEditorModal.js#openCardEditorModal",
+      "target": "core/colorUtils.js#hexToRgba",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/cardEditorModal.js#openCardEditorModal",
       "target": "core/state.js#getResources",
       "relation": "calls"
     },
@@ -2304,6 +2326,11 @@
     {
       "source": "ui/componentModal.js#openComponentModal",
       "target": "ui/toast.js#showToast",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentRenderer.js#paintCartaFace",
+      "target": "core/colorUtils.js#hexToRgba",
       "relation": "calls"
     },
     {
@@ -2758,6 +2785,11 @@
     },
     {
       "source": "ui/cardEditorModal.js",
+      "target": "core/colorUtils.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/cardEditorModal.js",
       "target": "core/state.js",
       "relation": "imports"
     },
@@ -2904,6 +2936,11 @@
     {
       "source": "ui/componentRenderer.js",
       "target": "core/cardProportions.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentRenderer.js",
+      "target": "core/colorUtils.js",
       "relation": "imports"
     },
     {

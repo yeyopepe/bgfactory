@@ -31,6 +31,11 @@ export const MAZO_ORIENTACIONES = [
   { value: 'horizontal', label: 'Horizontal' },
 ];
 
+export const MAZO_FORMAS = [
+  { value: 'rectangular', label: 'Rectangular' },
+  { value: 'circular', label: 'Circular' },
+];
+
 export const DEFAULT_BOARD_PROPERTIES = {
   bordeColor: '#000000',
   bordeGrosor: 2,
@@ -85,6 +90,7 @@ export const DEFAULT_CARTA_PROPERTIES = {
 export const DEFAULT_MAZO_PROPERTIES = {
   cartaIds: [],
   orientacion: 'vertical',
+  forma: 'rectangular',
 };
 
 function cloneFace(face) {
@@ -1129,10 +1135,42 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     countHint.textContent = `${(props.cartaIds || []).length} cartas`;
     container.appendChild(countHint);
 
+    // Forma: rectangular (por defecto) o circular. Al cambiar a circular se
+    // iguala ancho y alto (círculo perfecto) tomando el mayor de los dos
+    // valores actuales, mismo criterio que "Carta" al cambiar a su
+    // proporción circular. La orientación no tiene sentido para un círculo,
+    // así que ese selector se oculta mientras la forma sea circular.
+    const formaField = document.createElement('div');
+    formaField.className = 'modal__field';
+    const formaLabel = document.createElement('label');
+    formaLabel.textContent = 'Forma';
+    const formaSelect = document.createElement('select');
+    for (const { value, label } of MAZO_FORMAS) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      if (value === (props.forma || DEFAULT_MAZO_PROPERTIES.forma)) option.selected = true;
+      formaSelect.appendChild(option);
+    }
+    formaSelect.addEventListener('change', () => {
+      props.forma = formaSelect.value;
+      if (props.forma === 'circular') {
+        const side = Math.max(workingComponent.width, workingComponent.height);
+        workingComponent.width = side;
+        workingComponent.height = side;
+      }
+      orientacionField.style.display = props.forma === 'circular' ? 'none' : '';
+    });
+    formaField.appendChild(formaLabel);
+    formaField.appendChild(formaSelect);
+    container.appendChild(formaField);
+
     // Orientación: intercambia width/height al cambiar, para transponer la
     // caja del mazo conservando cualquier redimensionado manual ya hecho.
+    // Oculta mientras la forma sea circular (ver más arriba).
     const orientacionField = document.createElement('div');
     orientacionField.className = 'modal__field';
+    orientacionField.style.display = (props.forma || DEFAULT_MAZO_PROPERTIES.forma) === 'circular' ? 'none' : '';
     const orientacionLabel = document.createElement('label');
     orientacionLabel.textContent = 'Orientación';
     const orientacionSelect = document.createElement('select');

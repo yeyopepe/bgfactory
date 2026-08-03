@@ -6,6 +6,7 @@
 import { getResources } from '../core/state.js';
 import { CARD_PROPORTIONS, getProporcionRatio, getDesignSize, getCartaShapeCss, getHexInnerClipPath, isRectShape } from '../core/cardProportions.js';
 import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
+import { hexToRgba } from '../core/colorUtils.js';
 import { applyImageAdjustStyle, openImageAdjustModal } from './imageAdjustModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
 import { openCardTextBoxModal } from './cardTextBoxModal.js';
@@ -533,7 +534,7 @@ export function openCardEditorModal({ component, onAccept }) {
     el.style.border = textBox.bordeActivo
       ? `${textBox.bordeGrosor ?? 2}px ${textBox.bordeTipo === 'punteada' ? 'dashed' : 'solid'} ${textBox.bordeColor || '#000000'}`
       : 'none';
-    el.style.backgroundColor = textBox.colorFondo || 'transparent';
+    el.style.backgroundColor = hexToRgba(textBox.colorFondo, textBox.colorFondoTransparencia ?? 0);
     el.style.display = 'flex';
     el.style.flexDirection = 'column';
     Object.assign(el.style, getTextBoxLayoutStyle(textBox, previewScale));
@@ -633,7 +634,7 @@ export function openCardEditorModal({ component, onAccept }) {
     el.style.width = `${shape.width * previewScale}px`;
     el.style.height = `${shape.height * previewScale}px`;
     el.style.borderRadius = shape.tipo === 'circular' ? '50%' : '0';
-    el.style.backgroundColor = shape.colorFondo || 'transparent';
+    el.style.backgroundColor = hexToRgba(shape.colorFondo, shape.colorFondoTransparencia ?? 0);
     el.style.border = shape.bordeActivo !== false ? `${shape.bordeGrosor}px solid ${shape.bordeColor || '#000000'}` : 'none';
     el.style.boxSizing = 'border-box';
 
