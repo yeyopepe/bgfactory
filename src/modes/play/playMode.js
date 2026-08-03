@@ -10,6 +10,17 @@ import { getPosibleValores } from '../../core/dice.js';
 import { getCartaIdsEnAlgunMazo, shuffleCartaIds } from '../../core/deck.js';
 import { openMazoContentModal } from '../../ui/mazoContentModal.js';
 import { openInsertIntoMazoModal } from '../../ui/insertIntoMazoModal.js';
+import { isInteractionActive } from '../../core/interactions.js';
+
+// Mapea el `type` de componente a la `key` de core/interactions.js cuya
+// interacción de click corresponde a la fila "Clic izquierdo" de
+// `interactionsByType` (fix 00116) — solo estos tres tipos tienen una fila
+// distinta de "Ninguno" ahí.
+const CLICK_INTERACTION_KEY_BY_TYPE = {
+  dado: 'lanzar',
+  carta: 'voltear',
+  mazo: 'sacarCarta',
+};
 
 // Selección del menú contextual de modo juego (cambio 00088), estado transitorio de
 // la sesión de juego en curso: `renderPlayMode` se vuelve a invocar por completo
@@ -52,6 +63,16 @@ const interactionsByType = {
     { label: 'Clic derecho', value: 'Abrir este menú' },
   ],
 };
+
+// Sustituye el valor de la fila "Clic izquierdo" por "Ninguno" cuando la interacción
+// de click de ese componente está desactivada (cambio 00115) — no muta
+// `interactionsByType`, que es una constante de módulo compartida entre renders.
+function getInteractionItemsFor(component) {
+  const items = interactionsByType[component.type] || [];
+  const key = CLICK_INTERACTION_KEY_BY_TYPE[component.type];
+  if (!key || isInteractionActive(component, key)) return items;
+  return items.map((item, index) => (index === 0 ? { ...item, value: 'Ninguno' } : item));
+}
 
 function createLockIcon(open) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -216,7 +237,7 @@ export function renderPlayMode(container) {
             },
           ],
           specificItems,
-          interactionItems: interactionsByType[component.type] || [],
+          interactionItems: getInteractionItemsFor(component),
           onClose: () => {
             selectedComponentId = null;
             renderTable();

@@ -16,6 +16,7 @@ import { openStyleClipboardSelectionModal } from './styleClipboardSelectionModal
 import { openStyleClipboardPasteErrorModal } from './styleClipboardErrorModal.js';
 import { showToast } from './toast.js';
 import { openMazoContentModal } from './mazoContentModal.js';
+import { getInteractionsForType, isInteractionActive } from '../core/interactions.js';
 
 const DEFAULT_BOARD_SIZE = 200;
 const DEFAULT_DADO_SIZE = 100;
@@ -393,6 +394,57 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   groupField.appendChild(groupSelect);
   groupField.appendChild(newGroupRow);
   generalContent.appendChild(groupField);
+
+  // Interacciones programadas (cambio 00115): un combo por cada interacción de click
+  // que el tipo actual tenga programada en Modo Juego (ver core/interactions.js),
+  // permitiendo desactivarla eligiendo "Ninguna". El tipo no cambia tras crear el
+  // componente, así que esta sección se calcula una sola vez al abrir la modal.
+  const typeInteractions = getInteractionsForType(workingComponent.type);
+  if (typeInteractions.length > 0) {
+    const interactionsSection = document.createElement('fieldset');
+    interactionsSection.className = 'modal__section';
+    const interactionsTitle = document.createElement('legend');
+    interactionsTitle.className = 'modal__section-title';
+    interactionsTitle.textContent = 'Interacciones programadas';
+    interactionsSection.appendChild(interactionsTitle);
+
+    for (const interaction of typeInteractions) {
+      const interactionField = document.createElement('div');
+      interactionField.className = 'modal__field';
+      const interactionLabel = document.createElement('label');
+      interactionLabel.textContent = typeInteractions.length > 1 ? interaction.label : 'Al hacer click';
+      const interactionSelect = document.createElement('select');
+
+      const activeOption = document.createElement('option');
+      activeOption.value = 'activa';
+      activeOption.textContent = interaction.label;
+      const noneOption = document.createElement('option');
+      noneOption.value = 'ninguna';
+      noneOption.textContent = 'Ninguna';
+      interactionSelect.appendChild(activeOption);
+      interactionSelect.appendChild(noneOption);
+      interactionSelect.value = isInteractionActive(workingComponent, interaction.key) ? 'activa' : 'ninguna';
+
+      interactionSelect.addEventListener('change', () => {
+        const disabled = new Set(workingComponent.interaccionesDesactivadas || []);
+        if (interactionSelect.value === 'ninguna') {
+          disabled.add(interaction.key);
+        } else {
+          disabled.delete(interaction.key);
+        }
+        workingComponent.interaccionesDesactivadas = [...disabled];
+      });
+
+      interactionField.appendChild(interactionLabel);
+      interactionField.appendChild(interactionSelect);
+      interactionField.appendChild(createHelpIcon({
+        text: `Si eliges "Ninguna", el click sobre este componente deja de "${interaction.label.toLowerCase()}" en Modo Juego. El resto de su comportamiento (arrastre, menú contextual...) no se ve afectado.`,
+      }));
+      interactionsSection.appendChild(interactionField);
+    }
+
+    generalContent.appendChild(interactionsSection);
+  }
 
   function validateId() {
     const newId = idInput.value.trim();

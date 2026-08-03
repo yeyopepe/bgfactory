@@ -11,6 +11,7 @@ import { applyImageAdjustStyle } from './imageAdjustModal.js';
 import { getProporcionRatio, getCartaShapeCss, getHexInnerClipPath, CARD_DESIGN_WIDTH } from '../core/cardProportions.js';
 import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
 import { getMazoRevealZoneRect } from '../core/deck.js';
+import { isInteractionActive } from '../core/interactions.js';
 
 const MIN_TEXT_BOX_WIDTH = 40;
 const MIN_TEXT_BOX_HEIGHT = 24;
@@ -870,7 +871,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           document.addEventListener('mousemove', handleMouseMove);
           document.addEventListener('mouseup', handleMouseUp);
         });
-      } else if (onDiceResult) {
+      } else if (onDiceResult && isInteractionActive(component, 'lanzar')) {
         dice.classList.add('dice--clickable');
       }
 
@@ -900,7 +901,9 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       // mientras el worldEl no se vuelva a pintar (no se emite `components:changed` en
       // cada frame). El temblor es un `transform: translate()` recalculado en cada tick
       // (mismo mecanismo que el pan/zoom de la mesa), no una animación/transición CSS.
-      if (onDiceResult) {
+      // La comprobación de `isInteractionActive` (cambio 00115) es independiente del
+      // `dblclick` de abajo (`onDiceOpenResult`), que sigue disponible siempre.
+      if (onDiceResult && isInteractionActive(component, 'lanzar')) {
         let rolling = false;
         let rollTimeout = null;
 
@@ -1280,7 +1283,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       // Volteo: siempre disponible con un click, independiente de si la carta es
       // arrastrable — mismo patrón exacto que 'dado' con onDiceResult, para que
       // "Bloqueado" nunca afecte al volteo (solo al arrastre).
-      if (onCartaFlip) {
+      if (onCartaFlip && isInteractionActive(component, 'voltear')) {
         carta.classList.add('carta--clickable');
         carta.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -1437,7 +1440,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       // Sacar la carta de arriba: siempre disponible con un click, mismo
       // criterio que el volteo de 'carta' o el lanzamiento de 'dado' (no
       // depende de "Bloqueado", que solo condiciona el arrastre).
-      if (onMazoDraw) {
+      if (onMazoDraw && isInteractionActive(component, 'sacarCarta')) {
         mazo.classList.add('mazo--clickable');
         mazo.addEventListener('click', (e) => {
           e.stopPropagation();

@@ -1,9 +1,9 @@
-// Bootstrap de la aplicación: crea el componente por defecto, monta el
-// selector de modo y renderiza el modo activo, refrescando ante cualquier cambio.
+// Bootstrap de la aplicación: monta el selector de modo y renderiza el modo
+// activo, refrescando ante cualquier cambio.
 
 import { on } from './core/eventBus.js';
 import {
-  MODES, getState, addComponent, loadComponents, getComponents, getPanelState, loadPanelState,
+  MODES, getState, loadComponents, getComponents, getPanelState, loadPanelState,
   addResource, loadResources, getResources, getResourcePanelState, loadResourcePanelState,
   getResourcesSeeded, markResourcesSeeded, loadResourcesSeeded, getGroups, loadGroups,
   getGroupPanelState, loadGroupPanelState,
@@ -14,7 +14,6 @@ import { renderModeSwitcher, renderEditToolbar } from './ui/editModeToggle.js';
 import { initGlobalShortcuts } from './ui/globalShortcuts.js';
 import { renderPlayMode } from './modes/play/playMode.js';
 import { renderEditMode, deleteSelectedComponent } from './modes/edit/editMode.js';
-import { createComponent } from './core/component.js';
 import { createResource } from './core/resource.js';
 import { saveState, loadState, readSeedState } from './core/persistence.js';
 import { showErrorModal } from './ui/errorModal.js';
@@ -64,19 +63,6 @@ initGlobalShortcuts({
   onDeleteSelected: () => deleteSelectedComponent(),
 });
 
-function seedDefaultComponent() {
-  const defaultComponent = createComponent({
-    type: 'texto',
-    properties: {
-      contenido: 'Hola, esta es una mesa de juego infinita.',
-      tamañoFuente: 18,
-      colorTexto: '#000000',
-      colorFondo: '',
-    },
-  });
-  addComponent(defaultComponent);
-}
-
 function seedDefaultResources() {
   // Marcar el flag antes de añadir: cada addResource() dispara un autoguardado
   // síncrono, así que debe quedar ya a `true` desde el primer recurso sembrado.
@@ -97,7 +83,6 @@ function seedDefaultResources() {
 const saved = loadState();
 if (saved?.error) {
   showErrorModal('Error', 'No se ha podido recuperar el estado guardado.');
-  seedDefaultComponent();
   seedDefaultResources();
 } else if (saved) {
   if (saved.panelState) {
@@ -127,7 +112,6 @@ if (saved?.error) {
       seedDefaultResources();
     }
   } else {
-    seedDefaultComponent();
     seedDefaultResources();
   }
 }

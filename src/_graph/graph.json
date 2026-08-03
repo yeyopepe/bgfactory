@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-01T10:06:16Z",
+  "generatedAt": "2026-08-03T08:10:37Z",
   "basePath": "src",
   "nodes": [
     {
@@ -122,6 +122,17 @@
         "nextImportedId"
       ],
       "purpose": "Fusiona la selección de componentes/recursos/mazos de una importación con el estado actual del juego según el modo elegido, resolviendo conflictos de id y referencias rotas."
+    },
+    {
+      "id": "core/interactions.js",
+      "type": "file",
+      "path": "core/interactions.js",
+      "exports": [
+        "TYPE_INTERACTIONS",
+        "getInteractionsForType",
+        "isInteractionActive"
+      ],
+      "purpose": "Registro central (cambio 00115) de qué interacciones de click en Modo Juego tiene programadas cada tipo de componente, y helper para comprobar si una interacción concreta sigue activa en un componente dado."
     },
     {
       "id": "core/markdown.js",
@@ -921,6 +932,20 @@
       "path": "core/importMerge.js",
       "parent": "core/importMerge.js",
       "purpose": "Calcula el siguiente id libre con el sufijo '-imported' para un id que colisiona con uno ya existente."
+    },
+    {
+      "id": "core/interactions.js#getInteractionsForType",
+      "type": "function",
+      "path": "core/interactions.js",
+      "parent": "core/interactions.js",
+      "purpose": "Devuelve la lista de interacciones {key, label} programadas para un type de componente, o vacío si no tiene ninguna."
+    },
+    {
+      "id": "core/interactions.js#isInteractionActive",
+      "type": "function",
+      "path": "core/interactions.js",
+      "parent": "core/interactions.js",
+      "purpose": "Comprueba si una interacción concreta (por key) sigue activa en un componente, mirando su array interaccionesDesactivadas."
     },
     {
       "id": "core/markdown.js#markdownToHtml",
@@ -2149,6 +2174,16 @@
     },
     {
       "source": "ui/componentModal.js#openComponentModal",
+      "target": "core/interactions.js#getInteractionsForType",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
+      "target": "core/interactions.js#isInteractionActive",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentModal.js#openComponentModal",
       "target": "core/state.js#addGroup",
       "relation": "calls"
     },
@@ -2285,6 +2320,11 @@
     {
       "source": "ui/componentRenderer.js#renderComponentsOnTable",
       "target": "core/dice.js#tirarDado",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/componentRenderer.js#renderComponentsOnTable",
+      "target": "core/interactions.js#isInteractionActive",
       "relation": "calls"
     },
     {
@@ -2464,11 +2504,6 @@
     },
     {
       "source": "main.js",
-      "target": "core/component.js",
-      "relation": "imports"
-    },
-    {
-      "source": "main.js",
       "target": "core/eventBus.js",
       "relation": "imports"
     },
@@ -2634,6 +2669,11 @@
     },
     {
       "source": "modes/play/playMode.js",
+      "target": "core/interactions.js",
+      "relation": "imports"
+    },
+    {
+      "source": "modes/play/playMode.js",
       "target": "core/state.js",
       "relation": "imports"
     },
@@ -2764,6 +2804,11 @@
     },
     {
       "source": "ui/componentModal.js",
+      "target": "core/interactions.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentModal.js",
       "target": "core/state.js",
       "relation": "imports"
     },
@@ -2830,6 +2875,11 @@
     {
       "source": "ui/componentRenderer.js",
       "target": "core/dice.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentRenderer.js",
+      "target": "core/interactions.js",
       "relation": "imports"
     },
     {
