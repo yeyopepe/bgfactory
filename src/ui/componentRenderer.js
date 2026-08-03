@@ -1092,7 +1092,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       worldEl.appendChild(documentViewer);
     } else if (component.type === 'carta') {
       const props = component.properties || {};
-      const { borderRadius: cartaBorderRadius, clipPath: cartaClipPath } = getCartaShapeCss(props.proporcion);
+      const { borderRadius: cartaBorderRadius, clipPath: cartaClipPath } = getCartaShapeCss(props.proporcion, props.esquinasRedondeadas !== false);
       const isHexCarta = props.proporcion === 'hex-vertical' || props.proporcion === 'hex-horizontal';
 
       const carta = document.createElement('div');

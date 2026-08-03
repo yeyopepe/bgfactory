@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-03T08:10:37Z",
+  "generatedAt": "2026-08-03T08:48:46Z",
   "basePath": "src",
   "nodes": [
     {
@@ -12,9 +12,10 @@
         "getCartaShapeCss",
         "getDesignSize",
         "getHexInnerClipPath",
-        "getProporcionRatio"
+        "getProporcionRatio",
+        "isRectShape"
       ],
-      "purpose": "Catálogo puro de proporciones de carta (ratio y forma) y helpers para derivar el border-radius/clip-path y el tamaño de diseño de cada proporción, sin depender de otras capas."
+      "purpose": "Catálogo puro de proporciones de carta (ratio y forma) y helpers para derivar el border-radius/clip-path (incluida la opción de esquinas redondeadas u cuadradas) y el tamaño de diseño de cada proporción, sin depender de otras capas."
     },
     {
       "id": "core/component.js",
@@ -672,7 +673,7 @@
       "type": "function",
       "path": "core/cardProportions.js",
       "parent": "core/cardProportions.js",
-      "purpose": "Devuelve el border-radius/clip-path a aplicar según la forma de la proporción de carta (rectangular, circular o hexagonal)."
+      "purpose": "Devuelve el border-radius/clip-path a aplicar según la forma de la proporción de carta (rectangular con esquinas redondeadas u opcionalmente cuadradas, circular o hexagonal)."
     },
     {
       "id": "core/cardProportions.js#getDesignSize",
@@ -694,6 +695,13 @@
       "path": "core/cardProportions.js",
       "parent": "core/cardProportions.js",
       "purpose": "Devuelve el ratio ancho/alto de una proporción de carta dada, o el de la proporción por defecto si no se reconoce."
+    },
+    {
+      "id": "core/cardProportions.js#isRectShape",
+      "type": "function",
+      "path": "core/cardProportions.js",
+      "parent": "core/cardProportions.js",
+      "purpose": "Indica si una proporción de carta usa silueta rectangular/cuadrada (a diferencia de circular/hexagonal), usado para decidir cuándo mostrar el control de esquinas redondeadas."
     },
     {
       "id": "core/component.js#cloneComponent",
@@ -1267,7 +1275,7 @@
       "type": "function",
       "path": "core/styleClipboard.js",
       "parent": "core/styleClipboard.js",
-      "purpose": "Guarda en el portapapeles de módulo una copia en profundidad de los bloques de estilo de carta seleccionados."
+      "purpose": "Guarda en el portapapeles de módulo una copia en profundidad de los bloques de estilo de carta seleccionados (incluida la opción de esquinas redondeadas, junto con la proporción)."
     },
     {
       "id": "core/styleClipboard.js#validateStyleClipboardForPaste",
@@ -2060,6 +2068,11 @@
     {
       "source": "ui/cardEditorModal.js#openCardEditorModal",
       "target": "core/cardProportions.js#getHexInnerClipPath",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/cardEditorModal.js#openCardEditorModal",
+      "target": "core/cardProportions.js#isRectShape",
       "relation": "calls"
     },
     {

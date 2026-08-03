@@ -15,15 +15,19 @@ function cloneFace(face) {
 }
 
 // `data` solo debe incluir las claves de los bloques marcados al copiar:
-// { generales, proporcion, caraFrontal, caraTrasera }. `generales` (cambio
-// 00105) incluye ahora también `grupoId`/`grupoName` (este último de solo
-// lectura, para el mensaje de error si el grupo deja de existir al pegar).
-// Los bloques copiados se clonan en profundidad para que futuras ediciones
-// de la carta origen no muten el portapapeles ya guardado.
+// { generales, proporcion, esquinasRedondeadas, caraFrontal, caraTrasera }.
+// `generales` (cambio 00105) incluye ahora también `grupoId`/`grupoName`
+// (este último de solo lectura, para el mensaje de error si el grupo deja de
+// existir al pegar). `esquinasRedondeadas` (cambio 00117) viaja siempre junto
+// a `proporcion`, dentro del mismo bloque "Proporción" del checklist de
+// copiar/pegar estilo. Los bloques copiados se clonan en profundidad para
+// que futuras ediciones de la carta origen no muten el portapapeles ya
+// guardado.
 export function setStyleClipboard(data) {
   clipboard = {
     generales: data.generales ? { ...data.generales } : undefined,
     proporcion: data.proporcion,
+    esquinasRedondeadas: data.esquinasRedondeadas,
     caraFrontal: data.caraFrontal ? cloneFace(data.caraFrontal) : undefined,
     caraTrasera: data.caraTrasera ? cloneFace(data.caraTrasera) : undefined,
   };

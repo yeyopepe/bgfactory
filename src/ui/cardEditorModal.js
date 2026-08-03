@@ -4,7 +4,7 @@
 // ui/componentModal.js cuando el componente es de tipo 'carta'.
 
 import { getResources } from '../core/state.js';
-import { CARD_PROPORTIONS, getProporcionRatio, getDesignSize, getCartaShapeCss, getHexInnerClipPath } from '../core/cardProportions.js';
+import { CARD_PROPORTIONS, getProporcionRatio, getDesignSize, getCartaShapeCss, getHexInnerClipPath, isRectShape } from '../core/cardProportions.js';
 import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
 import { applyImageAdjustStyle, openImageAdjustModal } from './imageAdjustModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
@@ -72,6 +72,7 @@ export function openCardEditorModal({ component, onAccept }) {
   const props = component.properties || {};
   const working = {
     proporcion: props.proporcion || '5:7',
+    esquinasRedondeadas: props.esquinasRedondeadas !== false,
     caraFrontal: cloneCara(props.caraFrontal),
     caraTrasera: cloneCara(props.caraTrasera),
   };
@@ -127,13 +128,40 @@ export function openCardEditorModal({ component, onAccept }) {
     if (value === working.proporcion) option.selected = true;
     proporcionSelect.appendChild(option);
   }
-  proporcionSelect.addEventListener('change', () => {
-    working.proporcion = proporcionSelect.value;
-    renderFaces();
-  });
   proporcionField.appendChild(proporcionLabel);
   proporcionField.appendChild(proporcionSelect);
   toolbar.appendChild(proporcionField);
+
+  // Esquinas redondeadas (cambio 00117): solo aplica a las proporciones
+  // rectangulares/cuadrada — Circular/Hexagonal mantienen su silueta fija.
+  const redondeoField = document.createElement('div');
+  redondeoField.className = 'modal__field modal__field--checkbox';
+  const redondeoCheckbox = document.createElement('input');
+  redondeoCheckbox.type = 'checkbox';
+  redondeoCheckbox.id = 'card-editor-esquinas-redondeadas';
+  redondeoCheckbox.checked = working.esquinasRedondeadas;
+  const redondeoLabel = document.createElement('label');
+  redondeoLabel.textContent = 'Esquinas redondeadas';
+  redondeoLabel.setAttribute('for', redondeoCheckbox.id);
+  redondeoCheckbox.addEventListener('change', () => {
+    working.esquinasRedondeadas = redondeoCheckbox.checked;
+    renderFaces();
+  });
+  redondeoField.appendChild(redondeoCheckbox);
+  redondeoField.appendChild(redondeoLabel);
+  toolbar.appendChild(redondeoField);
+
+  function updateRedondeoFieldVisibility() {
+    redondeoField.style.display = isRectShape(working.proporcion) ? '' : 'none';
+  }
+  updateRedondeoFieldVisibility();
+
+  proporcionSelect.addEventListener('change', () => {
+    working.proporcion = proporcionSelect.value;
+    updateRedondeoFieldVisibility();
+    renderFaces();
+  });
+
   content.appendChild(toolbar);
 
   const facesRow = document.createElement('div');
@@ -241,7 +269,7 @@ export function openCardEditorModal({ component, onAccept }) {
     canvas.style.height = `${canvasHeight}px`;
     canvas.style.boxSizing = 'border-box';
     canvas.style.overflow = 'hidden';
-    const canvasShape = getCartaShapeCss(working.proporcion);
+    const canvasShape = getCartaShapeCss(working.proporcion, working.esquinasRedondeadas);
     canvas.style.borderRadius = canvasShape.borderRadius;
     canvas.style.clipPath = canvasShape.clipPath;
     faceCol.appendChild(canvas);
@@ -523,6 +551,7 @@ export function openCardEditorModal({ component, onAccept }) {
     if (onAccept) {
       onAccept({
         proporcion: working.proporcion,
+        esquinasRedondeadas: working.esquinasRedondeadas,
         caraFrontal: working.caraFrontal,
         caraTrasera: working.caraTrasera,
       });

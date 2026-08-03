@@ -62,6 +62,7 @@ export const DEFAULT_DOCUMENTO_PROPERTIES = {
 
 export const DEFAULT_CARTA_PROPERTIES = {
   proporcion: '5:7',
+  esquinasRedondeadas: true,
   caraActual: 'trasera',
   caraFrontal: {
     imagenResourceId: null,
@@ -1010,8 +1011,9 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     editBtn.addEventListener('click', () => {
       openCardEditorModal({
         component: workingComponent,
-        onAccept: ({ proporcion, caraFrontal, caraTrasera }) => {
+        onAccept: ({ proporcion, esquinasRedondeadas, caraFrontal, caraTrasera }) => {
           props.proporcion = proporcion;
+          props.esquinasRedondeadas = esquinasRedondeadas;
           props.caraFrontal = caraFrontal;
           props.caraTrasera = caraTrasera;
           proporcionSelect.value = proporcion;
@@ -1055,7 +1057,10 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
               grupoName: grupo ? grupo.name : null,
             };
           }
-          if (selection.proporcion) data.proporcion = props.proporcion;
+          if (selection.proporcion) {
+            data.proporcion = props.proporcion;
+            data.esquinasRedondeadas = props.esquinasRedondeadas;
+          }
           if (selection.caraFrontal) data.caraFrontal = props.caraFrontal;
           if (selection.caraTrasera) data.caraTrasera = props.caraTrasera;
           setStyleClipboard(data);
@@ -1097,6 +1102,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       if (clip.caraTrasera) props.caraTrasera = cloneFace(clip.caraTrasera);
       if (clip.proporcion) {
         props.proporcion = clip.proporcion;
+        props.esquinasRedondeadas = clip.esquinasRedondeadas ?? true;
         proporcionSelect.value = clip.proporcion;
         const width = workingComponent.width || DEFAULT_CARTA_WIDTH;
         workingComponent.width = width;
