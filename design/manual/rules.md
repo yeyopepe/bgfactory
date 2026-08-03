@@ -71,16 +71,18 @@ Cuando termina el domingo (y la semana):
 
 
 ## Acciones
-### Moverse
+### 1. Moverse
 
-### Comerciar
+### 2. Cazar/pescar
 
-### Subir el nivel de asentamiento
+### 3. Comerciar
+
+### 4. Subir el nivel de asentamiento
 Para subir en 1 el nivel de asentamiento hace falta reunir en esa localización la cantidad de basura requerida. Las fichas de basura se pueden ir dejando encima de la carta de la localización hasta reunir el número indicado, en ese momento:
 1. Se sube el nivel de asentamiento
 2. Las fichas de basura se meten de nuevo en la bolsa de saqueo
 
-### Combate
+### 5. Combate
 
 - Por cada vez que aparezca un nuevo enemigo en la localización del jugador realiza una secuencia de combate:
   - El jugador tira sus dados de combate 
