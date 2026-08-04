@@ -287,7 +287,7 @@ La modal de configuración del mazo incluye, en su pestaña "Específicas": el n
 Al eliminar un mazo (solo posible en modo edición, como cualquier componente), las cartas que contuviera dejan de estar asociadas a él y vuelven a mostrarse en la mesa como componentes independientes, en su última posición conocida — no se eliminan.
 
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Mazo" en la modal previa de tipo al pulsar "+ Añadir componente"; sacar la carta de arriba con un click, menú contextual y "Meter en mazo..." solo en modo juego; "Ver contenido del mazo" desde propiedades y arrastrar cartas seleccionadas sobre un mazo solo en modo edición; "Ver contenido..."/"Sacar" disponibles y con el mismo efecto en ambos modos.
-- **Código**: 00106, 00121.
+- **Código**: 00106, 00121, 00119.
 
 ### Migración de fichas antiguas a Carta/Ficha
 

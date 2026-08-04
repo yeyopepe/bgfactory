@@ -1206,7 +1206,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     contentBtn.addEventListener('click', () => {
       openMazoContentModal({
         mazoId: workingComponent.id,
-        onSacar: (cartaId) => sacarCartaDeMazo(workingComponent.id, cartaId),
+        onSacar: (cartaId) => {
+          sacarCartaDeMazo(workingComponent.id, cartaId);
+          const mazoActual = getComponents().find((c) => c.id === workingComponent.id);
+          workingComponent.properties.cartaIds = mazoActual?.properties?.cartaIds ?? [];
+        },
       });
     });
     contentField.appendChild(contentBtn);
