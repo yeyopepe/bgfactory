@@ -1,6 +1,6 @@
 ---
 name: ms-internal-tech-analysis
-description: Procedimiento compartido, agnóstico al proyecto, para reunir contexto técnico antes de analizar un change/fix o valorar si un cambio es trivial. Primero lee la documentación técnica configurada en framework.docs.tech (arquitectura, biblia de estilo, grafo), y solo si hace falta más información explora el código real. Si detecta que el código y la documentación no coinciden, señala el código como fuente de la verdad y devuelve la incongruencia como parte del análisis, sin editar nada. Uso interno de las skills ms-new, ms-fix, ms-fast e ms-how.
+description: Procedimiento compartido, agnóstico al proyecto, para reunir contexto técnico antes de analizar un change/fix o valorar si un cambio es trivial. Primero lee la documentación técnica configurada en framework.docs.tech (arquitectura, biblia de estilo, grafo), y solo si hace falta más información explora el código real. Si detecta que el código y la documentación no coinciden, señala el código como fuente de la verdad y devuelve la incongruencia como parte del análisis, sin editar nada. Uso interno de las skills ms-new, ms-fix e ms-how.
 user-invocable: false
 model: claude-sonnet-5
 effort: medium
@@ -11,7 +11,7 @@ metadata:
 
 # ms-internal-tech-analysis
 
-Procedimiento único y compartido para obtener contexto técnico fiable antes de tomar cualquier decisión sobre un change/fix (diseñar una solución, valorar causa raíz, o juzgar si un cambio es lo bastante trivial para `ms-fast`). Solo lo invocan otras skills del framework `ms-*` — no está pensado para invocación directa por el usuario.
+Procedimiento único y compartido para obtener contexto técnico fiable antes de tomar cualquier decisión sobre un change/fix (diseñar una solución, valorar causa raíz, o juzgar si un cambio es lo bastante trivial para el atajo `fast` de `ms-fix`). Solo lo invocan otras skills del framework `ms-*` — no está pensado para invocación directa por el usuario.
 
 **Esta skill no escribe ni edita nada.** Es puramente de análisis/lectura: reúne contexto y, si lo hay, reporta incongruencias entre documentación y código a quien la invoca. Qué hacer con esas incongruencias (actualizar el documento ya mismo, dejarlo anotado para más adelante, o usarlo como motivo para descartar una vía rápida) lo decide siempre la skill llamante, según sus propias reglas.
 
@@ -45,7 +45,7 @@ Si el contexto del paso 1 ya resuelve lo que quien invoca necesita saber, no exp
 Al leer código durante el paso 2, compara lo que encuentras con lo que decía la documentación leída en el paso 1 (si la había). Si algo no coincide (una capa que ya no funciona como describe `architectureDocPath`, una convención de `styleBibleDocPath` que el código ya no sigue, un símbolo o relación de `projectGraphPath` que ya no existe o cambió):
 
 - El código real es siempre la fuente de la verdad, nunca lo que diga el documento.
-- No corrijas tú el documento aquí. Añade la incongruencia al resultado que devuelves a quien invoca (ver más abajo) como un cambio de documentación pendiente, para que sea esa skill quien decida cómo y cuándo aplicarlo (p.ej. `ms-how` lo integra en las secciones (c)/(d) de su `plan.md`, que `ms-do` aplicará en su paso de actualización de documentación; `ms-new`/`ms-fix` pueden anotarlo en **Apuntes técnicos**; `ms-fast` puede tomarlo como motivo para no calificar como trivial).
+- No corrijas tú el documento aquí. Añade la incongruencia al resultado que devuelves a quien invoca (ver más abajo) como un cambio de documentación pendiente, para que sea esa skill quien decida cómo y cuándo aplicarlo (p.ej. `ms-how` lo integra en las secciones (c)/(d) de su `plan.md`, que `ms-do` aplicará en su paso de actualización de documentación; `ms-new`/`ms-fix` pueden anotarlo en **Apuntes técnicos**; `ms-fix` puede tomarlo como motivo para no calificar como trivial en su atajo `fast`).
 
 ## 4. Devolver el resultado a quien invoca
 

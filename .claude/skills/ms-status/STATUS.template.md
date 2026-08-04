@@ -12,7 +12,7 @@
 | Cerrado | {closedChange} | {closedFix} | {closedFast} | — | **{closedTotal}** |
 | **Total** | **{changeTotal}** | **{fixTotal}** | **{fastTotal}** | **{todoTotal}** | **{totalTotal}** |
 
-*(La columna Fast solo puede tener valores en "Implementado" y "Cerrado": los cambios `fast` de `ms-fast` se aplican y documentan directamente en `implemented`, sin pasar nunca por `inProgress`.)*
+*(La columna Fast solo puede tener valores en "Implementado" y "Cerrado": los cambios `fast` son el atajo trivial de `ms-fix` — se aplican y documentan en la misma invocación, sin generar `plan.md`, quedando ya en `implemented`.)*
 
 ## En progreso
 
