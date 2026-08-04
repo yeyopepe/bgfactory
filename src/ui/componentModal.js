@@ -823,7 +823,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       listError.style.display = isListaValoresValida(props.listaValores) ? 'none' : 'block';
       reconcileResultado();
     });
-    listError.textContent = 'La lista necesita al menos 2 valores no vacíos';
+    listError.textContent = 'La lista necesita al menos 2 valores, y al menos uno no puede estar vacío';
     listError.style.display = isListaValoresValida(props.listaValores) ? 'none' : 'block';
     listField.appendChild(listLabel);
     listField.appendChild(listInput);

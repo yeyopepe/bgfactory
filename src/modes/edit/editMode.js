@@ -404,8 +404,9 @@ export function renderEditMode(container) {
 
         attemptDropOnMazo(group, { x, y, width: component.width ?? 100, height: component.height ?? 100 });
       },
-      onResize: (component, width, height) => {
-        replaceComponent(component.id, updateComponent(component, { width, height }));
+      onResize: (component, width, height, x, y) => {
+        const patch = x != null && y != null ? { width, height, x, y } : { width, height };
+        replaceComponent(component.id, updateComponent(component, patch));
       },
     });
   }
@@ -442,8 +443,10 @@ export function renderEditMode(container) {
       onPanelMove: (left, top) => {
         setPanelState({ position: { left, top } });
       },
-      onPanelResize: (width, height) => {
-        setPanelState(height ? { width, height } : { width });
+      onPanelResize: (width, height, left, top) => {
+        const patch = height ? { width, height } : { width };
+        if (left != null) patch.position = { left, top };
+        setPanelState(patch);
       },
       bodyHeight: getPanelState().height,
       columnWidths: getPanelState().columnWidths,
@@ -475,8 +478,10 @@ export function renderEditMode(container) {
       onPanelMove: (left, top) => {
         setResourcePanelState({ position: { left, top } });
       },
-      onPanelResize: (width, height) => {
-        setResourcePanelState(height ? { width, height } : { width });
+      onPanelResize: (width, height, left, top) => {
+        const patch = height ? { width, height } : { width };
+        if (left != null) patch.position = { left, top };
+        setResourcePanelState(patch);
       },
       bodyHeight: getResourcePanelState().height,
       columnWidths: getResourcePanelState().columnWidths,
@@ -508,8 +513,10 @@ export function renderEditMode(container) {
       onPanelMove: (left, top) => {
         setGroupPanelState({ position: { left, top } });
       },
-      onPanelResize: (width, height) => {
-        setGroupPanelState(height ? { width, height } : { width });
+      onPanelResize: (width, height, left, top) => {
+        const patch = height ? { width, height } : { width };
+        if (left != null) patch.position = { left, top };
+        setGroupPanelState(patch);
       },
       bodyHeight: getGroupPanelState().height,
     });

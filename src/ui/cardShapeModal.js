@@ -44,6 +44,11 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
       label: 'Cuadrado',
       icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="13" height="13"/></svg>',
     },
+    {
+      value: 'redondeada',
+      label: 'Rectángulo redondeado',
+      icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="13" height="13" rx="4"/></svg>',
+    },
   ];
 
   const typeField = document.createElement('div');

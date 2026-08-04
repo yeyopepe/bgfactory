@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-04T09:37:01Z",
+  "generatedAt": "2026-08-04T12:09:14Z",
   "basePath": "src",
   "nodes": [
     {
@@ -359,7 +359,7 @@
       "exports": [
         "openCardEditorModal"
       ],
-      "purpose": "Editor de las dos caras de una carta: proporcion/esquinas, imagen de fondo, figuras geometricas y cuadros de texto por cara (anadidos desde un menu desplegable \"Anadir elemento\"), con seleccion, arrastre, redimension, edicion, borde propio de la carta, y un menu contextual por elemento (Eliminar/Colocar arriba/Colocar abajo) que reordena formas y textBoxes en un unico apilado mezclado via core/cardFaceElements.js."
+      "purpose": "Editor de las dos caras de una carta: proporcion/esquinas, imagen de fondo, figuras geometricas y cuadros de texto por cara (anadidos desde un menu desplegable \"Anadir elemento\"), con seleccion, arrastre, redimension, edicion, borde propio de la carta, borrado del elemento seleccionado con la tecla SUPR, y un menu contextual (sobre un elemento o en zona vacia del lienzo) con Copiar/Pegar (portapapeles de un elemento en variable de modulo) ademas de Eliminar/Colocar arriba/Colocar abajo, que reordena formas y textBoxes en un unico apilado mezclado via core/cardFaceElements.js."
     },
     {
       "id": "ui/cardShapeModal.js",
@@ -434,7 +434,7 @@
       "exports": [
         "openContextMenu"
       ],
-      "purpose": "Menú contextual genérico posicionado junto al cursor, reutilizable para cualquier click derecho de la app, con secciones de descripción, acciones e interacciones informativas."
+      "purpose": "Menu contextual generico posicionado junto al cursor, reutilizable para cualquier click derecho de la app, con secciones de descripcion, acciones (admitiendo items deshabilitados, sin listener de click) e interacciones informativas."
     },
     {
       "id": "ui/copyComponentModal.js",
@@ -626,7 +626,7 @@
       "exports": [
         "attachResizeHandle"
       ],
-      "purpose": "Manejador de esquina reutilizable para hacer redimensionable cualquier elemento posicionado, con soporte de eje, clamp y forzado de proporción con Shift."
+      "purpose": "Manejador de esquina reutilizable para hacer redimensionable cualquier elemento posicionado, con soporte de eje, clamp, forzado de proporción con Shift y un parámetro corner ('br' por defecto o 'tl', cambio 00128) para anclar el redimensionado desde la esquina opuesta."
     },
     {
       "id": "ui/resourceList.js",
@@ -1403,7 +1403,7 @@
       "type": "function",
       "path": "ui/cardEditorModal.js",
       "parent": "ui/cardEditorModal.js",
-      "purpose": "Abre el editor de cartas: gestiona el estado de trabajo de ambas caras (imagen, formas, textBoxes con su orden de apilado, borde), su renderizado (incluido el menu contextual de cada elemento) y el guardado final al aceptar."
+      "purpose": "Abre el editor de cartas: gestiona el estado de trabajo de ambas caras (imagen, formas, textBoxes con su orden de apilado, borde), su renderizado (incluido el menu contextual de cada cara, con Copiar/Pegar de elemento y borrado con SUPR del elemento seleccionado) y el guardado final al aceptar."
     },
     {
       "id": "ui/cardShapeModal.js#openCardShapeModal",
@@ -1487,7 +1487,7 @@
       "type": "function",
       "path": "ui/contextMenu.js",
       "parent": "ui/contextMenu.js",
-      "purpose": "Abre un menú contextual genérico junto al cursor, con secciones de descripción, acciones e interacciones informativas, cerrando cualquier menú previo."
+      "purpose": "Abre un menu contextual generico junto al cursor, con secciones de descripcion, acciones (algunas opcionalmente deshabilitadas) e interacciones informativas, cerrando cualquier menu previo."
     },
     {
       "id": "ui/copyComponentModal.js#openCopyComponentModal",
@@ -1655,7 +1655,7 @@
       "type": "function",
       "path": "ui/resizeHandle.js",
       "parent": "ui/resizeHandle.js",
-      "purpose": "Añade a un elemento posicionado un manejador de esquina para redimensionarlo por arrastre, con eje, clamp y forzado de proporción configurables."
+      "purpose": "Añade a un elemento posicionado un manejador de esquina para redimensionarlo por arrastre, con eje, clamp, forzado de proporción y esquina de anclaje (`corner: 'br'`/`'tl'`, cambio 00128) configurables; con `corner: 'tl'` incluye además `dx`/`dy` en el resultado para que quien llama desplace la posición del host y mantenga fija la esquina opuesta."
     },
     {
       "id": "ui/resourceList.js#renderResourceList",

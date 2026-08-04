@@ -1,0 +1,171 @@
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --bg-table-dot: rgba(0, 0, 0, 0.09);
+    --bg-card: #f5f5f5;
+    --accent-blue: #2c7dd8;
+    --text-dark: #222;
+  }
+
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: #fafafa;
+    color: var(--text-dark);
+    padding: 24px;
+  }
+
+  h1 {
+    font-size: 18px;
+    margin: 0 0 4px;
+  }
+
+  p.subtitle {
+    margin: 0 0 24px;
+    color: #666;
+    font-size: 13px;
+  }
+
+  .demo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+  }
+
+  .demo {
+    background: var(--bg-table);
+    background-image: radial-gradient(circle, var(--bg-table-dot) 1.5px, transparent 1.5px);
+    background-size: 16px 16px;
+    border-radius: 8px;
+    padding: 48px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+  }
+
+  .demo-label {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  /* Elemento genérico redimensionable, representa cualquiera de los 11
+     elementos afectados (componente de mesa, panel flotante, elemento del
+     editor de cartas) */
+  .box {
+    position: relative;
+    width: 200px;
+    height: 130px;
+    background: var(--bg-card);
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #777;
+    outline: 2px dashed var(--accent-blue);
+    outline-offset: 2px;
+  }
+
+  .resize-handle {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    cursor: nwse-resize;
+  }
+
+  .resize-handle::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+  }
+
+  /* Tirador existente hoy: esquina inferior derecha */
+  .resize-handle--br {
+    right: 0;
+    bottom: 0;
+  }
+  .resize-handle--br::after {
+    right: 3px;
+    bottom: 3px;
+    background:
+      linear-gradient(135deg, transparent 0 45%, #999 45% 55%, transparent 55% 100%),
+      linear-gradient(135deg, transparent 0 65%, #999 65% 75%, transparent 75% 100%);
+  }
+  .resize-handle--br:hover::after {
+    background:
+      linear-gradient(135deg, transparent 0 45%, var(--accent-blue) 45% 55%, transparent 55% 100%),
+      linear-gradient(135deg, transparent 0 65%, var(--accent-blue) 65% 75%, transparent 75% 100%);
+  }
+
+  /* Tirador nuevo propuesto: esquina superior izquierda, mismo aspecto en espejo */
+  .resize-handle--tl {
+    left: 0;
+    top: 0;
+  }
+  .resize-handle--tl::after {
+    left: 3px;
+    top: 3px;
+    background:
+      linear-gradient(-45deg, transparent 0 45%, #999 45% 55%, transparent 55% 100%),
+      linear-gradient(-45deg, transparent 0 65%, #999 65% 75%, transparent 75% 100%);
+  }
+  .resize-handle--tl:hover::after {
+    background:
+      linear-gradient(-45deg, transparent 0 45%, var(--accent-blue) 45% 55%, transparent 55% 100%),
+      linear-gradient(-45deg, transparent 0 65%, var(--accent-blue) 65% 75%, transparent 75% 100%);
+  }
+
+  .anchor-badge {
+    position: absolute;
+    font-size: 10px;
+    background: var(--accent-blue);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .anchor-badge--br {
+    right: -6px;
+    bottom: -26px;
+  }
+  .anchor-badge--tl {
+    left: -6px;
+    top: -26px;
+  }
+</style>
+
+<h1>Tirador de redimensionado en la esquina superior izquierda</h1>
+<p class="subtitle">Maqueta de aspecto — sin funcionalidad real. Pasa el ratón sobre cada tirador para ver el resaltado.</p>
+
+<div class="demo-grid">
+  <div class="demo">
+    <span class="demo-label">Antes (hoy)</span>
+    <div class="box">
+      Elemento redimensionable
+      <div class="resize-handle resize-handle--br"></div>
+    </div>
+  </div>
+
+  <div class="demo">
+    <span class="demo-label">Después (propuesto)</span>
+    <div class="box">
+      Elemento redimensionable
+      <div class="resize-handle resize-handle--tl"></div>
+      <div class="resize-handle resize-handle--br"></div>
+      <span class="anchor-badge anchor-badge--tl">nuevo tirador</span>
+      <span class="anchor-badge anchor-badge--br">esquina fija al usar el nuevo</span>
+    </div>
+  </div>
+</div>

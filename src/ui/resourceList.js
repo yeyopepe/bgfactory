@@ -319,5 +319,52 @@ export function renderResourceList(
     },
   });
 
+  // Tirador en la esquina superior izquierda (cambio 00128): ancla la esquina
+  // inferior derecha del panel, así que además de tamaño hay que desplazar
+  // left/top. tlStart captura posición/tamaño de partida en getSize (llamada
+  // una única vez por arrastre, misma garantía que usa ui/resizeHandle.js).
+  const tlStart = { left: 0, top: 0, width: 0, height: 0 };
+  attachResizeHandle(panel, {
+    axis: collapsed ? 'x' : 'both',
+    corner: 'tl',
+    getSize: () => {
+      tlStart.left = container.offsetLeft;
+      tlStart.top = container.offsetTop;
+      tlStart.width = container.getBoundingClientRect().width;
+      tlStart.height = body ? body.getBoundingClientRect().height : 0;
+      return { width: tlStart.width, height: tlStart.height };
+    },
+    clamp: ({ width, height }) => {
+      const maxWidth = tlStart.width + tlStart.left;
+      const clampedWidth = Math.min(Math.max(width, MIN_PANEL_WIDTH), maxWidth);
+      if (!body) return { width: clampedWidth, height };
+      const maxHeight = tlStart.height + tlStart.top;
+      const clampedHeight = Math.min(Math.max(height, MIN_PANEL_BODY_HEIGHT), maxHeight);
+      return { width: clampedWidth, height: clampedHeight };
+    },
+    onResize: ({ width, height, dx, dy }) => {
+      container.style.right = 'auto';
+      container.style.left = `${tlStart.left + dx}px`;
+      container.style.width = `${width}px`;
+      if (body) {
+        container.style.top = `${tlStart.top + dy}px`;
+        body.style.height = `${height}px`;
+      }
+    },
+    onResizeEnd: ({ width, height, dx, dy }) => {
+      const newLeft = tlStart.left + dx;
+      container.style.right = 'auto';
+      container.style.left = `${newLeft}px`;
+      container.style.width = `${width}px`;
+      let newTop = tlStart.top;
+      if (body) {
+        newTop = tlStart.top + dy;
+        container.style.top = `${newTop}px`;
+        body.style.height = `${height}px`;
+      }
+      if (onPanelResize) onPanelResize(width, height, newLeft, newTop);
+    },
+  });
+
   container.appendChild(panel);
 }

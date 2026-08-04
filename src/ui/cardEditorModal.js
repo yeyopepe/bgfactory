@@ -18,6 +18,7 @@ import { openContextMenu } from './contextMenu.js';
 import { getOrderedFaceElements, bringElementToFront, sendElementToBack } from '../core/cardFaceElements.js';
 
 const CANVAS_MAX_SIDE = 380;
+const SHAPE_BORDER_RADIUS = { circular: '50%', redondeada: '8px' };
 const MIN_TEXT_BOX_DESIGN_SIZE = 20;
 const MIN_SHAPE_DESIGN_SIZE = 20;
 const DUPLICATE_TEXT_BOX_OFFSET = 20;
@@ -77,9 +78,40 @@ function createSendToBackIcon() {
   return icon;
 }
 
+function createCopyIcon() {
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('fill', 'none');
+  icon.setAttribute('stroke', 'currentColor');
+  icon.setAttribute('stroke-width', '2');
+  icon.innerHTML =
+    '<rect x="9" y="9" width="11" height="11" rx="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M6 15H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1" stroke-linecap="round" stroke-linejoin="round"/>';
+  return icon;
+}
+
+function createPasteIcon() {
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('fill', 'none');
+  icon.setAttribute('stroke', 'currentColor');
+  icon.setAttribute('stroke-width', '2');
+  icon.innerHTML =
+    '<path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1Z" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<rect x="6" y="6" width="12" height="15" rx="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
+  return icon;
+}
+
 function isTextEditableElement(el) {
   return el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement;
 }
+
+// Portapapeles de un único elemento copiado (cambio 00127): variable de
+// módulo (no de instancia de openCardEditorModal) para sobrevivir a cerrar y
+// reabrir el editor con otra carta, mismo patrón que selectedComponentId/
+// panelStackOrder en modes/edit/editMode.js. Copiar uno nuevo sustituye
+// siempre al anterior.
+let copiedElement = null;
 
 // Botón "Añadir elemento" con menú desplegable, reutilizando tal cual el
 // patrón/clases ya existentes de ui/resourceList.js (createAddMenu, STYLE_BIBLE
@@ -204,9 +236,27 @@ export function openCardEditorModal({ component, onAccept }) {
     renderFaces();
   }
 
+  // Elimina un elemento (texto o figura) de la cara indicada, compartida entre
+  // la acción "Eliminar" del menú contextual y la tecla SUPR (cambio 00127).
+  function removeElement(caraKey, kind, id) {
+    const cara = working[caraKey];
+    if (kind === 'forma') {
+      cara.formas = cara.formas.filter((f) => f.id !== id);
+    } else {
+      cara.textBoxes = cara.textBoxes.filter((tb) => tb.id !== id);
+    }
+    selected = null;
+    renderFaces();
+  }
+
   function handleKeyDown(e) {
     if (!selected) return;
     if (isTextEditableElement(document.activeElement)) return;
+    if (e.key === 'Delete') {
+      e.preventDefault();
+      removeElement(selected.caraKey, selected.kind, selected.id);
+      return;
+    }
     if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
     e.preventDefault();
     const cara = working[selected.caraKey];
@@ -362,28 +412,72 @@ export function openCardEditorModal({ component, onAccept }) {
     });
   }
 
-  // Menú contextual (click derecho) de un elemento de una cara (cambio
-  // 00124): mismo componente reutilizable que el menú contextual de
-  // componentes en la mesa (modes/play/playMode.js), sin secciones de
-  // descripción/específicas/interacciones — solo las 3 acciones generales.
-  function openElementContextMenu({ x, y, caraKey, kind, id }) {
+  // Convierte una posición de pantalla (clientX/clientY) a coordenadas de
+  // diseño de una cara (cambio 00127), usando el mismo criterio de escala que
+  // el arrastre/redimensionado de elementos (previewScale).
+  function screenToDesignPoint(canvas, previewScale, clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: (clientX - rect.left) / previewScale,
+      y: (clientY - rect.top) / previewScale,
+    };
+  }
+
+  function pasteElementAt(caraKey, point) {
+    if (!copiedElement) return;
     const cara = working[caraKey];
-    openContextMenu({
-      x,
-      y,
-      generalItems: [
+    const newId = crypto.randomUUID();
+    const newElement = { ...copiedElement.data, id: newId, x: point.x, y: point.y };
+    if (copiedElement.kind === 'forma') {
+      cara.formas.push(newElement);
+    } else {
+      cara.textBoxes.push(newElement);
+    }
+    bringElementToFront(cara, copiedElement.kind, newId);
+    if (copiedElement.kind === 'forma') {
+      selectShape(caraKey, newId);
+    } else {
+      selectTextBox(caraKey, newId);
+    }
+  }
+
+  // Menú contextual (click derecho) de una cara (cambio 00124, ampliado en el
+  // 00127): mismo componente reutilizable que el menú contextual de
+  // componentes en la mesa (modes/play/playMode.js), sin secciones de
+  // descripción/específicas/interacciones. `kind`/`id` solo están presentes
+  // si el click derecho fue sobre un elemento existente — si fue sobre una
+  // zona vacía del lienzo, el menú se reduce a "Pegar".
+  function openElementContextMenu({ x, y, caraKey, kind, id, pastePoint }) {
+    const cara = working[caraKey];
+    const generalItems = [];
+
+    if (kind && id) {
+      generalItems.push({
+        icon: createCopyIcon(),
+        label: 'Copiar',
+        onClick: () => {
+          const collection = kind === 'forma' ? cara.formas : cara.textBoxes;
+          const element = collection.find((item) => item.id === id);
+          if (!element) return;
+          const { id: _omit, ...data } = element;
+          copiedElement = { kind, data };
+        },
+      });
+    }
+
+    generalItems.push({
+      icon: createPasteIcon(),
+      label: 'Pegar',
+      disabled: !copiedElement,
+      onClick: () => pasteElementAt(caraKey, pastePoint),
+    });
+
+    if (kind && id) {
+      generalItems.push(
         {
           icon: createDeleteIcon(),
           label: 'Eliminar',
-          onClick: () => {
-            if (kind === 'forma') {
-              cara.formas = cara.formas.filter((f) => f.id !== id);
-            } else {
-              cara.textBoxes = cara.textBoxes.filter((tb) => tb.id !== id);
-            }
-            selected = null;
-            renderFaces();
-          },
+          onClick: () => removeElement(caraKey, kind, id),
         },
         {
           icon: createBringToFrontIcon(),
@@ -401,8 +495,10 @@ export function openCardEditorModal({ component, onAccept }) {
             renderFaces();
           },
         },
-      ],
-    });
+      );
+    }
+
+    openContextMenu({ x, y, generalItems });
   }
 
   function renderFace(caraKey, label) {
@@ -441,6 +537,19 @@ export function openCardEditorModal({ component, onAccept }) {
     canvasInner.style.overflow = 'hidden';
     canvasInner.addEventListener('click', (e) => {
       if (e.target === canvasInner) deselectTextBox();
+    });
+    // Click derecho en zona vacía del lienzo (cambio 00127): los listeners
+    // `contextmenu` de cada elemento (renderTextBox/renderShape) hacen
+    // stopPropagation, así que este solo se dispara cuando el click fue
+    // fuera de cualquier elemento.
+    canvasInner.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      // El punto de pegado se calcula antes de deseleccionar: deselectTextBox()
+      // puede disparar renderFaces() y reconstruir el DOM, dejando `canvas`
+      // desmontado (getBoundingClientRect() devolvería ceros).
+      const pastePoint = screenToDesignPoint(canvas, previewScale, e.clientX, e.clientY);
+      deselectTextBox();
+      openElementContextMenu({ x: e.clientX, y: e.clientY, caraKey, pastePoint });
     });
     canvas.appendChild(canvasInner);
 
@@ -482,9 +591,9 @@ export function openCardEditorModal({ component, onAccept }) {
 
     for (const { kind, element } of getOrderedFaceElements(cara)) {
       if (kind === 'forma') {
-        canvasInner.appendChild(renderShape(caraKey, element, previewScale));
+        canvasInner.appendChild(renderShape(caraKey, element, previewScale, canvas));
       } else {
-        canvasInner.appendChild(renderTextBox(caraKey, element, previewScale));
+        canvasInner.appendChild(renderTextBox(caraKey, element, previewScale, canvas));
       }
     }
 
@@ -600,7 +709,7 @@ export function openCardEditorModal({ component, onAccept }) {
     return faceCol;
   }
 
-  function renderTextBox(caraKey, textBox, previewScale) {
+  function renderTextBox(caraKey, textBox, previewScale, canvas) {
     const el = document.createElement('div');
     el.className = 'card-editor-modal__textbox';
     if (selected?.caraKey === caraKey && selected?.id === textBox.id) {
@@ -668,8 +777,11 @@ export function openCardEditorModal({ component, onAccept }) {
     el.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       e.stopPropagation();
+      // Igual que en canvasInner: calcular el punto de pegado antes de
+      // seleccionar, que reconstruye el DOM vía renderFaces().
+      const pastePoint = screenToDesignPoint(canvas, previewScale, e.clientX, e.clientY);
       selectTextBox(caraKey, textBox.id);
-      openElementContextMenu({ x: e.clientX, y: e.clientY, caraKey, kind: 'texto', id: textBox.id });
+      openElementContextMenu({ x: e.clientX, y: e.clientY, caraKey, kind: 'texto', id: textBox.id, pastePoint });
     });
 
     let startMouseX = 0;
@@ -700,14 +812,16 @@ export function openCardEditorModal({ component, onAccept }) {
       document.addEventListener('mouseup', handleMouseUp);
     });
 
+    const clampTextBoxSize = ({ width, height }) => ({
+      width: Math.max(width, MIN_TEXT_BOX_DESIGN_SIZE),
+      height: Math.max(height, MIN_TEXT_BOX_DESIGN_SIZE),
+    });
+
     attachResizeHandle(el, {
       axis: 'both',
       getScale: () => previewScale,
       getSize: () => ({ width: textBox.width, height: textBox.height }),
-      clamp: ({ width, height }) => ({
-        width: Math.max(width, MIN_TEXT_BOX_DESIGN_SIZE),
-        height: Math.max(height, MIN_TEXT_BOX_DESIGN_SIZE),
-      }),
+      clamp: clampTextBoxSize,
       onResize: ({ width, height }) => {
         el.style.width = `${width * previewScale}px`;
         el.style.height = `${height * previewScale}px`;
@@ -718,10 +832,37 @@ export function openCardEditorModal({ component, onAccept }) {
       },
     });
 
+    const tlStart = { x: 0, y: 0 };
+    attachResizeHandle(el, {
+      axis: 'both',
+      corner: 'tl',
+      getScale: () => previewScale,
+      getSize: () => {
+        tlStart.x = textBox.x;
+        tlStart.y = textBox.y;
+        return { width: textBox.width, height: textBox.height };
+      },
+      clamp: clampTextBoxSize,
+      onResize: ({ width, height, dx, dy }) => {
+        textBox.x = tlStart.x + dx;
+        textBox.y = tlStart.y + dy;
+        el.style.left = `${textBox.x * previewScale}px`;
+        el.style.top = `${textBox.y * previewScale}px`;
+        el.style.width = `${width * previewScale}px`;
+        el.style.height = `${height * previewScale}px`;
+      },
+      onResizeEnd: ({ width, height, dx, dy }) => {
+        textBox.x = tlStart.x + dx;
+        textBox.y = tlStart.y + dy;
+        textBox.width = width;
+        textBox.height = height;
+      },
+    });
+
     return el;
   }
 
-  function renderShape(caraKey, shape, previewScale) {
+  function renderShape(caraKey, shape, previewScale, canvas) {
     const el = document.createElement('div');
     el.className = 'card-editor-modal__shape';
     if (selected?.kind === 'forma' && selected?.caraKey === caraKey && selected?.id === shape.id) {
@@ -732,7 +873,7 @@ export function openCardEditorModal({ component, onAccept }) {
     el.style.top = `${shape.y * previewScale}px`;
     el.style.width = `${shape.width * previewScale}px`;
     el.style.height = `${shape.height * previewScale}px`;
-    el.style.borderRadius = shape.tipo === 'circular' ? '50%' : '0';
+    el.style.borderRadius = SHAPE_BORDER_RADIUS[shape.tipo] || '0';
     el.style.backgroundColor = hexToRgba(shape.colorFondo, shape.colorFondoTransparencia ?? 0);
     el.style.border = shape.bordeActivo !== false ? `${shape.bordeGrosor}px solid ${shape.bordeColor || '#000000'}` : 'none';
     el.style.boxSizing = 'border-box';
@@ -776,8 +917,11 @@ export function openCardEditorModal({ component, onAccept }) {
     el.addEventListener('contextmenu', (e) => {
       e.preventDefault();
       e.stopPropagation();
+      // Igual que en canvasInner: calcular el punto de pegado antes de
+      // seleccionar, que reconstruye el DOM vía renderFaces().
+      const pastePoint = screenToDesignPoint(canvas, previewScale, e.clientX, e.clientY);
       selectShape(caraKey, shape.id);
-      openElementContextMenu({ x: e.clientX, y: e.clientY, caraKey, kind: 'forma', id: shape.id });
+      openElementContextMenu({ x: e.clientX, y: e.clientY, caraKey, kind: 'forma', id: shape.id, pastePoint });
     });
 
     let startMouseX = 0;
@@ -808,19 +952,48 @@ export function openCardEditorModal({ component, onAccept }) {
       document.addEventListener('mouseup', handleMouseUp);
     });
 
+    const clampShapeSize = ({ width, height }) => ({
+      width: Math.max(width, MIN_SHAPE_DESIGN_SIZE),
+      height: Math.max(height, MIN_SHAPE_DESIGN_SIZE),
+    });
+
     attachResizeHandle(el, {
       axis: 'both',
       getScale: () => previewScale,
       getSize: () => ({ width: shape.width, height: shape.height }),
-      clamp: ({ width, height }) => ({
-        width: Math.max(width, MIN_SHAPE_DESIGN_SIZE),
-        height: Math.max(height, MIN_SHAPE_DESIGN_SIZE),
-      }),
+      clamp: clampShapeSize,
       onResize: ({ width, height }) => {
         el.style.width = `${width * previewScale}px`;
         el.style.height = `${height * previewScale}px`;
       },
       onResizeEnd: ({ width, height }) => {
+        shape.width = width;
+        shape.height = height;
+      },
+    });
+
+    const tlStart = { x: 0, y: 0 };
+    attachResizeHandle(el, {
+      axis: 'both',
+      corner: 'tl',
+      getScale: () => previewScale,
+      getSize: () => {
+        tlStart.x = shape.x;
+        tlStart.y = shape.y;
+        return { width: shape.width, height: shape.height };
+      },
+      clamp: clampShapeSize,
+      onResize: ({ width, height, dx, dy }) => {
+        shape.x = tlStart.x + dx;
+        shape.y = tlStart.y + dy;
+        el.style.left = `${shape.x * previewScale}px`;
+        el.style.top = `${shape.y * previewScale}px`;
+        el.style.width = `${width * previewScale}px`;
+        el.style.height = `${height * previewScale}px`;
+      },
+      onResizeEnd: ({ width, height, dx, dy }) => {
+        shape.x = tlStart.x + dx;
+        shape.y = tlStart.y + dy;
         shape.width = width;
         shape.height = height;
       },

@@ -1506,6 +1506,23 @@ fieldset.modal__section--untitled {
   transform: scale(1.15);
 }
 
+/* Variante de .resize-handle en la esquina superior izquierda (cambio 00128):
+   mismo tamaño/grip/hover/cursor que .resize-handle, solo que ancla la
+   esquina inferior derecha del elemento en vez de la superior izquierda. */
+.resize-handle--tl {
+  right: auto;
+  bottom: auto;
+  left: 0;
+  top: 0;
+}
+
+.resize-handle--tl::after {
+  right: auto;
+  bottom: auto;
+  left: 3px;
+  top: 3px;
+}
+
 /* Variante de .resize-handle para el borde de columna de una tabla (mismo
    mecanismo de arrastre, ver ui/tableColumnResize.js) — línea vertical en
    el borde derecho de la celda en vez del grip diagonal de esquina. */
@@ -1797,6 +1814,19 @@ fieldset.modal__section--untitled {
 .context-menu__item:hover {
   background: var(--accent-blue);
   color: var(--text-light);
+}
+
+/* Item deshabilitado (cambio 00127): p.ej. "Pegar" sin nada copiado — mismo
+   cursor `not-allowed` que `.btn-accept:disabled` (STYLE_BIBLE sección 12.2). */
+.context-menu__item--disabled {
+  cursor: not-allowed;
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.context-menu__item--disabled:hover {
+  background: none;
+  color: var(--text-muted);
 }
 
 .context-menu__item-icon {

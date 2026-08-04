@@ -24,7 +24,7 @@
   - Materiales básicos
   - Objetos fabricables
 - Dados
-  - Búsqueda: 3xbasura, 1xnada, 2xobjeto
+  - Saqueo: 3xbasura, 1xnada, 2xobjeto
   - Combate: 2xherida, 1xesquiva, 2xnada, 1x-1enemigo
   - Encuentros: 1x2zombis, 2x1zombi, 3xnada
 

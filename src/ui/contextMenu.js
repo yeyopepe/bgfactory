@@ -17,9 +17,10 @@ function closeCurrentMenu() {
   if (onClose) onClose();
 }
 
-function addRow(menu, { icon, label, onClick }) {
+function addRow(menu, { icon, label, onClick, disabled }) {
   const item = document.createElement('div');
   item.className = 'context-menu__item';
+  if (disabled) item.classList.add('context-menu__item--disabled');
   if (icon) {
     const iconWrap = document.createElement('span');
     iconWrap.className = 'context-menu__item-icon';
@@ -30,10 +31,12 @@ function addRow(menu, { icon, label, onClick }) {
   text.className = 'context-menu__item-label';
   text.textContent = label;
   item.appendChild(text);
-  item.addEventListener('click', () => {
-    closeCurrentMenu();
-    if (onClick) onClick();
-  });
+  if (!disabled) {
+    item.addEventListener('click', () => {
+      closeCurrentMenu();
+      if (onClick) onClick();
+    });
+  }
   menu.appendChild(item);
 }
 
@@ -96,7 +99,8 @@ function addInfoSection(menu, interactionItems) {
   menu.appendChild(infoBlock);
 }
 
-// `generalItems`/`specificItems`: `{ icon: SVGElement, label: string, onClick: () => void }[]`.
+// `generalItems`/`specificItems`: `{ icon: SVGElement, label: string, onClick: () => void, disabled?: boolean }[]`.
+// `disabled` (cambio 00127) muestra el item atenuado y sin acción (no se registra el listener de click).
 // El separador entre ambas secciones solo se dibuja si `specificItems` no está vacío.
 // `interactionItems`: `{ label: string, value: string }[]` — sección de solo lectura al final del menú.
 // `description`: `{ main: string, extra?: string }` — línea de solo lectura al principio del menú,

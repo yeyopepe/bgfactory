@@ -2,10 +2,18 @@
 // Standard resize interaction pattern for the app: any element that needs to
 // become resizable attaches one of these instead of wiring its own
 // mousedown/mousemove/mouseup handling.
-
-export function attachResizeHandle(hostEl, { axis = 'both', getSize, getScale, clamp, onResize, onResizeEnd } = {}) {
+//
+// `corner` selects which corner the handle sits on and anchors from:
+// - 'br' (default): top-left corner stays fixed, growing extends down-right.
+// - 'tl' (cambio 00128): bottom-right corner stays fixed, growing extends
+//   up-left. The proposed size still comes out positive/clamped like 'br';
+//   in addition, `dx`/`dy` (how far the anchored bottom-right corner would
+//   need the element's own x/y shifted to stay put) are included in the
+//   object passed to onResize/onResizeEnd, since this module doesn't know
+//   about the host's position — only its caller does.
+export function attachResizeHandle(hostEl, { axis = 'both', corner = 'br', getSize, getScale, clamp, onResize, onResizeEnd } = {}) {
   const handle = document.createElement('div');
-  handle.className = 'resize-handle';
+  handle.className = corner === 'tl' ? 'resize-handle resize-handle--tl' : 'resize-handle';
   hostEl.appendChild(handle);
 
   handle.addEventListener('mousedown', (e) => {
@@ -20,8 +28,9 @@ export function attachResizeHandle(hostEl, { axis = 'both', getSize, getScale, c
 
     function computeSize(e) {
       const scale = getScale ? getScale() : 1;
-      const deltaX = axis === 'y' ? 0 : (e.clientX - startX) / scale;
-      const deltaY = axis === 'x' ? 0 : (e.clientY - startY) / scale;
+      const sign = corner === 'tl' ? -1 : 1;
+      const deltaX = axis === 'y' ? 0 : sign * (e.clientX - startX) / scale;
+      const deltaY = axis === 'x' ? 0 : sign * (e.clientY - startY) / scale;
       let proposed;
       if (axis === 'both' && e.shiftKey) {
         const delta = Math.abs(deltaX) >= Math.abs(deltaY) ? deltaX : deltaY;
@@ -35,7 +44,12 @@ export function attachResizeHandle(hostEl, { axis = 'both', getSize, getScale, c
           height: startSize.height + deltaY,
         };
       }
-      return clamp ? clamp(proposed) : proposed;
+      const clamped = clamp ? clamp(proposed) : proposed;
+      if (corner === 'tl') {
+        clamped.dx = -(clamped.width - startSize.width);
+        clamped.dy = -(clamped.height - startSize.height);
+      }
+      return clamped;
     }
 
     function handleMouseMove(e) {

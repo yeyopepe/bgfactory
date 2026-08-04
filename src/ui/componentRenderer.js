@@ -309,6 +309,8 @@ export function paintCartaFace(contentParent, cara, renderScale) {
   }
 }
 
+const SHAPE_BORDER_RADIUS = { circular: '50%', redondeada: '8px' };
+
 function paintShape(contentParent, shape, renderScale) {
   const shapeEl = document.createElement('div');
   shapeEl.style.position = 'absolute';
@@ -316,7 +318,7 @@ function paintShape(contentParent, shape, renderScale) {
   shapeEl.style.top = `${shape.y * renderScale}px`;
   shapeEl.style.width = `${shape.width * renderScale}px`;
   shapeEl.style.height = `${shape.height * renderScale}px`;
-  shapeEl.style.borderRadius = shape.tipo === 'circular' ? '50%' : '0';
+  shapeEl.style.borderRadius = SHAPE_BORDER_RADIUS[shape.tipo] || '0';
   shapeEl.style.backgroundColor = hexToRgba(shape.colorFondo, shape.colorFondoTransparencia ?? 0);
   shapeEl.style.border = shape.bordeActivo !== false ? `${shape.bordeGrosor}px solid ${shape.bordeColor || '#000000'}` : 'none';
   shapeEl.style.boxSizing = 'border-box';
@@ -580,27 +582,47 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       if (onResize && selectedIds.size === 1 && selectedIds.has(component.id)) {
+        const getResizeSize = () => {
+          if (component.width != null && component.height != null) {
+            return { width: component.width, height: component.height };
+          }
+          const zoom = getWorldZoom(worldEl);
+          const rect = textBox.getBoundingClientRect();
+          return { width: rect.width / zoom, height: rect.height / zoom };
+        };
+        const clampResizeSize = ({ width, height }) => ({
+          width: Math.max(width, MIN_TEXT_BOX_WIDTH),
+          height: Math.max(height, MIN_TEXT_BOX_HEIGHT),
+        });
+
         attachResizeHandle(textBox, {
           axis: 'both',
           getScale: () => getWorldZoom(worldEl),
-          getSize: () => {
-            if (component.width != null && component.height != null) {
-              return { width: component.width, height: component.height };
-            }
-            const zoom = getWorldZoom(worldEl);
-            const rect = textBox.getBoundingClientRect();
-            return { width: rect.width / zoom, height: rect.height / zoom };
-          },
-          clamp: ({ width, height }) => ({
-            width: Math.max(width, MIN_TEXT_BOX_WIDTH),
-            height: Math.max(height, MIN_TEXT_BOX_HEIGHT),
-          }),
+          getSize: getResizeSize,
+          clamp: clampResizeSize,
           onResize: ({ width, height }) => {
             textBox.style.width = `${width}px`;
             textBox.style.height = `${height}px`;
           },
           onResizeEnd: ({ width, height }) => {
             onResize(component, width, height);
+          },
+        });
+
+        attachResizeHandle(textBox, {
+          axis: 'both',
+          corner: 'tl',
+          getScale: () => getWorldZoom(worldEl),
+          getSize: getResizeSize,
+          clamp: clampResizeSize,
+          onResize: ({ width, height, dx, dy }) => {
+            textBox.style.left = `${(component.x ?? 100) + dx}px`;
+            textBox.style.top = `${(component.y ?? 100) + dy}px`;
+            textBox.style.width = `${width}px`;
+            textBox.style.height = `${height}px`;
+          },
+          onResizeEnd: ({ width, height, dx, dy }) => {
+            onResize(component, width, height, (component.x ?? 100) + dx, (component.y ?? 100) + dy);
           },
         });
       }
@@ -760,20 +782,39 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       if (onResize && selectedIds.size === 1 && selectedIds.has(component.id)) {
+        const clampBoardSize = ({ width, height }) => ({
+          width: Math.max(width, MIN_BOARD_SIZE),
+          height: Math.max(height, MIN_BOARD_SIZE),
+        });
+
         attachResizeHandle(board, {
           axis: 'both',
           getScale: () => getWorldZoom(worldEl),
           getSize: () => ({ width, height }),
-          clamp: ({ width, height }) => ({
-            width: Math.max(width, MIN_BOARD_SIZE),
-            height: Math.max(height, MIN_BOARD_SIZE),
-          }),
+          clamp: clampBoardSize,
           onResize: ({ width, height }) => {
             board.style.width = `${width}px`;
             board.style.height = `${height}px`;
           },
           onResizeEnd: ({ width, height }) => {
             onResize(component, width, height);
+          },
+        });
+
+        attachResizeHandle(board, {
+          axis: 'both',
+          corner: 'tl',
+          getScale: () => getWorldZoom(worldEl),
+          getSize: () => ({ width, height }),
+          clamp: clampBoardSize,
+          onResize: ({ width, height, dx, dy }) => {
+            board.style.left = `${(component.x ?? 100) + dx}px`;
+            board.style.top = `${(component.y ?? 100) + dy}px`;
+            board.style.width = `${width}px`;
+            board.style.height = `${height}px`;
+          },
+          onResizeEnd: ({ width, height, dx, dy }) => {
+            onResize(component, width, height, (component.x ?? 100) + dx, (component.y ?? 100) + dy);
           },
         });
       }
@@ -902,20 +943,39 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       if (onResize && selectedIds.size === 1 && selectedIds.has(component.id)) {
+        const clampDiceSize = ({ width, height }) => {
+          const s = Math.max(width, height, MIN_DADO_SIZE);
+          return { width: s, height: s };
+        };
+
         attachResizeHandle(dice, {
           axis: 'both',
           getScale: () => getWorldZoom(worldEl),
           getSize: () => ({ width: size, height: size }),
-          clamp: ({ width, height }) => {
-            const s = Math.max(width, height, MIN_DADO_SIZE);
-            return { width: s, height: s };
-          },
+          clamp: clampDiceSize,
           onResize: ({ width, height }) => {
             dice.style.width = `${width}px`;
             dice.style.height = `${height}px`;
           },
           onResizeEnd: ({ width, height }) => {
             onResize(component, width, height);
+          },
+        });
+
+        attachResizeHandle(dice, {
+          axis: 'both',
+          corner: 'tl',
+          getScale: () => getWorldZoom(worldEl),
+          getSize: () => ({ width: size, height: size }),
+          clamp: clampDiceSize,
+          onResize: ({ width, height, dx, dy }) => {
+            dice.style.left = `${(component.x ?? 100) + dx}px`;
+            dice.style.top = `${(component.y ?? 100) + dy}px`;
+            dice.style.width = `${width}px`;
+            dice.style.height = `${height}px`;
+          },
+          onResizeEnd: ({ width, height, dx, dy }) => {
+            onResize(component, width, height, (component.x ?? 100) + dx, (component.y ?? 100) + dy);
           },
         });
       }
@@ -1097,20 +1157,39 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       if (onResize && selectedIds.size === 1 && selectedIds.has(component.id)) {
+        const clampDocumentoSize = ({ width, height }) => ({
+          width: Math.max(width, MIN_DOCUMENTO_WIDTH),
+          height: Math.max(height, MIN_DOCUMENTO_HEIGHT),
+        });
+
         attachResizeHandle(documentViewer, {
           axis: 'both',
           getScale: () => getWorldZoom(worldEl),
           getSize: () => ({ width, height }),
-          clamp: ({ width, height }) => ({
-            width: Math.max(width, MIN_DOCUMENTO_WIDTH),
-            height: Math.max(height, MIN_DOCUMENTO_HEIGHT),
-          }),
+          clamp: clampDocumentoSize,
           onResize: ({ width, height }) => {
             documentViewer.style.width = `${width}px`;
             documentViewer.style.height = `${height}px`;
           },
           onResizeEnd: ({ width, height }) => {
             onResize(component, width, height);
+          },
+        });
+
+        attachResizeHandle(documentViewer, {
+          axis: 'both',
+          corner: 'tl',
+          getScale: () => getWorldZoom(worldEl),
+          getSize: () => ({ width, height }),
+          clamp: clampDocumentoSize,
+          onResize: ({ width, height, dx, dy }) => {
+            documentViewer.style.left = `${(component.x ?? 100) + dx}px`;
+            documentViewer.style.top = `${(component.y ?? 100) + dy}px`;
+            documentViewer.style.width = `${width}px`;
+            documentViewer.style.height = `${height}px`;
+          },
+          onResizeEnd: ({ width, height, dx, dy }) => {
+            onResize(component, width, height, (component.x ?? 100) + dx, (component.y ?? 100) + dy);
           },
         });
       }
@@ -1276,32 +1355,51 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       if (onResize && selectedIds.size === 1 && selectedIds.has(component.id)) {
+        const clampCartaSize = ({ width, height }) => {
+          if (props.proporcion === 'circular') {
+            return {
+              width: Math.max(width, MIN_CARTA_WIDTH),
+              height: Math.max(height, MIN_CARTA_HEIGHT),
+            };
+          }
+          const ratio = getProporcionRatio(props.proporcion);
+          let w = Math.max(width, height * ratio, MIN_CARTA_WIDTH);
+          let h = w / ratio;
+          if (h < MIN_CARTA_HEIGHT) {
+            h = MIN_CARTA_HEIGHT;
+            w = h * ratio;
+          }
+          return { width: w, height: h };
+        };
+
         attachResizeHandle(carta, {
           axis: 'both',
           getScale: () => getWorldZoom(worldEl),
           getSize: () => ({ width, height }),
-          clamp: ({ width, height }) => {
-            if (props.proporcion === 'circular') {
-              return {
-                width: Math.max(width, MIN_CARTA_WIDTH),
-                height: Math.max(height, MIN_CARTA_HEIGHT),
-              };
-            }
-            const ratio = getProporcionRatio(props.proporcion);
-            let w = Math.max(width, height * ratio, MIN_CARTA_WIDTH);
-            let h = w / ratio;
-            if (h < MIN_CARTA_HEIGHT) {
-              h = MIN_CARTA_HEIGHT;
-              w = h * ratio;
-            }
-            return { width: w, height: h };
-          },
+          clamp: clampCartaSize,
           onResize: ({ width, height }) => {
             carta.style.width = `${width}px`;
             carta.style.height = `${height}px`;
           },
           onResizeEnd: ({ width, height }) => {
             onResize(component, width, height);
+          },
+        });
+
+        attachResizeHandle(carta, {
+          axis: 'both',
+          corner: 'tl',
+          getScale: () => getWorldZoom(worldEl),
+          getSize: () => ({ width, height }),
+          clamp: clampCartaSize,
+          onResize: ({ width, height, dx, dy }) => {
+            carta.style.left = `${(component.x ?? 100) + dx}px`;
+            carta.style.top = `${(component.y ?? 100) + dy}px`;
+            carta.style.width = `${width}px`;
+            carta.style.height = `${height}px`;
+          },
+          onResizeEnd: ({ width, height, dx, dy }) => {
+            onResize(component, width, height, (component.x ?? 100) + dx, (component.y ?? 100) + dy);
           },
         });
       }
@@ -1447,20 +1545,39 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       if (onResize && selectedIds.size === 1 && selectedIds.has(component.id)) {
+        const clampMazoSize = ({ width, height }) => ({
+          width: Math.max(width, MIN_MAZO_WIDTH),
+          height: Math.max(height, MIN_MAZO_HEIGHT),
+        });
+
         attachResizeHandle(mazo, {
           axis: 'both',
           getScale: () => getWorldZoom(worldEl),
           getSize: () => ({ width, height }),
-          clamp: ({ width, height }) => ({
-            width: Math.max(width, MIN_MAZO_WIDTH),
-            height: Math.max(height, MIN_MAZO_HEIGHT),
-          }),
+          clamp: clampMazoSize,
           onResize: ({ width, height }) => {
             mazo.style.width = `${width}px`;
             mazo.style.height = `${height}px`;
           },
           onResizeEnd: ({ width, height }) => {
             onResize(component, width, height);
+          },
+        });
+
+        attachResizeHandle(mazo, {
+          axis: 'both',
+          corner: 'tl',
+          getScale: () => getWorldZoom(worldEl),
+          getSize: () => ({ width, height }),
+          clamp: clampMazoSize,
+          onResize: ({ width, height, dx, dy }) => {
+            mazo.style.left = `${(component.x ?? 100) + dx}px`;
+            mazo.style.top = `${(component.y ?? 100) + dy}px`;
+            mazo.style.width = `${width}px`;
+            mazo.style.height = `${height}px`;
+          },
+          onResizeEnd: ({ width, height, dx, dy }) => {
+            onResize(component, width, height, (component.x ?? 100) + dx, (component.y ?? 100) + dy);
           },
         });
       }

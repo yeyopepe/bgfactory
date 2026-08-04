@@ -6,12 +6,12 @@
 export function parseListaValores(listaValores) {
   return (listaValores || '')
     .split(',')
-    .map((v) => v.trim())
-    .filter((v) => v.length > 0);
+    .map((v) => v.trim());
 }
 
 export function isListaValoresValida(listaValores) {
-  return parseListaValores(listaValores).length >= 2;
+  const valores = parseListaValores(listaValores);
+  return valores.length >= 2 && valores.some((v) => v.length > 0);
 }
 
 export function getPosibleValores(properties) {

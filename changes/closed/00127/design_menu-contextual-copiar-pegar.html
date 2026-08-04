@@ -1,0 +1,272 @@
+<title>Menú contextual — Copiar/Pegar (editor de cartas)</title>
+<style>
+  :root {
+    --accent-blue: #2c7dd8;
+    --accent-blue-light: #eaf3fc;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --radius-sm: 4px;
+    --shadow-2: 0 4px 20px rgba(0, 0, 0, 0.15);
+    --card-bg: #f4f1ea;
+    --card-border: #b8ab8f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --accent-blue-light: #17324d;
+      --text-primary: #f0f0f0;
+      --text-muted: #a8a8a8;
+      --card-bg: #2a2620;
+      --card-border: #5a4f3d;
+    }
+  }
+  :root[data-theme="dark"] {
+    --accent-blue-light: #17324d;
+    --text-primary: #f0f0f0;
+    --text-muted: #a8a8a8;
+    --card-bg: #2a2620;
+    --card-border: #5a4f3d;
+  }
+  :root[data-theme="light"] {
+    --accent-blue-light: #eaf3fc;
+    --text-primary: #1a1a1a;
+    --text-muted: #666666;
+    --card-bg: #f4f1ea;
+    --card-border: #b8ab8f;
+  }
+
+  body {
+    font-family: system-ui, sans-serif;
+    color: var(--text-primary);
+    padding: 2rem;
+  }
+
+  h1 {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+  p.intro {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    margin-top: 0;
+    margin-bottom: 2rem;
+    max-width: 640px;
+  }
+
+  .scenarios {
+    display: flex;
+    gap: 3rem;
+    flex-wrap: wrap;
+  }
+
+  .scenario {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .scenario h2 {
+    font-size: 0.9rem;
+    margin: 0;
+  }
+  .scenario p.note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0 0 0.25rem 0;
+    max-width: 260px;
+  }
+
+  /* Lienzo de cara de carta, de fondo, simplemente para dar contexto visual */
+  .fake-card-face {
+    position: relative;
+    width: 260px;
+    height: 340px;
+    background: var(--card-bg);
+    border: 2px solid var(--card-border);
+    border-radius: 10px;
+    overflow: visible;
+  }
+
+  .fake-textbox {
+    position: absolute;
+    top: 40px;
+    left: 30px;
+    width: 160px;
+    height: 40px;
+    border: 1px dashed var(--card-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .fake-shape {
+    position: absolute;
+    top: 130px;
+    left: 60px;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid var(--card-border);
+  }
+
+  .cursor-dot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.25);
+  }
+
+  /* Menú contextual: mismas clases/estilos que ui/contextMenu.js */
+  .context-menu-mock {
+    position: absolute;
+    min-width: 190px;
+    background: var(--accent-blue-light);
+    border: 1px solid rgba(44, 125, 216, 0.25);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-2);
+    overflow: hidden;
+  }
+
+  .context-menu-mock__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+  }
+  .context-menu-mock__item:not(:last-child) {
+    border-bottom: 1px solid rgba(44, 125, 216, 0.25);
+  }
+  .context-menu-mock__item:hover:not(.context-menu-mock__item--disabled) {
+    background: var(--accent-blue);
+    color: var(--text-light);
+  }
+  .context-menu-mock__item--disabled {
+    cursor: default;
+    color: var(--text-muted);
+    opacity: 0.55;
+  }
+  .context-menu-mock__item--new {
+    font-weight: 600;
+  }
+
+  .context-menu-mock__icon {
+    display: flex;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+  .context-menu-mock__icon svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .badge-new {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--accent-blue);
+    border: 1px solid var(--accent-blue);
+    border-radius: 3px;
+    padding: 0.05rem 0.3rem;
+    margin-left: auto;
+  }
+</style>
+
+<h1>Editor de cartas — menú contextual con Copiar/Pegar</h1>
+<p class="intro">
+  Maqueta del menú contextual (click derecho) de una cara del editor de cartas, en sus dos variantes:
+  sobre un elemento existente, y sobre una zona vacía del lienzo. Los items marcados "Nuevo" son los que
+  añade este cambio; el resto ya existe hoy tal cual.
+</p>
+
+<div class="scenarios">
+  <div class="scenario">
+    <h2>Click derecho sobre un elemento</h2>
+    <p class="note">Menú completo: Copiar, Pegar, Eliminar, Colocar arriba, Colocar abajo.</p>
+    <div class="fake-card-face">
+      <div class="fake-textbox">Cuadro de texto</div>
+      <div class="fake-shape"></div>
+      <div class="context-menu-mock" style="top: 55px; left: 60px;">
+        <div class="context-menu-mock__item context-menu-mock__item--new">
+          <span class="context-menu-mock__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="11" height="11" rx="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6 15H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v1" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          Copiar
+          <span class="badge-new">Nuevo</span>
+        </div>
+        <div class="context-menu-mock__item context-menu-mock__item--new">
+          <span class="context-menu-mock__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1Z" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="6" y="6" width="12" height="15" rx="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          Pegar
+          <span class="badge-new">Nuevo</span>
+        </div>
+        <div class="context-menu-mock__item">
+          <span class="context-menu-mock__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          Eliminar
+        </div>
+        <div class="context-menu-mock__item">
+          <span class="context-menu-mock__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="19" x2="12" y2="5" stroke-linecap="round"/>
+              <polyline points="5 12 12 5 19 12" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          Colocar arriba
+        </div>
+        <div class="context-menu-mock__item">
+          <span class="context-menu-mock__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19" stroke-linecap="round"/>
+              <polyline points="19 12 12 19 5 12" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          Colocar abajo
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scenario">
+    <h2>Click derecho en zona vacía del lienzo</h2>
+    <p class="note">Menú reducido: solo Pegar. Aquí se muestra deshabilitada (nada copiado todavía).</p>
+    <div class="fake-card-face">
+      <div class="fake-textbox">Cuadro de texto</div>
+      <div class="fake-shape"></div>
+      <div class="cursor-dot" style="top: 235px; left: 195px;"></div>
+      <div class="context-menu-mock" style="top: 240px; left: 200px;">
+        <div class="context-menu-mock__item context-menu-mock__item--disabled context-menu-mock__item--new">
+          <span class="context-menu-mock__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1Z" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="6" y="6" width="12" height="15" rx="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          Pegar
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
