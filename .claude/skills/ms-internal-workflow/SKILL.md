@@ -15,7 +15,7 @@ Proceso genérico y único punto donde el framework `ms-*` sabe crear y mover la
 
 Tiene dos acciones independientes, cada una invocada con un parámetro `action`:
 
-- **`action=create`** — la invocan `ms-new` y `ms-fix`, con `type` (`change`/`fix`) y la descripción de lo que se pide. Dimensiona el alcance funcional y crea la entrada en `{changesDir}/inProgress/`.
+- **`action=create`** — la invocan `ms-new` y `ms-fix`, con `type` (`change`/`fix`/`fast`) y la descripción de lo que se pide. Dimensiona el alcance funcional y crea la entrada en `{changesDir}/inProgress/`. Para `type=fast` (atajo de `ms-fix` para cambios triviales), quien invoca típicamente encadena a continuación `action=move` hacia `implemented` en la misma invocación, sin pasar por `plan.md`.
 - **`action=move`** — la invoca `ms-do`, con `xxxx`, `from` y `to` (nombres de subcarpeta de `{changesDir}`: `inProgress` o `implemented`). Mueve la carpeta `{xxxx}` entre esos subestados.
 
 Ninguna de las dos acciones implementa ni analiza técnicamente nada, ni decide **si** debe producirse la transición o confirmación con el usuario — eso ya lo ha resuelto la skill llamante antes de invocar `ms-internal-workflow`. Esta skill solo ejecuta la mecánica de fichero (numerar+crear, o mover) de forma consistente en un único sitio.
@@ -68,7 +68,7 @@ Sigue exactamente la plantilla [`description.template.md`](description.template.
 
 - **Nombre** — nombre corto y descriptivo del cambio/fix.
 - **Código** — el `xxxx` calculado en el paso anterior.
-- **Tipo** — `fix` o `change`, según corresponda.
+- **Tipo** — `fix`, `change` o `fast`, según corresponda.
 - **Prompt original del usuario** — la petición tal cual la ha escrito el usuario, sin reformular.
 - **Descripción completa** — resumen funcional de lo que se ha analizado que pide, entendible por cualquier persona no técnica, sin entrar en solución técnica ni mencionar ficheros, funciones, clases o estructuras de datos:
   - Para un `fix`: qué comportamiento está roto, cómo reproducirlo o identificarlo, y qué se espera que pase en su lugar.

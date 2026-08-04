@@ -1,11 +1,11 @@
 ---
 name: ms-status
-description: Recopila y presenta el estado actual del proyecto según el framework ms-* — totales de elementos por tipo (todo/change/fix/fast) y por estado (carpetas de {changesDir}), diferenciando dentro de "en progreso" entre entradas descritas (solo description.md) y listas para implementar (description.md + plan.md), y listando aparte los cambios `fast` (aplicados directamente en `implemented` por `ms-fast`, sin pasar por `inProgress`). Devuelve el informe como respuesta de chat; no escribe ningún fichero salvo que el usuario lo pida explícitamente. Trigger: /ms-status, o cuando el usuario pide un resumen/vista general del estado del proyecto, cuántos changes/fixes hay pendientes, etc. Con el argumento `todo` (`/ms-status todo`), en vez del informe completo devuelve solo el listado de ideas de `{changesDir}/todo/` con su código y el texto completo de la idea. Con cualquier otro nombre de carpeta de estado existente (`/ms-status closed`, `/ms-status implemented`, `/ms-status inProgress`...), devuelve la lista completa de esa carpeta con columnas Código, Tipo, Descripción y Fecha.
+description: Recopila y presenta el estado actual del proyecto según el framework ms-* — totales de elementos por tipo (todo/change/fix/fast) y por estado (carpetas de {changesDir}). Devuelve el informe como respuesta de chat; no escribe ningún fichero salvo que el usuario lo pida explícitamente. Trigger: /ms-status, o cuando el usuario pide un resumen/vista general del estado del proyecto, cuántos changes/fixes hay pendientes, etc. Acepta argumentos opcionales para listados filtrados: `todo` (solo ideas de `{changesDir}/todo/`) o el nombre de cualquier otra carpeta de estado existente (p.ej. `closed`, `implemented`, `inProgress`).
 argument-hint: "[todo|<estado>]"
 model: claude-haiku-4-5-20251001
 effort: medium
 metadata:
-  version: 1.7.0
+  version: 1.8.0
   uses: []
 ---
 
@@ -23,7 +23,17 @@ Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta `fr
 Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta configuración). Ejecuta primero `/ms-init` antes de volver a invocarme.
 ```
 
-## 1. Recopilar los datos
+## 1. Detectar el modo de invocación
+
+Antes de ejecutar ningún script, mira cómo se invocó la skill — cada modo usa un script distinto y **solo uno** se ejecuta:
+
+- Argumento `todo` (`/ms-status todo`, o "solo las ideas de todo"/"lista los todos") → ve a **1.b**.
+- Argumento con el nombre de una carpeta de estado existente en `{changesDir}` distinta de `todo` (p.ej. `/ms-status closed`, `/ms-status implemented`, `/ms-status inProgress`, o "la lista completa de lo que está en `<estado>`") → ve a **1.c**.
+- Sin argumento, o cualquier otro caso (informe general) → ve a **2**.
+
+No ejecutes `collect_status.py` en este paso ni antes de saber en qué modo estás: solo hace falta en el modo `todo` (1.b); en los otros dos modos su salida no se usa para nada y sale bastante grande (escala con el número total de entradas del framework).
+
+## 1.b Modo `todo`: solo listar ideas
 
 Toda la mecánica de recorrido y parseo la hace, de forma determinista y gratis en tokens, el script [`scripts/collect_status.py`](scripts/collect_status.py) (Python estándar, sin dependencias externas) — no la reimplementes a mano ni leas tú mismo cada `description.md`. Ejecuta desde la raíz del repo:
 
@@ -39,45 +49,35 @@ El script:
 - Para las entradas del estado `inProgress`, calcula además `subStatus`: `listo_para_implementar` (existen `description.md` y `plan.md`), `descrito` (solo `description.md`), o `sin_descripcion` (anómalo: ni siquiera tiene `description.md`).
 - Imprime por stdout un único JSON con: `states` (detalle y totales por estado, con `subStatus` agregado para `inProgress`), `totalsByType` (agregado global por tipo), `grandTotal`, y `warnings` (avisos de datos que no se han podido interpretar, p.ej. `Tipo` no reconocido).
 
-Parsea ese JSON para el resto del proceso.
+De ese JSON, para este modo:
 
-## 1.b Modo `todo`: solo listar ideas
-
-Si el usuario invocó la skill con el argumento `todo` (`/ms-status todo`, o pidió explícitamente "solo las ideas de todo"/"lista los todos"), no redactes el informe completo del paso 2 — salta directamente a esto:
-
-- Recorre `states.todo.entries` del JSON del paso 1.
+- Recorre `states.todo.entries`.
 - Por cada entrada, muestra su `code` y el texto completo (sin truncar) de `name` (la sección `## Idea` de su `description.md`). Si `name` es `null` (idea sin esa sección, o sin `description.md`), dilo explícitamente en vez de omitir la entrada.
 - Si `states.todo.entries` está vacío, dilo así ("no hay ninguna idea apuntada en todo/") en vez de no responder nada.
 - No incluyas la tabla de estados, ni las secciones de "En progreso" ni "Avisos" — este modo es solo el listado de ideas.
 - Entrega el resultado como respuesta de chat (no lo guardes en fichero salvo que el usuario lo pida, igual que en el paso 4).
 
-Si no se pidió este modo, sigue con 1.c o, si tampoco aplica, con el informe completo.
-
 ## 1.c Modo `<estado>`: listado filtrado de una carpeta de estado
 
-Si el usuario invocó la skill con el nombre de una carpeta de estado existente en `{changesDir}` distinta de `todo` (p.ej. `/ms-status closed`, `/ms-status implemented`, `/ms-status inProgress`), o pidió explícitamente "la lista completa de lo que está en <estado>", no redactes el informe completo del paso 2 — salta directamente a esto:
+Ejecuta directamente [`scripts/filter_status.py`](scripts/filter_status.py) con el nombre de esa carpeta como argumento — no ejecutes `collect_status.py` para este modo, no hace falta:
 
-- Ejecuta [`scripts/filter_status.py`](scripts/filter_status.py) con el nombre de esa carpeta como argumento:
+```
+python .claude/skills/ms-status/scripts/filter_status.py <estado>
+```
 
-  ```
-  python .claude/skills/ms-status/scripts/filter_status.py <estado>
-  ```
+Si el estado indicado no existe como carpeta de `{changesDir}`, el script falla con un mensaje que lista los estados disponibles — muéstraselo al usuario tal cual en vez de improvisar una lista.
 
-  Si el estado indicado no existe como carpeta de `{changesDir}`, el script falla con un mensaje que lista los estados disponibles — muéstraselo al usuario tal cual en vez de improvisar una lista.
-
-- El script ya aplica internamente la plantilla [`STATUS.filtered.template.md`](STATUS.filtered.template.md) e imprime por stdout el informe en markdown listo para mostrar (tabla Código/Tipo/Descripción/Fecha, o el mensaje de "sin entradas" si el estado está vacío) — no es JSON, no vuelvas a aplicar la plantilla tú ni reformatees nada, limítate a pegar la salida tal cual como respuesta.
-
-Si no se pidió ninguno de estos dos modos, continúa con el informe completo:
+El script ya aplica internamente la plantilla [`STATUS.filtered.template.md`](STATUS.filtered.template.md) e imprime por stdout el informe en markdown listo para mostrar (tabla Código/Tipo/Descripción/Fecha, o el mensaje de "sin entradas" si el estado está vacío) — no es JSON, no vuelvas a aplicar la plantilla tú ni reformatees nada, limítate a pegar la salida tal cual como respuesta.
 
 ## 2. Redactar el informe
 
-Toda la mecánica de mapear el JSON del paso 1 a la plantilla [`STATUS.template.md`](STATUS.template.md) (tabla de totales, las tres listas de "En progreso", cambios fast, ideas de `todo/`, avisos) la hace, de forma determinista y gratis en tokens, el script [`scripts/render_status.py`](scripts/render_status.py) — no repitas tú ese mapeo campo a campo ni redactes las listas a mano. Ejecuta desde la raíz del repo:
+Toda la mecánica de recopilar y mapear los datos a la plantilla [`STATUS.template.md`](STATUS.template.md) (tabla de totales, las tres listas de "En progreso", cambios fast, ideas de `todo/`, avisos) la hace, de forma determinista y gratis en tokens, el script [`scripts/render_status.py`](scripts/render_status.py) — no repitas tú ese mapeo campo a campo, no redactes las listas a mano, y no ejecutes `collect_status.py` antes: `render_status.py` recopila los datos internamente por su cuenta, no depende de nada del paso 1. Ejecuta desde la raíz del repo:
 
 ```
 python .claude/skills/ms-status/scripts/render_status.py
 ```
 
-El script reutiliza internamente la misma recopilación del paso 1, aplica el mapeo completo (incluida la regla de la columna Fast solo en `implemented`/`closed`, las tres listas de "En progreso" con sus casos vacíos, y omitir por completo las secciones de "Cambios fast implementados"/"Avisos" cuando no aplican) e imprime por stdout el informe en markdown ya listo — no es JSON, no vuelvas a aplicar la plantilla tú ni reformatees nada, limítate a pegar la salida tal cual como respuesta.
+El script recopila los datos de `{changesDir}` por su cuenta (misma lógica que `collect_status.py`) y aplica el mapeo completo (incluida la regla de la columna Fast solo en `implemented`/`closed`, las tres listas de "En progreso" con sus casos vacíos, y omitir por completo las secciones de "Cambios fast implementados"/"Avisos" cuando no aplican) e imprime por stdout el informe en markdown ya listo — no es JSON, no vuelvas a aplicar la plantilla tú ni reformatees nada, limítate a pegar la salida tal cual como respuesta.
 
 Por defecto la sección **"Cambios fast implementados" se omite**, aunque existan entradas fast (el total de la columna Fast en la tabla sigue mostrándose). Solo inclúyela si el usuario la pide explícitamente en este turno (p.ej. "enséñame también los fast", "detalla los cambios fast"), añadiendo el flag `--show-fast`:
 

@@ -5,7 +5,7 @@ argument-hint: "[xxxx | todo <código>] <descripción del cambio>"
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.8.0
+  version: 1.10.0
   uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-how]
 ---
 
@@ -15,11 +15,12 @@ Analiza y documenta un cambio intencionado sobre el proyecto (funcionalidad nuev
 
 **No implementa nada.** Esta skill solo entiende y documenta el alcance funcional de lo que se pide; la solución técnica la hace después la skill `ms-how`, y la implementación la skill `ms-do`, cuando se decida planificar/implementar esta entrada.
 
-**Los mockups y diagramas son el eje central de la definición de un cambio, no un añadido opcional.** Siempre que el cambio lo permita, su intención debe quedar fijada mediante una representación visual — no solo prosa — antes de darla por documentada, y esa representación debe quedar **validada por el usuario**, no solo generada. Hay dos casos válidos, y no son excluyentes entre sí dentro de un mismo cambio:
+**Los mockups y diagramas son el eje central de la definición de un cambio, no un añadido opcional.** Siempre que el cambio lo permita, su intención debe quedar fijada mediante una representación visual — no solo prosa — antes de darla por documentada, y esa representación debe quedar **validada por el usuario**, no solo generada. Hay tres casos válidos, y no son excluyentes entre sí dentro de un mismo cambio:
+- **Flujos o funcionamiento nuevos/modificados, sin dimensión de UI** (lógica, orden de una operación, decisiones, casos límite encadenados): diagrama Mermaid dentro de `description.md` (paso 2).
 - **Cambios visuales o de estilo** (aparece o se modifica algo que el usuario ve/toca en pantalla): maqueta(s) HTML (`design_*.html`, paso 3).
-- **Flujos o funcionamiento nuevos/modificados** (una secuencia de pasos, una transición entre estados, una interacción entre componentes): diagrama Mermaid dentro de `description.md` (paso 2).
+- **Navegación o interacción de UI** (cambia de pantalla, se abre un modal o un desplegable, o cualquier transición de estado visual disparada por una acción del usuario, aunque no salga de una sola pantalla): diagrama de navegación (`design_navigation_*.md`, paso 3).
 
-Solo prescinde de ambos cuando el cambio no tenga de verdad ninguna dimensión visual ni de flujo representable (p.ej. un cambio puramente de datos/backend sin interacción ni secuencia relevante) — no por defecto ni por ahorrar el paso.
+Solo prescinde de los tres cuando el cambio no tenga de verdad ninguna dimensión visual ni de flujo representable (p.ej. un cambio puramente de datos/backend sin interacción ni secuencia relevante) — no por defecto ni por ahorrar el paso.
 
 **Fuente de la verdad.** Al anticipar dudas y proponer respuestas (paso 1), la única fuente de verdad sobre cómo funciona hoy el proyecto es la documentación técnica y el código real — nunca asunciones, ni lo que se recuerde de conversaciones anteriores, ni lo que el usuario crea que hace el código. Para reunir ese contexto, invoca la skill `ms-internal-tech-analysis` (herramienta Skill) pasándole un resumen de lo que se está analizando, en vez de leer tú mismo `framework.docs.tech` o explorar el código a ciegas: ella se encarga de leer primero la documentación técnica configurada y de explorar código solo si hace falta, y te devuelve el contexto reunido y cualquier incongruencia entre documentación y código que detecte (recuerda: en ese caso el código manda, no la documentación). Si detecta alguna incongruencia, anótala en **Apuntes técnicos** al documentar (paso 2) para que `ms-how` la tenga en cuenta más adelante. Tampoco cuenta como fuente de verdad el contenido de otros cambios/fixes que existan bajo `{changesDir}/**` (su `description.md` o `plan.md`, estén en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto. Consúltalos antes de dar por buena una propuesta sobre convivencia con lo existente.
 
@@ -38,7 +39,7 @@ Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta con
 
 Si el usuario, al invocar esta skill, indica un código de cambio/fix (`xxxx`) — p.ej. `/ms-new 0001 ...` o "añade esto al cambio 0001" — comprueba si existe esa carpeta **exactamente** en `{changesDir}/inProgress/{xxxx}/`.
 
-- **Si existe y el usuario te da información nueva**: no es un cambio nuevo, sino una ampliación de esa entrada ya en curso. Ve directamente a la sección [Ampliar una entrada ya en `inProgress`](#ampliar-una-entrada-ya-en-inprogress) y no sigas con los pasos de más abajo.
+- **Si existe y el usuario te da información nueva**: no es un cambio nuevo, sino una ampliación de esa entrada ya en curso. Lee y sigue completo [`extend-entry.md`](extend-entry.md) de esta misma carpeta — no sigas con los pasos de más abajo.
 - **Si existe, pero el usuario no te está añadiendo información nueva**: significa que debes revisar y reanalizar el cambio. Posibles causas:
    - Hace mucho tiempo que se escribió el fichero `description.md` y pueden haber funcionalidades nuevas ya implementadas.
    - El usuario puede haber editado `description.md` a mano e introducido cambios.
@@ -47,20 +48,9 @@ Si el usuario, al invocar esta skill, indica un código de cambio/fix (`xxxx`) �
 
 ## 0.2 Comprobar si se invoca a partir de una idea de `todo/`
 
-Si el usuario invoca esta skill como `/ms-new todo <código>` (o pide explícitamente "convierte la idea `<código>` de todo en un change"), esta entrada no nace de una petición nueva del usuario en el chat, sino del contenido ya apuntado por `ms-todo`:
+Si el usuario invoca esta skill como `/ms-new todo <código>` (o pide explícitamente "convierte la idea `<código>` de todo en un change"), esta entrada no nace de una petición nueva del usuario en el chat, sino del contenido ya apuntado por `ms-todo`: lee y sigue completo [`todo-mode.md`](todo-mode.md) de esta misma carpeta antes de continuar.
 
-1. Comprueba que existe **exactamente** `{changesDir}/todo/{código}/description.md`. Si no existe, dile al usuario que no hay ninguna idea con ese código en `todo/` y detente ahí (no inventes ni asumas un código parecido).
-2. Lee ese `description.md` completo (secciones `## Idea`, `## Código` y `## Notas`) y, si los hay, sus ficheros `design_*.html` de esa misma carpeta. Este es el contenido a analizar y documentar — úsalo como si fuera la petición del usuario para el resto del proceso, en vez de esperar una descripción nueva en el chat. Si el usuario añadió también contexto adicional al invocar la skill, súmalo al análisis.
-3. Pregunta al usuario si quiere desarrollar la idea contigo antes de continuar. 
-
-```
-¿Quieres que refinemos esta idea ("<nombre de la idea>") antes de escribirla o documento el cambio con la información actual?
-```
-
-Si confirma, propón ideas y charla con él hasta refinar un poco más la idea antes de continuar con el punto 4. Si no quiere, pasa al punto4.
-4. Continúa con el proceso habitual desde el paso 1 de "Pasos" (anticipar dudas, documentar con `ms-internal-workflow`, propuesta visual), usando ese contenido como base. Si había `design_*.html` en la idea de `todo/`, tenlos en cuenta al construir la propuesta visual del paso 3 (no los copies tal cual sin más: son solo un boceto de partida, no una maqueta ya validada).
-5. **Solo si el paso 2 de "Pasos" termina con éxito** (la entrada ya existe en `{changesDir}/inProgress/{xxxx}/`), borra automáticamente `{changesDir}/todo/{código}/` entera (`description.md` y cualquier `design_*.html` que tuviera), sin pedir confirmación al usuario — el borrado es una limpieza automática del origen ya migrado, no una acción destructiva que requiera aprobación. Si el paso 2 no llega a completarse, deja la idea tal cual en `todo/`.
-6. En el paso 4 de "Pasos" (indicar el siguiente paso), menciona también que la idea `{código}` de `todo/` ha quedado convertida en el cambio `{xxxx}` y borrada de `todo/`.
+Si no se invocó así, sigue con el proceso habitual desde el paso 1 de "Pasos".
 
 ## Pasos
 
@@ -75,31 +65,29 @@ Si confirma, propón ideas y charla con él hasta refinar un poco más la idea a
 2. **Documentar la intención.** Invoca la skill `ms-internal-workflow` (herramienta Skill) con `action=create`, `type=change` y el resumen funcional de lo que se pide — incluyendo la lista de dudas del paso 1 ya resuelta (propuestas confirmadas, correcciones del usuario y, en su caso, definición visual de alto nivel acordada) — para que se encargue de numerar el cambio y crear el documento en `{changesDir}/inProgress/{xxxx}/`. Anota el `xxxx` que te devuelva: lo necesitas en el paso siguiente.
 
    Si la funcionalidad que se describe incorpora un flujo, una secuencia de pasos/decisiones o una interacción entre estados o componentes (p.ej. cómo transiciona una pantalla, el orden de una operación, casos límite encadenados), incluye ese análisis como diagrama Mermaid (`flowchart`, `sequenceDiagram`, `stateDiagram-v2`, etc.) con las notas imprescindibles al pasárselo a `ms-internal-workflow`, en vez de describirlo solo en prosa — así queda ya así en `description.md`. Usa prosa cuando no haya un flujo/relación clara que representar.
-3. **Generar la propuesta visual.** Si el cambio tiene componente visual (hay algo que decir en el punto "Definición visual de alto nivel" del paso 1), crea tú mismo, directamente en `{changesDir}/inProgress/{xxxx}/`, uno o varios ficheros `design_<descripción-del-elemento>.html` — uno por cada elemento visual diferenciado de la propuesta (p.ej. `design_modal-seleccion-mazo.html`, `design_barra-progreso.html`). Si el cambio no tiene componente visual (lógica interna, datos, backend), omite este paso por completo — no crees ficheros `design_*.html` vacíos ni de relleno.
+3. **Generar la propuesta visual y el diagrama de navegación.** Si el cambio tiene componente visual (hay algo que decir en el punto "Definición visual de alto nivel" del paso 1), crea tú mismo, directamente en `{changesDir}/inProgress/{xxxx}/`:
+   - Uno o varios ficheros `design_<descripción-del-elemento>.html` — uno por cada elemento visual diferenciado de la propuesta (p.ej. `design_modal-seleccion-mazo.html`, `design_barra-progreso.html`).
+   - Uno o varios ficheros `design_navigation_<descripción>.md` — uno por cada flujo de navegación/interacción de UI independiente que introduzca o modifique el cambio (cambio de pantalla, apertura de un modal o desplegable, o cualquier transición de estado visual disparada por una acción del usuario, aunque no salga de una sola pantalla).
+
+   Si el cambio no tiene componente visual, omite este paso por completo — no crees ficheros `design_*.html` ni `design_navigation_*.md` vacíos ni de relleno.
 
    Cada fichero `design_*.html` es solo una maqueta visual, no un prototipo funcional:
    - Debe mostrar únicamente el aspecto (maquetación, estilos, iconografía) que tendría ese elemento aplicado al cambio — no necesita datos reales ni lógica, basta contenido de ejemplo estático que ilustre el resultado.
    - No debe tener funcionalidad real: nada de JavaScript que reaccione a eventos, ni llamadas a red, ni estado — como mucho, JS puramente decorativo si hiciera falta para el aspecto visual.
    - Ha de ser autocontenido: solo HTML, CSS y SVG, todo incrustado en el propio fichero (sin ficheros externos, sin CDNs, sin imports).
-4. **Validar la representación visual con el usuario.** Si el paso 2 incluyó algún diagrama Mermaid o el paso 3 generó algún `design_*.html`, no los des por buenos solo porque se hayan escrito: preséntaselos al usuario (indícale la ruta de cada `design_*.html` para que lo abra, y muestra el diagrama Mermaid) y pídele que confirme si reflejan lo que tenía en mente o qué cambiaría.
+
+   Cada fichero `design_navigation_*.md` combina un diagrama Mermaid (`stateDiagram-v2` o `flowchart`) con las pantallas/estados de UI relevantes como nodos y las acciones del usuario como transiciones, más notas breves en prosa solo para las transiciones que no queden claras con el propio diagrama — no repitas en texto lo que el diagrama ya deja claro.
+4. **Validar la representación visual con el usuario.** Si el paso 2 incluyó algún diagrama Mermaid, o el paso 3 generó algún `design_*.html` o `design_navigation_*.md`, no los des por buenos solo porque se hayan escrito: preséntaselos al usuario (indícale la ruta de cada `design_*.html`/`design_navigation_*.md` para que lo abra, y muestra los diagramas Mermaid) y pídele que confirme si reflejan lo que tenía en mente o qué cambiaría.
 
    ```
-   La propuesta visual queda en {rutas de los design_*.html} y el flujo como diagrama en description.md. ¿Reflejan lo que tenías en mente, o hay algo que cambiar antes de seguir?
+   La propuesta visual queda en {rutas de los design_*.html}, la navegación en {rutas de los design_navigation_*.md} y el flujo como diagrama en description.md. ¿Reflejan lo que tenías en mente, o hay algo que cambiar antes de seguir?
    ```
 
-   Si pide cambios, ajusta el/los fichero(s) o el diagrama y vuelve a presentarlo hasta que lo confirme. Si el cambio no generó ningún diagrama ni `design_*.html` (paso 1 no encontró dimensión visual ni de flujo), omite este paso.
-5. **Indicar el siguiente paso.** Informa al usuario de que el cambio queda documentado (`description.md`) y, si procede, con su propuesta visual ya validada (`design_*.html`); para planificarlo e implementarlo debe invocar la skill `ms-how` sobre ese `xxxx`. Si el usuario quiere implementarlo ya mismo, puedes invocar `ms-how` directamente tú.
+   Si pide cambios, ajusta el/los fichero(s) o el diagrama y vuelve a presentarlo hasta que lo confirme. Si el cambio no generó ningún diagrama, `design_*.html` ni `design_navigation_*.md` (paso 1 no encontró dimensión visual ni de flujo), omite este paso.
+5. **Indicar el siguiente paso.** Informa al usuario de que el cambio queda documentado (`description.md`) y, si procede, con su propuesta visual ya validada (`design_*.html`, `design_navigation_*.md`); para planificarlo e implementarlo debe invocar la skill `ms-how` sobre ese `xxxx`. Si el usuario quiere implementarlo ya mismo, puedes invocar `ms-how` directamente tú.
 
-No escribas tú mismo el documento de cambio ni calcules el número `xxxx` — eso lo hace `ms-internal-workflow` para mantener un único sitio con esa lógica. Los ficheros `design_*.html`, en cambio, los escribes tú directamente: no son responsabilidad de `ms-internal-workflow`, que es agnóstico al proyecto y no analiza ni diseña nada.
+No escribas tú mismo el documento de cambio ni calcules el número `xxxx` — eso lo hace `ms-internal-workflow` para mantener un único sitio con esa lógica. Los ficheros `design_*.html` y `design_navigation_*.md`, en cambio, los escribes tú directamente: no son responsabilidad de `ms-internal-workflow`, que es agnóstico al proyecto y no analiza ni diseña nada.
 
 ## Ampliar una entrada ya en `inProgress`
 
-Cuando el paso 0.1 detecta que el `xxxx` indicado ya existe en `{changesDir}/inProgress/{xxxx}/`, no se crea una entrada nueva: se amplía la que ya hay.
-
-1. **Leer lo ya documentado.** Abre `{changesDir}/inProgress/{xxxx}/description.md` para entender qué se pidió originalmente, y comprueba si ya existen ficheros `design_*.html` en esa misma carpeta.
-2. **Entender la ampliación.** Aplica el mismo análisis del paso 1 de "Pasos" (casos límite, convivencia con lo existente, alcance de datos, quién puede usarlo, definición visual de alto nivel), pero centrado en lo que se pide añadir o modificar ahora **sobre** lo ya documentado, no desde cero. Propón tú las respuestas razonables y preséntaselas al usuario para confirmar, igual que en el flujo habitual.
-3. **Actualizar `description.md` directamente** (sin invocar `ms-internal-workflow`, que solo sabe crear entradas nuevas): añade la ampliación a la **Descripción completa** dejando claro qué es lo nuevo respecto a lo ya escrito, y añade el nuevo prompt del usuario a continuación del original en **Prompt original del usuario** (sin borrar el existente). No cambies el **Código** ni el **Tipo** ya fijados. Si lo que se añade incorpora un flujo, secuencia de pasos/decisiones o interacción entre estados/componentes, represéntalo con un diagrama Mermaid junto con las notas imprescindibles, igual que en el paso 2 de "Pasos". Mantén la misma separación que usa `ms-internal-workflow` al crear la entrada: la **Descripción completa** es solo funcional, entendible por cualquier persona no técnica, sin ficheros, funciones ni clases; si al analizar la ampliación (p.ej. revisando código existente para las dudas de alcance) surge información técnica que convenga anotar, añádela a **Apuntes técnicos** en vez de a la Descripción completa — crea esa sección al final del documento si la entrada todavía no la tenía.
-4. **Actualizar la propuesta visual si procede.** Si la ampliación introduce, modifica o elimina elementos visuales: crea nuevos ficheros `design_<descripción>.html` para los elementos nuevos, y edita (no borres sin más) los `design_*.html` existentes que la ampliación cambie, siguiendo las mismas reglas del paso 3 de "Pasos" (maqueta autocontenida en HTML+CSS+SVG, sin funcionalidad real). Si la ampliación no toca nada visual, deja los ficheros existentes tal cual.
-5. **Validar con el usuario lo que haya cambiado visualmente.** Si el paso 3 añadió/editó un diagrama Mermaid o el paso 4 creó/editó algún `design_*.html`, preséntaselo al usuario (igual que en el paso 4 de "Pasos") y pídele que confirme antes de seguir. Si la ampliación no tocó nada visual ni de flujo, omite este paso.
-6. **Avisar si hay `plan.md`.** Si `{changesDir}/inProgress/{xxxx}/plan.md` ya existe (es decir, ya se había planificado con `ms-how`), dile al usuario que esta ampliación puede dejar ese plan desactualizado y que conviene volver a invocar `ms-how` sobre `{xxxx}` para regenerarlo.
-7. **Indicar el siguiente paso.** Confirma que `{changesDir}/inProgress/{xxxx}/description.md` (y, si procede, sus `design_*.html`, ya validados) quedan actualizados con la ampliación, y recuerda que para planificar/implementar debe invocarse `ms-how` sobre ese mismo `xxxx`.
+Cuando el paso 0.1 detecta que el `xxxx` indicado ya existe en `{changesDir}/inProgress/{xxxx}/`, no se crea una entrada nueva: se amplía la que ya hay. Procedimiento completo en [`extend-entry.md`](extend-entry.md) de esta misma carpeta.

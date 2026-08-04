@@ -1,0 +1,1133 @@
+{
+  "changesDir": "/home/user/errantes-board-game/changes",
+  "states": {
+    "closed": {
+      "total": 116,
+      "byType": {
+        "change": 70,
+        "fix": 30,
+        "fast": 16
+      },
+      "entries": [
+        {
+          "code": "00001",
+          "type": "change",
+          "name": "Botón para entrar/salir del modo edición con barra de tareas propia, eliminando la implementación actual de edición",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00002",
+          "type": "change",
+          "name": null,
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00003",
+          "type": "fix",
+          "name": null,
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00004",
+          "type": "fix",
+          "name": "No abrir ventana de configuración al soltar un elemento tras arrastrarlo",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00005",
+          "type": "change",
+          "name": "Lista de componentes en tabla flotante, colapsable, con selección y resaltado",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00006",
+          "type": "fix",
+          "name": "Componentes nuevos se crean encima de los existentes en modo edición",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00007",
+          "type": "fix",
+          "name": "Selección de componente no se resalta (lista ni mesa)",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00009",
+          "type": "change",
+          "name": "Panel de componentes y cajas de texto arrastrables/redimensionables en modo edición",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00010",
+          "type": "fix",
+          "name": "Doble clic en modo edición no abre la ventana de configuración",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00011",
+          "type": "change",
+          "name": "Persistencia de estado en localStorage y guardado a fichero",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00012",
+          "type": "change",
+          "name": "Renombrar tipo de componente \"cuadro-texto\" a \"texto\"",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00013",
+          "type": "change",
+          "name": "Botón de eliminar en la ventana de configuración de componentes",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00014",
+          "type": "change",
+          "name": "Persistir el estado del panel de lista de componentes en el autoguardado",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00015",
+          "type": "change",
+          "name": "Checkbox \"Mover en Modo Juego\" en configuración de componentes",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00016",
+          "type": "fix",
+          "name": "Reseteo de la app al mover un elemento en modo juego",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00017",
+          "type": "change",
+          "name": "Galería de recursos (imágenes y tipografías)",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00018",
+          "type": "change",
+          "name": "Invertir checkbox \"Mover en Modo Juego\" a \"Bloqueado\"",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00019",
+          "type": "change",
+          "name": "Nuevo tipo de componente \"Tablero\"",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00020",
+          "type": "change",
+          "name": "Nuevo tipo de componente \"Dado\"",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00021",
+          "type": "change",
+          "name": "Botón de reajustar zoom para ver todos los elementos",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00022",
+          "type": "change",
+          "name": "Mostrar la versión en el título de la pestaña del navegador",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00023",
+          "type": "fix",
+          "name": "build.py no debe reescribir el título entero al inyectar la versión",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00024",
+          "type": "change",
+          "name": "Exportar/importar componentes en JSON",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00025",
+          "type": "fix",
+          "name": "Tablero insertado no se pinta hasta editar sus propiedades",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00026",
+          "type": "fix",
+          "name": "Homogeneizar estilo de los desplegables en ventanas de configuración",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00027",
+          "type": "change",
+          "name": "Reordenar componentes en la lista para controlar el apilado en la mesa",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00028",
+          "type": "change",
+          "name": "Aumentar el ancho por defecto de los paneles flotantes del modo edición",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00029",
+          "type": "change",
+          "name": "Ficha con editor de ajuste de imagen",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00030",
+          "type": "fix",
+          "name": "Aumentar tamaño de la tipografía del resultado del dado",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00031",
+          "type": "change",
+          "name": "Cursor de mano en elementos interactivos y temblor del dado al tirar",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00032",
+          "type": "change",
+          "name": "Tooltip de identificación de componentes en modo juego",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00033",
+          "type": "fix",
+          "name": "Etiqueta de identificación no se ve en componentes de texto",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00034",
+          "type": "change",
+          "name": "Check \"Mostrar tooltip\" en propiedades generales de los componentes",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00035",
+          "type": "fix",
+          "name": "Etiqueta de identificación queda oculta en componentes pegados al borde superior de la mesa",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00036",
+          "type": "change",
+          "name": "Visor de documentos (nuevo tipo de componente)",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00037",
+          "type": "change",
+          "name": "Parser Markdown completo (basic syntax)",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00038",
+          "type": "fix",
+          "name": "Listas anidadas del parser Markdown no anidan con indentado de 2 espacios",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00039",
+          "type": "change",
+          "name": "Listas de tareas (checkboxes) en el parser Markdown",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00040",
+          "type": "change",
+          "name": "Sustituir el parser Markdown propio por la librería \"marked\"",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00041",
+          "type": "fix",
+          "name": "El entregable generado (v00023) no muestra la interfaz",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00042",
+          "type": "change",
+          "name": "Filtro de texto en la ventana de recursos",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00043",
+          "type": "change",
+          "name": "Clonar componente desde la lista de componentes",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00044",
+          "type": "fix",
+          "name": "Etiqueta de identificación cortada en fichas pequeñas",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00045",
+          "type": "fix",
+          "name": "Ajuste de texto a ancho en fichas no funciona en modo edición",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00046",
+          "type": "fix",
+          "name": "Arrastre vertical no funciona en el ajuste de imagen de ficha",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00047",
+          "type": "change",
+          "name": "Ajustes menores de propiedades de ficha (borde, fondo, recursos por defecto)",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00048",
+          "type": "fix",
+          "name": "Cierre indebido de ventanas de edición al soltar un arrastre fuera del control de origen",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00049",
+          "type": "change",
+          "name": "Bloqueo de proporción 1:1 al redimensionar con Shift",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00050",
+          "type": "change",
+          "name": "Buscador de texto en la ventana de componentes",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00051",
+          "type": "change",
+          "name": "Incorporar imágenes de objetos, mochila y eventos como recursos de galería",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00053",
+          "type": "change",
+          "name": "Componente \"carta\" + editor de cartas + mazos",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00054",
+          "type": "fix",
+          "name": "Reducir catálogo de formatos de carta a los 5 estándares",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00055",
+          "type": "change",
+          "name": "Búsqueda de imagen en el modal \"Elegir imagen\"",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00056",
+          "type": "fix",
+          "name": "Cambiar la proporción de una carta no redimensiona la carta",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00057",
+          "type": "fix",
+          "name": "Etiqueta de identificador recortada en cartas y fichas en modo edición",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00058",
+          "type": "change",
+          "name": "Intercambiar cara activa en el ajuste de imagen de cartas",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00059",
+          "type": "change",
+          "name": "Exportación/importación JSON completa (todos los elementos y recursos)",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00060",
+          "type": "change",
+          "name": "Foco explícito y posiciones fijas en el ajuste de imagen de las dos caras de una carta",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00061",
+          "type": "change",
+          "name": "Propiedad \"Subir al mover/interactuar\" en componentes",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00062",
+          "type": "change",
+          "name": "Efecto de \"levantar\" un componente al arrastrarlo en Modo Juego",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00063",
+          "type": "change",
+          "name": "Revisión visual completa y homogeneización del estilo de la app",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00064",
+          "type": "change",
+          "name": "Ajuste manual de columnas y redimensionado sin límite en paneles de edición",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00065",
+          "type": "change",
+          "name": "Selección de elementos al exportar/importar, con modal de confirmación de comportamiento en la importación",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00066",
+          "type": "fix",
+          "name": "El icono de colapso del panel de componentes no colapsa/expande la lista",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00067",
+          "type": "change",
+          "name": "Transición suave al levantar/soltar un componente en Modo Juego",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00068",
+          "type": "change",
+          "name": "Grosor configurable en el patrón del tablero",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00069",
+          "type": "change",
+          "name": "Reducir el offset del efecto \"levantar\" en Modo Juego",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00070",
+          "type": "fix",
+          "name": "Patrón de tablero sin remate en el borde derecho e inferior",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00071",
+          "type": "change",
+          "name": "Proporción circular para el componente \"carta\"",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00072",
+          "type": "change",
+          "name": "Configuración de borde y fondo en los cuadros de texto del editor de cartas",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00073",
+          "type": "change",
+          "name": "Conversión automática a WebP de imágenes subidas a la galería",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00074",
+          "type": "fix",
+          "name": "El clic sobre una carta no la voltea, solo la levanta",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00075",
+          "type": "change",
+          "name": "Efecto visual de feedback al voltear una carta",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00076",
+          "type": "change",
+          "name": "Subida múltiple y por carpeta de recursos en la galería",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00077",
+          "type": "change",
+          "name": "Destacar visualmente el desplegable de \"Añadir recurso\"",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00078",
+          "type": "change",
+          "name": "Atajos de teclado en modo edición (Esc/Intro/Supr)",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00079",
+          "type": "change",
+          "name": "Nueva lista \"Mazos\" en modo edición, con edición de nombre y borrado",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00081",
+          "type": "fix",
+          "name": "No permitir mazos con el mismo nombre",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00082",
+          "type": "change",
+          "name": "Posición por defecto de nuevos componentes (orden 1)",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00083",
+          "type": "change",
+          "name": "Redimensionado vertical de las ventanas flotantes del modo edición",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00084",
+          "type": "change",
+          "name": "Clonar un componente lo coloca en la posición 1",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00085",
+          "type": "change",
+          "name": "Copiar y pegar estilo entre cartas",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00087",
+          "type": "change",
+          "name": "Eliminar tipo \"Ficha\" y renombrar \"Carta\" a \"Carta/Ficha\"",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00088",
+          "type": "change",
+          "name": "Menú contextual de elementos en modo juego (click derecho)",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00089",
+          "type": "change",
+          "name": "Proporciones de carta hexagonales",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00090",
+          "type": "fix",
+          "name": "Unificar el editor de cartas en una única pantalla y mover la transparencia al editor de ajuste de imagen",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00091",
+          "type": "change",
+          "name": "Sección de interacciones en el menú contextual de modo juego",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00092",
+          "type": "change",
+          "name": "Compactar espacio central del editor de cartas entre las dos caras",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00093",
+          "type": "change",
+          "name": "Línea de descripción del elemento en el menú contextual de modo juego",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00094",
+          "type": "fix",
+          "name": "Carta hexagonal no seleccionable ni etiqueta visible en sus esquinas (modo edición)",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00095",
+          "type": "fix",
+          "name": "Carta hexagonal no muestra su forma (queda cuadrada) tras el fix 00094",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00096",
+          "type": "fix",
+          "name": "Borde mal recortado en cartas con proporción hexagonal",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00097",
+          "type": "change",
+          "name": "Nuevo tipo de elemento \"Copia\" — elementos vinculados y sincronizados con un original",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00098",
+          "type": "fix",
+          "name": "Redimensionado de ventanas de modo edición se pierde al seleccionar un objeto",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00099",
+          "type": "change",
+          "name": "Alineación de texto en cuadros de texto de las caras de carta, y editor de cartas más grande",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00100",
+          "type": "change",
+          "name": "Propiedad general \"Oculto\" en componentes",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00101",
+          "type": "change",
+          "name": "Traer al frente la ventana flotante usada en modo edición",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00102",
+          "type": "change",
+          "name": "Agrandar la ventana \"Ajustar imagen\"",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00103",
+          "type": "change",
+          "name": "Negrita, cursiva y subrayado en los cuadros de texto de las cartas",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "00104",
+          "type": "change",
+          "name": "Selección de cuadros de texto y movimiento con flechas del teclado en el editor de cartas",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": true,
+          "subStatus": null
+        },
+        {
+          "code": "fast-acorta-titulo-grosor-borde_20260723",
+          "type": "fast",
+          "name": "Acorta el título del campo de grosor del borde",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        },
+        {
+          "code": "fast-ancho-secciones-modal_20260724",
+          "type": "fast",
+          "name": "Ajuste de ancho de las secciones encuadradas en las modales",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        },
+        {
+          "code": "fast-boton-texto-junto-elegir-imagen_20260728",
+          "type": "fast",
+          "name": "Botón \"+ Texto\" junto a \"Elegir imagen...\" en el editor de cartas",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        },
+        {
+          "code": "fast-centrar-boton-ajustar-imagen_20260721",
+          "type": "fast",
+          "name": "Centrar el botón \"Ajustar imagen…\" del editor de cartas",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        },
+        {
+          "code": "fast-centrar-control-zoom-modal-ajuste-imagen_20260721",
+          "type": "fast",
+          "name": "Centrar el control de texto del nivel de zoom en el modal \"Ajustar imagen\"",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        },
+        {
+          "code": "fast-contador-de-elementos-en-titulo-de-listas_20260724",
+          "type": "fast",
+          "name": "Contador de elementos en el título de las listas de componentes y recursos",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        },
+        {
+          "code": "fast-corrige-nombres-orientacion-formatos-carta_20260721",
+          "type": "fast",
+          "name": "Corrige nombres de orientación en los formatos de carta",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        },
+        {
+          "code": "fast-etiqueta-encima-dibujo-componente_20260719",
+          "type": "fast",
+          "name": "Etiqueta de identificación siempre por encima del dibujo del componente",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        },
+        {
+          "code": "fast-fila-color-grosor-borde-tablero_20260723",
+          "type": "fast",
+          "name": "Color y grosor del borde en la misma fila en propiedades del tablero",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        },
+        {
+          "code": "fast-invertir-flechas-orden-lista_20260719",
+          "type": "fast",
+          "name": "Quitar las flechas del campo \"Orden\"",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        },
+        {
+          "code": "fast-mueve-boton-ajustar-imagen-entre-caras_20260725",
+          "type": "fast",
+          "name": "Mueve botón \"Ajustar imagen\" entre las dos caras",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        },
+        {
+          "code": "fast-reduce-ancho-desplegable-fondo_20260718",
+          "type": "fast",
+          "name": "Reduce el ancho del desplegable de tipo de fondo en la ventana de configuración del tablero",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        },
+        {
+          "code": "fast-sanitiza-espacios-id-componente_20260718",
+          "type": "fast",
+          "name": "Sanitiza espacios en blanco en el ID del componente",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        },
+        {
+          "code": "fast-separar-boton-ajustar-imagen_20260721",
+          "type": "fast",
+          "name": "Separar hacia abajo el botón \"Ajustar imagen…\" del editor de cartas",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        },
+        {
+          "code": "fast-sube-boton-ajustar-imagen-centrado-con-canvas_20260727",
+          "type": "fast",
+          "name": "Sube el botón \"Ajustar imagen…\" del editor de cartas para centrarlo con el lienzo",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        },
+        {
+          "code": "fast-sufijo-demo-recursos-por-defecto_20260719",
+          "type": "fast",
+          "name": "Añadir sufijo \" (demo)\" a los recursos de prueba por defecto",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        }
+      ]
+    },
+    "inProgress": {
+      "total": 4,
+      "byType": {
+        "change": 4
+      },
+      "entries": [
+        {
+          "code": "00052",
+          "type": "change",
+          "name": "Imágenes por cara en dados",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": "descrito"
+        },
+        {
+          "code": "00080",
+          "type": "change",
+          "name": "Script de build \"solo mesa de juego\" (sin modo edición)",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": "descrito"
+        },
+        {
+          "code": "00086",
+          "type": "change",
+          "name": "Exportar la lista de componentes a CSV",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": "descrito"
+        },
+        {
+          "code": "00105",
+          "type": "change",
+          "name": "De \"Mazo\" a \"Grupo\": pertenencia a grupo como propiedad general de cualquier elemento",
+          "notas": null,
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": "descrito"
+        }
+      ],
+      "subStatus": {
+        "descrito": 4,
+        "listo_para_implementar": 0,
+        "sin_descripcion": 0
+      }
+    },
+    "todo": {
+      "total": 1,
+      "byType": {
+        "todo": 1
+      },
+      "entries": [
+        {
+          "code": "t5v8n",
+          "type": "todo",
+          "name": "Implementar losetas",
+          "notas": "Implementar losetas.",
+          "hasDescription": true,
+          "hasPlan": false,
+          "subStatus": null
+        }
+      ]
+    }
+  },
+  "totalsByType": {
+    "change": 74,
+    "fix": 30,
+    "fast": 16,
+    "todo": 1
+  },
+  "grandTotal": 121,
+  "warnings": []
+}

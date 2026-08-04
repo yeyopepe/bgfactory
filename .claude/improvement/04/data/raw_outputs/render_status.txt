@@ -1,0 +1,32 @@
+# Estado del proyecto
+
+*Generado: 2026-07-30*
+
+## Estado
+
+| Estado | Change | Fix | Fast | Todo | Total |
+| --- | --- | --- | --- | --- | --- |
+| Todo | — | — | — | 1 | **1** |
+| En progreso | 4 | 0 | — | — | **4** |
+| Implementado | 0 | 0 | 0 | — | **0** |
+| Cerrado | 70 | 30 | 16 | — | **116** |
+| **Total** | **74** | **30** | **16** | **1** | **121** |
+
+*(La columna Fast solo puede tener valores en "Implementado" y "Cerrado": los cambios `fast` de `ms-fast` se aplican y documentan directamente en `implemented`, sin pasar nunca por `inProgress`.)*
+
+## En progreso
+
+-   **Implementando o pendientes de implementar** (`description.md` + `plan.md`, pendientes de implementar): 0
+-   ninguno
+-   **Pendientes de análisis técnico** (solo `description.md`, pendientes de planificar con `ms-how`): 4
+-   00052 — Imágenes por cara en dados (change)
+-   00080 — Script de build "solo mesa de juego" (sin modo edición) (change)
+-   00086 — Exportar la lista de componentes a CSV (change)
+-   00105 — De "Mazo" a "Grupo": pertenencia a grupo como propiedad general de cualquier elemento (change)
+-   **Listos para revisar y cerrar** (en la carpeta changes/implemented, incluye tanto change/fix como fast): 0
+
+
+## Ideas en todo/ (fuera del flujo change/fix)
+
+-   t5v8n: Implementar losetas
+

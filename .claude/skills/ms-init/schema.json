@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "ms-context.schema.json",
   "title": ".claude/ms-context.json",
-  "description": "Fichero en la raiz del repo (junto a la carpeta .claude/) que da contexto a todas las skills del framework ms-* (ms-initialize, ms-internal-workflow, ms-change, ms-fix, ms-how, ms-do). Es lo unico que hace que esas skills sean genericas en vez de estar atadas a un proyecto concreto. Lo crea y actualiza la skill ms-initialize; ninguna otra skill debe escribirlo desde cero. Si el fichero existe pero incompleto, ms-initialize hace merge sobre lo ya existente sin pisar nada. Cualquier skill ms-* que necesite un campo que falte debe decirle al usuario que ejecute ms-initialize, no reimplementar el bootstrap.",
+  "description": "Fichero en la raiz del repo (junto a la carpeta .claude/) que da contexto a todas las skills del framework ms-* (ms-init, ms-internal-workflow, ms-new, ms-fix, ms-how, ms-do). Es lo unico que hace que esas skills sean genericas en vez de estar atadas a un proyecto concreto. Lo crea y actualiza la skill ms-init; ninguna otra skill debe escribirlo desde cero. Si el fichero existe pero incompleto, ms-init hace merge sobre lo ya existente sin pisar nada. Cualquier skill ms-* que necesite un campo que falte debe decirle al usuario que ejecute ms-init, no reimplementar el bootstrap.",
   "type": "object",
   "required": ["framework"],
   "additionalProperties": false,
@@ -36,7 +36,7 @@
         "changesDir": {
           "type": "string",
           "required": true,
-          "description": "OBLIGATORIO. Carpeta (relativa a la raiz del repo) bajo la que viven dos subarboles, cada uno con subcarpetas numeradas ({xxxx}): '{changesDir}/inProgress/' (cambios/fixes documentados por ms-change/ms-fix, pendientes de implementar o de planificar) y '{changesDir}/implemented/' (cambios/fixes cuyo plan.md ya se ha implementado -- los mueve ahi ms-do). Un mismo {xxxx} nunca debe repetirse entre los dos subarboles: al calcular el siguiente numero hay que mirar el maximo de ambos. Puede convivir ahi tambien '{changesDir}/todo/', usada exclusivamente por la skill ms-todo para ideas sueltas: esa subcarpeta es ajena al flujo de change/fix y ninguna otra skill ms-* la lee, la escribe ni la cuenta al numerar.",
+          "description": "OBLIGATORIO. Carpeta (relativa a la raiz del repo) bajo la que viven dos subarboles, cada uno con subcarpetas numeradas ({xxxx}): '{changesDir}/inProgress/' (cambios/fixes documentados por ms-new/ms-fix, pendientes de implementar o de planificar) y '{changesDir}/implemented/' (cambios/fixes cuyo plan.md ya se ha implementado -- los mueve ahi ms-do). Un mismo {xxxx} nunca debe repetirse entre los dos subarboles: al calcular el siguiente numero hay que mirar el maximo de ambos. Puede convivir ahi tambien '{changesDir}/todo/', usada exclusivamente por la skill ms-todo para ideas sueltas: esa subcarpeta es ajena al flujo de change/fix y ninguna otra skill ms-* la lee, la escribe ni la cuenta al numerar.",
           "examples": ["src/_changes", "docs/changes"]
         },
         "sourcecodeDir": {
@@ -96,7 +96,7 @@
     },
     "project": {
       "type": "object",
-      "description": "OPCIONAL, sin forma fija. Informacion libre y especifica de este proyecto concreto (que es, stack, convenciones, lo que haga falta). Las skills ms-* no dependen de ningun campo de aqui para funcionar, pero lo usan como contexto adicional al redactar documentos o tomar decisiones (p.ej. para que el resumen funcional de un fix hable con el vocabulario correcto del dominio). La define ms-initialize en conversacion con el usuario, proyecto a proyecto; puede quedar como objeto vacio si el usuario no quiere anotar nada.",
+      "description": "OPCIONAL, sin forma fija. Informacion libre y especifica de este proyecto concreto (que es, stack, convenciones, lo que haga falta). Las skills ms-* no dependen de ningun campo de aqui para funcionar, pero lo usan como contexto adicional al redactar documentos o tomar decisiones (p.ej. para que el resumen funcional de un fix hable con el vocabulario correcto del dominio). La define ms-init en conversacion con el usuario, proyecto a proyecto; puede quedar como objeto vacio si el usuario no quiere anotar nada.",
       "additionalProperties": true,
       "examples": [
         {
