@@ -1767,7 +1767,10 @@ fieldset.modal__section--untitled {
    en vez de bajo un botón, `position: fixed` sobre document.body. */
 .context-menu {
   position: fixed;
-  z-index: 500;
+  /* Por encima de .modal-overlay (z-index 1000): desde el cambio 00124 este
+     menú también se abre con una modal ya visible detrás (editor de cartas),
+     y debe quedar por delante de ella, no oculto detrás. */
+  z-index: 1050;
   min-width: 180px;
   background: var(--accent-blue-light);
   border: 1px solid rgba(44, 125, 216, 0.25);

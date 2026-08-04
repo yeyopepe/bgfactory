@@ -9,6 +9,7 @@ import { markdownToHtml } from '../core/markdown.js';
 import { sanitizeHtml } from '../core/sanitizeHtml.js';
 import { applyImageAdjustStyle } from './imageAdjustModal.js';
 import { getProporcionRatio, getCartaShapeCss, getHexInnerClipPath, CARD_DESIGN_WIDTH } from '../core/cardProportions.js';
+import { getOrderedFaceElements } from '../core/cardFaceElements.js';
 import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
 import { getMazoRevealZoneRect } from '../core/deck.js';
 import { hexToRgba } from '../core/colorUtils.js';
@@ -299,52 +300,60 @@ export function paintCartaFace(contentParent, cara, renderScale) {
     contentParent.appendChild(img);
   }
 
-  for (const shape of cara?.formas || []) {
-    const shapeEl = document.createElement('div');
-    shapeEl.style.position = 'absolute';
-    shapeEl.style.left = `${shape.x * renderScale}px`;
-    shapeEl.style.top = `${shape.y * renderScale}px`;
-    shapeEl.style.width = `${shape.width * renderScale}px`;
-    shapeEl.style.height = `${shape.height * renderScale}px`;
-    shapeEl.style.borderRadius = shape.tipo === 'circular' ? '50%' : '0';
-    shapeEl.style.backgroundColor = hexToRgba(shape.colorFondo, shape.colorFondoTransparencia ?? 0);
-    shapeEl.style.border = shape.bordeActivo !== false ? `${shape.bordeGrosor}px solid ${shape.bordeColor || '#000000'}` : 'none';
-    shapeEl.style.boxSizing = 'border-box';
-    shapeEl.style.pointerEvents = 'none';
-    contentParent.appendChild(shapeEl);
-  }
-
-  for (const textBox of cara?.textBoxes || []) {
-    const textEl = document.createElement('div');
-    textEl.style.position = 'absolute';
-    textEl.style.left = `${textBox.x * renderScale}px`;
-    textEl.style.top = `${textBox.y * renderScale}px`;
-    textEl.style.width = `${textBox.width * renderScale}px`;
-    textEl.style.height = `${textBox.height * renderScale}px`;
-    textEl.style.fontSize = `${(textBox.tamañoFuente || 16) * renderScale}px`;
-    textEl.style.color = textBox.color || '#000000';
-    textEl.style.fontWeight = textBox.negrita ? 'bold' : 'normal';
-    textEl.style.fontStyle = textBox.cursiva ? 'italic' : 'normal';
-    textEl.style.textDecoration = textBox.subrayado ? 'underline' : 'none';
-    textEl.style.border = textBox.bordeActivo
-      ? `${textBox.bordeGrosor ?? 2}px ${textBox.bordeTipo === 'punteada' ? 'dashed' : 'solid'} ${textBox.bordeColor || '#000000'}`
-      : 'none';
-    textEl.style.backgroundColor = hexToRgba(textBox.colorFondo, textBox.colorFondoTransparencia ?? 0);
-    textEl.style.overflow = 'hidden';
-    textEl.style.wordBreak = 'break-word';
-    textEl.style.whiteSpace = 'pre-wrap';
-    textEl.style.pointerEvents = 'none';
-    textEl.style.display = 'flex';
-    textEl.style.flexDirection = 'column';
-    textEl.style.boxSizing = 'border-box';
-    Object.assign(textEl.style, getTextBoxLayoutStyle(textBox, renderScale));
-    const fontResource = textBox.fuenteResourceId ? getResources().find((r) => r.id === textBox.fuenteResourceId) : null;
-    if (fontResource) {
-      textEl.style.fontFamily = fontFamilyFor(fontResource.id);
+  for (const { kind, element } of getOrderedFaceElements(cara)) {
+    if (kind === 'forma') {
+      paintShape(contentParent, element, renderScale);
+    } else {
+      paintTextBox(contentParent, element, renderScale);
     }
-    textEl.textContent = textBox.contenido || '';
-    contentParent.appendChild(textEl);
   }
+}
+
+function paintShape(contentParent, shape, renderScale) {
+  const shapeEl = document.createElement('div');
+  shapeEl.style.position = 'absolute';
+  shapeEl.style.left = `${shape.x * renderScale}px`;
+  shapeEl.style.top = `${shape.y * renderScale}px`;
+  shapeEl.style.width = `${shape.width * renderScale}px`;
+  shapeEl.style.height = `${shape.height * renderScale}px`;
+  shapeEl.style.borderRadius = shape.tipo === 'circular' ? '50%' : '0';
+  shapeEl.style.backgroundColor = hexToRgba(shape.colorFondo, shape.colorFondoTransparencia ?? 0);
+  shapeEl.style.border = shape.bordeActivo !== false ? `${shape.bordeGrosor}px solid ${shape.bordeColor || '#000000'}` : 'none';
+  shapeEl.style.boxSizing = 'border-box';
+  shapeEl.style.pointerEvents = 'none';
+  contentParent.appendChild(shapeEl);
+}
+
+function paintTextBox(contentParent, textBox, renderScale) {
+  const textEl = document.createElement('div');
+  textEl.style.position = 'absolute';
+  textEl.style.left = `${textBox.x * renderScale}px`;
+  textEl.style.top = `${textBox.y * renderScale}px`;
+  textEl.style.width = `${textBox.width * renderScale}px`;
+  textEl.style.height = `${textBox.height * renderScale}px`;
+  textEl.style.fontSize = `${(textBox.tamañoFuente || 16) * renderScale}px`;
+  textEl.style.color = textBox.color || '#000000';
+  textEl.style.fontWeight = textBox.negrita ? 'bold' : 'normal';
+  textEl.style.fontStyle = textBox.cursiva ? 'italic' : 'normal';
+  textEl.style.textDecoration = textBox.subrayado ? 'underline' : 'none';
+  textEl.style.border = textBox.bordeActivo
+    ? `${textBox.bordeGrosor ?? 2}px ${textBox.bordeTipo === 'punteada' ? 'dashed' : 'solid'} ${textBox.bordeColor || '#000000'}`
+    : 'none';
+  textEl.style.backgroundColor = hexToRgba(textBox.colorFondo, textBox.colorFondoTransparencia ?? 0);
+  textEl.style.overflow = 'hidden';
+  textEl.style.wordBreak = 'break-word';
+  textEl.style.whiteSpace = 'pre-wrap';
+  textEl.style.pointerEvents = 'none';
+  textEl.style.display = 'flex';
+  textEl.style.flexDirection = 'column';
+  textEl.style.boxSizing = 'border-box';
+  Object.assign(textEl.style, getTextBoxLayoutStyle(textBox, renderScale));
+  const fontResource = textBox.fuenteResourceId ? getResources().find((r) => r.id === textBox.fuenteResourceId) : null;
+  if (fontResource) {
+    textEl.style.fontFamily = fontFamilyFor(fontResource.id);
+  }
+  textEl.textContent = textBox.contenido || '';
+  contentParent.appendChild(textEl);
 }
 
 // Placeholder neutro para un mazo sin cartas (cambio 00106): icono simple

@@ -1,7 +1,18 @@
 {
-  "generatedAt": "2026-08-04T06:16:18Z",
+  "generatedAt": "2026-08-04T09:37:01Z",
   "basePath": "src",
   "nodes": [
+    {
+      "id": "core/cardFaceElements.js",
+      "type": "file",
+      "path": "core/cardFaceElements.js",
+      "exports": [
+        "bringElementToFront",
+        "getOrderedFaceElements",
+        "sendElementToBack"
+      ],
+      "purpose": "Modulo puro (sin dependencias de otras capas) que combina formas y textBoxes de una cara de carta en un unico orden de apilado por elemento (campo orden, con fallback en memoria para datos guardados antes del cambio 00124), y expone las operaciones de traer al frente/enviar al fondo usadas por el menu contextual del editor de cartas."
+    },
     {
       "id": "core/cardProportions.js",
       "type": "file",
@@ -348,7 +359,7 @@
       "exports": [
         "openCardEditorModal"
       ],
-      "purpose": "Editor de las dos caras de una carta: proporción/esquinas, imagen de fondo, figuras geométricas y cuadros de texto por cara (añadidos desde un menú desplegable 'Añadir elemento'), con selección, arrastre, redimensión, edición y borde propio de la carta."
+      "purpose": "Editor de las dos caras de una carta: proporcion/esquinas, imagen de fondo, figuras geometricas y cuadros de texto por cara (anadidos desde un menu desplegable \"Anadir elemento\"), con seleccion, arrastre, redimension, edicion, borde propio de la carta, y un menu contextual por elemento (Eliminar/Colocar arriba/Colocar abajo) que reordena formas y textBoxes en un unico apilado mezclado via core/cardFaceElements.js."
     },
     {
       "id": "ui/cardShapeModal.js",
@@ -375,7 +386,7 @@
       "exports": [
         "renderComponentList"
       ],
-      "purpose": "Panel flotante y colapsable con el listado de componentes en modo edición: tabla filtrable con orden, id, tipo y acciones (editar/clonar/copiar/eliminar)."
+      "purpose": "Panel flotante y colapsable con el listado de componentes en modo edición: tabla filtrable con orden, id, tipo y acciones (editar/clonar/copiar/eliminar), que además hace scroll automático hasta la fila del componente recién seleccionado."
     },
     {
       "id": "ui/componentModal.js",
@@ -404,7 +415,7 @@
         "paintCartaFace",
         "renderComponentsOnTable"
       ],
-      "purpose": "Renderiza los componentes de juego (de cualquier tipo) sobre la mesa infinita, con sus interacciones (mover, redimensionar, lanzar dado, voltear carta, menú contextual, indicadores)."
+      "purpose": "Renderiza los componentes de juego (de cualquier tipo) sobre la mesa infinita, con sus interacciones (mover, redimensionar, lanzar dado, voltear carta, menu contextual, indicadores)."
     },
     {
       "id": "ui/componentTypeModal.js",
@@ -686,6 +697,27 @@
       "type": "file",
       "path": "vendor/marked.js",
       "purpose": "Librería de terceros vendorizada 'marked' (parser de Markdown CommonMark + GFM), usada tal cual sin modificación funcional salvo el ajuste mecánico de su export final."
+    },
+    {
+      "id": "core/cardFaceElements.js#bringElementToFront",
+      "type": "function",
+      "path": "core/cardFaceElements.js",
+      "parent": "core/cardFaceElements.js",
+      "purpose": "Fija el campo orden del elemento indicado (forma o texto) por debajo del minimo efectivo de los demas elementos de esa cara, dejandolo como el mas adelante del apilado."
+    },
+    {
+      "id": "core/cardFaceElements.js#getOrderedFaceElements",
+      "type": "function",
+      "path": "core/cardFaceElements.js",
+      "parent": "core/cardFaceElements.js",
+      "purpose": "Devuelve los elementos (formas y textBoxes) de una cara combinados y ordenados de fondo a frente, resolviendo el orden efectivo (campo orden real, o un valor de fallback que reproduce el criterio visual previo si no lo tiene)."
+    },
+    {
+      "id": "core/cardFaceElements.js#sendElementToBack",
+      "type": "function",
+      "path": "core/cardFaceElements.js",
+      "parent": "core/cardFaceElements.js",
+      "purpose": "Fija el campo orden del elemento indicado (forma o texto) por encima del maximo efectivo de los demas elementos de esa cara, dejandolo como el mas atras (siempre por delante de la imagen de fondo)."
     },
     {
       "id": "core/cardProportions.js#getCartaShapeCss",
@@ -1371,7 +1403,7 @@
       "type": "function",
       "path": "ui/cardEditorModal.js",
       "parent": "ui/cardEditorModal.js",
-      "purpose": "Abre el editor de cartas: gestiona el estado de trabajo de ambas caras (imagen, formas, textBoxes, borde), su renderizado y el guardado final al aceptar."
+      "purpose": "Abre el editor de cartas: gestiona el estado de trabajo de ambas caras (imagen, formas, textBoxes con su orden de apilado, borde), su renderizado (incluido el menu contextual de cada elemento) y el guardado final al aceptar."
     },
     {
       "id": "ui/cardShapeModal.js#openCardShapeModal",
@@ -1392,7 +1424,7 @@
       "type": "function",
       "path": "ui/componentList.js",
       "parent": "ui/componentList.js",
-      "purpose": "Renderiza el panel flotante con el listado filtrable de componentes y sus acciones de fila."
+      "purpose": "Renderiza el panel flotante con el listado filtrable de componentes y sus acciones de fila, y desplaza automáticamente el cuerpo con scroll hasta la fila del componente que se acaba de seleccionar (si no está ya visible)."
     },
     {
       "id": "ui/componentModal.js#createDefaultComponent",
@@ -1427,7 +1459,7 @@
       "type": "function",
       "path": "ui/componentRenderer.js",
       "parent": "ui/componentRenderer.js",
-      "purpose": "Pinta la imagen de fondo, las figuras geométricas y los cuadros de texto de una cara de carta sobre un contenedor dado, escalados por renderScale; reutilizado por la carta en la mesa y por la miniatura del mazo."
+      "purpose": "Pinta la imagen de fondo de una cara de carta y, en el orden de apilado combinado que calcula core/cardFaceElements.js, sus figuras geometricas y cuadros de texto sobre un contenedor dado, escalados por renderScale; reutilizado por la carta en la mesa y por la miniatura del mazo."
     },
     {
       "id": "ui/componentRenderer.js#renderComponentsOnTable",
@@ -2090,6 +2122,21 @@
     },
     {
       "source": "ui/cardEditorModal.js#openCardEditorModal",
+      "target": "core/cardFaceElements.js#bringElementToFront",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/cardEditorModal.js#openCardEditorModal",
+      "target": "core/cardFaceElements.js#getOrderedFaceElements",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/cardEditorModal.js#openCardEditorModal",
+      "target": "core/cardFaceElements.js#sendElementToBack",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/cardEditorModal.js#openCardEditorModal",
       "target": "core/cardProportions.js#getCartaShapeCss",
       "relation": "calls"
     },
@@ -2136,6 +2183,11 @@
     {
       "source": "ui/cardEditorModal.js#openCardEditorModal",
       "target": "ui/cardTextBoxModal.js#openCardTextBoxModal",
+      "relation": "calls"
+    },
+    {
+      "source": "ui/cardEditorModal.js#openCardEditorModal",
+      "target": "ui/contextMenu.js#openContextMenu",
       "relation": "calls"
     },
     {
@@ -2330,22 +2382,12 @@
     },
     {
       "source": "ui/componentRenderer.js#paintCartaFace",
-      "target": "core/colorUtils.js#hexToRgba",
+      "target": "core/cardFaceElements.js#getOrderedFaceElements",
       "relation": "calls"
     },
     {
       "source": "ui/componentRenderer.js#paintCartaFace",
       "target": "core/state.js#getResources",
-      "relation": "calls"
-    },
-    {
-      "source": "ui/componentRenderer.js#paintCartaFace",
-      "target": "core/textBoxLayout.js#getTextBoxLayoutStyle",
-      "relation": "calls"
-    },
-    {
-      "source": "ui/componentRenderer.js#paintCartaFace",
-      "target": "ui/fontFaceRegistry.js#fontFamilyFor",
       "relation": "calls"
     },
     {
@@ -2780,6 +2822,11 @@
     },
     {
       "source": "ui/cardEditorModal.js",
+      "target": "core/cardFaceElements.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/cardEditorModal.js",
       "target": "core/cardProportions.js",
       "relation": "imports"
     },
@@ -2811,6 +2858,11 @@
     {
       "source": "ui/cardEditorModal.js",
       "target": "ui/cardTextBoxModal.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/cardEditorModal.js",
+      "target": "ui/contextMenu.js",
       "relation": "imports"
     },
     {
@@ -2931,6 +2983,11 @@
     {
       "source": "ui/componentModal.js",
       "target": "ui/toast.js",
+      "relation": "imports"
+    },
+    {
+      "source": "ui/componentRenderer.js",
+      "target": "core/cardFaceElements.js",
       "relation": "imports"
     },
     {

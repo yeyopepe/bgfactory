@@ -14,6 +14,8 @@ import { openCardShapeModal } from './cardShapeModal.js';
 import { attachResizeHandle } from './resizeHandle.js';
 import { fontFamilyFor } from './fontFaceRegistry.js';
 import { createHelpIcon } from './helpIcon.js';
+import { openContextMenu } from './contextMenu.js';
+import { getOrderedFaceElements, bringElementToFront, sendElementToBack } from '../core/cardFaceElements.js';
 
 const CANVAS_MAX_SIDE = 380;
 const MIN_TEXT_BOX_DESIGN_SIZE = 20;
@@ -34,6 +36,46 @@ const HELP_HTML = `
     <li><b>Aceptar</b> o <b>cancelar</b> los cambios hechos en el editor.</li>
   </ul>
 `;
+
+// Iconos del menú contextual de elemento (cambio 00124): mismo patrón de
+// funciones locales que createLockIcon/createShuffleIcon en
+// modes/play/playMode.js — no hay ningún módulo de iconos compartido.
+function createDeleteIcon() {
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('fill', 'none');
+  icon.setAttribute('stroke', 'currentColor');
+  icon.setAttribute('stroke-width', '2');
+  icon.innerHTML =
+    '<polyline points="3 6 5 6 21 6" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" stroke-linecap="round" stroke-linejoin="round"/>';
+  return icon;
+}
+
+function createBringToFrontIcon() {
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('fill', 'none');
+  icon.setAttribute('stroke', 'currentColor');
+  icon.setAttribute('stroke-width', '2');
+  icon.innerHTML =
+    '<line x1="12" y1="19" x2="12" y2="5" stroke-linecap="round"/>' +
+    '<polyline points="5 12 12 5 19 12" stroke-linecap="round" stroke-linejoin="round"/>';
+  return icon;
+}
+
+function createSendToBackIcon() {
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('fill', 'none');
+  icon.setAttribute('stroke', 'currentColor');
+  icon.setAttribute('stroke-width', '2');
+  icon.innerHTML =
+    '<line x1="12" y1="5" x2="12" y2="19" stroke-linecap="round"/>' +
+    '<polyline points="19 12 12 19 5 12" stroke-linecap="round" stroke-linejoin="round"/>';
+  return icon;
+}
 
 function isTextEditableElement(el) {
   return el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement;
@@ -320,6 +362,49 @@ export function openCardEditorModal({ component, onAccept }) {
     });
   }
 
+  // Menú contextual (click derecho) de un elemento de una cara (cambio
+  // 00124): mismo componente reutilizable que el menú contextual de
+  // componentes en la mesa (modes/play/playMode.js), sin secciones de
+  // descripción/específicas/interacciones — solo las 3 acciones generales.
+  function openElementContextMenu({ x, y, caraKey, kind, id }) {
+    const cara = working[caraKey];
+    openContextMenu({
+      x,
+      y,
+      generalItems: [
+        {
+          icon: createDeleteIcon(),
+          label: 'Eliminar',
+          onClick: () => {
+            if (kind === 'forma') {
+              cara.formas = cara.formas.filter((f) => f.id !== id);
+            } else {
+              cara.textBoxes = cara.textBoxes.filter((tb) => tb.id !== id);
+            }
+            selected = null;
+            renderFaces();
+          },
+        },
+        {
+          icon: createBringToFrontIcon(),
+          label: 'Colocar arriba',
+          onClick: () => {
+            bringElementToFront(cara, kind, id);
+            renderFaces();
+          },
+        },
+        {
+          icon: createSendToBackIcon(),
+          label: 'Colocar abajo',
+          onClick: () => {
+            sendElementToBack(cara, kind, id);
+            renderFaces();
+          },
+        },
+      ],
+    });
+  }
+
   function renderFace(caraKey, label) {
     const cara = working[caraKey];
     const { width: designWidth, height: designHeight } = getDesignSize(working.proporcion);
@@ -395,12 +480,12 @@ export function openCardEditorModal({ component, onAccept }) {
       canvasInner.appendChild(faceImg);
     }
 
-    for (const shape of cara.formas) {
-      canvasInner.appendChild(renderShape(caraKey, shape, previewScale));
-    }
-
-    for (const textBox of cara.textBoxes) {
-      canvasInner.appendChild(renderTextBox(caraKey, textBox, previewScale));
+    for (const { kind, element } of getOrderedFaceElements(cara)) {
+      if (kind === 'forma') {
+        canvasInner.appendChild(renderShape(caraKey, element, previewScale));
+      } else {
+        canvasInner.appendChild(renderTextBox(caraKey, element, previewScale));
+      }
     }
 
     const actionsRow = document.createElement('div');
@@ -424,8 +509,9 @@ export function openCardEditorModal({ component, onAccept }) {
         onAddTextBox: () => {
           const w = designWidth * 0.5;
           const h = designHeight * 0.15;
+          const id = crypto.randomUUID();
           cara.textBoxes.push({
-            id: crypto.randomUUID(),
+            id,
             contenido: '',
             fuenteResourceId: null,
             tamañoFuente: 16,
@@ -435,12 +521,14 @@ export function openCardEditorModal({ component, onAccept }) {
             width: w,
             height: h,
           });
+          bringElementToFront(cara, 'texto', id);
           renderFaces();
         },
         onAddShape: () => {
           const side = designWidth * 0.3;
+          const id = crypto.randomUUID();
           cara.formas.push({
-            id: crypto.randomUUID(),
+            id,
             tipo: 'circular',
             colorFondo: '',
             bordeColor: '#000000',
@@ -451,6 +539,7 @@ export function openCardEditorModal({ component, onAccept }) {
             width: side,
             height: side,
           });
+          bringElementToFront(cara, 'forma', id);
           renderFaces();
         },
       }),
@@ -557,20 +646,30 @@ export function openCardEditorModal({ component, onAccept }) {
         onDelete: () => {
           const cara = working[caraKey];
           cara.textBoxes = cara.textBoxes.filter((tb) => tb.id !== textBox.id);
+          selected = null;
           renderFaces();
         },
         onDuplicate: (workingTextBox) => {
           Object.assign(textBox, workingTextBox);
           const cara = working[caraKey];
+          const duplicateId = crypto.randomUUID();
           cara.textBoxes.push({
             ...workingTextBox,
-            id: crypto.randomUUID(),
+            id: duplicateId,
             x: workingTextBox.x + DUPLICATE_TEXT_BOX_OFFSET,
             y: workingTextBox.y + DUPLICATE_TEXT_BOX_OFFSET,
           });
+          bringElementToFront(cara, 'texto', duplicateId);
           renderFaces();
         },
       });
+    });
+
+    el.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      selectTextBox(caraKey, textBox.id);
+      openElementContextMenu({ x: e.clientX, y: e.clientY, caraKey, kind: 'texto', id: textBox.id });
     });
 
     let startMouseX = 0;
@@ -655,20 +754,30 @@ export function openCardEditorModal({ component, onAccept }) {
         onDelete: () => {
           const cara = working[caraKey];
           cara.formas = cara.formas.filter((f) => f.id !== shape.id);
+          selected = null;
           renderFaces();
         },
         onDuplicate: (workingShape) => {
           Object.assign(shape, workingShape);
           const cara = working[caraKey];
+          const duplicateId = crypto.randomUUID();
           cara.formas.push({
             ...workingShape,
-            id: crypto.randomUUID(),
+            id: duplicateId,
             x: workingShape.x + DUPLICATE_SHAPE_OFFSET,
             y: workingShape.y + DUPLICATE_SHAPE_OFFSET,
           });
+          bringElementToFront(cara, 'forma', duplicateId);
           renderFaces();
         },
       });
+    });
+
+    el.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      selectShape(caraKey, shape.id);
+      openElementContextMenu({ x: e.clientX, y: e.clientY, caraKey, kind: 'forma', id: shape.id });
     });
 
     let startMouseX = 0;

@@ -14,6 +14,10 @@ const COMPONENT_LIST_COLUMNS = ['orden', 'id', 'tipo', 'copia', 'acciones'];
 // resetea solo al recargar la página. Análogo a resourceList.js.
 let filterText = '';
 
+// Última selección conocida (mismo criterio de estado de módulo que `filterText`),
+// usada para detectar qué id se acaba de seleccionar y hacer scroll hasta su fila.
+let lastSelectedIds = new Set();
+
 function normalize(str) {
   return str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 }
@@ -62,6 +66,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy,
   for (const component of displayedComponents) {
     const row = document.createElement('tr');
     row.className = 'component-list__row';
+    row.dataset.id = component.id;
     if (selectedIds.has(component.id)) {
       row.classList.add('component-list__row--selected');
     }
@@ -204,6 +209,7 @@ export function renderComponentList(
 ) {
   const previousBody = container.querySelector('.component-panel__body');
   const previousScrollTop = previousBody ? previousBody.scrollTop : 0;
+  const newlySelectedId = [...selectedIds].find((id) => !lastSelectedIds.has(id));
 
   container.innerHTML = '';
 
@@ -299,7 +305,6 @@ export function renderComponentList(
     title.textContent = `Componentes (${displayedComponents.length})`;
     renderBody(body, displayedComponents, components.length, rowHandlers);
     panel.appendChild(body);
-    body.scrollTop = previousScrollTop;
 
     const footer = document.createElement('div');
     footer.className = 'component-panel__footer';
@@ -343,4 +348,18 @@ export function renderComponentList(
   });
 
   container.appendChild(panel);
+
+  // Restaurar/ajustar el scroll aquí, no antes: hasta este appendChild, `body`
+  // es un nodo desconectado del documento sin layout — asignarle `scrollTop`
+  // o llamar a `scrollIntoView` ahí no tiene ningún efecto (el navegador no
+  // puede calcular overflow de un elemento sin caja de layout).
+  if (body) {
+    body.scrollTop = previousScrollTop;
+    if (newlySelectedId) {
+      const selectedRow = body.querySelector(`[data-id="${CSS.escape(newlySelectedId)}"]`);
+      if (selectedRow) selectedRow.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  lastSelectedIds = new Set(selectedIds);
 }
