@@ -9,7 +9,7 @@
     }
   },
   "framework": {
-    "mockupsSkill": "ms-internal-mockups-ascii",
+    "mockupsSkill": "ms-internal-mockups-html",
     "sourcecodeDir": "src",
     "changesDir": "changes",
     "numberWidth": 5,
