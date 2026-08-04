@@ -41,7 +41,7 @@
         },
         "sourcecodeDir": {
           "type": "string",
-          "description": "OPCIONAL. Carpeta raiz del codigo fuente del proyecto (relativa a la raiz del repo). La usa ms-how como contexto de respaldo al analizar un cambio/fix y escribir su plan.md, solo cuando ni docs.tech.architectureDocPath ni docs.tech.projectGraphPath existen como ficheros reales en el repo.",
+          "description": "OPCIONAL. Carpeta raiz del codigo fuente del proyecto (relativa a la raiz del repo). La usa ms-how como contexto de respaldo al analizar un cambio/fix y escribir su plan.md, solo cuando docs.tech.architectureDocPath no existe como fichero real en el repo.",
           "examples": ["src", "app"]
         },
         "numberWidth": {
@@ -82,11 +82,6 @@
                   "type": "string",
                   "description": "OPCIONAL. Guia de estilo (visual, de interaccion, de redaccion) del proyecto (relativa a la raiz del repo) que ms-do mantiene sincronizada tras implementar cada cambio/fix. Si no esta configurado, ese paso se omite sin preguntar nada.",
                   "examples": ["design/docs/stylebible/STYLE_BIBLE.md"]
-                },
-                "projectGraphPath": {
-                  "type": "string",
-                  "description": "OPCIONAL. Ruta al fichero con el grafo de conocimiento del proyecto (p.ej. generado con la skill graphify, tipicamente graphify-out/graph.json, o con la skill ms-internal-graph). Lo usa ms-how como contexto adicional al analizar un cambio/fix. Si el proyecto no tiene ese grafo, se omite.",
-                  "examples": ["graphify-out/graph.json"]
                 }
               }
             }
@@ -144,8 +139,7 @@
             "featuresDocPath": "design/docs/FEATURES.md"
           },
           "tech": {
-            "architectureDocPath": "design/docs/design_technical.md",
-            "projectGraphPath": "graphify-out/graph.json"
+            "architectureDocPath": "design/docs/design_technical.md"
           }
         },
         "sourcecodeDir": "src"

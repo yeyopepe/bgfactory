@@ -1,12 +1,12 @@
 ---
 name: ms-do
-description: Implementa un change/fix cuyo plan.md ya está escrito en {changesDir}/inProgress/{xxxx}/ — edita el código según la solución técnica, actualiza la documentación sincronizada, regenera el grafo de contexto si aplica, y mueve la entrada a {changesDir}/implemented. Parte del framework ms-*. Trigger: /ms-do <xxxx>, o cuando el usuario pide implementar un cambio/fix ya planificado por ms-how (normalmente encadenado automáticamente desde ella).
+description: Implementa un change/fix cuyo plan.md ya está escrito en {changesDir}/inProgress/{xxxx}/ — edita el código según la solución técnica, actualiza la documentación sincronizada, y mueve la entrada a {changesDir}/implemented. Parte del framework ms-*. Trigger: /ms-do <xxxx>, o cuando el usuario pide implementar un cambio/fix ya planificado por ms-how (normalmente encadenado automáticamente desde ella).
 argument-hint: <xxxx del cambio/fix ya planificado>
 model: claude-sonnet-5
 effort: medium
 metadata:
   version: 1.1.2
-  uses: [ms-internal-workflow, ms-internal-graph]
+  uses: [ms-internal-workflow]
 ---
 
 # ms-do
@@ -73,10 +73,6 @@ Una vez implementado en código lo anterior, actualiza siempre lo siguiente ante
 
 Invoca la skill `ms-internal-workflow` (herramienta Skill) con `action=move`, `xxxx`, `from=inProgress` y `to=implemented` — no muevas la carpeta tú mismo.
 
-## 4. Actualizar el grafo de contexto
+## 4. Confirmar al usuario
 
-Paso final: si en el paso 2 se han aplicado cambios relevantes en el código (no solo en documentación), además de haber actualizado ya la documentación en el paso 2.1 (`docs.tech.architectureDocPath` y `docs.functional.featuresDocPath`, según aplicara), invoca la skill `ms-internal-graph` para regenerar/actualizar el grafo de contexto del proyecto y mantenerlo sincronizado con el código recién implementado. Si no ha habido cambios relevantes en código, omite este paso.
-
-## 5. Confirmar al usuario
-
-Indica qué se ha implementado, qué documentación se ha actualizado (`docs.tech.architectureDocPath`/`docs.functional.featuresDocPath`/`docs.tech.styleBibleDocPath`, según aplicara), que la carpeta se movió a `{changesDir}/implemented/{xxxx}/`, y si se ha actualizado el grafo de contexto.
+Indica qué se ha implementado, qué documentación se ha actualizado (`docs.tech.architectureDocPath`/`docs.functional.featuresDocPath`/`docs.tech.styleBibleDocPath`, según aplicara), y que la carpeta se movió a `{changesDir}/implemented/{xxxx}/`.

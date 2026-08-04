@@ -5,7 +5,7 @@ model: claude-sonnet-5
 effort: medium
 metadata:
   version: 1.5.1
-  uses: [ms-internal-graph]
+  uses: []
 ---
 
 # ms-init
@@ -65,7 +65,6 @@ Antes de preguntar en blanco, mira el repo para proponer valores por defecto raz
 - Documento de arquitectura/diseño: algo bajo `docs/`, `design/`, o un `ARCHITECTURE.md`.
 - Documento de listado de funcionalidades: algo bajo `docs/`, `design/`, o un `FEATURES.md`.
 - Guía de estilo (visual/interacción/redacción): algo bajo `docs/`, `design/`, o un `STYLE_BIBLE.md`.
-- Grafo de conocimiento del proyecto: `graphify-out/graph.json` (generado por la skill `graphify`) u otro fichero de grafo si el usuario lo indica.
 - Carpeta raíz del código fuente: `src`, `app`, `lib`, o la que tenga más peso en el repo.
 - Tipo de proyecto, stack y propósito (mirando `package.json`, `README.md`, la estructura de carpetas) para la sección `project`.
 
@@ -90,8 +89,7 @@ Campos a resolver — sección `framework`:
 
     Si alguna de estas preguntas ya se ha respondido al recoger la sección `project` (más abajo), no la repitas — reutiliza esa respuesta.
     Deja claro al usuario que son versiones iniciales mínimas y que se irán enriqueciendo con cada `ms-do`.
-- `docs.tech.projectGraphPath` (opcional — si detectas un fichero `graph.json` generado, propónlo; si no hay ninguno y el usuario no quiere generarlo ahora, se omite. Lo usa `ms-how` como contexto).
-- `sourcecodeDir` (opcional — propón la carpeta raíz del código fuente detectada; `ms-how` la usa como contexto de respaldo cuando no hay `docs.tech.architectureDocPath` ni `docs.tech.projectGraphPath`).
+- `sourcecodeDir` (opcional — propón la carpeta raíz del código fuente detectada; `ms-how` la usa como contexto de respaldo cuando no hay `docs.tech.architectureDocPath`).
 
 Sección `project`: pregunta al usuario qué quiere dejar anotado sobre el proyecto (nombre, resumen, stack, convenciones relevantes para redactar documentación...). Es libre — si el usuario no quiere anotar nada, se deja `{}`.
 
@@ -102,12 +100,3 @@ Crea `.claude/` si no existe. Escribe (o actualiza con merge, sin pisar campos y
 ## 5. Confirmar
 
 Muestra un resumen de lo que ha quedado configurado (ruta del fichero, campos de `framework` resueltos, y si se ha dejado algo en `project`) y recuerda al usuario que puede volver a invocar esta skill para reconfigurar cualquier campo más adelante.
-
-## 6. Generar el grafo si ya hay código
-
-Si `sourcecodeDir` apunta a una carpeta que ya contiene código (esto no es un repo vacío recién creado), invoca la skill `ms-internal-graph` (`Skill` con `skill: "ms-internal-graph"`) para generar el grafo inicial ahora, en vez de dejarlo pendiente para la primera vez que otra skill lo necesite:
-
-- Pásale como `rutaBase` el `sourcecodeDir` ya configurado.
-- Si `docs.tech.projectGraphPath` quedó configurado en el paso 4, pásaselo como `rutaGraphJson`. Si no se configuró (el usuario no tenía grafo previo), propón uno por defecto (p.ej. `graph.json` en la raíz del repo) antes de invocar `ms-internal-graph`; si el usuario lo acepta, añádelo a `framework.docs.tech.projectGraphPath` en `.claude/ms-context.json` con merge para que `ms-how` lo recoja automáticamente en adelante.
-
-Si no hay código todavía (proyecto recién creado) o el usuario prefiere no generarlo ahora, omite este paso sin más.

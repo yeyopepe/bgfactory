@@ -17,7 +17,6 @@ Todas las skills viven bajo `.claude/skills/ms-*` y comparten un único fichero 
     - [1. `/ms-new` — funcionalidad nueva o cambio de comportamiento intencionado](#1-ms-new--funcionalidad-nueva-o-cambio-de-comportamiento-intencionado)
     - [2. `/ms-fix` — corregir un bug (o aplicar un cambio trivial al vuelo)](#2-ms-fix--corregir-un-bug-o-aplicar-un-cambio-trivial-al-vuelo)
   - [Paso 2 — Planificar e implementar: `ms-how` + `ms-do`](#paso-2--planificar-e-implementar-ms-how--ms-do)
-  - [Soporte: `ms-internal-graph`](#soporte-ms-internal-graph)
 - [Ejemplo de ciclo completo](#ejemplo-de-ciclo-completo)
 - [Trucos](#trucos)
 - [Notas](#notas)
@@ -37,7 +36,7 @@ Todas las skills viven bajo `.claude/skills/ms-*` y comparten un único fichero 
 El propio `ms-init` comprueba esto por ti la primera vez, pero para referencia:
 
 - **Git** — el repo ya lo es; solo hace falta que el CLI funcione (`git --version`).
-- **Python 3** — usado por los scripts internos de `ms-internal-workflow`, `ms-how`, `ms-do` y `ms-internal-graph` (numeración de cambios, mover carpetas, generar el grafo). Comprueba `python --version`.
+- **Python 3** — usado por los scripts internos de `ms-internal-workflow`, `ms-how` y `ms-do` (numeración de cambios, mover carpetas). Comprueba `python --version`.
 - **Herramientas condicionales según el proyecto**, por ejemplo:
   - Node/npm si hay `package.json`.
   - Cualquier otro intérprete que necesite el proyecto.
@@ -73,8 +72,7 @@ Ejemplo de `.claude/ms-context.json` ya configurado en este proyecto:
       },
       "tech": {
         "architectureDocPath": "design/docs/ARCHITECTURE.md",
-        "styleBibleDocPath": "design/docs/stylebible/STYLE_BIBLE.md",
-        "projectGraphPath": "src/_graph/graph.json"
+        "styleBibleDocPath": "design/docs/stylebible/STYLE_BIBLE.md"
       }
     }
   },
@@ -87,7 +85,7 @@ Ejemplo de `.claude/ms-context.json` ya configurado en este proyecto:
 }
 ```
 
-Todos los campos de `framework` (excepto `changesDir`) son opcionales — el framework funciona sin `docs.tech.architectureDocPath`, `docs.functional.featuresDocPath`, `docs.tech.styleBibleDocPath` o `docs.tech.projectGraphPath`, simplemente usa menos contexto al analizar y no mantiene esos documentos sincronizados.
+Todos los campos de `framework` (excepto `changesDir`) son opcionales — el framework funciona sin `docs.tech.architectureDocPath`, `docs.functional.featuresDocPath` o `docs.tech.styleBibleDocPath`, simplemente usa menos contexto al analizar y no mantiene esos documentos sincronizados.
 
 #### Elegir el modelo/esfuerzo de cada skill: `skillModels`
 
@@ -185,15 +183,11 @@ Si ya existe una entrada en `inProgress` y quieres ampliarla en vez de crear una
 
 `/ms-how {xxxx}` toma una entrada ya documentada en `inProgress` y:
 
-1. Analiza la causa raíz (fix) o diseña la solución técnica (change), usando como fuente de verdad el código real, el grafo (`docs.tech.projectGraphPath`), la documentación de arquitectura (`docs.tech.architectureDocPath`) y la guía de estilo (`docs.tech.styleBibleDocPath`) — nunca lo que otras entradas de `changes/` asuman ni la memoria de la conversación.
+1. Analiza la causa raíz (fix) o diseña la solución técnica (change), usando como fuente de verdad el código real, la documentación de arquitectura (`docs.tech.architectureDocPath`) y la guía de estilo (`docs.tech.styleBibleDocPath`) — nunca lo que otras entradas de `changes/` asuman ni la memoria de la conversación.
 2. Escribe `changes/inProgress/{xxxx}/plan.md` con tres secciones: (a) anotaciones funcionales, (b) solución técnica paso a paso, (c) cambios de arquitectura si aplica.
-3. Pregunta si quieres implementarlo ya. Si confirmas, encadena directamente `ms-do`, que edita el código, actualiza `docs.tech.architectureDocPath`/`docs.functional.featuresDocPath`/`docs.tech.styleBibleDocPath` según corresponda, mueve la carpeta a `changes/implemented/{xxxx}/` y regenera el grafo de contexto si hubo cambios de código.
+3. Pregunta si quieres implementarlo ya. Si confirmas, encadena directamente `ms-do`, que edita el código, actualiza `docs.tech.architectureDocPath`/`docs.functional.featuresDocPath`/`docs.tech.styleBibleDocPath` según corresponda, y mueve la carpeta a `changes/implemented/{xxxx}/`.
 
 Si invocas `/ms-how` sin argumento, lista lo que hay pendiente en `inProgress` y te pregunta cuál quieres. Si `plan.md` ya existía (por ejemplo, quieres retomarlo), te pregunta si quieres regenerarlo desde cero o implementar directamente lo que ya dice (en ese caso encadena `ms-do` sin volver a analizar). También puedes invocar `/ms-do {xxxx}` directamente sobre una entrada que ya tenga `plan.md`, sin pasar por `ms-how` de nuevo.
-
-### Soporte: `ms-internal-graph`
-
-`/ms-internal-graph` genera o regenera `graph.json` (aquí, `src/_graph/graph.json`): un mapa de ficheros, símbolos exportados y relaciones entre ellos, sin usar LLM para la parte estructural (un script Python determinista hace el parseo). Sirve de contexto reducido de arquitectura para `ms-how`, en vez de tener que releer todo el código fuente cada vez. Se ejecuta automáticamente al final de `ms-do` si hubo cambios de código, pero puede invocarse manualmente en cualquier momento.
 
 ## Ejemplo de ciclo completo
 
@@ -203,7 +197,7 @@ Si invocas `/ms-how` sin argumento, lista lo que hay pendiente en `inProgress` y
 
 1. `ms-fix` documenta el bug en `changes/inProgress/00008/description.md` y encadena `ms-how` automáticamente.
 2. `ms-how` analiza la causa raíz, escribe `plan.md` (acotado solo a ese bug) y pregunta si implementar.
-3. Confirmas → `ms-how` encadena `ms-do`, que edita el código, actualiza `FEATURES.md`/`ARCHITECTURE.md` si aplica, mueve la carpeta a `changes/implemented/00008/` y regenera `src/_graph/graph.json`.
+3. Confirmas → `ms-how` encadena `ms-do`, que edita el código, actualiza `FEATURES.md`/`ARCHITECTURE.md` si aplica, y mueve la carpeta a `changes/implemented/00008/`.
 4. Cuando quieras cortar una nueva build: `python ./src/scripts/build.py` a mano (fuera del framework `ms-*`) → incrementa la versión en `version.js` y genera el entregable.
 
 Y para algo trivial:

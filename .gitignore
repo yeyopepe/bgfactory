@@ -1,5 +1,4 @@
 node_modules/
 dist/
-.claude/skills/ms-graph/scripts/__pycache__/ms_graph.cpython-314.pyc
 .claude/skills/ms-status/scripts/__pycache__/collect_status.cpython-314.pyc
 /src/_output/versions/*.*

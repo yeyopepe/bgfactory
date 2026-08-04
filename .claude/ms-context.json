@@ -18,8 +18,7 @@
       },
       "tech": {
         "architectureDocPath": "design/docs/ARCHITECTURE.md",
-        "styleBibleDocPath": "design/docs/stylebible/STYLE_BIBLE.md",
-        "projectGraphPath": "src/_graph/graph.json"
+        "styleBibleDocPath": "design/docs/stylebible/STYLE_BIBLE.md"
       }
     }
   }

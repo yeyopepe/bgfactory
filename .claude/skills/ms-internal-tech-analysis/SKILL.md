@@ -1,6 +1,6 @@
 ---
 name: ms-internal-tech-analysis
-description: Procedimiento compartido, agnóstico al proyecto, para reunir contexto técnico antes de analizar un change/fix o valorar si un cambio es trivial. Primero lee la documentación técnica configurada en framework.docs.tech (arquitectura, biblia de estilo, grafo), y solo si hace falta más información explora el código real. Si detecta que el código y la documentación no coinciden, señala el código como fuente de la verdad y devuelve la incongruencia como parte del análisis, sin editar nada. Uso interno de las skills ms-new, ms-fix e ms-how.
+description: Procedimiento compartido, agnóstico al proyecto, para reunir contexto técnico antes de analizar un change/fix o valorar si un cambio es trivial. Primero lee la documentación técnica configurada en framework.docs.tech (arquitectura, biblia de estilo), y solo si hace falta más información explora el código real. Si detecta que el código y la documentación no coinciden, señala el código como fuente de la verdad y devuelve la incongruencia como parte del análisis, sin editar nada. Uso interno de las skills ms-new, ms-fix e ms-how.
 user-invocable: false
 model: claude-sonnet-5
 effort: medium
@@ -27,8 +27,8 @@ Lee `.claude/ms-context.json` en la raíz del repo (si no lo has hecho ya en est
 
 Antes de tocar código, mira `framework.docs.tech` en `.claude/ms-context.json`:
 
-- **Si ya leíste estos mismos documentos antes en esta sesión** (p.ej. porque esta skill ya se invocó una vez en este ciclo) y no han cambiado desde entonces, no vuelvas a leerlos — reutiliza lo que ya tienes en contexto. Estos documentos suelen ser los más grandes de todo el proceso (arquitectura, biblia de estilo, grafo pueden ser bastante extensos): releerlos completos en cada invocación de esta skill dentro del mismo ciclo (típicamente 2 veces: una vez desde `ms-new`/`ms-fix`, otra desde `ms-how`) es el mayor coste evitable de todo el ciclo `análisis → aplicación`.
-- Para cada uno de `architectureDocPath`, `styleBibleDocPath` y `projectGraphPath` que esté configurado **y** exista de verdad como fichero en el repo, y que no tengas ya leído de esta sesión, léelo completo (o, si es muy extenso y el tema a analizar es acotado, la parte relevante al tema indicado por quien invoca).
+- **Si ya leíste estos mismos documentos antes en esta sesión** (p.ej. porque esta skill ya se invocó una vez en este ciclo) y no han cambiado desde entonces, no vuelvas a leerlos — reutiliza lo que ya tienes en contexto. Estos documentos suelen ser los más grandes de todo el proceso (arquitectura, biblia de estilo pueden ser bastante extensos): releerlos completos en cada invocación de esta skill dentro del mismo ciclo (típicamente 2 veces: una vez desde `ms-new`/`ms-fix`, otra desde `ms-how`) es el mayor coste evitable de todo el ciclo `análisis → aplicación`.
+- Para cada uno de `architectureDocPath` y `styleBibleDocPath` que esté configurado **y** exista de verdad como fichero en el repo, y que no tengas ya leído de esta sesión, léelo completo (o, si es muy extenso y el tema a analizar es acotado, la parte relevante al tema indicado por quien invoca).
 - Los que no estén configurados, o estén configurados pero el fichero no exista todavía, sáltalos sin más — no es un error, simplemente esa fuente no está disponible.
 - Si `framework.docs.tech` no existe en absoluto, o ninguno de los tres campos está configurado, no hay nada que leer en este paso: pasa directamente al paso 2.
 
@@ -42,7 +42,7 @@ Si el contexto del paso 1 ya resuelve lo que quien invoca necesita saber, no exp
 
 ## 3. Detectar incongruencias: el código manda
 
-Al leer código durante el paso 2, compara lo que encuentras con lo que decía la documentación leída en el paso 1 (si la había). Si algo no coincide (una capa que ya no funciona como describe `architectureDocPath`, una convención de `styleBibleDocPath` que el código ya no sigue, un símbolo o relación de `projectGraphPath` que ya no existe o cambió):
+Al leer código durante el paso 2, compara lo que encuentras con lo que decía la documentación leída en el paso 1 (si la había). Si algo no coincide (una capa que ya no funciona como describe `architectureDocPath`, o una convención de `styleBibleDocPath` que el código ya no sigue):
 
 - El código real es siempre la fuente de la verdad, nunca lo que diga el documento.
 - No corrijas tú el documento aquí. Añade la incongruencia al resultado que devuelves a quien invoca (ver más abajo) como un cambio de documentación pendiente, para que sea esa skill quien decida cómo y cuándo aplicarlo (p.ej. `ms-how` lo integra en las secciones (c)/(d) de su `plan.md`, que `ms-do` aplicará en su paso de actualización de documentación; `ms-new`/`ms-fix` pueden anotarlo en **Apuntes técnicos**; `ms-fix` puede tomarlo como motivo para no calificar como trivial en su atajo `fast`).

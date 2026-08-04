@@ -81,4 +81,4 @@ Si el usuario pide ver qué ideas hay anotadas: lista las subcarpetas de `{chang
 - No planifica ni implementa nada (no hay equivalente a `ms-how`/`ms-do` aquí).
 - No mueve ideas entre estados ni las "cierra" — para eso no hay flujo; si una idea deja de interesar, es el usuario quien decide borrarla o dejarla tal cual.
 - No numera con el `xxxx` del framework ni invoca `ms-internal-workflow` — su numeración es independiente y local a `{changesDir}/todo/`.
-- No cuenta como fuente de intención para `ms-how`, `ms-do`, `ms-internal-graph` ni ninguna otra skill del framework: `{changesDir}/todo/` es territorio exclusivo de `ms-todo`.
+- No cuenta como fuente de intención para `ms-how`, `ms-do` ni ninguna otra skill del framework: `{changesDir}/todo/` es territorio exclusivo de `ms-todo`.
