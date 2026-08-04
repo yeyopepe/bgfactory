@@ -4,7 +4,7 @@
 import {
   getComponents, addComponent, replaceComponent, removeComponent, reorderComponent, getPanelState, setPanelState,
   getResources, addResource, replaceResource, removeResource, getResourcePanelState, setResourcePanelState,
-  getGroups, addGroup, replaceGroup, removeGroup, getGroupPanelState, setGroupPanelState,
+  getGroups, addGroup, replaceGroup, removeGroup, getGroupPanelState, setGroupPanelState, sacarCartaDeMazo,
 } from '../../core/state.js';
 import { updateComponent, cloneComponent, createCopy } from '../../core/component.js';
 import { createResource, resourceTypeForFileName, getComponentsUsingResource } from '../../core/resource.js';
@@ -374,6 +374,25 @@ export function renderEditMode(container) {
     renderTable();
   }
 
+  // Selección de grupo desde el panel de Grupos (cambio 00130): reemplaza siempre
+  // la selección completa por los miembros del grupo, sin toggle ni modo aditivo
+  // (a diferencia de `toggleSelect`, pensada para clic/Ctrl+clic sobre un componente).
+  function selectGroup(group) {
+    const ids = getComponentsUsingGroup(group.id, getComponents());
+    selectedComponentIds.clear();
+    for (const id of ids) selectedComponentIds.add(id);
+
+    const cartasEnMazo = getCartaIdsEnAlgunMazo(getComponents());
+    for (const id of ids) {
+      if (!cartasEnMazo.has(id)) continue;
+      const mazo = getComponents().find((c) => c.type === 'mazo' && c.properties?.cartaIds?.includes(id));
+      if (mazo) sacarCartaDeMazo(mazo.id, id);
+    }
+
+    renderList();
+    renderTable();
+  }
+
   function renderTable() {
     const cartasEnMazo = getCartaIdsEnAlgunMazo(getComponents());
     renderComponentsOnTable(table.worldEl, getComponents().filter((c) => !cartasEnMazo.has(c.id)), {
@@ -504,6 +523,7 @@ export function renderEditMode(container) {
       onAdd: () => {
         openGroupModal({ onAccept: (newGroup) => addGroup(newGroup) });
       },
+      onSelectGroup: selectGroup,
       collapsed: groupCollapsed,
       onToggleCollapse: () => {
         groupCollapsed = !groupCollapsed;

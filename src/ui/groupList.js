@@ -8,7 +8,7 @@ import { getComponentsUsingGroup } from '../core/group.js';
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
 
-function renderBody(body, groups, components, { onEdit, onRemove } = {}) {
+function renderBody(body, groups, components, { onEdit, onRemove, onSelectGroup } = {}) {
   body.innerHTML = '';
 
   if (groups.length === 0) {
@@ -37,6 +37,11 @@ function renderBody(body, groups, components, { onEdit, onRemove } = {}) {
 
   for (const group of groups) {
     const row = document.createElement('tr');
+    row.className = 'group-list__row';
+    row.tabIndex = 0;
+    if (onSelectGroup) {
+      row.addEventListener('click', () => onSelectGroup(group));
+    }
 
     const nameCell = document.createElement('td');
     nameCell.textContent = group.name;
@@ -55,7 +60,10 @@ function renderBody(body, groups, components, { onEdit, onRemove } = {}) {
       editButton.type = 'button';
       editButton.className = 'group-list__action-btn';
       editButton.textContent = 'Editar';
-      editButton.addEventListener('click', () => onEdit(group));
+      editButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        onEdit(group);
+      });
       actionsCell.appendChild(editButton);
     }
 
@@ -64,7 +72,10 @@ function renderBody(body, groups, components, { onEdit, onRemove } = {}) {
       removeButton.type = 'button';
       removeButton.className = 'group-list__action-btn group-list__action-btn--danger';
       removeButton.textContent = 'Eliminar';
-      removeButton.addEventListener('click', () => onRemove(group));
+      removeButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        onRemove(group);
+      });
       actionsCell.appendChild(removeButton);
     }
 
@@ -80,7 +91,17 @@ export function renderGroupList(
   container,
   groups,
   components,
-  { onEdit, onRemove, onAdd, collapsed = false, onToggleCollapse, onPanelMove, onPanelResize, bodyHeight = null } = {}
+  {
+    onEdit,
+    onRemove,
+    onAdd,
+    onSelectGroup,
+    collapsed = false,
+    onToggleCollapse,
+    onPanelMove,
+    onPanelResize,
+    bodyHeight = null,
+  } = {}
 ) {
   container.innerHTML = '';
 
@@ -148,7 +169,7 @@ export function renderGroupList(
     if (bodyHeight != null) {
       body.style.height = `${bodyHeight}px`;
     }
-    renderBody(body, groups, components, { onEdit, onRemove });
+    renderBody(body, groups, components, { onEdit, onRemove, onSelectGroup });
     panel.appendChild(body);
 
     const footer = document.createElement('div');

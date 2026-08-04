@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-04T12:09:14Z",
+  "generatedAt": "2026-08-04T12:36:23Z",
   "basePath": "src",
   "nodes": [
     {
@@ -293,7 +293,7 @@
         "deleteSelectedComponent",
         "renderEditMode"
       ],
-      "purpose": "Modo edición: monta la mesa infinita con los componentes seleccionables y los tres paneles flotantes (Componentes/Recursos/Mazos) con sus acciones de alta/edición/borrado, y trae automáticamente al frente el panel con el que se interactúa (cambio 00101)."
+      "purpose": "Modo edición: monta la mesa infinita con los componentes seleccionables y los tres paneles flotantes (Componentes/Recursos/Grupos) con sus acciones de alta/edición/borrado, y trae automáticamente al frente el panel con el que se interactúa (cambio 00101); clicar una fila de Grupos selecciona en bloque sus miembros (cambio 00130)."
     },
     {
       "id": "modes/play/playMode.js",
@@ -535,7 +535,7 @@
       "exports": [
         "renderGroupList"
       ],
-      "purpose": "Panel flotante con el listado de grupos en modo edicion (tabla Nombre/Elementos/Acciones, sin filtro ni columna Tipo; Elementos muestra el recuento de componentes asignados a cada grupo)."
+      "purpose": "Panel flotante con el listado de grupos en modo edición (tabla Nombre/Elementos/Acciones, sin filtro ni columna Tipo; Elementos muestra el recuento de componentes asignados a cada grupo); cada fila es clicable y enfocable para seleccionar de golpe todos sus miembros (cambio 00130)."
     },
     {
       "id": "ui/groupModal.js",
@@ -1361,7 +1361,7 @@
       "type": "function",
       "path": "modes/edit/editMode.js",
       "parent": "modes/edit/editMode.js",
-      "purpose": "Renderiza el modo edición completo: mesa infinita con los componentes y los tres paneles flotantes (Componentes, Recursos, Mazos), enganchando en cada uno un listener de mousedown en captura que lo trae al frente (bringPanelToFront/applyPanelStackOrder, cambio 00101)."
+      "purpose": "Renderiza el modo edición completo: mesa infinita con los componentes y los tres paneles flotantes (Componentes, Recursos, Grupos), enganchando en cada uno un listener de mousedown en captura que lo trae al frente (bringPanelToFront/applyPanelStackOrder, cambio 00101)."
     },
     {
       "id": "modes/play/playMode.js#renderPlayMode",
@@ -1578,7 +1578,7 @@
       "type": "function",
       "path": "ui/groupList.js",
       "parent": "ui/groupList.js",
-      "purpose": "Renderiza el panel flotante de grupos (tabla con columna de recuento de elementos, cabecera arrastrable, pie con boton anadir) dentro del contenedor indicado."
+      "purpose": "Renderiza el panel flotante de grupos (tabla con columna de recuento de elementos, cabecera arrastrable, pie con botón añadir) dentro del contenedor indicado; cada fila dispara onSelectGroup al clicarla (cambio 00130), con stopPropagation en los botones Editar/Eliminar."
     },
     {
       "id": "ui/groupModal.js#openGroupModal",

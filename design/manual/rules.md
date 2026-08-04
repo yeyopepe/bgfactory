@@ -25,7 +25,7 @@
   - Objetos fabricables
 - Dados
   - Saqueo: 3xbasura, 1xnada, 2xobjeto
-  - Combate: 2xherida, 1xesquiva, 2xnada, 1x-1enemigo
+  - Pelea: 2xherida, 1xesquiva, 2xnada, 1x-1enemigo
   - Encuentros: 1x2zombis, 2x1zombi, 3xnada
 
 
@@ -73,17 +73,19 @@ Cuando termina el domingo (y la semana):
 ## Acciones
 ### 1. Moverse
 
-### 2. Cazar/pescar
+### 2. Saquear
+Si en la localización actual queda algún objeto en la pila de saqueo, el jugador puede tirar 1 vez el dado de saqueo y, según el resultado, podrá conseguir una ficha de basura, el primero objeto en la pila de saqueo de la localización o simplemente nada.
 
-### 3. Comerciar
+### 3. Cazar/pescar
 
-### 4. Subir el nivel de asentamiento
+### 4. Comerciar
+
+### 5. Subir el nivel de asentamiento
 Para subir en 1 el nivel de asentamiento hace falta reunir en esa localización la cantidad de basura requerida. Las fichas de basura se pueden ir dejando encima de la carta de la localización hasta reunir el número indicado, en ese momento:
 1. Se sube el nivel de asentamiento
 2. Las fichas de basura se meten de nuevo en la bolsa de saqueo
 
-### 5. Combate
-
+### 6. Combate
 - Por cada vez que aparezca un nuevo enemigo en la localización del jugador realiza una secuencia de combate:
   - El jugador tira sus dados de combate 
   - El jugador puede tirar de nuevo 1 dado por cada arma que tenga en una mano (Max 2)

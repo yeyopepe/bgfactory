@@ -2104,6 +2104,19 @@ fieldset.modal__section--untitled {
   text-align: center;
 }
 
+.group-list__row {
+  cursor: pointer;
+}
+
+.group-list__row:hover {
+  background: var(--bg-hover);
+}
+
+.group-list__row:focus {
+  outline: none;
+  background: rgba(44, 125, 216, 0.15);
+}
+
 .group-list__actions-cell {
   white-space: nowrap;
 }
