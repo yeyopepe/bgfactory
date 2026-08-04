@@ -4,7 +4,7 @@ description: Inicializa el framework ms-* (change/fix/workflow) en el proyecto a
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.5.0
+  version: 1.5.1
   uses: [ms-internal-graph]
 ---
 

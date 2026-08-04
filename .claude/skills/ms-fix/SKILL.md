@@ -4,15 +4,15 @@ description: Analiza un bug o comportamiento roto reportado por el usuario, lo d
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.2.0
+  version: 1.2.1
   uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-how]
 ---
 
 # ms-fix
 
-Analiza, documenta e implementa un fix (comportamiento roto) sobre el proyecto — para funcionalidad nueva o cambios intencionados usa la skill `ms-change`, no esta. Parte del framework `ms-*`.
+Analiza, documenta e implementa un fix (comportamiento roto) sobre el proyecto — para funcionalidad nueva o cambios intencionados usa la skill `ms-new`, no esta. Parte del framework `ms-*`.
 
-Un fix es, por naturaleza, un cambio acotado: el análisis y la solución deben centrarse **única y exclusivamente en corregir el bug reportado**, con el menor cambio posible. Nada de aprovechar para refactorizar, renombrar o tocar código no relacionado con la causa raíz — eso, si hace falta, es un `ms-change` aparte.
+Un fix es, por naturaleza, un cambio acotado: el análisis y la solución deben centrarse **única y exclusivamente en corregir el bug reportado**, con el menor cambio posible. Nada de aprovechar para refactorizar, renombrar o tocar código no relacionado con la causa raíz — eso, si hace falta, es un `ms-new` aparte.
 
 Esta skill no implementa nada por sí misma: documenta la intención y encadena directamente la skill `ms-how`, que es quien analiza la causa raíz técnica y escribe el `plan.md`, y que a su vez (si se confirma) encadena `ms-do` para implementar.
 
