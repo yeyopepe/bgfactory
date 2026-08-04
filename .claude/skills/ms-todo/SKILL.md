@@ -5,7 +5,7 @@ argument-hint: "[código] <idea a anotar o desarrollar>"
 model: claude-haiku-4-5-20251001
 effort: medium
 metadata:
-  version: 1.2.2
+  version: 1.3.0
   uses: []
 ---
 
@@ -56,6 +56,7 @@ Con estos campos:
 
 - **Idea** — nombre corto que resuma la idea.
 - **Código** — el código generado en el paso 2.
+- **Fecha creación** — la fecha actual (formato `YYYY-MM-DD`) en el momento de crear este `description.md`.
 - **Notas** — el contenido de la idea, tal como la ha planteado el usuario. Puede ser una frase suelta, una lista de posibilidades, dudas abiertas sin resolver, o cualquier otra forma en la que el usuario quiera dejarla anotada — no fuerces la estructura de `description.md` de `ms-new`/`ms-fix` (no hay "Prompt original" ni "Descripción completa" separados).
 
 Si la idea tiene componente visual claro y el usuario quiere dejar constancia de ello, puedes crear también algún `design_*.html` igual que hace `ms-new` (maqueta autocontenida, sin funcionalidad real) — pero no es obligatorio ni el foco de esta skill; solo hazlo si el usuario lo pide o aporta ese material.

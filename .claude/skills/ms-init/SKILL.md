@@ -4,7 +4,7 @@ description: Inicializa el framework ms-* (change/fix/workflow) en el proyecto a
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.5.1
+  version: 1.5.2
   uses: []
 ---
 
@@ -90,6 +90,7 @@ Campos a resolver — sección `framework`:
     Si alguna de estas preguntas ya se ha respondido al recoger la sección `project` (más abajo), no la repitas — reutiliza esa respuesta.
     Deja claro al usuario que son versiones iniciales mínimas y que se irán enriqueciendo con cada `ms-do`.
 - `sourcecodeDir` (opcional — propón la carpeta raíz del código fuente detectada; `ms-how` la usa como contexto de respaldo cuando no hay `docs.tech.architectureDocPath`).
+- `mockupsSkill` (opcional, por defecto `ms-internal-mockups-html`, no hace falta preguntar salvo que el usuario quiera usar otra skill/tecnología para generar las maquetas `design_*.html` de `ms-new`/`ms-fix`).
 
 Sección `project`: pregunta al usuario qué quiere dejar anotado sobre el proyecto (nombre, resumen, stack, convenciones relevantes para redactar documentación...). Es libre — si el usuario no quiere anotar nada, se deja `{}`.
 

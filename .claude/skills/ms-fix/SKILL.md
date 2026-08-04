@@ -5,8 +5,8 @@ argument-hint: <descripción del bug o cambio a aplicar>
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 2.0.0
-  uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-new, ms-how]
+  version: 2.1.0
+  uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-internal-mockups-html, ms-new, ms-how]
 ---
 
 # ms-fix
@@ -75,12 +75,7 @@ Si la funcionalidad que se describe incorpora un flujo, una secuencia de pasos/d
 
 ## 4. Generar la propuesta visual (fix no trivial)
 
-Si el cambio tiene componente visual (hay algo que decir en el punto "Definición visual de alto nivel" del paso 1), crea tú mismo, directamente en `{changesDir}/inProgress/{xxxx}/`, uno o varios ficheros `design_<descripción-del-elemento>.html` — uno por cada elemento visual diferenciado de la propuesta (p.ej. `design_modal-seleccion-mazo.html`, `design_barra-progreso.html`). Si el cambio no tiene componente visual (lógica interna, datos, backend), omite este paso por completo — no crees ficheros `design_*.html` vacíos ni de relleno.
-
-Cada fichero `design_*.html` es solo una maqueta visual, no un prototipo funcional:
-- Debe mostrar únicamente el aspecto (maquetación, estilos, iconografía) que tendría ese elemento aplicado al cambio — no necesita datos reales ni lógica, basta contenido de ejemplo estático que ilustre el resultado.
-- No debe tener funcionalidad real: nada de JavaScript que reaccione a eventos, ni llamadas a red, ni estado — como mucho, JS puramente decorativo si hiciera falta para el aspecto visual.
-- Ha de ser autocontenido: solo HTML, CSS y SVG, todo incrustado en el propio fichero (sin ficheros externos, sin CDNs, sin imports).
+Si el cambio tiene componente visual (hay algo que decir en el punto "Definición visual de alto nivel" del paso 1), invoca (herramienta Skill) la skill de maquetas configurada en `framework.mockupsSkill` de `.claude/ms-context.json` (si no está configurado, `ms-internal-mockups-html`), pasándole la carpeta destino (`{changesDir}/inProgress/{xxxx}/`) y, por cada elemento visual diferenciado de la propuesta, su descripción y qué debe mostrar (p.ej. un elemento para el modal de selección de mazo, otro para la barra de progreso), marcando la acción como `crear`. Anota las rutas `design_*.html` que te devuelva. Si el cambio no tiene componente visual (lógica interna, datos, backend), omite este paso por completo — no invoques la skill de maquetas "por si acaso".
 
 ## 5. Validar la representación visual con el usuario (fix no trivial)
 
@@ -90,7 +85,7 @@ Si el paso 3 incluyó algún diagrama Mermaid o el paso 4 generó algún `design
 
 Invoca directamente la skill `ms-how` (herramienta Skill) sobre ese mismo `xxxx`, indicando explícitamente que es un fix y que su análisis y solución deben limitarse estrictamente a corregir el bug documentado — cambio mínimo, sin ampliar alcance ni tocar nada no relacionado con la causa raíz. No le pidas al usuario que invoque `ms-how` por separado: continúa tú mismo con ese flujo (análisis → `plan.md` → confirmación → `ms-do` implementa → mueve a `implemented`), tal como lo define `ms-how`.
 
-No escribas tú mismo el documento de fix ni calcules el número `xxxx` — eso lo hace `ms-internal-workflow` para mantener un único sitio con esa lógica. No escribas tú mismo el `plan.md` ni toques código directamente — eso lo hacen `ms-how` y `ms-do` para mantener un único sitio con esa lógica.
+No escribas tú mismo el documento de fix ni calcules el número `xxxx` — eso lo hace `ms-internal-workflow` para mantener un único sitio con esa lógica. Los ficheros `design_*.html` los genera la skill de maquetas configurada (`ms-internal-mockups-html` por defecto) — no los escribas tú mismo. No escribas tú mismo el `plan.md` ni toques código directamente — eso lo hacen `ms-how` y `ms-do` para mantener un único sitio con esa lógica.
 
 ## Rama fast-track (cambio trivial, bug o no)
 

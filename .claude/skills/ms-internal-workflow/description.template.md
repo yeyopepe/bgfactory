@@ -1,6 +1,7 @@
 - **Nombre**: 
 - **Código**: 
 - **Tipo**: 
+- **Fecha creación**: 
 
 ## Prompt original del usuario
 

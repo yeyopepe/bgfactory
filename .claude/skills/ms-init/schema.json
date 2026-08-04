@@ -44,6 +44,12 @@
           "description": "OPCIONAL. Carpeta raiz del codigo fuente del proyecto (relativa a la raiz del repo). La usa ms-how como contexto de respaldo al analizar un cambio/fix y escribir su plan.md, solo cuando docs.tech.architectureDocPath no existe como fichero real en el repo.",
           "examples": ["src", "app"]
         },
+        "mockupsSkill": {
+          "type": "string",
+          "default": "ms-internal-mockups-html",
+          "description": "OPCIONAL (por defecto 'ms-internal-mockups-html'). Nombre de la skill (herramienta Skill) que ms-new y ms-fix invocan para crear/editar las maquetas 'design_*.html' de un change/fix, solo cuando ya se sabe que hace falta al menos una. No hace falta preguntarlo ni configurarlo salvo que el usuario quiera sustituir la generacion de maquetas en HTML por otra tecnologia (Figma, una libreria de componentes, imagenes...): en ese caso, la skill indicada aqui debe cumplir el mismo contrato de entrada/salida documentado en ms-internal-mockups-html/SKILL.md (carpeta destino + lista de elementos a crear/editar como entrada; rutas de los ficheros resultantes como salida) para poder sustituirla sin tocar ms-new/ms-fix.",
+          "examples": ["ms-internal-mockups-html"]
+        },
         "numberWidth": {
           "type": "integer",
           "minimum": 1,

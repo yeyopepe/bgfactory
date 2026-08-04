@@ -5,8 +5,8 @@ argument-hint: "[xxxx | todo <código>] <descripción del cambio>"
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.10.0
-  uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-how]
+  version: 1.11.0
+  uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-internal-mockups-html, ms-how]
 ---
 
 # ms-new
@@ -65,16 +65,11 @@ Si no se invocó así, sigue con el proceso habitual desde el paso 1 de "Pasos".
 2. **Documentar la intención.** Invoca la skill `ms-internal-workflow` (herramienta Skill) con `action=create`, `type=change` y el resumen funcional de lo que se pide — incluyendo la lista de dudas del paso 1 ya resuelta (propuestas confirmadas, correcciones del usuario y, en su caso, definición visual de alto nivel acordada) — para que se encargue de numerar el cambio y crear el documento en `{changesDir}/inProgress/{xxxx}/`. Anota el `xxxx` que te devuelva: lo necesitas en el paso siguiente.
 
    Si la funcionalidad que se describe incorpora un flujo, una secuencia de pasos/decisiones o una interacción entre estados o componentes (p.ej. cómo transiciona una pantalla, el orden de una operación, casos límite encadenados), incluye ese análisis como diagrama Mermaid (`flowchart`, `sequenceDiagram`, `stateDiagram-v2`, etc.) con las notas imprescindibles al pasárselo a `ms-internal-workflow`, en vez de describirlo solo en prosa — así queda ya así en `description.md`. Usa prosa cuando no haya un flujo/relación clara que representar.
-3. **Generar la propuesta visual y el diagrama de navegación.** Si el cambio tiene componente visual (hay algo que decir en el punto "Definición visual de alto nivel" del paso 1), crea tú mismo, directamente en `{changesDir}/inProgress/{xxxx}/`:
-   - Uno o varios ficheros `design_<descripción-del-elemento>.html` — uno por cada elemento visual diferenciado de la propuesta (p.ej. `design_modal-seleccion-mazo.html`, `design_barra-progreso.html`).
-   - Uno o varios ficheros `design_navigation_<descripción>.md` — uno por cada flujo de navegación/interacción de UI independiente que introduzca o modifique el cambio (cambio de pantalla, apertura de un modal o desplegable, o cualquier transición de estado visual disparada por una acción del usuario, aunque no salga de una sola pantalla).
+3. **Generar la propuesta visual y el diagrama de navegación.** Si el cambio tiene componente visual (hay algo que decir en el punto "Definición visual de alto nivel" del paso 1):
+   - **Maquetas HTML.** Invoca (herramienta Skill) la skill de maquetas configurada en `framework.mockupsSkill` de `.claude/ms-context.json` (si no está configurado, `ms-internal-mockups-html`), pasándole la carpeta destino (`{changesDir}/inProgress/{xxxx}/`) y, por cada elemento visual diferenciado de la propuesta, su descripción y qué debe mostrar (p.ej. un elemento para el modal de selección de mazo, otro para la barra de progreso), marcando la acción como `crear`. Solo la invoques cuando haya de verdad al menos un elemento que maquetar — nunca "por si acaso". Anota las rutas `design_*.html` que te devuelva.
+   - **Diagrama de navegación.** Si además el cambio introduce o modifica navegación o interacción de UI (cambio de pantalla, apertura de un modal o desplegable, o cualquier transición de estado visual disparada por una acción del usuario, aunque no salga de una sola pantalla), crea tú mismo, directamente en `{changesDir}/inProgress/{xxxx}/`, uno o varios ficheros `design_navigation_<descripción>.md` — uno por cada flujo independiente.
 
-   Si el cambio no tiene componente visual, omite este paso por completo — no crees ficheros `design_*.html` ni `design_navigation_*.md` vacíos ni de relleno.
-
-   Cada fichero `design_*.html` es solo una maqueta visual, no un prototipo funcional:
-   - Debe mostrar únicamente el aspecto (maquetación, estilos, iconografía) que tendría ese elemento aplicado al cambio — no necesita datos reales ni lógica, basta contenido de ejemplo estático que ilustre el resultado.
-   - No debe tener funcionalidad real: nada de JavaScript que reaccione a eventos, ni llamadas a red, ni estado — como mucho, JS puramente decorativo si hiciera falta para el aspecto visual.
-   - Ha de ser autocontenido: solo HTML, CSS y SVG, todo incrustado en el propio fichero (sin ficheros externos, sin CDNs, sin imports).
+   Si el cambio no tiene componente visual, omite este paso por completo — ni invoques la skill de maquetas ni crees ficheros `design_navigation_*.md` de relleno.
 
    Cada fichero `design_navigation_*.md` combina un diagrama Mermaid (`stateDiagram-v2` o `flowchart`) con las pantallas/estados de UI relevantes como nodos y las acciones del usuario como transiciones, más notas breves en prosa solo para las transiciones que no queden claras con el propio diagrama — no repitas en texto lo que el diagrama ya deja claro.
 4. **Validar la representación visual con el usuario.** Si el paso 2 incluyó algún diagrama Mermaid, o el paso 3 generó algún `design_*.html` o `design_navigation_*.md`, no los des por buenos solo porque se hayan escrito: preséntaselos al usuario (indícale la ruta de cada `design_*.html`/`design_navigation_*.md` para que lo abra, y muestra los diagramas Mermaid) y pídele que confirme si reflejan lo que tenía en mente o qué cambiaría.
@@ -86,7 +81,7 @@ Si no se invocó así, sigue con el proceso habitual desde el paso 1 de "Pasos".
    Si pide cambios, ajusta el/los fichero(s) o el diagrama y vuelve a presentarlo hasta que lo confirme. Si el cambio no generó ningún diagrama, `design_*.html` ni `design_navigation_*.md` (paso 1 no encontró dimensión visual ni de flujo), omite este paso.
 5. **Indicar el siguiente paso.** Informa al usuario de que el cambio queda documentado (`description.md`) y, si procede, con su propuesta visual ya validada (`design_*.html`, `design_navigation_*.md`); para planificarlo e implementarlo debe invocar la skill `ms-how` sobre ese `xxxx`. Si el usuario quiere implementarlo ya mismo, puedes invocar `ms-how` directamente tú.
 
-No escribas tú mismo el documento de cambio ni calcules el número `xxxx` — eso lo hace `ms-internal-workflow` para mantener un único sitio con esa lógica. Los ficheros `design_*.html` y `design_navigation_*.md`, en cambio, los escribes tú directamente: no son responsabilidad de `ms-internal-workflow`, que es agnóstico al proyecto y no analiza ni diseña nada.
+No escribas tú mismo el documento de cambio ni calcules el número `xxxx` — eso lo hace `ms-internal-workflow` para mantener un único sitio con esa lógica. Los ficheros `design_*.html` los genera la skill de maquetas configurada (`ms-internal-mockups-html` por defecto) — no los escribas tú mismo. Los ficheros `design_navigation_*.md`, en cambio, sí los escribes tú directamente: no son responsabilidad de ninguna skill interna, que son agnósticas al proyecto y no analizan ni diseñan nada.
 
 ## Ampliar una entrada ya en `inProgress`
 

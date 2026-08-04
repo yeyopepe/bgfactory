@@ -5,7 +5,7 @@ user-invocable: false
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 2.2.0
+  version: 2.3.0
   uses: []
 ---
 
@@ -69,6 +69,7 @@ Sigue exactamente la plantilla [`description.template.md`](description.template.
 - **Nombre** — nombre corto y descriptivo del cambio/fix.
 - **Código** — el `xxxx` calculado en el paso anterior.
 - **Tipo** — `fix`, `change` o `fast`, según corresponda.
+- **Fecha creación** — la fecha actual (formato `YYYY-MM-DD`) en el momento de crear este `description.md`.
 - **Prompt original del usuario** — la petición tal cual la ha escrito el usuario, sin reformular.
 - **Descripción completa** — resumen funcional de lo que se ha analizado que pide, entendible por cualquier persona no técnica, sin entrar en solución técnica ni mencionar ficheros, funciones, clases o estructuras de datos:
   - Para un `fix`: qué comportamiento está roto, cómo reproducirlo o identificarlo, y qué se espera que pase en su lugar.
