@@ -8,7 +8,13 @@ const COMPONENT_TYPES = [
   { value: 'dado', label: 'Dado' },
   { value: 'documento', label: 'Visor de documentos' },
   { value: 'carta', label: 'Carta/Ficha' },
+  { value: 'mazo', label: 'Mazo' },
 ];
+
+export function getComponentTypeLabel(type) {
+  const entry = COMPONENT_TYPES.find((t) => t.value === type);
+  return entry ? entry.label : type;
+}
 
 export function openComponentTypeModal({ onAccept }) {
   const overlay = document.createElement('div');

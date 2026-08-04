@@ -1,9 +1,12 @@
-// Modal de confirmación para borrar un mazo en uso: a diferencia del bloqueo
+// Modal de confirmación para borrar un grupo en uso: a diferencia del bloqueo
 // de ui/errorModal.js (usado por Recursos), aquí sí se permite continuar —
-// muestra la lista de cartas afectadas y, si se acepta, borra el mazo y esas
-// cartas quedan sin mazo asignado (ver modes/edit/editMode.js).
+// muestra la lista de elementos afectados (id + tipo, ya que pueden ser de
+// cualquier tipo) y, si se acepta, borra el grupo y esos elementos quedan sin
+// grupo asignado (ver modes/edit/editMode.js).
 
-export function openDeckDeleteConfirmModal({ deckName, cardIds, onConfirm }) {
+import { getComponentTypeLabel } from './componentTypeModal.js';
+
+export function openGroupDeleteConfirmModal({ groupName, affectedComponents, onConfirm }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -12,21 +15,21 @@ export function openDeckDeleteConfirmModal({ deckName, cardIds, onConfirm }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Eliminar mazo en uso';
+  header.textContent = 'Eliminar grupo en uso';
   modal.appendChild(header);
 
   const content = document.createElement('div');
   content.className = 'modal__content';
 
   const message = document.createElement('p');
-  message.textContent = `El mazo "${deckName}" está siendo usado por las siguientes cartas. Si continúas, se eliminará el mazo y esas cartas quedarán sin mazo asignado.`;
+  message.textContent = `El grupo "${groupName}" está siendo usado por los siguientes elementos. Si continúas, se eliminará el grupo y esos elementos quedarán sin grupo asignado.`;
   content.appendChild(message);
 
   const list = document.createElement('ul');
-  list.className = 'deck-delete-confirm-modal__list';
-  for (const cardId of cardIds) {
+  list.className = 'group-delete-confirm-modal__list';
+  for (const component of affectedComponents) {
     const item = document.createElement('li');
-    item.textContent = cardId;
+    item.textContent = `${getComponentTypeLabel(component.type)}: ${component.id}`;
     list.appendChild(item);
   }
   content.appendChild(list);

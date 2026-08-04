@@ -554,7 +554,7 @@ fieldset.modal__section--untitled {
   justify-content: flex-end;
 }
 
-.btn-cancel, .btn-accept, .btn-eliminar {
+.btn-cancel, .btn-duplicate, .btn-accept, .btn-eliminar {
   padding: 0.5rem 1.5rem;
   border: none;
   border-radius: var(--radius-sm);
@@ -563,21 +563,21 @@ fieldset.modal__section--untitled {
   transition: background var(--transition-fast), opacity var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.btn-cancel {
+.btn-cancel, .btn-duplicate {
   background: var(--bg-subtle);
   color: var(--text-primary);
 }
 
-.btn-cancel:hover {
+.btn-cancel:hover, .btn-duplicate:hover {
   background: var(--bg-hover);
 }
 
-.btn-cancel:disabled {
+.btn-cancel:disabled, .btn-duplicate:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.btn-cancel:disabled:hover {
+.btn-cancel:disabled:hover, .btn-duplicate:disabled:hover {
   background: var(--bg-subtle);
 }
 
@@ -855,6 +855,117 @@ fieldset.modal__section--untitled {
   cursor: pointer;
 }
 
+/* Mazo (cambio 00106): reutiliza la clase .carta (radio --radius-lg, sombra
+   nivel 1) por ser visualmente "una carta boca abajo" — sin clase de bloque
+   nueva para su caja, solo este modificador para el cursor de "sacar carta". */
+.mazo--clickable {
+  cursor: pointer;
+}
+
+/* Etiqueta con el número de cartas del mazo: a diferencia de .component-id-label
+   (solo en hover/selección), esta es siempre visible, en los dos modos. Mismo
+   aspecto que .component-id-label, anclada encima de la caja en vez de dentro
+   de su esquina. */
+.mazo-count-label {
+  position: absolute;
+  top: -1.6rem;
+  left: 2px;
+  white-space: nowrap;
+  background: var(--accent-blue-dark);
+  color: var(--text-light);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+/* Zona de revelado del mazo: recuadro decorativo, no interactivo, que marca
+   dónde aparecerán las cartas al sacarlas — mismo tono neutro que una fila
+   informativa de solo lectura (p. ej. .context-menu__info-row). */
+.mazo-reveal-zone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0.5rem;
+  border: 2px dashed var(--border-neutral);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
+/* Modal "Ver contenido del mazo" (ui/mazoContentModal.js) */
+.mazo-contenido__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.mazo-contenido__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
+}
+
+.mazo-contenido__item:hover {
+  background: var(--bg-hover);
+}
+
+.mazo-contenido__thumb {
+  position: relative;
+  flex: 0 0 auto;
+  width: 42px;
+  height: 58px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-neutral);
+  background: #ffffff;
+}
+
+.mazo-contenido__id {
+  flex: 1 1 auto;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mazo-contenido__empty {
+  padding: 1.5rem 0.5rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* .btn-sacar sigue la excepción histórica .btn-cancel/.btn-accept/.btn-eliminar
+   (STYLE_BIBLE.md sección 7): botón standalone que no cuelga de ningún bloque
+   BEM existente. */
+.btn-sacar {
+  flex: 0 0 auto;
+  padding: 0.35rem 0.65rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.btn-sacar:hover {
+  background: var(--accent-blue);
+  color: var(--text-light);
+}
+
 /* Component type modal — list of selectable component types before creating one */
 .component-type-modal__list {
   display: flex;
@@ -1049,6 +1160,19 @@ fieldset.modal__section--untitled {
   text-align: center;
 }
 
+.modal__opacity-value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.modal__opacity-value input[type="text"] {
+  width: 4rem;
+  text-align: center;
+}
+
 /* Card editor modal (00053) — editor de las dos caras de una carta a la vez */
 .card-editor-modal {
   width: fit-content;
@@ -1135,6 +1259,23 @@ fieldset.modal__section--untitled {
 }
 
 .card-editor-modal__textbox--selected {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+
+/* Figura geométrica del editor de cartas (cambio 00118): bloque hermano de
+   .card-editor-modal__textbox, mismas reglas de selección/hover y el mismo
+   .resize-handle en la esquina — sin tipografía ni contenido de texto propio. */
+.card-editor-modal__shape {
+  cursor: move;
+  user-select: none;
+}
+
+.card-editor-modal__shape:hover {
+  outline: 1px dashed var(--accent-blue);
+}
+
+.card-editor-modal__shape--selected {
   outline: 2px solid var(--accent-blue);
   outline-offset: 2px;
 }
@@ -1832,18 +1973,18 @@ fieldset.modal__section--untitled {
   background: var(--error);
 }
 
-/* Floating deck panel (edit mode), analogous to .resource-panel* but without
-   the filter box or the add-menu (single "+ Añadir mazo" button instead).
+/* Floating group panel (edit mode), analogous to .resource-panel* but without
+   the filter box or the add-menu (single "+ Añadir grupo" button instead).
    Stacked below the resource panel on the same (right) side by default.
    z-index is assigned dynamically in JS (editMode.js, applyPanelStackOrder, cambio 00101). */
-.deck-panel-container {
+.group-panel-container {
   position: absolute;
   top: 55rem;
   right: 1rem;
   width: 400px;
 }
 
-.deck-panel {
+.group-panel {
   position: relative;
   width: 100%;
   background: var(--bg-card);
@@ -1852,7 +1993,7 @@ fieldset.modal__section--untitled {
   box-shadow: var(--shadow-1);
 }
 
-.deck-panel__header {
+.group-panel__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1863,11 +2004,11 @@ fieldset.modal__section--untitled {
   user-select: none;
 }
 
-.deck-panel__header.grabbing {
+.group-panel__header.grabbing {
   cursor: grabbing;
 }
 
-.deck-panel__header button {
+.group-panel__header button {
   background: none;
   border: none;
   color: inherit;
@@ -1875,18 +2016,18 @@ fieldset.modal__section--untitled {
   cursor: pointer;
 }
 
-.deck-panel__body {
+.group-panel__body {
   height: 320px;
   overflow-y: auto;
   overflow-x: auto;
 }
 
-.deck-panel__footer {
+.group-panel__footer {
   padding: 0.5rem 1rem;
   border-top: 1px solid var(--border-neutral);
 }
 
-.deck-panel__footer button {
+.group-panel__footer button {
   width: 100%;
   padding: 0.5rem;
   background: var(--accent-blue);
@@ -1897,40 +2038,44 @@ fieldset.modal__section--untitled {
   transition: opacity var(--transition-fast);
 }
 
-.deck-panel__footer button:hover {
+.group-panel__footer button:hover {
   opacity: 0.9;
 }
 
-/* Deck list (table inside the floating deck panel) */
-.deck-list {
+/* Group list (table inside the floating group panel) */
+.group-list {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
 }
 
-.deck-list__empty {
+.group-list__empty {
   color: var(--text-muted);
   text-align: center;
   padding: 1rem;
 }
 
-.deck-list th {
+.group-list th {
   padding: 0.5rem;
   text-align: left;
   font-weight: 500;
   background: var(--bg-subtle);
 }
 
-.deck-list td {
+.group-list td {
   padding: 0.5rem;
   border-top: 1px solid var(--border-neutral);
 }
 
-.deck-list__actions-cell {
+.group-list__count-cell {
+  text-align: center;
+}
+
+.group-list__actions-cell {
   white-space: nowrap;
 }
 
-.deck-list__action-btn {
+.group-list__action-btn {
   padding: 0.25rem 0.5rem;
   margin-right: 0.25rem;
   background: var(--accent-blue);
@@ -1942,17 +2087,27 @@ fieldset.modal__section--untitled {
   transition: opacity var(--transition-fast);
 }
 
-.deck-list__action-btn:hover {
+.group-list__action-btn:hover {
   opacity: 0.9;
 }
 
-.deck-list__action-btn--danger {
+.group-list__action-btn--danger {
   background: var(--error);
 }
 
-/* Deck delete confirmation modal (change 00079) — lista de cartas afectadas
-   por el borrado de un mazo en uso. */
-.deck-delete-confirm-modal__list {
+/* Group delete confirmation modal (change 00079) — lista de elementos afectados
+   por el borrado de un grupo en uso. */
+.group-delete-confirm-modal__list {
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+  font-size: 0.875rem;
+}
+
+/* Bulk delete confirmation modal (change 00108) — lista de componentes afectados
+   por el borrado en bloque de una selección múltiple en modo edición. */
+.bulk-delete-confirm-modal__list {
   max-height: 200px;
   overflow-y: auto;
   margin: 0.5rem 0;

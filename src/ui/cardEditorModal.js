@@ -4,27 +4,33 @@
 // ui/componentModal.js cuando el componente es de tipo 'carta'.
 
 import { getResources } from '../core/state.js';
-import { CARD_PROPORTIONS, getProporcionRatio, getDesignSize, getCartaShapeCss, getHexInnerClipPath } from '../core/cardProportions.js';
+import { CARD_PROPORTIONS, getProporcionRatio, getDesignSize, getCartaShapeCss, getHexInnerClipPath, isRectShape } from '../core/cardProportions.js';
 import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
+import { hexToRgba } from '../core/colorUtils.js';
 import { applyImageAdjustStyle, openImageAdjustModal } from './imageAdjustModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
 import { openCardTextBoxModal } from './cardTextBoxModal.js';
+import { openCardShapeModal } from './cardShapeModal.js';
 import { attachResizeHandle } from './resizeHandle.js';
+import { fontFamilyFor } from './fontFaceRegistry.js';
 import { createHelpIcon } from './helpIcon.js';
 
 const CANVAS_MAX_SIDE = 380;
 const MIN_TEXT_BOX_DESIGN_SIZE = 20;
+const MIN_SHAPE_DESIGN_SIZE = 20;
+const DUPLICATE_TEXT_BOX_OFFSET = 20;
+const DUPLICATE_SHAPE_OFFSET = 20;
 
 const HELP_HTML = `
   <ul>
     <li>Elegir la <b>proporción/forma</b> de la carta.</li>
     <li>Elegir una <b>imagen</b> para cada cara (frontal/trasera) y ajustarla (zoom, posición, transparencia).</li>
     <li>Configurar el <b>borde</b> de la carta (color y grosor), de forma independiente por cara.</li>
-    <li><b>Añadir</b> un cuadro de texto nuevo a una cara.</li>
-    <li><b>Mover</b> un cuadro de texto arrastrándolo con el ratón.</li>
-    <li><b>Redimensionar</b> un cuadro de texto arrastrando su esquina.</li>
-    <li><b>Editar</b> el contenido y el estilo de un cuadro de texto (haciendo doble clic sobre él).</li>
-    <li><b>Seleccionar</b> un cuadro de texto con un clic y moverlo con precisión usando las flechas del teclado (1px, o 10px con Shift).</li>
+    <li><b>Añadir</b> un cuadro de texto o una figura geométrica (círculo/elipse o cuadrado) nuevos a una cara, desde el botón "Añadir elemento".</li>
+    <li><b>Mover</b> un cuadro de texto o figura arrastrándolo con el ratón.</li>
+    <li><b>Redimensionar</b> un cuadro de texto o figura arrastrando su esquina (con Shift, una figura circular/elíptica mantiene proporción 1:1).</li>
+    <li><b>Editar</b> el contenido y el estilo de un cuadro de texto o figura (haciendo doble clic sobre él).</li>
+    <li><b>Seleccionar</b> un cuadro de texto o figura con un clic y moverlo con precisión usando las flechas del teclado (1px, o 10px con Shift).</li>
     <li><b>Aceptar</b> o <b>cancelar</b> los cambios hechos en el editor.</li>
   </ul>
 `;
@@ -33,11 +39,74 @@ function isTextEditableElement(el) {
   return el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement;
 }
 
+// Botón "Añadir elemento" con menú desplegable, reutilizando tal cual el
+// patrón/clases ya existentes de ui/resourceList.js (createAddMenu, STYLE_BIBLE
+// sección 12.7) para "+ Añadir recurso" — mismas clases `.resource-add*`,
+// segundo uso real del mismo patrón genérico, con las tres opciones de esta
+// pantalla en vez de las de subida de fichero.
+function createAddElementMenu({ onAddImage, onAddTextBox, onAddShape }) {
+  const wrap = document.createElement('div');
+  wrap.className = 'resource-add';
+
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = 'resource-add__button';
+  button.textContent = 'Añadir elemento ▾';
+  wrap.appendChild(button);
+
+  const menu = document.createElement('div');
+  menu.className = 'resource-add__menu';
+  menu.hidden = true;
+
+  function addItem(label, onClick) {
+    const item = document.createElement('div');
+    item.className = 'resource-add__item';
+
+    const itemLabel = document.createElement('div');
+    itemLabel.className = 'resource-add__item-label';
+    itemLabel.textContent = label;
+    item.appendChild(itemLabel);
+
+    item.addEventListener('click', () => {
+      closeMenu();
+      if (onClick) onClick();
+    });
+    menu.appendChild(item);
+  }
+
+  addItem('Imagen de fondo…', onAddImage);
+  addItem('Cuadro de texto', onAddTextBox);
+  addItem('Figura geométrica', onAddShape);
+
+  wrap.appendChild(menu);
+
+  function closeMenu() {
+    menu.hidden = true;
+    document.removeEventListener('mousedown', handleOutsideClick);
+  }
+
+  function handleOutsideClick(e) {
+    if (!wrap.contains(e.target)) closeMenu();
+  }
+
+  button.addEventListener('click', () => {
+    if (menu.hidden) {
+      menu.hidden = false;
+      document.addEventListener('mousedown', handleOutsideClick);
+    } else {
+      closeMenu();
+    }
+  });
+
+  return wrap;
+}
+
 function cloneCara(cara) {
   return {
     imagenResourceId: cara?.imagenResourceId ?? null,
     ajusteImagen: { ...(cara?.ajusteImagen || { zoom: 100, posX: 50, posY: 50 }) },
     textBoxes: (cara?.textBoxes || []).map((tb) => ({ ...tb })),
+    formas: (cara?.formas || []).map((f) => ({ ...f })),
     bordeColor: cara?.bordeColor ?? '#000000',
     bordeGrosor: cara?.bordeGrosor ?? 0,
     transparenciaImagen: cara?.transparenciaImagen ?? 0,
@@ -70,6 +139,7 @@ export function openCardEditorModal({ component, onAccept }) {
   const props = component.properties || {};
   const working = {
     proporcion: props.proporcion || '5:7',
+    esquinasRedondeadas: props.esquinasRedondeadas !== false,
     caraFrontal: cloneCara(props.caraFrontal),
     caraTrasera: cloneCara(props.caraTrasera),
   };
@@ -77,7 +147,12 @@ export function openCardEditorModal({ component, onAccept }) {
   let selected = null;
 
   function selectTextBox(caraKey, id) {
-    selected = { caraKey, id };
+    selected = { caraKey, id, kind: 'texto' };
+    renderFaces();
+  }
+
+  function selectShape(caraKey, id) {
+    selected = { caraKey, id, kind: 'forma' };
     renderFaces();
   }
 
@@ -93,13 +168,14 @@ export function openCardEditorModal({ component, onAccept }) {
     if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
     e.preventDefault();
     const cara = working[selected.caraKey];
-    const textBox = cara.textBoxes.find((tb) => tb.id === selected.id);
-    if (!textBox) return;
+    const collection = selected.kind === 'forma' ? cara.formas : cara.textBoxes;
+    const element = collection.find((item) => item.id === selected.id);
+    if (!element) return;
     const step = e.shiftKey ? 10 : 1;
-    if (e.key === 'ArrowUp') textBox.y -= step;
-    if (e.key === 'ArrowDown') textBox.y += step;
-    if (e.key === 'ArrowLeft') textBox.x -= step;
-    if (e.key === 'ArrowRight') textBox.x += step;
+    if (e.key === 'ArrowUp') element.y -= step;
+    if (e.key === 'ArrowDown') element.y += step;
+    if (e.key === 'ArrowLeft') element.x -= step;
+    if (e.key === 'ArrowRight') element.x += step;
     renderFaces();
   }
 
@@ -125,13 +201,40 @@ export function openCardEditorModal({ component, onAccept }) {
     if (value === working.proporcion) option.selected = true;
     proporcionSelect.appendChild(option);
   }
-  proporcionSelect.addEventListener('change', () => {
-    working.proporcion = proporcionSelect.value;
-    renderFaces();
-  });
   proporcionField.appendChild(proporcionLabel);
   proporcionField.appendChild(proporcionSelect);
   toolbar.appendChild(proporcionField);
+
+  // Esquinas redondeadas (cambio 00117): solo aplica a las proporciones
+  // rectangulares/cuadrada — Circular/Hexagonal mantienen su silueta fija.
+  const redondeoField = document.createElement('div');
+  redondeoField.className = 'modal__field modal__field--checkbox';
+  const redondeoCheckbox = document.createElement('input');
+  redondeoCheckbox.type = 'checkbox';
+  redondeoCheckbox.id = 'card-editor-esquinas-redondeadas';
+  redondeoCheckbox.checked = working.esquinasRedondeadas;
+  const redondeoLabel = document.createElement('label');
+  redondeoLabel.textContent = 'Esquinas redondeadas';
+  redondeoLabel.setAttribute('for', redondeoCheckbox.id);
+  redondeoCheckbox.addEventListener('change', () => {
+    working.esquinasRedondeadas = redondeoCheckbox.checked;
+    renderFaces();
+  });
+  redondeoField.appendChild(redondeoCheckbox);
+  redondeoField.appendChild(redondeoLabel);
+  toolbar.appendChild(redondeoField);
+
+  function updateRedondeoFieldVisibility() {
+    redondeoField.style.display = isRectShape(working.proporcion) ? '' : 'none';
+  }
+  updateRedondeoFieldVisibility();
+
+  proporcionSelect.addEventListener('change', () => {
+    working.proporcion = proporcionSelect.value;
+    updateRedondeoFieldVisibility();
+    renderFaces();
+  });
+
   content.appendChild(toolbar);
 
   const facesRow = document.createElement('div');
@@ -239,7 +342,7 @@ export function openCardEditorModal({ component, onAccept }) {
     canvas.style.height = `${canvasHeight}px`;
     canvas.style.boxSizing = 'border-box';
     canvas.style.overflow = 'hidden';
-    const canvasShape = getCartaShapeCss(working.proporcion);
+    const canvasShape = getCartaShapeCss(working.proporcion, working.esquinasRedondeadas);
     canvas.style.borderRadius = canvasShape.borderRadius;
     canvas.style.clipPath = canvasShape.clipPath;
     faceCol.appendChild(canvas);
@@ -292,6 +395,10 @@ export function openCardEditorModal({ component, onAccept }) {
       canvasInner.appendChild(faceImg);
     }
 
+    for (const shape of cara.formas) {
+      canvasInner.appendChild(renderShape(caraKey, shape, previewScale));
+    }
+
     for (const textBox of cara.textBoxes) {
       canvasInner.appendChild(renderTextBox(caraKey, textBox, previewScale));
     }
@@ -299,46 +406,55 @@ export function openCardEditorModal({ component, onAccept }) {
     const actionsRow = document.createElement('div');
     actionsRow.className = 'card-editor-modal__face-actions';
 
-    const chooseImageBtn = document.createElement('button');
-    chooseImageBtn.type = 'button';
-    chooseImageBtn.className = 'btn-cancel';
-    chooseImageBtn.textContent = 'Elegir imagen…';
-    chooseImageBtn.addEventListener('click', () => {
-      openBoardImageModal({
-        properties: cara,
-        resources: getResources(),
-        title: 'Elegir imagen',
-        onAccept: (resourceId) => {
-          cara.imagenResourceId = resourceId;
-          cara.ajusteImagen = { zoom: 100, posX: 50, posY: 50 };
-          cara.transparenciaImagen = 0;
+    actionsRow.appendChild(
+      createAddElementMenu({
+        onAddImage: () => {
+          openBoardImageModal({
+            properties: cara,
+            resources: getResources(),
+            title: 'Elegir imagen',
+            onAccept: (resourceId) => {
+              cara.imagenResourceId = resourceId;
+              cara.ajusteImagen = { zoom: 100, posX: 50, posY: 50 };
+              cara.transparenciaImagen = 0;
+              renderFaces();
+            },
+          });
+        },
+        onAddTextBox: () => {
+          const w = designWidth * 0.5;
+          const h = designHeight * 0.15;
+          cara.textBoxes.push({
+            id: crypto.randomUUID(),
+            contenido: '',
+            fuenteResourceId: null,
+            tamañoFuente: 16,
+            color: '#000000',
+            x: (designWidth - w) / 2,
+            y: (designHeight - h) / 2,
+            width: w,
+            height: h,
+          });
           renderFaces();
         },
-      });
-    });
-    actionsRow.appendChild(chooseImageBtn);
-
-    const addTextBoxBtn = document.createElement('button');
-    addTextBoxBtn.type = 'button';
-    addTextBoxBtn.className = 'btn-cancel';
-    addTextBoxBtn.textContent = '+ Texto';
-    addTextBoxBtn.addEventListener('click', () => {
-      const w = designWidth * 0.5;
-      const h = designHeight * 0.15;
-      cara.textBoxes.push({
-        id: crypto.randomUUID(),
-        contenido: '',
-        fuenteResourceId: null,
-        tamañoFuente: 16,
-        color: '#000000',
-        x: (designWidth - w) / 2,
-        y: (designHeight - h) / 2,
-        width: w,
-        height: h,
-      });
-      renderFaces();
-    });
-    actionsRow.appendChild(addTextBoxBtn);
+        onAddShape: () => {
+          const side = designWidth * 0.3;
+          cara.formas.push({
+            id: crypto.randomUUID(),
+            tipo: 'circular',
+            colorFondo: '',
+            bordeColor: '#000000',
+            bordeGrosor: 2,
+            bordeActivo: true,
+            x: (designWidth - side) / 2,
+            y: (designHeight - side) / 2,
+            width: side,
+            height: side,
+          });
+          renderFaces();
+        },
+      }),
+    );
 
     // Borde de la carta completa (por cara). Fila color+grosor con la misma
     // excepción de estilo inline que ya usa componentModal.js (STYLE_BIBLE sección 8).
@@ -408,13 +524,17 @@ export function openCardEditorModal({ component, onAccept }) {
     el.style.height = `${textBox.height * previewScale}px`;
     el.style.fontSize = `${textBox.tamañoFuente * previewScale}px`;
     el.style.color = textBox.color || '#000000';
+    const fontResource = textBox.fuenteResourceId ? getResources().find((r) => r.id === textBox.fuenteResourceId) : null;
+    if (fontResource) {
+      el.style.fontFamily = fontFamilyFor(fontResource.id);
+    }
     el.style.fontWeight = textBox.negrita ? 'bold' : 'normal';
     el.style.fontStyle = textBox.cursiva ? 'italic' : 'normal';
     el.style.textDecoration = textBox.subrayado ? 'underline' : 'none';
     el.style.border = textBox.bordeActivo
       ? `${textBox.bordeGrosor ?? 2}px ${textBox.bordeTipo === 'punteada' ? 'dashed' : 'solid'} ${textBox.bordeColor || '#000000'}`
       : 'none';
-    el.style.backgroundColor = textBox.colorFondo || 'transparent';
+    el.style.backgroundColor = hexToRgba(textBox.colorFondo, textBox.colorFondoTransparencia ?? 0);
     el.style.display = 'flex';
     el.style.flexDirection = 'column';
     Object.assign(el.style, getTextBoxLayoutStyle(textBox, previewScale));
@@ -437,6 +557,17 @@ export function openCardEditorModal({ component, onAccept }) {
         onDelete: () => {
           const cara = working[caraKey];
           cara.textBoxes = cara.textBoxes.filter((tb) => tb.id !== textBox.id);
+          renderFaces();
+        },
+        onDuplicate: (workingTextBox) => {
+          Object.assign(textBox, workingTextBox);
+          const cara = working[caraKey];
+          cara.textBoxes.push({
+            ...workingTextBox,
+            id: crypto.randomUUID(),
+            x: workingTextBox.x + DUPLICATE_TEXT_BOX_OFFSET,
+            y: workingTextBox.y + DUPLICATE_TEXT_BOX_OFFSET,
+          });
           renderFaces();
         },
       });
@@ -491,6 +622,104 @@ export function openCardEditorModal({ component, onAccept }) {
     return el;
   }
 
+  function renderShape(caraKey, shape, previewScale) {
+    const el = document.createElement('div');
+    el.className = 'card-editor-modal__shape';
+    if (selected?.kind === 'forma' && selected?.caraKey === caraKey && selected?.id === shape.id) {
+      el.classList.add('card-editor-modal__shape--selected');
+    }
+    el.style.position = 'absolute';
+    el.style.left = `${shape.x * previewScale}px`;
+    el.style.top = `${shape.y * previewScale}px`;
+    el.style.width = `${shape.width * previewScale}px`;
+    el.style.height = `${shape.height * previewScale}px`;
+    el.style.borderRadius = shape.tipo === 'circular' ? '50%' : '0';
+    el.style.backgroundColor = hexToRgba(shape.colorFondo, shape.colorFondoTransparencia ?? 0);
+    el.style.border = shape.bordeActivo !== false ? `${shape.bordeGrosor}px solid ${shape.bordeColor || '#000000'}` : 'none';
+    el.style.boxSizing = 'border-box';
+
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectShape(caraKey, shape.id);
+    });
+
+    el.addEventListener('dblclick', (e) => {
+      e.stopPropagation();
+      deselectTextBox();
+      openCardShapeModal({
+        shape,
+        onAccept: (updated) => {
+          Object.assign(shape, updated);
+          renderFaces();
+        },
+        onDelete: () => {
+          const cara = working[caraKey];
+          cara.formas = cara.formas.filter((f) => f.id !== shape.id);
+          renderFaces();
+        },
+        onDuplicate: (workingShape) => {
+          Object.assign(shape, workingShape);
+          const cara = working[caraKey];
+          cara.formas.push({
+            ...workingShape,
+            id: crypto.randomUUID(),
+            x: workingShape.x + DUPLICATE_SHAPE_OFFSET,
+            y: workingShape.y + DUPLICATE_SHAPE_OFFSET,
+          });
+          renderFaces();
+        },
+      });
+    });
+
+    let startMouseX = 0;
+    let startMouseY = 0;
+    let startX = shape.x;
+    let startY = shape.y;
+
+    function handleMouseMove(e) {
+      shape.x = startX + (e.clientX - startMouseX) / previewScale;
+      shape.y = startY + (e.clientY - startMouseY) / previewScale;
+      el.style.left = `${shape.x * previewScale}px`;
+      el.style.top = `${shape.y * previewScale}px`;
+    }
+
+    function handleMouseUp() {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    }
+
+    el.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return;
+      e.stopPropagation();
+      startMouseX = e.clientX;
+      startMouseY = e.clientY;
+      startX = shape.x;
+      startY = shape.y;
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    });
+
+    attachResizeHandle(el, {
+      axis: 'both',
+      getScale: () => previewScale,
+      getSize: () => ({ width: shape.width, height: shape.height }),
+      clamp: ({ width, height }) => ({
+        width: Math.max(width, MIN_SHAPE_DESIGN_SIZE),
+        height: Math.max(height, MIN_SHAPE_DESIGN_SIZE),
+      }),
+      onResize: ({ width, height }) => {
+        el.style.width = `${width * previewScale}px`;
+        el.style.height = `${height * previewScale}px`;
+      },
+      onResizeEnd: ({ width, height }) => {
+        shape.width = width;
+        shape.height = height;
+      },
+    });
+
+    return el;
+  }
+
   renderFaces();
 
   const cancelBtn = document.createElement('button');
@@ -506,6 +735,7 @@ export function openCardEditorModal({ component, onAccept }) {
     if (onAccept) {
       onAccept({
         proporcion: working.proporcion,
+        esquinasRedondeadas: working.esquinasRedondeadas,
         caraFrontal: working.caraFrontal,
         caraTrasera: working.caraTrasera,
       });

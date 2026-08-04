@@ -26,7 +26,7 @@ function matchesFilter(component, query) {
   );
 }
 
-function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy, onRemove, onSelectRow, onReorder, selectedId, columnWidths, onColumnResize } = {}) {
+function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy, onRemove, onSelectRow, onReorder, selectedIds = new Set(), columnWidths, onColumnResize } = {}) {
   body.innerHTML = '';
 
   if (displayedComponents.length === 0) {
@@ -62,7 +62,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy,
   for (const component of displayedComponents) {
     const row = document.createElement('tr');
     row.className = 'component-list__row';
-    if (component.id === selectedId) {
+    if (selectedIds.has(component.id)) {
       row.classList.add('component-list__row--selected');
     }
 
@@ -153,6 +153,10 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy,
       removeButton.textContent = 'Eliminar';
       removeButton.addEventListener('click', (event) => {
         event.stopPropagation();
+        if (selectedIds.size > 1 && selectedIds.has(component.id)) {
+          onRemove(component, { bulk: true });
+          return;
+        }
         if (confirm(`¿Eliminar el componente "${component.id}"?`)) {
           onRemove(component);
         }
@@ -163,7 +167,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy,
     row.appendChild(actionsCell);
 
     if (onSelectRow) {
-      row.addEventListener('click', () => onSelectRow(component));
+      row.addEventListener('click', (event) => onSelectRow(component, event));
     }
 
     tbody.appendChild(row);
@@ -188,7 +192,7 @@ export function renderComponentList(
     onSelectRow,
     onAdd,
     onReorder,
-    selectedId = null,
+    selectedIds = new Set(),
     collapsed = false,
     onToggleCollapse,
     onPanelMove,
@@ -198,6 +202,9 @@ export function renderComponentList(
     bodyHeight = null,
   } = {}
 ) {
+  const previousBody = container.querySelector('.component-panel__body');
+  const previousScrollTop = previousBody ? previousBody.scrollTop : 0;
+
   container.innerHTML = '';
 
   const panel = document.createElement('div');
@@ -260,7 +267,7 @@ export function renderComponentList(
 
   if (!collapsed) {
     const sortedComponents = [...components].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-    const rowHandlers = { onEdit, onClone, onCopy, onRemove, onSelectRow, onReorder, selectedId, columnWidths, onColumnResize };
+    const rowHandlers = { onEdit, onClone, onCopy, onRemove, onSelectRow, onReorder, selectedIds, columnWidths, onColumnResize };
 
     if (components.length > 0) {
       const filterBar = document.createElement('div');
@@ -292,6 +299,7 @@ export function renderComponentList(
     title.textContent = `Componentes (${displayedComponents.length})`;
     renderBody(body, displayedComponents, components.length, rowHandlers);
     panel.appendChild(body);
+    body.scrollTop = previousScrollTop;
 
     const footer = document.createElement('div');
     footer.className = 'component-panel__footer';

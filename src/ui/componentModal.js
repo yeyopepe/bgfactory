@@ -1,9 +1,9 @@
 // Modal for creating/editing components with tabs.
 // Generically handles different component types via type-specific tab content.
 
-import { getComponents, getResources, getDecks, addDeck } from '../core/state.js';
+import { getComponents, getResources, getGroups, addGroup, sacarCartaDeMazo } from '../core/state.js';
 import { createComponent, updateComponent } from '../core/component.js';
-import { createDeck, isDeckNameTaken } from '../core/deck.js';
+import { createGroup, isGroupNameTaken } from '../core/group.js';
 import { createHelpIcon } from './helpIcon.js';
 import { openBoardPatternModal } from './boardPatternModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
@@ -15,12 +15,26 @@ import { setStyleClipboard, getStyleClipboard, hasStyleClipboard, validateStyleC
 import { openStyleClipboardSelectionModal } from './styleClipboardSelectionModal.js';
 import { openStyleClipboardPasteErrorModal } from './styleClipboardErrorModal.js';
 import { showToast } from './toast.js';
+import { openMazoContentModal } from './mazoContentModal.js';
+import { getInteractionsForType, isInteractionActive } from '../core/interactions.js';
 
 const DEFAULT_BOARD_SIZE = 200;
 const DEFAULT_DADO_SIZE = 100;
 const DEFAULT_DOCUMENTO_WIDTH = 240;
 const DEFAULT_DOCUMENTO_HEIGHT = 320;
 const DEFAULT_CARTA_WIDTH = 180;
+const DEFAULT_MAZO_WIDTH = 180;
+const DEFAULT_MAZO_HEIGHT = DEFAULT_MAZO_WIDTH / getProporcionRatio('5:7');
+
+export const MAZO_ORIENTACIONES = [
+  { value: 'vertical', label: 'Vertical' },
+  { value: 'horizontal', label: 'Horizontal' },
+];
+
+export const MAZO_FORMAS = [
+  { value: 'rectangular', label: 'Rectangular' },
+  { value: 'circular', label: 'Circular' },
+];
 
 export const DEFAULT_BOARD_PROPERTIES = {
   bordeColor: '#000000',
@@ -53,7 +67,7 @@ export const DEFAULT_DOCUMENTO_PROPERTIES = {
 
 export const DEFAULT_CARTA_PROPERTIES = {
   proporcion: '5:7',
-  deckId: null,
+  esquinasRedondeadas: true,
   caraActual: 'trasera',
   caraFrontal: {
     imagenResourceId: null,
@@ -71,6 +85,12 @@ export const DEFAULT_CARTA_PROPERTIES = {
     bordeGrosor: 0,
     transparenciaImagen: 0,
   },
+};
+
+export const DEFAULT_MAZO_PROPERTIES = {
+  cartaIds: [],
+  orientacion: 'vertical',
+  forma: 'rectangular',
 };
 
 function cloneFace(face) {
@@ -121,6 +141,11 @@ export function createDefaultComponent(type) {
     component.bloqueado = false;
     component.subirAlMoverInteractuar = true;
     component.properties = cloneCartaProperties(DEFAULT_CARTA_PROPERTIES);
+  } else if (type === 'mazo') {
+    component.width = DEFAULT_MAZO_WIDTH;
+    component.height = DEFAULT_MAZO_HEIGHT;
+    component.subirAlMoverInteractuar = true;
+    component.properties = { ...DEFAULT_MAZO_PROPERTIES };
   }
   return component;
 }
@@ -279,6 +304,155 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   }));
   generalContent.appendChild(upOnMoveField);
 
+  // Grupo (cambio 00105): propiedad general de cualquier tipo de componente,
+  // antes exclusiva de "Carta/Ficha" bajo el nombre "Mazo".
+  const groupField = document.createElement('div');
+  groupField.className = 'modal__field';
+  const groupLabel = document.createElement('label');
+  groupLabel.textContent = 'Grupo';
+  const groupSelect = document.createElement('select');
+  const NEW_GROUP_VALUE = '__new__';
+
+  const newGroupRow = document.createElement('div');
+  newGroupRow.style.display = 'none';
+  newGroupRow.style.marginTop = '0.5rem';
+  const newGroupInputRow = document.createElement('div');
+  newGroupInputRow.style.display = 'flex';
+  newGroupInputRow.style.gap = '0.5rem';
+  const newGroupInput = document.createElement('input');
+  newGroupInput.type = 'text';
+  newGroupInput.placeholder = 'Nombre del grupo nuevo';
+  const newGroupCreateBtn = document.createElement('button');
+  newGroupCreateBtn.type = 'button';
+  newGroupCreateBtn.className = 'btn-cancel';
+  newGroupCreateBtn.textContent = 'Crear';
+  newGroupInputRow.appendChild(newGroupInput);
+  newGroupInputRow.appendChild(newGroupCreateBtn);
+  const newGroupError = document.createElement('div');
+  newGroupError.className = 'modal__error';
+  newGroupError.style.display = 'none';
+  newGroupError.style.marginTop = '0.25rem';
+  newGroupRow.appendChild(newGroupInputRow);
+  newGroupRow.appendChild(newGroupError);
+
+  function populateGroupSelect() {
+    groupSelect.innerHTML = '';
+    const noneOption = document.createElement('option');
+    noneOption.value = '';
+    noneOption.textContent = 'Sin grupo';
+    if (!workingComponent.grupoId) noneOption.selected = true;
+    groupSelect.appendChild(noneOption);
+
+    for (const group of getGroups()) {
+      const option = document.createElement('option');
+      option.value = group.id;
+      option.textContent = group.name;
+      if (group.id === workingComponent.grupoId) option.selected = true;
+      groupSelect.appendChild(option);
+    }
+
+    const newOption = document.createElement('option');
+    newOption.value = NEW_GROUP_VALUE;
+    newOption.textContent = '+ Crear nuevo grupo…';
+    groupSelect.appendChild(newOption);
+  }
+  populateGroupSelect();
+
+  function validateNewGroupName() {
+    const name = newGroupInput.value.trim();
+    if (!name) {
+      newGroupError.textContent = 'El nombre no puede estar vacío';
+      newGroupError.style.display = 'block';
+      return false;
+    }
+    if (isGroupNameTaken(name, getGroups())) {
+      newGroupError.textContent = 'Ya existe un grupo con este nombre';
+      newGroupError.style.display = 'block';
+      return false;
+    }
+    newGroupError.style.display = 'none';
+    return true;
+  }
+
+  groupSelect.addEventListener('change', () => {
+    if (groupSelect.value === NEW_GROUP_VALUE) {
+      newGroupRow.style.display = 'block';
+      newGroupInput.focus();
+      return;
+    }
+    newGroupRow.style.display = 'none';
+    workingComponent.grupoId = groupSelect.value || null;
+  });
+
+  newGroupInput.addEventListener('input', validateNewGroupName);
+
+  newGroupCreateBtn.addEventListener('click', () => {
+    if (!validateNewGroupName()) return;
+    const name = newGroupInput.value.trim();
+    const group = createGroup({ name });
+    addGroup(group);
+    workingComponent.grupoId = group.id;
+    newGroupRow.style.display = 'none';
+    newGroupInput.value = '';
+    populateGroupSelect();
+  });
+
+  groupField.appendChild(groupLabel);
+  groupField.appendChild(groupSelect);
+  groupField.appendChild(newGroupRow);
+  generalContent.appendChild(groupField);
+
+  // Interacciones programadas (cambio 00115): un combo por cada interacción de click
+  // que el tipo actual tenga programada en Modo Juego (ver core/interactions.js),
+  // permitiendo desactivarla eligiendo "Ninguna". El tipo no cambia tras crear el
+  // componente, así que esta sección se calcula una sola vez al abrir la modal.
+  const typeInteractions = getInteractionsForType(workingComponent.type);
+  if (typeInteractions.length > 0) {
+    const interactionsSection = document.createElement('fieldset');
+    interactionsSection.className = 'modal__section';
+    const interactionsTitle = document.createElement('legend');
+    interactionsTitle.className = 'modal__section-title';
+    interactionsTitle.textContent = 'Interacciones programadas';
+    interactionsSection.appendChild(interactionsTitle);
+
+    for (const interaction of typeInteractions) {
+      const interactionField = document.createElement('div');
+      interactionField.className = 'modal__field';
+      const interactionLabel = document.createElement('label');
+      interactionLabel.textContent = typeInteractions.length > 1 ? interaction.label : 'Al hacer click';
+      const interactionSelect = document.createElement('select');
+
+      const activeOption = document.createElement('option');
+      activeOption.value = 'activa';
+      activeOption.textContent = interaction.label;
+      const noneOption = document.createElement('option');
+      noneOption.value = 'ninguna';
+      noneOption.textContent = 'Ninguna';
+      interactionSelect.appendChild(activeOption);
+      interactionSelect.appendChild(noneOption);
+      interactionSelect.value = isInteractionActive(workingComponent, interaction.key) ? 'activa' : 'ninguna';
+
+      interactionSelect.addEventListener('change', () => {
+        const disabled = new Set(workingComponent.interaccionesDesactivadas || []);
+        if (interactionSelect.value === 'ninguna') {
+          disabled.add(interaction.key);
+        } else {
+          disabled.delete(interaction.key);
+        }
+        workingComponent.interaccionesDesactivadas = [...disabled];
+      });
+
+      interactionField.appendChild(interactionLabel);
+      interactionField.appendChild(interactionSelect);
+      interactionField.appendChild(createHelpIcon({
+        text: `Si eliges "Ninguna", el click sobre este componente deja de "${interaction.label.toLowerCase()}" en Modo Juego. El resto de su comportamiento (arrastre, menú contextual...) no se ve afectado.`,
+      }));
+      interactionsSection.appendChild(interactionField);
+    }
+
+    generalContent.appendChild(interactionsSection);
+  }
+
   function validateId() {
     const newId = idInput.value.trim();
     if (!newId) {
@@ -423,6 +597,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       renderDocumentoSpecificFields(specificContent);
     } else if (workingComponent.type === 'carta') {
       renderCartaSpecificFields(specificContent);
+    } else if (workingComponent.type === 'mazo') {
+      renderMazoSpecificFields(specificContent);
     } else {
       const empty = document.createElement('p');
       empty.textContent = 'Sin propiedades específicas';
@@ -831,103 +1007,6 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     proporcionField.appendChild(proporcionSelect);
     container.appendChild(proporcionField);
 
-    // Mazo
-    const deckField = document.createElement('div');
-    deckField.className = 'modal__field';
-    const deckLabel = document.createElement('label');
-    deckLabel.textContent = 'Mazo';
-    const deckSelect = document.createElement('select');
-    const NEW_DECK_VALUE = '__new__';
-
-    const newDeckRow = document.createElement('div');
-    newDeckRow.style.display = 'none';
-    newDeckRow.style.marginTop = '0.5rem';
-    const newDeckInputRow = document.createElement('div');
-    newDeckInputRow.style.display = 'flex';
-    newDeckInputRow.style.gap = '0.5rem';
-    const newDeckInput = document.createElement('input');
-    newDeckInput.type = 'text';
-    newDeckInput.placeholder = 'Nombre del mazo nuevo';
-    const newDeckCreateBtn = document.createElement('button');
-    newDeckCreateBtn.type = 'button';
-    newDeckCreateBtn.className = 'btn-cancel';
-    newDeckCreateBtn.textContent = 'Crear';
-    newDeckInputRow.appendChild(newDeckInput);
-    newDeckInputRow.appendChild(newDeckCreateBtn);
-    const newDeckError = document.createElement('div');
-    newDeckError.className = 'modal__error';
-    newDeckError.style.display = 'none';
-    newDeckError.style.marginTop = '0.25rem';
-    newDeckRow.appendChild(newDeckInputRow);
-    newDeckRow.appendChild(newDeckError);
-
-    function populateDeckSelect() {
-      deckSelect.innerHTML = '';
-      const noneOption = document.createElement('option');
-      noneOption.value = '';
-      noneOption.textContent = 'Sin mazo';
-      if (!props.deckId) noneOption.selected = true;
-      deckSelect.appendChild(noneOption);
-
-      for (const deck of getDecks()) {
-        const option = document.createElement('option');
-        option.value = deck.id;
-        option.textContent = deck.name;
-        if (deck.id === props.deckId) option.selected = true;
-        deckSelect.appendChild(option);
-      }
-
-      const newOption = document.createElement('option');
-      newOption.value = NEW_DECK_VALUE;
-      newOption.textContent = '+ Crear nuevo mazo…';
-      deckSelect.appendChild(newOption);
-    }
-    populateDeckSelect();
-
-    function validateNewDeckName() {
-      const name = newDeckInput.value.trim();
-      if (!name) {
-        newDeckError.textContent = 'El nombre no puede estar vacío';
-        newDeckError.style.display = 'block';
-        return false;
-      }
-      if (isDeckNameTaken(name, getDecks())) {
-        newDeckError.textContent = 'Ya existe un mazo con este nombre';
-        newDeckError.style.display = 'block';
-        return false;
-      }
-      newDeckError.style.display = 'none';
-      return true;
-    }
-
-    deckSelect.addEventListener('change', () => {
-      if (deckSelect.value === NEW_DECK_VALUE) {
-        newDeckRow.style.display = 'block';
-        newDeckInput.focus();
-        return;
-      }
-      newDeckRow.style.display = 'none';
-      props.deckId = deckSelect.value || null;
-    });
-
-    newDeckInput.addEventListener('input', validateNewDeckName);
-
-    newDeckCreateBtn.addEventListener('click', () => {
-      if (!validateNewDeckName()) return;
-      const name = newDeckInput.value.trim();
-      const deck = createDeck({ name });
-      addDeck(deck);
-      props.deckId = deck.id;
-      newDeckRow.style.display = 'none';
-      newDeckInput.value = '';
-      populateDeckSelect();
-    });
-
-    deckField.appendChild(deckLabel);
-    deckField.appendChild(deckSelect);
-    deckField.appendChild(newDeckRow);
-    container.appendChild(deckField);
-
     // Editor de diseño
     const editField = document.createElement('div');
     editField.className = 'modal__field';
@@ -938,8 +1017,9 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     editBtn.addEventListener('click', () => {
       openCardEditorModal({
         component: workingComponent,
-        onAccept: ({ proporcion, caraFrontal, caraTrasera }) => {
+        onAccept: ({ proporcion, esquinasRedondeadas, caraFrontal, caraTrasera }) => {
           props.proporcion = proporcion;
+          props.esquinasRedondeadas = esquinasRedondeadas;
           props.caraFrontal = caraFrontal;
           props.caraTrasera = caraTrasera;
           proporcionSelect.value = proporcion;
@@ -973,18 +1053,19 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
         onAccept: (selection) => {
           const data = {};
           if (selection.generales) {
+            const grupo = workingComponent.grupoId ? getGroups().find((g) => g.id === workingComponent.grupoId) : null;
             data.generales = {
               bloqueado: workingComponent.bloqueado,
               oculto: workingComponent.oculto,
               mostrarTooltip: workingComponent.mostrarTooltip,
               subirAlMoverInteractuar: workingComponent.subirAlMoverInteractuar,
+              grupoId: workingComponent.grupoId,
+              grupoName: grupo ? grupo.name : null,
             };
           }
-          if (selection.proporcion) data.proporcion = props.proporcion;
-          if (selection.deckId) {
-            data.deckId = props.deckId;
-            const deck = props.deckId ? getDecks().find((d) => d.id === props.deckId) : null;
-            data.deckName = deck ? deck.name : null;
+          if (selection.proporcion) {
+            data.proporcion = props.proporcion;
+            data.esquinasRedondeadas = props.esquinasRedondeadas;
           }
           if (selection.caraFrontal) data.caraFrontal = props.caraFrontal;
           if (selection.caraTrasera) data.caraTrasera = props.caraTrasera;
@@ -1005,7 +1086,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     pasteStyleBtn.title = hasStyleClipboard() ? '' : 'Pegar estilo (nada copiado)';
     pasteStyleBtn.addEventListener('click', () => {
       const clip = getStyleClipboard();
-      const incidencias = validateStyleClipboardForPaste(clip, { decks: getDecks(), resources: getResources() });
+      const incidencias = validateStyleClipboardForPaste(clip, { groups: getGroups(), resources: getResources() });
       if (incidencias.length > 0) {
         openStyleClipboardPasteErrorModal(incidencias);
         return;
@@ -1016,19 +1097,18 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
         workingComponent.oculto = clip.generales.oculto;
         workingComponent.mostrarTooltip = clip.generales.mostrarTooltip;
         workingComponent.subirAlMoverInteractuar = clip.generales.subirAlMoverInteractuar;
+        workingComponent.grupoId = clip.generales.grupoId;
         moveCheckbox.checked = workingComponent.bloqueado;
         hiddenCheckbox.checked = workingComponent.oculto;
         tooltipCheckbox.checked = workingComponent.mostrarTooltip;
         upOnMoveCheckbox.checked = workingComponent.subirAlMoverInteractuar;
-      }
-      if ('deckId' in clip && clip.deckId !== undefined) {
-        props.deckId = clip.deckId;
-        populateDeckSelect();
+        populateGroupSelect();
       }
       if (clip.caraFrontal) props.caraFrontal = cloneFace(clip.caraFrontal);
       if (clip.caraTrasera) props.caraTrasera = cloneFace(clip.caraTrasera);
       if (clip.proporcion) {
         props.proporcion = clip.proporcion;
+        props.esquinasRedondeadas = clip.esquinasRedondeadas ?? true;
         proporcionSelect.value = clip.proporcion;
         const width = workingComponent.width || DEFAULT_CARTA_WIDTH;
         workingComponent.width = width;
@@ -1041,10 +1121,100 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
     const styleHint = document.createElement('p');
     styleHint.className = 'modal__hint';
-    styleHint.textContent = 'Copia/pega solo los elementos que elijas: generales, proporción, mazo, cara frontal y/o cara trasera.';
+    styleHint.textContent = 'Copia/pega solo los elementos que elijas: generales (incluye el grupo), proporción, cara frontal y/o cara trasera.';
     styleSection.appendChild(styleHint);
 
     container.appendChild(styleSection);
+  }
+
+  function renderMazoSpecificFields(container) {
+    const props = workingComponent.properties;
+
+    const countHint = document.createElement('p');
+    countHint.className = 'modal__hint';
+    countHint.textContent = `${(props.cartaIds || []).length} cartas`;
+    container.appendChild(countHint);
+
+    // Forma: rectangular (por defecto) o circular. Al cambiar a circular se
+    // iguala ancho y alto (círculo perfecto) tomando el mayor de los dos
+    // valores actuales, mismo criterio que "Carta" al cambiar a su
+    // proporción circular. La orientación no tiene sentido para un círculo,
+    // así que ese selector se oculta mientras la forma sea circular.
+    const formaField = document.createElement('div');
+    formaField.className = 'modal__field';
+    const formaLabel = document.createElement('label');
+    formaLabel.textContent = 'Forma';
+    const formaSelect = document.createElement('select');
+    for (const { value, label } of MAZO_FORMAS) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      if (value === (props.forma || DEFAULT_MAZO_PROPERTIES.forma)) option.selected = true;
+      formaSelect.appendChild(option);
+    }
+    formaSelect.addEventListener('change', () => {
+      props.forma = formaSelect.value;
+      if (props.forma === 'circular') {
+        const side = Math.max(workingComponent.width, workingComponent.height);
+        workingComponent.width = side;
+        workingComponent.height = side;
+      }
+      orientacionField.style.display = props.forma === 'circular' ? 'none' : '';
+    });
+    formaField.appendChild(formaLabel);
+    formaField.appendChild(formaSelect);
+    container.appendChild(formaField);
+
+    // Orientación: intercambia width/height al cambiar, para transponer la
+    // caja del mazo conservando cualquier redimensionado manual ya hecho.
+    // Oculta mientras la forma sea circular (ver más arriba).
+    const orientacionField = document.createElement('div');
+    orientacionField.className = 'modal__field';
+    orientacionField.style.display = (props.forma || DEFAULT_MAZO_PROPERTIES.forma) === 'circular' ? 'none' : '';
+    const orientacionLabel = document.createElement('label');
+    orientacionLabel.textContent = 'Orientación';
+    const orientacionSelect = document.createElement('select');
+    for (const { value, label } of MAZO_ORIENTACIONES) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      if (value === (props.orientacion || DEFAULT_MAZO_PROPERTIES.orientacion)) option.selected = true;
+      orientacionSelect.appendChild(option);
+    }
+    orientacionSelect.addEventListener('change', () => {
+      if (orientacionSelect.value !== props.orientacion) {
+        const width = workingComponent.width;
+        const height = workingComponent.height;
+        workingComponent.width = height;
+        workingComponent.height = width;
+      }
+      props.orientacion = orientacionSelect.value;
+    });
+    orientacionField.appendChild(orientacionLabel);
+    orientacionField.appendChild(orientacionSelect);
+    container.appendChild(orientacionField);
+
+    // Ver contenido del mazo: opera siempre sobre el componente ya guardado en
+    // el estado (mazoId), no sobre workingComponent, para que "Sacar" refleje
+    // siempre los datos reales aunque esta modal de propiedades siga abierta.
+    const contentField = document.createElement('div');
+    contentField.className = 'modal__field';
+    const contentBtn = document.createElement('button');
+    contentBtn.type = 'button';
+    contentBtn.className = 'btn-cancel';
+    contentBtn.textContent = 'Ver contenido del mazo';
+    contentBtn.addEventListener('click', () => {
+      openMazoContentModal({
+        mazoId: workingComponent.id,
+        onSacar: (cartaId) => {
+          sacarCartaDeMazo(workingComponent.id, cartaId);
+          const mazoActual = getComponents().find((c) => c.id === workingComponent.id);
+          workingComponent.properties.cartaIds = mazoActual?.properties?.cartaIds ?? [];
+        },
+      });
+    });
+    contentField.appendChild(contentBtn);
+    container.appendChild(contentField);
   }
 
   renderSpecificTab();

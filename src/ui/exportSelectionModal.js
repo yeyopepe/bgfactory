@@ -1,10 +1,10 @@
 // Modal de exportación (sustituye al prompt() del nombre de fichero, change
 // 00065): campo de nombre de fichero + selección de qué componentes/
-// recursos/mazos incluir, agrupados en tres bloques (ui/elementSelectionModal.js).
+// recursos/grupos incluir, agrupados en tres bloques (ui/elementSelectionModal.js).
 
 import { createElementSelectionGroups } from './elementSelectionModal.js';
 
-export function openExportSelectionModal({ components, resources, decks, defaultFilename, onAccept }) {
+export function openExportSelectionModal({ components, resources, groups, defaultFilename, onAccept }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -50,9 +50,9 @@ export function openExportSelectionModal({ components, resources, decks, default
   exportBtn.textContent = 'Exportar';
   footer.appendChild(exportBtn);
 
-  const { getSelection } = createElementSelectionGroups(groupsContainer, { components, resources, decks }, {
+  const { getSelection } = createElementSelectionGroups(groupsContainer, { components, resources, groups }, {
     onSelectionChange: (selection) => {
-      const hasSelection = selection.componentIds.length > 0 || selection.resourceIds.length > 0 || selection.deckIds.length > 0;
+      const hasSelection = selection.componentIds.length > 0 || selection.resourceIds.length > 0 || selection.groupIds.length > 0;
       exportBtn.disabled = !hasSelection;
     },
   });

@@ -1,11 +1,11 @@
-// Modal mínima de alta/edición de un mazo, misma estructura visual que
+// Modal mínima de alta/edición de un grupo, misma estructura visual que
 // ui/resourceModal.js (overlay/modal/header/content/footer) pero única para
-// ambos casos: sin `deck`, alta (sin botón "Eliminar"); con `deck`, edición.
+// ambos casos: sin `group`, alta (sin botón "Eliminar"); con `group`, edición.
 
-import { createDeck, updateDeck, isDeckNameTaken } from '../core/deck.js';
-import { getDecks } from '../core/state.js';
+import { createGroup, updateGroup, isGroupNameTaken } from '../core/group.js';
+import { getGroups } from '../core/state.js';
 
-export function openDeckModal({ deck = null, onAccept, onDelete }) {
+export function openGroupModal({ group = null, onAccept, onDelete }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -14,7 +14,7 @@ export function openDeckModal({ deck = null, onAccept, onDelete }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = deck ? `Mazo: ${deck.name}` : 'Nuevo mazo';
+  header.textContent = group ? `Grupo: ${group.name}` : 'Nuevo grupo';
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -27,7 +27,7 @@ export function openDeckModal({ deck = null, onAccept, onDelete }) {
   nameLabel.textContent = 'Nombre';
   const nameInput = document.createElement('input');
   nameInput.type = 'text';
-  nameInput.value = deck?.name ?? '';
+  nameInput.value = group?.name ?? '';
   const nameError = document.createElement('div');
   nameError.className = 'modal__error';
   nameError.style.display = 'none';
@@ -40,12 +40,12 @@ export function openDeckModal({ deck = null, onAccept, onDelete }) {
   footer.className = 'modal__footer';
   modal.appendChild(footer);
 
-  if (deck) {
+  if (group) {
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn-eliminar';
     deleteBtn.textContent = 'Eliminar';
     deleteBtn.addEventListener('click', () => {
-      onDelete(deck, () => overlay.remove());
+      onDelete(group, () => overlay.remove());
     });
     footer.appendChild(deleteBtn);
   }
@@ -68,8 +68,8 @@ export function openDeckModal({ deck = null, onAccept, onDelete }) {
       nameError.style.display = 'block';
       return false;
     }
-    if (isDeckNameTaken(name, getDecks(), deck?.id ?? null)) {
-      nameError.textContent = 'Ya existe un mazo con este nombre';
+    if (isGroupNameTaken(name, getGroups(), group?.id ?? null)) {
+      nameError.textContent = 'Ya existe un grupo con este nombre';
       nameError.style.display = 'block';
       return false;
     }
@@ -86,7 +86,7 @@ export function openDeckModal({ deck = null, onAccept, onDelete }) {
   acceptBtn.addEventListener('click', () => {
     if (!validateName()) return;
     const name = nameInput.value.trim();
-    onAccept(deck ? updateDeck(deck, { name }) : createDeck({ name }));
+    onAccept(group ? updateGroup(group, { name }) : createGroup({ name }));
     overlay.remove();
   });
 

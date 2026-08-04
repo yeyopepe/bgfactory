@@ -29,17 +29,29 @@ export function getProporcionRatio(value) {
   return found ? found.ratio : CARD_PROPORTIONS.find((p) => p.value === DEFAULT_PROPORTION).ratio;
 }
 
+// `true` si la proporción indicada es una de las cinco rectangulares/cuadrada
+// (a diferencia de "Circular"/Hexagonal, con silueta fija) — usado por
+// ui/cardEditorModal.js (cambio 00117) para decidir cuándo mostrar el
+// checkbox "Esquinas redondeadas", sin duplicar esta búsqueda.
+export function isRectShape(value) {
+  const found = CARD_PROPORTIONS.find((p) => p.value === value);
+  const shape = found ? found.shape : 'rect';
+  return shape === 'rect';
+}
+
 // Devuelve el `border-radius`/`clip-path` a aplicar según la proporción: las
 // cinco proporciones rectangulares/cuadrada usan el radio de "contenedores
-// destacados" (STYLE_BIBLE.md sección 5), "Circular" recorta en redondo, y
-// las dos hexagonales recortan por polígono exacto (border-radius no puede
-// producir una silueta de aristas rectas).
-export function getCartaShapeCss(value) {
+// destacados" (STYLE_BIBLE.md sección 5) si `esquinasRedondeadas` es `true`
+// (por defecto, cambio 00117; `false` las deja a 90°), "Circular" recorta en
+// redondo, y las dos hexagonales recortan por polígono exacto (border-radius
+// no puede producir una silueta de aristas rectas) — estas dos últimas no se
+// ven afectadas por `esquinasRedondeadas`.
+export function getCartaShapeCss(value, esquinasRedondeadas = true) {
   const found = CARD_PROPORTIONS.find((p) => p.value === value);
   const shape = found ? found.shape : 'rect';
   if (shape === 'circular') return { borderRadius: '50%', clipPath: 'none' };
   if (HEX_CLIP_PATHS[shape]) return { borderRadius: '0', clipPath: HEX_CLIP_PATHS[shape] };
-  return { borderRadius: '8px', clipPath: 'none' };
+  return { borderRadius: esquinasRedondeadas ? '8px' : '0', clipPath: 'none' };
 }
 
 // Recorte interior (concéntrico, más pequeño) para simular un borde de

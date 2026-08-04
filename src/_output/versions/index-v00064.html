@@ -1062,6 +1062,12 @@ fieldset.modal__section--untitled {
   max-width: min(1500px, 95vw);
 }
 
+.card-editor-modal .modal__header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 /* Image adjust modal (00102) — ventana de ajuste de imagen de una o dos
    caras, mismo criterio de ancho variable que .card-editor-modal */
 .image-adjust-modal--large {
@@ -1133,6 +1139,11 @@ fieldset.modal__section--untitled {
 
 .card-editor-modal__textbox:hover {
   outline: 1px dashed var(--accent-blue);
+}
+
+.card-editor-modal__textbox--selected {
+  outline: 2px solid var(--accent-blue);
+  outline-offset: 2px;
 }
 
 /* Element selection modal (change 00065) — exportar/importar con selección.
@@ -1828,18 +1839,18 @@ fieldset.modal__section--untitled {
   background: var(--error);
 }
 
-/* Floating deck panel (edit mode), analogous to .resource-panel* but without
-   the filter box or the add-menu (single "+ Añadir mazo" button instead).
+/* Floating group panel (edit mode), analogous to .resource-panel* but without
+   the filter box or the add-menu (single "+ Añadir grupo" button instead).
    Stacked below the resource panel on the same (right) side by default.
    z-index is assigned dynamically in JS (editMode.js, applyPanelStackOrder, cambio 00101). */
-.deck-panel-container {
+.group-panel-container {
   position: absolute;
   top: 55rem;
   right: 1rem;
   width: 400px;
 }
 
-.deck-panel {
+.group-panel {
   position: relative;
   width: 100%;
   background: var(--bg-card);
@@ -1848,7 +1859,7 @@ fieldset.modal__section--untitled {
   box-shadow: var(--shadow-1);
 }
 
-.deck-panel__header {
+.group-panel__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1859,11 +1870,11 @@ fieldset.modal__section--untitled {
   user-select: none;
 }
 
-.deck-panel__header.grabbing {
+.group-panel__header.grabbing {
   cursor: grabbing;
 }
 
-.deck-panel__header button {
+.group-panel__header button {
   background: none;
   border: none;
   color: inherit;
@@ -1871,18 +1882,18 @@ fieldset.modal__section--untitled {
   cursor: pointer;
 }
 
-.deck-panel__body {
+.group-panel__body {
   height: 320px;
   overflow-y: auto;
   overflow-x: auto;
 }
 
-.deck-panel__footer {
+.group-panel__footer {
   padding: 0.5rem 1rem;
   border-top: 1px solid var(--border-neutral);
 }
 
-.deck-panel__footer button {
+.group-panel__footer button {
   width: 100%;
   padding: 0.5rem;
   background: var(--accent-blue);
@@ -1893,40 +1904,44 @@ fieldset.modal__section--untitled {
   transition: opacity var(--transition-fast);
 }
 
-.deck-panel__footer button:hover {
+.group-panel__footer button:hover {
   opacity: 0.9;
 }
 
-/* Deck list (table inside the floating deck panel) */
-.deck-list {
+/* Group list (table inside the floating group panel) */
+.group-list {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
 }
 
-.deck-list__empty {
+.group-list__empty {
   color: var(--text-muted);
   text-align: center;
   padding: 1rem;
 }
 
-.deck-list th {
+.group-list th {
   padding: 0.5rem;
   text-align: left;
   font-weight: 500;
   background: var(--bg-subtle);
 }
 
-.deck-list td {
+.group-list td {
   padding: 0.5rem;
   border-top: 1px solid var(--border-neutral);
 }
 
-.deck-list__actions-cell {
+.group-list__count-cell {
+  text-align: center;
+}
+
+.group-list__actions-cell {
   white-space: nowrap;
 }
 
-.deck-list__action-btn {
+.group-list__action-btn {
   padding: 0.25rem 0.5rem;
   margin-right: 0.25rem;
   background: var(--accent-blue);
@@ -1938,17 +1953,17 @@ fieldset.modal__section--untitled {
   transition: opacity var(--transition-fast);
 }
 
-.deck-list__action-btn:hover {
+.group-list__action-btn:hover {
   opacity: 0.9;
 }
 
-.deck-list__action-btn--danger {
+.group-list__action-btn--danger {
   background: var(--error);
 }
 
-/* Deck delete confirmation modal (change 00079) — lista de cartas afectadas
-   por el borrado de un mazo en uso. */
-.deck-delete-confirm-modal__list {
+/* Group delete confirmation modal (change 00079) — lista de elementos afectados
+   por el borrado de un grupo en uso. */
+.group-delete-confirm-modal__list {
   max-height: 200px;
   overflow-y: auto;
   margin: 0.5rem 0;
@@ -2303,7 +2318,6 @@ function migrateFichaProperties(fichaProperties) {
 
   const cartaProperties = {
     proporcion,
-    deckId: null,
     caraActual: 'frontal',
     caraFrontal: { ...cara, ajusteImagen: { ...cara.ajusteImagen }, textBoxes: cara.textBoxes.map((tb) => ({ ...tb })) },
     caraTrasera: { ...cara, ajusteImagen: { ...cara.ajusteImagen }, textBoxes: cara.textBoxes.map((tb) => ({ ...tb })) },
@@ -2315,7 +2329,7 @@ function migrateFichaProperties(fichaProperties) {
 function migrateFichaComponent(component) {
   const { properties, errors } = migrateFichaProperties(component.properties);
   return {
-    component: { ...component, type: 'carta', properties },
+    component: { ...component, type: 'carta', properties, grupoId: null },
     errors,
   };
 }
@@ -2330,7 +2344,7 @@ __modules['core/component.js'] = function(module, exports, require) {
 // El campo `order` gobierna el apilado visual en la mesa (ver core/state.js,
 // que es quien lo asigna/recalcula: aquí solo se declara con valor por defecto).
 
-function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = true, mostrarTooltip = false, subirAlMoverInteractuar = false, oculto = false, order = null, copyOf = null } = {}) {
+function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = true, mostrarTooltip = false, subirAlMoverInteractuar = false, oculto = false, grupoId = null, order = null, copyOf = null } = {}) {
   return {
     id: crypto.randomUUID(),
     type,
@@ -2345,6 +2359,7 @@ function createComponent({ type = 'generico', name = '', properties = {}, image 
     mostrarTooltip,
     subirAlMoverInteractuar,
     oculto,
+    grupoId,
     order,
     copyOf,
   };
@@ -2442,11 +2457,11 @@ function renameCopyId(copyId, oldOriginalId, newOriginalId) {
 }
 
 // Aplica sobre `copy` los campos sincronizables de `original`: tipo visual, nombre,
-// imagen, ancho/alto, y las propiedades específicas de configuración/diseño del tipo
-// (todo lo editable desde `ui/componentModal.js`, salvo `bloqueado`/`oculto`, que quedan
-// siempre independientes por copia). Las propiedades de estado de interacción de juego de
-// la propia copia (ver NON_SYNCED_PROPERTY_KEYS) se conservan tal cual. `x`, `y`, `order`,
-// `bloqueado` y `oculto` de la copia tampoco se tocan.
+// imagen, ancho/alto, grupo, y las propiedades específicas de configuración/diseño del
+// tipo (todo lo editable desde `ui/componentModal.js`, salvo `bloqueado`/`oculto`, que
+// quedan siempre independientes por copia). Las propiedades de estado de interacción de
+// juego de la propia copia (ver NON_SYNCED_PROPERTY_KEYS) se conservan tal cual. `x`, `y`,
+// `order`, `bloqueado` y `oculto` de la copia tampoco se tocan.
 function syncCopyWithOriginal(copy, original) {
   const { synced: syncedProperties } = splitSyncedProperties(original.type, original.properties);
   const { nonSynced: ownNonSyncedProperties } = splitSyncedProperties(copy.type, copy.properties);
@@ -2459,6 +2474,7 @@ function syncCopyWithOriginal(copy, original) {
     height: original.height,
     mostrarTooltip: original.mostrarTooltip,
     subirAlMoverInteractuar: original.subirAlMoverInteractuar,
+    grupoId: original.grupoId,
     properties: { ...syncedProperties, ...ownNonSyncedProperties },
   };
 }
@@ -2486,12 +2502,12 @@ const state = {
   mode: MODES.PLAY,
   components: [],
   resources: [],
-  decks: [],
+  groups: [],
 };
 
 let panelState = { collapsed: false, position: null, width: null, height: null };
 let resourcePanelState = { collapsed: false, position: null, width: null, height: null };
-let deckPanelState = { collapsed: false, position: null, width: null, height: null };
+let groupPanelState = { collapsed: false, position: null, width: null, height: null };
 // Recuerda si los recursos por defecto (data/defaultResources.js) ya se han
 // sembrado alguna vez en este guardado, para no reponerlos cada vez que el
 // usuario los borra a propósito — ver seedDefaultResources() en main.js.
@@ -2599,8 +2615,23 @@ function migrateFichas(components) {
   }
 }
 
+// Migra en el sitio cualquier componente con `properties.deckId` (campo
+// específico de carta anterior al cambio 00105, "Mazo" → "Grupo") al nuevo
+// campo general `grupoId` de primer nivel, best-effort, mismo criterio que
+// migrateFichas: nunca debe bloquear el arranque.
+function migrateDeckIdToGrupo(components) {
+  for (const component of components) {
+    if (component.properties && 'deckId' in component.properties) {
+      const { deckId, ...restProperties } = component.properties;
+      if (component.grupoId == null) component.grupoId = deckId;
+      component.properties = restProperties;
+    }
+  }
+}
+
 function loadComponents(components) {
   migrateFichas(components);
+  migrateDeckIdToGrupo(components);
   compactOrders(components);
   state.components = components;
   emit('components:changed', state.components);
@@ -2670,43 +2701,43 @@ function loadResourcesSeeded(value) {
   resourcesSeeded = value;
 }
 
-function getDecks() {
-  return state.decks;
+function getGroups() {
+  return state.groups;
 }
 
-function addDeck(deck) {
-  state.decks.push(deck);
-  emit('decks:changed', state.decks);
+function addGroup(group) {
+  state.groups.push(group);
+  emit('groups:changed', state.groups);
 }
 
-function replaceDeck(id, updatedDeck) {
-  const index = state.decks.findIndex((d) => d.id === id);
+function replaceGroup(id, updatedGroup) {
+  const index = state.groups.findIndex((g) => g.id === id);
   if (index === -1) return;
-  state.decks[index] = updatedDeck;
-  emit('decks:changed', state.decks);
+  state.groups[index] = updatedGroup;
+  emit('groups:changed', state.groups);
 }
 
-function removeDeck(id) {
-  state.decks = state.decks.filter((d) => d.id !== id);
-  emit('decks:changed', state.decks);
+function removeGroup(id) {
+  state.groups = state.groups.filter((g) => g.id !== id);
+  emit('groups:changed', state.groups);
 }
 
-function loadDecks(decks) {
-  state.decks = decks;
-  emit('decks:changed', state.decks);
+function loadGroups(groups) {
+  state.groups = groups;
+  emit('groups:changed', state.groups);
 }
 
-function getDeckPanelState() {
-  return deckPanelState;
+function getGroupPanelState() {
+  return groupPanelState;
 }
 
-function setDeckPanelState(partial) {
-  deckPanelState = { ...deckPanelState, ...partial };
-  emit('deckPanelState:changed', deckPanelState);
+function setGroupPanelState(partial) {
+  groupPanelState = { ...groupPanelState, ...partial };
+  emit('groupPanelState:changed', groupPanelState);
 }
 
-function loadDeckPanelState(newDeckPanelState) {
-  deckPanelState = newDeckPanelState;
+function loadGroupPanelState(newGroupPanelState) {
+  groupPanelState = newGroupPanelState;
 }
 
 module.exports.getState = getState;
@@ -2731,14 +2762,14 @@ module.exports.loadResourcePanelState = loadResourcePanelState;
 module.exports.getResourcesSeeded = getResourcesSeeded;
 module.exports.markResourcesSeeded = markResourcesSeeded;
 module.exports.loadResourcesSeeded = loadResourcesSeeded;
-module.exports.getDecks = getDecks;
-module.exports.addDeck = addDeck;
-module.exports.replaceDeck = replaceDeck;
-module.exports.removeDeck = removeDeck;
-module.exports.loadDecks = loadDecks;
-module.exports.getDeckPanelState = getDeckPanelState;
-module.exports.setDeckPanelState = setDeckPanelState;
-module.exports.loadDeckPanelState = loadDeckPanelState;
+module.exports.getGroups = getGroups;
+module.exports.addGroup = addGroup;
+module.exports.replaceGroup = replaceGroup;
+module.exports.removeGroup = removeGroup;
+module.exports.loadGroups = loadGroups;
+module.exports.getGroupPanelState = getGroupPanelState;
+module.exports.setGroupPanelState = setGroupPanelState;
+module.exports.loadGroupPanelState = loadGroupPanelState;
 module.exports.MODES = MODES;
 };
 __modules['data/version.js'] = function(module, exports, require) {
@@ -3072,10 +3103,10 @@ __modules['core/fileExport.js'] = function(module, exports, require) {
 
 const { CURRENT_VERSION } = require('data/version.js');
 
-function buildExportHtml(components, resources, panelState, resourcePanelState, resourcesSeeded, decks, deckPanelState) {
+function buildExportHtml(components, resources, panelState, resourcePanelState, resourcesSeeded, groups, groupPanelState) {
   const clone = document.documentElement.cloneNode(true);
   const seedEl = clone.querySelector('#initial-state');
-  seedEl.textContent = JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, decks, deckPanelState });
+  seedEl.textContent = JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, groups, groupPanelState });
   return `<!doctype html>\n${clone.outerHTML}`;
 }
 
@@ -3124,16 +3155,20 @@ function parseState(raw) {
   }
   const panelState = (parsed.panelState && typeof parsed.panelState === 'object') ? parsed.panelState : null;
   const resourcePanelState = (parsed.resourcePanelState && typeof parsed.resourcePanelState === 'object') ? parsed.resourcePanelState : null;
-  const deckPanelState = (parsed.deckPanelState && typeof parsed.deckPanelState === 'object') ? parsed.deckPanelState : null;
+  // Compatibilidad hacia atrás (cambio 00105, "Mazo" → "Grupo"): un guardado hecho con
+  // la app anterior a este cambio tiene estas dos colecciones bajo las claves antiguas
+  // `decks`/`deckPanelState` — se siguen leyendo si las nuevas no están presentes.
+  const groupPanelStateRaw = parsed.groupPanelState ?? parsed.deckPanelState;
+  const groupPanelState = (groupPanelStateRaw && typeof groupPanelStateRaw === 'object') ? groupPanelStateRaw : null;
   const resources = Array.isArray(parsed.resources) ? parsed.resources : [];
   const resourcesSeeded = parsed.resourcesSeeded === true;
-  const decks = Array.isArray(parsed.decks) ? parsed.decks : [];
-  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded, decks, deckPanelState };
+  const groups = Array.isArray(parsed.groups) ? parsed.groups : (Array.isArray(parsed.decks) ? parsed.decks : []);
+  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded, groups, groupPanelState };
 }
 
-function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded, decks, deckPanelState) {
+function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded, groups, groupPanelState) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, decks, deckPanelState }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, groups, groupPanelState }));
   } catch {
     // Cuota excedida u otro fallo de localStorage: el autoguardado se omite
     // silenciosamente, sin interrumpir el uso normal de la aplicación.
@@ -3168,15 +3203,15 @@ function parseImportedComponents(raw) {
     return { error: true, detail: 'El fichero no contiene un listado de componentes válido.' };
   }
   const resources = Array.isArray(parsed.resources) ? parsed.resources : [];
-  const decks = Array.isArray(parsed.decks) ? parsed.decks : [];
-  return { components: parsed.components, resources, decks };
+  const groups = Array.isArray(parsed.groups) ? parsed.groups : (Array.isArray(parsed.decks) ? parsed.decks : []);
+  return { components: parsed.components, resources, groups };
 }
 
-// JSON ligero con los componentes, todos los recursos y los mazos (a diferencia
+// JSON ligero con los componentes, todos los recursos y los grupos (a diferencia
 // de "Guardar", que exporta la app completa) — pensado para sobrevivir a
 // cambios de versión de la app, sin incluir la configuración del panel flotante.
-function buildComponentsExport(components, resources, decks) {
-  return { version: CURRENT_VERSION, components, resources, decks };
+function buildComponentsExport(components, resources, groups) {
+  return { version: CURRENT_VERSION, components, resources, groups };
 }
 
 module.exports.saveState = saveState;
@@ -3185,53 +3220,54 @@ module.exports.readSeedState = readSeedState;
 module.exports.parseImportedComponents = parseImportedComponents;
 module.exports.buildComponentsExport = buildComponentsExport;
 };
-__modules['core/deck.js'] = function(module, exports, require) {
-// Modelo mínimo de "mazo" (agrupación de cartas). Análogo a core/resource.js.
+__modules['core/group.js'] = function(module, exports, require) {
+// Modelo mínimo de "grupo" (agrupación de elementos, cualquiera que sea su
+// tipo). Análogo a core/resource.js.
 
-function createDeck({ id, name = '' } = {}) {
+function createGroup({ id, name = '' } = {}) {
   return { id: id || crypto.randomUUID(), name };
 }
 
-function updateDeck(deck, changes) {
-  return { ...deck, ...changes };
+function updateGroup(group, changes) {
+  return { ...group, ...changes };
 }
 
-function isDeckNameTaken(name, decks, excludeId = null) {
+function isGroupNameTaken(name, groups, excludeId = null) {
   const normalizedName = name.trim().toLowerCase();
-  return decks.some(
-    (d) => d.name.trim().toLowerCase() === normalizedName && d.id !== excludeId
+  return groups.some(
+    (g) => g.name.trim().toLowerCase() === normalizedName && g.id !== excludeId
   );
 }
 
-// Ids de los componentes tipo 'carta' que referencian `deckId` (vacío si
-// ninguno) — deckId es siempre una propiedad plana de primer nivel en
-// `properties`, a diferencia de las referencias a recursos (sin necesidad de
-// un recorrido profundo tipo collectDeepValues de core/resource.js).
-function getComponentsUsingDeck(deckId, components) {
-  return components.filter((component) => component.type === 'carta' && component.properties?.deckId === deckId).map((component) => component.id);
+// Ids de los componentes (de cualquier tipo) que referencian `grupoId` (vacío
+// si ninguno) — grupoId es siempre una propiedad plana de primer nivel del
+// componente, a diferencia de las referencias a recursos (sin necesidad de un
+// recorrido profundo tipo collectDeepValues de core/resource.js).
+function getComponentsUsingGroup(groupId, components) {
+  return components.filter((component) => component.grupoId === groupId).map((component) => component.id);
 }
 
-module.exports.createDeck = createDeck;
-module.exports.updateDeck = updateDeck;
-module.exports.isDeckNameTaken = isDeckNameTaken;
-module.exports.getComponentsUsingDeck = getComponentsUsingDeck;
+module.exports.createGroup = createGroup;
+module.exports.updateGroup = updateGroup;
+module.exports.isGroupNameTaken = isGroupNameTaken;
+module.exports.getComponentsUsingGroup = getComponentsUsingGroup;
 };
 __modules['core/importMerge.js'] = function(module, exports, require) {
 // Lógica de fusión de una importación (change 00065): combina la selección de
-// componentes/recursos/mazos leída de un fichero con el estado actual del
+// componentes/recursos/grupos leída de un fichero con el estado actual del
 // juego, según el modo elegido (añadir/sobrescribir) y el comportamiento ante
 // id duplicado (sobrescribir/mantener ambos). Sin dependencias de DOM ni de
 // core/state.js: recibe y devuelve datos planos, quien la invoca decide cómo
 // aplicarlo al estado (mismo criterio que core/component.js / core/resource.js).
 
-const { createDeck, isDeckNameTaken } = require('core/deck.js');
+const { createGroup, isGroupNameTaken } = require('core/group.js');
 
 const RESOURCE_REF_KEYS = new Set(['imagenResourceId', 'fuenteResourceId']);
 
 // Calcula el siguiente id libre para `baseId` con el sufijo "-imported" (o
 // "-imported(n)" si también choca), análogo a nextCloneId (core/component.js)
 // pero genérico: opera sobre el conjunto de ids ya usados que le pasen,
-// indistintamente de si son de componente, recurso o mazo.
+// indistintamente de si son de componente, recurso o grupo.
 function nextImportedId(baseId, usedIds) {
   const root = `${baseId}-imported`;
   if (!usedIds.has(root)) return root;
@@ -3283,21 +3319,19 @@ function mergeCollection(existing, selected, mode, conflictMode) {
 }
 
 // Reconstruye `value` reescribiendo cualquier referencia a un recurso
-// (imagenResourceId/fuenteResourceId) o a un mazo (deckId) presente en el
-// mapa de renombrado correspondiente, en cualquier nivel de anidamiento.
-function remapRefsDeep(value, resourceIdMap, deckIdMap) {
+// (imagenResourceId/fuenteResourceId) presente en el mapa de renombrado
+// correspondiente, en cualquier nivel de anidamiento.
+function remapRefsDeep(value, resourceIdMap) {
   if (Array.isArray(value)) {
-    return value.map((item) => remapRefsDeep(item, resourceIdMap, deckIdMap));
+    return value.map((item) => remapRefsDeep(item, resourceIdMap));
   }
   if (value && typeof value === 'object') {
     const out = {};
     for (const [key, item] of Object.entries(value)) {
       if (RESOURCE_REF_KEYS.has(key) && typeof item === 'string' && resourceIdMap.has(item)) {
         out[key] = resourceIdMap.get(item);
-      } else if (key === 'deckId' && typeof item === 'string' && deckIdMap.has(item)) {
-        out[key] = deckIdMap.get(item);
       } else {
-        out[key] = remapRefsDeep(item, resourceIdMap, deckIdMap);
+        out[key] = remapRefsDeep(item, resourceIdMap);
       }
     }
     return out;
@@ -3306,15 +3340,20 @@ function remapRefsDeep(value, resourceIdMap, deckIdMap) {
 }
 
 // Reescribe, solo en los componentes seleccionados para importar, las
-// referencias a recursos/mazos cuyo id se haya renombrado por conflicto
+// referencias a recursos/grupos cuyo id se haya renombrado por conflicto
 // ("mantener ambos"). Los componentes ya existentes no se tocan aquí.
-function remapComponentRefs(components, resourceIdMap, deckIdMap) {
-  if (resourceIdMap.size === 0 && deckIdMap.size === 0) return components;
+// `grupoId` es una propiedad plana de primer nivel del componente (cambio
+// 00105), igual que `image`, así que se remapea aquí en vez de dentro de
+// remapRefsDeep (que solo recorre `properties`).
+function remapComponentRefs(components, resourceIdMap, groupIdMap) {
+  if (resourceIdMap.size === 0 && groupIdMap.size === 0) return components;
   return components.map((component) => {
     let image = component.image;
     if (typeof image === 'string' && resourceIdMap.has(image)) image = resourceIdMap.get(image);
-    const properties = remapRefsDeep(component.properties ?? {}, resourceIdMap, deckIdMap);
-    return { ...component, image, properties };
+    let grupoId = component.grupoId;
+    if (typeof grupoId === 'string' && groupIdMap.has(grupoId)) grupoId = groupIdMap.get(grupoId);
+    const properties = remapRefsDeep(component.properties ?? {}, resourceIdMap);
+    return { ...component, image, grupoId, properties };
   });
 }
 
@@ -3352,21 +3391,21 @@ function findNameById(id, items) {
   return found ? found.name : id;
 }
 
-// Deduplica nombres de mazos tras el merge por id: para cada mazo cuyo nombre
-// ya aparece antes en la lista, renombra añadiendo " (importado)" (o
-// " (importado n)" si esa forma también colisiona). Devuelve los mazos
+// Deduplica nombres de grupos tras el merge por id: para cada grupo cuyo
+// nombre ya aparece antes en la lista, renombra añadiendo " (importado)" (o
+// " (importado n)" si esa forma también colisiona). Devuelve los grupos
 // deduplicated y un array de renombres aplicados.
-function dedupeDeckNames(decks) {
+function dedupeGroupNames(groups) {
   const result = [];
   const seenNames = new Map();
   const renames = [];
 
-  for (const deck of decks) {
-    const normalizedName = deck.name.trim().toLowerCase();
+  for (const group of groups) {
+    const normalizedName = group.name.trim().toLowerCase();
 
     if (seenNames.has(normalizedName)) {
       let newName;
-      const root = `${deck.name} (importado)`;
+      const root = `${group.name} (importado)`;
       const rootNormalized = root.trim().toLowerCase();
 
       if (!seenNames.has(rootNormalized)) {
@@ -3375,7 +3414,7 @@ function dedupeDeckNames(decks) {
       } else {
         let n = 2;
         while (true) {
-          const candidate = `${deck.name} (importado ${n})`;
+          const candidate = `${group.name} (importado ${n})`;
           const candidateNormalized = candidate.trim().toLowerCase();
           if (!seenNames.has(candidateNormalized)) {
             newName = candidate;
@@ -3386,51 +3425,51 @@ function dedupeDeckNames(decks) {
         }
       }
 
-      renames.push({ deckId: deck.id, oldName: deck.name, newName });
-      result.push({ ...deck, name: newName });
+      renames.push({ groupId: group.id, oldName: group.name, newName });
+      result.push({ ...group, name: newName });
     } else {
       seenNames.set(normalizedName, true);
-      result.push(deck);
+      result.push(group);
     }
   }
 
-  return { decks: result, renames };
+  return { groups: result, renames };
 }
 
 // Punto de entrada: fusiona la selección de una importación con el estado
 // actual, resuelve las referencias rotas resultantes (recurso ausente se
-// descarta, mazo ausente se autocrea) y devuelve el estado final más un
+// descarta, grupo ausente se autocrea) y devuelve el estado final más un
 // informe de los avisos generados (una fila por referencia rota detectada).
 function mergeImportedGame({
   mode,
   conflictMode,
   existingComponents,
   existingResources,
-  existingDecks,
+  existingGroups,
   selectedComponents,
   selectedResources,
-  selectedDecks,
+  selectedGroups,
   allImportedResources = [],
-  allImportedDecks = [],
+  allImportedGroups = [],
 }) {
   const { result: resources, idMap: resourceIdMap } = mergeCollection(existingResources, selectedResources, mode, conflictMode);
-  let { result: decks, idMap: deckIdMap } = mergeCollection(existingDecks, selectedDecks, mode, conflictMode);
+  let { result: groups, idMap: groupIdMap } = mergeCollection(existingGroups, selectedGroups, mode, conflictMode);
 
-  const { decks: dedupedDecks, renames: deckRenames } = dedupeDeckNames(decks);
-  decks = dedupedDecks;
+  const { groups: dedupedGroups, renames: groupRenames } = dedupeGroupNames(groups);
+  groups = dedupedGroups;
 
-  const remappedSelectedComponents = remapComponentRefs(selectedComponents, resourceIdMap, deckIdMap);
+  const remappedSelectedComponents = remapComponentRefs(selectedComponents, resourceIdMap, groupIdMap);
   const { result: components, insertedIds: importedComponentIds } = mergeCollection(existingComponents, remappedSelectedComponents, mode, conflictMode);
 
   const resourceIds = new Set(resources.map((r) => r.id));
-  const deckIds = new Set(decks.map((d) => d.id));
-  const createdDeckIds = new Set();
+  const groupIds = new Set(groups.map((g) => g.id));
+  const createdGroupIds = new Set();
   const report = [];
 
-  for (const rename of deckRenames) {
+  for (const rename of groupRenames) {
     report.push({
-      tipoError: 'mazoDuplicado',
-      solucion: 'Se renombró el mazo importado para evitar un nombre duplicado',
+      tipoError: 'grupoDuplicado',
+      solucion: 'Se renombró el grupo importado para evitar un nombre duplicado',
       elemento: rename.newName,
     });
   }
@@ -3453,31 +3492,31 @@ function mergeImportedGame({
       }
     }
 
-    const deckId = component.properties?.deckId;
-    if (deckId && !deckIds.has(deckId)) {
-      const candidateName = findNameById(deckId, allImportedDecks);
+    const grupoId = component.grupoId;
+    if (grupoId && !groupIds.has(grupoId)) {
+      const candidateName = findNameById(grupoId, allImportedGroups);
 
-      if (!createdDeckIds.has(deckId)) {
-        const existingDeckWithSameName = decks.find(
-          (d) => isDeckNameTaken(candidateName, [d], deckId)
+      if (!createdGroupIds.has(grupoId)) {
+        const existingGroupWithSameName = groups.find(
+          (g) => isGroupNameTaken(candidateName, [g], grupoId)
         );
 
-        if (existingDeckWithSameName) {
-          component.properties.deckId = existingDeckWithSameName.id;
+        if (existingGroupWithSameName) {
+          component.grupoId = existingGroupWithSameName.id;
           report.push({
-            tipoError: 'mazoDuplicado',
-            solucion: 'Se vinculó a un mazo ya existente con el mismo nombre en vez de crear uno duplicado',
+            tipoError: 'grupoDuplicado',
+            solucion: 'Se vinculó a un grupo ya existente con el mismo nombre en vez de crear uno duplicado',
             elemento: candidateName,
           });
         } else {
-          decks.push(createDeck({ id: deckId, name: candidateName }));
-          deckIds.add(deckId);
-          createdDeckIds.add(deckId);
+          groups.push(createGroup({ id: grupoId, name: candidateName }));
+          groupIds.add(grupoId);
+          createdGroupIds.add(grupoId);
           changed = true;
           report.push({
             componentId: component.id,
-            tipoError: 'mazo',
-            solucion: 'Se creó el mazo automáticamente',
+            tipoError: 'grupo',
+            solucion: 'Se creó el grupo automáticamente',
             elemento: candidateName,
           });
         }
@@ -3487,7 +3526,7 @@ function mergeImportedGame({
     return changed ? { ...component } : component;
   });
 
-  return { components: finalComponents, resources, decks, report };
+  return { components: finalComponents, resources, groups, report };
 }
 
 module.exports.nextImportedId = nextImportedId;
@@ -5652,7 +5691,7 @@ function showErrorModal(title, message, detail) {
 module.exports.showErrorModal = showErrorModal;
 };
 __modules['ui/elementSelectionModal.js'] = function(module, exports, require) {
-// Lista de selección agrupada en tres bloques (Componentes/Recursos/Mazos),
+// Lista de selección agrupada en tres bloques (Componentes/Recursos/Grupos),
 // reutilizada por ui/exportSelectionModal.js y ui/importSelectionModal.js.
 // Cada bloque tiene su propio checkbox "seleccionar todo el bloque" (marca/
 // desmarca de golpe los checks de ese bloque) y la lista de checks
@@ -5664,26 +5703,26 @@ const { formatComponentIdentifier } = require('ui/componentRenderer.js');
 // con los ids marcados en cada bloque. `onSelectionChange(selection)` se
 // invoca cada vez que cambia algún check (incluido el pintado inicial), para
 // que el caller pueda habilitar/deshabilitar su botón de confirmar.
-function createElementSelectionGroups(container, { components = [], resources = [], decks = [] }, { onSelectionChange } = {}) {
+function createElementSelectionGroups(container, { components = [], resources = [], groups = [] }, { onSelectionChange } = {}) {
   container.innerHTML = '';
 
   const selected = {
     componentIds: new Set(components.map((c) => c.id)),
     resourceIds: new Set(resources.map((r) => r.id)),
-    deckIds: new Set(decks.map((d) => d.id)),
+    groupIds: new Set(groups.map((g) => g.id)),
   };
 
-  const groups = [
+  const blocks = [
     { key: 'componentIds', title: 'Componentes', items: components, label: formatComponentIdentifier },
     { key: 'resourceIds', title: 'Recursos', items: resources, label: (r) => r.name },
-    { key: 'deckIds', title: 'Mazos', items: decks, label: (d) => d.name },
+    { key: 'groupIds', title: 'Grupos', items: groups, label: (g) => g.name },
   ];
 
   function getSelection() {
     return {
       componentIds: Array.from(selected.componentIds),
       resourceIds: Array.from(selected.resourceIds),
-      deckIds: Array.from(selected.deckIds),
+      groupIds: Array.from(selected.groupIds),
     };
   }
 
@@ -5691,8 +5730,8 @@ function createElementSelectionGroups(container, { components = [], resources = 
     if (onSelectionChange) onSelectionChange(getSelection());
   }
 
-  for (const group of groups) {
-    if (group.items.length === 0) continue;
+  for (const block of blocks) {
+    if (block.items.length === 0) continue;
 
     const groupEl = document.createElement('div');
     groupEl.className = 'element-selection-group';
@@ -5705,7 +5744,7 @@ function createElementSelectionGroups(container, { components = [], resources = 
     header.appendChild(selectAllCheckbox);
     const title = document.createElement('span');
     title.className = 'element-selection-group__title';
-    title.textContent = group.title;
+    title.textContent = block.title;
     header.appendChild(title);
     groupEl.appendChild(header);
 
@@ -5714,29 +5753,29 @@ function createElementSelectionGroups(container, { components = [], resources = 
     groupEl.appendChild(list);
 
     const itemCheckboxes = [];
-    for (const item of group.items) {
+    for (const item of block.items) {
       const itemLabel = document.createElement('label');
       itemLabel.className = 'element-selection-group__item';
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
       checkbox.checked = true;
       checkbox.addEventListener('change', () => {
-        if (checkbox.checked) selected[group.key].add(item.id);
-        else selected[group.key].delete(item.id);
+        if (checkbox.checked) selected[block.key].add(item.id);
+        else selected[block.key].delete(item.id);
         selectAllCheckbox.checked = itemCheckboxes.every((c) => c.checked);
         notifyChange();
       });
       itemCheckboxes.push(checkbox);
       itemLabel.appendChild(checkbox);
       const text = document.createElement('span');
-      text.textContent = group.label(item);
+      text.textContent = block.label(item);
       itemLabel.appendChild(text);
       list.appendChild(itemLabel);
     }
 
     selectAllCheckbox.addEventListener('change', () => {
       for (const checkbox of itemCheckboxes) checkbox.checked = selectAllCheckbox.checked;
-      selected[group.key] = new Set(selectAllCheckbox.checked ? group.items.map((i) => i.id) : []);
+      selected[block.key] = new Set(selectAllCheckbox.checked ? block.items.map((i) => i.id) : []);
       notifyChange();
     });
 
@@ -5753,11 +5792,11 @@ module.exports.createElementSelectionGroups = createElementSelectionGroups;
 __modules['ui/exportSelectionModal.js'] = function(module, exports, require) {
 // Modal de exportación (sustituye al prompt() del nombre de fichero, change
 // 00065): campo de nombre de fichero + selección de qué componentes/
-// recursos/mazos incluir, agrupados en tres bloques (ui/elementSelectionModal.js).
+// recursos/grupos incluir, agrupados en tres bloques (ui/elementSelectionModal.js).
 
 const { createElementSelectionGroups } = require('ui/elementSelectionModal.js');
 
-function openExportSelectionModal({ components, resources, decks, defaultFilename, onAccept }) {
+function openExportSelectionModal({ components, resources, groups, defaultFilename, onAccept }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -5803,9 +5842,9 @@ function openExportSelectionModal({ components, resources, decks, defaultFilenam
   exportBtn.textContent = 'Exportar';
   footer.appendChild(exportBtn);
 
-  const { getSelection } = createElementSelectionGroups(groupsContainer, { components, resources, decks }, {
+  const { getSelection } = createElementSelectionGroups(groupsContainer, { components, resources, groups }, {
     onSelectionChange: (selection) => {
-      const hasSelection = selection.componentIds.length > 0 || selection.resourceIds.length > 0 || selection.deckIds.length > 0;
+      const hasSelection = selection.componentIds.length > 0 || selection.resourceIds.length > 0 || selection.groupIds.length > 0;
       exportBtn.disabled = !hasSelection;
     },
   });
@@ -5840,7 +5879,7 @@ __modules['ui/importSelectionModal.js'] = function(module, exports, require) {
 
 const { createElementSelectionGroups } = require('ui/elementSelectionModal.js');
 
-function openImportSelectionModal({ components, resources, decks, onAccept, onCancel }) {
+function openImportSelectionModal({ components, resources, groups, onAccept, onCancel }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -5882,9 +5921,9 @@ function openImportSelectionModal({ components, resources, decks, onAccept, onCa
   continueBtn.textContent = 'Continuar';
   footer.appendChild(continueBtn);
 
-  const { getSelection } = createElementSelectionGroups(groupsContainer, { components, resources, decks }, {
+  const { getSelection } = createElementSelectionGroups(groupsContainer, { components, resources, groups }, {
     onSelectionChange: (selection) => {
-      const hasSelection = selection.componentIds.length > 0 || selection.resourceIds.length > 0 || selection.deckIds.length > 0;
+      const hasSelection = selection.componentIds.length > 0 || selection.resourceIds.length > 0 || selection.groupIds.length > 0;
       continueBtn.disabled = !hasSelection;
     },
   });
@@ -6028,13 +6067,13 @@ module.exports.openImportConfirmModal = openImportConfirmModal;
 __modules['ui/importReportModal.js'] = function(module, exports, require) {
 // Modal de informe final de una importación (change 00065): tabla con una
 // fila por cada referencia rota resuelta automáticamente (recurso no
-// incluido en la selección/fichero, o mazo ausente autocreado). Mismo patrón
+// incluido en la selección/fichero, o grupo ausente autocreado). Mismo patrón
 // modal-overlay/modal que el resto, con una tabla en vez de campos de formulario.
 
 const ERROR_LABELS = {
   recurso: 'Recurso no incluido',
-  mazo: 'Mazo no incluido',
-  mazoDuplicado: 'Nombre de mazo duplicado',
+  grupo: 'Grupo no incluido',
+  grupoDuplicado: 'Nombre de grupo duplicado',
 };
 
 function openImportReportModal(report) {
@@ -6115,7 +6154,7 @@ __modules['ui/importConversionErrorModal.js'] = function(module, exports, requir
 // posterior a aplicar la importación), esta modal se muestra ANTES de tocar
 // la partida actual y ofrece dos acciones con consecuencias distintas —
 // mismo patrón de "confirmación con consecuencias" que
-// ui/deckDeleteConfirmModal.js, con la cabecera de error de ui/errorModal.js
+// ui/groupDeleteConfirmModal.js, con la cabecera de error de ui/errorModal.js
 // y la tabla/ancho de ui/importReportModal.js (clase `import-report-modal`
 // reutilizada tal cual, sin CSS nuevo).
 
@@ -6218,7 +6257,7 @@ __modules['ui/editModeToggle.js'] = function(module, exports, require) {
 // UI para entrar/salir del modo edición: botón de entrada en modo juego,
 // barra de herramientas propia (con botón de salida) en modo edición.
 
-const { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadDecks, getDecks, getDeckPanelState } = require('core/state.js');
+const { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadGroups, getGroups, getGroupPanelState } = require('core/state.js');
 const { buildExportHtml, downloadHtml, downloadJson } = require('core/fileExport.js');
 const { buildComponentsExport, parseImportedComponents } = require('core/persistence.js');
 const { mergeImportedGame } = require('core/importMerge.js');
@@ -6239,7 +6278,7 @@ function currentFileName() {
 }
 
 function saveAs(filename) {
-  const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded(), getDecks(), getDeckPanelState());
+  const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded(), getGroups(), getGroupPanelState());
   downloadHtml(filename, html);
   showToast(`Guardado como "${filename}"`);
 }
@@ -6253,10 +6292,10 @@ function openExportFlow() {
   openExportSelectionModal({
     components: getComponents(),
     resources: getResources(),
-    decks: getDecks(),
+    groups: getGroups(),
     defaultFilename: 'errantes-componentes.json',
-    onAccept: ({ filename, componentIds, resourceIds, deckIds }) => {
-      const data = buildComponentsExport(byIds(getComponents(), componentIds), byIds(getResources(), resourceIds), byIds(getDecks(), deckIds));
+    onAccept: ({ filename, componentIds, resourceIds, groupIds }) => {
+      const data = buildComponentsExport(byIds(getComponents(), componentIds), byIds(getResources(), resourceIds), byIds(getGroups(), groupIds));
       downloadJson(filename.endsWith('.json') ? filename : `${filename}.json`, data);
     },
   });
@@ -6274,8 +6313,8 @@ function importComponentsFromFile(file) {
     openImportSelectionModal({
       components: result.components,
       resources: result.resources,
-      decks: result.decks,
-      onAccept: ({ componentIds, resourceIds, deckIds }) => {
+      groups: result.groups,
+      onAccept: ({ componentIds, resourceIds, groupIds }) => {
         openImportConfirmModal({
           onAccept: ({ mode, conflictMode }) => {
             const selectedComponents = byIds(result.components, componentIds);
@@ -6293,22 +6332,22 @@ function importComponentsFromFile(file) {
             }
 
             const proceedWithImport = (components) => {
-              const { components: mergedComponents, resources, decks, report } = mergeImportedGame({
+              const { components: mergedComponents, resources, groups, report } = mergeImportedGame({
                 mode,
                 conflictMode,
                 existingComponents: getComponents(),
                 existingResources: getResources(),
-                existingDecks: getDecks(),
+                existingGroups: getGroups(),
                 selectedComponents: components,
                 selectedResources: byIds(result.resources, resourceIds),
-                selectedDecks: byIds(result.decks, deckIds),
+                selectedGroups: byIds(result.groups, groupIds),
                 allImportedResources: result.resources,
-                allImportedDecks: result.decks,
+                allImportedGroups: result.groups,
               });
 
               loadComponents(mergedComponents);
               loadResources(resources);
-              loadDecks(decks);
+              loadGroups(groups);
 
               if (report.length > 0) openImportReportModal(report);
             };
@@ -7833,9 +7872,28 @@ const { applyImageAdjustStyle, openImageAdjustModal } = require('ui/imageAdjustM
 const { openBoardImageModal } = require('ui/boardImageModal.js');
 const { openCardTextBoxModal } = require('ui/cardTextBoxModal.js');
 const { attachResizeHandle } = require('ui/resizeHandle.js');
+const { createHelpIcon } = require('ui/helpIcon.js');
 
 const CANVAS_MAX_SIDE = 380;
 const MIN_TEXT_BOX_DESIGN_SIZE = 20;
+
+const HELP_HTML = `
+  <ul>
+    <li>Elegir la <b>proporción/forma</b> de la carta.</li>
+    <li>Elegir una <b>imagen</b> para cada cara (frontal/trasera) y ajustarla (zoom, posición, transparencia).</li>
+    <li>Configurar el <b>borde</b> de la carta (color y grosor), de forma independiente por cara.</li>
+    <li><b>Añadir</b> un cuadro de texto nuevo a una cara.</li>
+    <li><b>Mover</b> un cuadro de texto arrastrándolo con el ratón.</li>
+    <li><b>Redimensionar</b> un cuadro de texto arrastrando su esquina.</li>
+    <li><b>Editar</b> el contenido y el estilo de un cuadro de texto (haciendo doble clic sobre él).</li>
+    <li><b>Seleccionar</b> un cuadro de texto con un clic y moverlo con precisión usando las flechas del teclado (1px, o 10px con Shift).</li>
+    <li><b>Aceptar</b> o <b>cancelar</b> los cambios hechos en el editor.</li>
+  </ul>
+`;
+
+function isTextEditableElement(el) {
+  return el instanceof HTMLTextAreaElement || el instanceof HTMLInputElement;
+}
 
 function cloneCara(cara) {
   return {
@@ -7857,7 +7915,10 @@ function openCardEditorModal({ component, onAccept }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Editor de cartas';
+  const headerTitle = document.createElement('span');
+  headerTitle.textContent = 'Editor de cartas';
+  header.appendChild(headerTitle);
+  header.appendChild(createHelpIcon({ html: HELP_HTML }));
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -7874,6 +7935,42 @@ function openCardEditorModal({ component, onAccept }) {
     caraFrontal: cloneCara(props.caraFrontal),
     caraTrasera: cloneCara(props.caraTrasera),
   };
+
+  let selected = null;
+
+  function selectTextBox(caraKey, id) {
+    selected = { caraKey, id };
+    renderFaces();
+  }
+
+  function deselectTextBox() {
+    if (!selected) return;
+    selected = null;
+    renderFaces();
+  }
+
+  function handleKeyDown(e) {
+    if (!selected) return;
+    if (isTextEditableElement(document.activeElement)) return;
+    if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+    e.preventDefault();
+    const cara = working[selected.caraKey];
+    const textBox = cara.textBoxes.find((tb) => tb.id === selected.id);
+    if (!textBox) return;
+    const step = e.shiftKey ? 10 : 1;
+    if (e.key === 'ArrowUp') textBox.y -= step;
+    if (e.key === 'ArrowDown') textBox.y += step;
+    if (e.key === 'ArrowLeft') textBox.x -= step;
+    if (e.key === 'ArrowRight') textBox.x += step;
+    renderFaces();
+  }
+
+  document.addEventListener('keydown', handleKeyDown);
+
+  function cleanup() {
+    document.removeEventListener('keydown', handleKeyDown);
+    overlay.remove();
+  }
 
   // Toolbar: proporción
   const toolbar = document.createElement('div');
@@ -8016,6 +8113,9 @@ function openCardEditorModal({ component, onAccept }) {
     canvasInner.style.inset = '0';
     canvasInner.style.boxSizing = 'border-box';
     canvasInner.style.overflow = 'hidden';
+    canvasInner.addEventListener('click', (e) => {
+      if (e.target === canvasInner) deselectTextBox();
+    });
     canvas.appendChild(canvasInner);
 
     // Ver fix 00096: las proporciones hexagonales no pueden usar `border`
@@ -8160,6 +8260,9 @@ function openCardEditorModal({ component, onAccept }) {
   function renderTextBox(caraKey, textBox, previewScale) {
     const el = document.createElement('div');
     el.className = 'card-editor-modal__textbox';
+    if (selected?.caraKey === caraKey && selected?.id === textBox.id) {
+      el.classList.add('card-editor-modal__textbox--selected');
+    }
     el.style.position = 'absolute';
     el.style.left = `${textBox.x * previewScale}px`;
     el.style.top = `${textBox.y * previewScale}px`;
@@ -8179,8 +8282,14 @@ function openCardEditorModal({ component, onAccept }) {
     Object.assign(el.style, getTextBoxLayoutStyle(textBox, previewScale));
     el.textContent = textBox.contenido || '';
 
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      selectTextBox(caraKey, textBox.id);
+    });
+
     el.addEventListener('dblclick', (e) => {
       e.stopPropagation();
+      deselectTextBox();
       openCardTextBoxModal({
         textBox,
         onAccept: (updated) => {
@@ -8249,7 +8358,7 @@ function openCardEditorModal({ component, onAccept }) {
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
   cancelBtn.textContent = 'Cancelar';
-  cancelBtn.addEventListener('click', () => overlay.remove());
+  cancelBtn.addEventListener('click', () => cleanup());
   footer.appendChild(cancelBtn);
 
   const acceptBtn = document.createElement('button');
@@ -8263,7 +8372,7 @@ function openCardEditorModal({ component, onAccept }) {
         caraTrasera: working.caraTrasera,
       });
     }
-    overlay.remove();
+    cleanup();
   });
   footer.appendChild(acceptBtn);
 
@@ -8275,7 +8384,7 @@ function openCardEditorModal({ component, onAccept }) {
     mousedownOnOverlay = e.target === overlay;
   });
   overlay.addEventListener('click', (e) => {
-    if (e.target === overlay && mousedownOnOverlay) overlay.remove();
+    if (e.target === overlay && mousedownOnOverlay) cleanup();
   });
 }
 
@@ -8299,15 +8408,15 @@ function cloneFace(face) {
 }
 
 // `data` solo debe incluir las claves de los bloques marcados al copiar:
-// { generales, proporcion, deckId, deckName, caraFrontal, caraTrasera }.
+// { generales, proporcion, caraFrontal, caraTrasera }. `generales` (cambio
+// 00105) incluye ahora también `grupoId`/`grupoName` (este último de solo
+// lectura, para el mensaje de error si el grupo deja de existir al pegar).
 // Los bloques copiados se clonan en profundidad para que futuras ediciones
 // de la carta origen no muten el portapapeles ya guardado.
 function setStyleClipboard(data) {
   clipboard = {
     generales: data.generales ? { ...data.generales } : undefined,
     proporcion: data.proporcion,
-    deckId: 'deckId' in data ? data.deckId : undefined,
-    deckName: data.deckName,
     caraFrontal: data.caraFrontal ? cloneFace(data.caraFrontal) : undefined,
     caraTrasera: data.caraTrasera ? cloneFace(data.caraTrasera) : undefined,
   };
@@ -8324,17 +8433,17 @@ function hasStyleClipboard() {
 // Recorre solo los bloques presentes en `clip` (no los de la carta destino) y
 // devuelve la lista de referencias que ya no existen en el proyecto —
 // `[]` si todo es válido. Función pura: no toca el estado ni el portapapeles.
-function validateStyleClipboardForPaste(clip, { decks, resources }) {
+function validateStyleClipboardForPaste(clip, { groups, resources }) {
   const incidencias = [];
   if (!clip) return incidencias;
 
-  if ('deckId' in clip && clip.deckId !== undefined && clip.deckId !== null) {
-    const exists = decks.some((d) => d.id === clip.deckId);
+  if (clip.generales && clip.generales.grupoId != null) {
+    const exists = groups.some((g) => g.id === clip.generales.grupoId);
     if (!exists) {
       incidencias.push({
-        elemento: 'Mazo',
-        referencia: 'Mazo',
-        detalle: `"${clip.deckName || clip.deckId}" ya no existe`,
+        elemento: 'Generales',
+        referencia: 'Grupo',
+        detalle: `"${clip.generales.grupoName || clip.generales.grupoId}" ya no existe`,
       });
     }
   }
@@ -8370,20 +8479,20 @@ module.exports.validateStyleClipboardForPaste = validateStyleClipboardForPaste;
 };
 __modules['ui/styleClipboardSelectionModal.js'] = function(module, exports, require) {
 // Modal de selección al pulsar "Copiar estilo" sobre una carta (change
-// 00085): checklist de un único grupo fijo de 5 elementos (Generales,
-// Proporción, Mazo, Cara frontal, Cara trasera), todos marcados por defecto.
-// No reutiliza ui/elementSelectionModal.js (pensada para colecciones
-// dinámicas con id/label) — construye su propio marcado reutilizando las
-// mismas clases BEM `.element-selection-group*` (STYLE_BIBLE.md sección
-// 12.5) para heredar el mismo lenguaje visual sin duplicar CSS.
+// 00085; checklist reducido a 4 elementos y "Grupo" integrado en el bloque
+// "Generales" en el cambio 00105): checklist de un único grupo fijo de 4
+// elementos (Generales, Proporción, Cara frontal, Cara trasera), todos
+// marcados por defecto. No reutiliza ui/elementSelectionModal.js (pensada
+// para colecciones dinámicas con id/label) — construye su propio marcado
+// reutilizando las mismas clases BEM `.element-selection-group*`
+// (STYLE_BIBLE.md sección 12.5) para heredar el mismo lenguaje visual sin
+// duplicar CSS.
 
-const { getDecks } = require('core/state.js');
 const { CARD_PROPORTIONS } = require('core/cardProportions.js');
 
 const ITEMS = [
-  { key: 'generales', label: 'Generales', hint: 'Bloqueado, tooltip, subir al interactuar' },
+  { key: 'generales', label: 'Generales', hint: 'Bloqueado, tooltip, subir al interactuar, grupo' },
   { key: 'proporcion', label: 'Proporción' },
-  { key: 'deckId', label: 'Mazo' },
   { key: 'caraFrontal', label: 'Cara frontal' },
   { key: 'caraTrasera', label: 'Cara trasera' },
 ];
@@ -8393,11 +8502,6 @@ function hintFor(key, component) {
   if (key === 'proporcion') {
     const entry = CARD_PROPORTIONS.find((p) => p.value === props.proporcion);
     return entry ? entry.label : props.proporcion;
-  }
-  if (key === 'deckId') {
-    if (!props.deckId) return 'Sin mazo';
-    const deck = getDecks().find((d) => d.id === props.deckId);
-    return deck ? deck.name : 'Sin mazo';
   }
   return null;
 }
@@ -8520,7 +8624,7 @@ module.exports.openStyleClipboardSelectionModal = openStyleClipboardSelectionMod
 };
 __modules['ui/styleClipboardErrorModal.js'] = function(module, exports, require) {
 // Modal de error al pegar estilo (change 00085): alguna referencia del
-// estilo copiado (mazo, imagen, tipografía) ya no existe en el proyecto, así
+// estilo copiado (grupo, imagen, tipografía) ya no existe en el proyecto, así
 // que no se aplica ningún cambio a la carta destino. Mismo patrón que
 // ui/importConversionErrorModal.js — cabecera de error de ui/errorModal.js
 // combinada con la tabla de ui/importReportModal.js, reutilizando tal cual
@@ -8611,9 +8715,9 @@ __modules['ui/componentModal.js'] = function(module, exports, require) {
 // Modal for creating/editing components with tabs.
 // Generically handles different component types via type-specific tab content.
 
-const { getComponents, getResources, getDecks, addDeck } = require('core/state.js');
+const { getComponents, getResources, getGroups, addGroup } = require('core/state.js');
 const { createComponent, updateComponent } = require('core/component.js');
-const { createDeck, isDeckNameTaken } = require('core/deck.js');
+const { createGroup, isGroupNameTaken } = require('core/group.js');
 const { createHelpIcon } = require('ui/helpIcon.js');
 const { openBoardPatternModal } = require('ui/boardPatternModal.js');
 const { openBoardImageModal } = require('ui/boardImageModal.js');
@@ -8663,7 +8767,6 @@ const DEFAULT_DOCUMENTO_PROPERTIES = {
 
 const DEFAULT_CARTA_PROPERTIES = {
   proporcion: '5:7',
-  deckId: null,
   caraActual: 'trasera',
   caraFrontal: {
     imagenResourceId: null,
@@ -8888,6 +8991,104 @@ function openComponentModal({ component = null, onAccept, onDelete }) {
     text: 'Si está marcado, este componente se coloca automáticamente encima de todos los demás cada vez que se mueve o se interactúa con él (voltear, lanzar) en Modo Juego.',
   }));
   generalContent.appendChild(upOnMoveField);
+
+  // Grupo (cambio 00105): propiedad general de cualquier tipo de componente,
+  // antes exclusiva de "Carta/Ficha" bajo el nombre "Mazo".
+  const groupField = document.createElement('div');
+  groupField.className = 'modal__field';
+  const groupLabel = document.createElement('label');
+  groupLabel.textContent = 'Grupo';
+  const groupSelect = document.createElement('select');
+  const NEW_GROUP_VALUE = '__new__';
+
+  const newGroupRow = document.createElement('div');
+  newGroupRow.style.display = 'none';
+  newGroupRow.style.marginTop = '0.5rem';
+  const newGroupInputRow = document.createElement('div');
+  newGroupInputRow.style.display = 'flex';
+  newGroupInputRow.style.gap = '0.5rem';
+  const newGroupInput = document.createElement('input');
+  newGroupInput.type = 'text';
+  newGroupInput.placeholder = 'Nombre del grupo nuevo';
+  const newGroupCreateBtn = document.createElement('button');
+  newGroupCreateBtn.type = 'button';
+  newGroupCreateBtn.className = 'btn-cancel';
+  newGroupCreateBtn.textContent = 'Crear';
+  newGroupInputRow.appendChild(newGroupInput);
+  newGroupInputRow.appendChild(newGroupCreateBtn);
+  const newGroupError = document.createElement('div');
+  newGroupError.className = 'modal__error';
+  newGroupError.style.display = 'none';
+  newGroupError.style.marginTop = '0.25rem';
+  newGroupRow.appendChild(newGroupInputRow);
+  newGroupRow.appendChild(newGroupError);
+
+  function populateGroupSelect() {
+    groupSelect.innerHTML = '';
+    const noneOption = document.createElement('option');
+    noneOption.value = '';
+    noneOption.textContent = 'Sin grupo';
+    if (!workingComponent.grupoId) noneOption.selected = true;
+    groupSelect.appendChild(noneOption);
+
+    for (const group of getGroups()) {
+      const option = document.createElement('option');
+      option.value = group.id;
+      option.textContent = group.name;
+      if (group.id === workingComponent.grupoId) option.selected = true;
+      groupSelect.appendChild(option);
+    }
+
+    const newOption = document.createElement('option');
+    newOption.value = NEW_GROUP_VALUE;
+    newOption.textContent = '+ Crear nuevo grupo…';
+    groupSelect.appendChild(newOption);
+  }
+  populateGroupSelect();
+
+  function validateNewGroupName() {
+    const name = newGroupInput.value.trim();
+    if (!name) {
+      newGroupError.textContent = 'El nombre no puede estar vacío';
+      newGroupError.style.display = 'block';
+      return false;
+    }
+    if (isGroupNameTaken(name, getGroups())) {
+      newGroupError.textContent = 'Ya existe un grupo con este nombre';
+      newGroupError.style.display = 'block';
+      return false;
+    }
+    newGroupError.style.display = 'none';
+    return true;
+  }
+
+  groupSelect.addEventListener('change', () => {
+    if (groupSelect.value === NEW_GROUP_VALUE) {
+      newGroupRow.style.display = 'block';
+      newGroupInput.focus();
+      return;
+    }
+    newGroupRow.style.display = 'none';
+    workingComponent.grupoId = groupSelect.value || null;
+  });
+
+  newGroupInput.addEventListener('input', validateNewGroupName);
+
+  newGroupCreateBtn.addEventListener('click', () => {
+    if (!validateNewGroupName()) return;
+    const name = newGroupInput.value.trim();
+    const group = createGroup({ name });
+    addGroup(group);
+    workingComponent.grupoId = group.id;
+    newGroupRow.style.display = 'none';
+    newGroupInput.value = '';
+    populateGroupSelect();
+  });
+
+  groupField.appendChild(groupLabel);
+  groupField.appendChild(groupSelect);
+  groupField.appendChild(newGroupRow);
+  generalContent.appendChild(groupField);
 
   function validateId() {
     const newId = idInput.value.trim();
@@ -9441,103 +9642,6 @@ function openComponentModal({ component = null, onAccept, onDelete }) {
     proporcionField.appendChild(proporcionSelect);
     container.appendChild(proporcionField);
 
-    // Mazo
-    const deckField = document.createElement('div');
-    deckField.className = 'modal__field';
-    const deckLabel = document.createElement('label');
-    deckLabel.textContent = 'Mazo';
-    const deckSelect = document.createElement('select');
-    const NEW_DECK_VALUE = '__new__';
-
-    const newDeckRow = document.createElement('div');
-    newDeckRow.style.display = 'none';
-    newDeckRow.style.marginTop = '0.5rem';
-    const newDeckInputRow = document.createElement('div');
-    newDeckInputRow.style.display = 'flex';
-    newDeckInputRow.style.gap = '0.5rem';
-    const newDeckInput = document.createElement('input');
-    newDeckInput.type = 'text';
-    newDeckInput.placeholder = 'Nombre del mazo nuevo';
-    const newDeckCreateBtn = document.createElement('button');
-    newDeckCreateBtn.type = 'button';
-    newDeckCreateBtn.className = 'btn-cancel';
-    newDeckCreateBtn.textContent = 'Crear';
-    newDeckInputRow.appendChild(newDeckInput);
-    newDeckInputRow.appendChild(newDeckCreateBtn);
-    const newDeckError = document.createElement('div');
-    newDeckError.className = 'modal__error';
-    newDeckError.style.display = 'none';
-    newDeckError.style.marginTop = '0.25rem';
-    newDeckRow.appendChild(newDeckInputRow);
-    newDeckRow.appendChild(newDeckError);
-
-    function populateDeckSelect() {
-      deckSelect.innerHTML = '';
-      const noneOption = document.createElement('option');
-      noneOption.value = '';
-      noneOption.textContent = 'Sin mazo';
-      if (!props.deckId) noneOption.selected = true;
-      deckSelect.appendChild(noneOption);
-
-      for (const deck of getDecks()) {
-        const option = document.createElement('option');
-        option.value = deck.id;
-        option.textContent = deck.name;
-        if (deck.id === props.deckId) option.selected = true;
-        deckSelect.appendChild(option);
-      }
-
-      const newOption = document.createElement('option');
-      newOption.value = NEW_DECK_VALUE;
-      newOption.textContent = '+ Crear nuevo mazo…';
-      deckSelect.appendChild(newOption);
-    }
-    populateDeckSelect();
-
-    function validateNewDeckName() {
-      const name = newDeckInput.value.trim();
-      if (!name) {
-        newDeckError.textContent = 'El nombre no puede estar vacío';
-        newDeckError.style.display = 'block';
-        return false;
-      }
-      if (isDeckNameTaken(name, getDecks())) {
-        newDeckError.textContent = 'Ya existe un mazo con este nombre';
-        newDeckError.style.display = 'block';
-        return false;
-      }
-      newDeckError.style.display = 'none';
-      return true;
-    }
-
-    deckSelect.addEventListener('change', () => {
-      if (deckSelect.value === NEW_DECK_VALUE) {
-        newDeckRow.style.display = 'block';
-        newDeckInput.focus();
-        return;
-      }
-      newDeckRow.style.display = 'none';
-      props.deckId = deckSelect.value || null;
-    });
-
-    newDeckInput.addEventListener('input', validateNewDeckName);
-
-    newDeckCreateBtn.addEventListener('click', () => {
-      if (!validateNewDeckName()) return;
-      const name = newDeckInput.value.trim();
-      const deck = createDeck({ name });
-      addDeck(deck);
-      props.deckId = deck.id;
-      newDeckRow.style.display = 'none';
-      newDeckInput.value = '';
-      populateDeckSelect();
-    });
-
-    deckField.appendChild(deckLabel);
-    deckField.appendChild(deckSelect);
-    deckField.appendChild(newDeckRow);
-    container.appendChild(deckField);
-
     // Editor de diseño
     const editField = document.createElement('div');
     editField.className = 'modal__field';
@@ -9583,19 +9687,17 @@ function openComponentModal({ component = null, onAccept, onDelete }) {
         onAccept: (selection) => {
           const data = {};
           if (selection.generales) {
+            const grupo = workingComponent.grupoId ? getGroups().find((g) => g.id === workingComponent.grupoId) : null;
             data.generales = {
               bloqueado: workingComponent.bloqueado,
               oculto: workingComponent.oculto,
               mostrarTooltip: workingComponent.mostrarTooltip,
               subirAlMoverInteractuar: workingComponent.subirAlMoverInteractuar,
+              grupoId: workingComponent.grupoId,
+              grupoName: grupo ? grupo.name : null,
             };
           }
           if (selection.proporcion) data.proporcion = props.proporcion;
-          if (selection.deckId) {
-            data.deckId = props.deckId;
-            const deck = props.deckId ? getDecks().find((d) => d.id === props.deckId) : null;
-            data.deckName = deck ? deck.name : null;
-          }
           if (selection.caraFrontal) data.caraFrontal = props.caraFrontal;
           if (selection.caraTrasera) data.caraTrasera = props.caraTrasera;
           setStyleClipboard(data);
@@ -9615,7 +9717,7 @@ function openComponentModal({ component = null, onAccept, onDelete }) {
     pasteStyleBtn.title = hasStyleClipboard() ? '' : 'Pegar estilo (nada copiado)';
     pasteStyleBtn.addEventListener('click', () => {
       const clip = getStyleClipboard();
-      const incidencias = validateStyleClipboardForPaste(clip, { decks: getDecks(), resources: getResources() });
+      const incidencias = validateStyleClipboardForPaste(clip, { groups: getGroups(), resources: getResources() });
       if (incidencias.length > 0) {
         openStyleClipboardPasteErrorModal(incidencias);
         return;
@@ -9626,14 +9728,12 @@ function openComponentModal({ component = null, onAccept, onDelete }) {
         workingComponent.oculto = clip.generales.oculto;
         workingComponent.mostrarTooltip = clip.generales.mostrarTooltip;
         workingComponent.subirAlMoverInteractuar = clip.generales.subirAlMoverInteractuar;
+        workingComponent.grupoId = clip.generales.grupoId;
         moveCheckbox.checked = workingComponent.bloqueado;
         hiddenCheckbox.checked = workingComponent.oculto;
         tooltipCheckbox.checked = workingComponent.mostrarTooltip;
         upOnMoveCheckbox.checked = workingComponent.subirAlMoverInteractuar;
-      }
-      if ('deckId' in clip && clip.deckId !== undefined) {
-        props.deckId = clip.deckId;
-        populateDeckSelect();
+        populateGroupSelect();
       }
       if (clip.caraFrontal) props.caraFrontal = cloneFace(clip.caraFrontal);
       if (clip.caraTrasera) props.caraTrasera = cloneFace(clip.caraTrasera);
@@ -9651,7 +9751,7 @@ function openComponentModal({ component = null, onAccept, onDelete }) {
 
     const styleHint = document.createElement('p');
     styleHint.className = 'modal__hint';
-    styleHint.textContent = 'Copia/pega solo los elementos que elijas: generales, proporción, mazo, cara frontal y/o cara trasera.';
+    styleHint.textContent = 'Copia/pega solo los elementos que elijas: generales (incluye el grupo), proporción, cara frontal y/o cara trasera.';
     styleSection.appendChild(styleHint);
 
     container.appendChild(styleSection);
@@ -9830,6 +9930,11 @@ const COMPONENT_TYPES = [
   { value: 'carta', label: 'Carta/Ficha' },
 ];
 
+function getComponentTypeLabel(type) {
+  const entry = COMPONENT_TYPES.find((t) => t.value === type);
+  return entry ? entry.label : type;
+}
+
 function openComponentTypeModal({ onAccept }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -9905,6 +10010,7 @@ function openComponentTypeModal({ onAccept }) {
   });
 }
 
+module.exports.getComponentTypeLabel = getComponentTypeLabel;
 module.exports.openComponentTypeModal = openComponentTypeModal;
 };
 __modules['ui/tableColumnResize.js'] = function(module, exports, require) {
@@ -10793,35 +10899,37 @@ function renderResourceList(
 
 module.exports.renderResourceList = renderResourceList;
 };
-__modules['ui/deckList.js'] = function(module, exports, require) {
-// Panel flotante con el listado de mazos, usado en modo edición. Análogo a
+__modules['ui/groupList.js'] = function(module, exports, require) {
+// Panel flotante con el listado de grupos, usado en modo edición. Análogo a
 // ui/resourceList.js pero simplificado: sin filtro de texto, sin columna
-// "Tipo" (los mazos no tienen tipo) y sin clonar.
+// "Tipo" (los grupos no tienen tipo) y sin clonar.
 
 const { attachResizeHandle } = require('ui/resizeHandle.js');
+const { getComponentsUsingGroup } = require('core/group.js');
 
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
 
-function renderBody(body, decks, { onEdit, onRemove } = {}) {
+function renderBody(body, groups, components, { onEdit, onRemove } = {}) {
   body.innerHTML = '';
 
-  if (decks.length === 0) {
+  if (groups.length === 0) {
     const empty = document.createElement('p');
-    empty.className = 'deck-list__empty';
-    empty.textContent = 'No hay mazos todavía.';
+    empty.className = 'group-list__empty';
+    empty.textContent = 'No hay grupos todavía.';
     body.appendChild(empty);
     return;
   }
 
   const table = document.createElement('table');
-  table.className = 'deck-list';
+  table.className = 'group-list';
 
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
-  for (const label of ['Nombre', 'Acciones']) {
+  for (const label of ['Nombre', 'Elementos', 'Acciones']) {
     const th = document.createElement('th');
     th.textContent = label;
+    if (label === 'Elementos') th.className = 'group-list__count-cell';
     headRow.appendChild(th);
   }
   thead.appendChild(headRow);
@@ -10829,31 +10937,36 @@ function renderBody(body, decks, { onEdit, onRemove } = {}) {
 
   const tbody = document.createElement('tbody');
 
-  for (const deck of decks) {
+  for (const group of groups) {
     const row = document.createElement('tr');
 
     const nameCell = document.createElement('td');
-    nameCell.textContent = deck.name;
+    nameCell.textContent = group.name;
     row.appendChild(nameCell);
 
+    const countCell = document.createElement('td');
+    countCell.className = 'group-list__count-cell';
+    countCell.textContent = String(getComponentsUsingGroup(group.id, components).length);
+    row.appendChild(countCell);
+
     const actionsCell = document.createElement('td');
-    actionsCell.className = 'deck-list__actions-cell';
+    actionsCell.className = 'group-list__actions-cell';
 
     if (onEdit) {
       const editButton = document.createElement('button');
       editButton.type = 'button';
-      editButton.className = 'deck-list__action-btn';
+      editButton.className = 'group-list__action-btn';
       editButton.textContent = 'Editar';
-      editButton.addEventListener('click', () => onEdit(deck));
+      editButton.addEventListener('click', () => onEdit(group));
       actionsCell.appendChild(editButton);
     }
 
     if (onRemove) {
       const removeButton = document.createElement('button');
       removeButton.type = 'button';
-      removeButton.className = 'deck-list__action-btn deck-list__action-btn--danger';
+      removeButton.className = 'group-list__action-btn group-list__action-btn--danger';
       removeButton.textContent = 'Eliminar';
-      removeButton.addEventListener('click', () => onRemove(deck));
+      removeButton.addEventListener('click', () => onRemove(group));
       actionsCell.appendChild(removeButton);
     }
 
@@ -10865,22 +10978,23 @@ function renderBody(body, decks, { onEdit, onRemove } = {}) {
   body.appendChild(table);
 }
 
-function renderDeckList(
+function renderGroupList(
   container,
-  decks,
+  groups,
+  components,
   { onEdit, onRemove, onAdd, collapsed = false, onToggleCollapse, onPanelMove, onPanelResize, bodyHeight = null } = {}
 ) {
   container.innerHTML = '';
 
   const panel = document.createElement('div');
-  panel.className = 'deck-panel';
+  panel.className = 'group-panel';
   let body;
 
   const header = document.createElement('div');
-  header.className = 'deck-panel__header';
+  header.className = 'group-panel__header';
 
   const title = document.createElement('strong');
-  title.textContent = `Mazos (${decks.length})`;
+  title.textContent = `Grupos (${groups.length})`;
   header.appendChild(title);
 
   const toggleButton = document.createElement('button');
@@ -10932,19 +11046,19 @@ function renderDeckList(
 
   if (!collapsed) {
     body = document.createElement('div');
-    body.className = 'deck-panel__body';
+    body.className = 'group-panel__body';
     if (bodyHeight != null) {
       body.style.height = `${bodyHeight}px`;
     }
-    renderBody(body, decks, { onEdit, onRemove });
+    renderBody(body, groups, components, { onEdit, onRemove });
     panel.appendChild(body);
 
     const footer = document.createElement('div');
-    footer.className = 'deck-panel__footer';
+    footer.className = 'group-panel__footer';
 
     const addButton = document.createElement('button');
     addButton.type = 'button';
-    addButton.textContent = '+ Añadir mazo';
+    addButton.textContent = '+ Añadir grupo';
     addButton.addEventListener('click', () => {
       if (onAdd) onAdd();
     });
@@ -10983,17 +11097,17 @@ function renderDeckList(
   container.appendChild(panel);
 }
 
-module.exports.renderDeckList = renderDeckList;
+module.exports.renderGroupList = renderGroupList;
 };
-__modules['ui/deckModal.js'] = function(module, exports, require) {
-// Modal mínima de alta/edición de un mazo, misma estructura visual que
+__modules['ui/groupModal.js'] = function(module, exports, require) {
+// Modal mínima de alta/edición de un grupo, misma estructura visual que
 // ui/resourceModal.js (overlay/modal/header/content/footer) pero única para
-// ambos casos: sin `deck`, alta (sin botón "Eliminar"); con `deck`, edición.
+// ambos casos: sin `group`, alta (sin botón "Eliminar"); con `group`, edición.
 
-const { createDeck, updateDeck, isDeckNameTaken } = require('core/deck.js');
-const { getDecks } = require('core/state.js');
+const { createGroup, updateGroup, isGroupNameTaken } = require('core/group.js');
+const { getGroups } = require('core/state.js');
 
-function openDeckModal({ deck = null, onAccept, onDelete }) {
+function openGroupModal({ group = null, onAccept, onDelete }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -11002,7 +11116,7 @@ function openDeckModal({ deck = null, onAccept, onDelete }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = deck ? `Mazo: ${deck.name}` : 'Nuevo mazo';
+  header.textContent = group ? `Grupo: ${group.name}` : 'Nuevo grupo';
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -11015,7 +11129,7 @@ function openDeckModal({ deck = null, onAccept, onDelete }) {
   nameLabel.textContent = 'Nombre';
   const nameInput = document.createElement('input');
   nameInput.type = 'text';
-  nameInput.value = deck?.name ?? '';
+  nameInput.value = group?.name ?? '';
   const nameError = document.createElement('div');
   nameError.className = 'modal__error';
   nameError.style.display = 'none';
@@ -11028,12 +11142,12 @@ function openDeckModal({ deck = null, onAccept, onDelete }) {
   footer.className = 'modal__footer';
   modal.appendChild(footer);
 
-  if (deck) {
+  if (group) {
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn-eliminar';
     deleteBtn.textContent = 'Eliminar';
     deleteBtn.addEventListener('click', () => {
-      onDelete(deck, () => overlay.remove());
+      onDelete(group, () => overlay.remove());
     });
     footer.appendChild(deleteBtn);
   }
@@ -11056,8 +11170,8 @@ function openDeckModal({ deck = null, onAccept, onDelete }) {
       nameError.style.display = 'block';
       return false;
     }
-    if (isDeckNameTaken(name, getDecks(), deck?.id ?? null)) {
-      nameError.textContent = 'Ya existe un mazo con este nombre';
+    if (isGroupNameTaken(name, getGroups(), group?.id ?? null)) {
+      nameError.textContent = 'Ya existe un grupo con este nombre';
       nameError.style.display = 'block';
       return false;
     }
@@ -11074,7 +11188,7 @@ function openDeckModal({ deck = null, onAccept, onDelete }) {
   acceptBtn.addEventListener('click', () => {
     if (!validateName()) return;
     const name = nameInput.value.trim();
-    onAccept(deck ? updateDeck(deck, { name }) : createDeck({ name }));
+    onAccept(group ? updateGroup(group, { name }) : createGroup({ name }));
     overlay.remove();
   });
 
@@ -11090,15 +11204,18 @@ function openDeckModal({ deck = null, onAccept, onDelete }) {
   });
 }
 
-module.exports.openDeckModal = openDeckModal;
+module.exports.openGroupModal = openGroupModal;
 };
-__modules['ui/deckDeleteConfirmModal.js'] = function(module, exports, require) {
-// Modal de confirmación para borrar un mazo en uso: a diferencia del bloqueo
+__modules['ui/groupDeleteConfirmModal.js'] = function(module, exports, require) {
+// Modal de confirmación para borrar un grupo en uso: a diferencia del bloqueo
 // de ui/errorModal.js (usado por Recursos), aquí sí se permite continuar —
-// muestra la lista de cartas afectadas y, si se acepta, borra el mazo y esas
-// cartas quedan sin mazo asignado (ver modes/edit/editMode.js).
+// muestra la lista de elementos afectados (id + tipo, ya que pueden ser de
+// cualquier tipo) y, si se acepta, borra el grupo y esos elementos quedan sin
+// grupo asignado (ver modes/edit/editMode.js).
 
-function openDeckDeleteConfirmModal({ deckName, cardIds, onConfirm }) {
+const { getComponentTypeLabel } = require('ui/componentTypeModal.js');
+
+function openGroupDeleteConfirmModal({ groupName, affectedComponents, onConfirm }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -11107,21 +11224,21 @@ function openDeckDeleteConfirmModal({ deckName, cardIds, onConfirm }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Eliminar mazo en uso';
+  header.textContent = 'Eliminar grupo en uso';
   modal.appendChild(header);
 
   const content = document.createElement('div');
   content.className = 'modal__content';
 
   const message = document.createElement('p');
-  message.textContent = `El mazo "${deckName}" está siendo usado por las siguientes cartas. Si continúas, se eliminará el mazo y esas cartas quedarán sin mazo asignado.`;
+  message.textContent = `El grupo "${groupName}" está siendo usado por los siguientes elementos. Si continúas, se eliminará el grupo y esos elementos quedarán sin grupo asignado.`;
   content.appendChild(message);
 
   const list = document.createElement('ul');
-  list.className = 'deck-delete-confirm-modal__list';
-  for (const cardId of cardIds) {
+  list.className = 'group-delete-confirm-modal__list';
+  for (const component of affectedComponents) {
     const item = document.createElement('li');
-    item.textContent = cardId;
+    item.textContent = `${getComponentTypeLabel(component.type)}: ${component.id}`;
     list.appendChild(item);
   }
   content.appendChild(list);
@@ -11160,7 +11277,7 @@ function openDeckDeleteConfirmModal({ deckName, cardIds, onConfirm }) {
   });
 }
 
-module.exports.openDeckDeleteConfirmModal = openDeckDeleteConfirmModal;
+module.exports.openGroupDeleteConfirmModal = openGroupDeleteConfirmModal;
 };
 __modules['ui/batchUploadSummaryModal.js'] = function(module, exports, require) {
 // Modal de resumen tras una subida en lote (varios ficheros o una carpeta,
@@ -11266,10 +11383,10 @@ __modules['modes/edit/editMode.js'] = function(module, exports, require) {
 
 const { getComponents, addComponent, replaceComponent, removeComponent, reorderComponent, getPanelState, setPanelState,
   getResources, addResource, replaceResource, removeResource, getResourcePanelState, setResourcePanelState,
-  getDecks, addDeck, replaceDeck, removeDeck, getDeckPanelState, setDeckPanelState, } = require('core/state.js');
+  getGroups, addGroup, replaceGroup, removeGroup, getGroupPanelState, setGroupPanelState, } = require('core/state.js');
 const { updateComponent, cloneComponent, createCopy } = require('core/component.js');
 const { createResource, resourceTypeForFileName, getComponentsUsingResource } = require('core/resource.js');
-const { getComponentsUsingDeck } = require('core/deck.js');
+const { getComponentsUsingGroup } = require('core/group.js');
 const { convertImageToWebP } = require('core/imageConversion.js');
 const { createInfiniteTable } = require('ui/table.js');
 const { openComponentModal, createDefaultComponent } = require('ui/componentModal.js');
@@ -11279,9 +11396,9 @@ const { renderComponentList } = require('ui/componentList.js');
 const { renderComponentsOnTable } = require('ui/componentRenderer.js');
 const { openResourceModal } = require('ui/resourceModal.js');
 const { renderResourceList } = require('ui/resourceList.js');
-const { renderDeckList } = require('ui/deckList.js');
-const { openDeckModal } = require('ui/deckModal.js');
-const { openDeckDeleteConfirmModal } = require('ui/deckDeleteConfirmModal.js');
+const { renderGroupList } = require('ui/groupList.js');
+const { openGroupModal } = require('ui/groupModal.js');
+const { openGroupDeleteConfirmModal } = require('ui/groupDeleteConfirmModal.js');
 const { showErrorModal } = require('ui/errorModal.js');
 const { openBatchUploadSummaryModal } = require('ui/batchUploadSummaryModal.js');
 
@@ -11296,9 +11413,9 @@ let selectedComponentId = null;
 // Orden de apilado (z-index) de los paneles flotantes del modo edición, de abajo a
 // arriba — cambio 00101. Vive fuera de `renderEditMode` por el mismo motivo que
 // `selectedComponentId`: sobrevive a los remontados completos que disparan
-// `components:changed`/`resources:changed`/`decks:changed`. No se persiste en
+// `components:changed`/`resources:changed`/`groups:changed`. No se persiste en
 // `core/state.js`: es transitorio, se resetea al recargar la página.
-let panelStackOrder = ['component', 'resource', 'deck'];
+let panelStackOrder = ['component', 'resource', 'group'];
 
 function bringPanelToFront(key, panelsByKey) {
   panelStackOrder = panelStackOrder.filter((k) => k !== key);
@@ -11332,8 +11449,8 @@ function renderEditMode(container) {
   let collapsed = getPanelState().collapsed;
   const { position: resourcePanelPosition, width: resourcePanelWidth } = getResourcePanelState();
   let resourceCollapsed = getResourcePanelState().collapsed;
-  const { position: deckPanelPosition, width: deckPanelWidth } = getDeckPanelState();
-  let deckCollapsed = getDeckPanelState().collapsed;
+  const { position: groupPanelPosition, width: groupPanelWidth } = getGroupPanelState();
+  let groupCollapsed = getGroupPanelState().collapsed;
 
   const layout = document.createElement('div');
   layout.style.display = 'flex';
@@ -11373,28 +11490,28 @@ function renderEditMode(container) {
   }
   tableContainer.appendChild(resourceListContainer);
 
-  // Floating panel with the deck list, independent position/width/collapse
-  const deckListContainer = document.createElement('div');
-  deckListContainer.className = 'deck-panel-container';
-  if (deckPanelPosition) {
-    deckListContainer.style.left = `${deckPanelPosition.left}px`;
-    deckListContainer.style.top = `${deckPanelPosition.top}px`;
-    deckListContainer.style.right = 'auto';
+  // Floating panel with the group list, independent position/width/collapse
+  const groupListContainer = document.createElement('div');
+  groupListContainer.className = 'group-panel-container';
+  if (groupPanelPosition) {
+    groupListContainer.style.left = `${groupPanelPosition.left}px`;
+    groupListContainer.style.top = `${groupPanelPosition.top}px`;
+    groupListContainer.style.right = 'auto';
   }
-  if (deckPanelWidth != null) {
-    deckListContainer.style.width = `${deckPanelWidth}px`;
+  if (groupPanelWidth != null) {
+    groupListContainer.style.width = `${groupPanelWidth}px`;
   }
-  tableContainer.appendChild(deckListContainer);
+  tableContainer.appendChild(groupListContainer);
 
   // Traer al frente la ventana flotante interactuada (cambio 00101): captura para no
   // depender de que ningún listener interno haga o no `stopPropagation`, y sin
   // `preventDefault` para no interferir con el arrastre (`mousedown` en la cabecera,
-  // ver `ui/componentList.js`/`ui/resourceList.js`/`ui/deckList.js`) ni con clicks
+  // ver `ui/componentList.js`/`ui/resourceList.js`/`ui/groupList.js`) ni con clicks
   // normales de botones/filas/campos.
-  const panelsByKey = { component: listContainer, resource: resourceListContainer, deck: deckListContainer };
+  const panelsByKey = { component: listContainer, resource: resourceListContainer, group: groupListContainer };
   listContainer.addEventListener('mousedown', () => bringPanelToFront('component', panelsByKey), true);
   resourceListContainer.addEventListener('mousedown', () => bringPanelToFront('resource', panelsByKey), true);
-  deckListContainer.addEventListener('mousedown', () => bringPanelToFront('deck', panelsByKey), true);
+  groupListContainer.addEventListener('mousedown', () => bringPanelToFront('group', panelsByKey), true);
   applyPanelStackOrder(panelsByKey);
 
   const RESOURCE_ACCEPT = '.png,.jpg,.jpeg,.gif,.svg,.webp,.ttf,.otf,.woff,.woff2';
@@ -11497,25 +11614,29 @@ function renderEditMode(container) {
     return true;
   }
 
-  function attemptDeleteDeck(deck, { onDeleted } = {}) {
-    const affectedIds = getComponentsUsingDeck(deck.id, getComponents());
+  function attemptDeleteGroup(group, { onDeleted } = {}) {
+    const affectedIds = getComponentsUsingGroup(group.id, getComponents());
     if (affectedIds.length > 0) {
-      openDeckDeleteConfirmModal({
-        deckName: deck.name,
-        cardIds: affectedIds,
+      const affectedComponents = affectedIds
+        .map((id) => getComponents().find((c) => c.id === id))
+        .filter(Boolean)
+        .map((c) => ({ id: c.id, type: c.type }));
+      openGroupDeleteConfirmModal({
+        groupName: group.name,
+        affectedComponents,
         onConfirm: () => {
-          for (const cardId of affectedIds) {
-            const card = getComponents().find((c) => c.id === cardId);
-            if (card) replaceComponent(cardId, updateComponent(card, { properties: { ...card.properties, deckId: null } }));
+          for (const componentId of affectedIds) {
+            const component = getComponents().find((c) => c.id === componentId);
+            if (component) replaceComponent(componentId, updateComponent(component, { grupoId: null }));
           }
-          removeDeck(deck.id);
+          removeGroup(group.id);
           if (onDeleted) onDeleted();
         },
       });
       return false;
     }
-    if (!confirm(`¿Eliminar el mazo "${deck.name}"?`)) return false;
-    removeDeck(deck.id);
+    if (!confirm(`¿Eliminar el grupo "${group.name}"?`)) return false;
+    removeGroup(group.id);
     return true;
   }
 
@@ -11665,32 +11786,32 @@ function renderEditMode(container) {
     });
   }
 
-  function renderDeckPanel() {
-    renderDeckList(deckListContainer, getDecks(), {
-      onEdit: (deck) => {
-        openDeckModal({
-          deck,
-          onAccept: (updated) => replaceDeck(deck.id, updated),
-          onDelete: (d, closeModal) => attemptDeleteDeck(d, { onDeleted: closeModal }),
+  function renderGroupPanel() {
+    renderGroupList(groupListContainer, getGroups(), getComponents(), {
+      onEdit: (group) => {
+        openGroupModal({
+          group,
+          onAccept: (updated) => replaceGroup(group.id, updated),
+          onDelete: (g, closeModal) => attemptDeleteGroup(g, { onDeleted: closeModal }),
         });
       },
-      onRemove: (deck) => attemptDeleteDeck(deck),
+      onRemove: (group) => attemptDeleteGroup(group),
       onAdd: () => {
-        openDeckModal({ onAccept: (newDeck) => addDeck(newDeck) });
+        openGroupModal({ onAccept: (newGroup) => addGroup(newGroup) });
       },
-      collapsed: deckCollapsed,
+      collapsed: groupCollapsed,
       onToggleCollapse: () => {
-        deckCollapsed = !deckCollapsed;
-        setDeckPanelState({ collapsed: deckCollapsed });
-        renderDeckPanel();
+        groupCollapsed = !groupCollapsed;
+        setGroupPanelState({ collapsed: groupCollapsed });
+        renderGroupPanel();
       },
       onPanelMove: (left, top) => {
-        setDeckPanelState({ position: { left, top } });
+        setGroupPanelState({ position: { left, top } });
       },
       onPanelResize: (width, height) => {
-        setDeckPanelState(height ? { width, height } : { width });
+        setGroupPanelState(height ? { width, height } : { width });
       },
-      bodyHeight: getDeckPanelState().height,
+      bodyHeight: getGroupPanelState().height,
     });
   }
 
@@ -11699,7 +11820,7 @@ function renderEditMode(container) {
   renderTable();
   renderList();
   renderResourcePanel();
-  renderDeckPanel();
+  renderGroupPanel();
 }
 
 module.exports.deleteSelectedComponent = deleteSelectedComponent;
@@ -11712,8 +11833,8 @@ __modules['main.js'] = function(module, exports, require) {
 const { on } = require('core/eventBus.js');
 const { MODES, getState, addComponent, loadComponents, getComponents, getPanelState, loadPanelState,
   addResource, loadResources, getResources, getResourcePanelState, loadResourcePanelState,
-  getResourcesSeeded, markResourcesSeeded, loadResourcesSeeded, getDecks, loadDecks,
-  getDeckPanelState, loadDeckPanelState, } = require('core/state.js');
+  getResourcesSeeded, markResourcesSeeded, loadResourcesSeeded, getGroups, loadGroups,
+  getGroupPanelState, loadGroupPanelState, } = require('core/state.js');
 const { CURRENT_VERSION } = require('data/version.js');
 const { DEFAULT_RESOURCES } = require('data/defaultResources.js');
 const { renderModeSwitcher, renderEditToolbar } = require('ui/editModeToggle.js');
@@ -11750,7 +11871,7 @@ function renderAll() {
 }
 
 function persistState() {
-  saveState(getComponents(), getPanelState(), getResources(), getResourcePanelState(), getResourcesSeeded(), getDecks(), getDeckPanelState());
+  saveState(getComponents(), getPanelState(), getResources(), getResourcePanelState(), getResourcesSeeded(), getGroups(), getGroupPanelState());
 }
 
 on('mode:changed', renderAll);
@@ -11761,9 +11882,9 @@ on('resources:changed', renderAll);
 on('resources:changed', persistState);
 on('resources:changed', (resources) => syncFontFaces(resources));
 on('resourcePanelState:changed', persistState);
-on('decks:changed', renderAll);
-on('decks:changed', persistState);
-on('deckPanelState:changed', persistState);
+on('groups:changed', renderAll);
+on('groups:changed', persistState);
+on('groupPanelState:changed', persistState);
 
 initGlobalShortcuts({
   isEditMode: () => getState().mode === MODES.EDIT,
@@ -11812,13 +11933,13 @@ if (saved?.error) {
   if (saved.resourcePanelState) {
     loadResourcePanelState(saved.resourcePanelState);
   }
-  if (saved.deckPanelState) {
-    loadDeckPanelState(saved.deckPanelState);
+  if (saved.groupPanelState) {
+    loadGroupPanelState(saved.groupPanelState);
   }
   loadResourcesSeeded(saved.resourcesSeeded === true);
   loadComponents(saved.components);
   loadResources(saved.resources);
-  loadDecks(saved.decks ?? []);
+  loadGroups(saved.groups ?? []);
   if (!getResourcesSeeded()) {
     seedDefaultResources();
   }
@@ -11828,7 +11949,7 @@ if (saved?.error) {
     loadResourcesSeeded(seed.resourcesSeeded === true);
     loadComponents(seed.components);
     loadResources(seed.resources);
-    loadDecks(seed.decks ?? []);
+    loadGroups(seed.groups ?? []);
     if (!getResourcesSeeded()) {
       seedDefaultResources();
     }

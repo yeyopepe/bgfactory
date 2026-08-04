@@ -4,11 +4,12 @@
 import {
   getComponents, addComponent, replaceComponent, removeComponent, reorderComponent, getPanelState, setPanelState,
   getResources, addResource, replaceResource, removeResource, getResourcePanelState, setResourcePanelState,
-  getDecks, addDeck, replaceDeck, removeDeck, getDeckPanelState, setDeckPanelState,
+  getGroups, addGroup, replaceGroup, removeGroup, getGroupPanelState, setGroupPanelState,
 } from '../../core/state.js';
 import { updateComponent, cloneComponent, createCopy } from '../../core/component.js';
 import { createResource, resourceTypeForFileName, getComponentsUsingResource } from '../../core/resource.js';
-import { getComponentsUsingDeck } from '../../core/deck.js';
+import { getComponentsUsingGroup } from '../../core/group.js';
+import { getCartaIdsEnAlgunMazo, rectsOverlap } from '../../core/deck.js';
 import { convertImageToWebP } from '../../core/imageConversion.js';
 import { createInfiniteTable } from '../../ui/table.js';
 import { openComponentModal, createDefaultComponent } from '../../ui/componentModal.js';
@@ -18,9 +19,10 @@ import { renderComponentList } from '../../ui/componentList.js';
 import { renderComponentsOnTable } from '../../ui/componentRenderer.js';
 import { openResourceModal } from '../../ui/resourceModal.js';
 import { renderResourceList } from '../../ui/resourceList.js';
-import { renderDeckList } from '../../ui/deckList.js';
-import { openDeckModal } from '../../ui/deckModal.js';
-import { openDeckDeleteConfirmModal } from '../../ui/deckDeleteConfirmModal.js';
+import { renderGroupList } from '../../ui/groupList.js';
+import { openGroupModal } from '../../ui/groupModal.js';
+import { openGroupDeleteConfirmModal } from '../../ui/groupDeleteConfirmModal.js';
+import { openBulkDeleteConfirmModal } from '../../ui/bulkDeleteConfirmModal.js';
 import { showErrorModal } from '../../ui/errorModal.js';
 import { openBatchUploadSummaryModal } from '../../ui/batchUploadSummaryModal.js';
 
@@ -30,14 +32,18 @@ import { openBatchUploadSummaryModal } from '../../ui/batchUploadSummaryModal.js
 // un componente cualquiera. El colapso/posición/ancho del panel y el ancho de sus
 // columnas, en cambio, viven en `core/state.js` (`panelState`) porque sí se
 // persisten en el autoguardado.
-let selectedComponentId = null;
+// Selección múltiple (cambio 00108): conjunto de ids, en vez de un único id — Ctrl+clic
+// añade/quita un elemento sin tocar el resto; clic normal reemplaza la selección
+// completa por ese único elemento (o la vacía si ya era el único seleccionado, mismo
+// toggle que existía antes de este cambio con un solo elemento).
+let selectedComponentIds = new Set();
 
 // Orden de apilado (z-index) de los paneles flotantes del modo edición, de abajo a
 // arriba — cambio 00101. Vive fuera de `renderEditMode` por el mismo motivo que
-// `selectedComponentId`: sobrevive a los remontados completos que disparan
-// `components:changed`/`resources:changed`/`decks:changed`. No se persiste en
+// `selectedComponentIds`: sobrevive a los remontados completos que disparan
+// `components:changed`/`resources:changed`/`groups:changed`. No se persiste en
 // `core/state.js`: es transitorio, se resetea al recargar la página.
-let panelStackOrder = ['component', 'resource', 'deck'];
+let panelStackOrder = ['component', 'resource', 'group'];
 
 function bringPanelToFront(key, panelsByKey) {
   panelStackOrder = panelStackOrder.filter((k) => k !== key);
@@ -51,17 +57,59 @@ function applyPanelStackOrder(panelsByKey) {
   });
 }
 
+// Borra uno o varios componentes, con la confirmación que corresponda (cambio 00108):
+// un único elemento mantiene el `confirm()` nativo de siempre; dos o más abren
+// `ui/bulkDeleteConfirmModal.js`, que enumera todos los afectados antes de confirmar.
+function attemptDeleteComponents(components) {
+  if (components.length === 0) return;
+  if (components.length === 1) {
+    const component = components[0];
+    if (confirm(`¿Eliminar el componente "${component.id}"?`)) {
+      removeComponent(component.id);
+      selectedComponentIds.delete(component.id);
+    }
+    return;
+  }
+  openBulkDeleteConfirmModal({
+    components,
+    onConfirm: () => {
+      for (const component of components) removeComponent(component.id);
+      selectedComponentIds.clear();
+    },
+  });
+}
+
+// Arrastrar cartas seleccionadas sobre un mazo (cambio 00106): si todo el grupo
+// arrastrado (la selección múltiple si el componente soltado forma parte de
+// ella, o solo él si no) son cartas, y su rectángulo final solapa con el de
+// algún mazo, se pregunta si se quieren añadir todas al mazo. "El cursor está
+// sobre un mazo al soltar" se interpreta como solape de rectángulos (posición
+// final de la carta soltada), no como un test de punto exacto del ratón.
+function attemptDropOnMazo(groupIds, draggedRect) {
+  const groupComponents = groupIds.map((id) => getComponents().find((c) => c.id === id)).filter(Boolean);
+  if (groupComponents.length === 0 || !groupComponents.every((c) => c.type === 'carta')) return;
+
+  const mazo = getComponents()
+    .filter((c) => c.type === 'mazo')
+    .find((m) => rectsOverlap(draggedRect, { x: m.x ?? 100, y: m.y ?? 100, width: m.width ?? 100, height: m.height ?? 100 }));
+  if (!mazo) return;
+
+  const pregunta = groupComponents.length > 1
+    ? `¿Añadir las ${groupComponents.length} cartas seleccionadas al mazo "${mazo.id}"?`
+    : `¿Añadir la carta "${groupComponents[0].id}" al mazo "${mazo.id}"?`;
+  if (!confirm(pregunta)) return;
+
+  const cartaIds = [...(mazo.properties?.cartaIds || []), ...groupComponents.map((c) => c.id)];
+  replaceComponent(mazo.id, updateComponent(mazo, { properties: { cartaIds } }));
+}
+
 // Atajo de teclado SUPR (`ui/globalShortcuts.js`) sin ninguna modal abierta: reutiliza
 // el mismo camino de borrado que ya usa la fila de `ui/componentList.js` (confirmación
-// con el mismo texto, luego `removeComponent`), sin resetear `selectedComponentId` para
-// no introducir una diferencia de comportamiento nueva respecto a ese camino existente.
+// con el mismo texto para un único elemento, o la modal de borrado en bloque si hay
+// más de uno seleccionado), aplicado a toda la selección múltiple actual.
 export function deleteSelectedComponent() {
-  if (!selectedComponentId) return;
-  const component = getComponents().find((c) => c.id === selectedComponentId);
-  if (!component) return;
-  if (confirm(`¿Eliminar el componente "${component.id}"?`)) {
-    removeComponent(component.id);
-  }
+  const components = getComponents().filter((c) => selectedComponentIds.has(c.id));
+  attemptDeleteComponents(components);
 }
 
 export function renderEditMode(container) {
@@ -71,8 +119,8 @@ export function renderEditMode(container) {
   let collapsed = getPanelState().collapsed;
   const { position: resourcePanelPosition, width: resourcePanelWidth } = getResourcePanelState();
   let resourceCollapsed = getResourcePanelState().collapsed;
-  const { position: deckPanelPosition, width: deckPanelWidth } = getDeckPanelState();
-  let deckCollapsed = getDeckPanelState().collapsed;
+  const { position: groupPanelPosition, width: groupPanelWidth } = getGroupPanelState();
+  let groupCollapsed = getGroupPanelState().collapsed;
 
   const layout = document.createElement('div');
   layout.style.display = 'flex';
@@ -112,28 +160,28 @@ export function renderEditMode(container) {
   }
   tableContainer.appendChild(resourceListContainer);
 
-  // Floating panel with the deck list, independent position/width/collapse
-  const deckListContainer = document.createElement('div');
-  deckListContainer.className = 'deck-panel-container';
-  if (deckPanelPosition) {
-    deckListContainer.style.left = `${deckPanelPosition.left}px`;
-    deckListContainer.style.top = `${deckPanelPosition.top}px`;
-    deckListContainer.style.right = 'auto';
+  // Floating panel with the group list, independent position/width/collapse
+  const groupListContainer = document.createElement('div');
+  groupListContainer.className = 'group-panel-container';
+  if (groupPanelPosition) {
+    groupListContainer.style.left = `${groupPanelPosition.left}px`;
+    groupListContainer.style.top = `${groupPanelPosition.top}px`;
+    groupListContainer.style.right = 'auto';
   }
-  if (deckPanelWidth != null) {
-    deckListContainer.style.width = `${deckPanelWidth}px`;
+  if (groupPanelWidth != null) {
+    groupListContainer.style.width = `${groupPanelWidth}px`;
   }
-  tableContainer.appendChild(deckListContainer);
+  tableContainer.appendChild(groupListContainer);
 
   // Traer al frente la ventana flotante interactuada (cambio 00101): captura para no
   // depender de que ningún listener interno haga o no `stopPropagation`, y sin
   // `preventDefault` para no interferir con el arrastre (`mousedown` en la cabecera,
-  // ver `ui/componentList.js`/`ui/resourceList.js`/`ui/deckList.js`) ni con clicks
+  // ver `ui/componentList.js`/`ui/resourceList.js`/`ui/groupList.js`) ni con clicks
   // normales de botones/filas/campos.
-  const panelsByKey = { component: listContainer, resource: resourceListContainer, deck: deckListContainer };
+  const panelsByKey = { component: listContainer, resource: resourceListContainer, group: groupListContainer };
   listContainer.addEventListener('mousedown', () => bringPanelToFront('component', panelsByKey), true);
   resourceListContainer.addEventListener('mousedown', () => bringPanelToFront('resource', panelsByKey), true);
-  deckListContainer.addEventListener('mousedown', () => bringPanelToFront('deck', panelsByKey), true);
+  groupListContainer.addEventListener('mousedown', () => bringPanelToFront('group', panelsByKey), true);
   applyPanelStackOrder(panelsByKey);
 
   const RESOURCE_ACCEPT = '.png,.jpg,.jpeg,.gif,.svg,.webp,.ttf,.otf,.woff,.woff2';
@@ -236,25 +284,29 @@ export function renderEditMode(container) {
     return true;
   }
 
-  function attemptDeleteDeck(deck, { onDeleted } = {}) {
-    const affectedIds = getComponentsUsingDeck(deck.id, getComponents());
+  function attemptDeleteGroup(group, { onDeleted } = {}) {
+    const affectedIds = getComponentsUsingGroup(group.id, getComponents());
     if (affectedIds.length > 0) {
-      openDeckDeleteConfirmModal({
-        deckName: deck.name,
-        cardIds: affectedIds,
+      const affectedComponents = affectedIds
+        .map((id) => getComponents().find((c) => c.id === id))
+        .filter(Boolean)
+        .map((c) => ({ id: c.id, type: c.type }));
+      openGroupDeleteConfirmModal({
+        groupName: group.name,
+        affectedComponents,
         onConfirm: () => {
-          for (const cardId of affectedIds) {
-            const card = getComponents().find((c) => c.id === cardId);
-            if (card) replaceComponent(cardId, updateComponent(card, { properties: { ...card.properties, deckId: null } }));
+          for (const componentId of affectedIds) {
+            const component = getComponents().find((c) => c.id === componentId);
+            if (component) replaceComponent(componentId, updateComponent(component, { grupoId: null }));
           }
-          removeDeck(deck.id);
+          removeGroup(group.id);
           if (onDeleted) onDeleted();
         },
       });
       return false;
     }
-    if (!confirm(`¿Eliminar el mazo "${deck.name}"?`)) return false;
-    removeDeck(deck.id);
+    if (!confirm(`¿Eliminar el grupo "${group.name}"?`)) return false;
+    removeGroup(group.id);
     return true;
   }
 
@@ -263,9 +315,7 @@ export function renderEditMode(container) {
       openCopyComponentModal({
         component,
         onDelete: (deletedComponent) => {
-          if (selectedComponentId === deletedComponent.id) {
-            selectedComponentId = null;
-          }
+          selectedComponentIds.delete(deletedComponent.id);
           removeComponent(deletedComponent.id);
         },
       });
@@ -277,9 +327,7 @@ export function renderEditMode(container) {
         replaceComponent(component.id, updated);
       },
       onDelete: (deletedComponent) => {
-        if (selectedComponentId === deletedComponent.id) {
-          selectedComponentId = null;
-        }
+        selectedComponentIds.delete(deletedComponent.id);
         removeComponent(deletedComponent.id);
       },
     });
@@ -300,9 +348,7 @@ export function renderEditMode(container) {
             replaceComponent(newComponent.id, updated);
           },
           onDelete: (deletedComponent) => {
-            if (selectedComponentId === deletedComponent.id) {
-              selectedComponentId = null;
-            }
+            selectedComponentIds.delete(deletedComponent.id);
             removeComponent(deletedComponent.id);
           },
         });
@@ -310,22 +356,53 @@ export function renderEditMode(container) {
     });
   }
 
-  function toggleSelect(component) {
-    selectedComponentId = selectedComponentId === component.id ? null : component.id;
+  function toggleSelect(component, event) {
+    const ctrl = event && (event.ctrlKey || event.metaKey);
+    if (ctrl) {
+      if (selectedComponentIds.has(component.id)) {
+        selectedComponentIds.delete(component.id);
+      } else {
+        selectedComponentIds.add(component.id);
+      }
+    } else if (selectedComponentIds.size === 1 && selectedComponentIds.has(component.id)) {
+      selectedComponentIds.clear();
+    } else {
+      selectedComponentIds.clear();
+      selectedComponentIds.add(component.id);
+    }
     renderList();
     renderTable();
   }
 
   function renderTable() {
-    renderComponentsOnTable(table.worldEl, getComponents(), {
+    const cartasEnMazo = getCartaIdsEnAlgunMazo(getComponents());
+    renderComponentsOnTable(table.worldEl, getComponents().filter((c) => !cartasEnMazo.has(c.id)), {
       identifyMode: 'label',
       showLockIndicator: true,
       showHiddenIndicator: true,
       onSelect: openEditModalFor,
       onToggleSelect: toggleSelect,
-      selectedId: selectedComponentId,
+      selectedIds: selectedComponentIds,
       onMove: (component, x, y) => {
-        replaceComponent(component.id, updateComponent(component, { x, y }));
+        const group = selectedComponentIds.size > 1 && selectedComponentIds.has(component.id)
+          ? [...selectedComponentIds]
+          : [component.id];
+
+        if (group.length > 1) {
+          const dx = x - (component.x ?? 0);
+          const dy = y - (component.y ?? 0);
+          for (const id of group) {
+            const c = getComponents().find((comp) => comp.id === id);
+            if (!c) continue;
+            const newX = c.id === component.id ? x : (c.x ?? 0) + dx;
+            const newY = c.id === component.id ? y : (c.y ?? 0) + dy;
+            replaceComponent(c.id, updateComponent(c, { x: newX, y: newY }));
+          }
+        } else {
+          replaceComponent(component.id, updateComponent(component, { x, y }));
+        }
+
+        attemptDropOnMazo(group, { x, y, width: component.width ?? 100, height: component.height ?? 100 });
       },
       onResize: (component, width, height) => {
         replaceComponent(component.id, updateComponent(component, { width, height }));
@@ -344,12 +421,17 @@ export function renderEditMode(container) {
         const copy = createCopy(component, getComponents());
         addComponent(copy);
       },
-      onRemove: (component) => {
+      onRemove: (component, { bulk } = {}) => {
+        if (bulk) {
+          attemptDeleteComponents(getComponents().filter((c) => selectedComponentIds.has(c.id)));
+          return;
+        }
+        selectedComponentIds.delete(component.id);
         removeComponent(component.id);
       },
       onAdd: openAddModal,
       onReorder: (component, newOrder) => reorderComponent(component.id, newOrder),
-      selectedId: selectedComponentId,
+      selectedIds: selectedComponentIds,
       collapsed,
       onSelectRow: toggleSelect,
       onToggleCollapse: () => {
@@ -404,32 +486,32 @@ export function renderEditMode(container) {
     });
   }
 
-  function renderDeckPanel() {
-    renderDeckList(deckListContainer, getDecks(), {
-      onEdit: (deck) => {
-        openDeckModal({
-          deck,
-          onAccept: (updated) => replaceDeck(deck.id, updated),
-          onDelete: (d, closeModal) => attemptDeleteDeck(d, { onDeleted: closeModal }),
+  function renderGroupPanel() {
+    renderGroupList(groupListContainer, getGroups(), getComponents(), {
+      onEdit: (group) => {
+        openGroupModal({
+          group,
+          onAccept: (updated) => replaceGroup(group.id, updated),
+          onDelete: (g, closeModal) => attemptDeleteGroup(g, { onDeleted: closeModal }),
         });
       },
-      onRemove: (deck) => attemptDeleteDeck(deck),
+      onRemove: (group) => attemptDeleteGroup(group),
       onAdd: () => {
-        openDeckModal({ onAccept: (newDeck) => addDeck(newDeck) });
+        openGroupModal({ onAccept: (newGroup) => addGroup(newGroup) });
       },
-      collapsed: deckCollapsed,
+      collapsed: groupCollapsed,
       onToggleCollapse: () => {
-        deckCollapsed = !deckCollapsed;
-        setDeckPanelState({ collapsed: deckCollapsed });
-        renderDeckPanel();
+        groupCollapsed = !groupCollapsed;
+        setGroupPanelState({ collapsed: groupCollapsed });
+        renderGroupPanel();
       },
       onPanelMove: (left, top) => {
-        setDeckPanelState({ position: { left, top } });
+        setGroupPanelState({ position: { left, top } });
       },
       onPanelResize: (width, height) => {
-        setDeckPanelState(height ? { width, height } : { width });
+        setGroupPanelState(height ? { width, height } : { width });
       },
-      bodyHeight: getDeckPanelState().height,
+      bodyHeight: getGroupPanelState().height,
     });
   }
 
@@ -438,5 +520,5 @@ export function renderEditMode(container) {
   renderTable();
   renderList();
   renderResourcePanel();
-  renderDeckPanel();
+  renderGroupPanel();
 }

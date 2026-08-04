@@ -1,0 +1,50 @@
+Eres un artista conceptual. Usa la siguiente guía de estilo para generar ilustraciones que mantengan una misma identidad visual. No añadas ni inventes ni preguntes nada que no esté aquí escrito.
+
+[FORMATO]
+5:7 carta vertical
+
+[ESTILO ARTÍSTICO]
+Boceto a mano alzada.
+Estética: cómic retro.
+Trazo negro grueso, irregular.
+Aspecto esquemático y simplificado.
+Detalles mínimos pero reconocibles.
+Ilustración conceptual, no realista.
+Textura de papel visible, con grano fino o leve desgaste
+
+[COLOR]
+Acuarela tradicional.
+Paleta limitada y colores apagados: verdes oliva, verde salvia, gris cálido, beige, marrón tierra y azul grisáceo muy suave.
+Manchas de color imperfectas.
+Papel blanco visible.
+Contraste moderado.
+
+[ILUMINACIÓN]
+Luz suave y difusa.
+Sombras ligeras.
+Ambiente tranquilo y melancólico.
+
+[AMBIENTACIÓN]
+Mundo contemporáneo de los años 2020 tras décadas de abandono.
+Naturaleza dominante sobre infraestructuras modernas.
+Sin hiperrealismo, sin efectos digitales ni brillos artificiales
+
+[RESTRICCIONES]
+Sin bordes ni decoración
+Sin texto ni marcas de agua.
+Sin personas.
+Sin animales destacados.
+Sin vehículos modernos funcionales.
+Sin neones.
+Sin estética cyberpunk.
+Sin hiperrealismo.
+Sin exceso de detalle arquitectónico.
+
+
+
+
+Imagen: Pueblo agrícola abandonado visto desde una colina cercana. Composición: 2/5 de cielo con pocas nubes
+Imagen: ciudad abandonada vista a pie de calle, desde una zona residencial. Composición: 2/5 de cielo, soleado sin nubes.
+Imagen: antiguo pueblo minero abandonado, visto desde una colina cercana. Con vias de tren. Composición: 2/5 de cielo, soleado sin nubes.
+Imagen: Un paso de montaña con un camino empinado y con curvas, terreno pedregoso, matorrales, un par de áboles solitarios, un par de pájaros en el cielo. Composición:  2/5 de cielo, lloviendo.
+Imagen: una zona boscosa con un vado de un rio caudaloso.

@@ -3,7 +3,8 @@
 
 import { emit } from './eventBus.js';
 import { migrateFichaComponent } from './fichaMigration.js';
-import { syncCopyWithOriginal, renameCopyId } from './component.js';
+import { syncCopyWithOriginal, renameCopyId, updateComponent } from './component.js';
+import { computeSacarCartaDeMazo } from './deck.js';
 
 export const MODES = { PLAY: 'play', EDIT: 'edit' };
 
@@ -11,12 +12,12 @@ const state = {
   mode: MODES.PLAY,
   components: [],
   resources: [],
-  decks: [],
+  groups: [],
 };
 
 let panelState = { collapsed: false, position: null, width: null, height: null };
 let resourcePanelState = { collapsed: false, position: null, width: null, height: null };
-let deckPanelState = { collapsed: false, position: null, width: null, height: null };
+let groupPanelState = { collapsed: false, position: null, width: null, height: null };
 // Recuerda si los recursos por defecto (data/defaultResources.js) ya se han
 // sembrado alguna vez en este guardado, para no reponerlos cada vez que el
 // usuario los borra a propósito — ver seedDefaultResources() en main.js.
@@ -112,6 +113,24 @@ export function reorderComponent(id, rawOrder) {
   emit('components:changed', state.components);
 }
 
+// Saca `cartaId` de la lista de `mazoId` (esté donde esté en la pila, no solo
+// arriba del todo) y la revela en la mesa boca arriba, dentro de la zona de
+// revelado del mazo (core/deck.js). Reutilizada tanto desde el modo juego
+// (click sobre el mazo, y "Ver contenido..." de su menú contextual) como
+// desde el modo edición (botón "Ver contenido del mazo" en las propiedades
+// del mazo) — vive aquí, no en `modes/play/playMode.js`, porque `ui/*` no
+// puede importar de `modes/*` (ver ARCHITECTURE.md, capas).
+export function sacarCartaDeMazo(mazoId, cartaId) {
+  const mazo = state.components.find((c) => c.id === mazoId);
+  const carta = state.components.find((c) => c.id === cartaId);
+  if (!mazo || !carta) return;
+  const changes = computeSacarCartaDeMazo(mazo, carta);
+  if (!changes) return;
+  replaceComponent(mazo.id, updateComponent(mazo, { properties: changes.mazoProperties }));
+  replaceComponent(carta.id, updateComponent(carta, changes.cartaChanges));
+  reorderComponent(carta.id, 1);
+}
+
 // Migra en el sitio (sustituyendo cada entrada del array) cualquier componente
 // de tipo 'ficha' (tipo eliminado en el cambio 00087) a 'carta', best-effort
 // e ignorando siempre los errores de conversión — igual que la migración
@@ -124,8 +143,23 @@ function migrateFichas(components) {
   }
 }
 
+// Migra en el sitio cualquier componente con `properties.deckId` (campo
+// específico de carta anterior al cambio 00105, "Mazo" → "Grupo") al nuevo
+// campo general `grupoId` de primer nivel, best-effort, mismo criterio que
+// migrateFichas: nunca debe bloquear el arranque.
+function migrateDeckIdToGrupo(components) {
+  for (const component of components) {
+    if (component.properties && 'deckId' in component.properties) {
+      const { deckId, ...restProperties } = component.properties;
+      if (component.grupoId == null) component.grupoId = deckId;
+      component.properties = restProperties;
+    }
+  }
+}
+
 export function loadComponents(components) {
   migrateFichas(components);
+  migrateDeckIdToGrupo(components);
   compactOrders(components);
   state.components = components;
   emit('components:changed', state.components);
@@ -195,41 +229,41 @@ export function loadResourcesSeeded(value) {
   resourcesSeeded = value;
 }
 
-export function getDecks() {
-  return state.decks;
+export function getGroups() {
+  return state.groups;
 }
 
-export function addDeck(deck) {
-  state.decks.push(deck);
-  emit('decks:changed', state.decks);
+export function addGroup(group) {
+  state.groups.push(group);
+  emit('groups:changed', state.groups);
 }
 
-export function replaceDeck(id, updatedDeck) {
-  const index = state.decks.findIndex((d) => d.id === id);
+export function replaceGroup(id, updatedGroup) {
+  const index = state.groups.findIndex((g) => g.id === id);
   if (index === -1) return;
-  state.decks[index] = updatedDeck;
-  emit('decks:changed', state.decks);
+  state.groups[index] = updatedGroup;
+  emit('groups:changed', state.groups);
 }
 
-export function removeDeck(id) {
-  state.decks = state.decks.filter((d) => d.id !== id);
-  emit('decks:changed', state.decks);
+export function removeGroup(id) {
+  state.groups = state.groups.filter((g) => g.id !== id);
+  emit('groups:changed', state.groups);
 }
 
-export function loadDecks(decks) {
-  state.decks = decks;
-  emit('decks:changed', state.decks);
+export function loadGroups(groups) {
+  state.groups = groups;
+  emit('groups:changed', state.groups);
 }
 
-export function getDeckPanelState() {
-  return deckPanelState;
+export function getGroupPanelState() {
+  return groupPanelState;
 }
 
-export function setDeckPanelState(partial) {
-  deckPanelState = { ...deckPanelState, ...partial };
-  emit('deckPanelState:changed', deckPanelState);
+export function setGroupPanelState(partial) {
+  groupPanelState = { ...groupPanelState, ...partial };
+  emit('groupPanelState:changed', groupPanelState);
 }
 
-export function loadDeckPanelState(newDeckPanelState) {
-  deckPanelState = newDeckPanelState;
+export function loadGroupPanelState(newGroupPanelState) {
+  groupPanelState = newGroupPanelState;
 }

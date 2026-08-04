@@ -5,7 +5,7 @@
 
 import { createElementSelectionGroups } from './elementSelectionModal.js';
 
-export function openImportSelectionModal({ components, resources, decks, onAccept, onCancel }) {
+export function openImportSelectionModal({ components, resources, groups, onAccept, onCancel }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -47,9 +47,9 @@ export function openImportSelectionModal({ components, resources, decks, onAccep
   continueBtn.textContent = 'Continuar';
   footer.appendChild(continueBtn);
 
-  const { getSelection } = createElementSelectionGroups(groupsContainer, { components, resources, decks }, {
+  const { getSelection } = createElementSelectionGroups(groupsContainer, { components, resources, groups }, {
     onSelectionChange: (selection) => {
-      const hasSelection = selection.componentIds.length > 0 || selection.resourceIds.length > 0 || selection.deckIds.length > 0;
+      const hasSelection = selection.componentIds.length > 0 || selection.resourceIds.length > 0 || selection.groupIds.length > 0;
       continueBtn.disabled = !hasSelection;
     },
   });
