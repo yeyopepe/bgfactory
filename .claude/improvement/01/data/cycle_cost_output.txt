@@ -1,0 +1,18 @@
+== Documentos tecnicos compartidos (leidos por ms-internal-tech-analysis paso 1) ==
+architectureDocPath:   112633 chars ( 28158 tokens_est)
+styleBibleDocPath:      53343 chars ( 13336 tokens_est)
+projectGraphPath:       90633 chars ( 22658 tokens_est)
+TOTAL por lectura completa: 256609 chars (64152 tokens_est)
+
+== Coste en un ciclo completo (2 invocaciones de ms-internal-tech-analysis) ==
+Antes (sin cache de sesion): 513218 chars (128304 tokens_est)
+Despues (con cache de sesion, 1 lectura real): 256609 chars (64152 tokens_est)
+Ahorro: 256609 chars (64152 tokens_est)
+
+== description.md / plan.md reales en changes/closed (116 entradas) ==
+description.md (chars): n=116 min=689 max=24018 media=4602 mediana=3907 (media tokens_est=1151)
+plan.md (chars): n=100 min=1020 max=15123 media=6018 mediana=5147 (media tokens_est=1505)
+
+Nota: description.md lo lee ms-how en su paso 3.1 (necesario, es el alcance
+funcional). plan.md lo lee ms-do en su paso 2 (necesario, son las
+instrucciones de implementacion). ms-do NO relee description.md.

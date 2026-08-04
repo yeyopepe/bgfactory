@@ -5,7 +5,7 @@ user-invocable: false
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.1.0
+  version: 1.2.0
   uses: []
 ---
 
@@ -27,7 +27,8 @@ Lee `.claude/ms-context.json` en la raíz del repo (si no lo has hecho ya en est
 
 Antes de tocar código, mira `framework.docs.tech` en `.claude/ms-context.json`:
 
-- Para cada uno de `architectureDocPath`, `styleBibleDocPath` y `projectGraphPath` que esté configurado **y** exista de verdad como fichero en el repo, léelo completo (o, si es muy extenso y el tema a analizar es acotado, la parte relevante al tema indicado por quien invoca).
+- **Si ya leíste estos mismos documentos antes en esta sesión** (p.ej. porque esta skill ya se invocó una vez en este ciclo) y no han cambiado desde entonces, no vuelvas a leerlos — reutiliza lo que ya tienes en contexto. Estos documentos suelen ser los más grandes de todo el proceso (arquitectura, biblia de estilo, grafo pueden ser bastante extensos): releerlos completos en cada invocación de esta skill dentro del mismo ciclo (típicamente 2 veces: una vez desde `ms-new`/`ms-fix`, otra desde `ms-how`) es el mayor coste evitable de todo el ciclo `análisis → aplicación`.
+- Para cada uno de `architectureDocPath`, `styleBibleDocPath` y `projectGraphPath` que esté configurado **y** exista de verdad como fichero en el repo, y que no tengas ya leído de esta sesión, léelo completo (o, si es muy extenso y el tema a analizar es acotado, la parte relevante al tema indicado por quien invoca).
 - Los que no estén configurados, o estén configurados pero el fichero no exista todavía, sáltalos sin más — no es un error, simplemente esa fuente no está disponible.
 - Si `framework.docs.tech` no existe en absoluto, o ninguno de los tres campos está configurado, no hay nada que leer en este paso: pasa directamente al paso 2.
 
