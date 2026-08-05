@@ -14,7 +14,7 @@ import { renderModeSwitcher, renderEditToolbar } from './ui/editModeToggle.js';
 import { renderAppTitle } from './ui/appTitle.js';
 import { initGlobalShortcuts } from './ui/globalShortcuts.js';
 import { renderPlayMode } from './modes/play/playMode.js';
-import { renderEditMode, deleteSelectedComponent } from './modes/edit/editMode.js';
+import { renderEditMode, deleteSelectedComponent, moveSelectedComponent } from './modes/edit/editMode.js';
 import { createResource } from './core/resource.js';
 import { saveState, loadState, readSeedState } from './core/persistence.js';
 import { showErrorModal } from './ui/errorModal.js';
@@ -66,6 +66,7 @@ on('appTitle:changed', persistState);
 initGlobalShortcuts({
   isEditMode: () => getState().mode === MODES.EDIT,
   onDeleteSelected: () => deleteSelectedComponent(),
+  onMoveSelected: (dx, dy) => moveSelectedComponent(dx, dy),
 });
 
 function seedDefaultResources() {

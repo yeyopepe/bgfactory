@@ -112,6 +112,18 @@ export function deleteSelectedComponent() {
   attemptDeleteComponents(components);
 }
 
+// Atajo de teclado flechas (`ui/globalShortcuts.js`, cambio 00145): desplaza toda la
+// selección múltiple actual el mismo delta (manteniendo las distancias relativas entre
+// ellos sin necesidad de calcular un ancla, a diferencia del arrastre con ratón),
+// respetando la misma restricción de movimiento que ya usa `canMove` en `renderTable()`.
+export function moveSelectedComponent(dx, dy) {
+  const components = getComponents()
+    .filter((c) => selectedComponentIds.has(c.id) && c.bloqueado !== 'todos');
+  for (const c of components) {
+    replaceComponent(c.id, updateComponent(c, { x: (c.x ?? 0) + dx, y: (c.y ?? 0) + dy }));
+  }
+}
+
 export function renderEditMode(container) {
   container.innerHTML = '';
 

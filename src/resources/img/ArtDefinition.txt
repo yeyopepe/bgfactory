@@ -64,7 +64,12 @@ Imagen: una zona pantanosa. Cielo con nubes, amenaza de lluvia
 
 Imagen: una zona boscosa. Bosque tupido. Sin caminos ni claros. Pocos rayos de luz atravesando las hojas.
 Composición: dia soleado
-Formato: 7:5
+
 
 Imagen: un pequeño puerto pesquero en ruinas
 Composición:  2/5 de cielo, dia nublado.
+
+Imagen: una cueva semioculta en la ladera de una montaña rocosa
+
+Imagen: una vieja estación de radio en lo alto de un promontorio
+Composición 50% de la imagen debe ser cielo nublado. Una gran antena se eleva hacia el cielo
