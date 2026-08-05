@@ -158,6 +158,7 @@ def render(result: dict, changes_dir: Path, show_fast: bool = False) -> str:
         pendingTotal=len(pending),
         filasPendientes=entry_lines(pending, row_entry, empty_entry),
         toCloseTotal=states.get("implemented", {}).get("total", 0),
+        filasListas=entry_lines(implemented_entries, row_entry, empty_entry),
         filasSinDescripcion=", ".join(e["code"] for e in sin_descripcion),
         filasFast="\n".join(
             row_fast.format(código=e["code"], nombre=e["name"] or "(sin nombre)", fecha=extract_fecha(changes_dir / ("implemented" if e in implemented_entries else "closed") / e["code"]))

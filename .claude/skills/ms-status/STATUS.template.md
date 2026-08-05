@@ -16,11 +16,24 @@
 
 ## En progreso
 
--   **Implementando o pendientes de implementar** (`description.md` + `plan.md`, pendientes de implementar): {toImplementTotal}
+### Implementando o pendientes de implementar (`description.md` + `plan.md`, pendientes de implementar) — {toImplementTotal}
+
+| Código | Descripción |
+| --- | --- |
 {filasImplementar}
--   **Pendientes de análisis técnico** (solo `description.md`, pendientes de planificar con `ms-how`): {pendingTotal}
+
+### Pendientes de análisis técnico (solo `description.md`, pendientes de planificar con `ms-how`) — {pendingTotal}
+
+| Código | Descripción |
+| --- | --- |
 {filasPendientes}
--   **Listos para revisar y cerrar** (en la carpeta changes/implemented, incluye tanto change/fix como fast): {toCloseTotal}
+
+### Listos para revisar y cerrar (en la carpeta changes/implemented, incluye tanto change/fix como fast) — {toCloseTotal}
+
+| Código | Descripción |
+| --- | --- |
+{filasListas}
+
 <!-- SECTION:sinDescripcion -->
 -   **Entradas sin `description.md` (anómalas):** {filasSinDescripcion}
 <!-- /SECTION:sinDescripcion -->
@@ -41,8 +54,8 @@
 {filasAvisos}
 <!-- /SECTION:avisos -->
 
-<!-- ROW_ENTRY: -   {xxxx} — {nombre} ({tipo}) -->
-<!-- EMPTY_ENTRY: -   ninguno -->
+<!-- ROW_ENTRY: | {xxxx} | {nombre} | -->
+<!-- EMPTY_ENTRY: | — | *(ninguno)* | -->
 <!-- ROW_FAST: -   {código} — {nombre} ({fecha}) -->
 <!-- ROW_IDEA: -   {codigo}: {idea} -->
 <!-- ROW_AVISO: -   {aviso} -->
