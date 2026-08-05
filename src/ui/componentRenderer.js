@@ -8,7 +8,7 @@ import { getPosibleValores, tirarDado } from '../core/dice.js';
 import { markdownToHtml } from '../core/markdown.js';
 import { sanitizeHtml } from '../core/sanitizeHtml.js';
 import { applyImageAdjustStyle } from './imageAdjustModal.js';
-import { getProporcionRatio, getCartaShapeCss, getHexInnerClipPath, CARD_DESIGN_WIDTH } from '../core/cardProportions.js';
+import { getProporcionRatio, getCartaShapeCss, getHexInnerClipPath, getTriangleInnerClipPath, CARD_DESIGN_WIDTH } from '../core/cardProportions.js';
 import { getOrderedFaceElements } from '../core/cardFaceElements.js';
 import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
 import { getMazoRevealZoneRect } from '../core/deck.js';
@@ -1199,11 +1199,13 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       const props = component.properties || {};
       const { borderRadius: cartaBorderRadius, clipPath: cartaClipPath } = getCartaShapeCss(props.proporcion, props.esquinasRedondeadas !== false);
       const isHexCarta = props.proporcion === 'hex-vertical' || props.proporcion === 'hex-horizontal';
+      const isTriangleCarta = props.proporcion === 'triangulo' || props.proporcion === 'triangulo-invertido';
 
       const carta = document.createElement('div');
       elementsById.set(component.id, carta);
       carta.className = 'carta';
       carta.classList.toggle('carta--hex', isHexCarta);
+      carta.classList.toggle('carta--triangle', isTriangleCarta);
       carta.style.position = 'absolute';
       carta.style.top = `${component.y ?? 100}px`;
       carta.style.left = `${component.x ?? 100}px`;
@@ -1227,25 +1229,31 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       cartaContent.style.clipPath = cartaClipPath;
       carta.appendChild(cartaContent);
 
-      // Las proporciones hexagonales no pueden usar `border` CSS (dibuja
-      // siempre paralelo a la caja rectangular, no a las aristas del
-      // hexágono recortado con clip-path) — en su lugar, dos capas de
+      // Las proporciones hexagonales y triangulares no pueden usar `border`
+      // CSS (dibuja siempre paralelo a la caja rectangular, no a las aristas
+      // de la silueta recortada con clip-path) — en su lugar, dos capas de
       // clip-path anidadas: esta capa exterior rellena del color de borde,
-      // y `cartaInner` (más abajo) recorta el contenido con un hexágono
-      // concéntrico más pequeño, dejando visible el anillo entre ambas
-      // como borde de grosor uniforme (fix 00096).
-      const hexInnerClipPath = isHexCarta ? getHexInnerClipPath(props.proporcion, width, height, cara?.bordeGrosor ?? 0) : null;
+      // y `cartaInner` (más abajo) recorta el contenido con una silueta
+      // concéntrica más pequeña, dejando visible el anillo entre ambas
+      // como borde de grosor uniforme (fix 00096, extendido a triángulo en
+      // el cambio 00134).
+      const isNonRectClippedCarta = isHexCarta || isTriangleCarta;
+      const innerClipPath = isHexCarta
+        ? getHexInnerClipPath(props.proporcion, width, height, cara?.bordeGrosor ?? 0)
+        : isTriangleCarta
+          ? getTriangleInnerClipPath(props.proporcion, width, height, cara?.bordeGrosor ?? 0)
+          : null;
       let contentParent = cartaContent;
-      if (isHexCarta) {
-        cartaContent.style.backgroundColor = hexInnerClipPath ? (cara.bordeColor || '#000000') : '#ffffff';
+      if (isNonRectClippedCarta) {
+        cartaContent.style.backgroundColor = innerClipPath ? (cara.bordeColor || '#000000') : '#ffffff';
         cartaContent.style.border = 'none';
-        if (hexInnerClipPath) {
+        if (innerClipPath) {
           const cartaInner = document.createElement('div');
           cartaInner.style.position = 'absolute';
           cartaInner.style.inset = '0';
           cartaInner.style.boxSizing = 'border-box';
           cartaInner.style.overflow = 'hidden';
-          cartaInner.style.clipPath = hexInnerClipPath;
+          cartaInner.style.clipPath = innerClipPath;
           cartaInner.style.backgroundColor = '#ffffff';
           cartaContent.appendChild(cartaInner);
           contentParent = cartaInner;
@@ -1356,7 +1364,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (onResize && selectedIds.size === 1 && selectedIds.has(component.id)) {
         const clampCartaSize = ({ width, height }) => {
-          if (props.proporcion === 'circular') {
+          if (props.proporcion === 'circular' || props.proporcion === 'libre') {
             return {
               width: Math.max(width, MIN_CARTA_WIDTH),
               height: Math.max(height, MIN_CARTA_HEIGHT),

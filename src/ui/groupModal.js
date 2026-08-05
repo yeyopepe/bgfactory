@@ -2,10 +2,11 @@
 // ui/resourceModal.js (overlay/modal/header/content/footer) pero única para
 // ambos casos: sin `group`, alta (sin botón "Eliminar"); con `group`, edición.
 
-import { createGroup, updateGroup, isGroupNameTaken } from '../core/group.js';
-import { getGroups } from '../core/state.js';
+import { createGroup, updateGroup, isGroupNameTaken, getComponentsUsingGroup } from '../core/group.js';
+import { getGroups, getComponents } from '../core/state.js';
+import { getComponentTypeLabel } from './componentTypeModal.js';
 
-export function openGroupModal({ group = null, onAccept, onDelete }) {
+export function openGroupModal({ group = null, onAccept, onDelete, onRemoveFromGroup }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -35,6 +36,71 @@ export function openGroupModal({ group = null, onAccept, onDelete }) {
   nameField.appendChild(nameInput);
   nameField.appendChild(nameError);
   content.appendChild(nameField);
+
+  if (group) {
+    const elementsField = document.createElement('div');
+    elementsField.className = 'modal__field';
+    content.appendChild(elementsField);
+
+    const elementsLabel = document.createElement('label');
+    elementsLabel.className = 'group-modal__elements-label';
+    elementsField.appendChild(elementsLabel);
+
+    const elementsBody = document.createElement('div');
+    elementsField.appendChild(elementsBody);
+
+    function renderElements() {
+      const componentIds = getComponentsUsingGroup(group.id, getComponents());
+      const components = componentIds
+        .map((id) => getComponents().find((c) => c.id === id))
+        .filter(Boolean)
+        .sort((a, b) => a.id.localeCompare(b.id));
+
+      elementsLabel.textContent = `Elementos del grupo (${components.length})`;
+      elementsBody.innerHTML = '';
+
+      if (components.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'group-modal__elements-empty';
+        empty.textContent = 'No hay elementos en este grupo.';
+        elementsBody.appendChild(empty);
+        return;
+      }
+
+      const list = document.createElement('div');
+      list.className = 'group-modal__elements-list';
+
+      for (const component of components) {
+        const item = document.createElement('div');
+        item.className = 'group-modal__element-item';
+
+        const idEl = document.createElement('span');
+        idEl.className = 'group-modal__element-id';
+        const typeEl = document.createElement('span');
+        typeEl.className = 'type';
+        typeEl.textContent = `${getComponentTypeLabel(component.type)}:`;
+        idEl.appendChild(typeEl);
+        idEl.appendChild(document.createTextNode(` ${component.id}`));
+        item.appendChild(idEl);
+
+        const sacarBtn = document.createElement('button');
+        sacarBtn.type = 'button';
+        sacarBtn.className = 'btn-sacar';
+        sacarBtn.textContent = 'Sacar';
+        sacarBtn.addEventListener('click', () => {
+          onRemoveFromGroup(group, component.id);
+          renderElements();
+        });
+        item.appendChild(sacarBtn);
+
+        list.appendChild(item);
+      }
+
+      elementsBody.appendChild(list);
+    }
+
+    renderElements();
+  }
 
   const footer = document.createElement('div');
   footer.className = 'modal__footer';

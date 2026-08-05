@@ -72,13 +72,25 @@ Cuando termina el domingo (y la semana):
 
 ## Acciones
 ### 1. Moverse
+- requisitios para entrar en una localización: tenerlos en la mochila o que estén en la casilla.
+- acción gratis al entrar en una localización: ?
 
 ### 2. Saquear
 Si en la localización actual queda algún objeto en la pila de saqueo, el jugador puede tirar 1 vez el dado de saqueo y, según el resultado, podrá conseguir una ficha de basura, el primero objeto en la pila de saqueo de la localización o simplemente nada.
 
 ### 3. Cazar/pescar
+En localizaciones dónde haya disponible animales para cazar o pescar <iconos>, si el jugador tiene en su mochila un arma o una caña de pescar, podrá conseguir 1 objeto comida.
 
 ### 4. Comerciar
+Una vez por turno: en localizaciones dónde haya disponible comerciantes <icono>, el jugador podrá intercambiar cualquier objeto de su mochila que no sea basura por otro a su elección de la pila de saqueo. Después de intercambiarlo, baraja la pila de saqueo.
+
+### 5. Intercambiar
+El jugador podrá gastar una acción para poder realizar cualquiera de estas actividades en el orden que quiera:
+- intercambiar cualquiera cantidad de objetos con otros jugadores que estén en la misma localización.
+- reordenar los objetos de su mochila.
+- dejar cualquier número de objetos en la localización.
+
+
 
 ### 5. Subir el nivel de asentamiento
 Para subir en 1 el nivel de asentamiento hace falta reunir en esa localización la cantidad de basura requerida. Las fichas de basura se pueden ir dejando encima de la carta de la localización hasta reunir el número indicado, en ese momento:

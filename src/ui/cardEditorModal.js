@@ -4,7 +4,7 @@
 // ui/componentModal.js cuando el componente es de tipo 'carta'.
 
 import { getResources } from '../core/state.js';
-import { CARD_PROPORTIONS, getProporcionRatio, getDesignSize, getCartaShapeCss, getHexInnerClipPath, isRectShape } from '../core/cardProportions.js';
+import { CARD_PROPORTIONS, getProporcionRatio, getDesignSize, getCartaShapeCss, getHexInnerClipPath, getTriangleInnerClipPath, isRectShape } from '../core/cardProportions.js';
 import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
 import { hexToRgba } from '../core/colorUtils.js';
 import { applyImageAdjustStyle, openImageAdjustModal } from './imageAdjustModal.js';
@@ -34,6 +34,7 @@ const HELP_HTML = `
     <li><b>Redimensionar</b> un cuadro de texto o figura arrastrando su esquina (con Shift, una figura circular/elíptica mantiene proporción 1:1).</li>
     <li><b>Editar</b> el contenido y el estilo de un cuadro de texto o figura (haciendo doble clic sobre él).</li>
     <li><b>Seleccionar</b> un cuadro de texto o figura con un clic y moverlo con precisión usando las flechas del teclado (1px, o 10px con Shift).</li>
+    <li><b>Maximizar</b> o restaurar el tamaño del editor con el botón de la cabecera.</li>
     <li><b>Aceptar</b> o <b>cancelar</b> los cambios hechos en el editor.</li>
   </ul>
 `;
@@ -99,6 +100,36 @@ function createPasteIcon() {
   icon.innerHTML =
     '<path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1Z" stroke-linecap="round" stroke-linejoin="round"/>' +
     '<rect x="6" y="6" width="12" height="15" rx="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
+  return icon;
+}
+
+// Botón maximizar/restaurar del editor (cambio 00132): mismo patrón local
+// de iconos SVG que el resto de este fichero (createDeleteIcon, etc.).
+function createMaximizeIcon() {
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('fill', 'none');
+  icon.setAttribute('stroke', 'currentColor');
+  icon.setAttribute('stroke-width', '2');
+  icon.innerHTML =
+    '<polyline points="9 3 3 3 3 9" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<polyline points="15 3 21 3 21 9" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<polyline points="9 21 3 21 3 15" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<polyline points="15 21 21 21 21 15" stroke-linecap="round" stroke-linejoin="round"/>';
+  return icon;
+}
+
+function createRestoreIcon() {
+  const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  icon.setAttribute('viewBox', '0 0 24 24');
+  icon.setAttribute('fill', 'none');
+  icon.setAttribute('stroke', 'currentColor');
+  icon.setAttribute('stroke-width', '2');
+  icon.innerHTML =
+    '<polyline points="3 9 9 9 9 3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<polyline points="21 9 15 9 15 3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<polyline points="3 15 9 15 9 21" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '<polyline points="21 15 15 15 15 21" stroke-linecap="round" stroke-linejoin="round"/>';
   return icon;
 }
 
@@ -194,11 +225,51 @@ export function openCardEditorModal({ component, onAccept }) {
   const modal = document.createElement('div');
   modal.className = 'modal card-editor-modal';
 
+  // Maximizar/restaurar (cambio 00132): variable local (no de módulo) a
+  // openCardEditorModal, para que cada apertura del editor arranque siempre
+  // en tamaño normal, sin persistencia entre usos. Declarada antes de la
+  // cabecera porque el botón de maximizar la usa de inmediato.
+  let maximized = false;
+
+  // Tamaño efectivo del lienzo de cada cara: en estado normal, la constante
+  // fija de siempre (CANVAS_MAX_SIDE); maximizado, el hueco real disponible
+  // en la ventana — dos lienzos + toolbar caben en el ancho, así que el alto
+  // es el límite real.
+  function getEffectiveCanvasMaxSide() {
+    if (!maximized) return CANVAS_MAX_SIDE;
+    return Math.min(window.innerHeight * 0.7, window.innerWidth * 0.42);
+  }
+
   const header = document.createElement('div');
   header.className = 'modal__header';
   const headerTitle = document.createElement('span');
   headerTitle.textContent = 'Editor de cartas';
   header.appendChild(headerTitle);
+
+  // Maximizar/restaurar (cambio 00132): interruptor entre tamaño normal y
+  // ocupar prácticamente toda la ventana. No cierra el editor (eso sigue
+  // siendo cosa de "Cancelar"/"Aceptar" en el pie).
+  const maximizeBtn = document.createElement('button');
+  maximizeBtn.type = 'button';
+  maximizeBtn.className = 'card-editor-modal__maximize-btn';
+
+  function updateMaximizeButton() {
+    maximizeBtn.innerHTML = '';
+    maximizeBtn.appendChild(maximized ? createRestoreIcon() : createMaximizeIcon());
+    const label = maximized ? 'Restaurar tamaño' : 'Maximizar';
+    maximizeBtn.title = label;
+    maximizeBtn.setAttribute('aria-label', label);
+  }
+  updateMaximizeButton();
+
+  maximizeBtn.addEventListener('click', () => {
+    maximized = !maximized;
+    modal.classList.toggle('card-editor-modal--maximized', maximized);
+    updateMaximizeButton();
+    renderFaces();
+  });
+  header.appendChild(maximizeBtn);
+
   header.appendChild(createHelpIcon({ html: HELP_HTML }));
   modal.appendChild(header);
 
@@ -273,8 +344,17 @@ export function openCardEditorModal({ component, onAccept }) {
 
   document.addEventListener('keydown', handleKeyDown);
 
+  // Recalcular el tamaño del lienzo si la ventana cambia de tamaño estando
+  // maximizado (cambio 00132, primer listener de `resize` del proyecto).
+  function handleWindowResize() {
+    if (!maximized) return;
+    renderFaces();
+  }
+  window.addEventListener('resize', handleWindowResize);
+
   function cleanup() {
     document.removeEventListener('keydown', handleKeyDown);
+    window.removeEventListener('resize', handleWindowResize);
     overlay.remove();
   }
 
@@ -345,6 +425,20 @@ export function openCardEditorModal({ component, onAccept }) {
     facesRow.appendChild(adjustImageBtn);
     facesRow.appendChild(renderFace('caraTrasera', 'Cara trasera'));
     adjustImageBtn.disabled = !working.caraFrontal.imagenResourceId && !working.caraTrasera.imagenResourceId;
+
+    // El margen fijo de la hoja de estilos (8.75rem) asume el alto de
+    // lienzo del tamaño normal, para quedar centrado junto a las dos caras.
+    // Maximizado, el lienzo crece y ese valor fijo ya no centra el botón —
+    // se calcula en JS (excepción ya documentada en STYLE_BIBLE sección 8
+    // para valores que dependen de un cálculo numérico en tiempo de
+    // ejecución, no expresables como clase).
+    if (maximized) {
+      const { width: designWidth, height: designHeight } = getDesignSize(working.proporcion);
+      const canvasHeight = designHeight * (getEffectiveCanvasMaxSide() / Math.max(designWidth, designHeight));
+      adjustImageBtn.style.marginTop = `${canvasHeight / 2 - adjustImageBtn.offsetHeight / 2}px`;
+    } else {
+      adjustImageBtn.style.marginTop = '';
+    }
   }
 
   function openAdjustSession() {
@@ -366,7 +460,9 @@ export function openCardEditorModal({ component, onAccept }) {
     const faceShape =
       working.proporcion === 'circular' ||
       working.proporcion === 'hex-vertical' ||
-      working.proporcion === 'hex-horizontal'
+      working.proporcion === 'hex-horizontal' ||
+      working.proporcion === 'triangulo' ||
+      working.proporcion === 'triangulo-invertido'
         ? working.proporcion
         : 'cuadrada';
 
@@ -504,7 +600,7 @@ export function openCardEditorModal({ component, onAccept }) {
   function renderFace(caraKey, label) {
     const cara = working[caraKey];
     const { width: designWidth, height: designHeight } = getDesignSize(working.proporcion);
-    const previewScale = CANVAS_MAX_SIDE / Math.max(designWidth, designHeight);
+    const previewScale = getEffectiveCanvasMaxSide() / Math.max(designWidth, designHeight);
     const canvasWidth = designWidth * previewScale;
     const canvasHeight = designHeight * previewScale;
 
@@ -529,6 +625,7 @@ export function openCardEditorModal({ component, onAccept }) {
     faceCol.appendChild(canvas);
 
     const isHexCanvas = working.proporcion === 'hex-vertical' || working.proporcion === 'hex-horizontal';
+    const isTriangleCanvas = working.proporcion === 'triangulo' || working.proporcion === 'triangulo-invertido';
 
     const canvasInner = document.createElement('div');
     canvasInner.style.position = 'absolute';
@@ -553,19 +650,22 @@ export function openCardEditorModal({ component, onAccept }) {
     });
     canvas.appendChild(canvasInner);
 
-    // Ver fix 00096: las proporciones hexagonales no pueden usar `border`
-    // CSS (dibuja paralelo a la caja rectangular, no a las aristas del
-    // hexágono recortado con clip-path) — en su lugar, `canvas` (capa
+    // Ver fix 00096 (extendido a triángulo en el cambio 00134): las
+    // proporciones hexagonales y triangulares no pueden usar `border` CSS
+    // (dibuja paralelo a la caja rectangular, no a las aristas de la
+    // silueta recortada con clip-path) — en su lugar, `canvas` (capa
     // exterior) se rellena del color de borde y `canvasInner` (donde va
-    // el contenido) se recorta con un hexágono concéntrico más pequeño,
+    // el contenido) se recorta con una silueta concéntrica más pequeña,
     // dejando visible el anillo entre ambos como borde de grosor uniforme.
     function applyCanvasBorder() {
       const bordeGrosor = cara.bordeGrosor ?? 0;
-      if (isHexCanvas) {
-        const hexInnerClipPath = getHexInnerClipPath(working.proporcion, canvasWidth, canvasHeight, bordeGrosor);
+      if (isHexCanvas || isTriangleCanvas) {
+        const innerClipPath = isHexCanvas
+          ? getHexInnerClipPath(working.proporcion, canvasWidth, canvasHeight, bordeGrosor)
+          : getTriangleInnerClipPath(working.proporcion, canvasWidth, canvasHeight, bordeGrosor);
         canvas.style.border = 'none';
-        canvas.style.backgroundColor = hexInnerClipPath ? (cara.bordeColor || '#000000') : '';
-        canvasInner.style.clipPath = hexInnerClipPath || 'none';
+        canvas.style.backgroundColor = innerClipPath ? (cara.bordeColor || '#000000') : '';
+        canvasInner.style.clipPath = innerClipPath || 'none';
       } else {
         canvas.style.backgroundColor = '';
         canvas.style.border = bordeGrosor > 0 ? `${bordeGrosor}px solid ${cara.bordeColor || '#000000'}` : '';

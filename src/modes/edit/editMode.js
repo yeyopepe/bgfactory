@@ -517,6 +517,10 @@ export function renderEditMode(container) {
           group,
           onAccept: (updated) => replaceGroup(group.id, updated),
           onDelete: (g, closeModal) => attemptDeleteGroup(g, { onDeleted: closeModal }),
+          onRemoveFromGroup: (g, componentId) => {
+            const component = getComponents().find((c) => c.id === componentId);
+            if (component) replaceComponent(componentId, updateComponent(component, { grupoId: null }));
+          },
         });
       },
       onRemove: (group) => attemptDeleteGroup(group),

@@ -11,6 +11,9 @@ export const CARD_PROPORTIONS = [
   { value: 'circular', label: 'Circular', ratio: 1, shape: 'circular' },
   { value: 'hex-vertical', label: 'Hexagonal (vértices arriba/abajo)', ratio: Math.sqrt(3) / 2, shape: 'hex-vertical' },
   { value: 'hex-horizontal', label: 'Hexagonal (vértices izquierda/derecha)', ratio: 2 / Math.sqrt(3), shape: 'hex-horizontal' },
+  { value: 'triangulo', label: 'Triángulo', ratio: 1, shape: 'triangulo' },
+  { value: 'triangulo-invertido', label: 'Triángulo invertido', ratio: 1, shape: 'triangulo-invertido' },
+  { value: 'libre', label: 'Libre (redimensionamiento libre)', ratio: 5 / 7, shape: 'rect' },
 ];
 
 const DEFAULT_PROPORTION = '5:7';
@@ -22,6 +25,27 @@ const DEFAULT_PROPORTION = '5:7';
 const HEX_CLIP_PATHS = {
   'hex-vertical': 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
   'hex-horizontal': 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
+};
+
+// Recortes de silueta exacta para las dos proporciones triangulares (cambio
+// 00134): triángulo inscrito en la caja cuadrada (vértice + base opuestos,
+// no un triángulo estrictamente equilátero — ver plan.md de ese cambio),
+// mismo criterio que HEX_CLIP_PATHS de que el polígono no necesita conocer
+// el tamaño real en píxeles al estar la caja siempre en su ratio correcto.
+const TRIANGLE_CLIP_PATHS = {
+  triangulo: 'polygon(50% 0%, 100% 100%, 0% 100%)',
+  'triangulo-invertido': 'polygon(0% 0%, 100% 0%, 50% 100%)',
+};
+
+// Incentro (en % de la caja) e inradio (en fracción del lado) de cada
+// silueta triangular de arriba, usados por getTriangleInnerClipPath para
+// simular un borde de grosor uniforme escalando desde el incentro real (a
+// diferencia del hexágono regular, cuyo incentro coincide con el centro de
+// la caja, aquí no) — valores exactos derivados de las fórmulas estándar de
+// incentro/inradio de un triángulo a partir de sus vértices.
+const TRIANGLE_GEOMETRY = {
+  triangulo: { centerXPercent: 50, centerYPercent: 69.09830056250526, inradiusFraction: 0.30901699437494745 },
+  'triangulo-invertido': { centerXPercent: 50, centerYPercent: 30.90169943749474, inradiusFraction: 0.30901699437494745 },
 };
 
 export function getProporcionRatio(value) {
@@ -51,6 +75,7 @@ export function getCartaShapeCss(value, esquinasRedondeadas = true) {
   const shape = found ? found.shape : 'rect';
   if (shape === 'circular') return { borderRadius: '50%', clipPath: 'none' };
   if (HEX_CLIP_PATHS[shape]) return { borderRadius: '0', clipPath: HEX_CLIP_PATHS[shape] };
+  if (TRIANGLE_CLIP_PATHS[shape]) return { borderRadius: '0', clipPath: TRIANGLE_CLIP_PATHS[shape] };
   return { borderRadius: esquinasRedondeadas ? '8px' : '0', clipPath: 'none' };
 }
 
@@ -79,6 +104,38 @@ export function getHexInnerClipPath(proporcionValue, width, height, bordePx) {
       const [x, y] = pair.trim().split(' ').map((n) => parseFloat(n));
       const sx = 50 + scale * (x - 50);
       const sy = 50 + scale * (y - 50);
+      return `${sx}% ${sy}%`;
+    });
+
+  return `polygon(${points.join(', ')})`;
+}
+
+// Recorte interior (concéntrico, más pequeño) para simular un borde de
+// grosor uniforme en las proporciones triangulares (cambio 00134), hermana
+// de getHexInnerClipPath: a diferencia del hexágono regular, el incentro de
+// este triángulo no coincide con el centro de la caja (50%, 50%), así que
+// el escalado se hace desde el incentro real (TRIANGLE_GEOMETRY) en vez de
+// desde el centro. La caja es siempre cuadrada (ratio 1), así que el lado
+// real en píxeles es indistintamente `width` o `height`.
+export function getTriangleInnerClipPath(proporcionValue, width, height, bordePx) {
+  const found = CARD_PROPORTIONS.find((p) => p.value === proporcionValue);
+  const shape = found ? found.shape : null;
+  const path = shape ? TRIANGLE_CLIP_PATHS[shape] : null;
+  const geometry = shape ? TRIANGLE_GEOMETRY[shape] : null;
+  if (!path || !geometry || !(bordePx > 0)) return null;
+
+  const ladoPx = width;
+  const inradiusPx = geometry.inradiusFraction * ladoPx;
+  const scale = Math.max(0, 1 - bordePx / inradiusPx);
+  const { centerXPercent, centerYPercent } = geometry;
+
+  const points = path
+    .slice(path.indexOf('(') + 1, -1)
+    .split(',')
+    .map((pair) => {
+      const [x, y] = pair.trim().split(' ').map((n) => parseFloat(n));
+      const sx = centerXPercent + scale * (x - centerXPercent);
+      const sy = centerYPercent + scale * (y - centerYPercent);
       return `${sx}% ${sy}%`;
     });
 

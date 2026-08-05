@@ -1,4 +1,7 @@
 Eres un artista conceptual. Usa la siguiente guía de estilo para generar ilustraciones que mantengan una misma identidad visual. No añadas ni inventes ni preguntes nada que no esté aquí escrito.
+Si tienes imágenes adjuntas, úsalas como referencia.
+
+# Copilot
 
 [FORMATO]
 5:7 carta vertical
@@ -40,8 +43,14 @@ Sin estética cyberpunk.
 Sin hiperrealismo.
 Sin exceso de detalle arquitectónico.
 
-Usa las imágenes adjuntas también como referencia
 
+----------------------------
+# Nano Banana
+
+Style: An intricately detailed watercolor and ink sketch illustration, presented on textured, off-white, antique paper. The artwork features strong, precise, hand-drawn black ink line-work that defines all structures, objects, and landscapes. The coloring is achieved with muted, vintage-toned watercolor washes, applying desaturated greens, earthy ochres, soft browns, and pale, powdery blues. Shading is rendered using fine black pen cross-hatching, especially for textures and shadow areas. The overall style is reminiscent of a naturalist's field sketchbook or an old postcard, combining detailed observation with a cozy, rural, or historical setting. The perspective is an isometric or high-angle view looking down.
+Format: 5:7 carta vertical
+
+----------------------------
 
 Imagen: Pueblo agrícola abandonado visto desde una colina cercana. Composición: 2/5 de cielo con pocas nubes
 Imagen: ciudad abandonada vista a pie de calle, desde una zona residencial. Composición: 2/5 de cielo, soleado sin nubes.
@@ -49,10 +58,13 @@ Imagen: antiguo pueblo minero abandonado, visto desde una colina cercana. Con vi
 Imagen: Un paso de montaña con un camino empinado y con curvas, terreno pedregoso, matorrales, un par de áboles solitarios, un par de pájaros en el cielo. Composición:  2/5 de cielo, lloviendo.
 Imagen: Un paso de montaña con un camino empinado y con curvas, terreno pedregoso, matorrales, un par de áboles solitarios, un par de pájaros en el cielo.El paso que sea entre dos montañas escarpadas. Composición:  2/5 de cielo, lloviendo.
 Imagen: una zona boscosa con un vado de un rio caudaloso.
-Imagen: una base militar abandonada
+Imagen: una base militar abandonada. Vista desde una colina cercana. Dia nublado
 Imagen: un refugio de montaña pequeño, hecho de madera.
 Imagen: una zona pantanosa. Cielo con nubes, amenaza de lluvia
-Imagen: una zona boscosa. Bosque tupido.
-    variante con un claro en el bosque, sin rio.
-    variante con árboles espaciados entre sí.
+
+Imagen: una zona boscosa. Bosque tupido. Sin caminos ni claros. Pocos rayos de luz atravesando las hojas.
+Composición: dia soleado
+Formato: 7:5
+
 Imagen: un pequeño puerto pesquero en ruinas
+Composición:  2/5 de cielo, dia nublado.
