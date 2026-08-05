@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Maqueta — Panel de propiedades, pestaña Generales (nuevo orden)</title>
+<style>
+  :root {
+    --accent-blue: #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-secondary: #555;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e8e8e8;
+    --bg-page: #eef0f4;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --section-accent: #5b5f97;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 2rem;
+    font-family: system-ui, sans-serif;
+    color: var(--text-primary);
+    background: var(--bg-page);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .caption {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    max-width: 420px;
+    text-align: center;
+  }
+  .caption b { color: var(--text-primary); }
+
+  .modal {
+    width: 420px;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal__header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+  .modal__tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+  .modal__tab {
+    padding: 0.75rem 1rem;
+    background: var(--bg-hover);
+    border: none;
+    font-size: 0.875rem;
+    cursor: default;
+  }
+  .modal__tab.active {
+    background: white;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--accent-blue);
+    font-weight: 500;
+  }
+  .modal__content {
+    padding: 1.5rem;
+  }
+
+  .modal__field { margin-bottom: 1rem; }
+  .modal__field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+  .modal__field input[type="text"],
+  .modal__field input[type="number"],
+  .modal__field select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  .modal__field--checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .modal__field--checkbox label { margin-bottom: 0; }
+  .modal__field--select-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .modal__field--select-row select { flex: 1; }
+
+  .help-icon {
+    flex: 0 0 auto;
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 50%;
+    background: var(--bg-subtle);
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: help;
+    border: 1px solid var(--border-neutral);
+  }
+
+  fieldset.modal__section {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    margin: 0 0 1.25rem;
+    padding: 1rem 1.25rem;
+  }
+  fieldset.modal__section > *:last-child { margin-bottom: 0; }
+  legend.modal__section-title {
+    padding: 0 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--section-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .size-row { display: flex; gap: 0.5rem; }
+  .size-row .modal__field { flex: 1; }
+
+  .group-checkbox-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+  .group-checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+  }
+  .group-add-row {
+    font-size: 0.875rem;
+    color: var(--accent-blue);
+    cursor: default;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+  .badge--new {
+    background: #eaf3fc;
+    color: var(--accent-blue);
+    border: 1px solid var(--accent-blue);
+  }
+</style>
+</head>
+<body>
+
+  <div class="modal">
+    <div class="modal__header">Editar propiedades del componente</div>
+    <div class="modal__tabs">
+      <button class="modal__tab active">Generales</button>
+      <button class="modal__tab">Estilo</button>
+    </div>
+    <div class="modal__content">
+
+      <!-- 1. ID del componente — sin cambios -->
+      <div class="modal__field">
+        <label>ID del componente</label>
+        <input type="text" value="template-localizacion-2(1)">
+      </div>
+
+      <!-- 2. Nueva sección "General" -->
+      <fieldset class="modal__section">
+        <legend class="modal__section-title">General<span class="badge badge--new">nueva sección</span></legend>
+
+        <div class="modal__field">
+          <label>Bloqueado</label>
+          <div class="modal__field--select-row">
+            <select>
+              <option selected>Ninguno</option>
+              <option>Solo modo juego</option>
+              <option>Todos los modos</option>
+            </select>
+            <span class="help-icon">?</span>
+          </div>
+        </div>
+
+        <div class="modal__field--checkbox">
+          <input type="checkbox" checked>
+          <label>Oculto</label>
+          <span class="help-icon">?</span>
+        </div>
+
+        <div class="modal__field--checkbox">
+          <input type="checkbox">
+          <label>Mostrar tooltip</label>
+          <span class="help-icon">?</span>
+        </div>
+
+        <div class="modal__field--checkbox">
+          <input type="checkbox" checked>
+          <label>Subir al mover/interactuar</label>
+          <span class="help-icon">?</span>
+        </div>
+      </fieldset>
+
+      <!-- 3. Sección Tamaño — sin cambios de contenido, ahora después de General -->
+      <fieldset class="modal__section">
+        <legend class="modal__section-title">Tamaño</legend>
+        <div class="size-row">
+          <div class="modal__field">
+            <label>Alto (px)</label>
+            <input type="number" value="82">
+          </div>
+          <div class="modal__field">
+            <label>Ancho (px)</label>
+            <input type="number" value="350">
+          </div>
+        </div>
+        <div class="modal__field--checkbox">
+          <input type="checkbox">
+          <label>Mantener proporción</label>
+        </div>
+      </fieldset>
+
+      <!-- 4. Sección Grupos — sin cambios -->
+      <fieldset class="modal__section">
+        <legend class="modal__section-title">Grupos</legend>
+        <div class="group-checkbox-list">
+          <div class="group-checkbox-row"><input type="checkbox"> Enemigos</div>
+          <div class="group-checkbox-row"><input type="checkbox"> Eventos</div>
+          <div class="group-checkbox-row"><input type="checkbox"> Lugar montañas</div>
+        </div>
+        <div class="group-add-row">+ Crear nuevo grupo...</div>
+      </fieldset>
+
+    </div>
+  </div>
+
+  <p class="caption">
+    Nuevo orden de la pestaña <b>Generales</b>: ID → sección <b>General</b> (Bloqueado, Oculto, Mostrar tooltip, Subir al mover/interactuar, agrupados) → sección <b>Tamaño</b> → sección <b>Grupos</b>.
+    Antes, Tamaño iba primero y los cuatro controles ahora agrupados aparecían sueltos, sin título, debajo de Tamaño.
+  </p>
+
+</body>
+</html>

@@ -26,6 +26,44 @@ const DEFAULT_DOCUMENTO_HEIGHT = 320;
 const DEFAULT_CARTA_WIDTH = 180;
 const DEFAULT_MAZO_WIDTH = 180;
 const DEFAULT_MAZO_HEIGHT = DEFAULT_MAZO_WIDTH / getProporcionRatio('5:7');
+const DEFAULT_SIZE_FALLBACK = 100;
+
+// Mide el tamaño natural (shrink-to-fit) que ocupa un componente 'texto' sin
+// width/height fijados, replicando en un nodo oculto el mismo estilo con el
+// que ui/componentRenderer.js pinta ese tipo (padding/font-size/white-space/
+// word-break) para que el resultado coincida con lo que se ve en la mesa.
+function measureTextoNaturalSize(component) {
+  const measurer = document.createElement('div');
+  measurer.style.position = 'absolute';
+  measurer.style.visibility = 'hidden';
+  measurer.style.pointerEvents = 'none';
+  measurer.style.padding = '0.5rem';
+  measurer.style.fontSize = `${component.properties.tamañoFuente || 16}px`;
+  measurer.style.whiteSpace = 'pre-wrap';
+  measurer.style.wordBreak = 'break-word';
+  measurer.textContent = component.properties.contenido || '';
+  document.body.appendChild(measurer);
+  const size = { width: measurer.offsetWidth, height: measurer.offsetHeight };
+  document.body.removeChild(measurer);
+  return size;
+}
+
+// Tamaño a mostrar en la sección "Tamaño" (cambio 00144) cuando width/height
+// todavía no están fijados en el modelo (tamaño automático según contenido).
+function getEffectiveSize(component) {
+  let { width, height } = component;
+  if (width == null || height == null) {
+    if (component.type === 'texto') {
+      const measured = measureTextoNaturalSize(component);
+      if (width == null) width = measured.width;
+      if (height == null) height = measured.height;
+    } else {
+      if (width == null) width = DEFAULT_SIZE_FALLBACK;
+      if (height == null) height = DEFAULT_SIZE_FALLBACK;
+    }
+  }
+  return { width: Math.round(width), height: Math.round(height) };
+}
 
 export const MAZO_ORIENTACIONES = [
   { value: 'vertical', label: 'Vertical' },
@@ -228,10 +266,108 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   idField.appendChild(idError);
   generalContent.appendChild(idField);
 
+  // General (cambio 00146): sección meramente informativa (STYLE_BIBLE.md
+  // 12.6, sin checkbox de activación entera) que agrupa Bloqueado, Oculto,
+  // Mostrar tooltip y Subir al mover/interactuar, antes sueltos sin título.
+  const infoSection = document.createElement('fieldset');
+  infoSection.className = 'modal__section';
+  const infoLegend = document.createElement('legend');
+  infoLegend.className = 'modal__section-title';
+  infoLegend.textContent = 'General';
+  infoSection.appendChild(infoLegend);
+
+  // Tamaño (cambio 00144): alto/ancho editables directamente, con checkbox
+  // "Mantener proporción". No se escribe en workingComponent.width/height
+  // hasta que el usuario edite alguno de los dos campos, para que aceptar la
+  // modal sin tocarlos no fije un tamaño que antes era automático.
+  const sizeSection = document.createElement('fieldset');
+  sizeSection.className = 'modal__section';
+  const sizeLegend = document.createElement('legend');
+  sizeLegend.className = 'modal__section-title';
+  sizeLegend.textContent = 'Tamaño';
+  sizeSection.appendChild(sizeLegend);
+
+  const sizeRow = document.createElement('div');
+  sizeRow.style.display = 'flex';
+  sizeRow.style.gap = '0.5rem';
+
+  const heightField = document.createElement('div');
+  heightField.className = 'modal__field';
+  heightField.style.flex = '1';
+  const heightLabel = document.createElement('label');
+  heightLabel.textContent = 'Alto (px)';
+  const heightInput = document.createElement('input');
+  heightInput.type = 'number';
+  heightInput.min = '1';
+  heightInput.step = '1';
+  heightField.appendChild(heightLabel);
+  heightField.appendChild(heightInput);
+
+  const widthField = document.createElement('div');
+  widthField.className = 'modal__field';
+  widthField.style.flex = '1';
+  const widthLabel = document.createElement('label');
+  widthLabel.textContent = 'Ancho (px)';
+  const widthInput = document.createElement('input');
+  widthInput.type = 'number';
+  widthInput.min = '1';
+  widthInput.step = '1';
+  widthField.appendChild(widthLabel);
+  widthField.appendChild(widthInput);
+
+  sizeRow.appendChild(heightField);
+  sizeRow.appendChild(widthField);
+  sizeSection.appendChild(sizeRow);
+
+  const initialSize = getEffectiveSize(workingComponent);
+  heightInput.value = initialSize.height;
+  widthInput.value = initialSize.width;
+
+  const keepRatioField = document.createElement('div');
+  keepRatioField.className = 'modal__field modal__field--checkbox';
+  const keepRatioCheckbox = document.createElement('input');
+  keepRatioCheckbox.type = 'checkbox';
+  keepRatioCheckbox.checked = true;
+  const keepRatioLabel = document.createElement('label');
+  keepRatioLabel.textContent = 'Mantener proporción';
+  keepRatioField.appendChild(keepRatioCheckbox);
+  keepRatioField.appendChild(keepRatioLabel);
+  sizeSection.appendChild(keepRatioField);
+
+  heightInput.addEventListener('input', () => {
+    const newHeight = parseInt(heightInput.value, 10);
+    if (!Number.isFinite(newHeight) || newHeight < 1) return;
+    const prev = getEffectiveSize(workingComponent);
+    workingComponent.height = newHeight;
+    if (keepRatioCheckbox.checked && prev.height > 0) {
+      const newWidth = Math.max(1, Math.round((newHeight * prev.width) / prev.height));
+      workingComponent.width = newWidth;
+      widthInput.value = newWidth;
+    }
+  });
+
+  widthInput.addEventListener('input', () => {
+    const newWidth = parseInt(widthInput.value, 10);
+    if (!Number.isFinite(newWidth) || newWidth < 1) return;
+    const prev = getEffectiveSize(workingComponent);
+    workingComponent.width = newWidth;
+    if (keepRatioCheckbox.checked && prev.width > 0) {
+      const newHeight = Math.max(1, Math.round((newWidth * prev.height) / prev.width));
+      workingComponent.height = newHeight;
+      heightInput.value = newHeight;
+    }
+  });
+
   const moveField = document.createElement('div');
   moveField.className = 'modal__field';
+  const moveLabelRow = document.createElement('div');
+  moveLabelRow.style.display = 'flex';
+  moveLabelRow.style.alignItems = 'center';
+  moveLabelRow.style.gap = '0.35rem';
+  moveLabelRow.style.marginBottom = '0.25rem';
   const moveLabel = document.createElement('label');
   moveLabel.textContent = 'Bloqueado';
+  moveLabel.style.marginBottom = '0';
   const moveSelect = document.createElement('select');
 
   const BLOQUEADO_OPTIONS = [
@@ -251,12 +387,13 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     workingComponent.bloqueado = moveSelect.value;
   });
 
-  moveField.appendChild(moveLabel);
-  moveField.appendChild(moveSelect);
-  moveField.appendChild(createHelpIcon({
+  moveLabelRow.appendChild(moveLabel);
+  moveLabelRow.appendChild(createHelpIcon({
     text: 'Indica en qué modo(s) este componente no se puede mover. \'Todos los modos\' lo fija también en Modo Edición; \'Solo modo juego\' lo fija únicamente durante la partida (comportamiento por defecto anterior); \'Ninguno\' permite arrastrarlo libremente en ambos.',
   }));
-  generalContent.appendChild(moveField);
+  moveField.appendChild(moveLabelRow);
+  moveField.appendChild(moveSelect);
+  infoSection.appendChild(moveField);
 
   const hiddenField = document.createElement('div');
   hiddenField.className = 'modal__field modal__field--checkbox';
@@ -275,7 +412,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   hiddenField.appendChild(createHelpIcon({
     text: 'Si está marcado, este componente deja de aparecer por completo en Modo Juego (no se ve, no ocupa espacio, no es interactuable). En Modo Edición se sigue mostrando con normalidad, con una insignia que indica que no aparecerá en la partida.',
   }));
-  generalContent.appendChild(hiddenField);
+  infoSection.appendChild(hiddenField);
 
   const tooltipField = document.createElement('div');
   tooltipField.className = 'modal__field modal__field--checkbox';
@@ -294,7 +431,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   tooltipField.appendChild(createHelpIcon({
     text: 'Si está marcado, este componente muestra su identificador como tooltip al pasar el ratón por encima, pero solo en Modo Juego. Desmarcado por defecto.',
   }));
-  generalContent.appendChild(tooltipField);
+  infoSection.appendChild(tooltipField);
 
   const upOnMoveField = document.createElement('div');
   upOnMoveField.className = 'modal__field modal__field--checkbox';
@@ -313,7 +450,10 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   upOnMoveField.appendChild(createHelpIcon({
     text: 'Si está marcado, este componente se coloca automáticamente encima de todos los demás cada vez que se mueve o se interactúa con él (voltear, lanzar) en Modo Juego.',
   }));
-  generalContent.appendChild(upOnMoveField);
+  infoSection.appendChild(upOnMoveField);
+
+  generalContent.appendChild(infoSection);
+  generalContent.appendChild(sizeSection);
 
   // Grupos (cambio 00105, generalizado a varios a la vez en el cambio 00139):
   // propiedad general de cualquier tipo de componente, antes exclusiva de
