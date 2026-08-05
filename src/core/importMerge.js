@@ -6,6 +6,7 @@
 // aplicarlo al estado (mismo criterio que core/component.js / core/resource.js).
 
 import { createGroup, isGroupNameTaken } from './group.js';
+import { normalizeComponentGrupoIds } from './component.js';
 
 const RESOURCE_REF_KEYS = new Set(['imagenResourceId', 'fuenteResourceId']);
 
@@ -87,18 +88,17 @@ function remapRefsDeep(value, resourceIdMap) {
 // Reescribe, solo en los componentes seleccionados para importar, las
 // referencias a recursos/grupos cuyo id se haya renombrado por conflicto
 // ("mantener ambos"). Los componentes ya existentes no se tocan aquí.
-// `grupoId` es una propiedad plana de primer nivel del componente (cambio
-// 00105), igual que `image`, así que se remapea aquí en vez de dentro de
-// remapRefsDeep (que solo recorre `properties`).
+// `grupoIds` es una propiedad plana de primer nivel del componente (cambio
+// 00105, array desde el cambio 00139), igual que `image`, así que se remapea
+// aquí en vez de dentro de remapRefsDeep (que solo recorre `properties`).
 function remapComponentRefs(components, resourceIdMap, groupIdMap) {
   if (resourceIdMap.size === 0 && groupIdMap.size === 0) return components;
   return components.map((component) => {
     let image = component.image;
     if (typeof image === 'string' && resourceIdMap.has(image)) image = resourceIdMap.get(image);
-    let grupoId = component.grupoId;
-    if (typeof grupoId === 'string' && groupIdMap.has(grupoId)) grupoId = groupIdMap.get(grupoId);
+    const grupoIds = component.grupoIds.map((id) => (groupIdMap.has(id) ? groupIdMap.get(id) : id));
     const properties = remapRefsDeep(component.properties ?? {}, resourceIdMap);
-    return { ...component, image, grupoId, properties };
+    return { ...component, image, grupoIds, properties };
   });
 }
 
@@ -203,7 +203,12 @@ export function mergeImportedGame({
   const { groups: dedupedGroups, renames: groupRenames } = dedupeGroupNames(groups);
   groups = dedupedGroups;
 
-  const remappedSelectedComponents = remapComponentRefs(selectedComponents, resourceIdMap, groupIdMap);
+  // Los componentes importados pueden venir de un fichero exportado antes del
+  // cambio 00139 (campo escalar `grupoId`, o su ausencia total si es aún más
+  // antiguo) — se normalizan aquí, antes de remapear referencias, para no
+  // asumir que ya están en el formato `grupoIds: string[]` actual.
+  const normalizedSelectedComponents = selectedComponents.map(normalizeComponentGrupoIds);
+  const remappedSelectedComponents = remapComponentRefs(normalizedSelectedComponents, resourceIdMap, groupIdMap);
   const { result: components, insertedIds: importedComponentIds } = mergeCollection(existingComponents, remappedSelectedComponents, mode, conflictMode);
 
   const resourceIds = new Set(resources.map((r) => r.id));
@@ -237,34 +242,36 @@ export function mergeImportedGame({
       }
     }
 
-    const grupoId = component.grupoId;
-    if (grupoId && !groupIds.has(grupoId)) {
+    for (let i = 0; i < component.grupoIds.length; i += 1) {
+      const grupoId = component.grupoIds[i];
+      if (!grupoId || groupIds.has(grupoId)) continue;
       const candidateName = findNameById(grupoId, allImportedGroups);
 
-      if (!createdGroupIds.has(grupoId)) {
-        const existingGroupWithSameName = groups.find(
-          (g) => isGroupNameTaken(candidateName, [g], grupoId)
-        );
+      if (createdGroupIds.has(grupoId)) continue;
 
-        if (existingGroupWithSameName) {
-          component.grupoId = existingGroupWithSameName.id;
-          report.push({
-            tipoError: 'grupoDuplicado',
-            solucion: 'Se vinculó a un grupo ya existente con el mismo nombre en vez de crear uno duplicado',
-            elemento: candidateName,
-          });
-        } else {
-          groups.push(createGroup({ id: grupoId, name: candidateName }));
-          groupIds.add(grupoId);
-          createdGroupIds.add(grupoId);
-          changed = true;
-          report.push({
-            componentId: component.id,
-            tipoError: 'grupo',
-            solucion: 'Se creó el grupo automáticamente',
-            elemento: candidateName,
-          });
-        }
+      const existingGroupWithSameName = groups.find(
+        (g) => isGroupNameTaken(candidateName, [g], grupoId)
+      );
+
+      if (existingGroupWithSameName) {
+        component.grupoIds[i] = existingGroupWithSameName.id;
+        changed = true;
+        report.push({
+          tipoError: 'grupoDuplicado',
+          solucion: 'Se vinculó a un grupo ya existente con el mismo nombre en vez de crear uno duplicado',
+          elemento: candidateName,
+        });
+      } else {
+        groups.push(createGroup({ id: grupoId, name: candidateName }));
+        groupIds.add(grupoId);
+        createdGroupIds.add(grupoId);
+        changed = true;
+        report.push({
+          componentId: component.id,
+          tipoError: 'grupo',
+          solucion: 'Se creó el grupo automáticamente',
+          elemento: candidateName,
+        });
       }
     }
 

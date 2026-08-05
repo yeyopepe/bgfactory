@@ -314,14 +314,20 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   }));
   generalContent.appendChild(upOnMoveField);
 
-  // Grupo (cambio 00105): propiedad general de cualquier tipo de componente,
-  // antes exclusiva de "Carta/Ficha" bajo el nombre "Mazo".
-  const groupField = document.createElement('div');
-  groupField.className = 'modal__field';
-  const groupLabel = document.createElement('label');
-  groupLabel.textContent = 'Grupo';
-  const groupSelect = document.createElement('select');
-  const NEW_GROUP_VALUE = '__new__';
+  // Grupos (cambio 00105, generalizado a varios a la vez en el cambio 00139):
+  // propiedad general de cualquier tipo de componente, antes exclusiva de
+  // "Carta/Ficha" bajo el nombre "Mazo". Sección informativa con borde (sin
+  // checkbox de activación entera, ver STYLE_BIBLE.md 12.6), con un checkbox
+  // por grupo existente más una fila para crear uno nuevo al vuelo.
+  const groupSection = document.createElement('fieldset');
+  groupSection.className = 'modal__section';
+  const groupLegend = document.createElement('legend');
+  groupLegend.className = 'modal__section-title';
+  groupLegend.textContent = 'Grupos';
+  groupSection.appendChild(groupLegend);
+
+  const groupCheckboxList = document.createElement('div');
+  groupSection.appendChild(groupCheckboxList);
 
   const newGroupRow = document.createElement('div');
   newGroupRow.style.display = 'none';
@@ -344,29 +350,42 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   newGroupError.style.marginTop = '0.25rem';
   newGroupRow.appendChild(newGroupInputRow);
   newGroupRow.appendChild(newGroupError);
+  groupSection.appendChild(newGroupRow);
 
-  function populateGroupSelect() {
-    groupSelect.innerHTML = '';
-    const noneOption = document.createElement('option');
-    noneOption.value = '';
-    noneOption.textContent = 'Sin grupo';
-    if (!workingComponent.grupoId) noneOption.selected = true;
-    groupSelect.appendChild(noneOption);
+  function populateGroupCheckboxes() {
+    groupCheckboxList.innerHTML = '';
 
     for (const group of getGroups()) {
-      const option = document.createElement('option');
-      option.value = group.id;
-      option.textContent = group.name;
-      if (group.id === workingComponent.grupoId) option.selected = true;
-      groupSelect.appendChild(option);
+      const item = document.createElement('div');
+      item.className = 'modal__field modal__field--checkbox';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = workingComponent.grupoIds.includes(group.id);
+      const label = document.createElement('label');
+      label.textContent = group.name;
+      checkbox.addEventListener('change', () => {
+        if (checkbox.checked) {
+          if (!workingComponent.grupoIds.includes(group.id)) workingComponent.grupoIds = [...workingComponent.grupoIds, group.id];
+        } else {
+          workingComponent.grupoIds = workingComponent.grupoIds.filter((id) => id !== group.id);
+        }
+      });
+      item.appendChild(checkbox);
+      item.appendChild(label);
+      groupCheckboxList.appendChild(item);
     }
 
-    const newOption = document.createElement('option');
-    newOption.value = NEW_GROUP_VALUE;
-    newOption.textContent = '+ Crear nuevo grupo…';
-    groupSelect.appendChild(newOption);
+    const createItem = document.createElement('div');
+    createItem.className = 'modal__field modal__field--checkbox';
+    createItem.style.cursor = 'pointer';
+    createItem.textContent = '+ Crear nuevo grupo…';
+    createItem.addEventListener('click', () => {
+      newGroupRow.style.display = 'block';
+      newGroupInput.focus();
+    });
+    groupCheckboxList.appendChild(createItem);
   }
-  populateGroupSelect();
+  populateGroupCheckboxes();
 
   function validateNewGroupName() {
     const name = newGroupInput.value.trim();
@@ -384,16 +403,6 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     return true;
   }
 
-  groupSelect.addEventListener('change', () => {
-    if (groupSelect.value === NEW_GROUP_VALUE) {
-      newGroupRow.style.display = 'block';
-      newGroupInput.focus();
-      return;
-    }
-    newGroupRow.style.display = 'none';
-    workingComponent.grupoId = groupSelect.value || null;
-  });
-
   newGroupInput.addEventListener('input', validateNewGroupName);
 
   newGroupCreateBtn.addEventListener('click', () => {
@@ -401,16 +410,13 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const name = newGroupInput.value.trim();
     const group = createGroup({ name });
     addGroup(group);
-    workingComponent.grupoId = group.id;
+    workingComponent.grupoIds = [...workingComponent.grupoIds, group.id];
     newGroupRow.style.display = 'none';
     newGroupInput.value = '';
-    populateGroupSelect();
+    populateGroupCheckboxes();
   });
 
-  groupField.appendChild(groupLabel);
-  groupField.appendChild(groupSelect);
-  groupField.appendChild(newGroupRow);
-  generalContent.appendChild(groupField);
+  generalContent.appendChild(groupSection);
 
   // Interacciones programadas (cambio 00115): un combo por cada interacción de click
   // que el tipo actual tenga programada en Modo Juego (ver core/interactions.js),
@@ -1063,14 +1069,13 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
         onAccept: (selection) => {
           const data = {};
           if (selection.generales) {
-            const grupo = workingComponent.grupoId ? getGroups().find((g) => g.id === workingComponent.grupoId) : null;
             data.generales = {
               bloqueado: workingComponent.bloqueado,
               oculto: workingComponent.oculto,
               mostrarTooltip: workingComponent.mostrarTooltip,
               subirAlMoverInteractuar: workingComponent.subirAlMoverInteractuar,
-              grupoId: workingComponent.grupoId,
-              grupoName: grupo ? grupo.name : null,
+              grupoIds: [...workingComponent.grupoIds],
+              grupoNames: workingComponent.grupoIds.map((id) => getGroups().find((g) => g.id === id)?.name ?? id),
             };
           }
           if (selection.proporcion) {
@@ -1107,12 +1112,12 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
         workingComponent.oculto = clip.generales.oculto;
         workingComponent.mostrarTooltip = clip.generales.mostrarTooltip;
         workingComponent.subirAlMoverInteractuar = clip.generales.subirAlMoverInteractuar;
-        workingComponent.grupoId = clip.generales.grupoId;
+        workingComponent.grupoIds = [...clip.generales.grupoIds];
         moveSelect.value = workingComponent.bloqueado;
         hiddenCheckbox.checked = workingComponent.oculto;
         tooltipCheckbox.checked = workingComponent.mostrarTooltip;
         upOnMoveCheckbox.checked = workingComponent.subirAlMoverInteractuar;
-        populateGroupSelect();
+        populateGroupCheckboxes();
       }
       if (clip.caraFrontal) props.caraFrontal = cloneFace(clip.caraFrontal);
       if (clip.caraTrasera) props.caraTrasera = cloneFace(clip.caraTrasera);

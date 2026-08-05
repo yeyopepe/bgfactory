@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Maqueta — Sección "Grupos" de la modal de componente: 8 visibles + scroll + orden alfabético</title>
+<style>
+  :root {
+    --bg-table:     #c2c2c2;
+    --bg-toolbar:   #333333;
+    --bg-card:      #f5f5f5;
+    --accent-blue:  #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --text-primary: #1a1a1a;
+    --text-light:   #ffffff;
+    --text-muted:   #666666;
+    --border-neutral: #dcdcdc;
+    --bg-subtle:    #f0f0f0;
+    --bg-hover:     #e8e8e8;
+    --radius-sm:    4px;
+    --radius-lg:    8px;
+    --shadow-1:     0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);
+    --shadow-2:     0 4px 20px rgba(0,0,0,0.15);
+    --transition-fast: 150ms ease;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg-table);
+    font-family: system-ui, sans-serif;
+    color: var(--text-primary);
+    padding: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .scenario {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .scenario__caption {
+    background: var(--bg-toolbar);
+    color: var(--text-light);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    max-width: 340px;
+    text-align: center;
+    box-shadow: var(--shadow-1);
+  }
+
+  .modal {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    width: 360px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal__header {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    font-size: 1rem;
+  }
+
+  .modal__tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+
+  .modal__tab {
+    padding: 0.6rem 0.9rem;
+    background: var(--bg-hover);
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    border-bottom: 2px solid transparent;
+  }
+
+  .modal__tab.active {
+    background: white;
+    color: var(--text-primary);
+    border-bottom-color: var(--accent-blue);
+  }
+
+  .modal__content {
+    padding: 1.25rem;
+  }
+
+  /* Mismo patrón de sección con borde ya usado en el cambio 00139 */
+  .modal__section {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    margin: 0;
+  }
+
+  .modal__section-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 0 0.35rem;
+  }
+
+  .group-list {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    background: var(--bg-subtle);
+    overflow: hidden;
+  }
+
+  /* Nuevo: subzona con tope de 3 filas + scroll vertical propio, separada de
+     la fila "+ Crear nuevo grupo…" que queda fuera, siempre visible */
+  .group-list__scroll {
+    max-height: 99px;
+    overflow-y: auto;
+  }
+
+  .group-list__scroll--fits {
+    max-height: none;
+  }
+
+  .group-list__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: white;
+    border-bottom: 1px solid var(--border-neutral);
+    font-size: 0.85rem;
+  }
+
+  .group-list__item label {
+    flex: 1;
+    cursor: pointer;
+  }
+
+  .group-list__item--checked {
+    background: #eaf2fc;
+  }
+
+  .group-list__create {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-hover);
+    color: var(--accent-blue-dark);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border-neutral);
+  }
+
+  .state-caption {
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.4rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="scenario">
+  <div class="scenario__caption">Más de 3 grupos: la lista topa en 3 checkboxes y aparece scroll vertical interno, ordenados alfabéticamente. La fila "+ Crear nuevo grupo…" queda fuera del scroll, siempre visible.</div>
+  <div class="modal">
+    <div class="modal__header">Editar propiedades del componente</div>
+    <div class="modal__tabs">
+      <button class="modal__tab active">Generales</button>
+      <button class="modal__tab">Específicas</button>
+    </div>
+    <div class="modal__content">
+      <fieldset class="modal__section">
+        <legend class="modal__section-title">Grupos</legend>
+        <div class="group-list">
+          <div class="group-list__scroll">
+            <div class="group-list__item"><input type="checkbox"><label>Aliados</label></div>
+            <div class="group-list__item group-list__item--checked"><input type="checkbox" checked><label>Cartas de inicio</label></div>
+            <div class="group-list__item"><input type="checkbox"><label>Cartas de recompensa</label></div>
+            <div class="group-list__item"><input type="checkbox"><label>Enemigos</label></div>
+            <div class="group-list__item"><input type="checkbox"><label>Eventos</label></div>
+            <div class="group-list__item group-list__item--checked"><input type="checkbox" checked><label>Favoritos</label></div>
+            <div class="group-list__item"><input type="checkbox"><label>Localizaciones</label></div>
+            <div class="group-list__item"><input type="checkbox"><label>Objetos mágicos</label></div>
+          </div>
+          <div class="group-list__create">+ Crear nuevo grupo…</div>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+</div>
+
+<div class="scenario">
+  <div class="scenario__caption">Pocos grupos (2): la lista se ajusta a su alto real, sin hueco vacío ni scroll — mismo orden alfabético.</div>
+  <div class="modal">
+    <div class="modal__header">Editar propiedades del componente</div>
+    <div class="modal__tabs">
+      <button class="modal__tab active">Generales</button>
+      <button class="modal__tab">Específicas</button>
+    </div>
+    <div class="modal__content">
+      <fieldset class="modal__section">
+        <legend class="modal__section-title">Grupos</legend>
+        <div class="group-list">
+          <div class="group-list__scroll group-list__scroll--fits">
+            <div class="group-list__item group-list__item--checked"><input type="checkbox" checked><label>Eventos</label></div>
+            <div class="group-list__item"><input type="checkbox"><label>Favoritos</label></div>
+          </div>
+          <div class="group-list__create">+ Crear nuevo grupo…</div>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

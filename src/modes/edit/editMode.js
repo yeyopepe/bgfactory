@@ -297,7 +297,7 @@ export function renderEditMode(container) {
         onConfirm: () => {
           for (const componentId of affectedIds) {
             const component = getComponents().find((c) => c.id === componentId);
-            if (component) replaceComponent(componentId, updateComponent(component, { grupoId: null }));
+            if (component) replaceComponent(componentId, updateComponent(component, { grupoIds: component.grupoIds.filter((id) => id !== group.id) }));
           }
           removeGroup(group.id);
           if (onDeleted) onDeleted();
@@ -520,7 +520,7 @@ export function renderEditMode(container) {
           onDelete: (g, closeModal) => attemptDeleteGroup(g, { onDeleted: closeModal }),
           onRemoveFromGroup: (g, componentId) => {
             const component = getComponents().find((c) => c.id === componentId);
-            if (component) replaceComponent(componentId, updateComponent(component, { grupoId: null }));
+            if (component) replaceComponent(componentId, updateComponent(component, { grupoIds: component.grupoIds.filter((id) => id !== g.id) }));
           },
         });
       },

@@ -102,7 +102,7 @@ export function migrateFichaProperties(fichaProperties) {
 export function migrateFichaComponent(component) {
   const { properties, errors } = migrateFichaProperties(component.properties);
   return {
-    component: { ...component, type: 'carta', properties, grupoId: null },
+    component: { ...component, type: 'carta', properties, grupoIds: [] },
     errors,
   };
 }

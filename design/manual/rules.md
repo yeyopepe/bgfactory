@@ -43,15 +43,17 @@
 
 
 
-## Secuencia de turnos
+## Secuencia de juego
 
-1. Avanza al día siguiente en el calendario. Si es domingo -> termina la semana. (omite en el turno 1)
-2. Resuelve los eventos del dia actual.
-3. Por orden turno, cada jugador realiza una acción y reduce en 1 su contador de acciones. Después pasa el turno al siguiente jugador.
-   1. Si a un jugador no le quedan acciones, pasa turno automáticamente.
-4. Cuando todos los jugadores hayan agotado su turno, se termina el día.
-   1. Cada jugador que esté en un enclave con médico, se cura 1 herida.
-   2. Cada jugador restablece el contador de acciones para el día siguiente: tiene tantos turnos como tenga visibles en su mochila + 1 (básico) + los extra que pueda tener por eventos 
+1. Avanza al día siguiente en el calendario. Si es domingo -> termina la semana. (Se omite en el turno 1)
+2. Resuelve los eventos del dia actual y cada jugador calcula el número de acciones que puede realizar este nuevo día, que es la suma de:
+  1. 1 acción (mínimo disponible siempre, salvo que una carta indique lo contrario)
+  2. Número de casillas "+1" que estén visibles en la mochila (no tapadas por ningún objeto). Si durante el día alguna de estas casillas es tapada por un objeto, solo afectará al cálculo de acciones a partir del día siguiente.
+  3. Número de acciones a sumar o restar por el efecto de las cartas.
+3. Los jugadores pueden realizar sus acciones en el orden que elijan, pudiendo repetir un mismo tipo de acción varias veces.
+4. Cuando todos los jugadores hayan agotado sus acciones principales, se termina el día.
+   1. Cada jugador que esté en un enclave con médico disponible, se cura 1 herida.
+   2. Si un jugador ha decidido no usar todas sus acciones, estás se pierden, no se acumulan para el día siguiente.
 5. Si has jugado la última semana -> termina la partida.
 
 
@@ -72,6 +74,7 @@ Cuando termina el domingo (y la semana):
 
 ## Acciones
 ### 1. Moverse
+
 - requisitios para entrar en una localización: tenerlos en la mochila o que estén en la casilla.
 - acción gratis al entrar en una localización: ?
 - Si hay enemigos en la localización? -> combate
@@ -99,14 +102,19 @@ El jugador podrá gastar una acción para poder realizar cualquiera de estas act
 
 Esta acción no puede realizarse si hay enemigos en la localización.
 
-### 5. Subir el nivel de asentamiento
+### 6. Subir el nivel de asentamiento
 Para subir en 1 el nivel de asentamiento hace falta reunir en esa localización la cantidad de basura requerida. Las fichas de basura se pueden ir dejando encima de la carta de la localización hasta reunir el número indicado, en ese momento:
 1. Se sube el nivel de asentamiento
 2. Las fichas de basura se meten de nuevo en la bolsa de saqueo
 
 Esta acción no puede realizarse si hay enemigos en la localización.
 
-### 6. Combate
+### 7. Fabricar un objeto
+
+Esta acción solo puede realizarse XXXXX
+Esta acción no puede realizarse si hay enemigos en la localización.
+
+### 8. Combate
 - Cada vez que aparezcan nuevos enemigos en la localización del jugador realiza una secuencia de combate:
   - El jugador tira sus dados de combate 
   - El jugador puede tirar de nuevo 1 dado por cada arma que tenga en una mano (Max 2)
@@ -114,4 +122,20 @@ Esta acción no puede realizarse si hay enemigos en la localización.
 - Cada vez que el jugador entre en una localización:
   1. Si hay al menos 1 enemigo en la localización -> ejecuta una secuencia de combate.
   2. Tira los dados de encuentro requeridos si es necesario. Si esto  añade enemigos nuevos a la localización -> ejecuta una nueva secuencia de combate.
-  
+
+
+## La mochila
+
+### Como añadir objetos a la mochila
+Cada vez que consigas un objeto nuevo lo tendrás que meter en tu mochila. Para ello, tienes que colocar la ficha del objeto en una de las casillas disponibles de tu mochila teniendo en cuenta que siempre tienen que estar "apoyados" sobre algo: XXXX
+
+Si en algún momento sacas un objeto de tu mochila y este tenía encima otros objetos, todos estos objetos que se apoyaban en él "caen" en tu mochila hasta volver quedar apoyados en otro objeto o en uno de los bordes de tu mochila.
+
+
+### Ordenar la mochila
+Una vez colocado un objeto en la mochila solo puedes moverlo de 3 maneras:
+- Con la acción de **fabricar un nuevo objeto**: en este caso primero saca de tu mochila los objetos necesarios para construir el nuevo, los metes de nuevo en la bolsa de saqueo y añades el nuevo a la mochila. En este momento puedes reordenar también los objetos de tu mochila si quieres.
+- con las acciones de **intercambiar** y **comerciar**: en esta caso también puedes aprovechar para reordenar los objetos de tu mochila como quieras cuando saques o metas nuevas objetos fruto del intercambio.
+
+
+## Preguntas frecuentes

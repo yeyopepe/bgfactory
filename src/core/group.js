@@ -16,10 +16,12 @@ export function isGroupNameTaken(name, groups, excludeId = null) {
   );
 }
 
-// Ids de los componentes (de cualquier tipo) que referencian `grupoId` (vacío
-// si ninguno) — grupoId es siempre una propiedad plana de primer nivel del
-// componente, a diferencia de las referencias a recursos (sin necesidad de un
-// recorrido profundo tipo collectDeepValues de core/resource.js).
+// Ids de los componentes (de cualquier tipo) que tienen `groupId` entre sus
+// grupos (vacío si ninguno) — grupoIds es siempre una propiedad plana de
+// primer nivel del componente, a diferencia de las referencias a recursos
+// (sin necesidad de un recorrido profundo tipo collectDeepValues de
+// core/resource.js). Un componente puede pertenecer a varios grupos a la vez
+// (cambio 00139).
 export function getComponentsUsingGroup(groupId, components) {
-  return components.filter((component) => component.grupoId === groupId).map((component) => component.id);
+  return components.filter((component) => component.grupoIds.includes(groupId)).map((component) => component.id);
 }

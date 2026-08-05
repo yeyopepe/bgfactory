@@ -16,9 +16,10 @@ function cloneFace(face) {
 
 // `data` solo debe incluir las claves de los bloques marcados al copiar:
 // { generales, proporcion, esquinasRedondeadas, caraFrontal, caraTrasera }.
-// `generales` (cambio 00105) incluye ahora también `grupoId`/`grupoName`
-// (este último de solo lectura, para el mensaje de error si el grupo deja de
-// existir al pegar). `esquinasRedondeadas` (cambio 00117) viaja siempre junto
+// `generales` (cambio 00105) incluye ahora también `grupoIds`/`grupoNames`
+// (este último de solo lectura, para el mensaje de error si alguno de los
+// grupos deja de existir al pegar; un componente puede tener varios grupos
+// a la vez desde el cambio 00139). `esquinasRedondeadas` (cambio 00117) viaja siempre junto
 // a `proporcion`, dentro del mismo bloque "Proporción" del checklist de
 // copiar/pegar estilo. Los bloques copiados se clonan en profundidad para
 // que futuras ediciones de la carta origen no muten el portapapeles ya
@@ -48,15 +49,17 @@ export function validateStyleClipboardForPaste(clip, { groups, resources }) {
   const incidencias = [];
   if (!clip) return incidencias;
 
-  if (clip.generales && clip.generales.grupoId != null) {
-    const exists = groups.some((g) => g.id === clip.generales.grupoId);
-    if (!exists) {
-      incidencias.push({
-        elemento: 'Generales',
-        referencia: 'Grupo',
-        detalle: `"${clip.generales.grupoName || clip.generales.grupoId}" ya no existe`,
-      });
-    }
+  if (clip.generales && Array.isArray(clip.generales.grupoIds)) {
+    clip.generales.grupoIds.forEach((grupoId, index) => {
+      const exists = groups.some((g) => g.id === grupoId);
+      if (!exists) {
+        incidencias.push({
+          elemento: 'Generales',
+          referencia: 'Grupo',
+          detalle: `"${clip.generales.grupoNames?.[index] || grupoId}" ya no existe`,
+        });
+      }
+    });
   }
 
   const faceChecks = [

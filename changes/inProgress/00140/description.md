@@ -11,7 +11,7 @@ en el editor de imágenes, al ajusta la imagen, añade un botón que permite gir
 
 En el editor de "Ajustar imagen" (la ventana donde se recorta/posiciona/escala la imagen de fondo de un componente — cartas, fichas, tableros, etc.), se añade un botón para girar la imagen 90 grados. Cada vez que se pulsa, la imagen rota 90º más respecto a como estaba, siguiendo el ciclo 0º → 90º → 180º → 270º → 0º (sentido horario), sin límite de pulsaciones.
 
-El botón se ubica junto al control de Zoom que ya existe en ese mismo editor. Se puede pulsar en cualquier momento mientras haya una imagen cargada; si no hay ninguna imagen seleccionada en ese momento, no tiene efecto visible (igual que ya pasa hoy con Zoom o Transparencia sin imagen).
+El botón muestra solo el símbolo de rotación y el texto "90º" (sin la palabra "Girar"). Se ubica en la zona central de la ventana, entre las dos previsualizaciones de imagen (frontal y trasera), centrado verticalmente respecto a su altura — no forma parte de la fila de controles de Zoom/Transparencia. Cuando el editor solo tiene una imagen que ajustar (no dos caras), el botón se coloca junto a esa única previsualización, también centrado verticalmente respecto a ella. Se puede pulsar en cualquier momento mientras haya una imagen cargada; si no hay ninguna imagen seleccionada en ese momento, no tiene efecto visible (igual que ya pasa hoy con Zoom o Transparencia sin imagen).
 
 Al pulsarlo, la imagen mostrada en la vista previa gira inmediatamente — no hace falta pulsar "Aceptar" para verlo, igual que el resto de ajustes de este editor.
 
@@ -25,7 +25,8 @@ Al pulsarlo, la imagen mostrada en la vista previa gira inmediatamente — no ha
 
 ### Preguntas de alcance resueltas con el usuario
 
-- **Ubicación del botón**: junto al control de Zoom existente, dentro del propio panel de controles del editor (no superpuesto sobre la imagen).
+- **Ubicación del botón**: en la zona central de la ventana, entre las dos previsualizaciones de imagen (frontal/trasera), centrado verticalmente respecto a ellas — no en la fila de Zoom.
+- **Texto del botón**: solo el símbolo de rotación + "90º" (sin la palabra "Girar").
 - **Alcance en cartas (dos caras)**: el botón gira solo la cara actualmente enfocada, igual que ya hacen hoy Zoom y Transparencia.
 - **Relación con zoom/posición**: independiente, no resetea nada al girar.
 

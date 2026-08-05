@@ -3,7 +3,7 @@
 
 import { emit } from './eventBus.js';
 import { migrateFichaComponent } from './fichaMigration.js';
-import { syncCopyWithOriginal, renameCopyId, updateComponent } from './component.js';
+import { syncCopyWithOriginal, renameCopyId, updateComponent, normalizeComponentGrupoIds } from './component.js';
 import { computeSacarCartaDeMazo } from './deck.js';
 
 export const MODES = { PLAY: 'play', EDIT: 'edit' };
@@ -143,15 +143,27 @@ function migrateFichas(components) {
   }
 }
 
+// Migra en el sitio cualquier componente que todavía tenga el campo escalar
+// `grupoId` (anterior al cambio 00139, "1 grupo" → "N grupos") al nuevo campo
+// `grupoIds` (array), best-effort, mismo criterio que migrateFichas: nunca
+// debe bloquear el arranque. Debe ejecutarse antes que migrateDeckIdToGrupo,
+// que ya asume `grupoIds` como array.
+function migrateGrupoIdToGrupoIds(components) {
+  for (let i = 0; i < components.length; i += 1) {
+    components[i] = normalizeComponentGrupoIds(components[i]);
+  }
+}
+
 // Migra en el sitio cualquier componente con `properties.deckId` (campo
-// específico de carta anterior al cambio 00105, "Mazo" → "Grupo") al nuevo
-// campo general `grupoId` de primer nivel, best-effort, mismo criterio que
-// migrateFichas: nunca debe bloquear el arranque.
+// específico de carta anterior al cambio 00105, "Mazo" → "Grupo") añadiendo
+// ese id a su `grupoIds`, best-effort, mismo criterio que migrateFichas:
+// nunca debe bloquear el arranque.
 function migrateDeckIdToGrupo(components) {
   for (const component of components) {
     if (component.properties && 'deckId' in component.properties) {
       const { deckId, ...restProperties } = component.properties;
-      if (component.grupoId == null) component.grupoId = deckId;
+      if (!Array.isArray(component.grupoIds)) component.grupoIds = [];
+      if (deckId != null && !component.grupoIds.includes(deckId)) component.grupoIds.push(deckId);
       component.properties = restProperties;
     }
   }
@@ -171,6 +183,7 @@ function migrateBloqueado(components) {
 
 export function loadComponents(components) {
   migrateFichas(components);
+  migrateGrupoIdToGrupoIds(components);
   migrateDeckIdToGrupo(components);
   migrateBloqueado(components);
   compactOrders(components);

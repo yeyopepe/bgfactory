@@ -1,8 +1,9 @@
 // Modal de confirmación para borrar un grupo en uso: a diferencia del bloqueo
 // de ui/errorModal.js (usado por Recursos), aquí sí se permite continuar —
 // muestra la lista de elementos afectados (id + tipo, ya que pueden ser de
-// cualquier tipo) y, si se acepta, borra el grupo y esos elementos quedan sin
-// grupo asignado (ver modes/edit/editMode.js).
+// cualquier tipo) y, si se acepta, borra el grupo y esos elementos pierden la
+// pertenencia a él (pueden seguir teniendo otros grupos, cambio 00139 — ver
+// modes/edit/editMode.js).
 
 import { getComponentTypeLabel } from './componentTypeModal.js';
 
@@ -22,7 +23,7 @@ export function openGroupDeleteConfirmModal({ groupName, affectedComponents, onC
   content.className = 'modal__content';
 
   const message = document.createElement('p');
-  message.textContent = `El grupo "${groupName}" está siendo usado por los siguientes elementos. Si continúas, se eliminará el grupo y esos elementos quedarán sin grupo asignado.`;
+  message.textContent = `El grupo "${groupName}" está siendo usado por los siguientes elementos. Si continúas, se eliminará el grupo y esos elementos perderán la pertenencia a este grupo.`;
   content.appendChild(message);
 
   const list = document.createElement('ul');

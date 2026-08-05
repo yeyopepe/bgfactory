@@ -4,7 +4,7 @@
 // El campo `order` gobierna el apilado visual en la mesa (ver core/state.js,
 // que es quien lo asigna/recalcula: aquí solo se declara con valor por defecto).
 
-export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = 'ninguno', mostrarTooltip = false, subirAlMoverInteractuar = false, oculto = false, grupoId = null, order = null, copyOf = null, interaccionesDesactivadas = [] } = {}) {
+export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = 'ninguno', mostrarTooltip = false, subirAlMoverInteractuar = false, oculto = false, grupoIds = [], order = null, copyOf = null, interaccionesDesactivadas = [] } = {}) {
   return {
     id: crypto.randomUUID(),
     type,
@@ -19,11 +19,25 @@ export function createComponent({ type = 'generico', name = '', properties = {},
     mostrarTooltip,
     subirAlMoverInteractuar,
     oculto,
-    grupoId,
+    grupoIds,
     order,
     copyOf,
     interaccionesDesactivadas,
   };
+}
+
+// Normaliza el campo de pertenencia a grupo(s) de un componente al formato
+// actual (`grupoIds: string[]`), aceptando también el campo escalar `grupoId`
+// anterior al cambio 00139 (o su ausencia total, componentes de antes del
+// cambio 00105). Pura: no muta `component`, devuelve uno nuevo si hace falta
+// normalizar o el mismo si ya estaba en el formato actual. Reutilizada tanto
+// por la migración silenciosa al cargar (`core/state.js`) como por el flujo
+// de importación (`ui/editModeToggle.js`), que maneja componentes ajenos al
+// estado ya cargado y por tanto no necesariamente ya migrados.
+export function normalizeComponentGrupoIds(component) {
+  if (Array.isArray(component.grupoIds)) return component;
+  const { grupoId, ...rest } = component;
+  return { ...rest, grupoIds: grupoId != null ? [grupoId] : [] };
 }
 
 export function updateComponent(component, changes) {
@@ -118,7 +132,7 @@ export function renameCopyId(copyId, oldOriginalId, newOriginalId) {
 }
 
 // Aplica sobre `copy` los campos sincronizables de `original`: tipo visual, nombre,
-// imagen, ancho/alto, grupo, qué interacciones programadas están desactivadas (cambio
+// imagen, ancho/alto, grupos, qué interacciones programadas están desactivadas (cambio
 // 00115), y las propiedades específicas de configuración/diseño del tipo (todo lo
 // editable desde `ui/componentModal.js`, salvo `bloqueado`/`oculto`, que quedan siempre
 // independientes por copia). Las propiedades de estado de interacción de juego de la
@@ -136,7 +150,7 @@ export function syncCopyWithOriginal(copy, original) {
     height: original.height,
     mostrarTooltip: original.mostrarTooltip,
     subirAlMoverInteractuar: original.subirAlMoverInteractuar,
-    grupoId: original.grupoId,
+    grupoIds: [...original.grupoIds],
     interaccionesDesactivadas: original.interaccionesDesactivadas,
     properties: { ...syncedProperties, ...ownNonSyncedProperties },
   };
