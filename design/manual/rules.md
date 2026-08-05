@@ -25,7 +25,7 @@
   - Objetos fabricables
 - Dados
   - (1) Saqueo: 3xbasura, 1xnada, 2xobjeto
-  - (1) Pelea: 2xherida, 1xesquiva, 2xnada, 1x-1enemigo
+  - (1) Pelea: 2xherida, 3xesquiva, 1x-1enemigo
   - (1) Encuentros: 1x2zombis, 2x1zombi, 3xnada
 
 
@@ -72,6 +72,10 @@ Cuando termina el domingo (y la semana):
 
 ## Termina la partida
 
+- Terminan las 2/3 semanas de juego
+- El jugador recibe una herida pero no tiene niguna casilla en la que poder colocarla, por lo tanto muere
+- ? La esperanza del jugador llega a cero  y se suicida
+
 
 ## Acciones
 ### 1. Moverse
@@ -80,10 +84,21 @@ Cuando termina el domingo (y la semana):
 - acción gratis al entrar en una localización: ?
 - Si hay enemigos en la localización? -> combate
 
+#### 1.1 Resultados del dado de encuentos
+- Coloca 1 o 2 fichas de enemigo en la localización actual y resuelve una pelea.
+- No ocurre nada.
+
+
 ### 2. Saquear
-Si en la localización actual queda algún objeto en la pila de saqueo, el jugador puede tirar 1 vez el dado de saqueo y, según el resultado, podrá conseguir una ficha de basura, el primer objeto en la pila de saqueo de la localización o simplemente nada.
+Si en la localización actual queda algún objeto en la pila de saqueo, el jugador puede tirar 1 vez el dado de saqueo y resuelve su resultado (ver apartado "Resultados del dado de saqueo").
 
 Esta acción no puede realizarse si hay enemigos en la localización.
+
+#### 2.1 Resultados del dado de saqueo
+- Conseguir una ficha de basura.
+- Conseguir el primer objeto de la pila de saqueo de la localización actual.
+- No encuentras nada
+
 
 ### 3. Cazar/pescar
 En localizaciones dónde haya disponible animales para cazar o pescar <iconos>, si el jugador tiene en su mochila un arma o una caña de pescar, podrá conseguir 1 objeto comida.
@@ -120,11 +135,19 @@ Esta acción no puede realizarse si hay enemigos en la localización.
 - Cada vez que aparezcan nuevos enemigos en la localización del jugador realiza una secuencia de combate:
   - El jugador tira sus dados de combate 
   - El jugador puede tirar de nuevo 1 dado por cada arma que tenga en una mano (Max 2)
-  - Resuelve los dados
+  - Resuelve los dados (ver apartado "Resultados del dado de pelea")
+   
+
+
 - Cada vez que el jugador entre en una localización:
   1. Si hay al menos 1 enemigo en la localización -> ejecuta una secuencia de combate.
   2. Tira los dados de encuentro requeridos si es necesario. Si esto  añade enemigos nuevos a la localización -> ejecuta una nueva secuencia de combate.
 
+
+#### 8.1 Resultados del dado de pelea
+- Herida: el jugador debe colocar una ficha de herida en un espacio vacío de su mochila o abandonar un objeto (dejarlo en la pila de saqueo de la localización actual) para colocar la herida en su lugar. Esta acción no permite mover ningún otro objeto de la mochila.
+- -1 enemigo: el jugador consigue matar a un enemigo y descarta una ficha de enemigo de la localización actual
+- Nada: el jugador esquiva el ataque del enemigo. No ocurre nada.
 
 ## La mochila
 

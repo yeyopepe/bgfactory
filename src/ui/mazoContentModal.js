@@ -14,6 +14,7 @@ import { paintCartaFace, formatComponentIdentifier } from './componentRenderer.j
 import { CARD_DESIGN_WIDTH } from '../core/cardProportions.js';
 
 const THUMB_WIDTH = 42;
+const THUMB_HEIGHT = 58; // mismo tamaño fijo que .mazo-contenido__thumb en main.css
 
 export function openMazoContentModal({ mazoId, onSacar }) {
   const overlay = document.createElement('div');
@@ -70,7 +71,7 @@ export function openMazoContentModal({ mazoId, onSacar }) {
 
       const thumb = document.createElement('div');
       thumb.className = 'mazo-contenido__thumb';
-      paintCartaFace(thumb, carta.properties?.caraFrontal, THUMB_WIDTH / CARD_DESIGN_WIDTH);
+      paintCartaFace(thumb, carta.properties?.caraFrontal, THUMB_WIDTH / CARD_DESIGN_WIDTH, THUMB_WIDTH, THUMB_HEIGHT);
       item.appendChild(thumb);
 
       const idEl = document.createElement('span');

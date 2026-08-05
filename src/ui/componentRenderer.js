@@ -287,7 +287,7 @@ function createHiddenBadge() {
 // rama 'carta' de renderComponentsOnTable para reutilizarla tal cual desde la
 // rama 'mazo' (pinta el dorso de la carta de arriba) y desde
 // ui/mazoContentModal.js (miniaturas de la cara frontal de cada carta).
-export function paintCartaFace(contentParent, cara, renderScale) {
+export function paintCartaFace(contentParent, cara, renderScale, faceWidth, faceHeight) {
   const resource = cara?.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;
   if (resource) {
     const img = document.createElement('img');
@@ -298,7 +298,7 @@ export function paintCartaFace(contentParent, cara, renderScale) {
     img.style.left = '0';
     img.style.pointerEvents = 'none';
     img.style.opacity = String(1 - (cara.transparenciaImagen ?? 0) / 100);
-    applyImageAdjustStyle(img, cara.ajusteImagen);
+    applyImageAdjustStyle(img, cara.ajusteImagen, faceWidth, faceHeight);
     contentParent.appendChild(img);
   }
 
@@ -340,7 +340,7 @@ function paintShape(contentParent, shape, renderScale) {
     img.style.position = 'absolute';
     img.style.top = '0';
     img.style.left = '0';
-    applyImageAdjustStyle(img, shape.ajusteImagen);
+    applyImageAdjustStyle(img, shape.ajusteImagen, shape.width * renderScale, shape.height * renderScale);
     imgWrapper.appendChild(img);
     shapeEl.appendChild(imgWrapper);
   } else {
@@ -1294,7 +1294,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       applyFlipFeedbackIfChanged(carta, component.id, caraActual);
 
-      paintCartaFace(contentParent, cara, renderScale);
+      paintCartaFace(contentParent, cara, renderScale, width, height);
 
       if (onSelect) {
         carta.classList.add('carta--selectable');
@@ -1478,7 +1478,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       const cartaArriba = cartaIds.length > 0 ? getComponents().find((c) => c.id === cartaIds[0]) : null;
       if (cartaArriba) {
         const renderScale = width / CARD_DESIGN_WIDTH;
-        paintCartaFace(mazoContent, cartaArriba.properties?.caraTrasera, renderScale);
+        paintCartaFace(mazoContent, cartaArriba.properties?.caraTrasera, renderScale, width, height);
       } else {
         renderMazoEmptyPlaceholder(mazoContent, width, height);
       }

@@ -24,14 +24,41 @@
 
 const PREVIEW_MAX_SIDE = 390;
 
-export function applyImageAdjustStyle(imgEl, adjustment) {
-  const { zoom = 100, posX = 50, posY = 50 } = adjustment || {};
+// `boxWidth`/`boxHeight` son el tamaño real (en píxeles) del marco a cubrir
+// (la máscara/contenedor). Hacen falta para poder girar 90º/270º: en esos
+// ángulos la imagen debe cubrir un marco "virtual" con ancho/alto
+// intercambiados respecto al marco real, para que su huella visual tras
+// rotar vuelva a coincidir exactamente con `boxWidth`×`boxHeight` — algo que
+// no se puede expresar en porcentaje (un ancho no puede ser "% del alto del
+// contenedor" en CSS), de ahí el cambio de porcentajes a píxeles (cambio
+// 00140). El giro se aplica siempre alrededor del centro del marco REAL, no
+// del centro propio de la imagen (que el paneo/zoom pueden haber
+// desplazado), fijando `transform-origin` en el punto del marco expresado en
+// coordenadas locales de la imagen — así el giro nunca desplaza el resultado
+// ya ajustado.
+export function applyImageAdjustStyle(imgEl, adjustment, boxWidth, boxHeight) {
+  const { zoom = 100, posX = 50, posY = 50, rotation = 0 } = adjustment || {};
+  const rotated90 = rotation === 90 || rotation === 270;
+  const coverWidth = rotated90 ? boxHeight : boxWidth;
+  const coverHeight = rotated90 ? boxWidth : boxHeight;
+
+  const widthPx = (coverWidth * zoom) / 100;
+  const heightPx = (coverHeight * zoom) / 100;
+  const frameLeft = (boxWidth - coverWidth) / 2;
+  const frameTop = (boxHeight - coverHeight) / 2;
+  const panLeft = (-(posX / 100) * (zoom - 100) * coverWidth) / 100;
+  const panTop = (-(posY / 100) * (zoom - 100) * coverHeight) / 100;
+  const leftPx = frameLeft + panLeft;
+  const topPx = frameTop + panTop;
+
   imgEl.style.objectFit = 'cover';
   imgEl.style.objectPosition = `${posX}% ${posY}%`;
-  imgEl.style.width = `${zoom}%`;
-  imgEl.style.height = `${zoom}%`;
-  imgEl.style.left = `${-((posX / 100) * (zoom - 100))}%`;
-  imgEl.style.top = `${-((posY / 100) * (zoom - 100))}%`;
+  imgEl.style.width = `${widthPx}px`;
+  imgEl.style.height = `${heightPx}px`;
+  imgEl.style.left = `${leftPx}px`;
+  imgEl.style.top = `${topPx}px`;
+  imgEl.style.transform = rotation ? `rotate(${rotation}deg)` : '';
+  imgEl.style.transformOrigin = `${boxWidth / 2 - leftPx}px ${boxHeight / 2 - topPx}px`;
 }
 
 function clamp(value, min, max) {
@@ -92,6 +119,7 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
       zoom: entry.adjustment?.zoom ?? 100,
       posX: entry.adjustment?.posX ?? 50,
       posY: entry.adjustment?.posY ?? 50,
+      rotation: entry.adjustment?.rotation ?? 0,
       transparencia: entry.transparencia ?? 0,
     };
 
@@ -135,7 +163,8 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
 
   function updatePreview(key) {
     if (imgEls[key]) {
-      applyImageAdjustStyle(imgEls[key], state[key]);
+      const { maskWidth, maskHeight } = maskSizes[key];
+      applyImageAdjustStyle(imgEls[key], state[key], maskWidth, maskHeight);
       imgEls[key].style.opacity = String(1 - state[key].transparencia / 100);
     }
   }
@@ -144,6 +173,31 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   let focusedKey = entries.find((entry) => entry.key === initialFocusKey && entry.resource)?.key
     ?? entries.find((entry) => entry.resource)?.key
     ?? null;
+
+  // Botón "90º" (cambio 00140): gira solo la cara/stage enfocada, sin resetear
+  // zoom/posición. Ubicado en el hueco central entre las dos caras (caso
+  // cartas) o junto al único stage (resto de casos), centrado verticalmente.
+  const rotateWrap = document.createElement('div');
+  rotateWrap.className = 'image-adjust-modal__rotate-wrap';
+  const rotateBtn = document.createElement('button');
+  rotateBtn.type = 'button';
+  rotateBtn.className = 'btn-rotate';
+  rotateBtn.title = 'Girar 90º';
+  rotateBtn.innerHTML =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+    '<path d="M21 12a9 9 0 1 1-3.2-6.9" /><polyline points="21 3 21 9 15 9" /></svg>' +
+    '<span>90º</span>';
+  rotateBtn.addEventListener('click', () => {
+    if (!focusedKey) return;
+    state[focusedKey].rotation = (state[focusedKey].rotation + 90) % 360;
+    updatePreview(focusedKey);
+  });
+  rotateWrap.appendChild(rotateBtn);
+  if (entries.length > 1) {
+    stagesRow.insertBefore(rotateWrap, stageEls[entries[1].key]);
+  } else {
+    stagesRow.appendChild(rotateWrap);
+  }
 
   function refreshFocusClasses() {
     for (const entry of entries) {
@@ -331,6 +385,7 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
             zoom: state[entry.key].zoom,
             posX: state[entry.key].posX,
             posY: state[entry.key].posY,
+            rotation: state[entry.key].rotation,
           };
           if (hasTransparencia) {
             result.transparencia = state[entry.key].transparencia;

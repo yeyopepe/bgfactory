@@ -495,12 +495,14 @@ export function openCardEditorModal({ component, onAccept }) {
           zoom: adjustments.caraFrontal.zoom,
           posX: adjustments.caraFrontal.posX,
           posY: adjustments.caraFrontal.posY,
+          rotation: adjustments.caraFrontal.rotation,
         };
         working.caraFrontal.transparenciaImagen = adjustments.caraFrontal.transparencia;
         working.caraTrasera.ajusteImagen = {
           zoom: adjustments.caraTrasera.zoom,
           posX: adjustments.caraTrasera.posX,
           posY: adjustments.caraTrasera.posY,
+          rotation: adjustments.caraTrasera.rotation,
         };
         working.caraTrasera.transparenciaImagen = adjustments.caraTrasera.transparencia;
         renderFaces();
@@ -685,7 +687,7 @@ export function openCardEditorModal({ component, onAccept }) {
       faceImg.style.left = '0';
       faceImg.style.pointerEvents = 'none';
       faceImg.style.opacity = String(1 - (cara.transparenciaImagen ?? 0) / 100);
-      applyImageAdjustStyle(faceImg, cara.ajusteImagen);
+      applyImageAdjustStyle(faceImg, cara.ajusteImagen, canvasWidth, canvasHeight);
       canvasInner.appendChild(faceImg);
     }
 
@@ -992,7 +994,7 @@ export function openCardEditorModal({ component, onAccept }) {
       shapeImg.style.position = 'absolute';
       shapeImg.style.top = '0';
       shapeImg.style.left = '0';
-      applyImageAdjustStyle(shapeImg, shape.ajusteImagen);
+      applyImageAdjustStyle(shapeImg, shape.ajusteImagen, shape.width * previewScale, shape.height * previewScale);
       imgWrapper.appendChild(shapeImg);
       el.appendChild(imgWrapper);
     } else {

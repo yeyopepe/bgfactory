@@ -1187,6 +1187,43 @@ fieldset.modal__section--untitled {
   pointer-events: none;
 }
 
+/* Botón "90º" (cambio 00140): gira la imagen de la cara/stage enfocada.
+   Ubicado en el hueco central entre los dos stages (caso cartas) o junto al
+   único stage (resto de casos), con la misma altura que
+   .image-adjust-modal__mask para quedar centrado verticalmente respecto a
+   él/ellos. */
+.image-adjust-modal__rotate-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+}
+
+.btn-rotate {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.6rem 0.7rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.btn-rotate:hover {
+  background: var(--bg-hover);
+}
+
+.btn-rotate svg {
+  width: 20px;
+  height: 20px;
+}
+
 .image-adjust-modal__zoom-value {
   display: flex;
   align-items: center;
