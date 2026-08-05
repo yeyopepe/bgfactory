@@ -319,10 +319,32 @@ function paintShape(contentParent, shape, renderScale) {
   shapeEl.style.width = `${shape.width * renderScale}px`;
   shapeEl.style.height = `${shape.height * renderScale}px`;
   shapeEl.style.borderRadius = SHAPE_BORDER_RADIUS[shape.tipo] || '0';
-  shapeEl.style.backgroundColor = hexToRgba(shape.colorFondo, shape.colorFondoTransparencia ?? 0);
   shapeEl.style.border = shape.bordeActivo !== false ? `${shape.bordeGrosor}px solid ${shape.bordeColor || '#000000'}` : 'none';
   shapeEl.style.boxSizing = 'border-box';
   shapeEl.style.pointerEvents = 'none';
+
+  const resource = shape.fondoTipo === 'imagen' && shape.imagenResourceId
+    ? getResources().find((r) => r.id === shape.imagenResourceId)
+    : null;
+  if (resource) {
+    const imgWrapper = document.createElement('div');
+    imgWrapper.style.position = 'absolute';
+    imgWrapper.style.inset = '0';
+    imgWrapper.style.overflow = 'hidden';
+    imgWrapper.style.borderRadius = SHAPE_BORDER_RADIUS[shape.tipo] || '0';
+    const img = document.createElement('img');
+    img.src = resource.dataUrl;
+    img.draggable = false;
+    img.style.position = 'absolute';
+    img.style.top = '0';
+    img.style.left = '0';
+    applyImageAdjustStyle(img, shape.ajusteImagen);
+    imgWrapper.appendChild(img);
+    shapeEl.appendChild(imgWrapper);
+  } else {
+    shapeEl.style.backgroundColor = hexToRgba(shape.colorFondo, shape.colorFondoTransparencia ?? 0);
+  }
+
   contentParent.appendChild(shapeEl);
 }
 

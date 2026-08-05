@@ -2,6 +2,10 @@
 // con doble click desde ui/cardEditorModal.js. Mismo patrón que
 // ui/cardTextBoxModal.js (sin tabs, overlay + modal).
 
+import { getResources } from '../core/state.js';
+import { openBoardImageModal } from './boardImageModal.js';
+import { openImageAdjustModal } from './imageAdjustModal.js';
+
 export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -29,6 +33,9 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   working.bordeColor = working.bordeColor || '#000000';
   working.bordeGrosor = working.bordeGrosor ?? 2;
   working.bordeActivo = working.bordeActivo ?? true;
+  working.fondoTipo = working.fondoTipo || 'color';
+  working.imagenResourceId = working.imagenResourceId ?? null;
+  working.ajusteImagen = { ...(working.ajusteImagen || { zoom: 100, posX: 50, posY: 50 }) };
 
   // Tipo de figura: mismo patrón .align-group/.align-group__btn de opción
   // única que ya usa cardTextBoxModal.js (createAlignGroup), duplicado
@@ -84,14 +91,49 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   typeField.appendChild(typeGroup);
   content.appendChild(typeField);
 
-  // Fondo (informativo: color + checkbox "Transparente", mismo patrón que la
-  // sección "Fondo" de cardTextBoxModal.js).
+  // Fondo (informativo: selector Color/Imagen, mismo patrón que el fondo de
+  // 'tablero' en ui/componentModal.js — cambiar de uno a otro no borra la
+  // configuración del que se deja de usar, conviven siempre en `working`).
   const bgSection = document.createElement('fieldset');
   bgSection.className = 'modal__section';
   const bgLegend = document.createElement('legend');
   bgLegend.className = 'modal__section-title';
   bgLegend.textContent = 'Fondo';
   bgSection.appendChild(bgLegend);
+
+  const bgTypeField = document.createElement('div');
+  bgTypeField.className = 'modal__field';
+  const bgTypeLabel = document.createElement('label');
+  bgTypeLabel.textContent = 'Tipo de fondo';
+  const bgTypeRow = document.createElement('div');
+  bgTypeRow.style.display = 'flex';
+  bgTypeRow.style.gap = '0.5rem';
+  bgTypeRow.style.alignItems = 'center';
+
+  const bgTypeSelect = document.createElement('select');
+  bgTypeSelect.style.flex = '0 1 auto';
+  bgTypeSelect.style.width = '9rem';
+  const bgTypeOptions = [
+    { value: 'color', label: 'Color' },
+    { value: 'imagen', label: 'Imagen' },
+  ];
+  for (const { value, label } of bgTypeOptions) {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = label;
+    if (value === working.fondoTipo) option.selected = true;
+    bgTypeSelect.appendChild(option);
+  }
+  bgTypeSelect.addEventListener('change', () => {
+    working.fondoTipo = bgTypeSelect.value;
+    updateBgTypeVisibility();
+  });
+  bgTypeRow.appendChild(bgTypeSelect);
+  bgTypeField.appendChild(bgTypeLabel);
+  bgTypeField.appendChild(bgTypeRow);
+  bgSection.appendChild(bgTypeField);
+
+  const bgColorBlock = document.createElement('div');
 
   const bgColorField = document.createElement('div');
   bgColorField.className = 'modal__field';
@@ -180,8 +222,100 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   bgColorContainer.appendChild(bgTransparentLabel);
   bgColorField.appendChild(bgColorLabel);
   bgColorField.appendChild(bgColorContainer);
-  bgSection.appendChild(bgColorField);
-  bgSection.appendChild(bgOpacityField);
+  bgColorBlock.appendChild(bgColorField);
+  bgColorBlock.appendChild(bgOpacityField);
+  bgSection.appendChild(bgColorBlock);
+
+  // Bloque "Imagen": galería de recursos ya subidos (mismo mecanismo que el
+  // fondo de una cara de carta) + ajuste de zoom/posición recortado a la
+  // forma de la figura (ui/imageAdjustModal.js, modo de un único stage).
+  const bgImageBlock = document.createElement('div');
+
+  const bgImagePreview = document.createElement('div');
+  bgImagePreview.style.display = 'flex';
+  bgImagePreview.style.alignItems = 'center';
+  bgImagePreview.style.gap = '0.75rem';
+  bgImagePreview.style.marginBottom = '0.75rem';
+
+  const bgImageThumb = document.createElement('img');
+  bgImageThumb.style.width = '40px';
+  bgImageThumb.style.height = '40px';
+  bgImageThumb.style.objectFit = 'cover';
+  bgImageThumb.style.borderRadius = 'var(--radius-sm)';
+  bgImageThumb.style.border = '1px solid var(--border-neutral)';
+
+  const bgImageName = document.createElement('span');
+  bgImageName.style.fontSize = '0.8125rem';
+  bgImageName.style.color = 'var(--text-primary)';
+
+  bgImagePreview.appendChild(bgImageThumb);
+  bgImagePreview.appendChild(bgImageName);
+
+  function refreshImagePreview() {
+    const resource = working.imagenResourceId ? getResources().find((r) => r.id === working.imagenResourceId) : null;
+    bgImagePreview.style.display = resource ? 'flex' : 'none';
+    if (resource) {
+      bgImageThumb.src = resource.dataUrl;
+      bgImageName.textContent = resource.name;
+    }
+    adjustImageBtn.disabled = !resource;
+  }
+
+  const bgImageButtons = document.createElement('div');
+  bgImageButtons.style.display = 'flex';
+  bgImageButtons.style.gap = '0.5rem';
+
+  const chooseImageBtn = document.createElement('button');
+  chooseImageBtn.type = 'button';
+  chooseImageBtn.className = 'btn-cancel';
+  chooseImageBtn.textContent = 'Elegir imagen…';
+  chooseImageBtn.addEventListener('click', () => {
+    openBoardImageModal({
+      properties: working,
+      resources: getResources(),
+      title: 'Elegir imagen',
+      onAccept: (resourceId) => {
+        working.imagenResourceId = resourceId;
+        working.ajusteImagen = { zoom: 100, posX: 50, posY: 50 };
+        refreshImagePreview();
+      },
+    });
+  });
+
+  const adjustImageBtn = document.createElement('button');
+  adjustImageBtn.type = 'button';
+  adjustImageBtn.className = 'btn-cancel';
+  adjustImageBtn.textContent = 'Ajustar imagen…';
+  adjustImageBtn.addEventListener('click', () => {
+    const resource = working.imagenResourceId ? getResources().find((r) => r.id === working.imagenResourceId) : null;
+    if (!resource) return;
+    openImageAdjustModal({
+      shape: working.tipo,
+      width: working.width,
+      height: working.height,
+      resource,
+      adjustment: working.ajusteImagen,
+      onAccept: (adjustment) => {
+        working.ajusteImagen = adjustment;
+      },
+    });
+  });
+
+  bgImageButtons.appendChild(chooseImageBtn);
+  bgImageButtons.appendChild(adjustImageBtn);
+
+  bgImageBlock.appendChild(bgImagePreview);
+  bgImageBlock.appendChild(bgImageButtons);
+  bgSection.appendChild(bgImageBlock);
+
+  function updateBgTypeVisibility() {
+    const isImage = working.fondoTipo === 'imagen';
+    bgColorBlock.style.display = isImage ? 'none' : '';
+    bgImageBlock.style.display = isImage ? '' : 'none';
+  }
+  refreshImagePreview();
+  updateBgTypeVisibility();
+
   content.appendChild(bgSection);
 
   // Borde: línea simple (sin bisel), mismo patrón de checkbox activador que

@@ -116,7 +116,7 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
     mask.className = 'image-adjust-modal__mask';
     mask.style.width = `${maskWidth}px`;
     mask.style.height = `${maskHeight}px`;
-    mask.style.borderRadius = entry.shape === 'circular' ? '50%' : '0';
+    mask.style.borderRadius = entry.shape === 'circular' ? '50%' : entry.shape === 'redondeada' ? '8px' : '0';
     mask.style.clipPath = HEX_CLIP_PATHS[entry.shape] || 'none';
     stage.appendChild(mask);
     maskEls[entry.key] = mask;

@@ -974,9 +974,30 @@ export function openCardEditorModal({ component, onAccept }) {
     el.style.width = `${shape.width * previewScale}px`;
     el.style.height = `${shape.height * previewScale}px`;
     el.style.borderRadius = SHAPE_BORDER_RADIUS[shape.tipo] || '0';
-    el.style.backgroundColor = hexToRgba(shape.colorFondo, shape.colorFondoTransparencia ?? 0);
     el.style.border = shape.bordeActivo !== false ? `${shape.bordeGrosor}px solid ${shape.bordeColor || '#000000'}` : 'none';
     el.style.boxSizing = 'border-box';
+
+    const shapeResource = shape.fondoTipo === 'imagen' && shape.imagenResourceId
+      ? getResources().find((r) => r.id === shape.imagenResourceId)
+      : null;
+    if (shapeResource) {
+      const imgWrapper = document.createElement('div');
+      imgWrapper.style.position = 'absolute';
+      imgWrapper.style.inset = '0';
+      imgWrapper.style.overflow = 'hidden';
+      imgWrapper.style.borderRadius = SHAPE_BORDER_RADIUS[shape.tipo] || '0';
+      const shapeImg = document.createElement('img');
+      shapeImg.src = shapeResource.dataUrl;
+      shapeImg.draggable = false;
+      shapeImg.style.position = 'absolute';
+      shapeImg.style.top = '0';
+      shapeImg.style.left = '0';
+      applyImageAdjustStyle(shapeImg, shape.ajusteImagen);
+      imgWrapper.appendChild(shapeImg);
+      el.appendChild(imgWrapper);
+    } else {
+      el.style.backgroundColor = hexToRgba(shape.colorFondo, shape.colorFondoTransparencia ?? 0);
+    }
 
     el.addEventListener('click', (e) => {
       e.stopPropagation();
