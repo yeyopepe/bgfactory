@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Maqueta — Cabecera editor de cartas</title>
+<style>
+  :root {
+    --border-neutral: #d8dbe0;
+    --bg-subtle: #f0f1f3;
+    --bg-hover: #e3e5e9;
+    --text-muted: #6b7280;
+    --text-main: #1f2328;
+    --radius-sm: 4px;
+  }
+  body {
+    font-family: system-ui, sans-serif;
+    background: #f7f7f8;
+    color: var(--text-main);
+    padding: 2rem;
+  }
+  h1 { font-size: 1.1rem; margin-bottom: 0.25rem; }
+  .caption { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem; }
+  .modal-shell {
+    max-width: 640px;
+    border: 1px solid var(--border-neutral);
+    border-radius: 6px;
+    background: #fff;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+  .modal__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+  .modal__header--current {
+    /* sin justify-content: flujo por defecto, todo pegado a la izquierda */
+  }
+  .modal__header--proposed {
+    justify-content: flex-start;
+  }
+  .header-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+  .spacer { flex: 1 1 auto; }
+  .maximize-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--bg-subtle);
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .maximize-btn svg { width: 16px; height: 16px; }
+  .help-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--bg-subtle);
+    color: var(--text-muted);
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .modal-body {
+    padding: 1.25rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    min-height: 60px;
+  }
+  .label {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    margin-bottom: 0.5rem;
+  }
+  .label--current { background: #fde2e1; color: #9a2f2a; }
+  .label--proposed { background: #dcf5e3; color: #1e7a3c; }
+</style>
+</head>
+<body>
+  <h1>Editor de cartas — cabecera del modal</h1>
+  <p class="caption">Comparativa: alineación actual de los botones de ayuda / expandir pantalla frente a la propuesta (alineados al borde derecho).</p>
+
+  <span class="label label--current">Actual</span>
+  <div class="modal-shell">
+    <div class="modal__header modal__header--current">
+      <p class="header-title">Editor de cartas</p>
+      <button class="maximize-btn" aria-label="Maximizar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M3 16v3a2 2 0 0 0 2 2h3" />
+        </svg>
+      </button>
+      <span class="help-icon">?</span>
+    </div>
+    <div class="modal-body">(contenido del editor de cartas)</div>
+  </div>
+
+  <span class="label label--proposed">Propuesta</span>
+  <div class="modal-shell">
+    <div class="modal__header modal__header--proposed">
+      <p class="header-title">Editor de cartas</p>
+      <span class="spacer"></span>
+      <button class="maximize-btn" aria-label="Maximizar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M3 16v3a2 2 0 0 0 2 2h3" />
+        </svg>
+      </button>
+      <span class="help-icon">?</span>
+    </div>
+    <div class="modal-body">(contenido del editor de cartas)</div>
+  </div>
+</body>
+</html>

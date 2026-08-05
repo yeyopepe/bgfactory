@@ -157,9 +157,22 @@ function migrateDeckIdToGrupo(components) {
   }
 }
 
+// Migra en el sitio el campo `bloqueado` de booleano (anterior al cambio 00138) al
+// nuevo campo de 3 valores ('ninguno' | 'juego' | 'todos'): `true` conservaba
+// exactamente el comportamiento de 'juego' (solo restringía Modo Juego, nunca
+// edición), `false` pasa a 'ninguno'. Best-effort, mismo criterio que migrateFichas.
+function migrateBloqueado(components) {
+  for (const component of components) {
+    if (typeof component.bloqueado === 'boolean') {
+      component.bloqueado = component.bloqueado ? 'juego' : 'ninguno';
+    }
+  }
+}
+
 export function loadComponents(components) {
   migrateFichas(components);
   migrateDeckIdToGrupo(components);
+  migrateBloqueado(components);
   compactOrders(components);
   state.components = components;
   emit('components:changed', state.components);

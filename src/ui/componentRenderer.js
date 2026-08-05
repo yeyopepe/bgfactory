@@ -245,10 +245,10 @@ function createIdentifierLabel(component) {
   return label;
 }
 
-// Indicador de bloqueo (cambio 00088): insignia superpuesta en una esquina del
-// componente, solo pintada en modo edición (`showLockIndicator`) cuando
-// `component.bloqueado` es `true` — en modo juego el bloqueo solo se percibe a
-// través del menú contextual, nunca con este indicador.
+// Indicador de bloqueo (cambio 00088, cambio 00138): insignia superpuesta en una
+// esquina del componente, solo pintada en modo edición (`showLockIndicator`) cuando
+// `component.bloqueado` es distinto de `'ninguno'` (`'juego'` o `'todos'`) — en modo
+// juego el bloqueo solo se percibe a través del menú contextual, nunca con este indicador.
 function createLockBadge() {
   const badge = document.createElement('span');
   badge.className = 'component-lock-badge';
@@ -529,7 +529,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (identifyMode === 'tooltip' && component.mostrarTooltip) textBox.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') textBox.appendChild(createIdentifierLabel(component));
-      if (showLockIndicator && component.bloqueado) textBox.appendChild(createLockBadge());
+      if (showLockIndicator && component.bloqueado !== 'ninguno') textBox.appendChild(createLockBadge());
       if (showHiddenIndicator && component.oculto) textBox.appendChild(createHiddenBadge());
 
       if (onSelect) {
@@ -664,7 +664,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (identifyMode === 'tooltip' && component.mostrarTooltip) board.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') board.appendChild(createIdentifierLabel(component));
-      if (showLockIndicator && component.bloqueado) board.appendChild(createLockBadge());
+      if (showLockIndicator && component.bloqueado !== 'ninguno') board.appendChild(createLockBadge());
       if (showHiddenIndicator && component.oculto) board.appendChild(createHiddenBadge());
 
       const props = component.properties || {};
@@ -855,7 +855,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (identifyMode === 'tooltip' && component.mostrarTooltip) dice.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') dice.appendChild(createIdentifierLabel(component));
-      if (showLockIndicator && component.bloqueado) dice.appendChild(createLockBadge());
+      if (showLockIndicator && component.bloqueado !== 'ninguno') dice.appendChild(createLockBadge());
       if (showHiddenIndicator && component.oculto) dice.appendChild(createHiddenBadge());
 
       const props = component.properties || {};
@@ -1071,7 +1071,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (identifyMode === 'tooltip' && component.mostrarTooltip) documentViewer.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') documentViewer.appendChild(createIdentifierLabel(component));
-      if (showLockIndicator && component.bloqueado) documentViewer.appendChild(createLockBadge());
+      if (showLockIndicator && component.bloqueado !== 'ninguno') documentViewer.appendChild(createLockBadge());
       if (showHiddenIndicator && component.oculto) documentViewer.appendChild(createHiddenBadge());
 
       const content = document.createElement('div');
@@ -1287,7 +1287,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (identifyMode === 'tooltip' && component.mostrarTooltip) carta.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') carta.appendChild(createIdentifierLabel(component));
-      if (showLockIndicator && component.bloqueado) carta.appendChild(createLockBadge());
+      if (showLockIndicator && component.bloqueado !== 'ninguno') carta.appendChild(createLockBadge());
       if (showHiddenIndicator && component.oculto) carta.appendChild(createHiddenBadge());
 
       applyFlipFeedbackIfChanged(carta, component.id, caraActual);
@@ -1483,7 +1483,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (identifyMode === 'tooltip') mazo.title = 'Pulsa para sacar la primera carta.';
       if (identifyMode === 'label') mazo.appendChild(createIdentifierLabel(component));
-      if (showLockIndicator && component.bloqueado) mazo.appendChild(createLockBadge());
+      if (showLockIndicator && component.bloqueado !== 'ninguno') mazo.appendChild(createLockBadge());
       if (showHiddenIndicator && component.oculto) mazo.appendChild(createHiddenBadge());
 
       const countLabel = document.createElement('span');

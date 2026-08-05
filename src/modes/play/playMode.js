@@ -145,7 +145,7 @@ export function renderPlayMode(container) {
         replaceComponent(component.id, updateComponent(component, { x, y }));
         if (component.subirAlMoverInteractuar) reorderComponent(component.id, 1);
       },
-      canMove: (component) => component.bloqueado !== true,
+      canMove: (component) => component.bloqueado === 'ninguno',
       onDiceResult: (component, resultado) => {
         replaceComponent(component.id, updateComponent(component, {
           properties: { resultadoActual: resultado },
@@ -169,7 +169,7 @@ export function renderPlayMode(container) {
         selectedComponentId = component.id;
         renderTable();
 
-        const bloqueado = component.bloqueado === true;
+        const bloqueado = component.bloqueado !== 'ninguno';
         let extra;
         if (component.type === 'dado') {
           extra = `${getPosibleValores(component.properties || {}).length} caras`;
@@ -232,7 +232,7 @@ export function renderPlayMode(container) {
               icon: createLockIcon(bloqueado),
               label: bloqueado ? 'Desbloquear' : 'Bloquear',
               onClick: () => {
-                replaceComponent(component.id, updateComponent(component, { bloqueado: !bloqueado }));
+                replaceComponent(component.id, updateComponent(component, { bloqueado: bloqueado ? 'ninguno' : 'juego' }));
               },
             },
           ],

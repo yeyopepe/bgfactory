@@ -138,7 +138,6 @@ export function createDefaultComponent(type) {
   } else if (type === 'carta') {
     component.width = DEFAULT_CARTA_WIDTH;
     component.height = DEFAULT_CARTA_WIDTH / getProporcionRatio(DEFAULT_CARTA_PROPERTIES.proporcion);
-    component.bloqueado = false;
     component.subirAlMoverInteractuar = true;
     component.properties = cloneCartaProperties(DEFAULT_CARTA_PROPERTIES);
   } else if (type === 'mazo') {
@@ -229,21 +228,32 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   generalContent.appendChild(idField);
 
   const moveField = document.createElement('div');
-  moveField.className = 'modal__field modal__field--checkbox';
-  const moveCheckbox = document.createElement('input');
-  moveCheckbox.type = 'checkbox';
-  moveCheckbox.checked = workingComponent.bloqueado ?? true;
+  moveField.className = 'modal__field';
   const moveLabel = document.createElement('label');
   moveLabel.textContent = 'Bloqueado';
+  const moveSelect = document.createElement('select');
 
-  moveCheckbox.addEventListener('change', () => {
-    workingComponent.bloqueado = moveCheckbox.checked;
+  const BLOQUEADO_OPTIONS = [
+    { value: 'ninguno', label: 'Ninguno' },
+    { value: 'juego', label: 'Solo modo juego' },
+    { value: 'todos', label: 'Todos los modos' },
+  ];
+  for (const { value, label } of BLOQUEADO_OPTIONS) {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = label;
+    moveSelect.appendChild(option);
+  }
+  moveSelect.value = workingComponent.bloqueado ?? 'ninguno';
+
+  moveSelect.addEventListener('change', () => {
+    workingComponent.bloqueado = moveSelect.value;
   });
 
-  moveField.appendChild(moveCheckbox);
   moveField.appendChild(moveLabel);
+  moveField.appendChild(moveSelect);
   moveField.appendChild(createHelpIcon({
-    text: 'Si está marcado (por defecto), este componente no se puede mover en Modo Juego. Desmárcalo para poder arrastrarlo libremente por la mesa mientras se juega.',
+    text: 'Indica en qué modo(s) este componente no se puede mover. \'Todos los modos\' lo fija también en Modo Edición; \'Solo modo juego\' lo fija únicamente durante la partida (comportamiento por defecto anterior); \'Ninguno\' permite arrastrarlo libremente en ambos.',
   }));
   generalContent.appendChild(moveField);
 
@@ -1098,7 +1108,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
         workingComponent.mostrarTooltip = clip.generales.mostrarTooltip;
         workingComponent.subirAlMoverInteractuar = clip.generales.subirAlMoverInteractuar;
         workingComponent.grupoId = clip.generales.grupoId;
-        moveCheckbox.checked = workingComponent.bloqueado;
+        moveSelect.value = workingComponent.bloqueado;
         hiddenCheckbox.checked = workingComponent.oculto;
         tooltipCheckbox.checked = workingComponent.mostrarTooltip;
         upOnMoveCheckbox.checked = workingComponent.subirAlMoverInteractuar;

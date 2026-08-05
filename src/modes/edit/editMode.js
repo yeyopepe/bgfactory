@@ -402,6 +402,7 @@ export function renderEditMode(container) {
       onSelect: openEditModalFor,
       onToggleSelect: toggleSelect,
       selectedIds: selectedComponentIds,
+      canMove: (component) => component.bloqueado !== 'todos',
       onMove: (component, x, y) => {
         const group = selectedComponentIds.size > 1 && selectedComponentIds.has(component.id)
           ? [...selectedComponentIds]

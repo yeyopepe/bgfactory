@@ -1259,6 +1259,7 @@ fieldset.modal__section--untitled {
   width: 26px;
   height: 26px;
   padding: 0;
+  margin-left: auto;
   border: none;
   border-radius: var(--radius-sm);
   background: var(--bg-subtle);

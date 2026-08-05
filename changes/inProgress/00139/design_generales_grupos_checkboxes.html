@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Maqueta — Selector de grupos como lista de checkboxes (pestaña Generales)</title>
+<style>
+  :root {
+    --bg-table:     #c2c2c2;
+    --bg-toolbar:   #333333;
+    --bg-card:      #f5f5f5;
+    --accent-blue:  #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --text-primary: #1a1a1a;
+    --text-light:   #ffffff;
+    --text-muted:   #666666;
+    --error:        #d32f2f;
+    --border-neutral: #dcdcdc;
+    --bg-subtle:    #f0f0f0;
+    --bg-hover:     #e8e8e8;
+    --radius-sm:    4px;
+    --radius-lg:    8px;
+    --shadow-1:     0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);
+    --shadow-2:     0 4px 20px rgba(0,0,0,0.15);
+    --transition-fast: 150ms ease;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-table);
+    font-family: system-ui, sans-serif;
+    color: var(--text-primary);
+    padding: 2rem;
+  }
+
+  .modal-note {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    background: var(--bg-toolbar);
+    color: var(--text-light);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    max-width: 280px;
+    box-shadow: var(--shadow-1);
+  }
+
+  .modal {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    max-width: 500px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal__header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    font-size: 1.125rem;
+  }
+
+  .modal__tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+
+  .modal__tab {
+    padding: 0.75rem 1rem;
+    background: var(--bg-hover);
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    border-bottom: 2px solid transparent;
+    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+  }
+
+  .modal__tab.active {
+    background: white;
+    color: var(--text-primary);
+    border-bottom-color: var(--accent-blue);
+  }
+
+  .modal__content {
+    padding: 1.5rem;
+  }
+
+  .modal__field {
+    margin-bottom: 1rem;
+  }
+
+  .modal__field > label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+
+  .modal__field input[type="text"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.875rem;
+  }
+
+  .modal__field--checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .modal__field--checkbox label {
+    display: inline;
+    margin-bottom: 0;
+    font-size: 0.875rem;
+  }
+
+  input[type="checkbox"] {
+    cursor: pointer;
+  }
+
+  .help-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    color: var(--text-light);
+    font-size: 0.7rem;
+    cursor: help;
+    flex: 0 0 auto;
+    transition: background var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .help-icon:hover {
+    background: var(--accent-blue);
+    box-shadow: 0 2px 5px rgba(44, 125, 216, 0.35);
+  }
+
+  .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  .btn-cancel, .btn-accept {
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+  }
+
+  .btn-cancel {
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+  }
+
+  .btn-accept {
+    background: var(--accent-blue);
+    color: var(--text-light);
+  }
+
+  .section-marker {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0 0 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed var(--border-neutral);
+  }
+
+  /* Sección con borde, mismo patrón que otras secciones tituladas del modal
+     (p.ej. "Interacciones programadas"): fieldset con legend */
+  .modal__section {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    margin: 0 0 1rem;
+  }
+
+  .modal__section-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 0 0.35rem;
+  }
+
+  /* Nueva lista de checkboxes de grupos, sustituye al <select> único "Grupo" */
+  .group-list {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    background: var(--bg-subtle);
+    overflow: hidden;
+  }
+
+  .group-list__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: white;
+    border-bottom: 1px solid var(--border-neutral);
+    font-size: 0.875rem;
+  }
+
+  .group-list__item:last-of-type {
+    border-bottom: none;
+  }
+
+  .group-list__item label {
+    flex: 1;
+    cursor: pointer;
+  }
+
+  .group-list__item--checked {
+    background: #eaf2fc;
+  }
+
+  .group-list__create {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-hover);
+    color: var(--accent-blue-dark);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+
+  .group-list__create-field {
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-hover);
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .group-list__create-field input[type="text"] {
+    flex: 1;
+  }
+
+  .group-list__create-field .btn-mini {
+    padding: 0.35rem 0.6rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    cursor: pointer;
+    background: var(--accent-blue);
+    color: white;
+    white-space: nowrap;
+  }
+
+  .state-caption {
+    text-align: center;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.4rem;
+  }
+
+  .two-states {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .two-states > div {
+    flex: 1;
+    min-width: 220px;
+  }
+</style>
+</head>
+<body>
+
+<div class="modal-note">
+  Maqueta estática — pestaña "Generales" de la modal de componente. La sección "Grupo" pasa de un &lt;select&gt; único a una lista de checkboxes con selección múltiple, más la opción de crear un grupo nuevo al vuelo. El resto de campos de la pestaña se muestra de forma esquemática, solo para ubicar el encaje.
+</div>
+
+<div class="modal">
+  <div class="modal__header">Editar propiedades del componente</div>
+
+  <div class="modal__tabs">
+    <button class="modal__tab active">Generales</button>
+    <button class="modal__tab">Específicas</button>
+  </div>
+
+  <div class="modal__content">
+
+    <div class="modal__field">
+      <label>ID del componente</label>
+      <input type="text" value="ficha-heroe-01" readonly>
+    </div>
+
+    <p class="section-marker">↓ Sección modificada por este cambio</p>
+
+    <fieldset class="modal__section">
+      <legend class="modal__section-title">Grupos</legend>
+      <div class="group-list">
+        <div class="group-list__item group-list__item--checked">
+          <input type="checkbox" id="g1" checked>
+          <label for="g1">Personajes</label>
+        </div>
+        <div class="group-list__item">
+          <input type="checkbox" id="g2">
+          <label for="g2">Eventos</label>
+        </div>
+        <div class="group-list__item group-list__item--checked">
+          <input type="checkbox" id="g3" checked>
+          <label for="g3">Favoritos</label>
+        </div>
+        <div class="group-list__item">
+          <input type="checkbox" id="g4">
+          <label for="g4">Cartas de inicio</label>
+        </div>
+        <div class="group-list__create">+ Crear nuevo grupo…</div>
+      </div>
+    </fieldset>
+
+    <p class="section-marker">↓ Campos existentes, sin cambios (contexto)</p>
+
+    <div class="modal__field modal__field--checkbox">
+      <input type="checkbox" id="mockup-oculto">
+      <label for="mockup-oculto">Oculto</label>
+      <span class="help-icon">?</span>
+    </div>
+
+    <div class="modal__field modal__field--checkbox">
+      <input type="checkbox" id="mockup-bloqueado">
+      <label for="mockup-bloqueado">Bloqueado</label>
+      <span class="help-icon">?</span>
+    </div>
+
+  </div>
+
+  <div class="modal__footer">
+    <button class="btn-cancel">Cancelar</button>
+    <button class="btn-accept">Aceptar</button>
+  </div>
+</div>
+
+<div style="max-width:500px; width:90%; margin-top:1.5rem;">
+  <p class="section-marker" style="border-bottom:none; text-align:center;">↓ Segundo estado: tras pulsar "+ Crear nuevo grupo…"</p>
+  <div class="modal" style="max-width:500px;">
+    <div class="modal__content" style="padding:1rem 1.5rem;">
+      <fieldset class="modal__section" style="margin-bottom:0;">
+        <legend class="modal__section-title">Grupos</legend>
+        <div class="group-list">
+          <div class="group-list__item group-list__item--checked">
+            <input type="checkbox" checked>
+            <label>Personajes</label>
+          </div>
+          <div class="group-list__item">
+            <input type="checkbox">
+            <label>Eventos</label>
+          </div>
+          <div class="group-list__item group-list__item--checked">
+            <input type="checkbox" checked>
+            <label>Favoritos</label>
+          </div>
+          <div class="group-list__item">
+            <input type="checkbox">
+            <label>Cartas de inicio</label>
+          </div>
+          <div class="group-list__create-field">
+            <input type="text" placeholder="Nombre del grupo nuevo" value="Objetos mágicos">
+            <button class="btn-mini">Crear</button>
+          </div>
+        </div>
+      </fieldset>
+      <p class="state-caption">Al crearse, el grupo nuevo se añade a la lista ya marcado</p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

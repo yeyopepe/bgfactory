@@ -74,15 +74,22 @@ Cuando termina el domingo (y la semana):
 ### 1. Moverse
 - requisitios para entrar en una localización: tenerlos en la mochila o que estén en la casilla.
 - acción gratis al entrar en una localización: ?
+- Si hay enemigos en la localización? -> combate
 
 ### 2. Saquear
 Si en la localización actual queda algún objeto en la pila de saqueo, el jugador puede tirar 1 vez el dado de saqueo y, según el resultado, podrá conseguir una ficha de basura, el primero objeto en la pila de saqueo de la localización o simplemente nada.
 
+Esta acción no puede realizarse si hay enemigos en la localización.
+
 ### 3. Cazar/pescar
 En localizaciones dónde haya disponible animales para cazar o pescar <iconos>, si el jugador tiene en su mochila un arma o una caña de pescar, podrá conseguir 1 objeto comida.
 
+Esta acción no puede realizarse si hay enemigos en la localización.
+
 ### 4. Comerciar
 Una vez por turno: en localizaciones dónde haya disponible comerciantes <icono>, el jugador podrá intercambiar cualquier objeto de su mochila que no sea basura por otro a su elección de la pila de saqueo. Después de intercambiarlo, baraja la pila de saqueo.
+
+Esta acción no puede realizarse si hay enemigos en la localización.
 
 ### 5. Intercambiar
 El jugador podrá gastar una acción para poder realizar cualquiera de estas actividades en el orden que quiera:
@@ -90,18 +97,21 @@ El jugador podrá gastar una acción para poder realizar cualquiera de estas act
 - reordenar los objetos de su mochila.
 - dejar cualquier número de objetos en la localización.
 
-
+Esta acción no puede realizarse si hay enemigos en la localización.
 
 ### 5. Subir el nivel de asentamiento
 Para subir en 1 el nivel de asentamiento hace falta reunir en esa localización la cantidad de basura requerida. Las fichas de basura se pueden ir dejando encima de la carta de la localización hasta reunir el número indicado, en ese momento:
 1. Se sube el nivel de asentamiento
 2. Las fichas de basura se meten de nuevo en la bolsa de saqueo
 
+Esta acción no puede realizarse si hay enemigos en la localización.
+
 ### 6. Combate
-- Por cada vez que aparezca un nuevo enemigo en la localización del jugador realiza una secuencia de combate:
+- Cada vez que aparezcan nuevos enemigos en la localización del jugador realiza una secuencia de combate:
   - El jugador tira sus dados de combate 
   - El jugador puede tirar de nuevo 1 dado por cada arma que tenga en una mano (Max 2)
   - Resuelve los dados
 - Cada vez que el jugador entre en una localización:
-  1. Tirar los dados de encuentro requeridos y añade enemigos a las localización
-  2. Secuencia de combate
+  1. Si hay al menos 1 enemigo en la localización -> ejecuta una secuencia de combate.
+  2. Tira los dados de encuentro requeridos si es necesario. Si esto  añade enemigos nuevos a la localización -> ejecuta una nueva secuencia de combate.
+  
