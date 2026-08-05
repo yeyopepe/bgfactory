@@ -14,6 +14,7 @@ import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
 import { hexToRgba, shadeColor } from '../core/colorUtils.js';
 import { applyImageAdjustStyle, openImageAdjustModal } from './imageAdjustModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
+import { openCardBackgroundColorModal } from './cardBackgroundColorModal.js';
 import { openCardTextBoxModal } from './cardTextBoxModal.js';
 import { openCardShapeModal } from './cardShapeModal.js';
 import { attachResizeHandle } from './resizeHandle.js';
@@ -130,7 +131,7 @@ function isTextEditableElement(el) {
   return tag === 'INPUT' || tag === 'TEXTAREA' || el.isContentEditable;
 }
 
-function createAddElementMenu({ onAddImage, onAddTextBox, onAddShape }) {
+function createAddElementMenu({ onAddImage, onAddColor, onAddTextBox, onAddShape }) {
   const wrap = document.createElement('div');
   wrap.className = 'resource-add';
 
@@ -161,6 +162,7 @@ function createAddElementMenu({ onAddImage, onAddTextBox, onAddShape }) {
   }
 
   addItem('Imagen de fondo…', onAddImage);
+  addItem('Color de fondo…', onAddColor);
   addItem('Cuadro de texto', onAddTextBox);
   addItem('Figura geométrica', onAddShape);
 
@@ -196,6 +198,11 @@ function cloneCara(cara) {
     bordeColor: cara?.bordeColor ?? '#000000',
     bordeGrosor: cara?.bordeGrosor ?? 0,
     transparenciaImagen: cara?.transparenciaImagen ?? 0,
+    // 'imagen'/ausente se comportan igual (pinta imagenResourceId si existe,
+    // cambio 00157): solo 'color' activa el nuevo camino, para no romper el
+    // aspecto de caras ya guardadas sin este campo.
+    fondoTipo: cara?.fondoTipo,
+    colorFondo: cara?.colorFondo ?? '#ffffff',
   };
 }
 
@@ -705,19 +712,28 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     }
     applyCanvasBorder();
 
+    // 'color' e 'imagen'/ausente son excluyentes (cambio 00157): con color
+    // activo se pinta el fondo de canvasInner y no se pinta la imagen
+    // (aunque siga configurada); en caso contrario, comportamiento de
+    // siempre — canvasInner sin fondo propio, imagen si existe.
     let faceImg = null;
-    const resource = cara.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;
-    if (resource) {
-      faceImg = document.createElement('img');
-      faceImg.src = resource.dataUrl;
-      faceImg.draggable = false;
-      faceImg.style.position = 'absolute';
-      faceImg.style.top = '0';
-      faceImg.style.left = '0';
-      faceImg.style.pointerEvents = 'none';
-      faceImg.style.opacity = String(1 - (cara.transparenciaImagen ?? 0) / 100);
-      applyImageAdjustStyle(faceImg, cara.ajusteImagen, canvasWidth, canvasHeight);
-      canvasInner.appendChild(faceImg);
+    if (cara.fondoTipo === 'color') {
+      canvasInner.style.backgroundColor = cara.colorFondo || 'transparent';
+    } else {
+      canvasInner.style.backgroundColor = '';
+      const resource = cara.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;
+      if (resource) {
+        faceImg = document.createElement('img');
+        faceImg.src = resource.dataUrl;
+        faceImg.draggable = false;
+        faceImg.style.position = 'absolute';
+        faceImg.style.top = '0';
+        faceImg.style.left = '0';
+        faceImg.style.pointerEvents = 'none';
+        faceImg.style.opacity = String(1 - (cara.transparenciaImagen ?? 0) / 100);
+        applyImageAdjustStyle(faceImg, cara.ajusteImagen, canvasWidth, canvasHeight);
+        canvasInner.appendChild(faceImg);
+      }
     }
 
     for (const { kind, element } of getOrderedFaceElements(cara)) {
@@ -742,6 +758,17 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
               cara.imagenResourceId = resourceId;
               cara.ajusteImagen = { zoom: 100, posX: 50, posY: 50 };
               cara.transparenciaImagen = 0;
+              cara.fondoTipo = 'imagen';
+              renderFaces();
+            },
+          });
+        },
+        onAddColor: () => {
+          openCardBackgroundColorModal({
+            properties: cara,
+            onAccept: ({ colorFondo }) => {
+              cara.fondoTipo = 'color';
+              cara.colorFondo = colorFondo;
               renderFaces();
             },
           });

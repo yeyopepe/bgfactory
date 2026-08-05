@@ -279,18 +279,26 @@ function createHiddenBadge() {
 // (miniaturas de la cara frontal de cada carta) y desde la rama
 // 'tableroPersonalizado'.
 export function paintCartaFace(contentParent, cara, renderScaleX, faceWidth, faceHeight, renderScaleY = renderScaleX) {
-  const resource = cara?.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;
-  if (resource) {
-    const img = document.createElement('img');
-    img.src = resource.dataUrl;
-    img.draggable = false;
-    img.style.position = 'absolute';
-    img.style.top = '0';
-    img.style.left = '0';
-    img.style.pointerEvents = 'none';
-    img.style.opacity = String(1 - (cara.transparenciaImagen ?? 0) / 100);
-    applyImageAdjustStyle(img, cara.ajusteImagen, faceWidth, faceHeight);
-    contentParent.appendChild(img);
+  // 'color' e 'imagen'/ausente son excluyentes (cambio 00157): ausente se
+  // trata igual que 'imagen' (pinta imagenResourceId si existe, comportamiento
+  // de siempre) para no romper el aspecto de caras ya guardadas sin este
+  // campo; solo 'color' activa el nuevo camino.
+  if (cara?.fondoTipo === 'color') {
+    contentParent.style.backgroundColor = cara.colorFondo || 'transparent';
+  } else {
+    const resource = cara?.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;
+    if (resource) {
+      const img = document.createElement('img');
+      img.src = resource.dataUrl;
+      img.draggable = false;
+      img.style.position = 'absolute';
+      img.style.top = '0';
+      img.style.left = '0';
+      img.style.pointerEvents = 'none';
+      img.style.opacity = String(1 - (cara.transparenciaImagen ?? 0) / 100);
+      applyImageAdjustStyle(img, cara.ajusteImagen, faceWidth, faceHeight);
+      contentParent.appendChild(img);
+    }
   }
 
   for (const { kind, element } of getOrderedFaceElements(cara)) {
