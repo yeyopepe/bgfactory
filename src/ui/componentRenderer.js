@@ -688,6 +688,9 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         } else {
           board.style.backgroundColor = '#ffffff';
         }
+      } else if (fondoTipo === 'color') {
+        const colorSolido = props.colorSolido ?? '#ffffff';
+        board.style.backgroundColor = colorSolido || 'transparent';
       } else {
         const colorFondo = props.colorFondo ?? '#ffffff';
         board.style.backgroundColor = colorFondo || 'transparent';

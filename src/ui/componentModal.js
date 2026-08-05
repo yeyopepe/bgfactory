@@ -7,6 +7,7 @@ import { createGroup, isGroupNameTaken } from '../core/group.js';
 import { createHelpIcon } from './helpIcon.js';
 import { openBoardPatternModal } from './boardPatternModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
+import { openBoardColorModal } from './boardColorModal.js';
 import { openDiceFontModal } from './diceFontModal.js';
 import { openVisualEditorModal } from './visualEditorModal.js';
 import { CARD_PROPORTIONS, getProporcionRatio } from '../core/cardProportions.js';
@@ -89,6 +90,7 @@ export const DEFAULT_BOARD_PROPERTIES = {
   patronFilas: 8,
   patronColumnas: 8,
   imagenResourceId: null,
+  colorSolido: '#ffffff',
 };
 
 export const DEFAULT_DADO_PROPERTIES = {
@@ -920,6 +922,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const bgTypeOptions = [
       { value: 'colorPatron', label: 'Color y patrón' },
       { value: 'imagen', label: 'Imagen' },
+      { value: 'color', label: 'Color' },
     ];
     for (const { value, label } of bgTypeOptions) {
       const option = document.createElement('option');
@@ -944,6 +947,13 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
           resources: getResources(),
           onAccept: (resourceId) => {
             props.imagenResourceId = resourceId;
+          },
+        });
+      } else if (fondoTipo === 'color') {
+        openBoardColorModal({
+          properties: props,
+          onAccept: ({ colorSolido }) => {
+            props.colorSolido = colorSolido;
           },
         });
       } else {
