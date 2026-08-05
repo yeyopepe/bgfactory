@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Maqueta — Sección "Tamaño" en pestaña Generales</title>
+<style>
+  :root {
+    --bg-table:     #c2c2c2;
+    --bg-toolbar:   #333333;
+    --bg-card:      #f5f5f5;
+    --accent-blue:  #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --accent-blue-light: #eaf3fc;
+    --text-primary: #1a1a1a;
+    --text-light:   #ffffff;
+    --text-muted:   #666666;
+    --error:        #d32f2f;
+    --success:      #2e7d32;
+    --border-neutral: #dcdcdc;
+    --bg-subtle:    #f0f0f0;
+    --bg-hover:     #e8e8e8;
+    --radius-sm:    4px;
+    --radius-lg:    8px;
+    --shadow-1:     0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);
+    --shadow-2:     0 4px 20px rgba(0,0,0,0.15);
+    --transition-fast: 150ms ease;
+    --section-accent: #5b5f97;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 3rem 1rem;
+  }
+
+  .mockup-note {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    background: var(--bg-toolbar);
+    color: var(--text-light);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    box-shadow: var(--shadow-1);
+    max-width: 320px;
+    z-index: 10;
+  }
+
+  /* Overlay + modal, patrón ya existente de la app */
+  .modal-overlay {
+    position: static;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+  }
+
+  .modal {
+    width: 90%;
+    max-width: 500px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    max-height: 80vh;
+    overflow-y: auto;
+    color: var(--text-primary);
+  }
+
+  .modal__header {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+
+  .modal__header h2 {
+    margin: 0;
+    font-size: 1.125rem;
+  }
+
+  .modal__tabs {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+
+  .modal__tab {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    color: var(--text-muted);
+  }
+
+  .modal__tab.active {
+    color: var(--accent-blue);
+    border-bottom-color: var(--accent-blue);
+    font-weight: 500;
+  }
+
+  .modal__body {
+    padding: 1rem;
+  }
+
+  .modal__field {
+    margin-bottom: 1rem;
+  }
+
+  .modal__field label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .modal__field input[type="text"],
+  .modal__field input[type="number"],
+  .modal__field select {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--text-primary);
+  }
+
+  .modal__field--checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .modal__field--checkbox label {
+    margin: 0;
+    font-weight: 500;
+    font-size: 0.875rem;
+  }
+
+  input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent-blue);
+  }
+
+  /* Sección .modal__section — patrón STYLE_BIBLE 12.6 */
+  .modal__section {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    margin: 1rem 0;
+    padding: 1rem;
+  }
+
+  .modal__section-title {
+    color: var(--section-accent);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0 0.25rem;
+    letter-spacing: 0.02em;
+  }
+
+  /* Fila de N campos numéricos relacionados — STYLE_BIBLE 8 */
+  .size-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .size-row .modal__field {
+    flex: 1;
+    margin-bottom: 0;
+  }
+
+  /* Sección Tamaño destacada solo para la maqueta, para que se distinga
+     visualmente qué es lo nuevo (no forma parte del patrón final) */
+  .mockup-highlight {
+    outline: 2px dashed var(--accent-blue);
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
+    position: relative;
+  }
+
+  .mockup-highlight::before {
+    content: "NUEVO";
+    position: absolute;
+    top: -0.65rem;
+    left: 0.75rem;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--radius-sm);
+  }
+</style>
+</head>
+<body>
+
+  <div class="mockup-note">
+    Maqueta estática — sección "Tamaño" (cambio 00144) dentro de la pestaña
+    "Generales" ya existente en la modal de configuración de un componente.
+    El resto de la modal (cabecera, tabs, campos ID/Bloqueado) es contexto
+    ya existente, sin cambios.
+  </div>
+
+  <div class="modal-overlay">
+    <div class="modal">
+      <div class="modal__header">
+        <h2>Configurar componente</h2>
+      </div>
+
+      <div class="modal__tabs">
+        <button class="modal__tab active">Generales</button>
+        <button class="modal__tab">Carta</button>
+        <button class="modal__tab">Estilo</button>
+      </div>
+
+      <div class="modal__body">
+
+        <!-- Campo ya existente -->
+        <div class="modal__field">
+          <label>ID del componente</label>
+          <input type="text" value="carta-heroe-01">
+        </div>
+
+        <!-- ===== NUEVO: Sección Tamaño ===== -->
+        <fieldset class="modal__section mockup-highlight">
+          <legend class="modal__section-title">Tamaño</legend>
+
+          <div class="size-row">
+            <div class="modal__field">
+              <label>Alto (px)</label>
+              <input type="number" value="320" min="1" step="1">
+            </div>
+            <div class="modal__field">
+              <label>Ancho (px)</label>
+              <input type="number" value="240" min="1" step="1">
+            </div>
+          </div>
+
+          <div class="modal__field modal__field--checkbox">
+            <input type="checkbox" checked id="mockup-proporcion">
+            <label for="mockup-proporcion">Mantener proporción</label>
+          </div>
+        </fieldset>
+        <!-- ===== fin NUEVO ===== -->
+
+        <!-- Campo ya existente -->
+        <div class="modal__field">
+          <label>Bloqueado</label>
+          <select>
+            <option>Ninguno</option>
+            <option>Solo modo juego</option>
+            <option>Todos los modos</option>
+          </select>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

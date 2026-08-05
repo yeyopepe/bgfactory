@@ -4,6 +4,7 @@
 import { attachResizeHandle } from './resizeHandle.js';
 import { attachColumnResizing } from './tableColumnResize.js';
 import { RESOURCE_TYPES } from '../core/resource.js';
+import { sortByName } from '../core/textSort.js';
 
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
@@ -36,6 +37,7 @@ function matchesFilter(resource, query) {
 
 function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnResize } = {}) {
   body.innerHTML = '';
+  resources = sortByName(resources);
 
   if (resources.length === 0) {
     const empty = document.createElement('p');

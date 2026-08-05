@@ -17,6 +17,7 @@ import { openStyleClipboardPasteErrorModal } from './styleClipboardErrorModal.js
 import { showToast } from './toast.js';
 import { openMazoContentModal } from './mazoContentModal.js';
 import { getInteractionsForType, isInteractionActive } from '../core/interactions.js';
+import { sortByName } from '../core/textSort.js';
 
 const DEFAULT_BOARD_SIZE = 200;
 const DEFAULT_DADO_SIZE = 100;
@@ -326,8 +327,23 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   groupLegend.textContent = 'Grupos';
   groupSection.appendChild(groupLegend);
 
+  // Zona con scroll propio (cambio 00141): tope de 3 checkboxes visibles a la
+  // vez, para que la sección no crezca sin límite con muchos grupos. La fila
+  // "+ Crear nuevo grupo…" queda fuera, en groupSection directamente, para
+  // que no scrollee con el resto.
   const groupCheckboxList = document.createElement('div');
+  groupCheckboxList.className = 'group-checkbox-list__scroll';
   groupSection.appendChild(groupCheckboxList);
+
+  const createGroupItem = document.createElement('div');
+  createGroupItem.className = 'modal__field modal__field--checkbox';
+  createGroupItem.style.cursor = 'pointer';
+  createGroupItem.textContent = '+ Crear nuevo grupo…';
+  createGroupItem.addEventListener('click', () => {
+    newGroupRow.style.display = 'block';
+    newGroupInput.focus();
+  });
+  groupSection.appendChild(createGroupItem);
 
   const newGroupRow = document.createElement('div');
   newGroupRow.style.display = 'none';
@@ -355,7 +371,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   function populateGroupCheckboxes() {
     groupCheckboxList.innerHTML = '';
 
-    for (const group of getGroups()) {
+    for (const group of sortByName(getGroups())) {
       const item = document.createElement('div');
       item.className = 'modal__field modal__field--checkbox';
       const checkbox = document.createElement('input');
@@ -374,16 +390,6 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       item.appendChild(label);
       groupCheckboxList.appendChild(item);
     }
-
-    const createItem = document.createElement('div');
-    createItem.className = 'modal__field modal__field--checkbox';
-    createItem.style.cursor = 'pointer';
-    createItem.textContent = '+ Crear nuevo grupo…';
-    createItem.addEventListener('click', () => {
-      newGroupRow.style.display = 'block';
-      newGroupInput.focus();
-    });
-    groupCheckboxList.appendChild(createItem);
   }
   populateGroupCheckboxes();
 

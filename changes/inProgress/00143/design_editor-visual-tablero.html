@@ -1,0 +1,231 @@
+<title>Maqueta — Editor visual, modo Tablero personalizado (una cara)</title>
+<style>
+  :root {
+    --bg-table:     #c2c2c2;
+    --bg-toolbar:   #333333;
+    --bg-card:      #f5f5f5;
+    --accent-blue:  #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-light:   #ffffff;
+    --text-muted:   #666666;
+    --border-neutral: #dcdcdc;
+    --bg-subtle:    #f0f0f0;
+    --bg-hover:     #e8e8e8;
+    --radius-sm:    4px;
+    --radius-lg:    8px;
+    --shadow-2:     0 4px 20px rgba(0,0,0,0.15);
+    --transition-fast: 150ms ease;
+  }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    box-sizing: border-box;
+  }
+  .modal-overlay {
+    position: static;
+    background: rgba(0,0,0,0.5);
+    padding: 3rem;
+    border-radius: var(--radius-lg);
+  }
+  .modal {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    width: fit-content;
+    max-width: min(1500px, 95vw);
+    overflow: hidden;
+  }
+  .modal__header {
+    padding: 1rem;
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-neutral);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .maximize-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    margin-left: auto;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--bg-subtle);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+  }
+  .maximize-btn:hover { background: var(--bg-hover); }
+  .maximize-btn svg { width: 16px; height: 16px; }
+
+  .modal__content { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; align-items: center; }
+
+  .toolbar {
+    display: flex;
+    gap: 0.5rem;
+    max-width: 20rem;
+  }
+  .btn-secondary {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+    transition: background var(--transition-fast);
+  }
+  .btn-secondary:hover { background: var(--bg-hover); }
+
+  /* Lienzo único del tablero personalizado (sin pestañas Frontal/Trasera) */
+  .board-canvas {
+    position: relative;
+    width: 480px;
+    height: 320px;
+    box-sizing: border-box;
+    overflow: hidden;
+    background:
+      linear-gradient(120deg, #cfe3f7 0%, #a9c9ec 55%, #7fa8d6 100%);
+    /* Bisel/relieve — mismo lenguaje visual que Tablero simple / Dado:
+       tono claro arriba-izquierda, oscuro abajo-derecha */
+    border-top: 4px solid #e8e8e8;
+    border-left: 4px solid #e8e8e8;
+    border-bottom: 4px solid #6b6b6b;
+    border-right: 4px solid #6b6b6b;
+  }
+
+  .board-canvas__label {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.85);
+    background: rgba(0,0,0,0.25);
+    padding: 0.1rem 0.4rem;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Figura geométrica con imagen de fondo */
+  .shape-circle {
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background-image: radial-gradient(circle at 35% 35%, #f7d99a, #d98c3a 70%);
+    outline: 1px dashed var(--accent-blue);
+    cursor: move;
+  }
+
+  /* Figura geométrica redondeada con color de fondo */
+  .shape-rounded {
+    position: absolute;
+    bottom: 36px;
+    right: 40px;
+    width: 140px;
+    height: 70px;
+    border-radius: 12px;
+    background: #79b473;
+    border: 2px solid #3f7a3a;
+    box-sizing: border-box;
+    cursor: move;
+  }
+
+  /* Cuadro de texto de ejemplo */
+  .textbox-sample {
+    position: absolute;
+    top: 150px;
+    left: 160px;
+    width: 170px;
+    padding: 0.4rem;
+    box-sizing: border-box;
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    background: rgba(255,255,255,0.85);
+    border: 1px dashed var(--accent-blue);
+    cursor: move;
+    text-align: center;
+  }
+
+  .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .btn-cancel {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+    transition: background var(--transition-fast);
+  }
+  .btn-cancel:hover { background: var(--bg-hover); }
+  .btn-accept {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    transition: opacity var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+  .btn-accept:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(44,125,216,.35); }
+
+  .caption {
+    max-width: 480px;
+    margin: 1rem auto 0;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: center;
+  }
+</style>
+
+<div class="modal-overlay">
+  <div class="modal">
+    <div class="modal__header">
+      Diseñar Tablero personalizado
+      <button class="maximize-btn" title="Maximizar" aria-label="Maximizar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal__content">
+      <div class="toolbar">
+        <button class="btn-secondary">+ Añadir elemento</button>
+      </div>
+
+      <div class="board-canvas">
+        <span class="board-canvas__label">Tablero</span>
+        <div class="shape-circle" title="Figura circular con imagen de fondo"></div>
+        <div class="shape-rounded" title="Figura redondeada con color de fondo"></div>
+        <div class="textbox-sample">Zona de inicio</div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn-cancel">Cancelar</button>
+      <button class="btn-accept">Aceptar</button>
+    </div>
+  </div>
+</div>
+<p class="caption">Maqueta estática — Editor visual generalizado, en su modo de una sola cara (Tablero personalizado): mismo lienzo/herramientas/menú "+ Añadir elemento" y botón maximizar que ya existen hoy en el editor de cartas, pero sin pestañas Frontal/Trasera. El borde del lienzo lleva el mismo bisel que "Tablero simple"/"Dado" (tono claro arriba-izquierda, oscuro abajo-derecha).</p>

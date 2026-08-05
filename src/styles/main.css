@@ -506,6 +506,16 @@ legend.modal__section-title--toggle {
   cursor: pointer;
 }
 
+/* Zona con scroll propio dentro de un .modal__section (cambio 00141), para
+   topar una lista potencialmente larga a una altura aproximada en vez de
+   dejarla crecer sin límite — mismo criterio que .element-selection-group__list
+   (sección 12.5 de STYLE_BIBLE.md). Primer uso: lista de checkboxes de
+   "Grupos" en ui/componentModal.js, topada a ~3 filas visibles. */
+.group-checkbox-list__scroll {
+  max-height: 6.5rem;
+  overflow-y: auto;
+}
+
 legend.modal__section-title--toggle input[type="checkbox"] {
   margin: 0;
 }

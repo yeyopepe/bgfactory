@@ -4,6 +4,7 @@
 
 import { attachResizeHandle } from './resizeHandle.js';
 import { getComponentsUsingGroup } from '../core/group.js';
+import { sortByName } from '../core/textSort.js';
 
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
@@ -35,7 +36,7 @@ function renderBody(body, groups, components, { onEdit, onRemove, onSelectGroup 
 
   const tbody = document.createElement('tbody');
 
-  for (const group of groups) {
+  for (const group of sortByName(groups)) {
     const row = document.createElement('tr');
     row.className = 'group-list__row';
     row.tabIndex = 0;
