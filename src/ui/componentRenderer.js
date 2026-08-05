@@ -8,7 +8,7 @@ import { getPosibleValores, tirarDado } from '../core/dice.js';
 import { markdownToHtml } from '../core/markdown.js';
 import { sanitizeHtml } from '../core/sanitizeHtml.js';
 import { applyImageAdjustStyle } from './imageAdjustModal.js';
-import { getProporcionRatio, getCartaShapeCss, getHexInnerClipPath, getTriangleInnerClipPath, CARD_DESIGN_WIDTH } from '../core/cardProportions.js';
+import { getProporcionRatio, getCartaShapeCss, getHexInnerClipPath, getTriangleInnerClipPath } from '../core/cardProportions.js';
 import { getOrderedFaceElements } from '../core/cardFaceElements.js';
 import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
 import { getMazoRevealZoneRect } from '../core/deck.js';
@@ -1390,7 +1390,6 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       const caraActual = props.caraActual === 'frontal' ? 'frontal' : 'trasera';
       const cara = caraActual === 'frontal' ? props.caraFrontal : props.caraTrasera;
-      const renderScale = width / CARD_DESIGN_WIDTH;
 
       const cartaContent = document.createElement('div');
       cartaContent.style.position = 'absolute';
@@ -1442,7 +1441,11 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       applyFlipFeedbackIfChanged(carta, component.id, caraActual);
 
-      paintCartaFace(contentParent, cara, renderScale, width, height);
+      // El contenido de 'carta' se guarda en píxeles reales, fijos con
+      // independencia del tamaño actual de la carta (cambio 00151, mismo
+      // criterio que 'tableroPersonalizado' desde el 00152): escala fija 1,
+      // el `overflow: hidden` de `cartaContent` recorta lo que no quepa.
+      paintCartaFace(contentParent, cara, 1, width, height);
 
       if (onSelect) {
         carta.classList.add('carta--selectable');
@@ -1625,7 +1628,11 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       const cartaArriba = cartaIds.length > 0 ? getComponents().find((c) => c.id === cartaIds[0]) : null;
       if (cartaArriba) {
-        const renderScale = width / CARD_DESIGN_WIDTH;
+        // Encaja el diseño (en píxeles reales, cambio 00151) de la carta de
+        // arriba en la caja del mazo, cuyo tamaño es independiente del de
+        // esa carta — la referencia ya no es un lienzo abstracto de diseño,
+        // sino el ancho real de la propia carta.
+        const renderScale = width / (cartaArriba.width || MIN_CARTA_WIDTH);
         paintCartaFace(mazoContent, cartaArriba.properties?.caraTrasera, renderScale, width, height);
       } else {
         renderMazoEmptyPlaceholder(mazoContent, width, height);

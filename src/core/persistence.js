@@ -69,12 +69,17 @@ export function parseImportedComponents(raw) {
   }
   const resources = Array.isArray(parsed.resources) ? parsed.resources : [];
   const groups = Array.isArray(parsed.groups) ? parsed.groups : (Array.isArray(parsed.decks) ? parsed.decks : []);
-  return { components: parsed.components, resources, groups };
+  // A diferencia de parseState, aquí `null` en vez de DEFAULT_APP_TITLE: este
+  // resultado no siempre se aplica al importar (solo en modo "Sobrescribir
+  // todo el juego", ui/editModeToggle.js), así que un fichero sin título no
+  // debe forzar el título por defecto sobre la partida actual.
+  const appTitle = (typeof parsed.appTitle === 'string' && parsed.appTitle.trim() !== '') ? parsed.appTitle : null;
+  return { components: parsed.components, resources, groups, appTitle };
 }
 
 // JSON ligero con los componentes, todos los recursos y los grupos (a diferencia
 // de "Guardar", que exporta la app completa) — pensado para sobrevivir a
 // cambios de versión de la app, sin incluir la configuración del panel flotante.
-export function buildComponentsExport(components, resources, groups) {
-  return { version: CURRENT_VERSION, components, resources, groups };
+export function buildComponentsExport(components, resources, groups, appTitle) {
+  return { version: CURRENT_VERSION, components, resources, groups, appTitle };
 }

@@ -110,6 +110,9 @@ export const DEFAULT_CARTA_PROPERTIES = {
   proporcion: '5:7',
   esquinasRedondeadas: true,
   caraActual: 'trasera',
+  // Contenido siempre en píxeles reales desde su creación (cambio 00151) —
+  // no necesita pasar por la migración de core/state.js.
+  medidasReales: true,
   caraFrontal: {
     imagenResourceId: null,
     ajusteImagen: { zoom: 100, posX: 50, posY: 50 },

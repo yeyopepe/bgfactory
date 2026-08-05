@@ -1,7 +1,7 @@
 // UI para entrar/salir del modo edición: botón de entrada en modo juego,
 // barra de herramientas propia (con botón de salida) en modo edición.
 
-import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadGroups, getGroups, getGroupPanelState, getAppTitle } from '../core/state.js';
+import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadGroups, getGroups, getGroupPanelState, getAppTitle, setAppTitle } from '../core/state.js';
 import { getFullAppTitle } from '../core/appTitle.js';
 import { buildExportHtml, downloadHtml, downloadJson } from '../core/fileExport.js';
 import { buildComponentsExport, parseImportedComponents } from '../core/persistence.js';
@@ -35,7 +35,7 @@ function openExportFlow() {
     groups: getGroups(),
     defaultFilename: `${getFullAppTitle(getAppTitle())}.json`,
     onAccept: ({ filename, componentIds, resourceIds, groupIds }) => {
-      const data = buildComponentsExport(byIds(getComponents(), componentIds), byIds(getResources(), resourceIds), byIds(getGroups(), groupIds));
+      const data = buildComponentsExport(byIds(getComponents(), componentIds), byIds(getResources(), resourceIds), byIds(getGroups(), groupIds), getAppTitle());
       downloadJson(filename.endsWith('.json') ? filename : `${filename}.json`, data);
     },
   });
@@ -88,6 +88,7 @@ function importComponentsFromFile(file) {
               loadComponents(mergedComponents);
               loadResources(resources);
               loadGroups(groups);
+              if (mode === 'overwrite' && result.appTitle) setAppTitle(result.appTitle);
 
               if (report.length > 0) openImportReportModal(report);
             };

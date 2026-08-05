@@ -142,13 +142,12 @@ export function getTriangleInnerClipPath(proporcionValue, width, height, bordePx
   return `polygon(${points.join(', ')})`;
 }
 
-// Ancho de referencia, en "unidades de diseño", en el que se guardan
-// x/y/width/height/tamañoFuente de los cuadros de texto de una cara. La
-// proporción de la carta es siempre fija salvo cambio explícito, así que un
-// único factor de escala uniforme basta para pasar de estas unidades al
-// tamaño real de la carta en cualquier punto (editor o mesa).
+// Ancho de referencia del lienzo de diseño que usaban las cartas guardadas
+// antes del cambio 00151 (contenido en "unidades de diseño" reescaladas por
+// un único factor uniforme). Desde ese cambio, el contenido de 'carta' se
+// guarda directamente en píxeles reales (mismo criterio que
+// 'tableroPersonalizado', cambio 00152) — esta constante ya no interviene en
+// el editor ni en el render, solo la usa `core/state.js` (migración puntual
+// `migrateCartaMedidasReales`) para calcular el factor de conversión de las
+// cartas guardadas con el sistema anterior.
 export const CARD_DESIGN_WIDTH = 300;
-
-export function getDesignSize(proporcionValue) {
-  return { width: CARD_DESIGN_WIDTH, height: CARD_DESIGN_WIDTH / getProporcionRatio(proporcionValue) };
-}

@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mockup — Sección Borde des/activable (Tablero Simple)</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --bg-card: #f5f5f5;
+    --accent-blue: #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e8e8e8;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-2: 0 4px 20px rgba(0,0,0,0.15);
+    --transition-fast: 150ms ease;
+    --section-accent: #5b5f97;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    color: var(--text-primary);
+    padding: 2rem;
+  }
+  h1 {
+    font-size: 1.125rem;
+    margin: 0 0 0.5rem;
+  }
+  .intro {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    max-width: 640px;
+    margin: 0 0 2rem;
+  }
+  .compare {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .compare__col {
+    width: 340px;
+  }
+  .compare__label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.5rem;
+  }
+  .modal-frame {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    overflow: hidden;
+  }
+  .modal-frame__header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+  .modal-frame__body {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .modal__field { margin-bottom: 1rem; }
+  .modal__field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+  .modal__field input[type="number"],
+  .modal__field input[type="color"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.875rem;
+  }
+  .modal__field input[type="color"] { height: 40px; cursor: pointer; }
+
+  fieldset.modal__section {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    margin: 0;
+    padding: 1rem 1.25rem;
+  }
+  fieldset.modal__section > *:last-child { margin-bottom: 0; }
+
+  legend.modal__section-title {
+    padding: 0 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--section-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  legend.modal__section-title--toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+  legend.modal__section-title--toggle input[type="checkbox"] { margin: 0; }
+
+  fieldset.modal__section--disabled > *:not(legend) {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .border-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+  .border-row > div { flex: 1; }
+
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+  .badge--new {
+    background: var(--accent-blue);
+    color: var(--text-light);
+  }
+</style>
+</head>
+<body>
+  <h1>Tablero Simple — Sección "Borde" <span class="badge badge--new">nuevo: checkbox "Activar borde"</span></h1>
+  <p class="intro">
+    Propiedades específicas del componente Tablero Simple (pestaña "Específicas" de la modal de edición). La sección
+    "Borde" pasa de ser meramente informativa a llevar un checkbox de activación delante del título — mismo patrón
+    que ya usan las secciones "Borde" de Shape/TextBox de carta. Comparación entre los dos estados posibles.
+  </p>
+
+  <div class="compare">
+    <div class="compare__col">
+      <div class="compare__label">Checkbox marcado — borde activo</div>
+      <div class="modal-frame">
+        <div class="modal-frame__header">Propiedades específicas — Tablero Simple</div>
+        <div class="modal-frame__body">
+          <fieldset class="modal__section">
+            <legend class="modal__section-title modal__section-title--toggle">
+              <input type="checkbox" checked>
+              Borde
+            </legend>
+            <div class="border-row">
+              <div class="modal__field">
+                <label>Color del borde</label>
+                <input type="color" value="#000000">
+              </div>
+              <div class="modal__field">
+                <label>Grosor</label>
+                <input type="number" value="2" min="1" max="20">
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare__col">
+      <div class="compare__label">Checkbox desmarcado — borde desactivado</div>
+      <div class="modal-frame">
+        <div class="modal-frame__header">Propiedades específicas — Tablero Simple</div>
+        <div class="modal-frame__body">
+          <fieldset class="modal__section modal__section--disabled">
+            <legend class="modal__section-title modal__section-title--toggle" style="opacity:1;pointer-events:auto;">
+              <input type="checkbox">
+              Borde
+            </legend>
+            <div class="border-row">
+              <div class="modal__field">
+                <label>Color del borde</label>
+                <input type="color" value="#000000" disabled>
+              </div>
+              <div class="modal__field">
+                <label>Grosor</label>
+                <input type="number" value="2" min="1" max="20" disabled>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

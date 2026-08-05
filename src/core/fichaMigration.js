@@ -1,14 +1,12 @@
 // Migración del extinto tipo 'ficha' (cambio 00087) a 'carta': módulo puro,
-// sin dependencias de otras capas salvo core/cardProportions.js. Reutilizado
-// tanto por la migración silenciosa al cargar (core/state.js) como por el
-// aviso de errores de la importación explícita (ui/editModeToggle.js).
+// sin dependencias de otras capas. Reutilizado tanto por la migración
+// silenciosa al cargar (core/state.js) como por el aviso de errores de la
+// importación explícita (ui/editModeToggle.js).
 //
 // Nunca lanza excepción: siempre devuelve un `properties` de carta válido
 // (best-effort), más una lista de errores (vacía si no hubo ninguno). Quien
 // llama decide qué hacer con esos errores — la migración silenciosa los
 // ignora, la importación los usa para poder abortar antes de aplicar nada.
-
-import { CARD_DESIGN_WIDTH, getProporcionRatio } from './cardProportions.js';
 
 function defaultCaraProperties() {
   return {
@@ -31,7 +29,7 @@ function isValidAjusteImagen(value) {
   );
 }
 
-export function migrateFichaProperties(fichaProperties) {
+export function migrateFichaProperties(fichaProperties, componentSize) {
   const errors = [];
   const properties = fichaProperties && typeof fichaProperties === 'object' ? fichaProperties : null;
   if (!properties) errors.push('Falta la configuración de diseño (properties)');
@@ -67,7 +65,6 @@ export function migrateFichaProperties(fichaProperties) {
       errors.push('Ajuste de imagen con datos incompletos');
     }
   } else if (fondoTipo === 'texto') {
-    const height = CARD_DESIGN_WIDTH / getProporcionRatio(proporcion);
     cara.textBoxes = [{
       id: crypto.randomUUID(),
       contenido: typeof properties.texto === 'string' ? properties.texto : '',
@@ -76,8 +73,10 @@ export function migrateFichaProperties(fichaProperties) {
       color: '#000000',
       x: 0,
       y: 0,
-      width: CARD_DESIGN_WIDTH,
-      height,
+      // Ocupa toda la carta en píxeles reales (cambio 00151: 'carta' ya no
+      // guarda su contenido en unidades de diseño reescaladas).
+      width: componentSize.width,
+      height: componentSize.height,
       bordeActivo: false,
       bordeColor: '#000000',
       bordeGrosor: 2,
@@ -92,6 +91,10 @@ export function migrateFichaProperties(fichaProperties) {
   const cartaProperties = {
     proporcion,
     caraActual: 'frontal',
+    // El contenido de esta migración ya nace en píxeles reales (ver arriba),
+    // así que no debe volver a pasar por `migrateCartaMedidasReales`
+    // (core/state.js, cambio 00151).
+    medidasReales: true,
     caraFrontal: { ...cara, ajusteImagen: { ...cara.ajusteImagen }, textBoxes: cara.textBoxes.map((tb) => ({ ...tb })) },
     caraTrasera: { ...cara, ajusteImagen: { ...cara.ajusteImagen }, textBoxes: cara.textBoxes.map((tb) => ({ ...tb })) },
   };
@@ -100,7 +103,10 @@ export function migrateFichaProperties(fichaProperties) {
 }
 
 export function migrateFichaComponent(component) {
-  const { properties, errors } = migrateFichaProperties(component.properties);
+  const { properties, errors } = migrateFichaProperties(component.properties, {
+    width: component.width,
+    height: component.height,
+  });
   return {
     component: { ...component, type: 'carta', properties, grupoIds: [] },
     errors,

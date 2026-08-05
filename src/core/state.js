@@ -6,6 +6,7 @@ import { migrateFichaComponent } from './fichaMigration.js';
 import { syncCopyWithOriginal, renameCopyId, updateComponent, normalizeComponentGrupoIds } from './component.js';
 import { computeSacarCartaDeMazo } from './deck.js';
 import { DEFAULT_APP_TITLE } from './appTitle.js';
+import { CARD_DESIGN_WIDTH } from './cardProportions.js';
 
 export const MODES = { PLAY: 'play', EDIT: 'edit' };
 
@@ -208,8 +209,49 @@ function migrateTableroSimple(components) {
   }
 }
 
+// Migra en el sitio el contenido de cualquier 'carta' guardada antes del
+// cambio 00151 (formas/textBoxes en "unidades de diseño" sobre un lienzo
+// abstracto de CARD_DESIGN_WIDTH px, reescaladas al pintarse) al nuevo
+// sistema de píxeles reales (mismo criterio que 'tableroPersonalizado' desde
+// el cambio 00152): multiplica sus coordenadas por el factor de escala que
+// tenían en ese momento, para que el diseño se vea exactamente igual que
+// antes de migrar. Reproduce a propósito el mismo factor único (basado solo
+// en el ancho) que usaba `ui/componentRenderer.js` antes de este cambio —
+// no separa X/Y porque el render anterior tampoco lo hacía. Best-effort,
+// mismo criterio que migrateFichas: nunca debe bloquear el arranque. Las
+// cartas recién convertidas desde 'ficha' (`migrateFichas`, más arriba) ya
+// nacen con `medidasReales: true` y se saltan sin tocar.
+function migrateCartaMedidasReales(components) {
+  for (const component of components) {
+    if (component.type !== 'carta') continue;
+    const props = component.properties;
+    if (!props || props.medidasReales) continue;
+
+    const factor = component.width > 0 ? component.width / CARD_DESIGN_WIDTH : 1;
+    for (const caraKey of ['caraFrontal', 'caraTrasera']) {
+      const cara = props[caraKey];
+      if (!cara) continue;
+      for (const forma of cara.formas || []) {
+        forma.x *= factor;
+        forma.y *= factor;
+        forma.width *= factor;
+        forma.height *= factor;
+      }
+      for (const textBox of cara.textBoxes || []) {
+        textBox.x *= factor;
+        textBox.y *= factor;
+        textBox.width *= factor;
+        textBox.height *= factor;
+        if (Number.isFinite(textBox.tamañoFuente)) textBox.tamañoFuente *= factor;
+      }
+    }
+    props.medidasReales = true;
+  }
+}
+
 export function loadComponents(components) {
   migrateFichas(components);
+  migrateCartaMedidasReales(components);
   migrateGrupoIdToGrupoIds(components);
   migrateDeckIdToGrupo(components);
   migrateBloqueado(components);

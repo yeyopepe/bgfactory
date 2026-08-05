@@ -11,7 +11,6 @@
 
 import { getComponents } from '../core/state.js';
 import { paintCartaFace, formatComponentIdentifier } from './componentRenderer.js';
-import { CARD_DESIGN_WIDTH } from '../core/cardProportions.js';
 
 const THUMB_WIDTH = 42;
 const THUMB_HEIGHT = 58; // mismo tamaño fijo que .mazo-contenido__thumb en main.css
@@ -71,7 +70,10 @@ export function openMazoContentModal({ mazoId, onSacar }) {
 
       const thumb = document.createElement('div');
       thumb.className = 'mazo-contenido__thumb';
-      paintCartaFace(thumb, carta.properties?.caraFrontal, THUMB_WIDTH / CARD_DESIGN_WIDTH, THUMB_WIDTH, THUMB_HEIGHT);
+      // El diseño se guarda en píxeles reales (cambio 00151): encaja el
+      // ancho real de la carta en la miniatura de tamaño fijo.
+      const renderScale = THUMB_WIDTH / (carta.width || THUMB_WIDTH);
+      paintCartaFace(thumb, carta.properties?.caraFrontal, renderScale, THUMB_WIDTH, THUMB_HEIGHT);
       item.appendChild(thumb);
 
       const idEl = document.createElement('span');

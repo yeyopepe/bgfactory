@@ -9,7 +9,7 @@
 // mesa — y borde con bisel, igual que 'tableroSimple'/'dado').
 
 import { getResources } from '../core/state.js';
-import { CARD_PROPORTIONS, getProporcionRatio, getDesignSize, getCartaShapeCss, getHexInnerClipPath, getTriangleInnerClipPath, isRectShape } from '../core/cardProportions.js';
+import { CARD_PROPORTIONS, getProporcionRatio, getCartaShapeCss, getHexInnerClipPath, getTriangleInnerClipPath, isRectShape } from '../core/cardProportions.js';
 import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
 import { hexToRgba, shadeColor } from '../core/colorUtils.js';
 import { applyImageAdjustStyle, openImageAdjustModal } from './imageAdjustModal.js';
@@ -23,6 +23,10 @@ import { openContextMenu } from './contextMenu.js';
 import { getOrderedFaceElements, bringElementToFront, sendElementToBack } from '../core/cardFaceElements.js';
 
 const CANVAS_MAX_SIDE = 380;
+// Fallback defensivo si el componente no tuviera aún `width`/`height`
+// (no debería ocurrir: 'carta'/'tableroPersonalizado' siempre nacen con
+// tamaño fijo) para no dividir por 0 al calcular el lienzo de diseño.
+const DEFAULT_DESIGN_WIDTH_FALLBACK = 180;
 const SHAPE_BORDER_RADIUS = { circular: '50%', redondeada: '8px' };
 const MIN_TEXT_BOX_DESIGN_SIZE = 20;
 const MIN_SHAPE_DESIGN_SIZE = 20;
@@ -267,22 +271,26 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
   modal.appendChild(footer);
 
   const props = component.properties || {};
-  const working = { proporcion: props.proporcion || '5:7', esquinasRedondeadas: props.esquinasRedondeadas !== false };
+  const working = {
+    proporcion: props.proporcion || '5:7',
+    esquinasRedondeadas: props.esquinasRedondeadas !== false,
+    // Tamaño de diseño del lienzo (cambio 00151, extiende a 'carta' el mismo
+    // criterio que el 00152 ya aplicó a los tipos sin proporción
+    // configurable): siempre el tamaño real del componente al abrir el
+    // editor, nunca un lienzo lógico fijo — el contenido se pinta siempre en
+    // píxeles reales (sin ningún factor de escala), así que lo que se ve al
+    // diseñar debe coincidir con el tamaño real en la mesa. Cambiar el
+    // desplegable "Proporción" dentro del editor sí recalcula `designHeight`
+    // (ver más abajo) para previsualizar la forma elegida.
+    designWidth: component.width || DEFAULT_DESIGN_WIDTH_FALLBACK,
+    designHeight: component.height || (component.width || DEFAULT_DESIGN_WIDTH_FALLBACK) / getProporcionRatio(props.proporcion || '5:7'),
+  };
   for (const { key } of faces) {
     working[key] = cloneCara(props[key]);
   }
 
-  // Tamaño de diseño del lienzo de cada cara: para 'carta' depende de la
-  // proporción elegida (core/cardProportions.js). Para tipos sin proporción
-  // configurable (cambio 00152, corrige el 00143), el lienzo es el tamaño
-  // real que tiene el componente en este momento — el contenido se pinta
-  // siempre en píxeles reales (sin ningún factor de escala), así que lo que
-  // se ve al diseñar debe coincidir con el tamaño real del componente en la
-  // mesa, no con un lienzo lógico fijo ajeno a ese tamaño.
   function getFaceDesignSize() {
-    return showProporcionSelector
-      ? getDesignSize(working.proporcion)
-      : { width: component.width, height: component.height };
+    return { width: working.designWidth, height: working.designHeight };
   }
 
   // Forma/recorte del lienzo: 'carta' recorta según su proporción (rectángulo
@@ -414,6 +422,11 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
 
     proporcionSelect.addEventListener('change', () => {
       working.proporcion = proporcionSelect.value;
+      // El ancho de diseño se mantiene (es el tamaño real de la carta); solo
+      // se recalcula el alto según la proporción recién elegida — mismo
+      // criterio que usa ui/componentModal.js al cambiar la Proporción desde
+      // la pestaña "Específicas", fuera del editor.
+      working.designHeight = working.designWidth / getProporcionRatio(working.proporcion);
       updateRedondeoFieldVisibility();
       renderFaces();
     });
