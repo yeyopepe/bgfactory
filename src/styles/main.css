@@ -702,6 +702,12 @@ fieldset.modal__section--untitled {
   box-shadow: var(--shadow-1);
 }
 
+/* Checkbox "Sombra" de la sección "Visual" (cambio 00158): desmarcado,
+   quita la sombra de contacto y deja el tablero totalmente plano. */
+.board--sin-sombra {
+  box-shadow: none;
+}
+
 .board--selectable {
   cursor: pointer;
 }
@@ -731,6 +737,12 @@ fieldset.modal__section--untitled {
    de cuadrícula. */
 .tablero-personalizado {
   box-shadow: var(--shadow-1);
+}
+
+/* Checkbox "Sombra" de la sección "Visual" (cambio 00158), mismo criterio
+   que .board--sin-sombra. */
+.tablero-personalizado--sin-sombra {
+  box-shadow: none;
 }
 
 .tablero-personalizado--selectable {

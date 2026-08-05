@@ -662,16 +662,21 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (showHiddenIndicator && component.oculto) board.appendChild(createHiddenBadge());
 
       const props = component.properties || {};
+      board.classList.toggle('board--sin-sombra', props.sombra === false);
       const bordeColor = props.bordeColor || '#000000';
       const bordeGrosor = props.bordeGrosor ?? 2;
       const bordeActivo = props.bordeActivo !== false;
       if (bordeActivo) {
         board.style.borderStyle = 'solid';
         board.style.borderWidth = `${bordeGrosor}px`;
-        board.style.borderTopColor = shadeColor(bordeColor, 0.35);
-        board.style.borderLeftColor = shadeColor(bordeColor, 0.35);
-        board.style.borderBottomColor = shadeColor(bordeColor, -0.35);
-        board.style.borderRightColor = shadeColor(bordeColor, -0.35);
+        if (props.biselado !== false) {
+          board.style.borderTopColor = shadeColor(bordeColor, 0.35);
+          board.style.borderLeftColor = shadeColor(bordeColor, 0.35);
+          board.style.borderBottomColor = shadeColor(bordeColor, -0.35);
+          board.style.borderRightColor = shadeColor(bordeColor, -0.35);
+        } else {
+          board.style.borderColor = bordeColor;
+        }
       } else {
         board.style.borderStyle = 'none';
       }
@@ -860,19 +865,25 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       tablero.style.overflow = 'hidden';
       tablero.style.backgroundColor = '#ffffff';
 
-      // Bisel del borde (cambio 00143): mismo criterio que 'tableroSimple'
-      // (STYLE_BIBLE.md sección 13), a diferencia de 'carta', que usa un
-      // borde simple sin relieve.
       const props = component.properties || {};
+      tablero.classList.toggle('tablero-personalizado--sin-sombra', props.sombra === false);
+
+      // Bisel del borde (cambio 00143), opcional desde el cambio 00154 vía
+      // 'properties.biselado' (a diferencia de 'carta', que usa un borde
+      // simple sin relieve, ver STYLE_BIBLE.md sección 13).
       const cara = props.cara || {};
       const bordeColor = cara.bordeColor || '#000000';
       const bordeGrosor = cara.bordeGrosor ?? 2;
       tablero.style.borderStyle = 'solid';
       tablero.style.borderWidth = `${bordeGrosor}px`;
-      tablero.style.borderTopColor = shadeColor(bordeColor, 0.35);
-      tablero.style.borderLeftColor = shadeColor(bordeColor, 0.35);
-      tablero.style.borderBottomColor = shadeColor(bordeColor, -0.35);
-      tablero.style.borderRightColor = shadeColor(bordeColor, -0.35);
+      if (props.biselado !== false) {
+        tablero.style.borderTopColor = shadeColor(bordeColor, 0.35);
+        tablero.style.borderLeftColor = shadeColor(bordeColor, 0.35);
+        tablero.style.borderBottomColor = shadeColor(bordeColor, -0.35);
+        tablero.style.borderRightColor = shadeColor(bordeColor, -0.35);
+      } else {
+        tablero.style.borderColor = bordeColor;
+      }
 
       if (identifyMode === 'tooltip' && component.mostrarTooltip) tablero.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') tablero.appendChild(createIdentifierLabel(component));

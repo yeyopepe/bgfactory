@@ -82,6 +82,8 @@ export const DEFAULT_BOARD_PROPERTIES = {
   bordeColor: '#000000',
   bordeGrosor: 2,
   bordeActivo: true,
+  biselado: true,
+  sombra: true,
   fondoTipo: 'colorPatron',
   colorFondo: '#ffffff',
   patronColor: '#000000',
@@ -146,6 +148,8 @@ export const DEFAULT_MAZO_PROPERTIES = {
 // nombre distinto — se reutiliza el mismo shape completo (formas incluidas)
 // para poder compartir el editor visual generalizado sin condicionales.
 export const DEFAULT_TABLERO_PERSONALIZADO_PROPERTIES = {
+  biselado: true,
+  sombra: true,
   cara: {
     imagenResourceId: null,
     ajusteImagen: { zoom: 100, posX: 50, posY: 50, rotation: 0 },
@@ -837,6 +841,56 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   function renderBoardSpecificFields(container) {
     const props = workingComponent.properties;
 
+    // Visual: sección informativa (sin des/activador) con el único checkbox
+    // "Biselado en el borde" (cambio 00154) — decide si el borde (cuando está
+    // activo) se pinta con el bisel de dos tonos de siempre o totalmente
+    // plano de un color, mismo patrón .modal__field--checkbox que "Bloqueado"
+    // /"Oculto" (pestaña "Generales") o "Esquinas redondeadas" del Editor
+    // visual.
+    const visualSection = document.createElement('fieldset');
+    visualSection.className = 'modal__section';
+    const visualLegend = document.createElement('legend');
+    visualLegend.className = 'modal__section-title';
+    visualLegend.textContent = 'Visual';
+    visualSection.appendChild(visualLegend);
+
+    const biseladoField = document.createElement('div');
+    biseladoField.className = 'modal__field modal__field--checkbox';
+    const biseladoCheckbox = document.createElement('input');
+    biseladoCheckbox.type = 'checkbox';
+    biseladoCheckbox.id = 'board-biselado';
+    biseladoCheckbox.checked = props.biselado !== false;
+    biseladoCheckbox.addEventListener('change', () => {
+      props.biselado = biseladoCheckbox.checked;
+    });
+    const biseladoLabel = document.createElement('label');
+    biseladoLabel.htmlFor = 'board-biselado';
+    biseladoLabel.textContent = 'Biselado en el borde';
+    biseladoField.appendChild(biseladoCheckbox);
+    biseladoField.appendChild(biseladoLabel);
+    visualSection.appendChild(biseladoField);
+
+    // "Sombra" (cambio 00158): decide si se aplica la sombra de contacto
+    // habitual (.board--sin-sombra, src/styles/main.css) o el componente se
+    // dibuja totalmente plano.
+    const sombraField = document.createElement('div');
+    sombraField.className = 'modal__field modal__field--checkbox';
+    const sombraCheckbox = document.createElement('input');
+    sombraCheckbox.type = 'checkbox';
+    sombraCheckbox.id = 'board-sombra';
+    sombraCheckbox.checked = props.sombra !== false;
+    sombraCheckbox.addEventListener('change', () => {
+      props.sombra = sombraCheckbox.checked;
+    });
+    const sombraLabel = document.createElement('label');
+    sombraLabel.htmlFor = 'board-sombra';
+    sombraLabel.textContent = 'Sombra';
+    sombraField.appendChild(sombraCheckbox);
+    sombraField.appendChild(sombraLabel);
+    visualSection.appendChild(sombraField);
+
+    container.appendChild(visualSection);
+
     // Borde: color y grosor juntos en la misma fila, con checkbox de
     // activación (mismo patrón que ui/cardShapeModal.js, sección "Borde")
     const borderSection = document.createElement('fieldset');
@@ -1242,6 +1296,50 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   function renderTableroPersonalizadoSpecificFields(container) {
     const props = workingComponent.properties;
 
+    // Visual: misma sección informativa que 'tableroSimple' (cambio 00154),
+    // primera de la pestaña, antes del botón de edición del diseño.
+    const visualSection = document.createElement('fieldset');
+    visualSection.className = 'modal__section';
+    const visualLegend = document.createElement('legend');
+    visualLegend.className = 'modal__section-title';
+    visualLegend.textContent = 'Visual';
+    visualSection.appendChild(visualLegend);
+
+    const biseladoField = document.createElement('div');
+    biseladoField.className = 'modal__field modal__field--checkbox';
+    const biseladoCheckbox = document.createElement('input');
+    biseladoCheckbox.type = 'checkbox';
+    biseladoCheckbox.id = 'tablero-personalizado-biselado';
+    biseladoCheckbox.checked = props.biselado !== false;
+    biseladoCheckbox.addEventListener('change', () => {
+      props.biselado = biseladoCheckbox.checked;
+    });
+    const biseladoLabel = document.createElement('label');
+    biseladoLabel.htmlFor = 'tablero-personalizado-biselado';
+    biseladoLabel.textContent = 'Biselado en el borde';
+    biseladoField.appendChild(biseladoCheckbox);
+    biseladoField.appendChild(biseladoLabel);
+    visualSection.appendChild(biseladoField);
+
+    // "Sombra" (cambio 00158): mismo criterio que 'tableroSimple'.
+    const sombraField = document.createElement('div');
+    sombraField.className = 'modal__field modal__field--checkbox';
+    const sombraCheckbox = document.createElement('input');
+    sombraCheckbox.type = 'checkbox';
+    sombraCheckbox.id = 'tablero-personalizado-sombra';
+    sombraCheckbox.checked = props.sombra !== false;
+    sombraCheckbox.addEventListener('change', () => {
+      props.sombra = sombraCheckbox.checked;
+    });
+    const sombraLabel = document.createElement('label');
+    sombraLabel.htmlFor = 'tablero-personalizado-sombra';
+    sombraLabel.textContent = 'Sombra';
+    sombraField.appendChild(sombraCheckbox);
+    sombraField.appendChild(sombraLabel);
+    visualSection.appendChild(sombraField);
+
+    container.appendChild(visualSection);
+
     const editField = document.createElement('div');
     editField.className = 'modal__field';
     const editBtn = document.createElement('button');
@@ -1255,6 +1353,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
         faces: [{ key: 'cara', label: null }],
         showProporcionSelector: false,
         borderStyle: 'bisel',
+        bevelEnabled: props.biselado !== false,
         onAccept: ({ cara }) => {
           props.cara = cara;
         },

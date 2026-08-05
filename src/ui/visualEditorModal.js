@@ -206,8 +206,12 @@ function cloneCara(cara) {
 // tiene proporción configurable (se redimensiona libremente en la mesa).
 // `borderStyle` ('simple' | 'bisel') decide cómo se pinta el borde de cada
 // cara — 'bisel' reutiliza el mismo criterio de dos tonos que
-// 'tableroSimple'/'dado' (ui/componentRenderer.js).
-export function openVisualEditorModal({ component, title, faces, showProporcionSelector = true, borderStyle = 'simple', onAccept }) {
+// 'tableroSimple'/'dado' (ui/componentRenderer.js). `bevelEnabled` (cambio
+// 00154, solo relevante con `borderStyle === 'bisel'`) refleja el checkbox
+// "Biselado en el borde" de las propiedades específicas de
+// 'tableroPersonalizado' en el momento de abrir el editor — no reactivo
+// mientras está abierto, ese checkbox no es editable desde aquí.
+export function openVisualEditorModal({ component, title, faces, showProporcionSelector = true, borderStyle = 'simple', bevelEnabled = true, onAccept }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -684,10 +688,14 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
         canvas.style.border = 'none';
         canvas.style.borderStyle = 'solid';
         canvas.style.borderWidth = `${bordeGrosor}px`;
-        canvas.style.borderTopColor = shadeColor(bordeColor, 0.35);
-        canvas.style.borderLeftColor = shadeColor(bordeColor, 0.35);
-        canvas.style.borderBottomColor = shadeColor(bordeColor, -0.35);
-        canvas.style.borderRightColor = shadeColor(bordeColor, -0.35);
+        if (bevelEnabled) {
+          canvas.style.borderTopColor = shadeColor(bordeColor, 0.35);
+          canvas.style.borderLeftColor = shadeColor(bordeColor, 0.35);
+          canvas.style.borderBottomColor = shadeColor(bordeColor, -0.35);
+          canvas.style.borderRightColor = shadeColor(bordeColor, -0.35);
+        } else {
+          canvas.style.borderColor = bordeColor;
+        }
         canvasInner.style.clipPath = 'none';
       } else {
         canvas.style.backgroundColor = '';
