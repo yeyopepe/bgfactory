@@ -80,7 +80,9 @@ export const MAZO_FORMAS = [
 export const DEFAULT_BOARD_PROPERTIES = {
   bordeColor: '#000000',
   bordeGrosor: 2,
+  bordeActivo: true,
   fondoTipo: 'colorPatron',
+  colorFondo: '#ffffff',
   patronColor: '#000000',
   patronGrosor: 1,
   patronForma: 'cuadrada',
@@ -833,12 +835,17 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   function renderBoardSpecificFields(container) {
     const props = workingComponent.properties;
 
-    // Borde: color y grosor juntos en la misma fila
+    // Borde: color y grosor juntos en la misma fila, con checkbox de
+    // activación (mismo patrón que ui/cardShapeModal.js, sección "Borde")
     const borderSection = document.createElement('fieldset');
     borderSection.className = 'modal__section';
     const borderLegend = document.createElement('legend');
-    borderLegend.className = 'modal__section-title';
-    borderLegend.textContent = 'Borde';
+    borderLegend.className = 'modal__section-title modal__section-title--toggle';
+    const borderActiveCheckbox = document.createElement('input');
+    borderActiveCheckbox.type = 'checkbox';
+    borderActiveCheckbox.checked = props.bordeActivo !== false;
+    borderLegend.appendChild(borderActiveCheckbox);
+    borderLegend.appendChild(document.createTextNode('Borde'));
     borderSection.appendChild(borderLegend);
 
     const borderRow = document.createElement('div');
@@ -881,6 +888,18 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     borderRow.appendChild(borderRowInner);
     borderSection.appendChild(borderRow);
     container.appendChild(borderSection);
+
+    function updateBorderSectionDisabled() {
+      const active = borderActiveCheckbox.checked;
+      borderSection.classList.toggle('modal__section--disabled', !active);
+      borderColorInput.disabled = !active;
+      borderWidthInput.disabled = !active;
+    }
+    borderActiveCheckbox.addEventListener('change', () => {
+      props.bordeActivo = borderActiveCheckbox.checked;
+      updateBorderSectionDisabled();
+    });
+    updateBorderSectionDisabled();
 
     // Background type + configure button
     const bgSection = document.createElement('fieldset');
@@ -930,7 +949,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       } else {
         openBoardPatternModal({
           properties: props,
-          onAccept: ({ patronColor, patronGrosor, patronForma, patronFilas, patronColumnas }) => {
+          onAccept: ({ colorFondo, patronColor, patronGrosor, patronForma, patronFilas, patronColumnas }) => {
+            props.colorFondo = colorFondo;
             props.patronColor = patronColor;
             props.patronGrosor = patronGrosor;
             props.patronForma = patronForma;

@@ -26,6 +26,10 @@ export function openBoardPatternModal({ properties, onAccept }) {
   modal.appendChild(footer);
 
   const working = {
+    // Ausente (tablero guardado antes de este campo) → blanco opaco, mismo
+    // aspecto que tenía antes de existir esta propiedad. '' explícito (checkbox
+    // "Transparente" marcado) se distingue con '??' en vez de '||'.
+    colorFondo: properties.colorFondo ?? '#ffffff',
     patronColor: properties.patronColor || '#000000',
     patronGrosor: properties.patronGrosor || 1,
     // 'hexagonal' es el valor guardado antes del cambio 00089 (una sola
@@ -36,6 +40,66 @@ export function openBoardPatternModal({ properties, onAccept }) {
     patronFilas: properties.patronFilas || 8,
     patronColumnas: properties.patronColumnas || 8,
   };
+
+  // Sección "Configuración" (forma de casilla + filas/columnas) y sección
+  // "Color" (colores), cambio 00155 — patrón informativo ya documentado en
+  // STYLE_BIBLE.md sección 12.6 (fieldset.modal__section / legend.modal__section-title,
+  // sin --toggle).
+  const configSection = document.createElement('fieldset');
+  configSection.className = 'modal__section';
+  const configLegend = document.createElement('legend');
+  configLegend.className = 'modal__section-title';
+  configLegend.textContent = 'Configuración';
+  configSection.appendChild(configLegend);
+
+  const colorSection = document.createElement('fieldset');
+  colorSection.className = 'modal__section';
+  const colorLegend = document.createElement('legend');
+  colorLegend.className = 'modal__section-title';
+  colorLegend.textContent = 'Color';
+  colorSection.appendChild(colorLegend);
+
+  // Color de fondo (con opción "Transparente"), detrás del patrón — mismo
+  // patrón simple ya usado en el campo "Color de fondo" de las propiedades
+  // específicas de 'carta' (ui/componentModal.js).
+  const bgColorField = document.createElement('div');
+  bgColorField.className = 'modal__field';
+  const bgColorLabel = document.createElement('label');
+  bgColorLabel.textContent = 'Color de fondo';
+  const bgColorContainer = document.createElement('div');
+  bgColorContainer.style.display = 'flex';
+  bgColorContainer.style.gap = '0.5rem';
+  bgColorContainer.style.alignItems = 'center';
+
+  const bgColorInput = document.createElement('input');
+  bgColorInput.type = 'color';
+  bgColorInput.value = working.colorFondo || '#ffffff';
+
+  const bgTransparentCheckbox = document.createElement('input');
+  bgTransparentCheckbox.type = 'checkbox';
+  bgTransparentCheckbox.checked = !working.colorFondo;
+
+  const bgTransparentLabel = document.createElement('label');
+  bgTransparentLabel.textContent = 'Transparente';
+  bgTransparentLabel.style.margin = 0;
+
+  bgColorInput.disabled = bgTransparentCheckbox.checked;
+
+  bgTransparentCheckbox.addEventListener('change', () => {
+    bgColorInput.disabled = bgTransparentCheckbox.checked;
+    working.colorFondo = bgTransparentCheckbox.checked ? '' : bgColorInput.value;
+  });
+
+  bgColorInput.addEventListener('input', () => {
+    working.colorFondo = bgColorInput.value;
+  });
+
+  bgColorContainer.appendChild(bgColorInput);
+  bgColorContainer.appendChild(bgTransparentCheckbox);
+  bgColorContainer.appendChild(bgTransparentLabel);
+  bgColorField.appendChild(bgColorLabel);
+  bgColorField.appendChild(bgColorContainer);
+  colorSection.appendChild(bgColorField);
 
   // Color y grosor del patrón juntos en la misma fila (STYLE_BIBLE.md sección 8)
   const colorRow = document.createElement('div');
@@ -76,7 +140,7 @@ export function openBoardPatternModal({ properties, onAccept }) {
   colorRowInner.appendChild(colorField);
   colorRowInner.appendChild(grosorField);
   colorRow.appendChild(colorRowInner);
-  content.appendChild(colorRow);
+  colorSection.appendChild(colorRow);
 
   const shapeField = document.createElement('div');
   shapeField.className = 'modal__field';
@@ -100,10 +164,17 @@ export function openBoardPatternModal({ properties, onAccept }) {
   });
   shapeField.appendChild(shapeLabel);
   shapeField.appendChild(shapeSelect);
-  content.appendChild(shapeField);
+  configSection.appendChild(shapeField);
+
+  // Filas y columnas en la misma fila (mismo patrón que colorRow)
+  const cellsRow = document.createElement('div');
+  cellsRow.className = 'modal__field';
+  const cellsRowInner = document.createElement('div');
+  cellsRowInner.style.display = 'flex';
+  cellsRowInner.style.gap = '0.5rem';
 
   const rowsField = document.createElement('div');
-  rowsField.className = 'modal__field';
+  rowsField.style.flex = '1';
   const rowsLabel = document.createElement('label');
   rowsLabel.textContent = 'Filas';
   const rowsInput = document.createElement('input');
@@ -117,10 +188,9 @@ export function openBoardPatternModal({ properties, onAccept }) {
   });
   rowsField.appendChild(rowsLabel);
   rowsField.appendChild(rowsInput);
-  content.appendChild(rowsField);
 
   const colsField = document.createElement('div');
-  colsField.className = 'modal__field';
+  colsField.style.flex = '1';
   const colsLabel = document.createElement('label');
   colsLabel.textContent = 'Columnas';
   const colsInput = document.createElement('input');
@@ -134,7 +204,14 @@ export function openBoardPatternModal({ properties, onAccept }) {
   });
   colsField.appendChild(colsLabel);
   colsField.appendChild(colsInput);
-  content.appendChild(colsField);
+
+  cellsRowInner.appendChild(rowsField);
+  cellsRowInner.appendChild(colsField);
+  cellsRow.appendChild(cellsRowInner);
+  configSection.appendChild(cellsRow);
+
+  content.appendChild(configSection);
+  content.appendChild(colorSection);
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';

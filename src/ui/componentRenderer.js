@@ -664,12 +664,17 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       const props = component.properties || {};
       const bordeColor = props.bordeColor || '#000000';
       const bordeGrosor = props.bordeGrosor ?? 2;
-      board.style.borderStyle = 'solid';
-      board.style.borderWidth = `${bordeGrosor}px`;
-      board.style.borderTopColor = shadeColor(bordeColor, 0.35);
-      board.style.borderLeftColor = shadeColor(bordeColor, 0.35);
-      board.style.borderBottomColor = shadeColor(bordeColor, -0.35);
-      board.style.borderRightColor = shadeColor(bordeColor, -0.35);
+      const bordeActivo = props.bordeActivo !== false;
+      if (bordeActivo) {
+        board.style.borderStyle = 'solid';
+        board.style.borderWidth = `${bordeGrosor}px`;
+        board.style.borderTopColor = shadeColor(bordeColor, 0.35);
+        board.style.borderLeftColor = shadeColor(bordeColor, 0.35);
+        board.style.borderBottomColor = shadeColor(bordeColor, -0.35);
+        board.style.borderRightColor = shadeColor(bordeColor, -0.35);
+      } else {
+        board.style.borderStyle = 'none';
+      }
 
       const fondoTipo = props.fondoTipo || 'colorPatron';
       let hexGridToRender = null;
@@ -684,7 +689,8 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           board.style.backgroundColor = '#ffffff';
         }
       } else {
-        board.style.backgroundColor = '#ffffff';
+        const colorFondo = props.colorFondo ?? '#ffffff';
+        board.style.backgroundColor = colorFondo || 'transparent';
         const patronColor = props.patronColor || '#000000';
         const patronGrosor = props.patronGrosor || 1;
         const patronFilas = props.patronFilas || 8;
