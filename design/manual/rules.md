@@ -24,14 +24,15 @@
   - Materiales básicos
   - Objetos fabricables
 - Dados
-  - Saqueo: 3xbasura, 1xnada, 2xobjeto
-  - Pelea: 2xherida, 1xesquiva, 2xnada, 1x-1enemigo
-  - Encuentros: 1x2zombis, 2x1zombi, 3xnada
+  - (1) Saqueo: 3xbasura, 1xnada, 2xobjeto
+  - (1) Pelea: 2xherida, 1xesquiva, 2xnada, 1x-1enemigo
+  - (1) Encuentros: 1x2zombis, 2x1zombi, 3xnada
 
 
 ## Preparación
 
 - Prepara bolsa de saqueo con objetos básicos
+- Prepara la pila de basura
 - Cada jugador elige:
   - Un tablero de jugador
   - Toma 1 ficha de personaje
@@ -80,7 +81,7 @@ Cuando termina el domingo (y la semana):
 - Si hay enemigos en la localización? -> combate
 
 ### 2. Saquear
-Si en la localización actual queda algún objeto en la pila de saqueo, el jugador puede tirar 1 vez el dado de saqueo y, según el resultado, podrá conseguir una ficha de basura, el primero objeto en la pila de saqueo de la localización o simplemente nada.
+Si en la localización actual queda algún objeto en la pila de saqueo, el jugador puede tirar 1 vez el dado de saqueo y, según el resultado, podrá conseguir una ficha de basura, el primer objeto en la pila de saqueo de la localización o simplemente nada.
 
 Esta acción no puede realizarse si hay enemigos en la localización.
 
@@ -90,7 +91,8 @@ En localizaciones dónde haya disponible animales para cazar o pescar <iconos>, 
 Esta acción no puede realizarse si hay enemigos en la localización.
 
 ### 4. Comerciar
-Una vez por turno: en localizaciones dónde haya disponible comerciantes <icono>, el jugador podrá intercambiar cualquier objeto de su mochila que no sea basura por otro a su elección de la pila de saqueo. Después de intercambiarlo, baraja la pila de saqueo.
+Una vez por turno: en localizaciones dónde haya disponible comerciantes <icono>, el jugador podrá intercambiar un objeto cualquiera de su mochila que no sea basura por el primero objeto de la pila de saqueo. Después de intercambiarlo, baraja la pila de saqueo.
+Mete el objeto intercambiado en la pila de saqueo y barájala.
 
 Esta acción no puede realizarse si hay enemigos en la localización.
 
@@ -135,7 +137,7 @@ Si en algún momento sacas un objeto de tu mochila y este tenía encima otros ob
 ### Ordenar la mochila
 Una vez colocado un objeto en la mochila solo puedes moverlo de 3 maneras:
 - Con la acción de **fabricar un nuevo objeto**: en este caso primero saca de tu mochila los objetos necesarios para construir el nuevo, los metes de nuevo en la bolsa de saqueo y añades el nuevo a la mochila. En este momento puedes reordenar también los objetos de tu mochila si quieres.
-- con las acciones de **intercambiar** y **comerciar**: en esta caso también puedes aprovechar para reordenar los objetos de tu mochila como quieras cuando saques o metas nuevas objetos fruto del intercambio.
+- con las acciones de **intercambiar** y **comerciar**: en este caso también puedes aprovechar para reordenar los objetos de tu mochila como quieras cuando saques o metas nuevas objetos fruto del intercambio.
 
 
 ## Preguntas frecuentes

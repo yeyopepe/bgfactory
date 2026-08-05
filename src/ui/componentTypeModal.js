@@ -4,7 +4,7 @@
 
 const COMPONENT_TYPES = [
   { value: 'texto', label: 'Cuadro de texto' },
-  { value: 'tablero', label: 'Tablero' },
+  { value: 'tableroSimple', label: 'Tablero simple' },
   { value: 'dado', label: 'Dado' },
   { value: 'documento', label: 'Visor de documentos' },
   { value: 'carta', label: 'Carta/Ficha' },

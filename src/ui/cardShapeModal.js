@@ -92,7 +92,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   content.appendChild(typeField);
 
   // Fondo (informativo: selector Color/Imagen, mismo patrón que el fondo de
-  // 'tablero' en ui/componentModal.js — cambiar de uno a otro no borra la
+  // 'tableroSimple' en ui/componentModal.js — cambiar de uno a otro no borra la
   // configuración del que se deja de usar, conviven siempre en `working`).
   const bgSection = document.createElement('fieldset');
   bgSection.className = 'modal__section';

@@ -37,7 +37,7 @@ const interactionsByType = {
     { label: 'Doble clic izquierdo', value: 'Ninguno' },
     { label: 'Clic derecho', value: 'Abrir este menú' },
   ],
-  'tablero': [
+  'tableroSimple': [
     { label: 'Clic izquierdo', value: 'Ninguno' },
     { label: 'Doble clic izquierdo', value: 'Ninguno' },
     { label: 'Clic derecho', value: 'Abrir este menú' },
@@ -173,7 +173,7 @@ export function renderPlayMode(container) {
         let extra;
         if (component.type === 'dado') {
           extra = `${getPosibleValores(component.properties || {}).length} caras`;
-        } else if (component.type === 'tablero') {
+        } else if (component.type === 'tableroSimple') {
           extra = `${Math.round(component.width)}x${Math.round(component.height)}`;
         } else if (component.type === 'mazo') {
           extra = `${(component.properties?.cartaIds || []).length} cartas`;

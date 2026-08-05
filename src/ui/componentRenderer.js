@@ -35,8 +35,9 @@ function getWorldZoom(worldEl) {
 }
 
 // Aclara (percent > 0) u oscurece (percent < 0) un color hex mezclándolo con
-// blanco/negro — usado solo para el bisel del borde del tablero (excepción de
-// estilo acotada a este tipo de componente, ver STYLE_BIBLE.md sección 13).
+// blanco/negro — usado solo para el bisel del borde del tablero simple
+// (excepción de estilo acotada a este tipo de componente, ver STYLE_BIBLE.md
+// sección 13).
 function shadeColor(hex, percent) {
   const num = parseInt(hex.replace('#', ''), 16);
   let r = (num >> 16) & 0xff;
@@ -126,8 +127,9 @@ function renderHexGrid(svgEl, width, height, filas, columnas, color, grosor, ori
 // Dibuja la silueta 2D plana de un dado según su número de resultados
 // posibles, con un efecto de profundidad leve (copia oscura desplazada
 // detrás) y un contorno fino oscuro — misma familia de recurso que el bisel
-// del tablero (excepción de estilo acotada a ambos tipos, ver STYLE_BIBLE.md
-// sección 13). `count` es el número de resultados posibles configurados.
+// del tablero simple (excepción de estilo acotada a ambos tipos, ver
+// STYLE_BIBLE.md sección 13). `count` es el número de resultados posibles
+// configurados.
 function renderDiceSilhouette(svgEl, size, count, colorCuerpo) {
   const SVG_NS = 'http://www.w3.org/2000/svg';
   svgEl.innerHTML = '';
@@ -226,7 +228,7 @@ function renderDiceSilhouette(svgEl, size, count, colorCuerpo) {
 
 const COMPONENT_TYPE_LABELS = {
   texto: 'Texto',
-  tablero: 'Tablero',
+  tableroSimple: 'Tablero simple',
   dado: 'Dado',
   documento: 'Documento',
   carta: 'Carta/Ficha',
@@ -650,7 +652,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       worldEl.appendChild(textBox);
-    } else if (component.type === 'tablero') {
+    } else if (component.type === 'tableroSimple') {
       const board = document.createElement('div');
       elementsById.set(component.id, board);
       board.className = 'board';

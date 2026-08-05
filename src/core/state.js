@@ -181,11 +181,24 @@ function migrateBloqueado(components) {
   }
 }
 
+// Migra en el sitio cualquier componente de tipo 'tablero' (nombre anterior
+// al cambio 00136, "tablero" → "tablero simple") a 'tableroSimple',
+// best-effort, mismo criterio que migrateFichas: nunca debe bloquear el
+// arranque.
+function migrateTableroSimple(components) {
+  for (const component of components) {
+    if (component.type === 'tablero') {
+      component.type = 'tableroSimple';
+    }
+  }
+}
+
 export function loadComponents(components) {
   migrateFichas(components);
   migrateGrupoIdToGrupoIds(components);
   migrateDeckIdToGrupo(components);
   migrateBloqueado(components);
+  migrateTableroSimple(components);
   compactOrders(components);
   state.components = components;
   emit('components:changed', state.components);

@@ -122,7 +122,7 @@ function cloneCartaProperties(properties) {
 // crear con defaults → abrir esta modal para configurarlo.
 export function createDefaultComponent(type) {
   const component = createComponent({ type });
-  if (type === 'tablero') {
+  if (type === 'tableroSimple') {
     component.width = DEFAULT_BOARD_SIZE;
     component.height = DEFAULT_BOARD_SIZE;
     component.properties = { ...DEFAULT_BOARD_PROPERTIES };
@@ -605,7 +605,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       bgColorField.appendChild(bgColorLabel);
       bgColorField.appendChild(bgColorContainer);
       specificContent.appendChild(bgColorField);
-    } else if (workingComponent.type === 'tablero') {
+    } else if (workingComponent.type === 'tableroSimple') {
       renderBoardSpecificFields(specificContent);
     } else if (workingComponent.type === 'dado') {
       renderDadoSpecificFields(specificContent);
