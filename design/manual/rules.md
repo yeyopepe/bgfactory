@@ -38,8 +38,13 @@
   - Toma 1 ficha de personaje
   - Toma 1 dado de búsqueda y 1 dado de combate
   - Toma cartas de trasfondo y resuélvelas 
-- Baraja mazo de enclaves principales y saca uno a uno y colócalo en un lugar del tablero hasta completarlos.
-- Baraja mazo de enclaves secundarios y saca uno a uno y colócalo en un lugar del tablero hasta completarlos.
+- Baraja mazo de localizaciones principales.
+- Baraja mazo de localizaciones secundarias.
+- Preparación del mapa:
+  - Toma las 6 cartas de montaña y colócalas aleatoriamente dentro de los 4 cuadrantes grises del tablero.
+  - Elige una casilla de localización principal del tablero (<icono>), toma la primera carta del mazo de localizaciones principales y colócala en esa casilla. Repite hasta colocar 4 localizaciones principales (quedarán casillas libres). Retira del juego las cartas sobrantes del mazo.
+  - Empezando desde la esquina superior izquierda ve sacando cartas del mazo de localizaciones secundarias y colocándolas de izquierda a derecha y de arriba a abajo hasta haber cubierto todo el tablero. Retira del juego las cartas sobrantes del mazo.
+
 
 
 

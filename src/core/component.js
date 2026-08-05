@@ -4,7 +4,7 @@
 // El campo `order` gobierna el apilado visual en la mesa (ver core/state.js,
 // que es quien lo asigna/recalcula: aquí solo se declara con valor por defecto).
 
-export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = 'ninguno', mostrarTooltip = false, subirAlMoverInteractuar = false, oculto = false, grupoIds = [], order = null, copyOf = null, interaccionesDesactivadas = [] } = {}) {
+export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = 'ninguno', mostrarTooltip = false, subirAlMoverInteractuar = false, oculto = false, grupoIds = [], order = null, copyOf = null, interaccionesDesactivadas = [], accionClickDerecho = 'ninguno' } = {}) {
   return {
     id: crypto.randomUUID(),
     type,
@@ -23,6 +23,7 @@ export function createComponent({ type = 'generico', name = '', properties = {},
     order,
     copyOf,
     interaccionesDesactivadas,
+    accionClickDerecho,
   };
 }
 
@@ -133,11 +134,12 @@ export function renameCopyId(copyId, oldOriginalId, newOriginalId) {
 
 // Aplica sobre `copy` los campos sincronizables de `original`: tipo visual, nombre,
 // imagen, ancho/alto, grupos, qué interacciones programadas están desactivadas (cambio
-// 00115), y las propiedades específicas de configuración/diseño del tipo (todo lo
-// editable desde `ui/componentModal.js`, salvo `bloqueado`/`oculto`, que quedan siempre
-// independientes por copia). Las propiedades de estado de interacción de juego de la
-// propia copia (ver NON_SYNCED_PROPERTY_KEYS) se conservan tal cual. `x`, `y`, `order`,
-// `bloqueado` y `oculto` de la copia tampoco se tocan.
+// 00115), qué hace el click derecho (cambio 00142), y las propiedades específicas de
+// configuración/diseño del tipo (todo lo editable desde `ui/componentModal.js`, salvo
+// `bloqueado`/`oculto`, que quedan siempre independientes por copia). Las propiedades
+// de estado de interacción de juego de la propia copia (ver NON_SYNCED_PROPERTY_KEYS)
+// se conservan tal cual. `x`, `y`, `order`, `bloqueado` y `oculto` de la copia tampoco
+// se tocan.
 export function syncCopyWithOriginal(copy, original) {
   const { synced: syncedProperties } = splitSyncedProperties(original.type, original.properties);
   const { nonSynced: ownNonSyncedProperties } = splitSyncedProperties(copy.type, copy.properties);
@@ -152,6 +154,7 @@ export function syncCopyWithOriginal(copy, original) {
     subirAlMoverInteractuar: original.subirAlMoverInteractuar,
     grupoIds: [...original.grupoIds],
     interaccionesDesactivadas: original.interaccionesDesactivadas,
+    accionClickDerecho: original.accionClickDerecho,
     properties: { ...syncedProperties, ...ownNonSyncedProperties },
   };
 }

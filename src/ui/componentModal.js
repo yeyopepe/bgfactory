@@ -418,12 +418,16 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
   generalContent.appendChild(groupSection);
 
-  // Interacciones programadas (cambio 00115): un combo por cada interacción de click
-  // que el tipo actual tenga programada en Modo Juego (ver core/interactions.js),
-  // permitiendo desactivarla eligiendo "Ninguna". El tipo no cambia tras crear el
-  // componente, así que esta sección se calcula una sola vez al abrir la modal.
+  // Interacciones programadas (cambio 00115, ampliada en el cambio 00142): un combo
+  // por cada interacción de click izquierdo que el tipo actual tenga programada en
+  // Modo Juego (ver core/interactions.js), permitiendo desactivarla eligiendo
+  // "Ninguna", más una fila fija de click derecho (cambio 00142, ver más abajo) que
+  // aplica por igual a los 6 tipos de componente — por eso la sección se muestra
+  // siempre, ya no solo cuando el tipo tiene entradas en TYPE_INTERACTIONS. El tipo
+  // no cambia tras crear el componente, así que esta sección se calcula una sola vez
+  // al abrir la modal.
   const typeInteractions = getInteractionsForType(workingComponent.type);
-  if (typeInteractions.length > 0) {
+  {
     const interactionsSection = document.createElement('fieldset');
     interactionsSection.className = 'modal__section';
     const interactionsTitle = document.createElement('legend');
@@ -465,6 +469,36 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       }));
       interactionsSection.appendChild(interactionField);
     }
+
+    // Click derecho (cambio 00142): a diferencia de las filas anteriores, no depende
+    // del tipo — el menú contextual (bloquear/desbloquear + acciones específicas del
+    // tipo) existe hoy para los 6 tipos por igual.
+    const rightClickField = document.createElement('div');
+    rightClickField.className = 'modal__field';
+    const rightClickLabel = document.createElement('label');
+    rightClickLabel.textContent = 'Click derecho';
+    const rightClickSelect = document.createElement('select');
+
+    const noneRightClickOption = document.createElement('option');
+    noneRightClickOption.value = 'ninguno';
+    noneRightClickOption.textContent = 'Ninguno';
+    const contextMenuOption = document.createElement('option');
+    contextMenuOption.value = 'menuContextual';
+    contextMenuOption.textContent = 'Abrir menú contextual';
+    rightClickSelect.appendChild(noneRightClickOption);
+    rightClickSelect.appendChild(contextMenuOption);
+    rightClickSelect.value = workingComponent.accionClickDerecho;
+
+    rightClickSelect.addEventListener('change', () => {
+      workingComponent.accionClickDerecho = rightClickSelect.value;
+    });
+
+    rightClickField.appendChild(rightClickLabel);
+    rightClickField.appendChild(rightClickSelect);
+    rightClickField.appendChild(createHelpIcon({
+      text: 'Si eliges "Ninguno", el click derecho sobre este componente no hace nada en Modo Juego (no se puede bloquear/desbloquear ni acceder a sus acciones específicas desde ahí). El resto de interacciones no se ven afectadas.',
+    }));
+    interactionsSection.appendChild(rightClickField);
 
     generalContent.appendChild(interactionsSection);
   }

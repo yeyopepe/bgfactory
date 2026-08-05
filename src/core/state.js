@@ -181,6 +181,19 @@ function migrateBloqueado(components) {
   }
 }
 
+// Migra en el sitio los componentes guardados antes del cambio 00142 (sin el campo
+// `accionClickDerecho`) a `'menuContextual'`, para conservar su comportamiento previo:
+// hasta ese cambio, el click derecho abría siempre el menú contextual sin ser
+// configurable. Solo los componentes nuevos nacen en `'ninguno'` (ver
+// `core/component.js`, `createComponent`). Best-effort, mismo criterio que migrateFichas.
+function migrateAccionClickDerecho(components) {
+  for (const component of components) {
+    if (component.accionClickDerecho === undefined) {
+      component.accionClickDerecho = 'menuContextual';
+    }
+  }
+}
+
 // Migra en el sitio cualquier componente de tipo 'tablero' (nombre anterior
 // al cambio 00136, "tablero" → "tablero simple") a 'tableroSimple',
 // best-effort, mismo criterio que migrateFichas: nunca debe bloquear el
@@ -198,6 +211,7 @@ export function loadComponents(components) {
   migrateGrupoIdToGrupoIds(components);
   migrateDeckIdToGrupo(components);
   migrateBloqueado(components);
+  migrateAccionClickDerecho(components);
   migrateTableroSimple(components);
   compactOrders(components);
   state.components = components;

@@ -166,6 +166,10 @@ export function renderPlayMode(container) {
         if (mazo.subirAlMoverInteractuar) reorderComponent(mazo.id, 1);
       },
       onContextMenu: (component, event) => {
+        // Click derecho configurable por componente (cambio 00142): con "Ninguno"
+        // seleccionado, el click derecho no hace nada — ni selecciona ni abre el menú.
+        if (component.accionClickDerecho === 'ninguno') return;
+
         selectedComponentId = component.id;
         renderTable();
 
