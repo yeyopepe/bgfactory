@@ -2207,6 +2207,10 @@ fieldset.modal__section--untitled {
   border-top: 1px solid var(--border-neutral);
 }
 
+.resource-list__usos-cell {
+  text-align: center;
+}
+
 .resource-list__actions-cell {
   white-space: nowrap;
 }

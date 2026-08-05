@@ -520,6 +520,7 @@ export function renderEditMode(container) {
       onColumnResize: (columnWidths) => {
         setResourcePanelState({ columnWidths });
       },
+      components: getComponents(),
     });
   }
 

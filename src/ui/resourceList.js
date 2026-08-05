@@ -3,12 +3,12 @@
 
 import { attachResizeHandle } from './resizeHandle.js';
 import { attachColumnResizing } from './tableColumnResize.js';
-import { RESOURCE_TYPES } from '../core/resource.js';
+import { RESOURCE_TYPES, getComponentsUsingResource } from '../core/resource.js';
 import { sortByName } from '../core/textSort.js';
 
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
-const RESOURCE_LIST_COLUMNS = ['nombre', 'tipo', 'acciones'];
+const RESOURCE_LIST_COLUMNS = ['nombre', 'usos', 'tipo', 'acciones'];
 
 const TYPE_LABELS = {
   [RESOURCE_TYPES.IMAGE]: 'Imagen',
@@ -35,7 +35,7 @@ function matchesFilter(resource, query) {
   );
 }
 
-function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnResize } = {}) {
+function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnResize, components = [] } = {}) {
   body.innerHTML = '';
   resources = sortByName(resources);
 
@@ -57,11 +57,12 @@ function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnR
 
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
-  const headLabels = { nombre: 'Nombre', tipo: 'Tipo', acciones: 'Acciones' };
+  const headLabels = { nombre: 'Nombre', usos: 'Usos', tipo: 'Tipo', acciones: 'Acciones' };
   for (const key of RESOURCE_LIST_COLUMNS) {
     const th = document.createElement('th');
     th.dataset.col = key;
     th.textContent = headLabels[key];
+    if (key === 'usos') th.className = 'resource-list__usos-cell';
     headRow.appendChild(th);
   }
   thead.appendChild(headRow);
@@ -75,6 +76,11 @@ function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnR
     const nameCell = document.createElement('td');
     nameCell.textContent = resource.name;
     row.appendChild(nameCell);
+
+    const usosCell = document.createElement('td');
+    usosCell.className = 'resource-list__usos-cell';
+    usosCell.textContent = String(getComponentsUsingResource(resource.id, components).length);
+    row.appendChild(usosCell);
 
     const typeCell = document.createElement('td');
     typeCell.textContent = TYPE_LABELS[resource.type] ?? resource.type;
@@ -193,6 +199,7 @@ export function renderResourceList(
     columnWidths = null,
     onColumnResize,
     bodyHeight = null,
+    components = [],
   } = {}
 ) {
   container.innerHTML = '';
@@ -268,7 +275,7 @@ export function renderResourceList(
         filterText = filterInput.value;
         const filtered = resources.filter((r) => matchesFilter(r, filterText));
         title.textContent = `Recursos (${filtered.length})`;
-        renderBody(body, filtered, { onEdit, onRemove, columnWidths, onColumnResize });
+        renderBody(body, filtered, { onEdit, onRemove, columnWidths, onColumnResize, components });
       });
       filterBar.appendChild(filterInput);
 
@@ -284,7 +291,7 @@ export function renderResourceList(
     }
     const displayedResources = resources.filter((r) => matchesFilter(r, filterText));
     title.textContent = `Recursos (${displayedResources.length})`;
-    renderBody(body, displayedResources, { onEdit, onRemove, columnWidths, onColumnResize });
+    renderBody(body, displayedResources, { onEdit, onRemove, columnWidths, onColumnResize, components });
     panel.appendChild(body);
 
     const footer = document.createElement('div');
