@@ -1,7 +1,8 @@
 // UI para entrar/salir del modo edición: botón de entrada en modo juego,
 // barra de herramientas propia (con botón de salida) en modo edición.
 
-import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadGroups, getGroups, getGroupPanelState } from '../core/state.js';
+import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadGroups, getGroups, getGroupPanelState, getAppTitle } from '../core/state.js';
+import { getFullAppTitle } from '../core/appTitle.js';
 import { buildExportHtml, downloadHtml, downloadJson } from '../core/fileExport.js';
 import { buildComponentsExport, parseImportedComponents } from '../core/persistence.js';
 import { mergeImportedGame } from '../core/importMerge.js';
@@ -16,13 +17,8 @@ import { openImportReportModal } from './importReportModal.js';
 import { openImportConversionErrorModal } from './importConversionErrorModal.js';
 import { migrateFichaComponent } from '../core/fichaMigration.js';
 
-function currentFileName() {
-  const fromPath = decodeURIComponent(location.pathname.split('/').pop() || '');
-  return fromPath && fromPath.endsWith('.html') ? fromPath : 'errantes.html';
-}
-
 function saveAs(filename) {
-  const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded(), getGroups(), getGroupPanelState());
+  const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded(), getGroups(), getGroupPanelState(), getAppTitle());
   downloadHtml(filename, html);
   showToast(`Guardado como "${filename}"`);
 }
@@ -37,7 +33,7 @@ function openExportFlow() {
     components: getComponents(),
     resources: getResources(),
     groups: getGroups(),
-    defaultFilename: 'errantes-componentes.json',
+    defaultFilename: `${getFullAppTitle(getAppTitle())}.json`,
     onAccept: ({ filename, componentIds, resourceIds, groupIds }) => {
       const data = buildComponentsExport(byIds(getComponents(), componentIds), byIds(getResources(), resourceIds), byIds(getGroups(), groupIds));
       downloadJson(filename.endsWith('.json') ? filename : `${filename}.json`, data);
@@ -163,7 +159,7 @@ export function renderEditToolbar(container) {
   const saveButton = document.createElement('button');
   saveButton.textContent = 'Guardar';
   saveButton.addEventListener('click', () => {
-    const name = prompt('Guardar', currentFileName());
+    const name = prompt('Guardar', `${getFullAppTitle(getAppTitle())}.html`);
     if (!name) return;
     saveAs(name.endsWith('.html') ? name : `${name}.html`);
   });

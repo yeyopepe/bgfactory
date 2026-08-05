@@ -369,18 +369,29 @@ El guardado es un único slot por navegador/perfil (no aislado por fichero): si 
 - **Disponible en**: automático, en cualquier modo (el estado de los paneles, solo en modo edición, que es donde existen).
 - **Código**: 00011, 00014, 00053, 00064, 00079.
 
+### Título de cabecera editable
+
+El título de la cabecera de la aplicación (el texto junto a la versión, en la franja superior) se puede editar en cualquier momento mientras se está en modo edición: un click sobre él lo convierte en un campo de texto, que se confirma perdiendo el foco o pulsando Enter. Si se confirma vacío, se recupera el texto que había justo antes de empezar a editar. El texto editado se ve igual en la cabecera y en el título de la pestaña del navegador, tanto en modo edición como en modo juego, aunque solo se puede editar en modo edición.
+
+La versión (mostrada siempre junto al texto libre, con formato `v.NNNNN`) no se puede editar en ningún caso — sigue actualizándose únicamente con cada nueva versión del proyecto, igual que antes de esta funcionalidad.
+
+El título editado se guarda junto con el resto de la partida (autoguardado en el navegador, y embebido en el fichero que genera "Guardar a fichero"), por lo que sobrevive a recargar la página y viaja con las copias descargadas del juego.
+
+- **Disponible en**: modo edición (edición); ambos modos (visualización).
+- **Código**: 00147.
+
 ### Guardar a fichero
 
-En modo edición, junto al botón de salir de ese modo (ambos alineados al extremo derecho de la barra), un botón "Guardar" descarga una copia autocontenida del HTML actual con el estado presente ya embebido, pidiendo el nombre de fichero (precargado con el del fichero abierto, editable). El fichero descargado, al abrirse, arranca directamente con ese contenido (salvo que el navegador ya tenga otro estado autoguardado, ver arriba).
+En modo edición, junto al botón de salir de ese modo (ambos alineados al extremo derecho de la barra), un botón "Guardar" descarga una copia autocontenida del HTML actual con el estado presente ya embebido, pidiendo el nombre de fichero (precargado con el título completo de la cabecera — texto libre más versión, cambio 00147; antes precargaba el nombre del fichero abierto —, editable). El fichero descargado, al abrirse, arranca directamente con ese contenido (salvo que el navegador ya tenga otro estado autoguardado, ver arriba).
 
 - **Disponible en**: modo edición.
-- **Código**: 00011.
+- **Código**: 00011, 00147.
 
 ### Exportar/importar componentes en JSON, con selección
 
 Junto a "Guardar", dos botones "Exportar" e "Importar" permiten guardar y recuperar un subconjunto elegible de los elementos del juego (componentes, recursos y grupos) en un fichero JSON ligero pensado para sobrevivir a cambios de versión de la aplicación — a diferencia de "Guardar", que fija una copia completa a la versión en la que se generó.
 
-- **Exportar**: abre una modal con el nombre de fichero (mismo valor por defecto que antes) y una lista de todos los componentes/recursos/grupos actuales, agrupados en tres bloques (Componentes, Recursos, Grupos). Cada bloque tiene su propio checkbox "seleccionar todo el bloque" y un check individual por elemento (todos marcados por defecto); el botón "Exportar" queda deshabilitado si no queda ningún elemento marcado en ningún bloque. El fichero descargado solo contiene los elementos marcados (junto con la versión de la aplicación con la que se generó); no valida ni avisa si algún componente exportado queda referenciando un recurso o grupo que no viaja en la selección. No incluye la configuración del panel flotante de edición.
+- **Exportar**: abre una modal con el nombre de fichero (precargado con el título completo de la cabecera, cambio 00147; antes un nombre fijo genérico) y una lista de todos los componentes/recursos/grupos actuales, agrupados en tres bloques (Componentes, Recursos, Grupos). Cada bloque tiene su propio checkbox "seleccionar todo el bloque" y un check individual por elemento (todos marcados por defecto); el botón "Exportar" queda deshabilitado si no queda ningún elemento marcado en ningún bloque. El fichero descargado solo contiene los elementos marcados (junto con la versión de la aplicación con la que se generó); no valida ni avisa si algún componente exportado queda referenciando un recurso o grupo que no viaja en la selección. No incluye la configuración del panel flotante de edición.
 - **Importar**: abre un selector de fichero limitado a `.json`. A diferencia del guardado automático del navegador, un fichero de una versión distinta a la actual se acepta igualmente — es el caso de uso principal. Si el fichero no es válido (vacío, JSON corrupto, o sin listado de componentes reconocible), se muestra el error con el [modal de error común](#notificación-de-errores). Si es válido, el flujo continúa en dos modales:
   1. **Selección de elementos**: misma lista agrupada en tres bloques que en "Exportar", mostrando esta vez los elementos que trae el fichero, todos marcados por defecto (botón "Continuar" deshabilitado si no queda ninguno marcado).
   2. **Confirmación final**: dos desplegables — "Modo de importación" (`Añadir a lo existente`, por defecto, que conserva el contenido actual y le suma lo seleccionado; o `Sobrescribir todo el juego`, que borra primero todo el contenido actual y deja el juego solo con lo seleccionado) y "Comportamiento ante id duplicado" (solo aplica en modo "Añadir", ya que en "Sobrescribir" no puede haber duplicados al partir de vacío): `Sobrescribir el existente` (por defecto, el elemento nuevo reemplaza al que ya tenía ese id) o `Mantener ambos` (el elemento importado se conserva con un id nuevo, el original con el sufijo `-imported`, o `-imported(2)`, `-imported(3)`... si ese id renombrado también choca). Este comportamiento se aplica de forma independiente a cada elemento y cada tipo (componentes, recursos y grupos tienen cada uno su propio espacio de ids).
@@ -390,7 +401,7 @@ Junto a "Guardar", dos botones "Exportar" e "Importar" permiten guardar y recupe
   Tras aplicar la selección y la fusión: si un componente importado queda referenciando un recurso ausente del estado final, se añade igualmente sin ese recurso (referencia descartada, igual que ya tolera la app un recurso borrado en uso); si referencia un grupo ausente, se crea automáticamente un grupo con ese mismo id (una sola vez por id, aunque varios componentes lo referencien), salvo que ya exista en el juego actual un grupo con el mismo nombre (comparación recortada y sin distinguir mayúsculas/minúsculas) — en ese caso, se reutiliza ese grupo existente sin crear uno nuevo. Los grupos importados cuyo nombre (normalizado de la misma forma) colisiona con otro grupo del mismo fichero o con uno ya existente en el juego se renombran automáticamente con un sufijo " (importado)" (o " (importado n)" si ese nombre con sufijo también colisiona). Si se ha dado alguno de estos tres casos (recurso ausente, grupo autocreado, grupo renombrado por colisión de nombre), se muestra al terminar una modal de informe con una tabla ("Componente afectado", "Error", "Solución", "Elemento erróneo/faltante") con una fila por cada aviso — un mismo componente puede aparecer en varias filas.
 
 - **Disponible en**: modo edición.
-- **Código**: 00024, 00059, 00065, 00081, 00087, 00105.
+- **Código**: 00024, 00059, 00065, 00081, 00087, 00105, 00147.
 
 ## Notificación de errores
 

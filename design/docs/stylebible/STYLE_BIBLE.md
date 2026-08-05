@@ -284,6 +284,16 @@ Patrón compartido (`.align-group`/`.align-group__btn`, `ui/cardTextBoxModal.js`
 
 Distinto de un `<select>` nativo (la opción activa se ve destacada visualmente sin desplegar nada) y de un checklist (sección 12.5, pensado para listas dinámicas más largas, no para 2-3 iconos fijos). Cualquier grupo icono-solo futuro, de opción única o de interruptores combinables, debe reutilizar este mismo patrón en vez de crear uno ad-hoc — mismo criterio que ya se sigue con `.resize-handle` (sección 11), `.help-icon` (sección 12) o `.resource-add__menu` (sección 12.7).
 
+## 12.11 Título de cabecera editable
+
+Patrón para el único texto editable in-place fuera de un modal/formulario (cambio 00147, `ui/appTitle.js`): el `<h1>` de cabecera, cuyo texto libre (todo salvo la versión, que nunca es editable) se puede editar en cualquier momento mientras la app está en modo edición.
+
+- **`.app-title--hoverable`** (modo edición, no editando): modificador sobre el propio `h1` — `cursor: pointer` (convención general de la sección 12.2, sin cursor específico propio) y un icono de lápiz (`.app-title__pencil`, SVG inline `stroke="currentColor"`, mismo criterio que el resto de iconos de la app) oculto por defecto (`opacity: 0`) y mostrado solo con `:hover` del bloque (`opacity: 0.85`, transición `var(--transition-fast)`) — nunca visible de forma permanente, a diferencia de las insignias de candado/oculto (sección 12.3).
+- **`.app-title--editing`** (modo edición, editando): sustituye el texto por un `.app-title__input` — un `<input type="text">` de estilo a medida (no el genérico de campo de formulario de la sección 8, para conservar el tamaño/tipografía del propio `h1`: `font: inherit`, fondo `rgba(255,255,255,0.08)` sobre el degradado oscuro de cabecera, borde `2px solid var(--accent-blue)`, texto `var(--text-light)`) — seguido de `.app-title__version`, la versión en `var(--text-muted)`, sin interacción, fuera del propio `<input>` (no se puede seleccionar/editar junto al texto libre).
+- En modo juego, o en modo edición sin hover/edición activa, el `h1` no lleva ninguna de las dos clases: se comporta como el `h1` genérico ya descrito en la sección 3 (tipografía/layout), sin cursor especial ni icono.
+
+Cualquier título/etiqueta futuro que necesite edición in-place directamente sobre el elemento visible (en vez de abrir un modal) debe reutilizar este mismo criterio: hover discreto con icono, sustitución por `<input>` a medida del contexto visual, confirmación con blur/Enter.
+
 ## 13. Qué NO hacer
 
 - No introducir un segundo sistema de tokens de color (Tailwind, otra paleta) — extender `:root` en `main.css`.

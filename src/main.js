@@ -6,11 +6,12 @@ import {
   MODES, getState, loadComponents, getComponents, getPanelState, loadPanelState,
   addResource, loadResources, getResources, getResourcePanelState, loadResourcePanelState,
   getResourcesSeeded, markResourcesSeeded, loadResourcesSeeded, getGroups, loadGroups,
-  getGroupPanelState, loadGroupPanelState,
+  getGroupPanelState, loadGroupPanelState, getAppTitle, loadAppTitle,
 } from './core/state.js';
 import { CURRENT_VERSION } from './data/version.js';
 import { DEFAULT_RESOURCES } from './data/defaultResources.js';
 import { renderModeSwitcher, renderEditToolbar } from './ui/editModeToggle.js';
+import { renderAppTitle } from './ui/appTitle.js';
 import { initGlobalShortcuts } from './ui/globalShortcuts.js';
 import { renderPlayMode } from './modes/play/playMode.js';
 import { renderEditMode, deleteSelectedComponent } from './modes/edit/editMode.js';
@@ -22,6 +23,7 @@ import { syncFontFaces } from './ui/fontFaceRegistry.js';
 const switcherEl = document.getElementById('mode-switcher');
 const toolbarEl = document.getElementById('edit-toolbar');
 const contentEl = document.getElementById('content');
+const titleEl = document.getElementById('app-title');
 const versionEl = document.getElementById('app-version');
 
 if (versionEl) {
@@ -37,13 +39,14 @@ function renderActiveMode() {
 }
 
 function renderAll() {
+  if (titleEl) renderAppTitle(titleEl);
   renderModeSwitcher(switcherEl);
   renderEditToolbar(toolbarEl);
   renderActiveMode();
 }
 
 function persistState() {
-  saveState(getComponents(), getPanelState(), getResources(), getResourcePanelState(), getResourcesSeeded(), getGroups(), getGroupPanelState());
+  saveState(getComponents(), getPanelState(), getResources(), getResourcePanelState(), getResourcesSeeded(), getGroups(), getGroupPanelState(), getAppTitle());
 }
 
 on('mode:changed', renderAll);
@@ -57,6 +60,8 @@ on('resourcePanelState:changed', persistState);
 on('groups:changed', renderAll);
 on('groups:changed', persistState);
 on('groupPanelState:changed', persistState);
+on('appTitle:changed', renderAll);
+on('appTitle:changed', persistState);
 
 initGlobalShortcuts({
   isEditMode: () => getState().mode === MODES.EDIT,
@@ -94,6 +99,7 @@ if (saved?.error) {
   if (saved.groupPanelState) {
     loadGroupPanelState(saved.groupPanelState);
   }
+  loadAppTitle(saved.appTitle);
   loadResourcesSeeded(saved.resourcesSeeded === true);
   loadComponents(saved.components);
   loadResources(saved.resources);
@@ -104,6 +110,7 @@ if (saved?.error) {
 } else {
   const seed = readSeedState();
   if (seed) {
+    loadAppTitle(seed.appTitle);
     loadResourcesSeeded(seed.resourcesSeeded === true);
     loadComponents(seed.components);
     loadResources(seed.resources);

@@ -5,6 +5,7 @@ import { emit } from './eventBus.js';
 import { migrateFichaComponent } from './fichaMigration.js';
 import { syncCopyWithOriginal, renameCopyId, updateComponent, normalizeComponentGrupoIds } from './component.js';
 import { computeSacarCartaDeMazo } from './deck.js';
+import { DEFAULT_APP_TITLE } from './appTitle.js';
 
 export const MODES = { PLAY: 'play', EDIT: 'edit' };
 
@@ -18,6 +19,7 @@ const state = {
 let panelState = { collapsed: false, position: null, width: null, height: null };
 let resourcePanelState = { collapsed: false, position: null, width: null, height: null };
 let groupPanelState = { collapsed: false, position: null, width: null, height: null };
+let appTitle = DEFAULT_APP_TITLE;
 // Recuerda si los recursos por defecto (data/defaultResources.js) ya se han
 // sembrado alguna vez en este guardado, para no reponerlos cada vez que el
 // usuario los borra a propósito — ver seedDefaultResources() en main.js.
@@ -229,6 +231,19 @@ export function setPanelState(partial) {
 
 export function loadPanelState(newPanelState) {
   panelState = newPanelState;
+}
+
+export function getAppTitle() {
+  return appTitle;
+}
+
+export function setAppTitle(newTitle) {
+  appTitle = newTitle;
+  emit('appTitle:changed', appTitle);
+}
+
+export function loadAppTitle(newTitle) {
+  appTitle = newTitle;
 }
 
 export function getResources() {

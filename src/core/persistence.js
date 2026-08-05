@@ -3,6 +3,7 @@
 // el propio documento (usada cuando aún no hay nada guardado en el navegador).
 
 import { CURRENT_VERSION } from '../data/version.js';
+import { DEFAULT_APP_TITLE } from './appTitle.js';
 
 const STORAGE_KEY = 'errantes:state';
 
@@ -26,12 +27,13 @@ function parseState(raw) {
   const resources = Array.isArray(parsed.resources) ? parsed.resources : [];
   const resourcesSeeded = parsed.resourcesSeeded === true;
   const groups = Array.isArray(parsed.groups) ? parsed.groups : (Array.isArray(parsed.decks) ? parsed.decks : []);
-  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded, groups, groupPanelState };
+  const appTitle = (typeof parsed.appTitle === 'string' && parsed.appTitle.trim() !== '') ? parsed.appTitle : DEFAULT_APP_TITLE;
+  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded, groups, groupPanelState, appTitle };
 }
 
-export function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded, groups, groupPanelState) {
+export function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded, groups, groupPanelState, appTitle) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, groups, groupPanelState }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, groups, groupPanelState, appTitle }));
   } catch {
     // Cuota excedida u otro fallo de localStorage: el autoguardado se omite
     // silenciosamente, sin interrumpir el uso normal de la aplicación.

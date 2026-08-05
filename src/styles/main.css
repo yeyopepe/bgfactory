@@ -51,9 +51,52 @@ h1 {
   box-sizing: border-box;
   display: flex;
   align-items: center;
+  gap: 0.5rem;
   flex-shrink: 0;
   z-index: 100;
   box-shadow: var(--shadow-1);
+}
+
+/* Título de cabecera editable (modo edición, cambio 00147) */
+.app-title--hoverable {
+  cursor: pointer;
+}
+
+.app-title__pencil {
+  display: inline-flex;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.app-title__pencil svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.app-title--hoverable:hover .app-title__pencil {
+  opacity: 0.85;
+}
+
+.app-title--editing {
+  align-items: center;
+}
+
+.app-title__input {
+  flex: 1;
+  min-width: 0;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid var(--accent-blue);
+  border-radius: var(--radius-sm);
+  padding: 0.15rem 0.5rem;
+  font: inherit;
+  color: var(--text-light);
+}
+
+.app-title__version {
+  margin-left: 0.4rem;
+  color: var(--text-muted);
+  white-space: nowrap;
 }
 
 #mode-switcher {
