@@ -724,6 +724,37 @@ fieldset.modal__section--untitled {
   cursor: move;
 }
 
+/* Tablero personalizado (cambio 00143): mismo bisel de borde que .board
+   (cuatro colores calculados en JS con shadeColor) y mismo tratamiento de
+   selección/arrastre — solo cambia que su contenido se diseña con el mismo
+   editor visual que 'carta' (imagen + formas + textos) en vez de un patrón
+   de cuadrícula. */
+.tablero-personalizado {
+  box-shadow: var(--shadow-1);
+}
+
+.tablero-personalizado--selectable {
+  cursor: pointer;
+}
+
+.tablero-personalizado--selectable:hover {
+  outline: 2px dashed var(--accent-blue);
+}
+
+.tablero-personalizado--selectable.tablero-personalizado--selected {
+  outline: 3px dashed var(--accent-blue);
+  outline-offset: 4px;
+}
+
+.tablero-personalizado--selectable:hover .component-id-label,
+.tablero-personalizado--selectable.tablero-personalizado--selected .component-id-label {
+  display: block;
+}
+
+.tablero-personalizado--movable {
+  cursor: move;
+}
+
 /* Dice component: silueta 2D con profundidad (duplicado oscuro desplazado +
    contorno + faceta, calculado en JS con shadeColor) — no cambia. Como la
    silueta no es rectangular (triángulo/cuadrado/rombo/decágono según el

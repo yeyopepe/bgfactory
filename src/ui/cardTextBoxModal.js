@@ -1,5 +1,5 @@
 // Sub-modal de edición de un cuadro de texto de una cara de carta, abierta
-// con doble click desde ui/cardEditorModal.js. Sin tabs, mismo patrón visual
+// con doble click desde ui/visualEditorModal.js. Sin tabs, mismo patrón visual
 // que el resto de sub-modales del proyecto (overlay + modal).
 
 import { openDiceFontModal } from './diceFontModal.js';

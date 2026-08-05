@@ -12,12 +12,13 @@ import { getProporcionRatio, getCartaShapeCss, getHexInnerClipPath, getTriangleI
 import { getOrderedFaceElements } from '../core/cardFaceElements.js';
 import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
 import { getMazoRevealZoneRect } from '../core/deck.js';
-import { hexToRgba } from '../core/colorUtils.js';
+import { hexToRgba, shadeColor } from '../core/colorUtils.js';
 import { isInteractionActive } from '../core/interactions.js';
 
 const MIN_TEXT_BOX_WIDTH = 40;
 const MIN_TEXT_BOX_HEIGHT = 24;
 const MIN_BOARD_SIZE = 40;
+const MIN_TABLERO_PERSONALIZADO_SIZE = 60;
 const MIN_DADO_SIZE = 40;
 const MIN_DOCUMENTO_WIDTH = 80;
 const MIN_DOCUMENTO_HEIGHT = 80;
@@ -32,23 +33,6 @@ const DICE_ROLL_INTERVAL_MS = 70;
 function getWorldZoom(worldEl) {
   const match = getComputedStyle(worldEl).transform.match(/^matrix\(([^,]+),/);
   return match ? parseFloat(match[1]) : 1;
-}
-
-// Aclara (percent > 0) u oscurece (percent < 0) un color hex mezclándolo con
-// blanco/negro — usado solo para el bisel del borde del tablero simple
-// (excepción de estilo acotada a este tipo de componente, ver STYLE_BIBLE.md
-// sección 13).
-function shadeColor(hex, percent) {
-  const num = parseInt(hex.replace('#', ''), 16);
-  let r = (num >> 16) & 0xff;
-  let g = (num >> 8) & 0xff;
-  let b = num & 0xff;
-  const mix = percent > 0 ? 255 : 0;
-  const amount = Math.abs(percent);
-  r = Math.round(r + (mix - r) * amount);
-  g = Math.round(g + (mix - g) * amount);
-  b = Math.round(b + (mix - b) * amount);
-  return `rgb(${r}, ${g}, ${b})`;
 }
 
 // Dibuja una rejilla de hexágonos que ocupa el máximo espacio posible de un
@@ -281,13 +265,20 @@ function createHiddenBadge() {
 }
 
 // Pinta la imagen de fondo (si tiene) y los textBoxes de una cara de carta
-// (`cara`: caraFrontal/caraTrasera de una carta, mismo shape en los dos) sobre
-// `contentParent`, escalando x/y/width/height/tamañoFuente ("unidades de
-// diseño", ver core/cardProportions.js) por `renderScale`. Extraída de la
-// rama 'carta' de renderComponentsOnTable para reutilizarla tal cual desde la
-// rama 'mazo' (pinta el dorso de la carta de arriba) y desde
-// ui/mazoContentModal.js (miniaturas de la cara frontal de cada carta).
-export function paintCartaFace(contentParent, cara, renderScale, faceWidth, faceHeight) {
+// (`cara`: caraFrontal/caraTrasera de una carta, o la única `cara` de
+// 'tableroPersonalizado', mismo shape en los tres) sobre `contentParent`,
+// escalando x/width por `renderScaleX` e y/height por `renderScaleY`
+// ("unidades de diseño", ver core/cardProportions.js). `renderScaleY` es
+// opcional e igual a `renderScaleX` por defecto — basta un único factor
+// uniforme mientras la proporción del elemento nunca cambie sin pasar por su
+// propio control (caso de 'carta'); 'tableroPersonalizado' (cambio 00143),
+// al redimensionarse libremente en cualquier proporción, sí necesita escalar
+// cada eje por separado. Extraída de la rama 'carta' de
+// renderComponentsOnTable para reutilizarla tal cual desde la rama 'mazo'
+// (pinta el dorso de la carta de arriba), desde ui/mazoContentModal.js
+// (miniaturas de la cara frontal de cada carta) y desde la rama
+// 'tableroPersonalizado'.
+export function paintCartaFace(contentParent, cara, renderScaleX, faceWidth, faceHeight, renderScaleY = renderScaleX) {
   const resource = cara?.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;
   if (resource) {
     const img = document.createElement('img');
@@ -304,22 +295,22 @@ export function paintCartaFace(contentParent, cara, renderScale, faceWidth, face
 
   for (const { kind, element } of getOrderedFaceElements(cara)) {
     if (kind === 'forma') {
-      paintShape(contentParent, element, renderScale);
+      paintShape(contentParent, element, renderScaleX, renderScaleY);
     } else {
-      paintTextBox(contentParent, element, renderScale);
+      paintTextBox(contentParent, element, renderScaleX, renderScaleY);
     }
   }
 }
 
 const SHAPE_BORDER_RADIUS = { circular: '50%', redondeada: '8px' };
 
-function paintShape(contentParent, shape, renderScale) {
+function paintShape(contentParent, shape, renderScaleX, renderScaleY) {
   const shapeEl = document.createElement('div');
   shapeEl.style.position = 'absolute';
-  shapeEl.style.left = `${shape.x * renderScale}px`;
-  shapeEl.style.top = `${shape.y * renderScale}px`;
-  shapeEl.style.width = `${shape.width * renderScale}px`;
-  shapeEl.style.height = `${shape.height * renderScale}px`;
+  shapeEl.style.left = `${shape.x * renderScaleX}px`;
+  shapeEl.style.top = `${shape.y * renderScaleY}px`;
+  shapeEl.style.width = `${shape.width * renderScaleX}px`;
+  shapeEl.style.height = `${shape.height * renderScaleY}px`;
   shapeEl.style.borderRadius = SHAPE_BORDER_RADIUS[shape.tipo] || '0';
   shapeEl.style.border = shape.bordeActivo !== false ? `${shape.bordeGrosor}px solid ${shape.bordeColor || '#000000'}` : 'none';
   shapeEl.style.boxSizing = 'border-box';
@@ -340,7 +331,7 @@ function paintShape(contentParent, shape, renderScale) {
     img.style.position = 'absolute';
     img.style.top = '0';
     img.style.left = '0';
-    applyImageAdjustStyle(img, shape.ajusteImagen, shape.width * renderScale, shape.height * renderScale);
+    applyImageAdjustStyle(img, shape.ajusteImagen, shape.width * renderScaleX, shape.height * renderScaleY);
     imgWrapper.appendChild(img);
     shapeEl.appendChild(imgWrapper);
   } else {
@@ -350,14 +341,15 @@ function paintShape(contentParent, shape, renderScale) {
   contentParent.appendChild(shapeEl);
 }
 
-function paintTextBox(contentParent, textBox, renderScale) {
+function paintTextBox(contentParent, textBox, renderScaleX, renderScaleY) {
+  const fontScale = (renderScaleX + renderScaleY) / 2;
   const textEl = document.createElement('div');
   textEl.style.position = 'absolute';
-  textEl.style.left = `${textBox.x * renderScale}px`;
-  textEl.style.top = `${textBox.y * renderScale}px`;
-  textEl.style.width = `${textBox.width * renderScale}px`;
-  textEl.style.height = `${textBox.height * renderScale}px`;
-  textEl.style.fontSize = `${(textBox.tamañoFuente || 16) * renderScale}px`;
+  textEl.style.left = `${textBox.x * renderScaleX}px`;
+  textEl.style.top = `${textBox.y * renderScaleY}px`;
+  textEl.style.width = `${textBox.width * renderScaleX}px`;
+  textEl.style.height = `${textBox.height * renderScaleY}px`;
+  textEl.style.fontSize = `${(textBox.tamañoFuente || 16) * fontScale}px`;
   textEl.style.color = textBox.color || '#000000';
   textEl.style.fontWeight = textBox.negrita ? 'bold' : 'normal';
   textEl.style.fontStyle = textBox.cursiva ? 'italic' : 'normal';
@@ -373,7 +365,7 @@ function paintTextBox(contentParent, textBox, renderScale) {
   textEl.style.display = 'flex';
   textEl.style.flexDirection = 'column';
   textEl.style.boxSizing = 'border-box';
-  Object.assign(textEl.style, getTextBoxLayoutStyle(textBox, renderScale));
+  Object.assign(textEl.style, getTextBoxLayoutStyle(textBox, fontScale));
   const fontResource = textBox.fuenteResourceId ? getResources().find((r) => r.id === textBox.fuenteResourceId) : null;
   if (fontResource) {
     textEl.style.fontFamily = fontFamilyFor(fontResource.id);
@@ -844,6 +836,162 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       worldEl.appendChild(board);
+    } else if (component.type === 'tableroPersonalizado') {
+      const tablero = document.createElement('div');
+      elementsById.set(component.id, tablero);
+      tablero.className = 'tablero-personalizado';
+      tablero.style.position = 'absolute';
+      tablero.style.top = `${component.y ?? 100}px`;
+      tablero.style.left = `${component.x ?? 100}px`;
+      tablero.style.boxSizing = 'border-box';
+      const width = component.width ?? MIN_TABLERO_PERSONALIZADO_SIZE;
+      const height = component.height ?? MIN_TABLERO_PERSONALIZADO_SIZE;
+      tablero.style.width = `${width}px`;
+      tablero.style.height = `${height}px`;
+      tablero.style.overflow = 'hidden';
+      tablero.style.backgroundColor = '#ffffff';
+
+      // Bisel del borde (cambio 00143): mismo criterio que 'tableroSimple'
+      // (STYLE_BIBLE.md sección 13), a diferencia de 'carta', que usa un
+      // borde simple sin relieve.
+      const props = component.properties || {};
+      const cara = props.cara || {};
+      const bordeColor = cara.bordeColor || '#000000';
+      const bordeGrosor = cara.bordeGrosor ?? 2;
+      tablero.style.borderStyle = 'solid';
+      tablero.style.borderWidth = `${bordeGrosor}px`;
+      tablero.style.borderTopColor = shadeColor(bordeColor, 0.35);
+      tablero.style.borderLeftColor = shadeColor(bordeColor, 0.35);
+      tablero.style.borderBottomColor = shadeColor(bordeColor, -0.35);
+      tablero.style.borderRightColor = shadeColor(bordeColor, -0.35);
+
+      if (identifyMode === 'tooltip' && component.mostrarTooltip) tablero.title = formatComponentIdentifier(component);
+      if (identifyMode === 'label') tablero.appendChild(createIdentifierLabel(component));
+      if (showLockIndicator && component.bloqueado !== 'ninguno') tablero.appendChild(createLockBadge());
+      if (showHiddenIndicator && component.oculto) tablero.appendChild(createHiddenBadge());
+
+      const tableroContent = document.createElement('div');
+      tableroContent.style.position = 'absolute';
+      tableroContent.style.inset = '0';
+      tableroContent.style.overflow = 'hidden';
+      tablero.appendChild(tableroContent);
+      // Escala fija 1 (cambio 00152, corrige el 00143): el contenido se
+      // pinta siempre en píxeles reales, fijo con independencia del tamaño
+      // actual del componente — redimensionar el tablero solo cambia el
+      // marco (`overflow: hidden` de `tableroContent` recorta lo que no
+      // quepa), nunca el tamaño/posición de lo que hay dentro.
+      paintCartaFace(tableroContent, cara, 1, width, height, 1);
+
+      if (onSelect) {
+        tablero.classList.add('tablero-personalizado--selectable');
+        tablero.addEventListener('dblclick', () => onSelect(component));
+      }
+
+      if (onToggleSelect) {
+        tablero.addEventListener('click', (e) => {
+          e.stopPropagation();
+          onToggleSelect(component, e);
+        });
+      }
+
+      if (onContextMenu) {
+        tablero.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onContextMenu(component, e);
+        });
+      }
+
+      if (selectedIds.has(component.id)) {
+        tablero.classList.add('tablero-personalizado--selected');
+      }
+
+      if (onMove && canMove(component)) {
+        tablero.classList.add('tablero-personalizado--movable');
+
+        let startMouseX = 0;
+        let startMouseY = 0;
+        let startX = component.x ?? 100;
+        let startY = component.y ?? 100;
+        let currentX = startX;
+        let currentY = startY;
+        let blockDragTargets = [];
+
+        function handleMouseMove(e) {
+          const zoom = getWorldZoom(worldEl);
+          currentX = startX + (e.clientX - startMouseX) / zoom;
+          currentY = startY + (e.clientY - startMouseY) / zoom;
+          tablero.style.left = `${currentX}px`;
+          tablero.style.top = `${currentY}px`;
+          const dx = currentX - startX;
+          const dy = currentY - startY;
+          for (const target of blockDragTargets) {
+            target.el.style.left = `${target.startX + dx}px`;
+            target.el.style.top = `${target.startY + dy}px`;
+          }
+        }
+
+        function handleMouseUp() {
+          document.removeEventListener('mousemove', handleMouseMove);
+          document.removeEventListener('mouseup', handleMouseUp);
+          if (liftOnDrag) endDragLift(tablero);
+          if (currentX === startX && currentY === startY) return;
+          onMove(component, currentX, currentY);
+        }
+
+        tablero.addEventListener('mousedown', (e) => {
+          if (e.button !== 0) return;
+          e.stopPropagation();
+          if (liftOnDrag) beginDragLift(tablero, worldEl);
+          startMouseX = e.clientX;
+          startMouseY = e.clientY;
+          startX = component.x ?? 100;
+          startY = component.y ?? 100;
+          blockDragTargets = getBlockDragTargets(component);
+          document.addEventListener('mousemove', handleMouseMove);
+          document.addEventListener('mouseup', handleMouseUp);
+        });
+      }
+
+      if (onResize && selectedIds.size === 1 && selectedIds.has(component.id)) {
+        const clampTableroPersonalizadoSize = ({ width, height }) => ({
+          width: Math.max(width, MIN_TABLERO_PERSONALIZADO_SIZE),
+          height: Math.max(height, MIN_TABLERO_PERSONALIZADO_SIZE),
+        });
+
+        attachResizeHandle(tablero, {
+          axis: 'both',
+          getScale: () => getWorldZoom(worldEl),
+          getSize: () => ({ width, height }),
+          clamp: clampTableroPersonalizadoSize,
+          onResize: ({ width, height }) => {
+            tablero.style.width = `${width}px`;
+            tablero.style.height = `${height}px`;
+          },
+          onResizeEnd: ({ width, height }) => {
+            onResize(component, width, height);
+          },
+        });
+
+        attachResizeHandle(tablero, {
+          axis: 'both',
+          corner: 'tl',
+          getScale: () => getWorldZoom(worldEl),
+          getSize: () => ({ width, height }),
+          clamp: clampTableroPersonalizadoSize,
+          onResize: ({ width, height, dx, dy }) => {
+            tablero.style.left = `${(component.x ?? 100) + dx}px`;
+            tablero.style.top = `${(component.y ?? 100) + dy}px`;
+            tablero.style.width = `${width}px`;
+            tablero.style.height = `${height}px`;
+          },
+          onResizeEnd: ({ width, height, dx, dy }) => {
+            onResize(component, width, height, (component.x ?? 100) + dx, (component.y ?? 100) + dy);
+          },
+        });
+      }
+
+      worldEl.appendChild(tablero);
     } else if (component.type === 'dado') {
       const dice = document.createElement('div');
       elementsById.set(component.id, dice);

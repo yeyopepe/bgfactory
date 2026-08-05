@@ -100,7 +100,7 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   // Entradas normalizadas: sin `faces`, un único stage anónimo (un solo
   // recurso, para un tipo futuro con una sola imagen de fondo); con `faces`,
   // N stages en posición fija (el orden del array decide la columna, no se
-  // reordenan nunca) — usado por ui/cardEditorModal.js para las dos caras de
+  // reordenan nunca) — usado por ui/visualEditorModal.js para las caras de
   // una carta.
   const entries = faces || [{ key: '__single__', label: null, shape, width, height, resource, adjustment }];
 

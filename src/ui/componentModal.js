@@ -8,7 +8,7 @@ import { createHelpIcon } from './helpIcon.js';
 import { openBoardPatternModal } from './boardPatternModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
 import { openDiceFontModal } from './diceFontModal.js';
-import { openCardEditorModal } from './cardEditorModal.js';
+import { openVisualEditorModal } from './visualEditorModal.js';
 import { CARD_PROPORTIONS, getProporcionRatio } from '../core/cardProportions.js';
 import { isListaValoresValida, esResultadoValido, getResultadoInicial } from '../core/dice.js';
 import { setStyleClipboard, getStyleClipboard, hasStyleClipboard, validateStyleClipboardForPaste } from '../core/styleClipboard.js';
@@ -20,6 +20,8 @@ import { getInteractionsForType, isInteractionActive } from '../core/interaction
 import { sortByName } from '../core/textSort.js';
 
 const DEFAULT_BOARD_SIZE = 200;
+const DEFAULT_TABLERO_PERSONALIZADO_WIDTH = 300;
+const DEFAULT_TABLERO_PERSONALIZADO_HEIGHT = 200;
 const DEFAULT_DADO_SIZE = 100;
 const DEFAULT_DOCUMENTO_WIDTH = 240;
 const DEFAULT_DOCUMENTO_HEIGHT = 320;
@@ -132,10 +134,27 @@ export const DEFAULT_MAZO_PROPERTIES = {
   forma: 'rectangular',
 };
 
+// 'tableroPersonalizado' (cambio 00143): una única cara, mismo shape que
+// caraFrontal/caraTrasera de 'carta' salvo por no tener 'formas' vacío por
+// nombre distinto — se reutiliza el mismo shape completo (formas incluidas)
+// para poder compartir el editor visual generalizado sin condicionales.
+export const DEFAULT_TABLERO_PERSONALIZADO_PROPERTIES = {
+  cara: {
+    imagenResourceId: null,
+    ajusteImagen: { zoom: 100, posX: 50, posY: 50, rotation: 0 },
+    formas: [],
+    textBoxes: [],
+    bordeColor: '#000000',
+    bordeGrosor: 2,
+    transparenciaImagen: 0,
+  },
+};
+
 function cloneFace(face) {
   return {
     ...face,
     ajusteImagen: { ...face.ajusteImagen },
+    formas: (face.formas || []).map((f) => ({ ...f, ajusteImagen: f.ajusteImagen ? { ...f.ajusteImagen } : f.ajusteImagen })),
     textBoxes: face.textBoxes.map((tb) => ({ ...tb })),
   };
 }
@@ -143,16 +162,15 @@ function cloneFace(face) {
 function cloneCartaProperties(properties) {
   return {
     ...properties,
-    caraFrontal: {
-      ...properties.caraFrontal,
-      ajusteImagen: { ...properties.caraFrontal.ajusteImagen },
-      textBoxes: properties.caraFrontal.textBoxes.map((tb) => ({ ...tb })),
-    },
-    caraTrasera: {
-      ...properties.caraTrasera,
-      ajusteImagen: { ...properties.caraTrasera.ajusteImagen },
-      textBoxes: properties.caraTrasera.textBoxes.map((tb) => ({ ...tb })),
-    },
+    caraFrontal: cloneFace(properties.caraFrontal),
+    caraTrasera: cloneFace(properties.caraTrasera),
+  };
+}
+
+function cloneTableroPersonalizadoProperties(properties) {
+  return {
+    ...properties,
+    cara: cloneFace(properties.cara),
   };
 }
 
@@ -165,6 +183,10 @@ export function createDefaultComponent(type) {
     component.width = DEFAULT_BOARD_SIZE;
     component.height = DEFAULT_BOARD_SIZE;
     component.properties = { ...DEFAULT_BOARD_PROPERTIES };
+  } else if (type === 'tableroPersonalizado') {
+    component.width = DEFAULT_TABLERO_PERSONALIZADO_WIDTH;
+    component.height = DEFAULT_TABLERO_PERSONALIZADO_HEIGHT;
+    component.properties = cloneTableroPersonalizadoProperties(DEFAULT_TABLERO_PERSONALIZADO_PROPERTIES);
   } else if (type === 'dado') {
     component.width = DEFAULT_DADO_SIZE;
     component.height = DEFAULT_DADO_SIZE;
@@ -787,6 +809,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       specificContent.appendChild(bgColorField);
     } else if (workingComponent.type === 'tableroSimple') {
       renderBoardSpecificFields(specificContent);
+    } else if (workingComponent.type === 'tableroPersonalizado') {
+      renderTableroPersonalizadoSpecificFields(specificContent);
     } else if (workingComponent.type === 'dado') {
       renderDadoSpecificFields(specificContent);
     } else if (workingComponent.type === 'documento') {
@@ -1177,6 +1201,36 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     });
   }
 
+  // 'tableroPersonalizado' (cambio 00143): sin proporción configurable (se
+  // redimensiona libremente en la mesa, igual que 'tableroSimple') ni bloque
+  // "Estilo" (Copiar/Pegar estilo queda fuera de alcance de esta primera
+  // versión) — un único botón que abre el Editor visual generalizado sobre
+  // su única cara.
+  function renderTableroPersonalizadoSpecificFields(container) {
+    const props = workingComponent.properties;
+
+    const editField = document.createElement('div');
+    editField.className = 'modal__field';
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'btn-cancel';
+    editBtn.textContent = 'Editar diseño del tablero';
+    editBtn.addEventListener('click', () => {
+      openVisualEditorModal({
+        component: workingComponent,
+        title: 'Diseñar tablero personalizado',
+        faces: [{ key: 'cara', label: null }],
+        showProporcionSelector: false,
+        borderStyle: 'bisel',
+        onAccept: ({ cara }) => {
+          props.cara = cara;
+        },
+      });
+    });
+    editField.appendChild(editBtn);
+    container.appendChild(editField);
+  }
+
   function renderCartaSpecificFields(container) {
     const props = workingComponent.properties;
 
@@ -1211,8 +1265,15 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     editBtn.className = 'btn-cancel';
     editBtn.textContent = 'Editar diseño de la carta';
     editBtn.addEventListener('click', () => {
-      openCardEditorModal({
+      openVisualEditorModal({
         component: workingComponent,
+        title: 'Diseñar carta',
+        faces: [
+          { key: 'caraFrontal', label: 'Cara frontal' },
+          { key: 'caraTrasera', label: 'Cara trasera' },
+        ],
+        showProporcionSelector: true,
+        borderStyle: 'simple',
         onAccept: ({ proporcion, esquinasRedondeadas, caraFrontal, caraTrasera }) => {
           props.proporcion = proporcion;
           props.esquinasRedondeadas = esquinasRedondeadas;

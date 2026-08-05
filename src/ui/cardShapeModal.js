@@ -1,5 +1,5 @@
 // Sub-modal de edición de una figura geométrica de una cara de carta, abierta
-// con doble click desde ui/cardEditorModal.js. Mismo patrón que
+// con doble click desde ui/visualEditorModal.js. Mismo patrón que
 // ui/cardTextBoxModal.js (sin tabs, overlay + modal).
 
 import { getResources } from '../core/state.js';

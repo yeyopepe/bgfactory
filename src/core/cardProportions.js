@@ -55,7 +55,7 @@ export function getProporcionRatio(value) {
 
 // `true` si la proporción indicada es una de las cinco rectangulares/cuadrada
 // (a diferencia de "Circular"/Hexagonal, con silueta fija) — usado por
-// ui/cardEditorModal.js (cambio 00117) para decidir cuándo mostrar el
+// ui/visualEditorModal.js (cambio 00117) para decidir cuándo mostrar el
 // checkbox "Esquinas redondeadas", sin duplicar esta búsqueda.
 export function isRectShape(value) {
   const found = CARD_PROPORTIONS.find((p) => p.value === value);
