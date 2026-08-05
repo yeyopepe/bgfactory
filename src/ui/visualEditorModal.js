@@ -35,6 +35,15 @@ const DUPLICATE_TEXT_BOX_OFFSET = 20;
 const DUPLICATE_SHAPE_OFFSET = 20;
 const NON_RECT_PROPORTIONS = ['circular', 'hex-vertical', 'hex-horizontal', 'triangulo', 'triangulo-invertido'];
 
+// Portapapeles de "Copiar/Pegar" de un elemento de cara (forma o texto,
+// cambio 00127). Variable de módulo (no local a openVisualEditorModal,
+// fix 00161) para que sobreviva a cerrar y reabrir el editor sobre un
+// componente distinto (otra carta, otro tablero personalizado) — mismo
+// patrón de estado transitorio a nivel de módulo que
+// selectedComponentId/panelStackOrder en modes/edit/editMode.js. No se
+// persiste en core/state.js: se pierde al recargar la página.
+let copiedElement = null;
+
 function buildHelpHtml(showProporcionSelector) {
   return `
     <ul>
@@ -532,8 +541,6 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
       y: (clientY - rect.top) / previewScale,
     };
   }
-
-  let copiedElement = null;
 
   function pasteElementAt(caraKey, point) {
     if (!copiedElement) return;

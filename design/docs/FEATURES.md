@@ -214,7 +214,7 @@ Su contenido se diseña con el mismo **Editor visual** que usa "Carta/Ficha" (ve
 La modal de configuración del tablero personalizado incluye, además de "Bloqueado", una sección "Visual" (la primera de las propiedades específicas, cambio 00154) con los checkboxes "Biselado en el borde" —marcado por defecto, decide si el borde se dibuja con el bisel de dos tonos habitual o totalmente plano de un único color, igual criterio que "Tablero simple"— y, desde el cambio 00158, "Sombra" —también marcado por defecto, decide si el tablero proyecta su sombra de contacto o se dibuja totalmente plano—, seguidas de un único botón "Editar diseño del tablero" que abre el Editor visual. No incluye, en esta primera versión, la sección "Estilo" (Copiar/Pegar estilo) que sí tiene "Carta/Ficha".
 
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Tablero personalizado" en la modal previa de tipo al pulsar "+ Añadir componente" (ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)); Editor visual solo en modo edición.
-- **Código**: 00143, 00152, 00154, 00158.
+- **Código**: 00143, 00152, 00154, 00158, 00161.
 
 ### Componente "dado"
 
@@ -295,7 +295,7 @@ El diseño de cada cara (imagen, su ajuste, las figuras geométricas y los cuadr
 Esta funcionalidad y su aspecto visual son hoy exclusivos de "Carta/Ficha", pero están pensados como convenio general de la app: si en el futuro se añade la misma capacidad a otros tipos de componente, debe verse y comportarse igual, cambiando solo qué elementos concretos aparecen en el checklist de cada tipo.
 
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Carta/Ficha" en la modal previa de tipo al pulsar "+ Añadir componente" (ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)); volteo de cara solo en modo juego; editor de cartas y "Copiar/Pegar estilo" solo en modo edición.
-- **Código**: 00053, 00058, 00060, 00063, 00071, 00072, 00075, 00079, 00085, 00087, 00089, 00099, 00100, 00102, 00103, 00104, 00105, 00110, 00117, 00118, 00120, 00124, 00127, 00128, 00132, 00133, 00134, 00138, 00140, 00143.
+- **Código**: 00053, 00058, 00060, 00063, 00071, 00072, 00075, 00079, 00085, 00087, 00089, 00099, 00100, 00102, 00103, 00104, 00105, 00110, 00117, 00118, 00120, 00124, 00127, 00128, 00132, 00133, 00134, 00138, 00140, 00143, 00161.
 
 ### Componente "mazo"
 

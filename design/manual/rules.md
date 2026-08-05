@@ -45,7 +45,7 @@
 - Crea y braja el mazo con localizaciones secundarias (cartas cuadradas).
 
 ### Preparación del mapa
-1. Toma las 6 cartas de montaña y colócalas aleatoriamente dentro de los 4 cuadrantes grises del tablero.
+1. Toma las 6 cartas de montaña y colócalas aleatoriamente dentro de las 3 zonas grises del tablero.
 2. Elige una casilla de localización principal del tablero (<icono>), toma la primera carta del mazo de localizaciones principales y colócala en esa casilla. Repite hasta colocar 4 localizaciones principales (quedarán casillas libres). Retira del juego las cartas sobrantes del mazo.
 3. Empezando desde la esquina superior izquierda ve sacando cartas del mazo de localizaciones secundarias (cartas alargadas) y colocándolas de izquierda a derecha y de arriba a abajo hasta haber cubierto el tablero todo lo posible. Retira del juego las cartas sobrantes del mazo.
 4. Seguramente te habrás dejado algunas casillas individuales por el camino porque no habrás podido encajarlas perfectamente todas las cartas anteriores. Si es así, rellena todas las casillas restantes con cartas del mazo con localizaciones secundarias (cartas cuadradas). Después retira del juego las cartas sobrantes del mazo.
@@ -101,9 +101,10 @@ Cuando termina el domingo y, por lo tanto, la semana en curso:
 ## Acciones
 ### 1. Moverse
 
-- requisitios para entrar en una localización: tenerlos en la mochila o que estén en la casilla.
-- acción gratis al entrar en una localización: ?
-- Si hay enemigos en la localización? -> combate
+- requisitios para entrar en una localización: tenerlos en la mochila (solo puede entrar el propietario y quién viaje con él) o que estén en la casilla (puede entrar cualquiera hasta que tome esos objetos).
+- cuando un jugador realiza esta acción puede llevar consigo a cualquier otro personaje que esté en su misma localización y quiera viajar con él. Esto no implica ninguna acción para estos personajes que acompañan al del jugador.
+- <u>**???**</u> acción gratis al entrar en una localización
+- <u>**???**</u> Si hay enemigos en la localización -> combate
 
 #### 1.1 Resultados del dado de encuentros
 - <icono>: Coloca 1 o 2 fichas de enemigo en la localización actual y resuelve una pelea.
