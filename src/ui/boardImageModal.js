@@ -86,6 +86,12 @@ export function openBoardImageModal({ properties, resources, onAccept, title = '
         updateAcceptButton();
       });
 
+      item.addEventListener('dblclick', () => {
+        selectedId = resource.id;
+        if (onAccept) onAccept(selectedId);
+        overlay.remove();
+      });
+
       gallery.appendChild(item);
     }
 

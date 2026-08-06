@@ -226,7 +226,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   overlay.className = 'modal-overlay';
 
   const modal = document.createElement('div');
-  modal.className = 'modal';
+  modal.className = 'modal component-editor-modal';
 
   const header = document.createElement('div');
   header.className = 'modal__header';

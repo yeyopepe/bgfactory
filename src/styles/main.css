@@ -345,6 +345,18 @@ h1 {
   flex-direction: column;
 }
 
+/* Modal de edición de componentes (cambio 00178): ancho dinámico, 75% del
+   ancho de pantalla, acotado entre 400px y min(1000px, 90vw). Usa clamp()
+   con unidades de viewport, así que se recalcula solo ante cualquier
+   resize de ventana sin necesidad de JS (a diferencia de .card-editor-modal/
+   .image-adjust-modal--large, que usan `width: fit-content` porque su
+   contenido tiene ancho variable — aquí el ancho es siempre el mismo
+   porcentaje de pantalla, no depende del contenido). */
+.component-editor-modal {
+  width: clamp(400px, 50vw, min(600px, 65vw));
+  max-width: none;
+}
+
 .modal__header {
   padding: 1rem;
   border-bottom: 1px solid var(--border-neutral);
