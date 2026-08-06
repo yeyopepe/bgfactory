@@ -1,2 +1,2 @@
 // Fuente única de la versión actual del prototipo.
-export const CURRENT_VERSION = 'v00141';
+export const CURRENT_VERSION = 'v00145';

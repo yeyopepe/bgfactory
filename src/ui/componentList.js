@@ -3,16 +3,55 @@
 
 import { attachResizeHandle } from './resizeHandle.js';
 import { attachColumnResizing } from './tableColumnResize.js';
+import { attachColumnMenu } from './tableColumnMenu.js';
+import { compareValues } from '../core/textSort.js';
 
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
 const COMPONENT_LIST_COLUMNS = ['orden', 'id', 'tipo', 'copia', 'acciones'];
+
+// Columnas interactivas del menú de cabecera (cambio 00165) — todas menos
+// "Acciones"; "Orden" no ofrece filtro (campo numérico de posición con su
+// propio mecanismo de edición inline, filtrar por él no aporta valor).
+const COMPONENT_LIST_COLUMN_DEFS = [
+  { key: 'orden', filterable: false, getValue: (c) => c.order },
+  { key: 'id', filterable: true, getValue: (c) => c.id },
+  { key: 'tipo', filterable: true, getValue: (c) => c.type },
+  { key: 'copia', filterable: true, getValue: (c) => (c.copyOf ? 'Sí' : 'No') },
+];
+const COMPONENT_LIST_COLUMN_DEFS_BY_KEY = Object.fromEntries(COMPONENT_LIST_COLUMN_DEFS.map((d) => [d.key, d]));
 
 // Estado del cuadro de filtro. El panel de componentes es único en la
 // página, así que basta con estado de módulo para que sobreviva a los
 // re-renders provocados por cambios en la lista de componentes, y se
 // resetea solo al recargar la página. Análogo a resourceList.js.
 let filterText = '';
+
+// Ordenación/filtros de columna (cambio 00165), mismo criterio de estado
+// transitorio que `filterText`: una única ordenación activa a la vez para
+// esta tabla, y un filtro por columna acumulable con los demás (AND) y con
+// `filterText`.
+let columnSort = null; // { column: string, direction: 'asc' | 'desc' } | null
+let columnFilters = {}; // { [column]: string }
+
+function matchesColumnFilters(component) {
+  return Object.entries(columnFilters).every(([key, value]) => {
+    const def = COMPONENT_LIST_COLUMN_DEFS_BY_KEY[key];
+    return String(def.getValue(component)) === value;
+  });
+}
+
+function computeDisplayedList(components) {
+  let list = components.filter((c) => matchesFilter(c, filterText) && matchesColumnFilters(c));
+  if (columnSort) {
+    const def = COMPONENT_LIST_COLUMN_DEFS_BY_KEY[columnSort.column];
+    const sign = columnSort.direction === 'asc' ? 1 : -1;
+    list = [...list].sort((a, b) => sign * compareValues(def.getValue(a), def.getValue(b)));
+  } else {
+    list = [...list].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  }
+  return list;
+}
 
 // Última selección conocida (mismo criterio de estado de módulo que `filterText`),
 // usada para detectar qué id se acaba de seleccionar y hacer scroll hasta su fila.
@@ -30,21 +69,10 @@ function matchesFilter(component, query) {
   );
 }
 
-function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy, onRemove, onSelectRow, onReorder, selectedIds = new Set(), columnWidths, onColumnResize } = {}) {
+function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy, onRemove, onSelectRow, onReorder, selectedIds = new Set(), columnWidths, onColumnResize, allComponents = [], onColumnSortChange, onColumnFilterChange } = {}) {
   body.innerHTML = '';
 
-  if (displayedComponents.length === 0) {
-    const empty = document.createElement('p');
-    if (filterText.trim() === '') {
-      empty.className = 'component-list__empty';
-      empty.textContent = 'No hay componentes todavía.';
-    } else {
-      empty.className = 'component-list__empty-filter';
-      empty.textContent = `No hay componentes que coincidan con «${filterText}».`;
-    }
-    body.appendChild(empty);
-    return;
-  }
+  const hasActiveFilter = filterText.trim() !== '' || Object.keys(columnFilters).length > 0;
 
   const table = document.createElement('table');
   table.className = 'component-list';
@@ -62,6 +90,24 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy,
   table.appendChild(thead);
 
   const tbody = document.createElement('tbody');
+
+  // La cabecera se muestra siempre (fix 00172), incluso sin filas que
+  // listar: solo así se puede seguir abriendo el menú de una columna para
+  // quitar un filtro que haya dejado la lista vacía.
+  if (displayedComponents.length === 0) {
+    const emptyRow = document.createElement('tr');
+    const emptyCell = document.createElement('td');
+    emptyCell.colSpan = COMPONENT_LIST_COLUMNS.length;
+    if (!hasActiveFilter) {
+      emptyCell.className = 'component-list__empty';
+      emptyCell.textContent = 'No hay componentes todavía.';
+    } else {
+      emptyCell.className = 'component-list__empty-filter';
+      emptyCell.textContent = `No hay componentes que coincidan con «${filterText}».`;
+    }
+    emptyRow.appendChild(emptyCell);
+    tbody.appendChild(emptyRow);
+  }
 
   for (const component of displayedComponents) {
     const row = document.createElement('tr');
@@ -184,6 +230,15 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy,
   if (onColumnResize) {
     attachColumnResizing(table, COMPONENT_LIST_COLUMNS, columnWidths, onColumnResize);
   }
+
+  if (onColumnSortChange && onColumnFilterChange) {
+    attachColumnMenu(table, COMPONENT_LIST_COLUMN_DEFS, allComponents, {
+      sortState: columnSort,
+      filterState: columnFilters,
+      onToggleSort: onColumnSortChange,
+      onSelectFilter: onColumnFilterChange,
+    });
+  }
 }
 
 export function renderComponentList(
@@ -272,8 +327,26 @@ export function renderComponentList(
   panel.appendChild(header);
 
   if (!collapsed) {
-    const sortedComponents = [...components].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-    const rowHandlers = { onEdit, onClone, onCopy, onRemove, onSelectRow, onReorder, selectedIds, columnWidths, onColumnResize };
+    const rowHandlers = {
+      onEdit, onClone, onCopy, onRemove, onSelectRow, onReorder, selectedIds, columnWidths, onColumnResize,
+      allComponents: components,
+      onColumnSortChange: (column, direction) => {
+        columnSort = columnSort?.column === column && columnSort.direction === direction ? null : { column, direction };
+        rerenderBody();
+      },
+      onColumnFilterChange: (column, value) => {
+        columnFilters = { ...columnFilters };
+        if (value == null) delete columnFilters[column];
+        else columnFilters[column] = value;
+        rerenderBody();
+      },
+    };
+
+    function rerenderBody() {
+      const displayed = computeDisplayedList(components);
+      title.textContent = `Componentes (${displayed.length})`;
+      renderBody(body, displayed, components.length, rowHandlers);
+    }
 
     if (components.length > 0) {
       const filterBar = document.createElement('div');
@@ -285,15 +358,15 @@ export function renderComponentList(
       filterInput.value = filterText;
       filterInput.addEventListener('input', () => {
         filterText = filterInput.value;
-        const filtered = sortedComponents.filter((c) => matchesFilter(c, filterText));
-        title.textContent = `Componentes (${filtered.length})`;
-        renderBody(body, filtered, components.length, rowHandlers);
+        rerenderBody();
       });
       filterBar.appendChild(filterInput);
 
       panel.appendChild(filterBar);
     } else {
       filterText = '';
+      columnSort = null;
+      columnFilters = {};
     }
 
     body = document.createElement('div');
@@ -301,9 +374,7 @@ export function renderComponentList(
     if (bodyHeight != null) {
       body.style.height = `${bodyHeight}px`;
     }
-    const displayedComponents = sortedComponents.filter((c) => matchesFilter(c, filterText));
-    title.textContent = `Componentes (${displayedComponents.length})`;
-    renderBody(body, displayedComponents, components.length, rowHandlers);
+    rerenderBody();
     panel.appendChild(body);
 
     const footer = document.createElement('div');

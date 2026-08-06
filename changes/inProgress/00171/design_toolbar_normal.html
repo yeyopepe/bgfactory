@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Maqueta — Barra modo edición (normal)</title>
+<style>
+  :root {
+    --bg-toolbar: #333333;
+    --bg-toolbar-raised: #3f3f3f;
+    --text-light: #ffffff;
+    --text-muted-on-dark: rgba(255,255,255,0.55);
+    --accent-blue: #2c7dd8;
+    --radius-sm: 4px;
+    --shadow-1: 0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);
+    --transition-fast: 150ms ease;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header simulado (h1 del título, fuera de alcance de este cambio) */
+  .fake-header {
+    height: 3.5rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    background: #fafafa;
+    border-bottom: 1px solid #dcdcdc;
+    font-size: 1.5rem;
+    color: #1a1a1a;
+  }
+  .fake-header small {
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: normal;
+  }
+
+  /* ---- Barra de modo edición rediseñada ---- */
+  .edit-toolbar {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--bg-toolbar);
+    color: var(--text-light);
+    padding: 0.5rem 1rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    box-shadow: var(--shadow-1);
+  }
+
+  .toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .toolbar-divider {
+    width: 1px;
+    height: 1.5rem;
+    background: rgba(255,255,255,0.2);
+    margin: 0 0.25rem;
+  }
+
+  .toolbar-divider--loose {
+    margin-left: 0.75rem;
+  }
+
+  .tb-btn {
+    color: inherit;
+    background: none;
+    border: 1px solid var(--text-light);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background var(--transition-fast);
+    font-family: inherit;
+  }
+
+  .tb-btn:hover {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .tb-btn svg {
+    width: 16px;
+    height: 16px;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .tb-btn--dropdown .caret {
+    width: 10px;
+    height: 10px;
+    margin-left: -0.15rem;
+  }
+
+  .tb-icon-btn {
+    color: inherit;
+    background: none;
+    border: 1px solid var(--text-light);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition-fast);
+  }
+  .tb-icon-btn:hover {
+    background: rgba(255,255,255,0.1);
+  }
+  .tb-icon-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Mesa simulada debajo */
+  .fake-table {
+    flex: 1 1 auto;
+    background: #c2c2c2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(0,0,0,0.35);
+    font-size: 0.875rem;
+  }
+
+  .mockup-label {
+    position: fixed;
+    top: 4.2rem;
+    left: 1rem;
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    opacity: 0.75;
+    font-family: system-ui, sans-serif;
+  }
+</style>
+</head>
+<body>
+
+  <div class="fake-header">Errantes <small>v.00171</small></div>
+
+  <div class="edit-toolbar">
+    <div class="toolbar-group">
+      <button class="tb-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M16 17l5-5-5-5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M21 12H9" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Salir del modo edición
+      </button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <div class="toolbar-group">
+      <button class="tb-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M17 21v-8H7v8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M7 3v5h8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Guardar
+      </button>
+      <button class="tb-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M7 9l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Importar
+      </button>
+    </div>
+
+    <div class="toolbar-divider"></div>
+
+    <div class="toolbar-group">
+      <button class="tb-btn tb-btn--dropdown">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 4v12" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M7 11l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 20h16" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Exportar
+        <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="toolbar-divider toolbar-divider--loose"></div>
+
+    <button class="tb-icon-btn" title="Ajustar zoom para ver todos los elementos" aria-label="Ajustar zoom">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 9V5a1 1 0 0 1 1-1h4" stroke-linecap="round"/>
+        <path d="M20 9V5a1 1 0 0 0-1-1h-4" stroke-linecap="round"/>
+        <path d="M4 15v4a1 1 0 0 0 1 1h4" stroke-linecap="round"/>
+        <path d="M20 15v4a1 1 0 0 1-1 1h-4" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="fake-table">(mesa infinita del modo edición)</div>
+
+  <div class="mockup-label">Maqueta — estado normal (desplegable cerrado)</div>
+
+</body>
+</html>

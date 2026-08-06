@@ -40,6 +40,47 @@ function addRow(menu, { icon, label, onClick, disabled }) {
   menu.appendChild(item);
 }
 
+// Fila con un `<select>` inline en vez de una acción de click directo (cambio 00170,
+// primer uso: "Añadir a grupo" en el menú contextual de Modo Edición). Mismo criterio
+// de `stopPropagation` en el propio control que ya usa `ui/columnHeaderMenu.js` para
+// que interactuar con el desplegable no dispare el cierre por click-fuera.
+function addSelectRow(menu, { label, options = [], disabled, onChange }) {
+  const row = document.createElement('div');
+  row.className = 'context-menu__select-row';
+
+  const text = document.createElement('span');
+  text.className = 'context-menu__select-row-label';
+  text.textContent = label;
+  row.appendChild(text);
+
+  const select = document.createElement('select');
+  select.disabled = Boolean(disabled) || options.length === 0;
+
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = options.length === 0 ? 'Sin grupos' : 'Elegir grupo…';
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  select.appendChild(placeholder);
+
+  for (const option of options) {
+    const optionEl = document.createElement('option');
+    optionEl.value = option.value;
+    optionEl.textContent = option.label;
+    select.appendChild(optionEl);
+  }
+
+  select.addEventListener('click', (e) => e.stopPropagation());
+  select.addEventListener('change', () => {
+    if (!select.value) return;
+    closeCurrentMenu();
+    if (onChange) onChange(select.value);
+  });
+
+  row.appendChild(select);
+  menu.appendChild(row);
+}
+
 function addDescriptionSection(menu, description) {
   const block = document.createElement('div');
   block.className = 'context-menu__description';
@@ -99,7 +140,9 @@ function addInfoSection(menu, interactionItems) {
   menu.appendChild(infoBlock);
 }
 
-// `generalItems`/`specificItems`: `{ icon: SVGElement, label: string, onClick: () => void, disabled?: boolean }[]`.
+// `generalItems`/`specificItems`: `{ icon: SVGElement, label: string, onClick: () => void, disabled?: boolean }[]`,
+// o, para una fila con un `<select>` inline en vez de una acción de click directo (cambio 00170):
+// `{ label: string, select: { options: { value: string, label: string }[], disabled?: boolean, onChange: (value: string) => void } }`.
 // `disabled` (cambio 00127) muestra el item atenuado y sin acción (no se registra el listener de click).
 // El separador entre ambas secciones solo se dibuja si `specificItems` no está vacío.
 // `interactionItems`: `{ label: string, value: string }[]` — sección de solo lectura al final del menú.
@@ -115,13 +158,19 @@ export function openContextMenu({ x, y, generalItems = [], specificItems = [], i
 
   if (description) addDescriptionSection(menu, description);
 
-  for (const item of generalItems) addRow(menu, item);
+  for (const item of generalItems) {
+    if (item.select) addSelectRow(menu, { label: item.label, ...item.select });
+    else addRow(menu, item);
+  }
 
   if (specificItems.length > 0) {
     const separator = document.createElement('div');
     separator.className = 'context-menu__separator';
     menu.appendChild(separator);
-    for (const item of specificItems) addRow(menu, item);
+    for (const item of specificItems) {
+      if (item.select) addSelectRow(menu, { label: item.label, ...item.select });
+      else addRow(menu, item);
+    }
   }
 
   if (interactionItems.length > 0) {

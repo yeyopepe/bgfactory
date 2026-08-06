@@ -229,7 +229,9 @@ h1 {
 }
 
 .component-list th {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 2;
   padding: 0.5rem;
   text-align: left;
   font-weight: 500;
@@ -2156,6 +2158,44 @@ fieldset.modal__section--untitled {
   border-top: 1px solid rgba(44, 125, 216, 0.25);
 }
 
+/* Fila con un <select> inline, p.ej. "Añadir a grupo" (cambio 00170) — cursor
+   por defecto (no es una acción de click directo como .context-menu__item) y
+   mismo bloque etiqueta-arriba/select-a-todo-lo-ancho que ya usa
+   .column-header-menu__filter (sección 12.7 de STYLE_BIBLE). */
+.context-menu__select-row {
+  padding: 0.5rem 0.75rem;
+  cursor: default;
+}
+
+.context-menu__select-row:not(:last-child) {
+  border-bottom: 1px solid rgba(44, 125, 216, 0.25);
+}
+
+.context-menu__select-row-label {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  margin-bottom: 0.35rem;
+}
+
+.context-menu__select-row select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.35rem 0.4rem;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.context-menu__select-row select:disabled {
+  background: var(--border-neutral);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
 .context-menu__description {
   display: flex;
   flex-direction: column;
@@ -2213,6 +2253,106 @@ fieldset.modal__section--untitled {
 .context-menu__info-value--none {
   font-style: italic;
   opacity: 0.7;
+}
+
+/* Menú de ordenación/filtrado de cabecera de columna (cambio 00165),
+   ui/columnHeaderMenu.js. Tercer uso del lenguaje visual ya fijado por
+   .resource-add__menu/.context-menu (STYLE_BIBLE sección 12.7/12.8): mismo
+   fondo/borde/sombra/hover, con clases de bloque propias. `position: fixed`
+   sobre document.body, mismo mecanismo y mismo nivel que .context-menu,
+   porque su punto de anclaje (<th>) vive dentro de paneles con overflow
+   (.component-panel__body y análogos) que recortarían un `position:
+   absolute` colgando de él. */
+.column-header--interactive {
+  cursor: pointer;
+}
+
+.column-header-menu {
+  position: fixed;
+  z-index: 1050;
+  min-width: 190px;
+  background: var(--accent-blue-light);
+  border: 1px solid rgba(44, 125, 216, 0.25);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+  font-size: 0.875rem;
+}
+
+.column-header-menu__item {
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: background var(--transition-fast);
+}
+
+.column-header-menu__item:not(:last-child) {
+  border-bottom: 1px solid rgba(44, 125, 216, 0.25);
+}
+
+.column-header-menu__item:hover {
+  background: var(--accent-blue);
+  color: var(--text-light);
+}
+
+/* Opción de ordenación activa (cambio 00165): misma convención ya fijada en
+   STYLE_BIBLE sección 12.10 para "opción activa" de un grupo de botones
+   (fondo var(--accent-blue), texto var(--text-light)), reutilizada aquí en
+   vez de inventar un tratamiento nuevo — se mantiene aunque el ratón no
+   esté encima, para que se note qué ordenación está aplicada ahora mismo. */
+.column-header-menu__item--active {
+  background: var(--accent-blue);
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.column-header-menu__separator {
+  border-top: 1px solid rgba(44, 125, 216, 0.25);
+}
+
+.column-header-menu__filter {
+  padding: 0.5rem 0.75rem 0.65rem;
+}
+
+.column-header-menu__filter-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.35rem;
+}
+
+.column-header-menu__filter select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.35rem 0.4rem;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+/* Indicador de columna con orden y/o filtro activos, junto al texto de la
+   cabecera — mismo criterio de icono `currentColor` que el resto de la app
+   (STYLE_BIBLE sección 9). */
+.column-header-menu__indicator {
+  display: inline-flex;
+  margin-left: 0.3rem;
+  color: var(--text-muted);
+  vertical-align: middle;
+}
+
+/* Columna con orden y/o filtro aplicados ahora mismo (fix 00172) — antes de
+   este fix, el indicador solo se insertaba en este estado; ahora se muestra
+   siempre (ver .column-header-menu__indicator) y este modificador es lo
+   único que distingue "activo" de "disponible pero no activo". */
+.column-header-menu__indicator--active {
+  color: var(--accent-blue);
+}
+
+.column-header-menu__indicator svg {
+  width: 12px;
+  height: 12px;
 }
 
 /* Indicador de bloqueo (cambio 00088): insignia superpuesta en una esquina del
@@ -2306,7 +2446,9 @@ fieldset.modal__section--untitled {
 }
 
 .resource-list th {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 2;
   padding: 0.5rem;
   text-align: left;
   font-weight: 500;
@@ -2389,6 +2531,31 @@ fieldset.modal__section--untitled {
   cursor: pointer;
 }
 
+/* Cuadro de filtro de texto libre (cambio 00165), mismo aspecto que
+   .component-panel__filter/.resource-panel__filter — Grupos queda así a la
+   par de las otras dos ventanas de modo edición. */
+.group-panel__filter {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--border-neutral);
+}
+
+.group-panel__filter input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.875rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.group-panel__filter input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
+}
+
 .group-panel__body {
   height: 320px;
   overflow-y: auto;
@@ -2428,7 +2595,16 @@ fieldset.modal__section--untitled {
   padding: 1rem;
 }
 
+.group-list__empty-filter {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1rem;
+}
+
 .group-list th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
   padding: 0.5rem;
   text-align: left;
   font-weight: 500;

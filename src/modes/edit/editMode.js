@@ -26,6 +26,41 @@ import { openBulkDeleteConfirmModal } from '../../ui/bulkDeleteConfirmModal.js';
 import { showErrorModal } from '../../ui/errorModal.js';
 import { openBatchUploadSummaryModal } from '../../ui/batchUploadSummaryModal.js';
 import { openResourceReplaceConfirmModal } from '../../ui/resourceReplaceConfirmModal.js';
+import { openContextMenu } from '../../ui/contextMenu.js';
+import { showToast } from '../../ui/toast.js';
+import { sortByName } from '../../core/textSort.js';
+
+// Iconos del menú contextual de elemento (cambio 00170) — mismo patrón que
+// playMode.js (SVGs 24x24 locales, sin fichero de iconos compartido en el proyecto).
+function createCloneIcon() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.innerHTML = '<rect x="7" y="7" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>';
+  return svg;
+}
+
+function createCopyIcon() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.innerHTML = '<rect x="9" y="9" width="11" height="11" rx="2"/><rect x="4" y="4" width="11" height="11" rx="2"/>';
+  return svg;
+}
+
+function createRemoveIcon() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.innerHTML = '<path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>';
+  return svg;
+}
 
 // Selección de la sesión de edición en curso. `renderEditMode` se vuelve a invocar por
 // completo (desde main.js) ante cualquier `components:changed`, así que este estado
@@ -453,6 +488,69 @@ export function renderEditMode(container) {
     renderTable();
   }
 
+  // Menú contextual de clic derecho sobre un elemento de la mesa en Modo Edición
+  // (cambio 00170): Clonar/Copiar/Eliminar (mismo comportamiento que el listado de
+  // Componentes) y "Añadir a grupo", todos actuando sobre la selección múltiple
+  // vigente en el momento de abrir el menú.
+  function handleComponentContextMenu(component, event) {
+    if (!selectedComponentIds.has(component.id)) {
+      selectedComponentIds.clear();
+      selectedComponentIds.add(component.id);
+      renderList();
+      renderTable();
+    }
+
+    const affectedIds = [...selectedComponentIds];
+    const affectedComponents = getComponents().filter((c) => affectedIds.includes(c.id));
+    const cloneables = affectedComponents.filter((c) => !c.copyOf);
+
+    const generalItems = [
+      {
+        icon: createCloneIcon(),
+        label: 'Clonar',
+        disabled: cloneables.length === 0,
+        onClick: () => {
+          for (const c of cloneables) {
+            addComponent(cloneComponent(c, getComponents()));
+          }
+        },
+      },
+      {
+        icon: createCopyIcon(),
+        label: 'Copiar',
+        disabled: cloneables.length === 0,
+        onClick: () => {
+          for (const c of cloneables) {
+            addComponent(createCopy(c, getComponents()));
+          }
+        },
+      },
+      {
+        icon: createRemoveIcon(),
+        label: 'Eliminar',
+        onClick: () => attemptDeleteComponents(affectedComponents),
+      },
+    ];
+
+    const specificItems = [
+      {
+        label: 'Añadir a grupo',
+        select: {
+          options: sortByName(getGroups()).map((g) => ({ value: g.id, label: g.name })),
+          onChange: (groupId) => {
+            for (const c of affectedComponents) {
+              if (c.grupoIds.includes(groupId)) continue;
+              replaceComponent(c.id, updateComponent(c, { grupoIds: [...c.grupoIds, groupId] }));
+            }
+            showToast('Grupo añadido');
+          },
+        },
+      },
+    ];
+
+    openContextMenu({ x: event.clientX, y: event.clientY, generalItems, specificItems });
+  }
+
   function renderTable() {
     const cartasEnMazo = getCartaIdsEnAlgunMazo(getComponents());
     renderComponentsOnTable(table.worldEl, getComponents().filter((c) => !cartasEnMazo.has(c.id)), {
@@ -462,6 +560,7 @@ export function renderEditMode(container) {
       showCopyIndicator: true,
       onSelect: openEditModalFor,
       onToggleSelect: toggleSelect,
+      onContextMenu: handleComponentContextMenu,
       selectedIds: selectedComponentIds,
       canMove: (component) => component.bloqueado !== 'todos',
       onMove: (component, x, y) => {
@@ -606,6 +705,10 @@ export function renderEditMode(container) {
         setGroupPanelState(patch);
       },
       bodyHeight: getGroupPanelState().height,
+      columnWidths: getGroupPanelState().columnWidths,
+      onColumnResize: (columnWidths) => {
+        setGroupPanelState({ columnWidths });
+      },
     });
   }
 

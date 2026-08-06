@@ -1,34 +1,64 @@
 // Panel flotante con el listado de grupos, usado en modo edición. Análogo a
-// ui/resourceList.js pero simplificado: sin filtro de texto, sin columna
-// "Tipo" (los grupos no tienen tipo) y sin clonar.
+// ui/resourceList.js pero sin columna "Tipo" (los grupos no tienen tipo) y
+// sin clonar. Desde el cambio 00165 tiene el mismo filtro de texto libre y
+// redimensionado de columna que ya tenían Componentes y Recursos.
 
 import { attachResizeHandle } from './resizeHandle.js';
+import { attachColumnResizing } from './tableColumnResize.js';
+import { attachColumnMenu } from './tableColumnMenu.js';
 import { getComponentsUsingGroup } from '../core/group.js';
-import { sortByName } from '../core/textSort.js';
+import { sortByName, compareValues } from '../core/textSort.js';
 
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
+const GROUP_LIST_COLUMNS = ['nombre', 'elementos', 'acciones'];
 
-function renderBody(body, groups, components, { onEdit, onRemove, onSelectGroup } = {}) {
+// Columnas interactivas del menú de cabecera (cambio 00165) — todas menos "Acciones".
+function buildGroupListColumnDefs(components) {
+  return [
+    { key: 'nombre', filterable: true, getValue: (g) => g.name },
+    { key: 'elementos', filterable: true, getValue: (g) => getComponentsUsingGroup(g.id, components).length },
+  ];
+}
+
+// Estado del cuadro de filtro/orden/filtro de columna. Mismo criterio
+// transitorio que ui/componentList.js y ui/resourceList.js.
+let filterText = '';
+let columnSort = null; // { column: string, direction: 'asc' | 'desc' } | null
+let columnFilters = {}; // { [column]: string }
+
+function normalize(str) {
+  return str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+function matchesFilter(group, query) {
+  const normalizedQuery = normalize(query);
+  return normalize(group.name).includes(normalizedQuery) || normalize(group.id).includes(normalizedQuery);
+}
+
+function matchesColumnFilters(group, columnDefsByKey) {
+  return Object.entries(columnFilters).every(([key, value]) => {
+    const def = columnDefsByKey[key];
+    return String(def.getValue(group)) === value;
+  });
+}
+
+function renderBody(body, groups, components, { onEdit, onRemove, onSelectGroup, columnWidths, onColumnResize, allGroups = [], onColumnSortChange, onColumnFilterChange } = {}) {
   body.innerHTML = '';
 
-  if (groups.length === 0) {
-    const empty = document.createElement('p');
-    empty.className = 'group-list__empty';
-    empty.textContent = 'No hay grupos todavía.';
-    body.appendChild(empty);
-    return;
-  }
+  const hasActiveFilter = filterText.trim() !== '' || Object.keys(columnFilters).length > 0;
 
   const table = document.createElement('table');
   table.className = 'group-list';
 
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
-  for (const label of ['Nombre', 'Elementos', 'Acciones']) {
+  const headLabels = { nombre: 'Nombre', elementos: 'Elementos', acciones: 'Acciones' };
+  for (const key of GROUP_LIST_COLUMNS) {
     const th = document.createElement('th');
-    th.textContent = label;
-    if (label === 'Elementos') th.className = 'group-list__count-cell';
+    th.dataset.col = key;
+    th.textContent = headLabels[key];
+    if (key === 'elementos') th.className = 'group-list__count-cell';
     headRow.appendChild(th);
   }
   thead.appendChild(headRow);
@@ -36,7 +66,23 @@ function renderBody(body, groups, components, { onEdit, onRemove, onSelectGroup 
 
   const tbody = document.createElement('tbody');
 
-  for (const group of sortByName(groups)) {
+  // La cabecera se muestra siempre (fix 00172) — ver ui/componentList.js.
+  if (groups.length === 0) {
+    const emptyRow = document.createElement('tr');
+    const emptyCell = document.createElement('td');
+    emptyCell.colSpan = GROUP_LIST_COLUMNS.length;
+    if (!hasActiveFilter) {
+      emptyCell.className = 'group-list__empty';
+      emptyCell.textContent = 'No hay grupos todavía.';
+    } else {
+      emptyCell.className = 'group-list__empty-filter';
+      emptyCell.textContent = `No hay grupos que coincidan con «${filterText}».`;
+    }
+    emptyRow.appendChild(emptyCell);
+    tbody.appendChild(emptyRow);
+  }
+
+  for (const group of groups) {
     const row = document.createElement('tr');
     row.className = 'group-list__row';
     row.tabIndex = 0;
@@ -86,6 +132,19 @@ function renderBody(body, groups, components, { onEdit, onRemove, onSelectGroup 
 
   table.appendChild(tbody);
   body.appendChild(table);
+
+  if (onColumnResize) {
+    attachColumnResizing(table, GROUP_LIST_COLUMNS, columnWidths, onColumnResize);
+  }
+
+  if (onColumnSortChange && onColumnFilterChange) {
+    attachColumnMenu(table, buildGroupListColumnDefs(components), allGroups, {
+      sortState: columnSort,
+      filterState: columnFilters,
+      onToggleSort: onColumnSortChange,
+      onSelectFilter: onColumnFilterChange,
+    });
+  }
 }
 
 export function renderGroupList(
@@ -101,6 +160,8 @@ export function renderGroupList(
     onToggleCollapse,
     onPanelMove,
     onPanelResize,
+    columnWidths = null,
+    onColumnResize,
     bodyHeight = null,
   } = {}
 ) {
@@ -165,12 +226,67 @@ export function renderGroupList(
   panel.appendChild(header);
 
   if (!collapsed) {
+    const columnDefsByKey = Object.fromEntries(buildGroupListColumnDefs(components).map((d) => [d.key, d]));
+
+    function computeDisplayedGroups() {
+      let list = groups.filter((g) => matchesFilter(g, filterText) && matchesColumnFilters(g, columnDefsByKey));
+      if (columnSort) {
+        const def = columnDefsByKey[columnSort.column];
+        const sign = columnSort.direction === 'asc' ? 1 : -1;
+        list = [...list].sort((a, b) => sign * compareValues(def.getValue(a), def.getValue(b)));
+      } else {
+        list = sortByName(list);
+      }
+      return list;
+    }
+
+    const bodyOptions = {
+      onEdit, onRemove, onSelectGroup, columnWidths, onColumnResize, allGroups: groups,
+      onColumnSortChange: (column, direction) => {
+        columnSort = columnSort?.column === column && columnSort.direction === direction ? null : { column, direction };
+        rerenderBody();
+      },
+      onColumnFilterChange: (column, value) => {
+        columnFilters = { ...columnFilters };
+        if (value == null) delete columnFilters[column];
+        else columnFilters[column] = value;
+        rerenderBody();
+      },
+    };
+
+    function rerenderBody() {
+      const displayed = computeDisplayedGroups();
+      title.textContent = `Grupos (${displayed.length})`;
+      renderBody(body, displayed, components, bodyOptions);
+    }
+
+    if (groups.length > 0) {
+      const filterBar = document.createElement('div');
+      filterBar.className = 'group-panel__filter';
+
+      const filterInput = document.createElement('input');
+      filterInput.type = 'text';
+      filterInput.placeholder = 'Filtrar grupos…';
+      filterInput.value = filterText;
+      filterInput.addEventListener('input', () => {
+        filterText = filterInput.value;
+        rerenderBody();
+      });
+      filterBar.appendChild(filterInput);
+
+      panel.appendChild(filterBar);
+    } else {
+      filterText = '';
+      columnSort = null;
+      columnFilters = {};
+    }
+
     body = document.createElement('div');
     body.className = 'group-panel__body';
     if (bodyHeight != null) {
       body.style.height = `${bodyHeight}px`;
     }
-    renderBody(body, groups, components, { onEdit, onRemove, onSelectGroup });
+    rerenderBody();
     panel.appendChild(body);
 
     const footer = document.createElement('div');

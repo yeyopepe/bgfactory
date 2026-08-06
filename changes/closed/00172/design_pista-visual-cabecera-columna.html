@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Pista visual permanente en cabeceras de columna</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --bg-card: #f5f5f5;
+    --accent-blue: #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-muted: #666666;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-1: 0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg-table);
+    color: var(--text-primary);
+    padding: 40px;
+  }
+  h1 { font-size: 1.25rem; margin: 0 0 4px; }
+  p.subtitle { color: var(--text-muted); margin: 0 0 28px; font-size: 0.9rem; max-width: 640px; }
+
+  .panel {
+    width: 620px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-1);
+    overflow: hidden;
+  }
+  .panel__header {
+    padding: 10px 14px;
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border-neutral);
+    font-weight: 600;
+  }
+  table.list {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  table.list th {
+    text-align: left;
+    padding: 8px 10px;
+    background: var(--bg-subtle);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  table.list td {
+    padding: 8px 10px;
+    color: var(--text-muted);
+    font-style: italic;
+  }
+  .col-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .indicator svg { width: 12px; height: 12px; }
+  .indicator--muted { color: var(--text-muted); }
+  .indicator--active { color: var(--accent-blue); }
+
+  .legend {
+    margin-top: 20px;
+    max-width: 620px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .legend b { color: var(--text-primary); }
+  .legend ul { margin: 6px 0 0; padding-left: 1.1rem; }
+</style>
+</head>
+<body>
+
+  <h1>Cabeceras de columna — pista visual permanente</h1>
+  <p class="subtitle">
+    Comparación de las tres situaciones posibles de una cabecera en los paneles de modo edición
+    (Componentes, Recursos, Grupos). Mismo icono en las tres columnas interactivas; solo cambia
+    de color según haya o no algo aplicado en esa columna.
+  </p>
+
+  <div class="panel">
+    <div class="panel__header">Componentes (6)</div>
+    <table class="list">
+      <thead>
+        <tr>
+          <th>
+            <span class="col-label">
+              Orden
+              <span class="indicator indicator--muted" title="Se puede ordenar">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12l-4.5 5.5V13l-3 1.5V8.5L2 3z"/></svg>
+              </span>
+            </span>
+          </th>
+          <th>
+            <span class="col-label">
+              Id
+              <span class="indicator indicator--muted" title="Se puede ordenar y filtrar">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12l-4.5 5.5V13l-3 1.5V8.5L2 3z"/></svg>
+              </span>
+            </span>
+          </th>
+          <th>
+            <span class="col-label">
+              Tipo
+              <span class="indicator indicator--active" title="Orden y/o filtro aplicados">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12l-4.5 5.5V13l-3 1.5V8.5L2 3z"/></svg>
+              </span>
+            </span>
+          </th>
+          <th>
+            <span class="col-label">
+              Copia
+              <span class="indicator indicator--muted" title="Se puede ordenar y filtrar">
+                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12l-4.5 5.5V13l-3 1.5V8.5L2 3z"/></svg>
+              </span>
+            </span>
+          </th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="5">(cuerpo de la tabla no incluido en esta maqueta — ver cambio 00165)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="legend">
+    <b>Orden, Id, Copia</b>: cabeceras interactivas sin ningún orden/filtro aplicado — icono en tono apagado
+    (<span style="color:var(--text-muted)">gris</span>), visible siempre, indicando "se puede pulsar" sin
+    necesidad de pasar el ratón por encima.<br>
+    <b>Tipo</b>: cabecera interactiva con algo aplicado ahora mismo — el mismo icono cambia a
+    <span style="color:var(--accent-blue)">azul de acento</span>, sustituyendo al icono apagado (nunca se
+    muestran los dos a la vez).<br>
+    <b>Acciones</b>: no admite el menú de ordenar/filtrar — sin icono en ningún estado.
+  </p>
+
+  <h1 style="margin-top:40px;">Filtro sin resultados — la cabecera ya no desaparece</h1>
+  <p class="subtitle">
+    Antes de este fix, si un filtro dejaba la lista vacía desaparecía la tabla entera (cabecera incluida),
+    sin forma de volver a abrir el menú de esa columna para quitar el filtro. Ahora la cabecera se
+    mantiene siempre visible; solo el cuerpo de la tabla se sustituye por el mensaje de "sin resultados".
+  </p>
+
+  <div class="panel">
+    <div class="panel__header">Componentes (0)</div>
+    <table class="list">
+      <thead>
+        <tr>
+          <th><span class="col-label">Orden<span class="indicator indicator--muted"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12l-4.5 5.5V13l-3 1.5V8.5L2 3z"/></svg></span></span></th>
+          <th><span class="col-label">Id<span class="indicator indicator--muted"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12l-4.5 5.5V13l-3 1.5V8.5L2 3z"/></svg></span></span></th>
+          <th><span class="col-label">Tipo<span class="indicator indicator--active" title="Filtro aplicado, sin coincidencias"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12l-4.5 5.5V13l-3 1.5V8.5L2 3z"/></svg></span></span></th>
+          <th><span class="col-label">Copia<span class="indicator indicator--muted"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12l-4.5 5.5V13l-3 1.5V8.5L2 3z"/></svg></span></span></th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="5" style="text-align:center; padding:1.2rem; font-style:italic; color:var(--text-muted);">
+            No hay componentes que coincidan con el filtro aplicado.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="legend">
+    La columna "Tipo" sigue mostrando su icono en azul (filtro activo) aunque no haya ninguna fila que
+    mostrar — pulsando esa cabecera se puede seguir abriendo el menú y quitar el filtro, sin recargar la página.
+  </p>
+
+</body>
+</html>

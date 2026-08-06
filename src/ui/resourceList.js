@@ -3,8 +3,9 @@
 
 import { attachResizeHandle } from './resizeHandle.js';
 import { attachColumnResizing } from './tableColumnResize.js';
+import { attachColumnMenu } from './tableColumnMenu.js';
 import { RESOURCE_TYPES, getComponentsUsingResource } from '../core/resource.js';
-import { sortByName } from '../core/textSort.js';
+import { sortByName, compareValues } from '../core/textSort.js';
 
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
@@ -15,11 +16,34 @@ const TYPE_LABELS = {
   [RESOURCE_TYPES.FONT]: 'Tipografía',
 };
 
+// Columnas interactivas del menú de cabecera (cambio 00165) — todas menos "Acciones".
+// `usos` depende de `components`, calculado en el momento de construir la definición
+// (ver renderResourceList), no de un valor fijo del propio recurso.
+function buildResourceListColumnDefs(components) {
+  return [
+    { key: 'nombre', filterable: true, getValue: (r) => r.name },
+    { key: 'usos', filterable: true, getValue: (r) => getComponentsUsingResource(r.id, components).length },
+    { key: 'tipo', filterable: true, getValue: (r) => TYPE_LABELS[r.type] ?? r.type },
+  ];
+}
+
 // Estado del cuadro de filtro. El panel de recursos es único en la página,
 // así que basta con estado de módulo para que sobreviva a los re-renders
 // provocados por cambios en la lista de recursos, y se resetea solo al
 // recargar la página.
 let filterText = '';
+
+// Ordenación/filtros de columna (cambio 00165), mismo criterio transitorio
+// que `filterText` — ver ui/componentList.js.
+let columnSort = null; // { column: string, direction: 'asc' | 'desc' } | null
+let columnFilters = {}; // { [column]: string }
+
+function matchesColumnFilters(resource, columnDefsByKey) {
+  return Object.entries(columnFilters).every(([key, value]) => {
+    const def = columnDefsByKey[key];
+    return String(def.getValue(resource)) === value;
+  });
+}
 
 function normalize(str) {
   return str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -35,22 +59,10 @@ function matchesFilter(resource, query) {
   );
 }
 
-function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnResize, components = [] } = {}) {
+function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnResize, components = [], allResources = [], onColumnSortChange, onColumnFilterChange } = {}) {
   body.innerHTML = '';
-  resources = sortByName(resources);
 
-  if (resources.length === 0) {
-    const empty = document.createElement('p');
-    if (filterText.trim() === '') {
-      empty.className = 'resource-list__empty';
-      empty.textContent = 'No hay recursos todavía.';
-    } else {
-      empty.className = 'resource-list__empty-filter';
-      empty.textContent = `No hay recursos que coincidan con «${filterText}».`;
-    }
-    body.appendChild(empty);
-    return;
-  }
+  const hasActiveFilter = filterText.trim() !== '' || Object.keys(columnFilters).length > 0;
 
   const table = document.createElement('table');
   table.className = 'resource-list';
@@ -69,6 +81,22 @@ function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnR
   table.appendChild(thead);
 
   const tbody = document.createElement('tbody');
+
+  // La cabecera se muestra siempre (fix 00172) — ver ui/componentList.js.
+  if (resources.length === 0) {
+    const emptyRow = document.createElement('tr');
+    const emptyCell = document.createElement('td');
+    emptyCell.colSpan = RESOURCE_LIST_COLUMNS.length;
+    if (!hasActiveFilter) {
+      emptyCell.className = 'resource-list__empty';
+      emptyCell.textContent = 'No hay recursos todavía.';
+    } else {
+      emptyCell.className = 'resource-list__empty-filter';
+      emptyCell.textContent = `No hay recursos que coincidan con «${filterText}».`;
+    }
+    emptyRow.appendChild(emptyCell);
+    tbody.appendChild(emptyRow);
+  }
 
   for (const resource of resources) {
     const row = document.createElement('tr');
@@ -116,6 +144,15 @@ function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnR
 
   if (onColumnResize) {
     attachColumnResizing(table, RESOURCE_LIST_COLUMNS, columnWidths, onColumnResize);
+  }
+
+  if (onColumnSortChange && onColumnFilterChange) {
+    attachColumnMenu(table, buildResourceListColumnDefs(components), allResources, {
+      sortState: columnSort,
+      filterState: columnFilters,
+      onToggleSort: onColumnSortChange,
+      onSelectFilter: onColumnFilterChange,
+    });
   }
 }
 
@@ -263,6 +300,40 @@ export function renderResourceList(
   panel.appendChild(header);
 
   if (!collapsed) {
+    const columnDefsByKey = Object.fromEntries(buildResourceListColumnDefs(components).map((d) => [d.key, d]));
+
+    function computeDisplayedResources() {
+      let list = resources.filter((r) => matchesFilter(r, filterText) && matchesColumnFilters(r, columnDefsByKey));
+      if (columnSort) {
+        const def = columnDefsByKey[columnSort.column];
+        const sign = columnSort.direction === 'asc' ? 1 : -1;
+        list = [...list].sort((a, b) => sign * compareValues(def.getValue(a), def.getValue(b)));
+      } else {
+        list = sortByName(list);
+      }
+      return list;
+    }
+
+    const bodyOptions = {
+      onEdit, onRemove, columnWidths, onColumnResize, components, allResources: resources,
+      onColumnSortChange: (column, direction) => {
+        columnSort = columnSort?.column === column && columnSort.direction === direction ? null : { column, direction };
+        rerenderBody();
+      },
+      onColumnFilterChange: (column, value) => {
+        columnFilters = { ...columnFilters };
+        if (value == null) delete columnFilters[column];
+        else columnFilters[column] = value;
+        rerenderBody();
+      },
+    };
+
+    function rerenderBody() {
+      const displayed = computeDisplayedResources();
+      title.textContent = `Recursos (${displayed.length})`;
+      renderBody(body, displayed, bodyOptions);
+    }
+
     if (resources.length > 0) {
       const filterBar = document.createElement('div');
       filterBar.className = 'resource-panel__filter';
@@ -273,15 +344,15 @@ export function renderResourceList(
       filterInput.value = filterText;
       filterInput.addEventListener('input', () => {
         filterText = filterInput.value;
-        const filtered = resources.filter((r) => matchesFilter(r, filterText));
-        title.textContent = `Recursos (${filtered.length})`;
-        renderBody(body, filtered, { onEdit, onRemove, columnWidths, onColumnResize, components });
+        rerenderBody();
       });
       filterBar.appendChild(filterInput);
 
       panel.appendChild(filterBar);
     } else {
       filterText = '';
+      columnSort = null;
+      columnFilters = {};
     }
 
     body = document.createElement('div');
@@ -289,9 +360,7 @@ export function renderResourceList(
     if (bodyHeight != null) {
       body.style.height = `${bodyHeight}px`;
     }
-    const displayedResources = resources.filter((r) => matchesFilter(r, filterText));
-    title.textContent = `Recursos (${displayedResources.length})`;
-    renderBody(body, displayedResources, { onEdit, onRemove, columnWidths, onColumnResize, components });
+    rerenderBody();
     panel.appendChild(body);
 
     const footer = document.createElement('div');
