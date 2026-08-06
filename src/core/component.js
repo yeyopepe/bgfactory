@@ -4,7 +4,7 @@
 // El campo `order` gobierna el apilado visual en la mesa (ver core/state.js,
 // que es quien lo asigna/recalcula: aquí solo se declara con valor por defecto).
 
-export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = 'ninguno', mostrarTooltip = false, subirAlMoverInteractuar = false, oculto = false, grupoIds = [], order = null, copyOf = null, interaccionesDesactivadas = [], accionClickDerecho = 'ninguno' } = {}) {
+export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = 'ninguno', mostrarTooltip = false, subirAlMoverInteractuar = false, oculto = false, grupoIds = [], order = null, copyOf = null, sincronizado = true, interaccionesDesactivadas = [], accionClickDerecho = 'ninguno' } = {}) {
   return {
     id: crypto.randomUUID(),
     type,
@@ -22,6 +22,7 @@ export function createComponent({ type = 'generico', name = '', properties = {},
     grupoIds,
     order,
     copyOf,
+    sincronizado,
     interaccionesDesactivadas,
     accionClickDerecho,
   };
@@ -119,6 +120,7 @@ export function createCopy(component, components) {
     ...component,
     id: nextCopyId(component.id, components),
     copyOf: component.id,
+    sincronizado: true,
     properties: { ...component.properties },
     x: component.x + 30,
     y: component.y + 30,
@@ -135,11 +137,12 @@ export function renameCopyId(copyId, oldOriginalId, newOriginalId) {
 // Aplica sobre `copy` los campos sincronizables de `original`: tipo visual, nombre,
 // imagen, ancho/alto, grupos, qué interacciones programadas están desactivadas (cambio
 // 00115), qué hace el click derecho (cambio 00142), y las propiedades específicas de
-// configuración/diseño del tipo (todo lo editable desde `ui/componentModal.js`, salvo
-// `bloqueado`/`oculto`, que quedan siempre independientes por copia). Las propiedades
-// de estado de interacción de juego de la propia copia (ver NON_SYNCED_PROPERTY_KEYS)
-// se conservan tal cual. `x`, `y`, `order`, `bloqueado` y `oculto` de la copia tampoco
-// se tocan.
+// configuración/diseño del tipo (todo lo editable desde `ui/componentModal.js`). Las
+// propiedades de estado de interacción de juego de la propia copia (ver
+// NON_SYNCED_PROPERTY_KEYS) se conservan tal cual. `x`, `y` y `order` de la copia
+// tampoco se tocan nunca. `bloqueado`/`oculto` (cambio 00149) solo se sincronizan
+// mientras `copy.sincronizado` sea `true` (por defecto); si la copia tiene
+// `sincronizado: false`, quedan como valores propios de esa copia, sin tocar.
 export function syncCopyWithOriginal(copy, original) {
   const { synced: syncedProperties } = splitSyncedProperties(original.type, original.properties);
   const { nonSynced: ownNonSyncedProperties } = splitSyncedProperties(copy.type, copy.properties);
@@ -155,6 +158,7 @@ export function syncCopyWithOriginal(copy, original) {
     grupoIds: [...original.grupoIds],
     interaccionesDesactivadas: original.interaccionesDesactivadas,
     accionClickDerecho: original.accionClickDerecho,
+    ...(copy.sincronizado !== false ? { bloqueado: original.bloqueado, oculto: original.oculto } : {}),
     properties: { ...syncedProperties, ...ownNonSyncedProperties },
   };
 }

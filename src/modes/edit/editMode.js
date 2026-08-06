@@ -326,6 +326,9 @@ export function renderEditMode(container) {
     if (component.copyOf) {
       openCopyComponentModal({
         component,
+        onAccept: (updated) => {
+          replaceComponent(component.id, updated);
+        },
         onDelete: (deletedComponent) => {
           selectedComponentIds.delete(deletedComponent.id);
           removeComponent(deletedComponent.id);

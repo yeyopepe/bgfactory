@@ -313,6 +313,10 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   // "Mantener proporción". No se escribe en workingComponent.width/height
   // hasta que el usuario edite alguno de los dos campos, para que aceptar la
   // modal sin tocarlos no fije un tamaño que antes era automático.
+  // `cartaProporcionSelect` (cambio 00164) lo rellena renderCartaSpecificFields
+  // cuando el componente es una carta, para que el listener de más abajo pueda
+  // sincronizar el desplegable "Proporción" al desmarcar esta casilla.
+  let cartaProporcionSelect = null;
   const sizeSection = document.createElement('fieldset');
   sizeSection.className = 'modal__section';
   const sizeLegend = document.createElement('legend');
@@ -366,6 +370,15 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   keepRatioField.appendChild(keepRatioCheckbox);
   keepRatioField.appendChild(keepRatioLabel);
   sizeSection.appendChild(keepRatioField);
+
+  // Cambio 00164: al desmarcarla en una carta, su proporción pasa a 'libre'
+  // para que deje de forzarse tanto aquí como en el redimensionado por
+  // arrastre (resizeHandle.js, que respeta getProporcionRatio(proporcion)).
+  keepRatioCheckbox.addEventListener('change', () => {
+    if (keepRatioCheckbox.checked || !cartaProporcionSelect) return;
+    workingComponent.properties.proporcion = 'libre';
+    cartaProporcionSelect.value = 'libre';
+  });
 
   heightInput.addEventListener('input', () => {
     const newHeight = parseInt(heightInput.value, 10);
@@ -1372,6 +1385,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const proporcionLabel = document.createElement('label');
     proporcionLabel.textContent = 'Proporción';
     const proporcionSelect = document.createElement('select');
+    cartaProporcionSelect = proporcionSelect;
     for (const { value, label } of CARD_PROPORTIONS) {
       const option = document.createElement('option');
       option.value = value;

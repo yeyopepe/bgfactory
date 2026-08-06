@@ -25,7 +25,7 @@
   - Objetos fabricables
 - Dados
   - (1) Saqueo: 3xbasura, 1xnada, 2xobjeto
-  - (1) Pelea: 2xherida, 3xesquiva, 1x-1enemigo
+  - (1) Pelea: 1xherida, 2xesquiva, 1x-1enemigo, 2xdispersión
   - (1) Encuentros: 1x2zombis, 2x1zombi, 3xnada
 
 
@@ -148,6 +148,8 @@ Para subir en 1 el nivel de asentamiento hace falta reunir en esa localización 
 1. Se sube el nivel de asentamiento
 2. Las fichas de basura se meten en la bolsa de saqueo
 
+Todas las localizaciones empiezan con nivel de asentamiento 0, indicando la carta de cada localización cuál es el nivel máximo.
+
 Esta acción no puede realizarse si hay enemigos en la localización.
 
 ### 7. Fabricar un objeto
@@ -156,11 +158,11 @@ Esta acción solo puede realizarse XXXXX
 Esta acción no puede realizarse si hay enemigos en la localización.
 
 ### 8. Combate
-- Cada vez que aparezcan nuevos enemigos en la localización del jugador realiza una secuencia de combate:
-  - El jugador tira sus dados de combate 
-  - El jugador puede tirar de nuevo 1 dado por cada arma que tenga en una mano (Max 2)
+- Cada vez que aparezcan nuevos enemigos en la localización del personaje del jugador, se realiza una secuencia de combate:
+  - Tira los dados de combate del personaje.
+  - <u>**???**</u> El jugador puede tirar de nuevo 1 dado por cada arma que tenga en una mano (Max 2)
   - Resuelve los dados (ver apartado "Resultados del dado de pelea")
-   
+  - Si el personaje está en una localización con al menos nivel de asentamiento 1, mata tantos enemigos adicionales como el nivel de asentamiento.
 
 
 - Cada vez que el jugador entre en una localización:
@@ -169,9 +171,11 @@ Esta acción no puede realizarse si hay enemigos en la localización.
 
 
 #### 8.1 Resultados del dado de pelea
-- <icono>: el jugador debe colocar una ficha de herida en un espacio vacío de su mochila o abandonar un objeto (dejarlo en la pila de saqueo de la localización actual) para colocar la herida en su lugar. Esta acción no permite mover ningún otro objeto de la mochila.
-- <icono>: el jugador consigue matar a un enemigo y descarta una ficha de enemigo de la localización actual
-- <icono>: el jugador esquiva el ataque del enemigo. No ocurre nada.
+- <icono> Herida: coloca una ficha de herida en un espacio vacío de su mochila. Si no tienes ningún espacio vacío puedes abandonar un objeto (colocándolo arriba del todo en la pila de saqueo de la localización actual) para colocar la herida en su lugar. Si tampoco puedes hacer esto, tu personaje muere.
+Esta acción no permite mover ningún otro objeto de la mochila.
+- <icono> Enemigo aniquilado: tu personaje consigue matar a un enemigo y descarta una ficha de enemigo de la localización actual
+- <icono> Dispersar: tu personaje gana tiempo y consigue dispersar al enemigo. Mueve un enemigo de tu localización a cada localización adyacente. Tu localización actual puede quedar vacía tras esta acción.
+- <icono> Esquiva: tu personaje esquiva el ataque del enemigo.
 
 ## La mochila
 

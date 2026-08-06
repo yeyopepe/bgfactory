@@ -232,19 +232,23 @@ export function renderPlayMode(container) {
           }
         }
 
+        // Una copia sincronizada (cambio 00149) no ofrece bloquear/desbloquear aquí:
+        // su "Bloqueado" sigue siempre al original mientras esté sincronizada.
+        const generalItems = (!component.copyOf || component.sincronizado === false) ? [
+          {
+            icon: createLockIcon(bloqueado),
+            label: bloqueado ? 'Desbloquear' : 'Bloquear',
+            onClick: () => {
+              replaceComponent(component.id, updateComponent(component, { bloqueado: bloqueado ? 'ninguno' : 'juego' }));
+            },
+          },
+        ] : [];
+
         openContextMenu({
           x: event.clientX,
           y: event.clientY,
           description: { main: formatComponentIdentifier(component), extra },
-          generalItems: [
-            {
-              icon: createLockIcon(bloqueado),
-              label: bloqueado ? 'Desbloquear' : 'Bloquear',
-              onClick: () => {
-                replaceComponent(component.id, updateComponent(component, { bloqueado: bloqueado ? 'ninguno' : 'juego' }));
-              },
-            },
-          ],
+          generalItems,
           specificItems,
           interactionItems: getInteractionItemsFor(component),
           onClose: () => {
