@@ -5,7 +5,7 @@ argument-hint: <xxxx o descripción del cambio/fix a planificar>
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.1.0
+  version: 1.2.2
   uses: [ms-internal-tech-analysis, ms-do]
 ---
 
@@ -79,11 +79,12 @@ No hay ningún cambio/fix pendiente en `{changesDir}/inProgress/`.
 2. Si hay ficheros `{changesDir}/inProgress/{xxxx}/design_*.html` (propuesta visual generada por `ms-new`), ábrelos, pero trátalos **solo como referencia visual** — de ellos toma únicamente el aspecto que ilustran (maquetación, estilos, iconografía) para los elementos que cubren. La solución técnica **no debe basarse en ellos** en ningún otro sentido: no reutilices ni traduzcas literalmente su HTML/CSS/SVG, sus clases o su estructura de marcado, ni los tomes como referencia de arquitectura, componentes a crear/reutilizar o cualquier otra decisión de implementación — todo eso lo decides tú a partir del código real del proyecto (paso 4 de este apartado), igual que si esos ficheros no existieran.
 3. Si hay dudas técnicas sobre cómo abordarlo, resuélvelas con el usuario antes de escribir el plan.
 4. Reúne contexto adicional invocando la skill `ms-internal-tech-analysis` (herramienta Skill), pasándole un resumen de la causa raíz o del cambio a diseñar: ella lee primero la documentación técnica configurada en `framework.docs.tech` y solo explora código (`sourcecodeDir`) si hace falta completar información, devolviéndote el contexto reunido y cualquier incongruencia detectada entre documentación y código (recuerda: en ese caso el código manda). Si reporta alguna incongruencia, tenla en cuenta al diseñar la solución y al escribir las secciones (c)/(d) del plan (paso 5) para que quede reflejada en la actualización de documentación que hará `ms-do` tras implementar.
-5. Escribe `{changesDir}/inProgress/{xxxx}/plan.md` empezando con el campo **Fecha creación** (formato `YYYY-MM-DD`, la fecha actual en el momento de crear este `plan.md` — si ya existe porque se está regenerando, actualízala a la fecha de esta regeneración), seguido de exactamente estas cuatro secciones:
+5. Escribe `{changesDir}/inProgress/{xxxx}/plan.md` siguiendo la plantilla [`PLAN.template.md`](PLAN.template.md) de esta skill, empezando con el campo **Fecha creación** (formato `YYYY-MM-DD`, la fecha actual en el momento de crear este `plan.md` — si ya existe porque se está regenerando, actualízala a la fecha de esta regeneración), seguido de estas secciones:
    - **(a) Anotaciones funcionales** — qué queda explícitamente fuera de alcance, y las dudas que se han resuelto con el usuario (pregunta y respuesta, en breve).
-   - **(b) Solución técnica** — listado de tareas concretas y explicadas (qué hay que tocar, dónde, y por qué), en el orden en que se deberían implementar.
+   - **(b) Solución técnica** — listado de tareas concretas y explicadas (qué hay que tocar, dónde, y por qué), en el orden en que se deberían implementar. No mezcles aquí pasos de comprobación manual — esos van en (e).
    - **(c) Cambios de arquitectura** — *solo si aplica*: si `docs.tech.architectureDocPath` está configurado y esta solución modifica la arquitectura básica del proyecto, describe aquí exactamente qué hay que actualizar en ese documento. Si no aplica (no hay `docs.tech.architectureDocPath`, o la solución no toca arquitectura), omite esta sección por completo — no la dejes vacía ni con "N/A".
    - **(d) Cambios en estilo** — *solo si aplica*: si `docs.tech.styleBibleDocPath` está configurado y esta solución modifica o amplia el estilo visual del proyecto, describe aquí exactamente qué hay que actualizar en ese documento. Si no aplica, omite esta sección — no la dejes vacía ni con "N/A".
+   - **(e) Verificación** — checklist de resultados observables del sistema ya cambiado, a comprobar *después* de completar toda la sección (b). Cada ítem se redacta de forma autocontenida (qué hacer y qué se debería ver), sin remitir a un número de tarea de (b) — una comprobación puede depender de varias tareas a la vez, o compartirse entre varias. Inclúyela siempre salvo que la solución no tenga ningún comportamiento observable que comprobar.
 
 ## 3.1 Preguntar si se quiere implementar
 

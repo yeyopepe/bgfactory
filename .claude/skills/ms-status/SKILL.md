@@ -2,10 +2,10 @@
 name: ms-status
 description: Recopila y presenta el estado actual del proyecto según el framework ms-* — totales de elementos por tipo (todo/change/fix/fast) y por estado (carpetas de {changesDir}). Devuelve el informe como respuesta de chat; no escribe ningún fichero salvo que el usuario lo pida explícitamente. Trigger: /ms-status, o cuando el usuario pide un resumen/vista general del estado del proyecto, cuántos changes/fixes hay pendientes, etc. Acepta argumentos opcionales para listados filtrados: `todo` (solo ideas de `{changesDir}/todo/`) o el nombre de cualquier otra carpeta de estado existente (p.ej. `closed`, `implemented`, `inProgress`).
 argument-hint: "[todo|<estado>]"
-model: claude-haiku-4-5-20251001
+model: claude-haiku-4-5
 effort: medium
 metadata:
-  version: 1.8.0
+  version: 1.8.1
   uses: []
 ---
 

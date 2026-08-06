@@ -2,10 +2,10 @@
 name: ms-todo
 description: Apunta y desarrolla ideas sueltas para el futuro sin meterlas en el flujo de trabajo del proyecto — las guarda en {changesDir}/todo/{código}/description.md, una carpeta aparte que ninguna otra skill ms-* usa ni tiene en cuenta. Sirve tanto para anotar una idea nueva como para seguir desarrollando/ampliando una ya apuntada. Trigger: /ms-todo [código] <idea>, o cuando el usuario pide "apuntar"/"dejar anotada" una idea para más adelante, sin pedir que se documente como change/fix.
 argument-hint: "[código] <idea a anotar o desarrollar>"
-model: claude-haiku-4-5-20251001
+model: claude-haiku-4-5
 effort: medium
 metadata:
-  version: 1.3.0
+  version: 1.3.1
   uses: []
 ---
 

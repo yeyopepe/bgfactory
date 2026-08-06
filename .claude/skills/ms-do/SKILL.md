@@ -2,10 +2,10 @@
 name: ms-do
 description: Implementa un change/fix cuyo plan.md ya está escrito en {changesDir}/inProgress/{xxxx}/ — edita el código según la solución técnica, actualiza la documentación sincronizada, y mueve la entrada a {changesDir}/implemented. Parte del framework ms-*. Trigger: /ms-do <xxxx>, o cuando el usuario pide implementar un cambio/fix ya planificado por ms-how (normalmente encadenado automáticamente desde ella).
 argument-hint: <xxxx del cambio/fix ya planificado>
-model: claude-sonnet-5
+model: claude-haiku-4-5
 effort: medium
 metadata:
-  version: 1.1.2
+  version: 1.2.2
   uses: [ms-internal-workflow]
 ---
 
@@ -54,6 +54,7 @@ Implementa todo lo que dice `plan.md`:
 
 - Ejecuta cada tarea de la sección **(b) Solución técnica** con tu proceso normal de ingeniería (editar código, verificar que compila / pasan los tests si los hay).
 - Si `plan.md` tiene sección **(c) Cambios de arquitectura**, aplica esos cambios a `docs.tech.architectureDocPath` como parte de esta implementación.
+- Si `plan.md` tiene sección **(e) Verificación**, una vez completada toda la sección (b), recorre cada uno de sus ítems y comprueba que el resultado observable descrito se cumple de verdad (leyendo el código/DOM/estilos resultantes, no dando por hecho que la tarea de (b) que lo produce quedó bien). Si algún ítem no se cumple, corrígelo antes de continuar — no lo des por terminado ni lo menciones como pendiente al usuario.
 
 Si durante la implementación descubres que el plan no es viable tal cual está escrito, para y coméntaselo al usuario en vez de improvisar una solución distinta sin decírselo.
 
