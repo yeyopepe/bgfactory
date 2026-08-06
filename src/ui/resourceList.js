@@ -345,8 +345,33 @@ export function renderResourceList(
       filterInput.addEventListener('input', () => {
         filterText = filterInput.value;
         rerenderBody();
+        updateClearBtnState();
       });
       filterBar.appendChild(filterInput);
+
+      const clearBtn = document.createElement('button');
+      clearBtn.type = 'button';
+      clearBtn.className = 'resource-panel__filter-clear';
+      clearBtn.title = 'Limpiar búsqueda';
+      clearBtn.setAttribute('aria-label', 'Limpiar búsqueda');
+      clearBtn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 6l12 12" stroke-linecap="round"/>
+          <path d="M18 6L6 18" stroke-linecap="round"/>
+        </svg>
+      `;
+      const updateClearBtnState = () => {
+        clearBtn.classList.toggle('is-empty', filterInput.value === '');
+      };
+      clearBtn.addEventListener('click', () => {
+        if (filterText === '') return;
+        filterText = '';
+        filterInput.value = '';
+        rerenderBody();
+        updateClearBtnState();
+      });
+      filterBar.appendChild(clearBtn);
+      updateClearBtnState();
 
       panel.appendChild(filterBar);
     } else {

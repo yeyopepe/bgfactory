@@ -238,6 +238,11 @@ h1 {
   background: var(--bg-subtle);
 }
 
+.component-list th[data-col="orden"],
+.component-list th[data-col="copia"] {
+  min-width: 4.5rem;
+}
+
 .component-list td {
   padding: 0.5rem;
   border-top: 1px solid var(--border-neutral);
@@ -1910,10 +1915,13 @@ fieldset.modal__section--untitled {
 .component-panel__filter {
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--border-neutral);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .component-panel__filter input[type="text"] {
-  width: 100%;
+  flex: 1;
   box-sizing: border-box;
   padding: 0.5rem;
   border: 1px solid var(--border-neutral);
@@ -1927,6 +1935,37 @@ fieldset.modal__section--untitled {
   outline: none;
   border-color: var(--accent-blue);
   box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
+}
+
+.component-panel__filter-clear {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.component-panel__filter-clear svg {
+  width: 14px;
+  height: 14px;
+}
+
+.component-panel__filter-clear:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.component-panel__filter-clear.is-empty {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .component-panel__body {
@@ -2000,10 +2039,13 @@ fieldset.modal__section--untitled {
 .resource-panel__filter {
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--border-neutral);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .resource-panel__filter input[type="text"] {
-  width: 100%;
+  flex: 1;
   box-sizing: border-box;
   padding: 0.5rem;
   border: 1px solid var(--border-neutral);
@@ -2017,6 +2059,37 @@ fieldset.modal__section--untitled {
   outline: none;
   border-color: var(--accent-blue);
   box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
+}
+
+.resource-panel__filter-clear {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.resource-panel__filter-clear svg {
+  width: 14px;
+  height: 14px;
+}
+
+.resource-panel__filter-clear:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.resource-panel__filter-clear.is-empty {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .resource-panel__body {
@@ -2455,6 +2528,10 @@ fieldset.modal__section--untitled {
   background: var(--bg-subtle);
 }
 
+.resource-list th[data-col="usos"] {
+  min-width: 4.5rem;
+}
+
 .resource-list td {
   padding: 0.5rem;
   border-top: 1px solid var(--border-neutral);
@@ -2537,10 +2614,13 @@ fieldset.modal__section--untitled {
 .group-panel__filter {
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--border-neutral);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .group-panel__filter input[type="text"] {
-  width: 100%;
+  flex: 1;
   box-sizing: border-box;
   padding: 0.5rem;
   border: 1px solid var(--border-neutral);
@@ -2554,6 +2634,39 @@ fieldset.modal__section--untitled {
   outline: none;
   border-color: var(--accent-blue);
   box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
+}
+
+/* Botón de limpiar filtro — mismo patrón que .component-panel__filter-clear
+   y .resource-panel__filter-clear (cambio 00174). */
+.group-panel__filter-clear {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: none;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.group-panel__filter-clear svg {
+  width: 14px;
+  height: 14px;
+}
+
+.group-panel__filter-clear:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.group-panel__filter-clear.is-empty {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .group-panel__body {

@@ -1,0 +1,167 @@
+<style>
+  :root {
+    --accent-blue: #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --border-neutral: #dcdcdc;
+    --radius-sm: 4px;
+    --transition-fast: 150ms ease;
+    --panel-bg: #ffffff;
+    --row-hover: #f5f8fc;
+  }
+  body {
+    font-family: system-ui, sans-serif;
+    color: var(--text-primary);
+    background: #eef1f4;
+    padding: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+  h2 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 0 0 0.5rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .mockup {
+    width: 280px;
+  }
+  .panel {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-neutral);
+    border-radius: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+  .panel__header {
+    padding: 0.6rem 1rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+
+  /* Barra de filtro con el nuevo botón de limpiar */
+  .panel__filter {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .panel__filter input[type="text"] {
+    flex: 1;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.875rem;
+  }
+  .panel__filter input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
+  }
+  .panel__filter-clear {
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+  }
+  .panel__filter-clear:hover {
+    background: #f2f2f2;
+    color: var(--text-primary);
+    border-color: #bdbdbd;
+  }
+  /* Variante sin texto: mismo botón, siempre presente, sin estado "activo" */
+  .panel__filter-clear.is-idle {
+    opacity: 0.55;
+  }
+
+  .panel__body {
+    max-height: 220px;
+    overflow-y: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.4rem 1rem;
+    border-bottom: 1px solid #eee;
+  }
+  th {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  tr:hover td {
+    background: var(--row-hover);
+  }
+  .empty-hint {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    padding: 0.6rem 1rem;
+    font-style: italic;
+  }
+</style>
+
+<div class="mockup">
+  <h2>Campo vacío — botón sin efecto</h2>
+  <div class="panel">
+    <div class="panel__header">Componentes (4)</div>
+    <div class="panel__filter">
+      <input type="text" placeholder="Filtrar componentes…" value="" />
+      <button class="panel__filter-clear is-idle" title="Limpiar búsqueda">×</button>
+    </div>
+    <div class="panel__body">
+      <table>
+        <thead><tr><th>Id</th><th>Tipo</th><th>Acciones</th></tr></thead>
+        <tbody>
+          <tr><td>carta-01</td><td>carta</td><td>…</td></tr>
+          <tr><td>token-02</td><td>token</td><td>…</td></tr>
+          <tr><td>tablero</td><td>tableroSimple</td><td>…</td></tr>
+          <tr><td>track-a</td><td>track</td><td>…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="mockup">
+  <h2>Con texto escrito — listado filtrado</h2>
+  <div class="panel">
+    <div class="panel__header">Componentes (1)</div>
+    <div class="panel__filter">
+      <input type="text" placeholder="Filtrar componentes…" value="carta-01" />
+      <button class="panel__filter-clear" title="Limpiar búsqueda">×</button>
+    </div>
+    <div class="panel__body">
+      <table>
+        <thead><tr><th>Id</th><th>Tipo</th><th>Acciones</th></tr></thead>
+        <tbody>
+          <tr><td>carta-01</td><td>carta</td><td>…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="empty-hint">Al pulsar "×": el campo queda vacío y la tabla vuelve a mostrar los 4 componentes, como en el ejemplo de arriba.</p>
+</div>
