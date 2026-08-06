@@ -19,7 +19,7 @@ Este elemento combina la funcionalidad de forma redimensionable con la capacidad
 
 Se añade un nuevo tipo de elemento, "Meeple", como opción más al crear un componente nuevo. No sustituye ni modifica ningún elemento existente: convive con todos los tipos actuales.
 
-Un Meeple es, en esencia, una pieza que muestra únicamente una imagen recortada a una forma, sin ninguna caja ni color de fondo detrás. Donde la imagen tenga fondo transparente, se ve la mesa a través — no hay ningún relleno que tape esa transparencia. Esto lo diferencia de todos los elementos actuales con imagen, que siempre pintan algo (aunque sea blanco) detrás de la imagen.
+Un Meeple es, en esencia, una pieza que muestra únicamente una imagen recortada a una forma, sin ninguna caja ni color de fondo propio detrás. Este es el caso de uso principal del elemento: si la imagen elegida tiene fondo transparente (p. ej. un recurso PNG con esa transparencia), esa transparencia se respeta tal cual al mostrarla sobre la mesa — se ve lo que haya debajo en cada momento (el color/patrón de la mesa, u otro elemento si el meeple está encima de él), sin que el meeple tape esa zona con ningún relleno propio. Esto lo diferencia de todos los elementos actuales con imagen, que siempre pintan algo (aunque sea blanco) detrás de la imagen, y significa que un mismo meeple se ve distinto según qué haya debajo, ya que no aporta ningún fondo propio.
 
 **Contenido de imagen**: se elige una imagen de la galería de recursos ya existente en el proyecto, y se puede ajustar su zoom, posición y rotación dentro de la forma del Meeple — con los mismos controles de ajuste de imagen que ya se usan en otros elementos del proyecto.
 

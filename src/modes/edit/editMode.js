@@ -7,7 +7,7 @@ import {
   getGroups, addGroup, replaceGroup, removeGroup, getGroupPanelState, setGroupPanelState, sacarCartaDeMazo,
 } from '../../core/state.js';
 import { updateComponent, cloneComponent, createCopy } from '../../core/component.js';
-import { createResource, resourceTypeForFileName, getComponentsUsingResource } from '../../core/resource.js';
+import { createResource, resourceTypeForFileName, getComponentsUsingResource, findResourceByName } from '../../core/resource.js';
 import { getComponentsUsingGroup } from '../../core/group.js';
 import { getCartaIdsEnAlgunMazo, rectsOverlap } from '../../core/deck.js';
 import { convertImageToWebP } from '../../core/imageConversion.js';
@@ -25,6 +25,7 @@ import { openGroupDeleteConfirmModal } from '../../ui/groupDeleteConfirmModal.js
 import { openBulkDeleteConfirmModal } from '../../ui/bulkDeleteConfirmModal.js';
 import { showErrorModal } from '../../ui/errorModal.js';
 import { openBatchUploadSummaryModal } from '../../ui/batchUploadSummaryModal.js';
+import { openResourceReplaceConfirmModal } from '../../ui/resourceReplaceConfirmModal.js';
 
 // Selección de la sesión de edición en curso. `renderEditMode` se vuelve a invocar por
 // completo (desde main.js) ante cualquier `components:changed`, así que este estado
@@ -198,13 +199,13 @@ export function renderEditMode(container) {
 
   const RESOURCE_ACCEPT = '.png,.jpg,.jpeg,.gif,.svg,.webp,.ttf,.otf,.woff,.woff2';
 
-  // Valida y da de alta un recurso a partir de un `File`. Reutilizada por las
-  // tres vías de subida (única, varios ficheros, carpeta). Devuelve `{ ok: true }`
-  // si se añadió, o `{ ok: false }` si el formato no está soportado (sin avisar
-  // aquí — cada vía decide cómo comunicar los omitidos).
-  async function loadResourceFromFile(file) {
+  // Lee y da de alta un recurso a partir de un `File` ya validado (extensión
+  // soportada). Reutilizada por las tres vías de subida (única, varios
+  // ficheros, carpeta). Con `replace: true`, reemplaza el recurso existente
+  // con el `id` indicado en vez de crear uno nuevo; sin `replace`, `id` es
+  // opcional (si no se indica, se genera uno nuevo automáticamente).
+  async function loadResourceFromFile(file, { id = null, replace = false } = {}) {
     const type = resourceTypeForFileName(file.name);
-    if (!type) return { ok: false };
     const dataUrl = await new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result);
@@ -213,8 +214,9 @@ export function renderEditMode(container) {
     });
     const name = file.name.replace(/\.[^.]+$/, '');
     const converted = await convertImageToWebP(file, dataUrl);
-    addResource(createResource({ name, type, dataUrl: converted.dataUrl, fileName: converted.fileName, mimeType: converted.mimeType }));
-    return { ok: true };
+    const resource = createResource({ id, name, type, dataUrl: converted.dataUrl, fileName: converted.fileName, mimeType: converted.mimeType });
+    if (replace) replaceResource(id, resource);
+    else addResource(resource);
   }
 
   const resourceFileInput = document.createElement('input');
@@ -225,12 +227,77 @@ export function renderEditMode(container) {
     const file = resourceFileInput.files[0];
     resourceFileInput.value = '';
     if (!file) return;
-    const result = await loadResourceFromFile(file);
-    if (!result.ok) {
+    const type = resourceTypeForFileName(file.name);
+    if (!type) {
       showErrorModal('Error', 'Formato de fichero no soportado.');
+      return;
     }
+    const name = file.name.replace(/\.[^.]+$/, '');
+    const existing = findResourceByName(name, getResources());
+    if (!existing) {
+      await loadResourceFromFile(file);
+      return;
+    }
+    openResourceReplaceConfirmModal({
+      names: [name],
+      onAccept: () => loadResourceFromFile(file, { id: existing.id, replace: true }),
+    });
   });
   tableContainer.appendChild(resourceFileInput);
+
+  // Ambas vías de subida en lote (varios ficheros y carpeta) comparten esta
+  // lógica: separar los ficheros válidos en los que no chocan con ningún
+  // nombre existente (se cargan igual que antes, en paralelo) de los que sí
+  // (se agrupan en un único diálogo de confirmación de reemplazo). Un mismo
+  // nombre repetido entre varios ficheros del propio lote también cuenta como
+  // conflicto para el segundo y siguientes, contra el primero del lote.
+  async function loadResourceBatch(files, { skippedSubfolderCount = 0, warnIfNoneValid = false } = {}) {
+    const skippedFormat = [];
+    const validFiles = [];
+    for (const file of files) {
+      if (resourceTypeForFileName(file.name)) validFiles.push(file);
+      else skippedFormat.push({ name: file.name });
+    }
+
+    if (validFiles.length === 0 && warnIfNoneValid) {
+      showErrorModal('Aviso', 'No se ha encontrado ningún recurso válido en la carpeta seleccionada.');
+      return;
+    }
+
+    const namesInBatch = [];
+    const withoutConflict = [];
+    const withConflict = [];
+    for (const file of validFiles) {
+      const name = file.name.replace(/\.[^.]+$/, '');
+      const existing = findResourceByName(name, getResources()) ?? findResourceByName(name, namesInBatch);
+      if (existing) {
+        withConflict.push({ file, name, id: existing.id });
+      } else {
+        const id = crypto.randomUUID();
+        namesInBatch.push({ name, id });
+        withoutConflict.push({ file, id });
+      }
+    }
+
+    let added = withoutConflict.length;
+    await Promise.all(withoutConflict.map(({ file, id }) => loadResourceFromFile(file, { id })));
+
+    if (withConflict.length > 0) {
+      await new Promise((resolve) => {
+        openResourceReplaceConfirmModal({
+          names: withConflict.map((c) => c.name),
+          onAccept: async () => {
+            await Promise.all(withConflict.map((c) => loadResourceFromFile(c.file, { id: c.id, replace: true })));
+            added += withConflict.length;
+            resolve();
+          },
+          onCancel: resolve,
+        });
+      });
+    }
+
+    openBatchUploadSummaryModal({ added, skippedFormat, skippedSubfolderCount });
+  }
 
   const resourceFilesInput = document.createElement('input');
   resourceFilesInput.type = 'file';
@@ -241,16 +308,7 @@ export function renderEditMode(container) {
     const files = Array.from(resourceFilesInput.files);
     resourceFilesInput.value = '';
     if (files.length === 0) return;
-
-    let added = 0;
-    const skippedFormat = [];
-    const results = await Promise.all(files.map((file) => loadResourceFromFile(file)));
-    results.forEach((result, i) => {
-      if (result.ok) added++;
-      else skippedFormat.push({ name: files[i].name });
-    });
-
-    openBatchUploadSummaryModal({ added, skippedFormat });
+    await loadResourceBatch(files);
   });
   tableContainer.appendChild(resourceFilesInput);
 
@@ -268,20 +326,7 @@ export function renderEditMode(container) {
     const topLevelFiles = allFiles.filter((file) => file.webkitRelativePath.split('/').length === 2);
     const skippedSubfolderCount = allFiles.length - topLevelFiles.length;
 
-    let added = 0;
-    const skippedFormat = [];
-    const results = await Promise.all(topLevelFiles.map((file) => loadResourceFromFile(file)));
-    results.forEach((result, i) => {
-      if (result.ok) added++;
-      else skippedFormat.push({ name: topLevelFiles[i].name });
-    });
-
-    if (added === 0) {
-      showErrorModal('Aviso', 'No se ha encontrado ningún recurso válido en la carpeta seleccionada.');
-      return;
-    }
-
-    openBatchUploadSummaryModal({ added, skippedFormat, skippedSubfolderCount });
+    await loadResourceBatch(topLevelFiles, { skippedSubfolderCount, warnIfNoneValid: true });
   });
   tableContainer.appendChild(resourceFolderInput);
 

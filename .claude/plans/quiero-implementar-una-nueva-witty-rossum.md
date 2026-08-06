@@ -15,6 +15,53 @@ Decisiones ya confirmadas con el usuario:
 - El número `XXXX` de `changes/versions/XXXX` es **libre, lo indica el usuario** en cada invocación, e **independiente** del contador interno `CURRENT_VERSION` de `src/data/version.js` que autoincrementa `build.py`.
 - `changelog.md` no es una lista plana: diferencia tres secciones — **Nuevo**, **Cambios**, **Eliminado** — comparando cada entrada de `closed/` contra el `changelog.md` de la versión anterior (si no hay versión anterior, todo va a **Nuevo**). La versión anterior se detecta como la carpeta de `changes/versions/` con fecha de creación más reciente (excluyendo la que se está generando), y esa detección se le confirma al usuario antes de usarla, por si hubiera ambigüedad.
 
+## Flujo completo de `/ms-version <XXXX>`
+
+```mermaid
+flowchart TD
+    Start(["/ms-version XXXX"]) --> Guard{"¿ms-context.json\ncon framework.changesDir?"}
+    Guard -- No --> StopInit["Pedir /ms-init y parar"]
+    Guard -- Sí --> ResolveXXXX{"¿XXXX indicado?"}
+    ResolveXXXX -- No --> AskXXXX["Preguntar XXXX al usuario"]
+    AskXXXX --> CreateFolder
+    ResolveXXXX -- Sí --> CreateFolder["init-version-folder.py\ncrea versions/XXXX/{files,docs}"]
+    CreateFolder --> Exists{"¿ya existía\nversions/XXXX/?"}
+    Exists -- Sí --> AskOverwrite["Preguntar: regenerar\no elegir otro XXXX"]
+    AskOverwrite --> HowTo
+    Exists -- No --> HowTo{"¿existe\nhow-to-compile-version.md?"}
+    HowTo -- No --> AskProcedure["Preguntar procedimiento\nal usuario y escribirlo\n(how-to-compile-version.template.md)"]
+    AskProcedure --> Compile
+    HowTo -- Sí --> Compile["Ejecutar comando(s) del\nprocedimiento y generar el entregable"]
+    Compile --> CompileOk{"¿generado\ncorrectamente?"}
+    CompileOk -- No --> StopCompile["Parar y explicar\nel fallo al usuario"]
+    CompileOk -- Sí --> CopyFiles["Copiar entregable a\nversions/XXXX/files/"]
+    CopyFiles --> CopyDocs["copy-tech-docs.py\ncopia docs.tech.* configurados\na versions/XXXX/docs/"]
+    CopyDocs --> InvokeChangelog["Invocar ms-internal-changelog\ncon versions/XXXX/"]
+
+    subgraph SG["ms-internal-changelog"]
+        direction TB
+        ListClosed["list-closed-entries.py\nlista changes/closed/*"]
+        ListClosed --> ClosedEmpty{"¿closed/\nvacío?"}
+        ClosedEmpty -- Sí --> NoChangelog["Avisar: nada que incorporar\n(no crea changelog.md)"]
+        ClosedEmpty -- No --> FindPrev["find-previous-version.py\nbusca versions/* más reciente\n(excluyendo XXXX actual)"]
+        FindPrev --> PrevFound{"¿encontrada?"}
+        PrevFound -- Sí --> ConfirmPrev["Confirmar con el usuario\nque es la versión anterior"]
+        ConfirmPrev --> ReadPrevChangelog["Leer changelog.md\nde esa versión anterior"]
+        PrevFound -- No --> AllNew["No hay anterior:\ntodo irá a 'Nuevo'"]
+        ReadPrevChangelog --> Classify
+        AllNew --> Classify["Por cada entrada de closed/:\nclasificar Nuevo / Cambios / Eliminado\ncomparando con el changelog anterior"]
+        Classify --> WriteChangelog["Escribir changelog.md\n(changelog.template.md)"]
+        WriteChangelog --> ConfirmDelete{"¿usuario confirma\nborrar esas carpetas\nde closed/?"}
+        ConfirmDelete -- No --> KeepClosed["No borrar nada\n(changelog.md queda escrito)"]
+        ConfirmDelete -- Sí --> DeleteClosed["delete-closed-entries.py\nborra solo los xxxx incorporados"]
+    end
+
+    InvokeChangelog --> ListClosed
+    NoChangelog --> Confirm
+    KeepClosed --> Confirm
+    DeleteClosed --> Confirm["Confirmar al usuario:\nfiles/, docs/, changelog.md\ny estado final de closed/"]
+```
+
 ## Hallazgo técnico a corregir de paso
 
 `.claude/skills/ms-internal-workflow/scripts/next-change-number.py` calcula el siguiente `xxxx` de change/fix recorriendo **todas** las subcarpetas directas de `changesDir` excepto `todo`, buscando nombres numéricos dentro. Si se crea `changes/versions/00128/`, ese `00128` contaminaría el cálculo del siguiente `xxxx` de change/fix (colisión de dos espacios de numeración que deben ser independientes, según lo confirmado arriba). Hay que añadir `"versions"` a `EXCLUDED_STATE_DIRS` en ese script (mismo tratamiento que ya recibe `"todo"`), y actualizar su docstring. `get-max-change-codes.py` no necesita cambios: usa una lista fija `STATES = ("inProgress", "implemented", "closed")`, no escanea genéricamente.

@@ -1,0 +1,213 @@
+<title>Maqueta — Confirmación de recurso duplicado</title>
+<style>
+  :root {
+    --accent-blue: #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --error: #d32f2f;
+    --border-neutral: #dcdcdc;
+    --bg-hover: #e8e8e8;
+    --bg-subtle: #f2f2f2;
+    --radius-lg: 8px;
+    --radius-sm: 4px;
+    --shadow-2: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #2b2b2f;
+    color: var(--text-primary);
+    padding: 2rem;
+  }
+
+  h2.page-title {
+    color: var(--text-light);
+    font-weight: 500;
+    font-size: 1rem;
+    margin: 0 0 1.5rem;
+  }
+
+  .variants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+  }
+
+  .variant {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .variant__label {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    background: #fff;
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: var(--radius-sm);
+    width: fit-content;
+  }
+
+  /* En la maqueta el overlay no cubre toda la pantalla (para poder ver ambas
+     variantes a la vez): se representa como un recuadro con el mismo fondo
+     semitransparente que .modal-overlay del proyecto. */
+  .modal-overlay {
+    position: relative;
+    width: 420px;
+    min-height: 260px;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    padding: 2rem 1rem;
+  }
+
+  .modal {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    max-width: 340px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal__header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .modal__header-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #b8860b;
+    color: var(--text-light);
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .modal__header-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .modal__content {
+    padding: 1.25rem 1rem;
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+
+  .modal__content p {
+    margin: 0 0 0.75rem;
+  }
+
+  .modal__content p:last-child {
+    margin-bottom: 0;
+  }
+
+  .duplicate-list {
+    list-style: none;
+    margin: 0.5rem 0 0.75rem;
+    padding: 0;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    max-height: 130px;
+    overflow-y: auto;
+  }
+
+  .duplicate-list li {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+
+  .duplicate-list li:last-child {
+    border-bottom: none;
+  }
+
+  .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  .btn-cancel, .btn-accept {
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+  }
+
+  .btn-cancel {
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+  }
+
+  .btn-accept {
+    background: var(--accent-blue);
+    color: var(--text-light);
+  }
+</style>
+
+<h2 class="page-title">Maqueta — diálogo de confirmación al añadir un recurso con nombre duplicado</h2>
+
+<div class="variants">
+  <div class="variant">
+    <span class="variant__label">Un único fichero duplicado (subida individual)</span>
+    <div class="modal-overlay">
+      <div class="modal">
+        <div class="modal__header">
+          <span class="modal__header-icon">!</span>
+          <h3 class="modal__header-title">Recurso duplicado</h3>
+        </div>
+        <div class="modal__content">
+          <p>Ya existe un recurso llamado <strong>"logo"</strong> en la galería.</p>
+          <p>Si continúas, se reemplazará su contenido por el del fichero nuevo. Los componentes que ya lo usan pasarán a mostrar la imagen nueva.</p>
+        </div>
+        <div class="modal__footer">
+          <button class="btn-cancel" type="button">Cancelar</button>
+          <button class="btn-accept" type="button">Reemplazar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="variant">
+    <span class="variant__label">Varios ficheros duplicados (subida múltiple o carpeta)</span>
+    <div class="modal-overlay">
+      <div class="modal">
+        <div class="modal__header">
+          <span class="modal__header-icon">!</span>
+          <h3 class="modal__header-title">Recursos duplicados</h3>
+        </div>
+        <div class="modal__content">
+          <p>2 de los ficheros seleccionados coinciden con recursos ya existentes en la galería:</p>
+          <ul class="duplicate-list">
+            <li>logo.png</li>
+            <li>icono.svg</li>
+          </ul>
+          <p>Si continúas, se reemplazará su contenido. El resto de ficheros sin conflicto se añadirán con normalidad.</p>
+        </div>
+        <div class="modal__footer">
+          <button class="btn-cancel" type="button">Cancelar</button>
+          <button class="btn-accept" type="button">Reemplazar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -147,12 +147,126 @@
     font-size: 1.6rem;
     opacity: 0.7;
   }
+
+  /* ---- Caso principal destacado ---- */
+  h2 {
+    font-size: 1.05rem;
+    margin: 40px 0 4px;
+  }
+  p.section-note {
+    color: var(--text-muted);
+    margin: 0 0 18px;
+    font-size: 0.85rem;
+    max-width: 640px;
+  }
+  .main-case {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    background: #fff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-1);
+    padding: 28px 32px;
+    flex-wrap: wrap;
+  }
+  .main-case__block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .main-case__title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .arrow {
+    font-size: 1.8rem;
+    color: var(--text-muted);
+  }
+
+  /* Icono clásico de "fondo transparente": tablero de ajedrez */
+  .checkerboard {
+    width: 140px;
+    height: 140px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-neutral);
+    background-image:
+      linear-gradient(45deg, #d0d0d0 25%, transparent 25%, transparent 75%, #d0d0d0 75%),
+      linear-gradient(45deg, #d0d0d0 25%, transparent 25%, transparent 75%, #d0d0d0 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 8px 8px;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .checkerboard .fake-img {
+    width: 116px;
+    height: 116px;
+    border-radius: var(--radius-sm);
+  }
+
+  .mesa-mini {
+    width: 140px;
+    height: 140px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mesa-mini--light {
+    background: var(--bg-table);
+    background-image:
+      linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+  .mesa-mini--dark {
+    background: #4a5d4a;
+  }
+  .mesa-mini .meeple {
+    width: 96px;
+    height: 96px;
+  }
 </style>
 </head>
 <body>
   <h1>Meeple — representación en la mesa</h1>
   <p class="subtitle">Maqueta ilustrativa. El fondo de mesa (patrón gris) debe verse a través de las zonas transparentes de la imagen — no hay ninguna caja de color detrás.</p>
 
+  <h2>Caso principal: imagen con fondo transparente</h2>
+  <p class="section-note">El recurso de imagen elegido (p. ej. un PNG con fondo transparente, representado aquí con el clásico patrón de damero) se pinta tal cual sobre la mesa: donde el original es transparente, se ve el color/patrón de la mesa que haya detrás en cada momento — sin ninguna caja ni relleno propio del meeple. Por eso el mismo meeple se ve distinto según el fondo de mesa (claro u oscuro): no lleva su propio color de fondo.</p>
+  <div class="main-case">
+    <div class="main-case__block">
+      <span class="main-case__title">Imagen original (PNG con transparencia)</span>
+      <div class="checkerboard">
+        <div class="fake-img fake-img--figure"></div>
+      </div>
+    </div>
+    <span class="arrow">→</span>
+    <div class="main-case__block">
+      <span class="main-case__title">Meeple sobre mesa clara</span>
+      <div class="mesa-mini mesa-mini--light">
+        <div class="meeple meeple--square">
+          <div class="fake-img fake-img--figure"></div>
+        </div>
+      </div>
+    </div>
+    <div class="main-case__block">
+      <span class="main-case__title">Meeple sobre mesa oscura</span>
+      <div class="mesa-mini mesa-mini--dark">
+        <div class="meeple meeple--square">
+          <div class="fake-img fake-img--figure"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Otras variantes</h2>
+  <p class="section-note">Formas disponibles, borde opcional y estado sin imagen — la transparencia del caso principal se aplica igual en todas ellas.</p>
   <div class="table">
     <div class="example">
       <div class="meeple meeple--square">

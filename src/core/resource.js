@@ -37,6 +37,12 @@ export function updateResource(resource, changes) {
   return { ...resource, ...changes };
 }
 
+// Busca un recurso por `name`, insensible a mayúsculas y a tildes (mismo
+// criterio que core/textSort.js#sortByName), o null si no hay coincidencia.
+export function findResourceByName(name, resources) {
+  return resources.find((r) => r.name.localeCompare(name, 'es', { sensitivity: 'base' }) === 0) ?? null;
+}
+
 // Recorre objetos y arrays anidados (p.ej. las caras de una carta o sus
 // cuadros de texto) acumulando los valores primitivos hoja, para poder
 // detectar un id de recurso referenciado en cualquier nivel de `properties`.
