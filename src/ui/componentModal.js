@@ -1381,9 +1381,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     }
     proporcionSelect.addEventListener('change', () => {
       props.proporcion = proporcionSelect.value;
-      const width = workingComponent.width || DEFAULT_CARTA_WIDTH;
-      workingComponent.width = width;
-      workingComponent.height = width / getProporcionRatio(props.proporcion);
+      if (props.proporcion !== 'libre') {
+        const width = workingComponent.width || DEFAULT_CARTA_WIDTH;
+        workingComponent.width = width;
+        workingComponent.height = width / getProporcionRatio(props.proporcion);
+      }
     });
     proporcionField.appendChild(proporcionLabel);
     proporcionField.appendChild(proporcionSelect);
@@ -1412,9 +1414,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
           props.caraFrontal = caraFrontal;
           props.caraTrasera = caraTrasera;
           proporcionSelect.value = proporcion;
-          const width = workingComponent.width || DEFAULT_CARTA_WIDTH;
-          workingComponent.width = width;
-          workingComponent.height = width / getProporcionRatio(proporcion);
+          if (proporcion !== 'libre') {
+            const width = workingComponent.width || DEFAULT_CARTA_WIDTH;
+            workingComponent.width = width;
+            workingComponent.height = width / getProporcionRatio(proporcion);
+          }
         },
       });
     });
@@ -1498,9 +1502,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
         props.proporcion = clip.proporcion;
         props.esquinasRedondeadas = clip.esquinasRedondeadas ?? true;
         proporcionSelect.value = clip.proporcion;
-        const width = workingComponent.width || DEFAULT_CARTA_WIDTH;
-        workingComponent.width = width;
-        workingComponent.height = width / getProporcionRatio(props.proporcion);
+        if (props.proporcion !== 'libre') {
+          const width = workingComponent.width || DEFAULT_CARTA_WIDTH;
+          workingComponent.width = width;
+          workingComponent.height = width / getProporcionRatio(props.proporcion);
+        }
       }
     });
     styleActionsRow.appendChild(pasteStyleBtn);
