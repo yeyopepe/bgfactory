@@ -59,8 +59,10 @@ A diferencia de "Clonar" (copia completa e independiente desde el instante en qu
 
 **Alta**: "Copia" no es un tipo seleccionable en la modal previa "+ Añadir componente" (sigue siendo Cuadro de texto/Tablero simple/Tablero personalizado/Dado/Visor de documentos/Carta-Ficha/Mazo) — un elemento tipo Copia solo puede nacer copiando un componente ya existente.
 
-- **Disponible en**: modo edición (creación, edición reducida y borrado); el resultado de la sincronización y la posición/estado independiente de cada copia se reflejan también en modo juego, igual que cualquier otro componente.
-- **Código**: 00097, 00100, 00105, 00149.
+**Distintivo visual en modo edición**: cualquier elemento tipo Copia muestra sobre sí mismo, en la mesa, una pequeña insignia roja permanente (esquina inferior izquierda) que permite identificarlo como copia a simple vista, sin necesidad de abrirlo. Convive sin solaparse con las insignias de "Bloqueado" y "Oculto" si el elemento también las tiene activas. Además, mientras el elemento está seleccionado o bajo el cursor, el contorno discontinuo y la etiqueta con su tipo/id (que ya se muestran para cualquier elemento en ese estado) se pintan en rojo en vez de azul. Solo aplica en modo edición; en modo juego una copia se ve como cualquier otro componente, sin ningún distintivo.
+
+- **Disponible en**: modo edición (creación, edición reducida, borrado, y distintivo visual sobre la mesa); el resultado de la sincronización y la posición/estado independiente de cada copia se reflejan también en modo juego, igual que cualquier otro componente.
+- **Código**: 00097, 00100, 00105, 00149, 00167.
 
 ### Panel flotante de recursos, con filtro de texto
 

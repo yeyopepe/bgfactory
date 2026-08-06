@@ -459,6 +459,7 @@ export function renderEditMode(container) {
       identifyMode: 'label',
       showLockIndicator: true,
       showHiddenIndicator: true,
+      showCopyIndicator: true,
       onSelect: openEditModalFor,
       onToggleSelect: toggleSelect,
       selectedIds: selectedComponentIds,

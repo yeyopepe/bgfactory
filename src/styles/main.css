@@ -690,6 +690,18 @@ fieldset.modal__section--untitled {
   display: block;
 }
 
+/* Copia (cambio 00167): mismo contorno/etiqueta de selección, en rojo en vez
+   de azul, para reforzar de un vistazo que el elemento es una copia. */
+.text-box--selectable.is-copy:hover,
+.text-box--selectable.is-copy.text-box--selected {
+  outline-color: var(--error);
+}
+
+.text-box--selectable.is-copy:hover .component-id-label,
+.text-box--selectable.is-copy.text-box--selected .component-id-label {
+  background: var(--error);
+}
+
 .text-box--movable {
   cursor: move;
 }
@@ -724,6 +736,17 @@ fieldset.modal__section--untitled {
 .board--selectable:hover .component-id-label,
 .board--selectable.board--selected .component-id-label {
   display: block;
+}
+
+/* Copia (cambio 00167): ver .text-box--selectable.is-copy más arriba. */
+.board--selectable.is-copy:hover,
+.board--selectable.is-copy.board--selected {
+  outline-color: var(--error);
+}
+
+.board--selectable.is-copy:hover .component-id-label,
+.board--selectable.is-copy.board--selected .component-id-label {
+  background: var(--error);
 }
 
 .board--movable {
@@ -763,6 +786,17 @@ fieldset.modal__section--untitled {
   display: block;
 }
 
+/* Copia (cambio 00167): ver .text-box--selectable.is-copy más arriba. */
+.tablero-personalizado--selectable.is-copy:hover,
+.tablero-personalizado--selectable.is-copy.tablero-personalizado--selected {
+  outline-color: var(--error);
+}
+
+.tablero-personalizado--selectable.is-copy:hover .component-id-label,
+.tablero-personalizado--selectable.is-copy.tablero-personalizado--selected .component-id-label {
+  background: var(--error);
+}
+
 .tablero-personalizado--movable {
   cursor: move;
 }
@@ -792,6 +826,17 @@ fieldset.modal__section--untitled {
 .dice--selectable:hover .component-id-label,
 .dice--selectable.dice--selected .component-id-label {
   display: block;
+}
+
+/* Copia (cambio 00167): ver .text-box--selectable.is-copy más arriba. */
+.dice--selectable.is-copy:hover,
+.dice--selectable.is-copy.dice--selected {
+  outline-color: var(--error);
+}
+
+.dice--selectable.is-copy:hover .component-id-label,
+.dice--selectable.is-copy.dice--selected .component-id-label {
+  background: var(--error);
 }
 
 .component-id-label {
@@ -903,6 +948,17 @@ fieldset.modal__section--untitled {
   display: block;
 }
 
+/* Copia (cambio 00167): ver .text-box--selectable.is-copy más arriba. */
+.document-viewer--selectable.is-copy:hover,
+.document-viewer--selectable.is-copy.document-viewer--selected {
+  outline-color: var(--error);
+}
+
+.document-viewer--selectable.is-copy:hover .component-id-label,
+.document-viewer--selectable.is-copy.document-viewer--selected .component-id-label {
+  background: var(--error);
+}
+
 .document-viewer--movable {
   cursor: move;
 }
@@ -943,6 +999,18 @@ fieldset.modal__section--untitled {
 .carta--selectable:hover .component-id-label,
 .carta--selectable.carta--selected .component-id-label {
   display: block;
+}
+
+/* Copia (cambio 00167): ver .text-box--selectable.is-copy más arriba. Cubre
+   también 'mazo', que reutiliza estas mismas clases (STYLE_BIBLE.md sección 13). */
+.carta--selectable.is-copy:hover,
+.carta--selectable.is-copy.carta--selected {
+  outline-color: var(--error);
+}
+
+.carta--selectable.is-copy:hover .component-id-label,
+.carta--selectable.is-copy.carta--selected .component-id-label {
+  background: var(--error);
 }
 
 .carta--movable {
@@ -2187,6 +2255,31 @@ fieldset.modal__section--untitled {
 }
 
 .component-hidden-badge svg {
+  width: 100%;
+  height: 100%;
+  padding: 3px;
+  box-sizing: border-box;
+}
+
+/* Indicador de "Copia" (cambio 00167): mismo patrón de superposición e
+   insignia permanente que candado/oculto, pero con fondo var(--error) en vez
+   del neutro oscuro, para distinguirse a simple vista. Esquina inferior
+   izquierda, la única de las cuatro libre. */
+.component-copy-badge {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--error);
+  color: var(--text-light);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.component-copy-badge svg {
   width: 100%;
   height: 100%;
   padding: 3px;

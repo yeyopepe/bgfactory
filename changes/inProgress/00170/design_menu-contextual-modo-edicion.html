@@ -1,0 +1,268 @@
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --bg-toolbar: #333333;
+    --accent-blue: #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --accent-blue-light: #eaf3fc;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --border-neutral: #dcdcdc;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-1: 0 2px 6px rgba(0, 0, 0, 0.10), 0 1px 2px rgba(0, 0, 0, 0.08);
+    --shadow-2: 0 4px 20px rgba(0, 0, 0, 0.15);
+    --transition-fast: 150ms ease;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--bg-table);
+    background-image: radial-gradient(rgba(0, 0, 0, 0.09) 1px, transparent 1px);
+    background-size: 22px 22px;
+    min-height: 100vh;
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .intro {
+    max-width: 640px;
+    background: #fff;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    padding: 0.9rem 1.1rem;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    box-shadow: var(--shadow-1);
+  }
+  .intro strong { color: var(--accent-blue-dark); }
+
+  .stage {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3rem;
+    align-items: flex-start;
+  }
+
+  .stage-block h2 {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin: 0 0 0.6rem 0;
+  }
+
+  /* Elemento de mesa de ejemplo, para dar contexto de "sobre qué se hizo click derecho" */
+  .fake-component {
+    width: 150px;
+    height: 96px;
+    border-radius: var(--radius-sm);
+    background: #fdf6e3;
+    border: 2px dashed var(--accent-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent-blue-dark);
+    box-shadow: var(--shadow-1);
+    position: relative;
+  }
+  .fake-component::after {
+    content: 'seleccionado';
+    position: absolute;
+    bottom: -1.4rem;
+    left: 0;
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--text-muted);
+  }
+
+  .cursor-dot {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: var(--text-primary);
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.7);
+  }
+
+  /* ---- Copia fiel de ui/contextMenu.js + main.css ---- */
+  .context-menu {
+    position: absolute;
+    min-width: 200px;
+    background: var(--accent-blue-light);
+    border: 1px solid rgba(44, 125, 216, 0.25);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-2);
+    overflow: hidden;
+  }
+
+  .context-menu__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    transition: background var(--transition-fast);
+  }
+  .context-menu__item:not(:last-child) {
+    border-bottom: 1px solid rgba(44, 125, 216, 0.25);
+  }
+  .context-menu__item:hover {
+    background: var(--accent-blue);
+    color: var(--text-light);
+  }
+  .context-menu__item--disabled {
+    cursor: not-allowed;
+    color: var(--text-muted);
+    opacity: 0.6;
+  }
+  .context-menu__item--disabled:hover {
+    background: none;
+    color: var(--text-muted);
+  }
+  .context-menu__item--danger:hover {
+    background: #d32f2f;
+    color: var(--text-light);
+  }
+  .context-menu__item-icon {
+    display: flex;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+  .context-menu__item-icon svg { width: 100%; height: 100%; }
+
+  .context-menu__separator {
+    border-top: 1px solid rgba(44, 125, 216, 0.25);
+  }
+
+  /* Fila nueva de este cambio: "Añadir a grupo" con desplegable inline */
+  .context-menu__item--group {
+    cursor: default;
+    justify-content: space-between;
+    gap: 0.6rem;
+  }
+  .context-menu__item--group:hover {
+    background: none;
+    color: var(--text-primary);
+  }
+  .context-menu__item--group .context-menu__item-label {
+    white-space: nowrap;
+  }
+  .context-menu__group-select {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.8125rem;
+    padding: 0.25rem 0.4rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    background: #fff;
+    color: var(--text-primary);
+  }
+  .context-menu__group-select:disabled {
+    background: var(--border-neutral);
+    color: var(--text-muted);
+    cursor: not-allowed;
+  }
+
+  .caption {
+    margin-top: 0.6rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    max-width: 260px;
+  }
+</style>
+
+<div class="intro">
+  <strong>Maqueta estática</strong> — menú contextual de clic derecho sobre un elemento de la mesa en Modo Edición (cambio 00170). Reutiliza el componente visual ya existente del menú contextual de Modo Juego; la única fila nueva es "Añadir a grupo" con su desplegable. Sin interactividad real: los desplegables no reaccionan a clicks reales, solo ilustran el aspecto.
+</div>
+
+<div class="stage">
+
+  <div class="stage-block">
+    <h2>Con grupos disponibles</h2>
+    <div class="fake-component">Token "Guardián"</div>
+    <div style="position: relative; height: 210px; margin-top: 1.2rem;">
+      <div class="cursor-dot" style="left: 0; top: 0;"></div>
+      <div class="context-menu" style="left: 14px; top: -6px;">
+        <div class="context-menu__item">
+          <span class="context-menu__item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="7" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          </span>
+          <span class="context-menu__item-label">Clonar</span>
+        </div>
+        <div class="context-menu__item">
+          <span class="context-menu__item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><rect x="4" y="4" width="11" height="11" rx="2"/></svg>
+          </span>
+          <span class="context-menu__item-label">Copiar</span>
+        </div>
+        <div class="context-menu__item context-menu__item--danger">
+          <span class="context-menu__item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          </span>
+          <span class="context-menu__item-label">Eliminar</span>
+        </div>
+        <div class="context-menu__separator"></div>
+        <div class="context-menu__item context-menu__item--group">
+          <span class="context-menu__item-label">Añadir a grupo</span>
+          <select class="context-menu__group-select">
+            <option>Elegir grupo…</option>
+            <option>Cartas de evento</option>
+            <option>Monstruos</option>
+            <option>Tesoros</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Selección múltiple: si hay varios elementos seleccionados a la vez, las cuatro acciones se aplican a todos ellos.</p>
+  </div>
+
+  <div class="stage-block">
+    <h2>Sin ningún grupo creado todavía</h2>
+    <div class="fake-component">Ficha "Explorador"</div>
+    <div style="position: relative; height: 210px; margin-top: 1.2rem;">
+      <div class="cursor-dot" style="left: 0; top: 0;"></div>
+      <div class="context-menu" style="left: 14px; top: -6px;">
+        <div class="context-menu__item">
+          <span class="context-menu__item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="7" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          </span>
+          <span class="context-menu__item-label">Clonar</span>
+        </div>
+        <div class="context-menu__item">
+          <span class="context-menu__item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><rect x="4" y="4" width="11" height="11" rx="2"/></svg>
+          </span>
+          <span class="context-menu__item-label">Copiar</span>
+        </div>
+        <div class="context-menu__item context-menu__item--danger">
+          <span class="context-menu__item-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          </span>
+          <span class="context-menu__item-label">Eliminar</span>
+        </div>
+        <div class="context-menu__separator"></div>
+        <div class="context-menu__item context-menu__item--group context-menu__item--disabled">
+          <span class="context-menu__item-label">Añadir a grupo</span>
+          <select class="context-menu__group-select" disabled>
+            <option>Sin grupos</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Sin grupos en la partida: la fila queda deshabilitada, sin poder desplegarse.</p>
+  </div>
+
+</div>
