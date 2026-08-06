@@ -319,6 +319,7 @@ function paintShape(contentParent, shape, renderScaleX, renderScaleY) {
   shapeEl.style.top = `${shape.y * renderScaleY}px`;
   shapeEl.style.width = `${shape.width * renderScaleX}px`;
   shapeEl.style.height = `${shape.height * renderScaleY}px`;
+  shapeEl.style.transform = shape.rotation ? `rotate(${shape.rotation}deg)` : '';
   shapeEl.style.borderRadius = SHAPE_BORDER_RADIUS[shape.tipo] || '0';
   shapeEl.style.border = shape.bordeActivo !== false ? `${shape.bordeGrosor}px solid ${shape.bordeColor || '#000000'}` : 'none';
   shapeEl.style.boxSizing = 'border-box';
@@ -357,6 +358,7 @@ function paintTextBox(contentParent, textBox, renderScaleX, renderScaleY) {
   textEl.style.top = `${textBox.y * renderScaleY}px`;
   textEl.style.width = `${textBox.width * renderScaleX}px`;
   textEl.style.height = `${textBox.height * renderScaleY}px`;
+  textEl.style.transform = textBox.rotation ? `rotate(${textBox.rotation}deg)` : '';
   textEl.style.fontSize = `${(textBox.tamañoFuente || 16) * fontScale}px`;
   textEl.style.color = textBox.color || '#000000';
   textEl.style.fontWeight = textBox.negrita ? 'bold' : 'normal';

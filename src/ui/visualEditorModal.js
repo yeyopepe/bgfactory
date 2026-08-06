@@ -94,6 +94,16 @@ function createSendToBackIcon() {
   return svg;
 }
 
+function createRotateIcon() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.innerHTML = '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v5h5"/>';
+  return svg;
+}
+
 function createCopyIcon() {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 24 24');
@@ -599,6 +609,17 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
           onClick: () => removeElement(caraKey, kind, id),
         },
         {
+          icon: createRotateIcon(),
+          label: 'Girar 90°',
+          onClick: () => {
+            const collection = kind === 'forma' ? cara.formas : cara.textBoxes;
+            const element = collection.find((item) => item.id === id);
+            if (!element) return;
+            element.rotation = ((element.rotation ?? 0) + 90) % 360;
+            renderFaces();
+          },
+        },
+        {
           icon: createBringToFrontIcon(),
           label: 'Colocar arriba',
           onClick: () => {
@@ -885,6 +906,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     el.style.top = `${textBox.y * previewScale}px`;
     el.style.width = `${textBox.width * previewScale}px`;
     el.style.height = `${textBox.height * previewScale}px`;
+    el.style.transform = textBox.rotation ? `rotate(${textBox.rotation}deg)` : '';
     el.style.fontSize = `${textBox.tamañoFuente * previewScale}px`;
     el.style.color = textBox.color || '#000000';
     const fontResource = textBox.fuenteResourceId ? getResources().find((r) => r.id === textBox.fuenteResourceId) : null;
@@ -1038,6 +1060,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     el.style.top = `${shape.y * previewScale}px`;
     el.style.width = `${shape.width * previewScale}px`;
     el.style.height = `${shape.height * previewScale}px`;
+    el.style.transform = shape.rotation ? `rotate(${shape.rotation}deg)` : '';
     el.style.borderRadius = SHAPE_BORDER_RADIUS[shape.tipo] || '0';
     el.style.border = shape.bordeActivo !== false ? `${shape.bordeGrosor}px solid ${shape.bordeColor || '#000000'}` : 'none';
     el.style.boxSizing = 'border-box';
