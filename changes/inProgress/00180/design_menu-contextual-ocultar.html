@@ -118,11 +118,12 @@
   }
 
   /* Fila nueva de este cambio (00180): mismo bloque .context-menu__item de
-     siempre, sin clase propia adicional — solo se resalta aquí con un borde
-     punteado para señalarla en la maqueta, no forma parte del estilo real. */
+     siempre, sin clase propia adicional ni separador distinto del resto de la
+     sección — se marca aquí solo con una franja roja a la izquierda para
+     señalarla en la maqueta; no forma parte del estilo real ni introduce
+     ningún borde/sección nueva entre esta fila y "Clonar". */
   .context-menu__item--new {
-    outline: 2px dashed var(--error);
-    outline-offset: -2px;
+    box-shadow: inset 3px 0 0 var(--error);
   }
 
   .context-menu__select-row {
@@ -212,9 +213,10 @@
 
 <div class="caption">
   Maqueta estática — menú contextual de clic derecho sobre un elemento en Modo Edición.
-  Fila resaltada con borde punteado rojo: <strong>"Ocultar"</strong>, la opción nueva de este cambio (el
-  contorno es solo una marca de esta maqueta, no forma parte del estilo real del menú).
-  Con toda la selección ya oculta, esta misma fila diría <strong>"Mostrar"</strong> en su lugar.
+  Fila resaltada con borde punteado rojo: <strong>"Ocultar"</strong>, la opción nueva de este cambio, colocada
+  la primera de la sección general (antes de Clonar/Copiar/Eliminar; el contorno es solo una marca de esta
+  maqueta, no forma parte del estilo real del menú). Con toda la selección ya oculta, esta misma fila diría
+  <strong>"Mostrar"</strong> en su lugar.
 </div>
 
 <div>
@@ -223,6 +225,17 @@
       <span class="context-menu__description-main">Token: 3fa8c1d2</span>
     </div>
     <div class="context-menu__separator"></div>
+
+    <div class="context-menu__item context-menu__item--new context-menu__item--demo-hover">
+      <span class="context-menu__item-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="3"/>
+          <line x1="3" y1="21" x2="21" y2="3" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="context-menu__item-label">Ocultar</span>
+    </div>
 
     <div class="context-menu__item">
       <span class="context-menu__item-icon">
@@ -242,17 +255,6 @@
         </svg>
       </span>
       <span class="context-menu__item-label">Copiar</span>
-    </div>
-
-    <div class="context-menu__item context-menu__item--new context-menu__item--demo-hover">
-      <span class="context-menu__item-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="12" cy="12" r="3"/>
-          <line x1="3" y1="21" x2="21" y2="3" stroke-linecap="round"/>
-        </svg>
-      </span>
-      <span class="context-menu__item-label">Ocultar</span>
     </div>
 
     <div class="context-menu__item">

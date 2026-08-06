@@ -9,7 +9,7 @@ añade al menú contextual de los elementos en el modo edición una opción des/
 
 ## Descripción completa
 
-En Modo Edición, al hacer clic derecho sobre un elemento de la mesa se abre un menú contextual con acciones generales que ya existen hoy (Clonar, Copiar, Eliminar) aplicadas a todos los elementos seleccionados en ese momento. Se añade a ese mismo menú una nueva acción, situada entre "Copiar" y "Eliminar", que permite ocultar o mostrar de golpe todos los elementos afectados (la selección múltiple vigente al abrir el menú, o el propio elemento clicado si no formaba parte de ninguna selección previa).
+En Modo Edición, al hacer clic derecho sobre un elemento de la mesa se abre un menú contextual con acciones generales que ya existen hoy (Clonar, Copiar, Eliminar) aplicadas a todos los elementos seleccionados en ese momento. Se añade a esa misma sección general una nueva acción, en primer lugar (antes de "Clonar"), que permite ocultar o mostrar de golpe todos los elementos afectados (la selección múltiple vigente al abrir el menú, o el propio elemento clicado si no formaba parte de ninguna selección previa). El orden resultante de la sección general queda: Ocultar/Mostrar, Clonar, Copiar, Eliminar.
 
 "Oculto" es un estado que ya existe hoy por elemento: un elemento marcado como oculto no aparece en absoluto durante la partida (Modo Juego), aunque en Modo Edición se sigue viendo con normalidad, señalado con una pequeña insignia. Hasta ahora esa marca solo se podía cambiar de uno en uno, abriendo la ficha de edición del elemento. Este cambio añade una forma rápida de aplicarlo a varios elementos a la vez sin abrir ninguna ficha.
 
@@ -21,7 +21,7 @@ Comportamiento de la nueva opción:
 - Si alguno de los elementos afectados es una copia vinculada a otro elemento "original" con la sincronización activada, este cambio no le da ningún trato especial: se oculta/muestra igual que cualquier otro elemento, con el mismo comportamiento que ya existe hoy al cambiar ese mismo estado desde la ficha de edición individual (si el original cambia su propio estado de oculto más adelante, la copia sincronizada volverá a heredarlo).
 
 ### Preguntas de alcance resueltas
-- ¿Dónde va la opción dentro del menú? → En la sección general del menú, junto a Clonar/Copiar/Eliminar, entre "Copiar" y "Eliminar".
+- ¿Dónde va la opción dentro del menú? → En la sección general del menú, junto a Clonar/Copiar/Eliminar, en primer lugar (antes que "Clonar").
 - ¿Qué etiqueta y comportamiento tiene con una selección mixta (unos ocultos, otros no)? → Etiqueta binaria: "Mostrar" solo si todos están ocultos; "Ocultar" en cualquier otro caso, afectando a todos.
 - ¿Hace falta algún aviso o confirmación al aplicarlo? → No; el cambio ya es visible al instante mediante la insignia existente, sin toast ni modal.
 - ¿Se deshabilita en algún caso? → No, siempre está disponible para cualquier selección no vacía.
