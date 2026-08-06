@@ -1163,7 +1163,7 @@ fieldset.modal__section--untitled {
 
 .board-image-modal__gallery {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 0.75rem;
 }
 
@@ -1192,8 +1192,8 @@ fieldset.modal__section--untitled {
 }
 
 .board-image-modal__thumb {
-  width: 80px;
-  height: 80px;
+  width: 140px;
+  height: 140px;
   object-fit: cover;
   border-radius: var(--radius-sm);
 }
@@ -1427,6 +1427,12 @@ fieldset.modal__section--untitled {
 .resource-modal--image .modal__content {
   width: 700px;
   max-width: 100%;
+}
+
+/* Board image modal (cambio 00169) — galería de imágenes de fondo más
+   grande para distinguir mejor unas miniaturas de otras */
+.board-image-modal {
+  max-width: min(900px, 90vw);
 }
 
 .card-editor-modal__toolbar {

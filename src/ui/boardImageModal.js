@@ -19,7 +19,7 @@ export function openBoardImageModal({ properties, resources, onAccept, title = '
   overlay.className = 'modal-overlay';
 
   const modal = document.createElement('div');
-  modal.className = 'modal';
+  modal.className = 'modal board-image-modal';
 
   const header = document.createElement('div');
   header.className = 'modal__header';
