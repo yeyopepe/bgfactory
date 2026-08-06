@@ -73,6 +73,21 @@ La columna "Usos" (cambio 00160) es de solo lectura: muestra, para cada recurso,
 - **Disponible en**: modo edición.
 - **Código**: 00042, 00064, 00083, 00101, 00128, 00141, 00160.
 
+### Edición de un recurso Imagen, con vista previa ampliada de zoom y pan
+
+El botón "Editar" de un recurso de tipo Imagen (panel "Recursos") abre una ventana más ancha que el resto de modales de la app, con el campo "Nombre del recurso", una vista previa grande de la imagen y el botón "Cambiar imagen..." (que reemplaza el fichero manteniendo el mismo recurso).
+
+Dentro de esa vista previa se puede inspeccionar la imagen en detalle:
+
+- **Zoom**: con la rueda del ratón sobre la vista previa (centrado en el punto donde está el cursor, entre el 100% y el 500%), o con los botones `+`/`-` superpuestos en la esquina del marco (zoom centrado). Un tercer botón restablece la vista a su tamaño inicial (100%, centrada). El nivel de zoom actual se muestra siempre en la esquina del marco.
+- **Mover la imagen (pan)**: con la imagen ampliada (zoom > 100%), se puede arrastrar con click izquierdo para desplazarla dentro del marco.
+- El zoom/posición es puramente una ayuda de inspección visual: no se guarda en ningún sitio. Se reinicia cada vez que se abre la ventana, y también al reemplazar la imagen con "Cambiar imagen...".
+
+La ventana de edición de un recurso de tipo Tipografía no se ve afectada por este cambio: conserva su tamaño y vista previa habituales.
+
+- **Disponible en**: modo edición.
+- **Código**: 00168.
+
 ### Grupos, organización de elementos por nombre
 
 Cualquier tipo de componente (cuadro de texto, tablero simple, dado, visor de documentos, carta o mazo) puede pertenecer opcionalmente a uno o varios grupos a la vez (cambio 00139), elegidos desde una sección "Grupos" con un checkbox por cada grupo existente en la pestaña "Generales" de su modal de configuración (ver [Alta/edición/borrado de componentes con modal de tabs](#altaediciónborrado-de-componentes-con-modal-de-tabs)) — ningún checkbox marcado ("Sin grupo") por defecto. Cualquier combinación de grupos marcados es válida. Los checkboxes se listan ordenados alfabéticamente por nombre (insensible a mayúsculas/tildes, cambio 00141) y, si hay más de 3 grupos, esa lista muestra scroll vertical propio en vez de crecer sin límite — con 3 grupos o menos se ajusta a su alto real, sin hueco vacío. La sección permite además, al final (siempre visible, fuera de la zona con scroll), escribir un nombre nuevo para crear un grupo al vuelo sin salir de la modal (el nombre no puede estar vacío ni estar ya en uso por otro grupo, comparación recortada y sin distinguir mayúsculas/minúsculas, misma validación que el panel flotante de grupos); el grupo recién creado queda marcado de inmediato. Un grupo es puramente organizativo — solo agrupa/organiza elementos por nombre, sin ninguna funcionalidad de juego asociada — y no tiene representación visual propia en ningún panel de la app.
