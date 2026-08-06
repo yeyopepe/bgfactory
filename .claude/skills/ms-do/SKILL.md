@@ -5,8 +5,8 @@ argument-hint: <xxxx del cambio/fix ya planificado>
 model: claude-haiku-4-5
 effort: medium
 metadata:
-  version: 1.2.2
-  uses: [ms-internal-workflow]
+  version: 1.3.0
+  uses: [ms-internal-workflow, ms-internal-doc-features]
 ---
 
 # ms-do
@@ -63,10 +63,9 @@ Si durante la implementación descubres que el plan no es viable tal cual está 
 Una vez implementado en código lo anterior, actualiza siempre lo siguiente antes de mover la carpeta:
 
 - **`docs.tech.architectureDocPath`** — si está configurado, revísalo y déjalo reflejando fielmente el estado técnico resultante. Aplica lo que diga la sección (c) del plan si la tenía; si no la tenía pero al implementar resulta que sí se ha tocado algo que ese documento describe, actualízalo igualmente — no depende únicamente de que el plan lo anticipara. Si no está configurado, omite este punto sin preguntar nada.
-- **`docs.functional.featuresDocPath`** — si está configurado, es un documento **funcional**, no un changelog: describe qué puede hacer la app hoy, organizado por área/módulo funcional, no una lista cronológica de changes/fixes. Actualízalo así:
-  - Si lo implementado en esta entrada amplía o modifica una funcionalidad que ya tiene su propia entrada en el documento, **edita esa entrada in place** para que siga describiendo fielmente el comportamiento actual (no añadas una entrada nueva para lo mismo), y añade el `xxxx` de esta entrada a su campo **Origen**.
-  - Si es una funcionalidad nueva, añade una entrada en el área funcional que le corresponda (crea el área si no existe todavía) con el `xxxx` de esta entrada en **Origen**.
-  - Si el fichero todavía no existe, créalo a partir de la plantilla [`FEATURES.template.md`](FEATURES.template.md) de esta skill.
+- **`docs.functional.featuresDocPath`** — si está configurado, es documentación **funcional**, no un changelog: describe qué puede hacer la app hoy, organizado por área/módulo funcional, no una lista cronológica de changes/fixes. En cualquiera de los dos casos de abajo, si lo implementado amplía o modifica una funcionalidad que ya tiene entrada propia, **edítala in place** para que siga describiendo fielmente el comportamiento actual (nunca añadas una entrada nueva para lo mismo), añadiendo el `xxxx` de esta entrada a su campo **Código**; si es una funcionalidad nueva, crea una entrada en el área funcional que le corresponda (crea el área si no existe todavía) con el `xxxx` de esta entrada en **Código**.
+  - **Si `featuresDocPath` es una carpeta** (la convención recomendada — compruébalo mirando si existe como directorio, o si aún no existe pero el valor no termina en `.md`): invoca la skill `ms-internal-doc-features` (herramienta Skill) con `action=find` y una descripción breve de la funcionalidad implementada, para saber si ya tiene fichero propio. Redacta el contenido final (cuerpo, `Disponible en`, lista completa de `Código`) tú mismo con el criterio de arriba, y guárdalo invocando `ms-internal-doc-features` con `action=upsert` — pasando `fichero_existente` si `find` devolvió una coincidencia, u omitiéndolo si es una entrada nueva.
+  - **Si `featuresDocPath` es un único fichero** (proyectos que todavía no han migrado a carpeta): edítalo tú mismo con el mismo criterio, usando como plantilla de una entrada nueva la de [`FEATURES.template.md`](FEATURES.template.md) de esta skill; créalo a partir de esa plantilla si todavía no existe.
   - Si `docs.functional.featuresDocPath` no está configurado, omite este punto sin preguntar nada.
 - **`docs.tech.styleBibleDocPath`** — si está configurado, revísalo y actualízalo si lo implementado introduce o modifica convenciones de estilo (visual, de interacción, de redacción, etc.) relevantes para el proyecto. Si no está configurado, o lo implementado no afecta a ninguna convención de estilo, omite este punto sin preguntar nada.
 

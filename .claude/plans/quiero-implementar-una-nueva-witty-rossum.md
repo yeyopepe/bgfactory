@@ -14,6 +14,7 @@ Decisiones ya confirmadas con el usuario:
 - El paso 3 (copiar documentación) copia **solo** los ficheros configurados en `framework.docs.tech.*` de `.claude/ms-context.json` (`architectureDocPath`, `styleBibleDocPath`), no toda la carpeta `design/docs/`.
 - El número `XXXX` de `changes/versions/XXXX` es **libre, lo indica el usuario** en cada invocación, e **independiente** del contador interno `CURRENT_VERSION` de `src/data/version.js` que autoincrementa `build.py`.
 - `changelog.md` no es una lista plana: diferencia tres secciones — **Nuevo**, **Cambios**, **Eliminado** — comparando cada entrada de `closed/` contra el `changelog.md` de la versión anterior (si no hay versión anterior, todo va a **Nuevo**). La versión anterior se detecta como la carpeta de `changes/versions/` con fecha de creación más reciente (excluyendo la que se está generando), y esa detección se le confirma al usuario antes de usarla, por si hubiera ambigüedad.
+- Tanto `ms-version` como `ms-internal-changelog` se quedan en el modelo por defecto (Sonnet), sin overrides en `skillModels`. La documentación de Claude Code sugiere que el `model` de una skill "aplica para el resto del turno actual" al activarse, pero el usuario ha confirmado empíricamente que ese cambio de modelo **no se garantiza de forma fiable dentro de la misma sesión** cuando una skill encadena otra vía la herramienta Skill. Dado que `ms-internal-changelog` es la parte que exige criterio real (clasificar Nuevo/Cambios/Eliminado leyendo varias entradas), no se puede arriesgar a que corra en Haiku por un cambio de modelo que no se aplica de forma fiable — así que no se fuerza ningún override de modelo para ninguna de las dos skills nuevas.
 
 ## Flujo completo de `/ms-version <XXXX>`
 
@@ -81,6 +82,8 @@ metadata:
   version: 1.0.0
   uses: [ms-internal-changelog]
 ```
+
+Sin entrada en `skillModels.overrides` de `.claude/ms-context.json`: se queda en `skillModels.default` (Sonnet), igual que `ms-internal-changelog` — ver "Decisiones ya confirmadas con el usuario" arriba sobre por qué no se fuerza Haiku aquí.
 
 Pasos:
 

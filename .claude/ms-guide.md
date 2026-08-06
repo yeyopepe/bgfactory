@@ -68,7 +68,7 @@ Ejemplo de `.claude/ms-context.json` ya configurado en este proyecto:
     "numberWidth": 5,
     "docs": {
       "functional": {
-        "featuresDocPath": "design/docs/FEATURES.md"
+        "featuresDocPath": "design/docs/features"
       },
       "tech": {
         "architectureDocPath": "design/docs/ARCHITECTURE.md",

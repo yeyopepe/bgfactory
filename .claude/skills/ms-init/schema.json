@@ -69,8 +69,8 @@
               "properties": {
                 "featuresDocPath": {
                   "type": "string",
-                  "description": "OPCIONAL. Documento con el listado de funcionalidades ya implementadas en el proyecto (relativo a la raiz del repo). ms-do anade o actualiza ahi la entrada correspondiente cada vez que implementa un cambio/fix, creando el fichero si todavia no existe. Si no esta configurado, ese paso se omite sin preguntar nada.",
-                  "examples": ["design/docs/FEATURES.md"]
+                  "description": "OPCIONAL. Listado de funcionalidades ya implementadas en el proyecto (relativo a la raiz del repo). Puede ser una CARPETA (recomendado, p.ej. 'design/docs/features') con un fichero por funcionalidad mas un 'index.md' generado -- en ese caso ms-do delega la lectura/escritura en la skill ms-internal-doc-features, que conoce esa convencion -- o, en proyectos antiguos que todavia no han migrado, un unico fichero .md. ms-do anade o actualiza ahi la entrada correspondiente cada vez que implementa un cambio/fix, creando la carpeta/fichero si todavia no existe. Si no esta configurado, ese paso se omite sin preguntar nada.",
+                  "examples": ["design/docs/features", "design/docs/FEATURES.md"]
                 }
               }
             },
@@ -142,7 +142,7 @@
         "numberWidth": 4,
         "docs": {
           "functional": {
-            "featuresDocPath": "design/docs/FEATURES.md"
+            "featuresDocPath": "design/docs/features"
           },
           "tech": {
             "architectureDocPath": "design/docs/design_technical.md"

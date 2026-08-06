@@ -1,4 +1,4 @@
 node_modules/
 dist/
-.claude/skills/ms-status/scripts/__pycache__/collect_status.cpython-314.pyc
+.claude/**/__pycache__/*
 /src/_output/versions/*.*
