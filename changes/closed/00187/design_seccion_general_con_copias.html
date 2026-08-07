@@ -1,0 +1,366 @@
+<style>
+  :root {
+    --bg-table:     #c2c2c2;
+    --bg-toolbar:   #333333;
+    --bg-card:      #f5f5f5;
+    --accent-blue:  #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --accent-blue-light: #eaf3fc;
+    --text-primary: #1a1a1a;
+    --text-light:   #ffffff;
+    --text-muted:   #666666;
+    --error:        #d32f2f;
+    --success:      #2e7d32;
+    --border-neutral: #dcdcdc;
+    --bg-subtle:    #f0f0f0;
+    --bg-hover:     #e8e8e8;
+    --radius-sm:    4px;
+    --radius-lg:    8px;
+    --shadow-1:     0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);
+    --shadow-2:     0 4px 20px rgba(0,0,0,0.15);
+    --transition-fast: 150ms ease;
+    --section-accent: #5b5f97;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .modal-overlay {
+    position: static;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    border-radius: var(--radius-lg);
+  }
+
+  .modal {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    width: 480px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal__header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+
+  .modal__header-title {
+    margin: 0;
+    font-size: 1.125rem;
+    color: var(--text-primary);
+  }
+
+  .modal__tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+
+  .modal__tab {
+    padding: 0.75rem 1rem;
+    background: var(--bg-hover);
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    border-bottom: 2px solid transparent;
+  }
+
+  .modal__tab.active {
+    background: white;
+    color: var(--text-primary);
+    border-bottom-color: var(--accent-blue);
+  }
+
+  .modal__content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+  }
+
+  .modal__field {
+    margin-bottom: 1rem;
+  }
+
+  .modal__field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+  }
+
+  .modal__field input[type="text"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.875rem;
+  }
+
+  fieldset.modal__section {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    margin: 1rem 0 0;
+    padding: 1rem 1.25rem;
+  }
+
+  fieldset.modal__section > *:last-child {
+    margin-bottom: 0;
+  }
+
+  legend.modal__section-title {
+    padding: 0 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--section-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .modal__field--checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .modal__field--checkbox:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .modal__field--checkbox label {
+    display: inline;
+    margin-bottom: 0;
+  }
+
+  /* --- Nueva parte: número de copias (fila de solo lectura, patrón
+     .context-menu__info-row) + botón que abre una modal aparte con la lista
+     completa de ids, para no descontrolar el alto de la sección "General"
+     cuando el original tiene muchas copias. Mismo criterio que el botón
+     "Ver contenido del mazo" ya existente en componentModal.js. */
+  .copies-info {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-neutral);
+  }
+
+  .copies-info__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.25rem 0 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    gap: 1rem;
+    cursor: default;
+  }
+
+  .copies-info__label {
+    flex: 0 0 auto;
+    font-weight: 500;
+  }
+
+  .copies-info__value {
+    flex: 1 1 auto;
+    text-align: right;
+    color: var(--text-primary);
+  }
+
+  .copies-info__btn {
+    width: 100%;
+  }
+
+  /* --- Modal secundaria "Copias vinculadas", abierta desde el botón de
+     arriba. Mismo esqueleto que ui/mazoContentModal.js (overlay/modal,
+     cabecera, modal__content con lista, modal__footer con "Cerrar"),
+     superpuesta encima de la modal de propiedades para este mockup. */
+  .copies-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+
+  .copies-modal {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    width: 320px;
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .copies-modal .modal__header {
+    font-weight: 600;
+  }
+
+  .copies-modal .modal__hint {
+    padding: 0.75rem 1rem 0;
+    margin: 0;
+  }
+
+  .copies-modal__list {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0;
+  }
+
+  .copies-modal__list li {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-neutral);
+  }
+
+  .copies-modal__list li:last-child {
+    border-bottom: none;
+  }
+
+  .copies-modal__id {
+    font-family: ui-monospace, monospace;
+  }
+
+  .modal__footer {
+    padding: 1rem;
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+
+  .btn-cancel, .btn-accept {
+    padding: 0.5rem 1.5rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+  }
+
+  .btn-cancel {
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+  }
+
+  .btn-accept {
+    background: var(--accent-blue);
+    color: var(--text-light);
+  }
+
+  .mockup-note {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    background: var(--bg-toolbar);
+    color: var(--text-light);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    max-width: 300px;
+  }
+</style>
+
+<div class="mockup-note">
+  Maqueta: sección "General" con el número de copias + botón "Ver copias vinculadas...", y la modal secundaria que se abre al pulsarlo (mostrada ya abierta, superpuesta, para verla sin interacción). El resto de la modal de propiedades se muestra reducido, solo como contexto.
+</div>
+
+<div class="modal-overlay">
+  <div class="modal">
+    <div class="modal__header">
+      <h2 class="modal__header-title">Editar componente</h2>
+    </div>
+    <div class="modal__tabs">
+      <button class="modal__tab active">Generales</button>
+      <button class="modal__tab">Visual</button>
+      <button class="modal__tab">Interacción</button>
+    </div>
+    <div class="modal__content">
+      <div class="modal__field">
+        <label>ID del componente</label>
+        <input type="text" value="CARTA-001" readonly>
+      </div>
+
+      <fieldset class="modal__section">
+        <legend class="modal__section-title">General</legend>
+
+        <div class="modal__field--checkbox">
+          <input type="checkbox">
+          <label>Bloqueado</label>
+        </div>
+        <div class="modal__field--checkbox">
+          <input type="checkbox">
+          <label>Oculto</label>
+        </div>
+        <div class="modal__field--checkbox">
+          <input type="checkbox" checked>
+          <label>Mostrar tooltip</label>
+        </div>
+        <div class="modal__field--checkbox">
+          <input type="checkbox" checked>
+          <label>Subir al mover/interactuar</label>
+        </div>
+
+        <!-- Parte nueva: solo visible cuando el componente tiene copias vinculadas -->
+        <div class="copies-info">
+          <div class="copies-info__row">
+            <span class="copies-info__label">Copias vinculadas</span>
+            <span class="copies-info__value">12</span>
+          </div>
+          <button type="button" class="btn-cancel copies-info__btn">Ver copias vinculadas...</button>
+        </div>
+      </fieldset>
+    </div>
+    <div class="modal__footer">
+      <button class="btn-cancel">Cancelar</button>
+      <button class="btn-accept">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<div class="copies-modal-overlay">
+  <div class="copies-modal">
+    <div class="modal__header">Copias vinculadas</div>
+    <p class="modal__hint">CARTA-001 — 12 copias</p>
+    <div class="modal__content">
+      <ul class="copies-modal__list">
+        <li><span class="copies-modal__id">CARTA-001-COPY-001</span></li>
+        <li><span class="copies-modal__id">CARTA-001-COPY-002</span></li>
+        <li><span class="copies-modal__id">CARTA-001-COPY-003</span></li>
+        <li><span class="copies-modal__id">CARTA-001-COPY-004</span></li>
+        <li><span class="copies-modal__id">CARTA-001-COPY-005</span></li>
+        <li><span class="copies-modal__id">CARTA-001-COPY-006</span></li>
+        <li><span class="copies-modal__id">CARTA-001-COPY-007</span></li>
+        <li><span class="copies-modal__id">CARTA-001-COPY-008</span></li>
+        <li><span class="copies-modal__id">CARTA-001-COPY-009</span></li>
+        <li><span class="copies-modal__id">CARTA-001-COPY-010</span></li>
+        <li><span class="copies-modal__id">CARTA-001-COPY-011</span></li>
+        <li><span class="copies-modal__id">CARTA-001-COPY-012</span></li>
+      </ul>
+    </div>
+    <div class="modal__footer">
+      <button class="btn-cancel">Cerrar</button>
+    </div>
+  </div>
+</div>
