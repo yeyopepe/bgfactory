@@ -95,4 +95,7 @@ Subir imagen en bn:
 
 >colorea con acuarela, colores apagados, trazos gruesos e imprecisos, sin respetar los bordes
 
+Objetos fabricables:
+>colorea con acuarela, colores ricos y vivos, trazos precisos. Añade un leve aura de objeto especial
+
 

@@ -113,7 +113,7 @@ Coordenadas (`x`/`y`/`width`/`height` de cada `Forma`/`TextBox`, `tamañoFuente`
 
 ### Shape `Forma`
 
-`{ id, tipo: 'circular' | 'cuadrada' | 'redondeada', x, y, width, height, colorFondo, colorFondoTransparencia, fondoTipo: 'color' | 'imagen' | undefined, imagenResourceId, ajusteImagen, bordeActivo, bordeColor, bordeGrosor, orden, rotation: 0 | 90 | 180 | 270 | undefined }`
+`{ id, tipo: 'circular' | 'cuadrada' | 'redondeada', x, y, width, height, colorFondo, colorFondoTransparencia, fondoTipo: 'color' | 'imagen' | undefined, imagenResourceId, ajusteImagen, imagenTransparencia, bordeActivo, bordeColor, bordeGrosor, orden, rotation: 0 | 90 | 180 | 270 | undefined }`
 
 Tercer tipo de elemento repetible dentro de una cara (junto a imagen de fondo única y `textBoxes`). Mismo comportamiento de interacción que `TextBox`: seleccionable, editable con doble click (`ui/cardShapeModal.js`), arrastrable, redimensionable, duplicable, eliminable, con el mismo menú contextual.
 
@@ -128,6 +128,7 @@ Tercer tipo de elemento repetible dentro de una cara (junto a imagen de fondo ú
 | `colorFondoTransparencia` | number, 0–100 | `0` (opaco) | Transparencia sobre `colorFondo` (`core/colorUtils.js` → `hexToRgba`). Solo con efecto y control habilitado si `colorFondo` no vacío |
 | `imagenResourceId` | string \| null | `null` | Con `fondoTipo === 'imagen'`. Sustituye por completo a `colorFondo` al pintar (no se combinan) |
 | `ajusteImagen` | `{ zoom, posX, posY, rotation }` | reinicia a `{ zoom:100, posX:50, posY:50 }` al elegir/cambiar imagen | Mismo shape que `cara.ajusteImagen` |
+| `imagenTransparencia` | number, 0–100 | `0` (opaco) | Transparencia sobre la imagen de fondo (`fondoTipo === 'imagen'`), independiente de `colorFondoTransparencia` y del borde. Se reinicia a `0` al elegir/cambiar imagen; se conserva al cambiar `fondoTipo` a `'color'` y volver a `'imagen'`. Se ajusta desde el slider "Transparencia" dentro de "Ajustar imagen…" (`ui/imageAdjustModal.js`), no en el panel de edición de la figura |
 | `bordeColor`, `bordeGrosor`, `bordeActivo` | hex / px 1–20 / boolean | negro / `2` / `true` | Borde simple (`border` CSS), sin bisel especial. Sección "Borde" en `ui/cardShapeModal.js` usa patrón toggle en el `<legend>` |
 
 Al pintar, imagen se recorta al `tipo` de la figura (mismo `border-radius`) en contenedor interno `overflow: hidden`, borde por encima sobre el contenedor exterior. Cambiar `tipo` conserva `imagenResourceId`/`ajusteImagen` (independientes de `tipo`); duplicar/copiar-pegar los lleva también. Redimensión: `tipo === 'circular'` libre en ambos ejes, Shift fuerza 1:1; `'cuadrada'`/`'redondeada'` libre sin restricción. Cambiar a `'circular'` con `width !== height` iguala ambos al mayor (círculo perfecto). Se pinta en `ui/visualEditorModal.js` y `ui/componentRenderer.js` → `paintCartaFace`, sin `pointer-events` fuera del editor.

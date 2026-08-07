@@ -370,6 +370,7 @@ function paintShape(contentParent, shape, renderScaleX, renderScaleY) {
     img.style.top = '0';
     img.style.left = '0';
     applyImageAdjustStyle(img, shape.ajusteImagen, shape.width * renderScaleX, shape.height * renderScaleY);
+    img.style.opacity = String(1 - (shape.imagenTransparencia ?? 0) / 100);
     imgWrapper.appendChild(img);
     shapeEl.appendChild(imgWrapper);
   } else {

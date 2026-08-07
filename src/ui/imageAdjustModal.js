@@ -91,7 +91,7 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   // con una sola imagen de fondo); con `faces`, N stages en posición fija (el
   // orden del array decide la columna, nunca se reordenan) — usado por
   // ui/visualEditorModal.js para las caras de una carta.
-  const entries = faces || [{ key: '__single__', label: null, shape, width, height, resource, adjustment }];
+  const entries = faces || [{ key: '__single__', label: null, shape, width, height, resource, adjustment, transparencia }];
 
   const stagesRow = document.createElement('div');
   stagesRow.className = 'image-adjust-modal__stages';

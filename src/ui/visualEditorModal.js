@@ -1076,6 +1076,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
       shapeImg.style.top = '0';
       shapeImg.style.left = '0';
       applyImageAdjustStyle(shapeImg, shape.ajusteImagen, shape.width * previewScale, shape.height * previewScale);
+      shapeImg.style.opacity = String(1 - (shape.imagenTransparencia ?? 0) / 100);
       imgWrapper.appendChild(shapeImg);
       el.appendChild(imgWrapper);
     } else {

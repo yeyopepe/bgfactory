@@ -30,6 +30,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   working.tipo = working.tipo || 'circular';
   working.colorFondo = working.colorFondo ?? '';
   working.colorFondoTransparencia = working.colorFondoTransparencia ?? 0;
+  working.imagenTransparencia = working.imagenTransparencia ?? 0;
   working.bordeColor = working.bordeColor || '#000000';
   working.bordeGrosor = working.bordeGrosor ?? 2;
   working.bordeActivo = working.bordeActivo ?? true;
@@ -273,6 +274,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
       onAccept: (resourceId) => {
         working.imagenResourceId = resourceId;
         working.ajusteImagen = { zoom: 100, posX: 50, posY: 50 };
+        working.imagenTransparencia = 0;
         refreshImagePreview();
       },
     });
@@ -291,8 +293,10 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
       height: working.height,
       resource,
       adjustment: working.ajusteImagen,
+      transparencia: working.imagenTransparencia,
       onAccept: (adjustment) => {
-        working.ajusteImagen = adjustment;
+        working.ajusteImagen = { zoom: adjustment.zoom, posX: adjustment.posX, posY: adjustment.posY, rotation: adjustment.rotation };
+        working.imagenTransparencia = adjustment.transparencia;
       },
     });
   });
