@@ -210,7 +210,7 @@ function renderDiceSilhouette(svgEl, size, count, colorCuerpo) {
 const COMPONENT_TYPE_LABELS = {
   texto: 'Texto',
   tableroSimple: 'Tablero simple',
-  dado: 'Dado Configurable',
+  dado: 'Dado',
   documento: 'Documento',
   carta: 'Carta/Ficha',
   mazo: 'Mazo',
