@@ -105,9 +105,9 @@ Objetos fabricables:
 --------------------------
 ## Nano Banana
 
->Crea un boceto a mano alzada en blanco y negro de una superviviente urbana de mediana edad. Solo ropa básica, sin artilugios. Mochila pequeña.
+>Crea un boceto a mano alzada de una superviviente urbana de mediana edad. Solo ropa básica, sin artilugios. Mochila pequeña.
 >Cuerpo entero.
->Fondo blanco.
+>En blanco y negro. Fondo blanco.
 >Sin texto superfluo, sin marcos ni sombras.
 >Formato 5:7
 

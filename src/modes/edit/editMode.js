@@ -119,8 +119,8 @@ function attemptDeleteComponents(components) {
 
 // Arrastrar cartas seleccionadas sobre un mazo: si el grupo arrastrado (selección
 // múltiple, o solo el componente soltado) son todas cartas y su rectángulo final
-// solapa con un mazo, pregunta si añadirlas. Solape de rectángulos, no punto exacto
-// del cursor.
+// solapa con un mazo, las añade. Solape de rectángulos, no punto exacto del cursor.
+// Mismo criterio que en modo juego: sin confirmación previa.
 function attemptDropOnMazo(groupIds, draggedRect) {
   const groupComponents = groupIds.map((id) => getComponents().find((c) => c.id === id)).filter(Boolean);
   if (groupComponents.length === 0 || !groupComponents.every((c) => c.type === 'carta')) return;
@@ -129,11 +129,6 @@ function attemptDropOnMazo(groupIds, draggedRect) {
     .filter((c) => c.type === 'mazo')
     .find((m) => rectsOverlap(draggedRect, { x: m.x ?? 100, y: m.y ?? 100, width: m.width ?? 100, height: m.height ?? 100 }));
   if (!mazo) return;
-
-  const pregunta = groupComponents.length > 1
-    ? `¿Añadir las ${groupComponents.length} cartas seleccionadas al mazo "${mazo.id}"?`
-    : `¿Añadir la carta "${groupComponents[0].id}" al mazo "${mazo.id}"?`;
-  if (!confirm(pregunta)) return;
 
   const cartaIds = [...(mazo.properties?.cartaIds || []), ...groupComponents.map((c) => c.id)];
   replaceComponent(mazo.id, updateComponent(mazo, { properties: { cartaIds } }));
