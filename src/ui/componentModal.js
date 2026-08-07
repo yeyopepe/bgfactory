@@ -7,6 +7,7 @@ import { createTag, isTagNameTaken } from '../core/tag.js';
 import { createHelpIcon } from './helpIcon.js';
 import { openBoardPatternModal } from './boardPatternModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
+import { openImageAdjustModal } from './imageAdjustModal.js';
 import { openBoardColorModal } from './boardColorModal.js';
 import { openDiceFontModal } from './diceFontModal.js';
 import { openVisualEditorModal } from './visualEditorModal.js';
@@ -141,6 +142,7 @@ export const DEFAULT_MAZO_PROPERTIES = {
   cartaIds: [],
   orientacion: 'vertical',
   forma: 'rectangular',
+  imagenResourceId: null,
 };
 
 // 'tableroPersonalizado': una única cara, mismo shape que caraFrontal/caraTrasera de 'carta' salvo
@@ -1617,6 +1619,109 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     orientacionField.appendChild(orientacionLabel);
     orientacionField.appendChild(orientacionSelect);
     container.appendChild(orientacionField);
+
+    // Imagen propia del mazo: independiente del contenido de la pila. Mientras no se
+    // elija ninguna, el mazo sigue mostrando el dorso de la carta de arriba (o el
+    // icono de "vacío"), ver fallback en ui/componentRenderer.js.
+    const imagenField = document.createElement('div');
+    imagenField.className = 'modal__field';
+    const imagenLabel = document.createElement('label');
+    imagenLabel.textContent = 'Imagen';
+    imagenField.appendChild(imagenLabel);
+
+    const imagenPreview = document.createElement('div');
+    imagenPreview.style.display = 'flex';
+    imagenPreview.style.alignItems = 'center';
+    imagenPreview.style.gap = '0.5rem';
+
+    const imagenThumb = document.createElement('img');
+    imagenThumb.style.width = '2rem';
+    imagenThumb.style.height = '2rem';
+    imagenThumb.style.objectFit = 'cover';
+    imagenThumb.style.borderRadius = 'var(--radius-sm)';
+    imagenThumb.style.border = '1px solid var(--border-neutral)';
+
+    const imagenName = document.createElement('span');
+
+    imagenPreview.appendChild(imagenThumb);
+    imagenPreview.appendChild(imagenName);
+    imagenField.appendChild(imagenPreview);
+
+    const imagenButtons = document.createElement('div');
+    imagenButtons.style.display = 'flex';
+    imagenButtons.style.gap = '0.5rem';
+
+    const chooseImageBtn = document.createElement('button');
+    chooseImageBtn.type = 'button';
+    chooseImageBtn.className = 'btn-cancel';
+    chooseImageBtn.textContent = 'Elegir imagen…';
+
+    const adjustImageBtn = document.createElement('button');
+    adjustImageBtn.type = 'button';
+    adjustImageBtn.className = 'btn-cancel';
+    adjustImageBtn.textContent = 'Ajustar imagen…';
+
+    const removeImageBtn = document.createElement('button');
+    removeImageBtn.type = 'button';
+    removeImageBtn.className = 'btn-cancel';
+    removeImageBtn.textContent = 'Quitar imagen';
+
+    function refreshImageField() {
+      const resource = props.imagenResourceId ? getResources().find((r) => r.id === props.imagenResourceId) : null;
+      imagenPreview.style.display = resource ? 'flex' : 'none';
+      if (resource) {
+        imagenThumb.src = resource.dataUrl;
+        imagenName.textContent = resource.name;
+      }
+      adjustImageBtn.disabled = !resource;
+      removeImageBtn.style.display = resource ? '' : 'none';
+    }
+
+    chooseImageBtn.addEventListener('click', () => {
+      openBoardImageModal({
+        properties: props,
+        resources: getResources(),
+        title: 'Elegir imagen',
+        onAccept: (resourceId) => {
+          props.imagenResourceId = resourceId;
+          props.ajusteImagen = { zoom: 100, posX: 50, posY: 50 };
+          props.transparenciaImagen = 0;
+          refreshImageField();
+        },
+      });
+    });
+
+    adjustImageBtn.addEventListener('click', () => {
+      const resource = props.imagenResourceId ? getResources().find((r) => r.id === props.imagenResourceId) : null;
+      if (!resource) return;
+      openImageAdjustModal({
+        shape: props.forma === 'circular' ? 'circular' : 'cuadrada',
+        width: workingComponent.width,
+        height: workingComponent.height,
+        resource,
+        adjustment: props.ajusteImagen,
+        transparencia: props.transparenciaImagen,
+        onAccept: (adjustment) => {
+          props.ajusteImagen = { zoom: adjustment.zoom, posX: adjustment.posX, posY: adjustment.posY, rotation: adjustment.rotation };
+          props.transparenciaImagen = adjustment.transparencia;
+        },
+      });
+    });
+
+    removeImageBtn.addEventListener('click', () => {
+      props.imagenResourceId = null;
+      delete props.ajusteImagen;
+      delete props.transparenciaImagen;
+      refreshImageField();
+    });
+
+    imagenButtons.appendChild(chooseImageBtn);
+    imagenButtons.appendChild(adjustImageBtn);
+    imagenButtons.appendChild(removeImageBtn);
+    imagenField.appendChild(imagenButtons);
+
+    refreshImageField();
+    container.appendChild(imagenField);
 
     // Ver contenido del mazo: opera siempre sobre el componente ya guardado en
     // el estado (mazoId), no sobre workingComponent, para que "Sacar" refleje
