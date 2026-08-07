@@ -1127,9 +1127,13 @@ fieldset.modal__section--untitled {
 }
 
 .component-copies-summary {
-  margin-top: 1rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--border-neutral);
+}
+
+.component-copies-tab__empty {
+  padding: 1.5rem 0.5rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.875rem;
 }
 
 .component-copies-summary__row {
@@ -1154,25 +1158,53 @@ fieldset.modal__section--untitled {
   width: 100%;
 }
 
-.component-copies-modal__list {
-  list-style: none;
-  margin: 0;
-  padding: 0.5rem 0;
-}
-
-.component-copies-modal__list-item {
-  padding: 0.5rem 1rem;
+.component-copies-modal__table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 0.8125rem;
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border-neutral);
 }
 
-.component-copies-modal__list-item:last-child {
-  border-bottom: none;
+.component-copies-modal__table th {
+  padding: 0.5rem;
+  text-align: left;
+  font-weight: 500;
+  background: var(--bg-subtle);
+}
+
+.component-copies-modal__table td {
+  padding: 0.5rem;
+  border-top: 1px solid var(--border-neutral);
+  color: var(--text-primary);
 }
 
 .component-copies-modal__id {
   font-family: ui-monospace, monospace;
+}
+
+.component-copies-modal__sync {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.component-copies-modal__sync-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.component-copies-modal__sync--yes .component-copies-modal__sync-dot {
+  background: var(--success);
+}
+
+.component-copies-modal__sync--no .component-copies-modal__sync-dot {
+  background: #999999;
+}
+
+.component-copies-modal__sync--no {
+  color: var(--text-muted);
 }
 
 /* Sección "Elementos de la etiqueta" en la modal de edición de etiqueta

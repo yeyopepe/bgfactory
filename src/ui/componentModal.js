@@ -1,8 +1,8 @@
 // Modal for creating/editing components with tabs.
 // Generically handles different component types via type-specific tab content.
 
-import { getComponents, getResources, getTags, addTag, sacarCartaDeMazo } from '../core/state.js';
-import { createComponent, updateComponent } from '../core/component.js';
+import { getComponents, getResources, getTags, addTag, sacarCartaDeMazo, replaceComponent } from '../core/state.js';
+import { createComponent, updateComponent, syncCopyWithOriginal } from '../core/component.js';
 import { createTag, isTagNameTaken } from '../core/tag.js';
 import { createHelpIcon } from './helpIcon.js';
 import { openBoardPatternModal } from './boardPatternModal.js';
@@ -495,38 +495,6 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   }));
   infoSection.appendChild(upOnMoveField);
 
-  const linkedCopies = getComponents().filter((c) => c.copyOf === workingComponent.id);
-  if (linkedCopies.length > 0) {
-    const copiesSummary = document.createElement('div');
-    copiesSummary.className = 'component-copies-summary';
-
-    const row = document.createElement('div');
-    row.className = 'component-copies-summary__row';
-
-    const label = document.createElement('span');
-    label.className = 'component-copies-summary__label';
-    label.textContent = 'Copias vinculadas';
-    row.appendChild(label);
-
-    const value = document.createElement('span');
-    value.className = 'component-copies-summary__value';
-    value.textContent = String(linkedCopies.length);
-    row.appendChild(value);
-
-    copiesSummary.appendChild(row);
-
-    const button = document.createElement('button');
-    button.className = 'btn-cancel component-copies-summary__button';
-    button.type = 'button';
-    button.textContent = 'Ver copias vinculadas...';
-    button.addEventListener('click', () => {
-      openComponentCopiesModal({ originalId: workingComponent.id });
-    });
-    copiesSummary.appendChild(button);
-
-    infoSection.appendChild(copiesSummary);
-  }
-
   generalContent.appendChild(infoSection);
   generalContent.appendChild(sizeSection);
 
@@ -755,6 +723,95 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   // Specific tab: type-specific fields
   createTab('specific', 'Específicas');
   const specificContent = tabContents.get('specific').content;
+
+  // Copias tab: linked copies and sync actions
+  createTab('copias', 'Copias');
+  const copiasContent = tabContents.get('copias').content;
+
+  // Populate copias tab
+  {
+    const linkedCopies = getComponents().filter((c) => c.copyOf === workingComponent.id);
+
+    if (linkedCopies.length === 0) {
+      const emptyMsg = document.createElement('div');
+      emptyMsg.className = 'component-copies-tab__empty';
+      emptyMsg.textContent = 'Este objeto no tiene copias.';
+      copiasContent.appendChild(emptyMsg);
+    } else {
+      const copiesSummary = document.createElement('div');
+      copiesSummary.className = 'component-copies-summary';
+
+      const row = document.createElement('div');
+      row.className = 'component-copies-summary__row';
+
+      const label = document.createElement('span');
+      label.className = 'component-copies-summary__label';
+      label.textContent = `Copias: ${linkedCopies.length}`;
+      row.appendChild(label);
+
+      copiesSummary.appendChild(row);
+
+      const button = document.createElement('button');
+      button.className = 'btn-cancel component-copies-summary__button';
+      button.type = 'button';
+      button.textContent = 'Ver copias vinculadas...';
+      button.addEventListener('click', () => {
+        openComponentCopiesModal({ originalId: workingComponent.id });
+      });
+      copiesSummary.appendChild(button);
+
+      copiasContent.appendChild(copiesSummary);
+
+      const syncAllBtn = document.createElement('button');
+      syncAllBtn.className = 'btn-accept';
+      syncAllBtn.type = 'button';
+      syncAllBtn.textContent = 'Sincronizar todas las copias';
+      syncAllBtn.style.width = '100%';
+      syncAllBtn.addEventListener('click', () => {
+        if (confirm(`¿Sincronizar las ${linkedCopies.length} copias de "${workingComponent.id}"?`)) {
+          const original = getComponents().find((c) => c.id === workingComponent.id);
+          for (const copy of getComponents().filter((c) => c.copyOf === workingComponent.id)) {
+            replaceComponent(copy.id, syncCopyWithOriginal({ ...copy, sincronizado: true }, original));
+          }
+          showToast('Copias sincronizadas');
+        }
+      });
+      copiasContent.appendChild(syncAllBtn);
+
+      const desyncSection = document.createElement('fieldset');
+      desyncSection.className = 'modal__section';
+      const desyncLegend = document.createElement('legend');
+      desyncLegend.className = 'modal__section-title';
+      desyncLegend.textContent = 'Desincronizar todas las copias';
+      desyncSection.appendChild(desyncLegend);
+
+      const ocultoField = document.createElement('div');
+      ocultoField.className = 'modal__field modal__field--checkbox';
+      const ocultoCheckbox = document.createElement('input');
+      ocultoCheckbox.type = 'checkbox';
+      const original = getComponents().find((c) => c.id === workingComponent.id);
+      ocultoCheckbox.checked = original?.oculto ?? false;
+      const ocultoLabel = document.createElement('label');
+      ocultoLabel.textContent = 'Oculto';
+
+      ocultoField.appendChild(ocultoCheckbox);
+      ocultoField.appendChild(ocultoLabel);
+      ocultoField.appendChild(createHelpIcon({
+        text: 'Al marcar o desmarcar, todas las copias de este objeto se desincronizan y su \'Oculto\' pasa a este valor de inmediato.',
+      }));
+      desyncSection.appendChild(ocultoField);
+
+      ocultoCheckbox.addEventListener('change', () => {
+        const original = getComponents().find((c) => c.id === workingComponent.id);
+        for (const copy of getComponents().filter((c) => c.copyOf === workingComponent.id)) {
+          replaceComponent(copy.id, updateComponent(copy, { sincronizado: false, oculto: ocultoCheckbox.checked }));
+        }
+        showToast('Copias desincronizadas');
+      });
+
+      copiasContent.appendChild(desyncSection);
+    }
+  }
 
   function renderSpecificTab() {
     specificContent.innerHTML = '';

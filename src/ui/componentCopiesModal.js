@@ -35,22 +35,56 @@ export function openComponentCopiesModal({ originalId }) {
   const copies = getComponents().filter((c) => c.copyOf === originalId);
   hint.textContent = `${formatComponentIdentifier(original)} — ${copies.length} copias`;
 
-  const list = document.createElement('ul');
-  list.className = 'component-copies-modal__list';
+  const table = document.createElement('table');
+  table.className = 'component-copies-modal__table';
 
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+
+  const idHeader = document.createElement('th');
+  idHeader.textContent = 'Id';
+  headerRow.appendChild(idHeader);
+
+  const syncHeader = document.createElement('th');
+  syncHeader.textContent = 'Sincronizada';
+  headerRow.appendChild(syncHeader);
+
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
   for (const copy of copies) {
-    const item = document.createElement('li');
-    item.className = 'component-copies-modal__list-item';
+    const row = document.createElement('tr');
 
+    const idCell = document.createElement('td');
     const idSpan = document.createElement('span');
     idSpan.className = 'component-copies-modal__id';
     idSpan.textContent = copy.id;
-    item.appendChild(idSpan);
+    idCell.appendChild(idSpan);
+    row.appendChild(idCell);
 
-    list.appendChild(item);
+    const syncCell = document.createElement('td');
+    const syncSpan = document.createElement('span');
+    const isSynced = copy.sincronizado !== false;
+    const syncClass = isSynced ? 'component-copies-modal__sync--yes' : 'component-copies-modal__sync--no';
+    syncSpan.className = `component-copies-modal__sync ${syncClass}`;
+
+    const dot = document.createElement('span');
+    dot.className = 'component-copies-modal__sync-dot';
+    syncSpan.appendChild(dot);
+
+    const text = document.createElement('span');
+    text.textContent = isSynced ? 'Sí' : 'No';
+    syncSpan.appendChild(text);
+
+    syncCell.appendChild(syncSpan);
+    row.appendChild(syncCell);
+
+    tbody.appendChild(row);
   }
+  table.appendChild(tbody);
 
-  content.appendChild(list);
+  content.appendChild(table);
 
   const closeBtn = document.createElement('button');
   closeBtn.className = 'btn-cancel';

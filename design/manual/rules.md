@@ -111,10 +111,17 @@ Cuando termina el domingo y, por lo tanto, la semana en curso:
 
 
 ## 3. Acciones
+
+### 3.1 Acciones que pueden realizarse siempre
+
 ### Moverse
 
-- requisitios para entrar en una localización: tenerlos en la mochila (solo puede entrar el propietario y quién viaje con él) o que estén en la casilla (puede entrar cualquiera hasta que tome esos objetos).
-- cuando un jugador realiza esta acción puede llevar consigo a cualquier otro personaje que esté en su misma localización y quiera viajar con él. Esto no implica ninguna acción para estos personajes que acompañan al del jugador.
+Tu personaje se mueve de su localización a otra adyacente si cumple las condiciones:
+
+- Si la localización de destino tiene un requisito solo puedes entrar en ella si tienes el/los objeto/s necesario/s en tu mochila (solo puede entrar el propietario y quién viaje con él) o si alguien antes que tú los ha dejado en la localización; mientras nadie retire esos objetos, cualquiera puede entrar en la localización.
+- Si la localización de destino no indica nada, puedes moverte a ella libremente.
+
+Cuando un jugador realiza esta acción puede llevar consigo a cualquier otro personaje que esté en su misma localización y quiera viajar con él. Esto no implica ninguna acción para estos personajes que acompañan al del jugador.
 - <u>**???**</u> acción gratis al entrar en una localización
 - <u>**???**</u> Si hay enemigos en la localización -> combate
 
@@ -125,12 +132,28 @@ Cuando termina el domingo y, por lo tanto, la semana en curso:
 - <icono>: No ocurre nada.
 
 
+### Subir el nivel de asentamiento
+Para subir en 1 el nivel de asentamiento hace falta reunir en esa localización la cantidad de basura requerida. Las fichas de basura se pueden ir dejando encima de la carta de la localización hasta reunir el número indicado, en ese momento:
+1. Se sube el nivel de asentamiento
+2. Las fichas de basura se meten en la bolsa de saqueo
+
+Todas las localizaciones empiezan con nivel de asentamiento 0, indicando la carta de cada localización cuál es el nivel máximo.
+
+### Acciones con objetos
+Las siguientes acciones solo pueden realizarla personajes que disponen de la combinación indicada de objetos
+
+#### Radio + pilas
+De vez en cuando captas alguna emisión interesante. Puedes hacer una de las siguientes acciones:
+- Consigues información valiosa: puedes mirar la pila de saqueo de una localización cualquiera menos la tuya y devolverla en cualquier orden.
+- Te anticipas a los enemigos: puedes mover hasta 3 enemigos de una misma localización (que no sea la tuya) a otra adyacente.
+
+
+### 3.2 Acciones que no pueden realizarse si hay enemigos en la localización
+
 ### Saquear
 Si en la localización actual queda algún objeto en la pila de saqueo, el jugador puede tirar 1 vez el dado de saqueo y resuelve su resultado (ver apartado "Resultados del dado de saqueo").
 
 Si en la localización actual la pila de saqueo está vacía, primero toma de la bolsa de saqueo tantos objetos como  indique el límite de saqueo de la localización y forma una nueva pila.
-
-Esta acción no puede realizarse si hay enemigos en la localización.
 
 #### Resultados del dado de saqueo
 - <icono>: Conseguir una ficha de basura.
@@ -143,40 +166,29 @@ En localizaciones dónde haya disponible animales para cazar o pescar <iconos>, 
 - Caza: cuchillo y lanza.
 - Pesca: caña de pescar.
 
-Esta acción no puede realizarse si hay enemigos en la localización.
-
 ### Comerciar
 Una vez por turno: en localizaciones dónde haya disponible comerciantes <icono>, el jugador podrá intercambiar un objeto cualquiera de su mochila que no sea basura por el primero objeto de la pila de saqueo. Después de intercambiarlo, baraja la pila de saqueo.
 Mete el objeto intercambiado en la pila de saqueo y barájala.
 
-Esta acción no puede realizarse si hay enemigos en la localización.
-
 ### Intercambiar
 El jugador podrá gastar una acción para poder realizar cualquiera de estas actividades en el orden que quiera:
-- intercambiar cualquiera cantidad de objetos con otros jugadores que estén en la misma localización.
-- reordenar los objetos de su mochila.
-- dejar cualquier número de objetos en la localización.
-
-Esta acción no puede realizarse si hay enemigos en la localización.
-
-### Subir el nivel de asentamiento
-Para subir en 1 el nivel de asentamiento hace falta reunir en esa localización la cantidad de basura requerida. Las fichas de basura se pueden ir dejando encima de la carta de la localización hasta reunir el número indicado, en ese momento:
-1. Se sube el nivel de asentamiento
-2. Las fichas de basura se meten en la bolsa de saqueo
-
-Todas las localizaciones empiezan con nivel de asentamiento 0, indicando la carta de cada localización cuál es el nivel máximo.
-
-Esta acción no puede realizarse si hay enemigos en la localización.
+- Intercambiar cualquiera cantidad de objetos con otros jugadores que estén en la misma localización.
+- Reordenar los objetos de su mochila.
+- Dejar o recoger cualquier número de objetos en la localización que no estén en la pila de saqueo.
 
 ### Fabricar un objeto
 
 Esta acción solo puede realizarse XXXXX
-Esta acción no puede realizarse si hay enemigos en la localización.
+
 
 #### Objetos fabricados:
-- Botiquín: el jugador puede usarlo para retirar inmeditamente hasta 3 fichas de herida. Tras esto, lo deja de nuevo en la pila de objetos fabricables.
-- Caña de pescar: necesaria para pescar en las localizaciones permitidas.
-- Lanza: necesaria para cazas (o el cuchillo) en las localizaciones permitidas.
+- Botiquín (vendas, alcohol, aguja): el jugador puede usarlo para retirar inmeditamente hasta 3 fichas de herida. Tras esto, lo deja de nuevo en la pila de objetos fabricables.
+- Caña de pescar (palo, cuerda): necesaria para pescar en las localizaciones permitidas.
+- Lanza (palo, cuchillo, cinta aislante): necesaria para cazas (o el cuchillo) en las localizaciones permitidas.
+
+
+
+
 
 ## 4. Combate
 - Cada vez que aparezcan nuevos enemigos en la localización del personaje del jugador, se realiza una secuencia de combate:

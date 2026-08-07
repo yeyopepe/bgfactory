@@ -1744,28 +1744,26 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       mazoContent.style.backgroundColor = '#ffffff';
       mazo.appendChild(mazoContent);
 
-      if (props.imagenResourceId) {
+      const cartaArriba = cartaIds.length > 0 ? getComponents().find((c) => c.id === cartaIds[0]) : null;
+      if (props.imagenResourceId && cartaArriba) {
         paintCartaFace(mazoContent, {
           imagenResourceId: props.imagenResourceId,
           ajusteImagen: props.ajusteImagen,
           transparenciaImagen: props.transparenciaImagen,
           fondoTipo: 'imagen',
         }, 1, width, height);
+      } else if (cartaArriba) {
+        // Encaja el diseño (en píxeles reales) de la carta de arriba en la
+        // caja del mazo, cuyo tamaño es independiente del de esa carta — la
+        // referencia es el ancho real de la propia carta, no un lienzo abstracto.
+        const renderScale = width / (cartaArriba.width || MIN_CARTA_WIDTH);
+        const caraTrasera = cartaArriba.properties?.caraTrasera;
+        const mazoCaraTrasera = caraTrasera
+          ? { ...caraTrasera, ajusteImagen: { ...caraTrasera.ajusteImagen, rotation: 0 } }
+          : caraTrasera;
+        paintCartaFace(mazoContent, mazoCaraTrasera, renderScale, width, height);
       } else {
-        const cartaArriba = cartaIds.length > 0 ? getComponents().find((c) => c.id === cartaIds[0]) : null;
-        if (cartaArriba) {
-          // Encaja el diseño (en píxeles reales) de la carta de arriba en la
-          // caja del mazo, cuyo tamaño es independiente del de esa carta — la
-          // referencia es el ancho real de la propia carta, no un lienzo abstracto.
-          const renderScale = width / (cartaArriba.width || MIN_CARTA_WIDTH);
-          const caraTrasera = cartaArriba.properties?.caraTrasera;
-          const mazoCaraTrasera = caraTrasera
-            ? { ...caraTrasera, ajusteImagen: { ...caraTrasera.ajusteImagen, rotation: 0 } }
-            : caraTrasera;
-          paintCartaFace(mazoContent, mazoCaraTrasera, renderScale, width, height);
-        } else {
-          renderMazoEmptyPlaceholder(mazoContent, width, height);
-        }
+        renderMazoEmptyPlaceholder(mazoContent, width, height);
       }
 
       if (identifyMode === 'tooltip') mazo.title = 'Pulsa para sacar la primera carta.';
