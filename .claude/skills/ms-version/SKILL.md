@@ -27,6 +27,12 @@ Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta con
 
 En cualquier momento de la invocación, si el usuario pregunta cómo funciona el proceso o pide explícitamente "el diagrama"/"el flujo", muestra el contenido íntegro de [`version-flow-diagram.template.md`](version-flow-diagram.template.md) tal cual (sin regenerarlo ni parafrasearlo) y continúa donde se había quedado el flujo.
 
+## 0.2. Invocación puramente informativa sobre el proceso de build
+
+Es posible que el usuario invoque esta skill únicamente para informar de un cambio en el procedimiento de compilación/generación del entregable (p.ej. "ahora el build también genera un PDF de reglas", "cambia el comando de compilación a..."), sin pedir explícitamente preparar una entrega ahora mismo.
+
+Si esa es la intención: actualiza `.claude/skills/ms-version/how-to-compile-version.md` con la información nueva, siguiendo [`how-to-compile-version.template.md`](how-to-compile-version.template.md) (incluido su soporte para procesos de varios pasos/artefactos si aplica — ver el propio template), y **no continúes con el resto del flujo**. Pregunta explícitamente al usuario si quiere lanzar el proceso de versionado ahora con este procedimiento ya actualizado. Solo si confirma específicamente, continúa con el paso 0.5; si no confirma (o no contesta a eso), detente aquí.
+
 ## 0.5. Guardarraíl: `implemented/` debe estar vacío antes de empezar
 
 Al arrancar el proceso de versionado no puede haber ningún change/fix en estado `implemented`. Lista las carpetas de `{workFolder}/changes/implemented/`; si hay alguna, **no se puede avanzar de ninguna manera** (ni crear la carpeta de versión, ni nada de lo que sigue) hasta resolverlas todas.
@@ -61,22 +67,28 @@ Crea `{workFolder}/versions/{XXXX}/` con subcarpetas vacías `files/` y `docs/`,
 
 Busca `.claude/skills/ms-version/how-to-compile-version.md` (fichero propio de la skill, no en `ms-context.json`: es un procedimiento de shell/build, no configuración declarativa).
 
-- **Si no existe**: pregunta al usuario el procedimiento exacto para generar el entregable de este proyecto (qué comando(s) ejecutar, dónde queda el fichero resultante y cómo identificarlo), y escríbelo siguiendo [`how-to-compile-version.template.md`](how-to-compile-version.template.md). No continúes con el paso 4 en la misma respuesta sin haber guardado el fichero.
+- **Si no existe**: pregunta al usuario el procedimiento exacto para generar el entregable de este proyecto (qué comando(s) ejecutar, dónde queda el fichero resultante y cómo identificarlo — o, si el proceso consta de varios pasos que generan artefactos distintos, cada paso con su propio comando y fichero resultante), y escríbelo siguiendo [`how-to-compile-version.template.md`](how-to-compile-version.template.md). No continúes con el paso 4 en la misma respuesta sin haber guardado el fichero.
 - **Si ya existe**: léelo y síguelo tal cual, sin volver a preguntar.
 
 ## 4. Generar la versión
 
-Ejecuta el/los comando(s) que indique `how-to-compile-version.md`, localiza el/los fichero(s) resultantes tal como describe, y cópialos a `{workFolder}/versions/{XXXX}/files/`. Si el comando falla o el fichero esperado no aparece, para y explícaselo al usuario en vez de improvisar una solución alternativa.
+Ejecuta el/los comando(s) que indique `how-to-compile-version.md` (uno por cada paso, si el procedimiento consta de varios) y localiza el/los fichero(s) resultantes tal como describe. Si algún comando falla o el fichero esperado no aparece, para y explícaselo al usuario en vez de improvisar una solución alternativa.
 
-## 5. Copiar documentación técnica
+Con todos los artefactos localizados, cópialos a `{workFolder}/versions/{XXXX}/files/` ejecutando desde la raíz del repo (un `--source` por artefacto, aunque provenga de un único paso):
+
+```
+python .claude/skills/ms-version/scripts/copy-build-artifacts.py --xxxx <XXXX> --source <ruta-artefacto-1> [--source <ruta-artefacto-2> ...]
+```
+
+## 5. Copiar documentación técnica y funcional
 
 Solo si el paso 4 generó el entregable correctamente. Ejecuta desde la raíz del repo:
 
 ```
-python .claude/skills/ms-version/scripts/copy-tech-docs.py --xxxx <XXXX>
+python .claude/skills/ms-version/scripts/copy-docs.py --xxxx <XXXX>
 ```
 
-Lee `framework.docs.tech.architectureDocDir` y `framework.docs.tech.styleBibleDocDir` de `.claude/ms-context.json` (los que estén configurados; si ninguno lo está, se omite sin preguntar, igual que hace `ms-do`) y copia cada carpeta completa (con todos sus ficheros, incluido su `INDEX.md`) a `{workFolder}/versions/{XXXX}/docs/<nombre-de-la-carpeta>/`. Anota qué se copió y qué se omitió (lo devuelve el script en su JSON de salida) para el resumen del paso 7.
+Lee `framework.docs.tech.architectureDocDir`, `framework.docs.tech.styleBibleDocDir` y `framework.docs.functional.featuresDocPathDir` de `.claude/ms-context.json` (los que estén configurados; si ninguno lo está, se omite sin preguntar, igual que hace `ms-do`), comprime cada uno en un `.zip` (carpeta completa con todos sus ficheros, incluido su `INDEX.md`; o el único fichero `.md`, si esa ruta no es una carpeta) y lo guarda en `{workFolder}/versions/{XXXX}/docs/`. Anota qué se copió y qué se omitió (lo devuelve el script en su JSON de salida) para el resumen del paso 7.
 
 ## 6. Generar el changelog
 
@@ -84,4 +96,4 @@ Invoca la skill `ms-internal-changelog` (herramienta Skill) pasándole la carpet
 
 ## 7. Confirmar al usuario
 
-Resume lo generado: entregable en `files/`, docs copiados en `docs/` (o cuáles se omitieron por no estar configurados), y que el changelog quedó en `changelog.md` — usa el resumen que te devuelva `ms-internal-changelog` (número de entradas por sección, y si se borraron o no las carpetas de `{workFolder}/changes/closed/`).
+Resume lo generado: entregable en `files/`, docs comprimidos en `docs/` (o cuáles se omitieron por no estar configurados), y que el changelog quedó en `changelog.md` — usa el resumen que te devuelva `ms-internal-changelog` (número de entradas por sección, incluida Fixes, y si se borraron o no las carpetas de `{workFolder}/changes/closed/`).

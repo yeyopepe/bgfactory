@@ -50,13 +50,15 @@ Recorre `{workFolder}/versions/`, excluye la carpeta `{XXXX}` que se está gener
 
 ## 3. Redactar `changelog.md`
 
-Por cada entrada de `closed/`, lee su `description.md` y toma sus campos **Nombre** y **Descripción completa** (ya redactados en términos puramente funcionales por `ms-internal-workflow` al crearlos — no releas código ni reinterpretes técnicamente). Clasifícala, comparando contra el `changelog.md` de la versión anterior (si lo hay), en una de tres secciones:
+Por cada entrada de `closed/`, lee su `description.md` y toma sus campos **Nombre**, **Tipo** y **Descripción completa** (ya redactados en términos puramente funcionales por `ms-internal-workflow` al crearlos — no releas código ni reinterpretes técnicamente). Clasifícala en una de cuatro secciones:
 
-- **Nuevo** — funcionalidad que no existía antes (o no hay versión anterior con la que comparar).
-- **Cambios** — modifica o amplía algo que ya aparecía en el changelog anterior.
-- **Eliminado** — quita o desactiva algo que aparecía en el changelog anterior.
+- **Fixes** — si **Tipo** es `fix`: siempre va aquí directamente, sin comparar contra la versión anterior (es una corrección de un bug, no una funcionalidad nueva ni un cambio de comportamiento intencionado).
+- En cualquier otro caso (**Tipo** `change` o `fast`), compárala contra el `changelog.md` de la versión anterior (si lo hay) y clasifícala en:
+  - **Nuevo** — funcionalidad que no existía antes (o no hay versión anterior con la que comparar).
+  - **Cambios** — modifica o amplía algo que ya aparecía en el changelog anterior.
+  - **Eliminado** — quita o desactiva algo que aparecía en el changelog anterior.
 
-Escribe `{workFolder}/versions/{XXXX}/changelog.md` siguiendo la plantilla [`changelog.template.md`](changelog.template.md): cabecera con el `XXXX` de la versión y la fecha, seguida de las tres secciones (omite una sección entera si queda vacía), cada entrada con nombre en negrita + resumen funcional en una o dos frases (tono changelog, en pasado), sin mencionar ficheros, funciones ni detalles técnicos.
+Escribe `{workFolder}/versions/{XXXX}/changelog.md` siguiendo la plantilla [`changelog.template.md`](changelog.template.md): cabecera con el `XXXX` de la versión, la fecha, y el número de elementos de cada sección (Nuevo, Cambios, Eliminado, Fixes — cuenta también las que queden en 0), seguida de las cuatro secciones (omite una sección entera si queda vacía), cada entrada con nombre en negrita + resumen funcional en una o dos frases (tono changelog, en pasado), sin mencionar ficheros, funciones ni detalles técnicos.
 
 ## 4. Confirmar borrado con el usuario antes de borrar nada
 
@@ -74,4 +76,4 @@ Borra únicamente esas carpetas concretas de `{workFolder}/changes/closed/`, nun
 
 ## 6. Confirmar a quien invoca
 
-Indica la ruta de `changelog.md` generado, cuántas entradas cayeron en cada sección (Nuevo/Cambios/Eliminado), y si se borraron o no las carpetas de `closed/` (y en su caso, cuáles).
+Indica la ruta de `changelog.md` generado, cuántas entradas cayeron en cada sección (Nuevo/Cambios/Eliminado/Fixes), y si se borraron o no las carpetas de `closed/` (y en su caso, cuáles).

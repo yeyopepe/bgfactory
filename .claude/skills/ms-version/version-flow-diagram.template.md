@@ -8,7 +8,7 @@ flowchart LR
     Resolve["Resolver cada entrada\n(usuario confirma → closed)"]
     Folder["Crear versions/XXXX\n(files/, docs/)"]
     Compile["Generar el entregable\n(how-to-compile-version.md)"]
-    Docs["Copiar documentación técnica\nvigente a docs/"]
+    Docs["Comprimir y copiar documentación\ntécnica y funcional vigente a docs/"]
     Changelog["ms-internal-changelog\nredacta changelog.md desde closed/"]
     Confirm["Confirmar entrega\nal usuario"]
 
