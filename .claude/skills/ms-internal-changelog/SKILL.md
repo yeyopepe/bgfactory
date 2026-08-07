@@ -52,8 +52,8 @@ Recorre `{workFolder}/versions/`, excluye la carpeta `{XXXX}` que se está gener
 
 Por cada entrada de `closed/`, lee su `description.md` y toma sus campos **Nombre**, **Tipo** y **Descripción completa** (ya redactados en términos puramente funcionales por `ms-internal-workflow` al crearlos — no releas código ni reinterpretes técnicamente). Clasifícala en una de cuatro secciones:
 
-- **Fixes** — si **Tipo** es `fix`: siempre va aquí directamente, sin comparar contra la versión anterior (es una corrección de un bug, no una funcionalidad nueva ni un cambio de comportamiento intencionado).
-- En cualquier otro caso (**Tipo** `change` o `fast`), compárala contra el `changelog.md` de la versión anterior (si lo hay) y clasifícala en:
+- **Correcciones y ajustes** — si **Tipo** es `fix` o `fast`: siempre va aquí directamente, sin comparar contra la versión anterior (son correcciones o cambios triviales, no funcionalidad nueva ni un cambio de comportamiento a documentar como tal).
+- En cualquier otro caso (**Tipo** `change`), compárala contra el `changelog.md` de la versión anterior (si lo hay) y clasifícala en:
   - **Nuevo** — funcionalidad que no existía antes (o no hay versión anterior con la que comparar).
   - **Cambios** — modifica o amplía algo que ya aparecía en el changelog anterior.
   - **Eliminado** — quita o desactiva algo que aparecía en el changelog anterior.
