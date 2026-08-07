@@ -1678,7 +1678,11 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         // caja del mazo, cuyo tamaño es independiente del de esa carta — la
         // referencia es el ancho real de la propia carta, no un lienzo abstracto.
         const renderScale = width / (cartaArriba.width || MIN_CARTA_WIDTH);
-        paintCartaFace(mazoContent, cartaArriba.properties?.caraTrasera, renderScale, width, height);
+        const caraTrasera = cartaArriba.properties?.caraTrasera;
+        const mazoCaraTrasera = caraTrasera
+          ? { ...caraTrasera, ajusteImagen: { ...caraTrasera.ajusteImagen, rotation: 0 } }
+          : caraTrasera;
+        paintCartaFace(mazoContent, mazoCaraTrasera, renderScale, width, height);
       } else {
         renderMazoEmptyPlaceholder(mazoContent, width, height);
       }

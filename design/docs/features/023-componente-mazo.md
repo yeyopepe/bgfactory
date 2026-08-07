@@ -2,7 +2,7 @@
 
 **Área**: Mesa de juego
 
-Séptimo tipo de componente (cambio 00106): una pila ordenada de cartas ("Carta/Ficha") siempre boca abajo, representada visualmente como una caja que muestra el diseño de la cara trasera de la carta que esté arriba del todo en cada momento, escalado al tamaño de la caja. Si el mazo no tiene ninguna carta dentro, muestra en su lugar una imagen/gráfico neutro por defecto, no dependiente de ningún recurso subido por el usuario.
+Séptimo tipo de componente (cambio 00106): una pila ordenada de cartas ("Carta/Ficha") siempre boca abajo, representada visualmente como una caja que muestra el diseño de la cara trasera de la carta que esté arriba del todo en cada momento, escalado al tamaño de la caja. Si el mazo no tiene ninguna carta dentro, muestra en su lugar una imagen/gráfico neutro por defecto, no dependiente de ningún recurso subido por el usuario. La imagen de fondo del dorso se muestra siempre sin aplicar ningún giro, independientemente del giro que tenga configurado en su `ajusteImagen` (cambio 00181) — los demás elementos de la cara (figuras, cuadros de texto) sí se muestran con sus giros configurados.
 
 Sobre la caja del mazo se muestra siempre (en los dos modos) una etiqueta con su identificador y el número de cartas que contiene, con el formato "<id> — <N> cartas" (cambio 00121).
 
@@ -27,6 +27,6 @@ La modal de configuración del mazo incluye, en su pestaña "Específicas": el n
 Al eliminar un mazo (solo posible en modo edición, como cualquier componente), las cartas que contuviera dejan de estar asociadas a él y vuelven a mostrarse en la mesa como componentes independientes, en su última posición conocida — no se eliminan.
 
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Mazo" en la modal previa de tipo al pulsar "+ Añadir componente"; sacar la carta de arriba con un click, menú contextual y "Meter en mazo..." solo en modo juego; "Ver contenido del mazo" desde propiedades y arrastrar cartas seleccionadas sobre un mazo solo en modo edición; "Ver contenido..."/"Sacar" disponibles y con el mismo efecto en ambos modos.
-- **Código**: 00106, 00121, 00119.
+- **Código**: 00106, 00121, 00119, 00181.
 - **Desde**: 2026-07-31
-- **Última modificación**: 2026-08-03
+- **Última modificación**: 2026-08-07
