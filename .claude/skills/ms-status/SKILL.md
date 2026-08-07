@@ -5,7 +5,7 @@ argument-hint: "[todo|<estado>]"
 model: claude-haiku-4-5
 effort: medium
 metadata:
-  version: 1.8.1
+  version: 1.9.1
   uses: []
 ---
 
@@ -31,31 +31,19 @@ Antes de ejecutar ningún script, mira cómo se invocó la skill — cada modo u
 - Argumento con el nombre de una carpeta de estado existente en `{changesDir}` distinta de `todo` (p.ej. `/ms-status closed`, `/ms-status implemented`, `/ms-status inProgress`, o "la lista completa de lo que está en `<estado>`") → ve a **1.c**.
 - Sin argumento, o cualquier otro caso (informe general) → ve a **2**.
 
-No ejecutes `collect_status.py` en este paso ni antes de saber en qué modo estás: solo hace falta en el modo `todo` (1.b); en los otros dos modos su salida no se usa para nada y sale bastante grande (escala con el número total de entradas del framework).
+No ejecutes `collect_status.py` directamente en ningún modo: es un módulo interno que `list_todo.py` y `render_status.py` importan y reutilizan por su cuenta, no un script pensado para invocarse desde la skill — su salida JSON no aporta nada que la skill deba mostrar o reformatear.
 
 ## 1.b Modo `todo`: solo listar ideas
 
-Toda la mecánica de recorrido y parseo la hace, de forma determinista y gratis en tokens, el script [`scripts/collect_status.py`](scripts/collect_status.py) (Python estándar, sin dependencias externas) — no la reimplementes a mano ni leas tú mismo cada `description.md`. Ejecuta desde la raíz del repo:
+Ejecuta directamente [`scripts/list_todo.py`](scripts/list_todo.py) — no ejecutes `collect_status.py` para este modo, no hace falta:
 
 ```
-python .claude/skills/ms-status/scripts/collect_status.py
+python .claude/skills/ms-status/scripts/list_todo.py
 ```
 
-El script:
+El script ya aplica internamente la plantilla [`STATUS.todo.template.md`](STATUS.todo.template.md) e imprime por stdout el listado en markdown listo para mostrar (código + texto completo sin truncar de la sección `## Idea` de cada `description.md`, marcando explícitamente las ideas sin esa sección, o el mensaje de "sin ideas" si `todo/` está vacía) — no es JSON, no vuelvas a aplicar la plantilla tú ni reformatees nada.
 
-- Lee `changesDir` de `.claude/ms-context.json` (o usa `--changes-dir` si se lo pasas).
-- Recorre cada subcarpeta directa de `{changesDir}` (un "estado") y, dentro, cada entrada.
-- Para cada entrada determina su **tipo**: `todo` si el estado es `todo` (ms-todo no usa campo `Tipo`); en cualquier otro estado, parsea `**Tipo**` dentro de `description.md` (`change`/`fix`; `unknown` si no se encuentra o no hay `description.md`).
-- Para las entradas del estado `inProgress`, calcula además `subStatus`: `listo_para_implementar` (existen `description.md` y `plan.md`), `descrito` (solo `description.md`), o `sin_descripcion` (anómalo: ni siquiera tiene `description.md`).
-- Imprime por stdout un único JSON con: `states` (detalle y totales por estado, con `subStatus` agregado para `inProgress`), `totalsByType` (agregado global por tipo), `grandTotal`, y `warnings` (avisos de datos que no se han podido interpretar, p.ej. `Tipo` no reconocido).
-
-De ese JSON, para este modo:
-
-- Recorre `states.todo.entries`.
-- Por cada entrada, muestra su `code` y el texto completo (sin truncar) de `name` (la sección `## Idea` de su `description.md`). Si `name` es `null` (idea sin esa sección, o sin `description.md`), dilo explícitamente en vez de omitir la entrada.
-- Si `states.todo.entries` está vacío, dilo así ("no hay ninguna idea apuntada en todo/") en vez de no responder nada.
-- No incluyas la tabla de estados, ni las secciones de "En progreso" ni "Avisos" — este modo es solo el listado de ideas.
-- Entrega el resultado como respuesta de chat (no lo guardes en fichero salvo que el usuario lo pida, igual que en el paso 4).
+Tu respuesta en el chat debe ser **exactamente** el stdout del script, sin añadir nada antes ni después (nada de "Aquí tienes el listado:", resúmenes, ni comentarios propios). No lo guardes en fichero salvo que el usuario lo pida (paso 4).
 
 ## 1.c Modo `<estado>`: listado filtrado de una carpeta de estado
 
@@ -65,11 +53,13 @@ Ejecuta directamente [`scripts/filter_status.py`](scripts/filter_status.py) con 
 python .claude/skills/ms-status/scripts/filter_status.py <estado>
 ```
 
-Si el estado indicado no existe como carpeta de `{changesDir}`, el script falla con un mensaje que lista los estados disponibles — muéstraselo al usuario tal cual en vez de improvisar una lista.
+Si el estado indicado no existe como carpeta de `{changesDir}`, el script falla con un mensaje que lista los estados disponibles — tu respuesta debe ser exactamente ese mensaje de error, tal cual, sin improvisar una lista propia.
 
-El script ya aplica internamente la plantilla [`STATUS.filtered.template.md`](STATUS.filtered.template.md) e imprime por stdout el informe en markdown listo para mostrar (tabla Código/Tipo/Descripción/Fecha, o el mensaje de "sin entradas" si el estado está vacío) — no es JSON, no vuelvas a aplicar la plantilla tú ni reformatees nada, limítate a pegar la salida tal cual como respuesta.
+El script ya aplica internamente la plantilla [`STATUS.filtered.template.md`](STATUS.filtered.template.md) e imprime por stdout el informe en markdown listo para mostrar (tabla Código/Tipo/Descripción/Fecha, o el mensaje de "sin entradas" si el estado está vacío) — no es JSON, no vuelvas a aplicar la plantilla tú ni reformatees nada.
 
-## 2. Redactar el informe
+Tu respuesta en el chat debe ser **exactamente** el stdout del script, sin añadir nada antes ni después (nada de "Aquí tienes el informe:", resúmenes, ni comentarios propios). No lo guardes en fichero salvo que el usuario lo pida (paso 4).
+
+## 2. Generar el informe
 
 Toda la mecánica de recopilar y mapear los datos a la plantilla [`STATUS.template.md`](STATUS.template.md) (tabla de totales, las tres listas de "En progreso", cambios fast, ideas de `todo/`, avisos) la hace, de forma determinista y gratis en tokens, el script [`scripts/render_status.py`](scripts/render_status.py) — no repitas tú ese mapeo campo a campo, no redactes las listas a mano, y no ejecutes `collect_status.py` antes: `render_status.py` recopila los datos internamente por su cuenta, no depende de nada del paso 1. Ejecuta desde la raíz del repo:
 
@@ -77,7 +67,7 @@ Toda la mecánica de recopilar y mapear los datos a la plantilla [`STATUS.templa
 python .claude/skills/ms-status/scripts/render_status.py
 ```
 
-El script recopila los datos de `{changesDir}` por su cuenta (misma lógica que `collect_status.py`) y aplica el mapeo completo (incluida la regla de la columna Fast solo en `implemented`/`closed`, las tres listas de "En progreso" con sus casos vacíos, y omitir por completo las secciones de "Cambios fast implementados"/"Avisos" cuando no aplican) e imprime por stdout el informe en markdown ya listo — no es JSON, no vuelvas a aplicar la plantilla tú ni reformatees nada, limítate a pegar la salida tal cual como respuesta.
+El script recopila los datos de `{changesDir}` por su cuenta (misma lógica que `collect_status.py`) y aplica el mapeo completo (incluida la regla de la columna Fast solo en `implemented`/`closed`, las tres listas de "En progreso" con sus casos vacíos, y omitir por completo las secciones de "Cambios fast implementados"/"Avisos" cuando no aplican) e imprime por stdout el informe en markdown ya listo — no es JSON, no vuelvas a aplicar la plantilla tú ni reformatees nada.
 
 Por defecto la sección **"Cambios fast implementados" se omite**, aunque existan entradas fast (el total de la columna Fast en la tabla sigue mostrándose). Solo inclúyela si el usuario la pide explícitamente en este turno (p.ej. "enséñame también los fast", "detalla los cambios fast"), añadiendo el flag `--show-fast`:
 
@@ -89,7 +79,7 @@ No inventes datos que no estén en la salida del script (p.ej. no le asignes un 
 
 ## 3. Presentar el informe
 
-Entrega el informe redactado como respuesta directa en el chat. No lo guardes en ningún fichero en este paso.
+Tu respuesta en el chat debe ser **exactamente** el stdout del script ejecutado en el paso 2, sin añadir nada antes ni después (nada de "Aquí tienes el informe:", resúmenes, comentarios propios, ni texto adicional fuera del markdown que imprimió el script). No lo guardes en ningún fichero en este paso.
 
 ## 4. Guardar en fichero (solo si el usuario lo pide)
 

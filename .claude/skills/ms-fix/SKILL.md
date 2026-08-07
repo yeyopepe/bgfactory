@@ -15,6 +15,11 @@ Analiza, documenta e implementa un fix (comportamiento roto) sobre el proyecto, 
 
 Un fix no trivial es, por naturaleza, un cambio acotado: el análisis y la solución deben centrarse **única y exclusivamente en corregir el bug reportado**, con el menor cambio posible. Nada de aprovechar para refactorizar, renombrar o tocar código no relacionado con la causa raíz — eso, si hace falta, es un `ms-new` aparte.
 
+**Nunca uses git de forma destructiva ni hagas commit sin permiso.** La rama fast-track de esta skill edita código directamente, pero eso no autoriza a ir más allá:
+
+- No ejecutes `git commit` (ni `git add` seguido de commit) salvo que el usuario lo haya pedido explícitamente en este turno. Terminar el cambio no es una autorización implícita para commitear.
+- No ejecutes `git restore`, `git checkout -- <fichero>`, `git reset`, `git clean`, ni ningún otro comando que descarte cambios en el árbol de trabajo, aunque el fichero afectado parezca no tener relación con este fix. Si ves cambios de otro trabajo en curso (tuyo o del usuario) que no quieres incluir, dilo y pregunta cómo proceder — no los deseches tú mismo.
+
 **Primero valora si el cambio es trivial.** Antes de decidir cómo tratarlo, esta skill siempre comprueba si lo pedido califica como "fast" (ver paso 2). Si califica, se aplica y documenta ya implementado en el mismo turno, sin pasar por `{changesDir}/inProgress/` con `plan.md` ni encadenar `ms-how`/`ms-do`. **Esto no es un atajo para saltarse el análisis de algo que sí lo necesita** — es solo para lo que verdaderamente no requiere ninguno. Si tienes dudas razonables sobre si califica, no lo fuerces: trátalo como que no califica.
 
 Si lo pedido no es trivial:

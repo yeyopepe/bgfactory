@@ -15,6 +15,12 @@ Toma una entrada de `{changesDir}/inProgress/{xxxx}/` cuya solución técnica ya
 
 **Fuente de la verdad.** El `plan.md` de esta entrada es la guía de lo que hay que implementar. Si durante la implementación algo no cuadra con el código real, el código manda — para y coméntaselo al usuario en vez de improvisar una solución distinta sin decírselo (ver paso 2).
 
+**Nunca uses git de forma destructiva ni hagas commit sin permiso.** Esta skill edita ficheros de código/documentación y mueve la carpeta del cambio (paso 3), pero nunca va más allá por su cuenta:
+
+- No ejecutes `git commit` (ni `git add` seguido de commit) salvo que el usuario lo haya pedido explícitamente en este turno. Terminar la implementación no es una autorización implícita para commitear.
+- No ejecutes `git restore`, `git checkout -- <fichero>`, `git reset`, `git clean`, ni ningún otro comando que descarte cambios en el árbol de trabajo, aunque el fichero afectado parezca no tener relación con esta entrada. Si al hacer `git status`/`git add` ves cambios de otro trabajo en curso (tuyo o del usuario) que no quieres incluir, dilo y pregunta cómo proceder — no los deseches tú mismo.
+- Si necesitas comprobar el estado del repo (`git status`, `git diff`) hazlo solo para verificar tu propio trabajo, nunca como paso previo a limpiar o descartar ficheros que no has tocado en esta implementación.
+
 ## 0. Cargar el contexto del proyecto
 
 Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta `framework.changesDir`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí.
