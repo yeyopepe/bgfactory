@@ -1097,11 +1097,7 @@ fieldset.modal__section--untitled {
 .mazo-contenido__thumb {
   position: relative;
   flex: 0 0 auto;
-  width: 42px;
-  height: 58px;
   overflow: hidden;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-neutral);
   background: #ffffff;
 }
 

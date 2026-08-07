@@ -11,9 +11,10 @@
 
 import { getComponents } from '../core/state.js';
 import { paintCartaFace, formatComponentIdentifier } from './componentRenderer.js';
+import { getCartaShapeCss } from '../core/cardProportions.js';
 
-const THUMB_WIDTH = 42;
-const THUMB_HEIGHT = 58; // mismo tamaño fijo que .mazo-contenido__thumb en main.css
+const THUMB_MAX_WIDTH = 42;
+const THUMB_MAX_HEIGHT = 58; // máximo tamaño de la miniatura de carta
 
 export function openMazoContentModal({ mazoId, onSacar }) {
   const overlay = document.createElement('div');
@@ -70,10 +71,20 @@ export function openMazoContentModal({ mazoId, onSacar }) {
 
       const thumb = document.createElement('div');
       thumb.className = 'mazo-contenido__thumb';
-      // Diseño guardado en píxeles reales: encaja el ancho real de la carta
-      // en la miniatura de tamaño fijo.
-      const renderScale = THUMB_WIDTH / (carta.width || THUMB_WIDTH);
-      paintCartaFace(thumb, carta.properties?.caraFrontal, renderScale, THUMB_WIDTH, THUMB_HEIGHT);
+      // Diseño guardado en píxeles reales: encaja el ancho y alto reales de la
+      // carta en la miniatura de tamaño máximo.
+      const cartaWidth = carta.width || THUMB_MAX_WIDTH;
+      const cartaHeight = carta.height || THUMB_MAX_HEIGHT;
+      const renderScale = Math.min(THUMB_MAX_WIDTH / cartaWidth, THUMB_MAX_HEIGHT / cartaHeight);
+      const thumbWidth = cartaWidth * renderScale;
+      const thumbHeight = cartaHeight * renderScale;
+      thumb.style.width = `${thumbWidth}px`;
+      thumb.style.height = `${thumbHeight}px`;
+      const { borderRadius, clipPath } = getCartaShapeCss(carta.properties?.proporcion, carta.properties?.esquinasRedondeadas);
+      thumb.style.borderRadius = borderRadius;
+      thumb.style.clipPath = clipPath;
+      thumb.style.border = clipPath === 'none' ? '1px solid var(--border-neutral)' : 'none';
+      paintCartaFace(thumb, carta.properties?.caraFrontal, renderScale, thumbWidth, thumbHeight);
       item.appendChild(thumb);
 
       const idEl = document.createElement('span');

@@ -98,6 +98,13 @@ Complementario a su sombra de contacto.
 - Sombra de contacto: sin tratamiento especial (a diferencia de siluetas hexagonales de "Carta") — `box-shadow` ya sigue el `border-radius` del elemento, proyecta sombra circular automáticamente.
 - `.mazo-reveal-zone` adopta el mismo criterio: `border-radius: 50%` inline si el mazo es circular, en vez de `var(--radius-sm)` por defecto.
 
+### Miniatura de carta de la modal "Contenido del mazo"
+
+- `.mazo-contenido__thumb` (`ui/mazoContentModal.js`, bloque `.mazo-contenido__item`): miniatura ajustable de la cara frontal de cada carta en la lista de la modal "Ver contenido del mazo" (origen: menú contextual del mazo en Modo Juego o pestaña del mazo en Modo Edición).
+  - Dimensiones: ancho y alto reales de la carta, escalados proporcionalmente para caber en máximo `THUMB_MAX_WIDTH` × `THUMB_MAX_HEIGHT` (42 × 58 píxeles).
+  - Forma: reutiliza `getCartaShapeCss` (`core/cardProportions.js`) para aplicar el mismo `border-radius` y `clip-path` de la carta real según su `proporcion` (rectangular con esquinas redondeadas por defecto, circular, hexagonal, triangular).
+  - Borde: neutro decorativo de "slot" (`1px solid var(--border-neutral)`) solo en proporciones rectangulares/cuadrada (donde `clip-path: 'none'`). En proporciones hexagonal y triangular (`clip-path` activo) se omite, porque `border` CSS no sigue la silueta recortada — diseño coherente con que la carta real sobre la mesa tampoco simula borde de grosor uniforme en esas proporciones (ese mecanismo de dos capas anidadas es propio del borde de color elegible de la carta, no aplicable aquí).
+
 ### Recorte hexagonal de "Carta"
 
 - Proporciones `'hex-vertical'`/`'hex-horizontal'`: no usan `var(--radius-lg)` ni `border-radius: 50%` — recorte con `clip-path` (polígono exacto de hexágono regular, vértices agudos sin bisel ni redondeo). Única forma de conseguir silueta de aristas rectas.
