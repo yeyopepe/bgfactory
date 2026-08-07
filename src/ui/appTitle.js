@@ -1,11 +1,10 @@
 // Título de cabecera: texto libre editable en modo edición + versión, esta
-// última siempre no editable (cambio 00147).
+// última siempre no editable.
 
 import { MODES, getState, getAppTitle, setAppTitle } from '../core/state.js';
 import { getFullAppTitle, formatVersion } from '../core/appTitle.js';
 
-// Estado transitorio de esta UI (mismo patrón que `selectedComponentId` en
-// `playMode.js`): no se persiste, se pierde sin problema al recargar.
+// Estado transitorio, mismo patrón que `selectedComponentId` en `playMode.js`: no persiste, se pierde al recargar sin problema.
 let editing = false;
 
 function renderHoverable(container, appTitle) {
@@ -47,9 +46,7 @@ function renderEditing(container, appTitle) {
     const trimmed = input.value.trim();
     editing = false;
     if (trimmed) {
-      // `setAppTitle` emite `appTitle:changed` de forma síncrona, que ya
-      // vuelve a pintar este mismo `h1` desde `main.js` (con `editing` ya
-      // en `false`) — no hace falta un segundo `renderAppTitle` aquí.
+      // `setAppTitle` emite `appTitle:changed` síncrono: ya repinta este `h1` desde `main.js` con `editing` en `false`. No hace falta `renderAppTitle` aquí.
       setAppTitle(trimmed);
     } else {
       renderAppTitle(container);
@@ -68,11 +65,7 @@ function renderEditing(container, appTitle) {
 export function renderAppTitle(h1) {
   h1.innerHTML = '';
   h1.className = '';
-  // El propio `h1` es un nodo fijo de `index.html`, nunca recreado por esta
-  // función (solo se vacía su contenido) — su `onclick` debe reasignarse
-  // explícitamente en cada render, o quedaría activo un handler de un
-  // render anterior aunque ya no corresponda (p. ej. tras salir de modo
-  // edición o al entrar en edición del propio campo).
+  // `h1` es nodo fijo de `index.html`, nunca recreado (solo se vacía). `onclick` debe reasignarse en cada render o queda activo un handler obsoleto.
   h1.onclick = null;
 
   const appTitle = getAppTitle();

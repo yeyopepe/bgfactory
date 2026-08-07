@@ -1,5 +1,4 @@
-// Composición del título completo de la app (texto libre editable + versión,
-// esta última siempre no editable) a partir del estado y de CURRENT_VERSION.
+// Título completo: texto libre editable + versión (siempre no editable), desde CURRENT_VERSION.
 
 import { CURRENT_VERSION } from '../data/version.js';
 

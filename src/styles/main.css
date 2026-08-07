@@ -5,13 +5,13 @@
   --bg-card: #f5f5f5;
   --accent-blue: #2c7dd8;
   --accent-blue-dark: #123a66;
-  --accent-blue-light: #eaf3fc; /* fondo claro para paneles que destacan como interactivos sin usar el azul sólido (cambio 00077) */
+  --accent-blue-light: #eaf3fc; /* fondo claro para paneles interactivos, sin usar el azul sólido */
   --text-primary: #1a1a1a;
   --text-light: #ffffff;
   --text-muted: #666666;
   --error: #d32f2f; /* estados de error y acciones destructivas */
   --success: #2e7d32; /* estados de éxito/confirmación positiva */
-  --border-neutral: #dcdcdc; /* todos los bordes finos neutros (antes #ddd/#eee sueltos) */
+  --border-neutral: #dcdcdc; /* todos los bordes finos neutros */
   --bg-subtle: #f0f0f0; /* fondos neutros en reposo (cabecera de tabla, botón secundario) */
   --bg-hover: #e8e8e8; /* cualquier hover neutro (fila, botón secundario, tab) */
   --radius-sm: 4px; /* controles: botones, inputs, items pequeños de lista */
@@ -19,7 +19,7 @@
   --shadow-1: 0 2px 6px rgba(0, 0, 0, 0.10), 0 1px 2px rgba(0, 0, 0, 0.08); /* nivel 1: flotante sutil (paneles, listas, piezas) */
   --shadow-2: 0 4px 20px rgba(0, 0, 0, 0.15); /* nivel 2: overlay (modales, el más alto) */
   --transition-fast: 150ms ease;
-  --section-accent: #5b5f97; /* título de .modal__section (cambio 00072), distinto de --accent-blue (interactivo/seleccionado) */
+  --section-accent: #5b5f97; /* título de .modal__section, distinto de --accent-blue (interactivo/seleccionado) */
 }
 
 * {
@@ -57,7 +57,7 @@ h1 {
   box-shadow: var(--shadow-1);
 }
 
-/* Título de cabecera editable (modo edición, cambio 00147) */
+/* Título de cabecera editable (modo edición) */
 .app-title--hoverable {
   cursor: pointer;
 }
@@ -182,7 +182,6 @@ h1 {
   display: block;
 }
 
-/* Infinite table surface */
 .infinite-table {
   position: relative;
   width: 100%;
@@ -320,7 +319,6 @@ h1 {
   background: rgba(44, 125, 216, 0.15);
 }
 
-/* Modal */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -345,13 +343,10 @@ h1 {
   flex-direction: column;
 }
 
-/* Modal de edición de componentes (cambio 00178): ancho dinámico, 75% del
-   ancho de pantalla, acotado entre 400px y min(1000px, 90vw). Usa clamp()
-   con unidades de viewport, así que se recalcula solo ante cualquier
-   resize de ventana sin necesidad de JS (a diferencia de .card-editor-modal/
-   .image-adjust-modal--large, que usan `width: fit-content` porque su
-   contenido tiene ancho variable — aquí el ancho es siempre el mismo
-   porcentaje de pantalla, no depende del contenido). */
+/* Ancho dinámico vía clamp() con unidades de viewport: se recalcula solo en
+   cualquier resize, sin JS. A diferencia de .card-editor-modal/
+   .image-adjust-modal--large (`width: fit-content`, contenido de ancho
+   variable), aquí el ancho es siempre el mismo porcentaje de pantalla. */
 .component-editor-modal {
   width: clamp(400px, 50vw, min(600px, 65vw));
   max-width: none;
@@ -538,9 +533,9 @@ input[type="radio"] {
   margin-bottom: 0;
 }
 
-/* Sección encuadrada dentro de una pestaña/sub-modal (cambio 00072, ver
-   STYLE_BIBLE.md sección 12.6): fieldset con borde neutro estándar; el título
-   (legend) es lo único que usa --section-accent. */
+/* Sección encuadrada dentro de una pestaña/sub-modal (design/docs/style/03-modales-menus.md):
+   fieldset con borde neutro estándar; el título (legend) es lo único que usa
+   --section-accent. */
 fieldset.modal__section {
   border: 1px solid var(--border-neutral);
   border-radius: var(--radius-sm);
@@ -568,11 +563,9 @@ legend.modal__section-title--toggle {
   cursor: pointer;
 }
 
-/* Zona con scroll propio dentro de un .modal__section (cambio 00141), para
-   topar una lista potencialmente larga a una altura aproximada en vez de
-   dejarla crecer sin límite — mismo criterio que .element-selection-group__list
-   (sección 12.5 de STYLE_BIBLE.md). Primer uso: lista de checkboxes de
-   "Grupos" en ui/componentModal.js, topada a ~3 filas visibles. */
+/* Zona con scroll propio dentro de .modal__section: topa una lista potencialmente
+   larga a una altura aproximada en vez de crecer sin límite. Mismo criterio que
+   .element-selection-group__list (design/docs/style/02-componentes-layout.md). */
 .group-checkbox-list__scroll {
   max-height: 6.5rem;
   overflow-y: auto;
@@ -592,8 +585,8 @@ fieldset.modal__section--untitled {
   padding-top: 1rem;
 }
 
-/* Fila de botones de acción dentro de una sección de modal (change 00085,
-   "Estilo de la carta" — Copiar/Pegar estilo). */
+/* Fila de botones de acción dentro de una sección de modal ("Estilo de la
+   carta" — Copiar/Pegar estilo). */
 .style-actions-row {
   display: flex;
   gap: 0.5rem;
@@ -603,15 +596,15 @@ fieldset.modal__section--untitled {
   flex: 1;
 }
 
-/* Texto auxiliar bajo un grupo de campos/sección (change 00085). */
+/* Texto auxiliar bajo un grupo de campos/sección. */
 .modal__hint {
   font-size: 0.75rem;
   color: var(--text-muted);
   margin: 0.5rem 0 0;
 }
 
-/* Nota auxiliar a la derecha de un ítem de checklist (change 00085,
-   ui/styleClipboardSelectionModal.js) — mismo criterio que .resource-add__hint. */
+/* Nota auxiliar a la derecha de un ítem de checklist (ui/styleClipboardSelectionModal.js)
+   — mismo criterio que .resource-add__hint. */
 .element-selection-group__item-hint {
   font-size: 0.75rem;
   color: var(--text-muted);
@@ -709,8 +702,8 @@ fieldset.modal__section--untitled {
   display: block;
 }
 
-/* Copia (cambio 00167): mismo contorno/etiqueta de selección, en rojo en vez
-   de azul, para reforzar de un vistazo que el elemento es una copia. */
+/* Copia: mismo contorno/etiqueta de selección, en rojo en vez de azul, para
+   reforzar de un vistazo que el elemento es una copia. */
 .text-box--selectable.is-copy:hover,
 .text-box--selectable.is-copy.text-box--selected {
   outline-color: var(--error);
@@ -726,15 +719,15 @@ fieldset.modal__section--untitled {
 }
 
 /* Board component: el bisel de borde (cuatro colores calculados en JS a
-   partir del color elegido) sigue siendo la técnica que le da relieve — no
-   cambia. La sombra de contacto de abajo es la misma que usa el resto de
-   piezas de juego (sección 6 de STYLE_BIBLE.md), no una excepción propia. */
+   partir del color elegido) da el relieve. Sombra de contacto: misma que el
+   resto de piezas de juego (design/docs/style/01-tokens-visual.md), no una
+   excepción propia. */
 .board {
   box-shadow: var(--shadow-1);
 }
 
-/* Checkbox "Sombra" de la sección "Visual" (cambio 00158): desmarcado,
-   quita la sombra de contacto y deja el tablero totalmente plano. */
+/* Checkbox "Sombra" de la sección "Visual": desmarcado, quita la sombra de
+   contacto y deja el tablero totalmente plano. */
 .board--sin-sombra {
   box-shadow: none;
 }
@@ -757,7 +750,7 @@ fieldset.modal__section--untitled {
   display: block;
 }
 
-/* Copia (cambio 00167): ver .text-box--selectable.is-copy más arriba. */
+/* Copia: ver .text-box--selectable.is-copy más arriba. */
 .board--selectable.is-copy:hover,
 .board--selectable.is-copy.board--selected {
   outline-color: var(--error);
@@ -772,17 +765,15 @@ fieldset.modal__section--untitled {
   cursor: move;
 }
 
-/* Tablero personalizado (cambio 00143): mismo bisel de borde que .board
-   (cuatro colores calculados en JS con shadeColor) y mismo tratamiento de
-   selección/arrastre — solo cambia que su contenido se diseña con el mismo
-   editor visual que 'carta' (imagen + formas + textos) en vez de un patrón
-   de cuadrícula. */
+/* Tablero personalizado: mismo bisel de borde que .board (cuatro colores
+   calculados en JS con shadeColor) y mismo tratamiento de selección/arrastre;
+   contenido diseñado con el mismo editor visual que 'carta' (imagen + formas
+   + textos), no un patrón de cuadrícula. */
 .tablero-personalizado {
   box-shadow: var(--shadow-1);
 }
 
-/* Checkbox "Sombra" de la sección "Visual" (cambio 00158), mismo criterio
-   que .board--sin-sombra. */
+/* Checkbox "Sombra" de la sección "Visual", mismo criterio que .board--sin-sombra. */
 .tablero-personalizado--sin-sombra {
   box-shadow: none;
 }
@@ -805,7 +796,7 @@ fieldset.modal__section--untitled {
   display: block;
 }
 
-/* Copia (cambio 00167): ver .text-box--selectable.is-copy más arriba. */
+/* Copia: ver .text-box--selectable.is-copy más arriba. */
 .tablero-personalizado--selectable.is-copy:hover,
 .tablero-personalizado--selectable.is-copy.tablero-personalizado--selected {
   outline-color: var(--error);
@@ -821,10 +812,10 @@ fieldset.modal__section--untitled {
 }
 
 /* Dice component: silueta 2D con profundidad (duplicado oscuro desplazado +
-   contorno + faceta, calculado en JS con shadeColor) — no cambia. Como la
-   silueta no es rectangular (triángulo/cuadrado/rombo/decágono según el
-   número de caras), la sombra de contacto usa `filter: drop-shadow`, que seguí
-   la forma real renderizada en vez de la caja cuadrada del contenedor. */
+   contorno + faceta, calculado en JS con shadeColor). Silueta no rectangular
+   (triángulo/cuadrado/rombo/decágono según caras): sombra de contacto usa
+   `filter: drop-shadow`, que sigue la forma real en vez de la caja del
+   contenedor. */
 .dice {
   filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.28));
 }
@@ -847,7 +838,7 @@ fieldset.modal__section--untitled {
   display: block;
 }
 
-/* Copia (cambio 00167): ver .text-box--selectable.is-copy más arriba. */
+/* Copia: ver .text-box--selectable.is-copy más arriba. */
 .dice--selectable.is-copy:hover,
 .dice--selectable.is-copy.dice--selected {
   outline-color: var(--error);
@@ -888,9 +879,9 @@ fieldset.modal__section--untitled {
   user-select: none;
 }
 
-/* Document viewer component: hoja con fondo blanco y borde fino — ya no es
-   plana a propósito, se comporta como el resto de piezas (papel apoyado
-   sobre la mesa, sombra de contacto nivel 1, sección 6 de STYLE_BIBLE.md). */
+/* Document viewer component: hoja con fondo blanco y borde fino, se comporta
+   como el resto de piezas (papel apoyado sobre la mesa, sombra de contacto
+   nivel 1, design/docs/style/01-tokens-visual.md). */
 .document-viewer {
   background-color: #ffffff;
   border: 1px solid var(--border-neutral);
@@ -967,7 +958,7 @@ fieldset.modal__section--untitled {
   display: block;
 }
 
-/* Copia (cambio 00167): ver .text-box--selectable.is-copy más arriba. */
+/* Copia: ver .text-box--selectable.is-copy más arriba. */
 .document-viewer--selectable.is-copy:hover,
 .document-viewer--selectable.is-copy.document-viewer--selected {
   outline-color: var(--error);
@@ -982,20 +973,19 @@ fieldset.modal__section--untitled {
   cursor: move;
 }
 
-/* Carta component (00053): rectángulo de proporción configurable con
-   esquinas ligeramente redondeadas (--radius-lg, sección 5 de
-   STYLE_BIBLE.md, "contenedores destacados"). Gana la misma sombra de
-   contacto nivel 1 que el resto de piezas de juego. */
+/* Carta component: rectángulo de proporción configurable con esquinas
+   ligeramente redondeadas (--radius-lg, design/docs/style/01-tokens-visual.md,
+   "contenedores destacados"). Misma sombra de contacto nivel 1 que el resto
+   de piezas de juego. */
 .carta {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-1);
 }
 
-/* Proporciones hexagonales (cambio 00089) y triangulares (cambio 00134):
-   recorte por clip-path (silueta de aristas rectas, ver componentRenderer.js),
-   no por border-radius. Su sombra de contacto no puede ser box-shadow
-   (seguiría la caja rectangular, no la silueta recortada) — usa
-   filter: drop-shadow, mismo criterio que .dice. */
+/* Proporciones hexagonales y triangulares: recorte por clip-path (silueta de
+   aristas rectas, ver componentRenderer.js), no por border-radius. Sombra de
+   contacto no puede ser box-shadow (seguiría la caja rectangular, no la
+   silueta recortada) — usa filter: drop-shadow, mismo criterio que .dice. */
 .carta--hex,
 .carta--triangle {
   box-shadow: none;
@@ -1020,8 +1010,8 @@ fieldset.modal__section--untitled {
   display: block;
 }
 
-/* Copia (cambio 00167): ver .text-box--selectable.is-copy más arriba. Cubre
-   también 'mazo', que reutiliza estas mismas clases (STYLE_BIBLE.md sección 13). */
+/* Copia: ver .text-box--selectable.is-copy más arriba. Cubre también 'mazo',
+   que reutiliza estas mismas clases (design/docs/style/INDEX.md). */
 .carta--selectable.is-copy:hover,
 .carta--selectable.is-copy.carta--selected {
   outline-color: var(--error);
@@ -1040,9 +1030,9 @@ fieldset.modal__section--untitled {
   cursor: pointer;
 }
 
-/* Mazo (cambio 00106): reutiliza la clase .carta (radio --radius-lg, sombra
-   nivel 1) por ser visualmente "una carta boca abajo" — sin clase de bloque
-   nueva para su caja, solo este modificador para el cursor de "sacar carta". */
+/* Mazo reutiliza la clase .carta (radio --radius-lg, sombra nivel 1) por ser
+   visualmente "una carta boca abajo" — sin clase de bloque nueva, solo este
+   modificador para el cursor de "sacar carta". */
 .mazo--clickable {
   cursor: pointer;
 }
@@ -1066,9 +1056,9 @@ fieldset.modal__section--untitled {
   pointer-events: none;
 }
 
-/* Zona de revelado del mazo: recuadro decorativo, no interactivo, que marca
-   dónde aparecerán las cartas al sacarlas — mismo tono neutro que una fila
-   informativa de solo lectura (p. ej. .context-menu__info-row). */
+/* Zona de revelado del mazo: recuadro decorativo, no interactivo, marca dónde
+   aparecen las cartas al sacarlas. Mismo tono neutro que una fila informativa
+   de solo lectura (p. ej. .context-menu__info-row). */
 .mazo-reveal-zone {
   display: flex;
   align-items: center;
@@ -1182,9 +1172,8 @@ fieldset.modal__section--untitled {
   font-size: 0.875rem;
 }
 
-/* .btn-sacar sigue la excepción histórica .btn-cancel/.btn-accept/.btn-eliminar
-   (STYLE_BIBLE.md sección 7): botón standalone que no cuelga de ningún bloque
-   BEM existente. */
+/* .btn-sacar sigue la excepción ya documentada por .btn-cancel/.btn-accept/
+   .btn-eliminar (design/docs/style/INDEX.md): botón standalone, sin bloque BEM. */
 .btn-sacar {
   flex: 0 0 auto;
   padding: 0.35rem 0.65rem;
@@ -1299,8 +1288,8 @@ fieldset.modal__section--untitled {
   padding: 1rem;
 }
 
-/* Image adjust modal (00029) — editor reutilizable de posición/zoom de una
-   imagen sobre la forma (cuadrada/circular) de un componente. */
+/* Image adjust modal — editor reutilizable de posición/zoom de una imagen
+   sobre la forma (cuadrada/circular) de un componente. */
 .image-adjust-modal__content {
   display: flex;
   flex-direction: column;
@@ -1370,11 +1359,9 @@ fieldset.modal__section--untitled {
   pointer-events: none;
 }
 
-/* Botón "90º" (cambio 00140): gira la imagen de la cara/stage enfocada.
-   Ubicado en el hueco central entre los dos stages (caso cartas) o junto al
-   único stage (resto de casos), con la misma altura que
-   .image-adjust-modal__mask para quedar centrado verticalmente respecto a
-   él/ellos. */
+/* Botón "90º": gira la imagen de la cara/stage enfocada. Ubicado en el hueco
+   central entre los dos stages (cartas) o junto al único stage (resto de
+   casos), misma altura que .image-adjust-modal__mask para centrar verticalmente. */
 .image-adjust-modal__rotate-wrap {
   display: flex;
   align-items: center;
@@ -1446,17 +1433,16 @@ fieldset.modal__section--untitled {
   text-align: center;
 }
 
-/* Card editor modal (00053) — editor de las dos caras de una carta a la vez */
+/* Card editor modal — editor de las dos caras de una carta a la vez */
 .card-editor-modal {
   width: fit-content;
   max-width: min(1500px, 95vw);
 }
 
-/* Maximizar/restaurar (cambio 00132): sustituye el ancho/alto por defecto
-   por prácticamente toda la ventana. No fija una `height`: el modal crece
-   con su contenido hasta el límite que ya impone `.modal__content` con
-   `overflow-y: auto` (mismo mecanismo de scroll interno que en tamaño
-   normal), así que basta con anular el `max-height: 80vh` de `.modal`. */
+/* Maximizar/restaurar: sustituye el ancho/alto por defecto por casi toda la
+   ventana. No fija `height`: el modal crece con su contenido hasta el límite
+   de `.modal__content` (`overflow-y: auto`), basta con anular el
+   `max-height: 80vh` de `.modal`. */
 .card-editor-modal--maximized {
   width: 97vw;
   max-width: none;
@@ -1469,9 +1455,8 @@ fieldset.modal__section--untitled {
   gap: 0.5rem;
 }
 
-/* Botón maximizar/restaurar (cambio 00132): primer uso de este patrón,
-   documentado en STYLE_BIBLE.md sección 12.4.1 para que cualquier modal
-   futura que lo necesite lo reutilice en vez de crear uno ad-hoc. */
+/* Botón maximizar/restaurar: patrón documentado en design/docs/style/03-modales-menus.md,
+   reutilizar en vez de crear uno ad-hoc. */
 .card-editor-modal__maximize-btn {
   display: inline-flex;
   align-items: center;
@@ -1497,15 +1482,15 @@ fieldset.modal__section--untitled {
   height: 16px;
 }
 
-/* Image adjust modal (00102) — ventana de ajuste de imagen de una o dos
-   caras, mismo criterio de ancho variable que .card-editor-modal */
+/* Image adjust modal — ventana de ajuste de imagen de una o dos caras,
+   mismo criterio de ancho variable que .card-editor-modal */
 .image-adjust-modal--large {
   width: fit-content;
   max-width: min(1500px, 95vw);
 }
 
-/* Resource modal — recurso Imagen (cambio 00168): vista previa ampliada con
-   zoom/pan, mismo criterio de ancho variable que .image-adjust-modal--large */
+/* Resource modal — recurso Imagen: vista previa ampliada con zoom/pan, mismo
+   criterio de ancho variable que .image-adjust-modal--large */
 .resource-modal--image {
   width: fit-content;
   max-width: min(800px, 95vw);
@@ -1516,8 +1501,8 @@ fieldset.modal__section--untitled {
   max-width: 100%;
 }
 
-/* Board image modal (cambio 00169) — galería de imágenes de fondo más
-   grande para distinguir mejor unas miniaturas de otras */
+/* Board image modal — galería de imágenes de fondo más grande, para
+   distinguir mejor unas miniaturas de otras */
 .board-image-modal {
   max-width: min(900px, 90vw);
 }
@@ -1593,7 +1578,7 @@ fieldset.modal__section--untitled {
   outline-offset: 2px;
 }
 
-/* Figura geométrica del editor de cartas (cambio 00118): bloque hermano de
+/* Figura geométrica del editor de cartas: bloque hermano de
    .card-editor-modal__textbox, mismas reglas de selección/hover y el mismo
    .resize-handle en la esquina — sin tipografía ni contenido de texto propio. */
 .card-editor-modal__shape {
@@ -1610,10 +1595,9 @@ fieldset.modal__section--untitled {
   outline-offset: 2px;
 }
 
-/* Element selection modal (change 00065) — exportar/importar con selección.
-   Más ancha que el modal por defecto (500px) para dejar sitio a los tres
-   bloques de checklist, segunda excepción de max-width propio junto a
-   .card-editor-modal. */
+/* Element selection modal — exportar/importar con selección. Más ancha que
+   el modal por defecto (500px) para dejar sitio a los tres bloques de
+   checklist; excepción de max-width propio junto a .card-editor-modal. */
 .element-selection-modal {
   max-width: 640px;
 }
@@ -1836,9 +1820,9 @@ fieldset.modal__section--untitled {
   transform: scale(1.15);
 }
 
-/* Variante de .resize-handle en la esquina superior izquierda (cambio 00128):
-   mismo tamaño/grip/hover/cursor que .resize-handle, solo que ancla la
-   esquina inferior derecha del elemento en vez de la superior izquierda. */
+/* Variante de .resize-handle en la esquina superior izquierda: mismo
+   tamaño/grip/hover/cursor, ancla la esquina inferior derecha del elemento
+   en vez de la superior izquierda. */
 .resize-handle--tl {
   right: auto;
   bottom: auto;
@@ -1884,7 +1868,7 @@ fieldset.modal__section--untitled {
 }
 
 /* Floating component panel (edit mode). z-index is assigned dynamically in JS
-   (editMode.js, applyPanelStackOrder, cambio 00101), not fixed here. */
+   (editMode.js, applyPanelStackOrder), not fixed here. */
 .component-panel-container {
   position: absolute;
   top: 1rem;
@@ -2008,7 +1992,7 @@ fieldset.modal__section--untitled {
 
 /* Floating resource panel (edit mode), analogous to .component-panel*.
    Stacked below the component panel on the same (right) side by default.
-   z-index is assigned dynamically in JS (editMode.js, applyPanelStackOrder, cambio 00101). */
+   z-index is assigned dynamically in JS (editMode.js, applyPanelStackOrder). */
 .resource-panel-container {
   position: absolute;
   top: 28rem;
@@ -2176,14 +2160,14 @@ fieldset.modal__section--untitled {
   margin-top: 0.15rem;
 }
 
-/* Context menu (component right-click, cambio 00088): mismo lenguaje visual que
-   .resource-add__menu (sección 12.7 de STYLE_BIBLE.md) — fondo azul claro, hover
+/* Context menu (component right-click): mismo lenguaje visual que
+   .resource-add__menu (design/docs/style/03-modales-menus.md) — fondo azul claro, hover
    azul sólido con texto claro, sombra nivel 2 — pero posicionado junto al cursor
    en vez de bajo un botón, `position: fixed` sobre document.body. */
 .context-menu {
   position: fixed;
-  /* Por encima de .modal-overlay (z-index 1000): desde el cambio 00124 este
-     menú también se abre con una modal ya visible detrás (editor de cartas),
+  /* Por encima de .modal-overlay (z-index 1000): este menú también se abre
+     con una modal ya visible detrás (editor de cartas),
      y debe quedar por delante de ella, no oculto detrás. */
   z-index: 1050;
   min-width: 180px;
@@ -2214,8 +2198,8 @@ fieldset.modal__section--untitled {
   color: var(--text-light);
 }
 
-/* Item deshabilitado (cambio 00127): p.ej. "Pegar" sin nada copiado — mismo
-   cursor `not-allowed` que `.btn-accept:disabled` (STYLE_BIBLE sección 12.2). */
+/* Item deshabilitado, p.ej. "Pegar" sin nada copiado — mismo cursor
+   `not-allowed` que `.btn-accept:disabled` (design/docs/style/03-modales-menus.md). */
 .context-menu__item--disabled {
   cursor: not-allowed;
   color: var(--text-muted);
@@ -2243,10 +2227,10 @@ fieldset.modal__section--untitled {
   border-top: 1px solid rgba(44, 125, 216, 0.25);
 }
 
-/* Fila con un <select> inline, p.ej. "Añadir a grupo" (cambio 00170) — cursor
-   por defecto (no es una acción de click directo como .context-menu__item) y
-   mismo bloque etiqueta-arriba/select-a-todo-lo-ancho que ya usa
-   .column-header-menu__filter (sección 12.7 de STYLE_BIBLE). */
+/* Fila con un <select> inline, p.ej. "Añadir a grupo" — cursor por defecto
+   (no es acción de click directo como .context-menu__item), mismo bloque
+   etiqueta-arriba/select-a-todo-lo-ancho que .column-header-menu__filter
+   (design/docs/style/03-modales-menus.md). */
 .context-menu__select-row {
   padding: 0.5rem 0.75rem;
   cursor: default;
@@ -2340,10 +2324,10 @@ fieldset.modal__section--untitled {
   opacity: 0.7;
 }
 
-/* Menú de ordenación/filtrado de cabecera de columna (cambio 00165),
-   ui/columnHeaderMenu.js. Tercer uso del lenguaje visual ya fijado por
-   .resource-add__menu/.context-menu (STYLE_BIBLE sección 12.7/12.8): mismo
-   fondo/borde/sombra/hover, con clases de bloque propias. `position: fixed`
+/* Menú de ordenación/filtrado de cabecera de columna, ui/columnHeaderMenu.js.
+   Reutiliza el lenguaje visual de .resource-add__menu/.context-menu
+   (design/docs/style/03-modales-menus.md): mismo fondo/borde/sombra/hover,
+   con clases de bloque propias. `position: fixed`
    sobre document.body, mismo mecanismo y mismo nivel que .context-menu,
    porque su punto de anclaje (<th>) vive dentro de paneles con overflow
    (.component-panel__body y análogos) que recortarían un `position:
@@ -2380,10 +2364,10 @@ fieldset.modal__section--untitled {
   color: var(--text-light);
 }
 
-/* Opción de ordenación activa (cambio 00165): misma convención ya fijada en
-   STYLE_BIBLE sección 12.10 para "opción activa" de un grupo de botones
-   (fondo var(--accent-blue), texto var(--text-light)), reutilizada aquí en
-   vez de inventar un tratamiento nuevo — se mantiene aunque el ratón no
+/* Opción de ordenación activa: misma convención de "opción activa" de un
+   grupo de botones (design/docs/style/03-modales-menus.md) — fondo
+   var(--accent-blue), texto var(--text-light) — en vez de un tratamiento
+   nuevo. Se mantiene aunque el ratón no
    esté encima, para que se note qué ordenación está aplicada ahora mismo. */
 .column-header-menu__item--active {
   background: var(--accent-blue);
@@ -2419,7 +2403,7 @@ fieldset.modal__section--untitled {
 
 /* Indicador de columna con orden y/o filtro activos, junto al texto de la
    cabecera — mismo criterio de icono `currentColor` que el resto de la app
-   (STYLE_BIBLE sección 9). */
+   (design/docs/style/02-componentes-layout.md). */
 .column-header-menu__indicator {
   display: inline-flex;
   margin-left: 0.3rem;
@@ -2427,10 +2411,9 @@ fieldset.modal__section--untitled {
   vertical-align: middle;
 }
 
-/* Columna con orden y/o filtro aplicados ahora mismo (fix 00172) — antes de
-   este fix, el indicador solo se insertaba en este estado; ahora se muestra
-   siempre (ver .column-header-menu__indicator) y este modificador es lo
-   único que distingue "activo" de "disponible pero no activo". */
+/* Columna con orden y/o filtro aplicados ahora mismo. El indicador
+   (.column-header-menu__indicator) se muestra siempre; este modificador es
+   lo único que distingue "activo" de "disponible pero no activo". */
 .column-header-menu__indicator--active {
   color: var(--accent-blue);
 }
@@ -2440,10 +2423,10 @@ fieldset.modal__section--untitled {
   height: 12px;
 }
 
-/* Indicador de bloqueo (cambio 00088): insignia superpuesta en una esquina del
-   componente, solo en modo edición (showLockIndicator), visible de forma permanente
-   mientras `bloqueado` esté activo — a diferencia de .component-id-label (sección
-   12.3), que solo aparece en hover/selección. */
+/* Indicador de bloqueo: insignia superpuesta en una esquina del componente,
+   solo en modo edición (showLockIndicator), visible de forma permanente
+   mientras `bloqueado` esté activo — a diferencia de .component-id-label
+   (design/docs/style/03-modales-menus.md), que solo aparece en hover/selección. */
 .component-lock-badge {
   position: absolute;
   top: 2px;
@@ -2486,10 +2469,10 @@ fieldset.modal__section--untitled {
   box-sizing: border-box;
 }
 
-/* Indicador de "Copia" (cambio 00167): mismo patrón de superposición e
-   insignia permanente que candado/oculto, pero con fondo var(--error) en vez
-   del neutro oscuro, para distinguirse a simple vista. Esquina inferior
-   izquierda, la única de las cuatro libre. */
+/* Indicador de "Copia": mismo patrón de superposición e insignia permanente
+   que candado/oculto, pero con fondo var(--error) en vez del neutro oscuro,
+   para distinguirse a simple vista. Esquina inferior izquierda, la única de
+   las cuatro libre. */
 .component-copy-badge {
   position: absolute;
   bottom: 2px;
@@ -2580,7 +2563,7 @@ fieldset.modal__section--untitled {
 /* Floating group panel (edit mode), analogous to .resource-panel* but without
    the filter box or the add-menu (single "+ Añadir grupo" button instead).
    Stacked below the resource panel on the same (right) side by default.
-   z-index is assigned dynamically in JS (editMode.js, applyPanelStackOrder, cambio 00101). */
+   z-index is assigned dynamically in JS (editMode.js, applyPanelStackOrder). */
 .group-panel-container {
   position: absolute;
   top: 55rem;
@@ -2620,9 +2603,9 @@ fieldset.modal__section--untitled {
   cursor: pointer;
 }
 
-/* Cuadro de filtro de texto libre (cambio 00165), mismo aspecto que
-   .component-panel__filter/.resource-panel__filter — Grupos queda así a la
-   par de las otras dos ventanas de modo edición. */
+/* Cuadro de filtro de texto libre, mismo aspecto que
+   .component-panel__filter/.resource-panel__filter — Grupos a la par de las
+   otras dos ventanas de modo edición. */
 .group-panel__filter {
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--border-neutral);
@@ -2649,7 +2632,7 @@ fieldset.modal__section--untitled {
 }
 
 /* Botón de limpiar filtro — mismo patrón que .component-panel__filter-clear
-   y .resource-panel__filter-clear (cambio 00174). */
+   y .resource-panel__filter-clear. */
 .group-panel__filter-clear {
   flex-shrink: 0;
   width: 1.75rem;
@@ -2802,8 +2785,8 @@ fieldset.modal__section--untitled {
   font-size: 0.875rem;
 }
 
-/* Resource replace confirmation modal (fix 00166) — lista de nombres de
-   recurso duplicados detectados al añadir uno o varios recursos nuevos. */
+/* Resource replace confirmation modal — lista de nombres de recurso
+   duplicados detectados al añadir uno o varios recursos nuevos. */
 .resource-replace-confirm-modal__list {
   max-height: 200px;
   overflow-y: auto;
@@ -2933,35 +2916,35 @@ fieldset.modal__section--untitled {
   z-index: 10;
 }
 
-/* Estado transitorio "levantado" (cambio 00062): mientras se arrastra un componente en Modo
-   Juego, simula que se despega de la mesa — el estado "en el aire" del mismo sistema de
-   elevación (sección 6 de STYLE_BIBLE.md) que ya usan el resto de piezas en reposo, no una
-   excepción aislada. Transiciona con var(--transition-fast), igual que el resto de elementos
-   interactivos de la app (cambio 00067). */
+/* Estado transitorio "levantado": mientras se arrastra un componente en Modo
+   Juego, simula que se despega de la mesa — el estado "en el aire" del mismo
+   sistema de elevación (design/docs/style/01-tokens-visual.md) que usan el
+   resto de piezas en reposo, no una excepción aislada. Transiciona con
+   var(--transition-fast), igual que el resto de elementos interactivos. */
 .lifted {
   transform: translate(-2px, -4px);
   box-shadow: 6px 7px 9px 2px rgba(0, 0, 0, 0.35);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-/* Estado transitorio "feedback de volteo" (cambio 00075): un segundo estado de elevación
-   breve, propio y distinto de `.lifted` de arriba (no reutiliza su transform ni su gesto):
-   confirma al soltar el click que la carta ha cambiado de cara. Se aplica/retira por JS con
-   temporizador propio (`componentRenderer.js`), no por mousedown/mouseup, así que puede
-   coexistir en la hoja de estilos con `.lifted` sin llegar a solaparse en la práctica (un
-   click sin arrastre nunca activa el lift). Transiciona con var(--transition-fast), igual
-   que el resto de estados transitorios de la app. */
+/* Estado transitorio "feedback de volteo": segundo estado de elevación
+   breve, propio y distinto de `.lifted` (no reutiliza su transform ni su
+   gesto) — confirma al soltar el click que la carta cambió de cara. Se
+   aplica/retira por JS con temporizador propio (`componentRenderer.js`), no
+   por mousedown/mouseup: coexiste con `.lifted` sin solaparse en la práctica
+   (un click sin arrastre nunca activa el lift). Transiciona con
+   var(--transition-fast), igual que el resto de estados transitorios. */
 .carta--flip-feedback {
   transform: translate(0, -6px) scale(1.03);
   box-shadow: var(--shadow-2);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-/* Grupo de botones de opción única, icono-solo (cambio 00099): elegir
-   exactamente una entre varias opciones representadas con un icono
-   (ui/cardTextBoxModal.js, alineación horizontal/vertical del texto de un
-   TextBox). Mismo lenguaje visual que la opción activa de `.modal__tab`
-   (sección 8/9 de STYLE_BIBLE), adaptado a botón cuadrado icono-solo. */
+/* Grupo de botones de opción única, icono-solo: elegir exactamente una entre
+   varias opciones representadas con un icono (ui/cardTextBoxModal.js,
+   alineación horizontal/vertical del texto de un TextBox). Mismo lenguaje
+   visual que la opción activa de `.modal__tab`
+   (design/docs/style/INDEX.md), adaptado a botón cuadrado icono-solo. */
 .align-group {
   display: flex;
   gap: 0.25rem;

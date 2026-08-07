@@ -1,6 +1,5 @@
-// Sub-modal de edición de un cuadro de texto de una cara de carta, abierta
-// con doble click desde ui/visualEditorModal.js. Sin tabs, mismo patrón visual
-// que el resto de sub-modales del proyecto (overlay + modal).
+// Sub-modal de edición de un cuadro de texto de una cara de carta, abierta con doble click desde
+// ui/visualEditorModal.js. Sin tabs, mismo patrón visual que el resto de sub-modales (overlay + modal).
 
 import { openDiceFontModal } from './diceFontModal.js';
 import { getResources } from '../core/state.js';
@@ -28,7 +27,6 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   const working = { ...textBox };
   working.colorFondoTransparencia = working.colorFondoTransparencia ?? 0;
 
-  // Contenido
   const contentField = document.createElement('div');
   contentField.className = 'modal__field';
   const contentLabel = document.createElement('label');
@@ -43,7 +41,6 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   contentField.appendChild(contentInput);
   content.appendChild(contentField);
 
-  // Tipografía
   const fontField = document.createElement('div');
   fontField.className = 'modal__field';
   const fontLabel = document.createElement('label');
@@ -82,8 +79,7 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   fontField.appendChild(fontRow);
   content.appendChild(fontField);
 
-  // Posición del texto dentro del cuadro: alineación horizontal/vertical y
-  // márgenes por lateral. Bloque único antes de "Tamaño de fuente".
+  // Posición del texto dentro del cuadro: alineación horizontal/vertical y márgenes por lateral.
   const HORIZONTAL_ALIGN_OPTIONS = [
     {
       value: 'izquierda',
@@ -210,7 +206,7 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   positionField.appendChild(marginRow);
   content.appendChild(positionField);
 
-  // Tamaño (unidades de diseño)
+  // Tamaño en unidades de diseño
   const sizeField = document.createElement('div');
   sizeField.className = 'modal__field';
   const sizeLabel = document.createElement('label');
@@ -228,7 +224,6 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   sizeField.appendChild(sizeInput);
   content.appendChild(sizeField);
 
-  // Color
   const colorField = document.createElement('div');
   colorField.className = 'modal__field';
   const colorLabel = document.createElement('label');
@@ -243,9 +238,8 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   colorField.appendChild(colorInput);
   content.appendChild(colorField);
 
-  // Estilo de texto: negrita/cursiva/subrayado, interruptores independientes
-  // y combinables (a diferencia de createAlignGroup, ninguno excluye a los
-  // demás), mismo lenguaje visual .align-group/.align-group__btn.
+  // Negrita/cursiva/subrayado: interruptores independientes y combinables (a diferencia de
+  // createAlignGroup, ninguno excluye a los demás). Mismo lenguaje visual .align-group/.align-group__btn.
   const STYLE_TOGGLE_OPTIONS = [
     {
       prop: 'negrita',
@@ -293,7 +287,6 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   styleField.appendChild(styleGroup);
   content.appendChild(styleField);
 
-  // Borde
   const borderSection = document.createElement('fieldset');
   borderSection.className = 'modal__section';
 
@@ -384,7 +377,6 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
 
   content.appendChild(borderSection);
 
-  // Fondo
   const bgSection = document.createElement('fieldset');
   bgSection.className = 'modal__section';
   const bgLegend = document.createElement('legend');

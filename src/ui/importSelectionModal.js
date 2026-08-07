@@ -1,7 +1,6 @@
-// Primera modal del flujo de importar (change 00065): muestra los elementos
-// que trae el fichero leído, agrupados en tres bloques
-// (ui/elementSelectionModal.js), todos marcados por defecto, para elegir
-// cuáles se importan de verdad.
+// Primera modal del flujo de importar: elementos del fichero leído,
+// agrupados en tres bloques (ui/elementSelectionModal.js), todos marcados por
+// defecto, para elegir cuáles se importan de verdad.
 
 import { createElementSelectionGroups } from './elementSelectionModal.js';
 

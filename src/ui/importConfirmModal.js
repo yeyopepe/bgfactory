@@ -1,6 +1,6 @@
-// Segunda modal del flujo de importar (change 00065): confirmación final con
-// el modo de importación y el comportamiento ante id duplicado. Mismo patrón
-// sin tabs que ui/boardPatternModal.js.
+// Segunda modal del flujo de importar: confirmación final con modo de
+// importación y comportamiento ante id duplicado. Mismo patrón sin tabs que
+// ui/boardPatternModal.js.
 
 export function openImportConfirmModal({ onAccept, onCancel }) {
   const overlay = document.createElement('div');

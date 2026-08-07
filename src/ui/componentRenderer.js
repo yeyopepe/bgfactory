@@ -35,14 +35,11 @@ function getWorldZoom(worldEl) {
   return match ? parseFloat(match[1]) : 1;
 }
 
-// Dibuja una rejilla de hexágonos que ocupa el máximo espacio posible de un
-// lienzo width×height con el número de filas/columnas dado, sin recortar
-// ningún hexágono (puede dejar un margen mínimo inevitable en los bordes,
-// ver description.md 00019 "ajuste exacto de las casillas"). `orientation`
-// distingue las dos orientaciones (cambio 00089): 'flat' dibuja hexágonos
-// "flat-top" (vértices izquierda/derecha, desfase de rejilla por columna);
-// 'pointy' dibuja hexágonos "pointy-top" (vértices arriba/abajo, desfase de
-// rejilla por fila) — misma geometría que 'flat' con filas/columnas y
+// Dibuja rejilla de hexágonos que ocupa el máximo espacio posible de un lienzo width×height con el
+// número de filas/columnas dado, sin recortar ningún hexágono (puede dejar margen mínimo inevitable
+// en los bordes). `orientation` distingue las dos orientaciones: 'flat' dibuja hexágonos "flat-top"
+// (vértices izquierda/derecha, desfase de rejilla por columna); 'pointy' dibuja "pointy-top" (vértices
+// arriba/abajo, desfase de rejilla por fila) — misma geometría que 'flat' con filas/columnas y
 // ancho/alto intercambiados.
 function renderHexGrid(svgEl, width, height, filas, columnas, color, grosor, orientation = 'flat') {
   const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -112,7 +109,7 @@ function renderHexGrid(svgEl, width, height, filas, columnas, color, grosor, ori
 // posibles, con un efecto de profundidad leve (copia oscura desplazada
 // detrás) y un contorno fino oscuro — misma familia de recurso que el bisel
 // del tablero simple (excepción de estilo acotada a ambos tipos, ver
-// STYLE_BIBLE.md sección 13). `count` es el número de resultados posibles
+// design/docs/style/INDEX.md). `count` es el número de resultados posibles
 // configurados.
 function renderDiceSilhouette(svgEl, size, count, colorCuerpo) {
   const SVG_NS = 'http://www.w3.org/2000/svg';
@@ -231,10 +228,9 @@ function createIdentifierLabel(component) {
   return label;
 }
 
-// Indicador de bloqueo (cambio 00088, cambio 00138): insignia superpuesta en una
-// esquina del componente, solo pintada en modo edición (`showLockIndicator`) cuando
-// `component.bloqueado` es distinto de `'ninguno'` (`'juego'` o `'todos'`) — en modo
-// juego el bloqueo solo se percibe a través del menú contextual, nunca con este indicador.
+// Indicador de bloqueo: insignia superpuesta en una esquina del componente, solo pintada en modo
+// edición (`showLockIndicator`) cuando `component.bloqueado` es distinto de `'ninguno'` (`'juego'` o
+// `'todos'`) — en modo juego el bloqueo solo se percibe vía menú contextual, nunca con este indicador.
 function createLockBadge() {
   const badge = document.createElement('span');
   badge.className = 'component-lock-badge';
@@ -246,9 +242,9 @@ function createLockBadge() {
   return badge;
 }
 
-// Indicador de "Oculto" (cambio 00100): insignia superpuesta, solo pintada en modo
-// edición (`showHiddenIndicator`) cuando `component.oculto` es `true` — en modo juego
-// el componente oculto directamente no se renderiza, no hace falta indicador ahí.
+// Indicador de "Oculto": insignia superpuesta, solo pintada en modo edición (`showHiddenIndicator`)
+// cuando `component.oculto` es `true` — en modo juego el componente oculto no se renderiza, no hace
+// falta indicador ahí.
 // Anclada en la esquina inferior derecha (a diferencia de la de candado, en la
 // superior derecha) para que ambas puedan convivir sin superponerse cuando un
 // componente está bloqueado y oculto a la vez.
@@ -264,10 +260,9 @@ function createHiddenBadge() {
   return badge;
 }
 
-// Indicador de "Copia" (cambio 00167): insignia superpuesta, solo pintada en modo
-// edición (`showCopyIndicator`) cuando `component.copyOf` no es `null` — a diferencia
-// de candado/oculto, usa fondo `var(--error)` en vez del neutro oscuro, para
-// distinguirse a simple vista como un indicador de otra naturaleza. Anclada en la
+// Indicador de "Copia": insignia superpuesta, solo pintada en modo edición (`showCopyIndicator`)
+// cuando `component.copyOf` no es `null` — a diferencia de candado/oculto, usa fondo `var(--error)`
+// en vez del neutro oscuro, para distinguirse a simple vista como indicador de otra naturaleza. Anclada en la
 // esquina inferior izquierda, la única de las cuatro libre (superior izquierda:
 // etiqueta identificativa; superior derecha: candado; inferior derecha: oculto).
 function createCopyBadge() {
@@ -286,20 +281,18 @@ function createCopyBadge() {
 // 'tableroPersonalizado', mismo shape en los tres) sobre `contentParent`,
 // escalando x/width por `renderScaleX` e y/height por `renderScaleY`
 // ("unidades de diseño", ver core/cardProportions.js). `renderScaleY` es
-// opcional e igual a `renderScaleX` por defecto — basta un único factor
-// uniforme mientras la proporción del elemento nunca cambie sin pasar por su
-// propio control (caso de 'carta'); 'tableroPersonalizado' (cambio 00143),
-// al redimensionarse libremente en cualquier proporción, sí necesita escalar
-// cada eje por separado. Extraída de la rama 'carta' de
+// opcional e igual a `renderScaleX` por defecto — basta un único factor uniforme mientras la
+// proporción del elemento nunca cambie sin pasar por su propio control (caso de 'carta');
+// 'tableroPersonalizado', al redimensionarse libremente en cualquier proporción, sí necesita
+// escalar cada eje por separado. Extraída de la rama 'carta' de
 // renderComponentsOnTable para reutilizarla tal cual desde la rama 'mazo'
 // (pinta el dorso de la carta de arriba), desde ui/mazoContentModal.js
 // (miniaturas de la cara frontal de cada carta) y desde la rama
 // 'tableroPersonalizado'.
 export function paintCartaFace(contentParent, cara, renderScaleX, faceWidth, faceHeight, renderScaleY = renderScaleX) {
-  // 'color' e 'imagen'/ausente son excluyentes (cambio 00157): ausente se
-  // trata igual que 'imagen' (pinta imagenResourceId si existe, comportamiento
-  // de siempre) para no romper el aspecto de caras ya guardadas sin este
-  // campo; solo 'color' activa el nuevo camino.
+  // 'color' e 'imagen'/ausente son excluyentes: ausente se trata igual que 'imagen' (pinta
+  // imagenResourceId si existe) para no romper el aspecto de caras guardadas sin este campo;
+  // solo 'color' activa ese camino.
   if (cara?.fondoTipo === 'color') {
     contentParent.style.backgroundColor = cara.colorFondo || 'transparent';
   } else {
@@ -401,9 +394,8 @@ function paintTextBox(contentParent, textBox, renderScaleX, renderScaleY) {
   contentParent.appendChild(textEl);
 }
 
-// Placeholder neutro para un mazo sin cartas (cambio 00106): icono simple
-// dibujado en JS, mismo criterio que renderDiceSilhouette de 'dado' — sin
-// depender de ningún recurso de la galería.
+// Placeholder de mazo sin cartas: icono dibujado en JS, mismo criterio que
+// renderDiceSilhouette de 'dado' — sin depender de recurso de galería.
 function renderMazoEmptyPlaceholder(container, width, height) {
   const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   icon.setAttribute('viewBox', '0 0 24 24');
@@ -424,9 +416,9 @@ function renderMazoEmptyPlaceholder(container, width, height) {
   container.appendChild(icon);
 }
 
-// Zona de revelado del mazo (cambio 00106): recuadro decorativo, no
-// seleccionable ni interactuable, que marca dónde aparecerán las cartas al
-// sacarlas — siempre pegado al lado derecho del mazo, misma altura/anchura.
+// Zona de revelado del mazo: recuadro decorativo, no seleccionable ni
+// interactuable, marca dónde aparecen las cartas al sacarlas — pegado al
+// lado derecho del mazo, misma altura/anchura.
 function renderMazoRevealZone(worldEl, mazo) {
   const rect = getMazoRevealZoneRect(mazo);
   const zone = document.createElement('div');
@@ -465,10 +457,10 @@ export function getComponentsBounds(components) {
   return { minX, minY, maxX, maxY };
 }
 
-// Efecto "levantar" al arrastrar (cambio 00062, solo cuando `liftOnDrag` es true): trae el
-// nodo al final de `worldEl` (visualmente al frente, sin tocar `order`) y añade el estado
-// transitorio `lifted`. El reordenamiento real y persistido (cambio 00061) sigue disparándose
-// aparte, al soltar, donde ya lo hacía.
+// Efecto "levantar" al arrastrar, solo si `liftOnDrag` es true: trae el nodo
+// al final de `worldEl` (visualmente al frente, sin tocar `order`) y añade el
+// estado transitorio `lifted`. El reordenamiento real y persistido sigue
+// disparándose aparte, al soltar.
 function beginDragLift(el, worldEl) {
   worldEl.appendChild(el);
   el.classList.add('lifted');
@@ -478,7 +470,7 @@ function endDragLift(el) {
   el.classList.remove('lifted');
 }
 
-// Feedback visual al voltear una carta (cambio 00075): detectado por diferencia de datos
+// Feedback visual al voltear una carta: detectado por diferencia de datos
 // (última `caraActual` vista por id), no por el evento de click que lo origina — así el
 // efecto no depende de (ni comparte nada con) el gesto de arrastre/`.lifted` de arriba, y
 // se dispara ante cualquier cambio futuro de cara, no solo el click actual. Necesario
@@ -507,9 +499,8 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
   // `order = 1` se dibuja el último (appendChild posterior = por encima visualmente).
   const stackedComponents = [...components].sort((a, b) => (b.order ?? 0) - (a.order ?? 0));
 
-  // Selección múltiple (cambio 00108): registro de elemento DOM por id, para poder
-  // mover en vivo (durante el propio arrastre, no solo al soltar) al resto de
-  // componentes seleccionados cuando se arrastra uno de ellos.
+  // Registro de elemento DOM por id (selección múltiple): permite mover en
+  // vivo, durante el propio arrastre, al resto de componentes seleccionados.
   const elementsById = new Map();
 
   function getBlockDragTargets(component) {
@@ -734,9 +725,8 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         const patronFilas = props.patronFilas || 8;
         const patronColumnas = props.patronColumnas || 8;
 
-        // 'hexagonal' es el valor guardado antes del cambio 00089 (una sola
-        // orientación) — se interpreta como alias de 'hex-horizontal', la
-        // orientación que ya dibujaba antes de dividirse en dos.
+        // 'hexagonal' (valor legacy, orientación única) se interpreta como
+        // alias de 'hex-horizontal'.
         const patronForma = props.patronForma === 'hexagonal' ? 'hex-horizontal' : props.patronForma;
 
         if (patronForma === 'hex-vertical' || patronForma === 'hex-horizontal') {
@@ -899,9 +889,8 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       const props = component.properties || {};
       tablero.classList.toggle('tablero-personalizado--sin-sombra', props.sombra === false);
 
-      // Bisel del borde (cambio 00143), opcional desde el cambio 00154 vía
-      // 'properties.biselado' (a diferencia de 'carta', que usa un borde
-      // simple sin relieve, ver STYLE_BIBLE.md sección 13).
+      // Bisel del borde, opcional vía 'properties.biselado' (a diferencia de
+      // 'carta', que usa borde simple sin relieve, ver design/docs/style/INDEX.md).
       const cara = props.cara || {};
       const bordeColor = cara.bordeColor || '#000000';
       const bordeGrosor = cara.bordeGrosor ?? 2;
@@ -927,11 +916,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       tableroContent.style.inset = '0';
       tableroContent.style.overflow = 'hidden';
       tablero.appendChild(tableroContent);
-      // Escala fija 1 (cambio 00152, corrige el 00143): el contenido se
-      // pinta siempre en píxeles reales, fijo con independencia del tamaño
-      // actual del componente — redimensionar el tablero solo cambia el
-      // marco (`overflow: hidden` de `tableroContent` recorta lo que no
-      // quepa), nunca el tamaño/posición de lo que hay dentro.
+      // Escala fija 1: contenido pintado en píxeles reales, con independencia
+      // del tamaño actual del componente. Redimensionar el tablero cambia solo
+      // el marco (`overflow: hidden` de `tableroContent` recorta lo que sobre),
+      // nunca el tamaño/posición interior.
       paintCartaFace(tableroContent, cara, 1, width, height, 1);
 
       if (onSelect) {
@@ -1214,8 +1202,8 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       // mientras el worldEl no se vuelva a pintar (no se emite `components:changed` en
       // cada frame). El temblor es un `transform: translate()` recalculado en cada tick
       // (mismo mecanismo que el pan/zoom de la mesa), no una animación/transición CSS.
-      // La comprobación de `isInteractionActive` (cambio 00115) es independiente del
-      // `dblclick` de abajo (`onDiceOpenResult`), que sigue disponible siempre.
+      // `isInteractionActive` es independiente del `dblclick` de abajo
+      // (`onDiceOpenResult`), que sigue disponible siempre.
       if (onDiceResult && isInteractionActive(component, 'lanzar')) {
         let rolling = false;
         let rollTimeout = null;
@@ -1463,8 +1451,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       // clip-path anidadas: esta capa exterior rellena del color de borde,
       // y `cartaInner` (más abajo) recorta el contenido con una silueta
       // concéntrica más pequeña, dejando visible el anillo entre ambas
-      // como borde de grosor uniforme (fix 00096, extendido a triángulo en
-      // el cambio 00134).
+      // como borde de grosor uniforme (mismo mecanismo para hexágono y triángulo).
       const isNonRectClippedCarta = isHexCarta || isTriangleCarta;
       const innerClipPath = isHexCarta
         ? getHexInnerClipPath(props.proporcion, width, height, cara?.bordeGrosor ?? 0)
@@ -1499,10 +1486,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       applyFlipFeedbackIfChanged(carta, component.id, caraActual);
 
-      // El contenido de 'carta' se guarda en píxeles reales, fijos con
-      // independencia del tamaño actual de la carta (cambio 00151, mismo
-      // criterio que 'tableroPersonalizado' desde el 00152): escala fija 1,
-      // el `overflow: hidden` de `cartaContent` recorta lo que no quepa.
+      // Contenido de 'carta' guardado en píxeles reales, fijo con
+      // independencia del tamaño actual (mismo criterio que
+      // 'tableroPersonalizado'): escala fija 1, `overflow: hidden` de
+      // `cartaContent` recorta lo que sobre.
       paintCartaFace(contentParent, cara, 1, width, height);
 
       if (onSelect) {
@@ -1556,9 +1543,9 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
             target.el.style.top = `${target.startY + dy}px`;
           }
           // Traer al frente del DOM solo al confirmarse un arrastre real (primer
-          // `mousemove`, no en `mousedown`, mismo patrón que `liftOnDrag` más abajo)
-          // — reordenar el DOM ya en `mousedown` impide que el navegador sintetice
-          // el `click` posterior (rompía Ctrl+click de la selección múltiple, fix 00113).
+          // `mousemove`, no `mousedown`, mismo patrón que `liftOnDrag` más abajo)
+          // — reordenar el DOM ya en `mousedown` impide que el navegador
+          // sintetice el `click` posterior (rompe Ctrl+click de selección múltiple).
           // Independiente de `liftOnDrag` (exclusivo de modo juego): en modo edición
           // no hay efecto de "levantar" (sombra), pero la carta debe verse por encima
           // de cualquier otro elemento, incluido un mazo, mientras dura el arrastre.
@@ -1687,10 +1674,9 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       const cartaArriba = cartaIds.length > 0 ? getComponents().find((c) => c.id === cartaIds[0]) : null;
       if (cartaArriba) {
-        // Encaja el diseño (en píxeles reales, cambio 00151) de la carta de
-        // arriba en la caja del mazo, cuyo tamaño es independiente del de
-        // esa carta — la referencia ya no es un lienzo abstracto de diseño,
-        // sino el ancho real de la propia carta.
+        // Encaja el diseño (en píxeles reales) de la carta de arriba en la
+        // caja del mazo, cuyo tamaño es independiente del de esa carta — la
+        // referencia es el ancho real de la propia carta, no un lienzo abstracto.
         const renderScale = width / (cartaArriba.width || MIN_CARTA_WIDTH);
         paintCartaFace(mazoContent, cartaArriba.properties?.caraTrasera, renderScale, width, height);
       } else {
@@ -1759,8 +1745,8 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
             target.el.style.left = `${target.startX + dx}px`;
             target.el.style.top = `${target.startY + dy}px`;
           }
-          // La zona de revelado debe seguir al mazo en vivo durante el arrastre,
-          // no solo al soltar (fix 00114) — mismo cálculo que el render inicial.
+          // La zona de revelado sigue al mazo en vivo durante el arrastre, no
+          // solo al soltar — mismo cálculo que el render inicial.
           const revealRect = getMazoRevealZoneRect({ x: currentX, y: currentY, width, height });
           revealZone.style.left = `${revealRect.x}px`;
           revealZone.style.top = `${revealRect.y}px`;

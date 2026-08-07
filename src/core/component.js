@@ -1,8 +1,7 @@
-// Modelo genérico de "componente de juego" (carta, token, tablero, ...).
-// Deliberadamente sin tipos específicos todavía: cada componente es una
-// entidad con id, tipo libre, nombre, propiedades clave-valor e imagen opcional.
-// El campo `order` gobierna el apilado visual en la mesa (ver core/state.js,
-// que es quien lo asigna/recalcula: aquí solo se declara con valor por defecto).
+// Modelo genérico de componente de juego (carta, token, tablero...). Sin
+// tipos específicos: entidad con id, tipo libre, nombre, properties
+// clave-valor, imagen opcional. `order` gobierna apilado visual — lo
+// asigna/recalcula core/state.js, aquí solo valor por defecto.
 
 export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = 'ninguno', mostrarTooltip = false, subirAlMoverInteractuar = false, oculto = false, grupoIds = [], order = null, copyOf = null, sincronizado = true, interaccionesDesactivadas = [], accionClickDerecho = 'ninguno' } = {}) {
   return {
@@ -28,14 +27,12 @@ export function createComponent({ type = 'generico', name = '', properties = {},
   };
 }
 
-// Normaliza el campo de pertenencia a grupo(s) de un componente al formato
-// actual (`grupoIds: string[]`), aceptando también el campo escalar `grupoId`
-// anterior al cambio 00139 (o su ausencia total, componentes de antes del
-// cambio 00105). Pura: no muta `component`, devuelve uno nuevo si hace falta
-// normalizar o el mismo si ya estaba en el formato actual. Reutilizada tanto
-// por la migración silenciosa al cargar (`core/state.js`) como por el flujo
-// de importación (`ui/editModeToggle.js`), que maneja componentes ajenos al
-// estado ya cargado y por tanto no necesariamente ya migrados.
+// Normaliza pertenencia a grupo(s) al formato actual (`grupoIds: string[]`),
+// aceptando también el campo escalar `grupoId` antiguo o su ausencia total.
+// Pura: no muta `component`. Reutilizada por la migración silenciosa al
+// cargar (core/state.js) y por el flujo de importación
+// (ui/editModeToggle.js), que maneja componentes ajenos al estado ya cargado
+// y no necesariamente migrados.
 export function normalizeComponentGrupoIds(component) {
   if (Array.isArray(component.grupoIds)) return component;
   const { grupoId, ...rest } = component;
@@ -50,8 +47,8 @@ export function updateComponent(component, changes) {
   };
 }
 
-// Calcula el siguiente id de clon disponible para `baseComponentId`, ignorando cualquier
-// sufijo `(n)` final ya existente (así los clones de un clon comparten familia/id raíz).
+// Siguiente id de clon para `baseComponentId`, ignorando sufijo `(n)` ya
+// existente: clones de un clon comparten familia/id raíz.
 export function nextCloneId(baseComponentId, components) {
   const rootId = baseComponentId.replace(/\(\d+\)$/, '');
   const usedNumbers = new Set();
@@ -77,10 +74,10 @@ export function cloneComponent(component, components) {
   };
 }
 
-// Claves de `properties`, por tipo, que son "estado de interacción de juego"
-// (resultado de un dado, cara mostrada de una carta) y por tanto nunca se
-// sincronizan de un original a sus copias vinculadas — el resto de `properties`
-// de cada tipo es configuración/diseño y sí se sincroniza (ver syncCopyWithOriginal).
+// Claves de `properties`, por tipo, que son estado de interacción de juego
+// (resultado de dado, cara mostrada de carta): nunca se sincronizan de un
+// original a sus copias vinculadas. Resto de `properties` es
+// configuración/diseño y sí se sincroniza (ver syncCopyWithOriginal).
 const NON_SYNCED_PROPERTY_KEYS = {
   dado: ['resultadoActual'],
   carta: ['caraActual'],
@@ -97,9 +94,9 @@ function splitSyncedProperties(type, properties) {
   return { synced, nonSynced };
 }
 
-// Calcula el siguiente id de copia disponible para `originalId`: `${originalId}-COPY-XXX`
-// con XXX el primer entero (a 3 dígitos) libre entre las copias ya vinculadas a ese
-// original (`copyOf === originalId`), reutilizando el hueco de una copia borrada si lo hay.
+// Siguiente id de copia para `originalId`: `${originalId}-COPY-XXX`, XXX
+// primer entero libre (3 dígitos) entre copias vinculadas
+// (`copyOf === originalId`), reutilizando hueco de copia borrada.
 export function nextCopyId(originalId, components) {
   const usedNumbers = new Set();
   for (const component of components) {
@@ -112,9 +109,9 @@ export function nextCopyId(originalId, components) {
   return `${originalId}-COPY-${String(n).padStart(3, '0')}`;
 }
 
-// Crea una copia vinculada de `component`, análoga a cloneComponent pero con
-// id/vínculo propios del mecanismo de Copia (ver core/state.js para la
-// sincronización en vivo y el borrado en cascada).
+// Copia vinculada de `component`, análoga a cloneComponent pero con
+// id/vínculo propios del mecanismo de Copia (ver core/state.js:
+// sincronización en vivo, borrado en cascada).
 export function createCopy(component, components) {
   return {
     ...component,
@@ -128,21 +125,21 @@ export function createCopy(component, components) {
   };
 }
 
-// Renombra el id de una copia al cambiar el id de su original: conserva el
-// sufijo `-COPY-XXX` tal cual, sustituyendo solo el prefijo.
+// Renombra id de copia al cambiar id del original: conserva sufijo
+// `-COPY-XXX`, sustituye solo el prefijo.
 export function renameCopyId(copyId, oldOriginalId, newOriginalId) {
   return newOriginalId + copyId.slice(oldOriginalId.length);
 }
 
-// Aplica sobre `copy` los campos sincronizables de `original`: tipo visual, nombre,
-// imagen, ancho/alto, grupos, qué interacciones programadas están desactivadas (cambio
-// 00115), qué hace el click derecho (cambio 00142), y las propiedades específicas de
-// configuración/diseño del tipo (todo lo editable desde `ui/componentModal.js`). Las
-// propiedades de estado de interacción de juego de la propia copia (ver
-// NON_SYNCED_PROPERTY_KEYS) se conservan tal cual. `x`, `y` y `order` de la copia
-// tampoco se tocan nunca. `bloqueado`/`oculto` (cambio 00149) solo se sincronizan
-// mientras `copy.sincronizado` sea `true` (por defecto); si la copia tiene
-// `sincronizado: false`, quedan como valores propios de esa copia, sin tocar.
+// Aplica sobre `copy` los campos sincronizables de `original`: tipo visual,
+// nombre, imagen, ancho/alto, grupos, qué interacciones programadas están
+// desactivadas, qué hace el click derecho, y las propiedades de
+// configuración/diseño del tipo (editable desde ui/componentModal.js).
+// Propiedades de estado de interacción de la propia copia (ver
+// NON_SYNCED_PROPERTY_KEYS) se conservan. `x`, `y`, `order` de la copia
+// nunca se tocan. `bloqueado`/`oculto` solo se sincronizan mientras
+// `copy.sincronizado` sea `true` (por defecto); si es `false`, quedan como
+// valores propios de la copia.
 export function syncCopyWithOriginal(copy, original) {
   const { synced: syncedProperties } = splitSyncedProperties(original.type, original.properties);
   const { nonSynced: ownNonSyncedProperties } = splitSyncedProperties(copy.type, copy.properties);

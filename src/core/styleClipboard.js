@@ -1,8 +1,7 @@
-// Portapapeles de "Copiar/Pegar estilo" entre cartas (change 00085): vive
-// solo en memoria de módulo durante la sesión del navegador — nunca se
-// persiste ni se incluye en el guardado/exportado del juego. Solo puede
-// contener un estilo copiado a la vez (el último sustituye por completo al
-// anterior, sin historial).
+// Portapapeles de "Copiar/Pegar estilo" entre cartas: vive solo en memoria de
+// módulo durante la sesión del navegador — nunca se persiste ni se incluye
+// en el guardado/exportado del juego. Solo puede contener un estilo copiado
+// a la vez (el último sustituye por completo al anterior, sin historial).
 
 let clipboard = null;
 
@@ -16,12 +15,11 @@ function cloneFace(face) {
 
 // `data` solo debe incluir las claves de los bloques marcados al copiar:
 // { generales, proporcion, esquinasRedondeadas, caraFrontal, caraTrasera }.
-// `generales` (cambio 00105) incluye ahora también `grupoIds`/`grupoNames`
-// (este último de solo lectura, para el mensaje de error si alguno de los
-// grupos deja de existir al pegar; un componente puede tener varios grupos
-// a la vez desde el cambio 00139). `esquinasRedondeadas` (cambio 00117) viaja siempre junto
-// a `proporcion`, dentro del mismo bloque "Proporción" del checklist de
-// copiar/pegar estilo. Los bloques copiados se clonan en profundidad para
+// `generales` incluye `grupoIds`/`grupoNames` (este último de solo lectura,
+// para el mensaje de error si algún grupo deja de existir al pegar; un
+// componente puede tener varios grupos a la vez). `esquinasRedondeadas` viaja
+// siempre junto a `proporcion`, dentro del bloque "Proporción" del checklist
+// de copiar/pegar estilo. Los bloques copiados se clonan en profundidad para
 // que futuras ediciones de la carta origen no muten el portapapeles ya
 // guardado.
 export function setStyleClipboard(data) {

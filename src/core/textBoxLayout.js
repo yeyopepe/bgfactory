@@ -1,7 +1,6 @@
-// Traduce la alineación y los márgenes de un `TextBox` (cara de carta) a los
-// estilos de layout flex aplicados en sus dos puntos de renderizado
-// (ui/componentRenderer.js y ui/visualEditorModal.js). Datos puros, análogo en
-// espíritu a core/cardProportions.js: sin dependencias de otras capas.
+// Traduce alineación/márgenes de un `TextBox` (cara de carta) a estilos de
+// layout flex, usados en ui/componentRenderer.js y ui/visualEditorModal.js.
+// Datos puros, sin dependencias de otras capas.
 
 const JUSTIFY_CONTENT_BY_ALIGN = {
   arriba: 'flex-start',

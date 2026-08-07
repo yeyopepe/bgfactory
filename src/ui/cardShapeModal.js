@@ -37,9 +37,8 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   working.imagenResourceId = working.imagenResourceId ?? null;
   working.ajusteImagen = { ...(working.ajusteImagen || { zoom: 100, posX: 50, posY: 50 }) };
 
-  // Tipo de figura: mismo patrón .align-group/.align-group__btn de opción
-  // única que ya usa cardTextBoxModal.js (createAlignGroup), duplicado
-  // localmente aquí igual que allí — no se extrae a un módulo compartido.
+  // Tipo de figura: mismo patrón .align-group/.align-group__btn de opción única que cardTextBoxModal.js
+  // (createAlignGroup), duplicado aquí igual que allí, sin extraer a módulo compartido.
   const SHAPE_TYPE_OPTIONS = [
     {
       value: 'circular',
@@ -77,8 +76,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
     btn.addEventListener('click', () => {
       working.tipo = value;
       typeButtons.forEach((b, i) => b.classList.toggle('active', SHAPE_TYPE_OPTIONS[i].value === value));
-      // Mismo criterio que la proporción 'circular' de Carta: al pasar a
-      // círculo/elipse con ejes distintos, se ajusta a un círculo perfecto.
+      // Mismo criterio que proporción 'circular' de Carta: al pasar a círculo/elipse con ejes distintos, ajusta a círculo perfecto.
       if (value === 'circular' && working.width !== working.height) {
         const side = Math.max(working.width, working.height);
         working.width = side;
@@ -91,9 +89,8 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   typeField.appendChild(typeGroup);
   content.appendChild(typeField);
 
-  // Fondo (informativo: selector Color/Imagen, mismo patrón que el fondo de
-  // 'tableroSimple' en ui/componentModal.js — cambiar de uno a otro no borra la
-  // configuración del que se deja de usar, conviven siempre en `working`).
+  // Fondo: selector Color/Imagen, mismo patrón que fondo de 'tableroSimple' en ui/componentModal.js.
+  // Cambiar de uno a otro no borra la configuración del que se deja de usar: ambos conviven en `working`.
   const bgSection = document.createElement('fieldset');
   bgSection.className = 'modal__section';
   const bgLegend = document.createElement('legend');
@@ -226,9 +223,8 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   bgColorBlock.appendChild(bgOpacityField);
   bgSection.appendChild(bgColorBlock);
 
-  // Bloque "Imagen": galería de recursos ya subidos (mismo mecanismo que el
-  // fondo de una cara de carta) + ajuste de zoom/posición recortado a la
-  // forma de la figura (ui/imageAdjustModal.js, modo de un único stage).
+  // Bloque "Imagen": galería de recursos ya subidos (mismo mecanismo que fondo de cara de carta) +
+  // ajuste zoom/posición recortado a la forma de la figura (ui/imageAdjustModal.js, modo de un único stage).
   const bgImageBlock = document.createElement('div');
 
   const bgImagePreview = document.createElement('div');
@@ -318,8 +314,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
 
   content.appendChild(bgSection);
 
-  // Borde: línea simple (sin bisel), mismo patrón de checkbox activador que
-  // ui/cardTextBoxModal.js.
+  // Borde: línea simple (sin bisel), mismo patrón de checkbox activador que ui/cardTextBoxModal.js.
   const borderSection = document.createElement('fieldset');
   borderSection.className = 'modal__section';
   const borderLegend = document.createElement('legend');

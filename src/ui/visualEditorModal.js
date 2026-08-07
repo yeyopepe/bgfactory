@@ -1,6 +1,5 @@
-// Editor visual (cambio 00143, generalizado desde el antiguo "editor de
-// cartas"): modal grande (overlay + modal, mismo patrón que el resto de la
-// app, pero con más superficie de trabajo) para diseñar una o varias caras
+// Editor visual: modal grande (overlay + modal, mismo patrón que el resto de
+// la app, pero con más superficie de trabajo) para diseñar una o varias caras
 // de un componente a la vez — imagen de fondo, formas geométricas y cuadros
 // de texto. Abierta desde la pestaña "Específicas" de ui/componentModal.js
 // tanto para 'carta' (dos caras, frontal/trasera, con proporción
@@ -35,13 +34,12 @@ const DUPLICATE_TEXT_BOX_OFFSET = 20;
 const DUPLICATE_SHAPE_OFFSET = 20;
 const NON_RECT_PROPORTIONS = ['circular', 'hex-vertical', 'hex-horizontal', 'triangulo', 'triangulo-invertido'];
 
-// Portapapeles de "Copiar/Pegar" de un elemento de cara (forma o texto,
-// cambio 00127). Variable de módulo (no local a openVisualEditorModal,
-// fix 00161) para que sobreviva a cerrar y reabrir el editor sobre un
-// componente distinto (otra carta, otro tablero personalizado) — mismo
-// patrón de estado transitorio a nivel de módulo que
-// selectedComponentId/panelStackOrder en modes/edit/editMode.js. No se
-// persiste en core/state.js: se pierde al recargar la página.
+// Portapapeles de "Copiar/Pegar" de un elemento de cara (forma o texto).
+// Variable de módulo, no local a openVisualEditorModal, para que sobreviva a
+// cerrar y reabrir el editor sobre un componente distinto (otra carta, otro
+// tablero personalizado) — mismo patrón de estado transitorio a nivel de
+// módulo que selectedComponentId/panelStackOrder en modes/edit/editMode.js.
+// No se persiste en core/state.js: se pierde al recargar la página.
 let copiedElement = null;
 
 function buildHelpHtml(showProporcionSelector) {
@@ -61,9 +59,9 @@ function buildHelpHtml(showProporcionSelector) {
   `;
 }
 
-// Iconos del menú contextual de elemento (cambio 00124): mismo patrón de
-// funciones locales que createLockIcon/createShuffleIcon en
-// modes/play/playMode.js — no hay ningún módulo de iconos compartido.
+// Iconos del menú contextual de elemento: mismo patrón de funciones locales
+// que createLockIcon/createShuffleIcon en modes/play/playMode.js — no hay
+// módulo de iconos compartido.
 function createDeleteIcon() {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 24 24');
@@ -217,9 +215,9 @@ function cloneCara(cara) {
     bordeColor: cara?.bordeColor ?? '#000000',
     bordeGrosor: cara?.bordeGrosor ?? 0,
     transparenciaImagen: cara?.transparenciaImagen ?? 0,
-    // 'imagen'/ausente se comportan igual (pinta imagenResourceId si existe,
-    // cambio 00157): solo 'color' activa el nuevo camino, para no romper el
-    // aspecto de caras ya guardadas sin este campo.
+    // 'imagen'/ausente se comportan igual (pinta imagenResourceId si existe):
+    // solo 'color' activa el camino nuevo, para no romper caras guardadas
+    // sin este campo.
     fondoTipo: cara?.fondoTipo,
     colorFondo: cara?.colorFondo ?? '#ffffff',
   };
@@ -244,9 +242,9 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
   const modal = document.createElement('div');
   modal.className = 'modal card-editor-modal';
 
-  // Maximizar/restaurar (cambio 00132): variable local (no de módulo) a
-  // openVisualEditorModal, para que cada apertura del editor arranque siempre
-  // en tamaño normal, sin persistencia entre usos. Declarada antes de la
+  // Maximizar/restaurar: variable local (no de módulo) a openVisualEditorModal,
+  // para que cada apertura arranque en tamaño normal, sin persistencia entre
+  // usos. Declarada antes de la
   // cabecera porque el botón de maximizar la usa de inmediato.
   let maximized = false;
 
@@ -265,9 +263,9 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
   headerTitle.textContent = title;
   header.appendChild(headerTitle);
 
-  // Maximizar/restaurar (cambio 00132): interruptor entre tamaño normal y
-  // ocupar prácticamente toda la ventana. No cierra el editor (eso sigue
-  // siendo cosa de "Cancelar"/"Aceptar" en el pie).
+  // Maximizar/restaurar: interruptor entre tamaño normal y ocupar
+  // prácticamente toda la ventana. No cierra el editor (sigue siendo cosa
+  // de "Cancelar"/"Aceptar" en el pie).
   const maximizeBtn = document.createElement('button');
   maximizeBtn.type = 'button';
   maximizeBtn.className = 'card-editor-modal__maximize-btn';
@@ -304,10 +302,8 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
   const working = {
     proporcion: props.proporcion || '5:7',
     esquinasRedondeadas: props.esquinasRedondeadas !== false,
-    // Tamaño de diseño del lienzo (cambio 00151, extiende a 'carta' el mismo
-    // criterio que el 00152 ya aplicó a los tipos sin proporción
-    // configurable): siempre el tamaño real del componente al abrir el
-    // editor, nunca un lienzo lógico fijo — el contenido se pinta siempre en
+    // Tamaño de diseño del lienzo: siempre el tamaño real del componente al
+    // abrir el editor, nunca un lienzo lógico fijo — el contenido se pinta siempre en
     // píxeles reales (sin ningún factor de escala), así que lo que se ve al
     // diseñar debe coincidir con el tamaño real en la mesa. Cambiar el
     // desplegable "Proporción" dentro del editor sí recalcula `designHeight`
@@ -352,7 +348,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
   }
 
   // Elimina un elemento (texto o figura) de la cara indicada, compartida entre
-  // la acción "Eliminar" del menú contextual y la tecla SUPR (cambio 00127).
+  // la acción "Eliminar" del menú contextual y la tecla SUPR.
   function removeElement(caraKey, kind, id) {
     const cara = working[caraKey];
     if (kind === 'forma') {
@@ -388,8 +384,8 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
 
   document.addEventListener('keydown', handleKeyDown);
 
-  // Recalcular el tamaño del lienzo si la ventana cambia de tamaño estando
-  // maximizado (cambio 00132, primer listener de `resize` del proyecto).
+  // Recalcula el tamaño del lienzo si la ventana cambia de tamaño estando
+  // maximizado.
   function handleWindowResize() {
     if (!maximized) return;
     renderFaces();
@@ -426,8 +422,8 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     proporcionField.appendChild(proporcionSelect);
     toolbar.appendChild(proporcionField);
 
-    // Esquinas redondeadas (cambio 00117): solo aplica a las proporciones
-    // rectangulares/cuadrada — Circular/Hexagonal mantienen su silueta fija.
+    // Esquinas redondeadas: solo aplica a proporciones rectangulares/cuadrada
+    // — Circular/Hexagonal mantienen su silueta fija.
     redondeoField = document.createElement('div');
     redondeoField.className = 'modal__field modal__field--checkbox';
     const redondeoCheckbox = document.createElement('input');
@@ -488,7 +484,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     // El margen fijo de la hoja de estilos (8.75rem) asume el alto de
     // lienzo del tamaño normal, para quedar centrado junto a las caras.
     // Maximizado, el lienzo crece y ese valor fijo ya no centra el botón —
-    // se calcula en JS (excepción ya documentada en STYLE_BIBLE sección 8
+    // se calcula en JS (excepción ya documentada en design/docs/style/index.md
     // para valores que dependen de un cálculo numérico en tiempo de
     // ejecución, no expresables como clase).
     if (maximized) {
@@ -542,8 +538,8 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
   }
 
   // Convierte una posición de pantalla (clientX/clientY) a coordenadas de
-  // diseño de una cara (cambio 00127), usando el mismo criterio de escala que
-  // el arrastre/redimensionado de elementos (previewScale).
+  // diseño de una cara, mismo criterio de escala que el arrastre/redimensionado
+  // de elementos (previewScale).
   function screenToDesignPoint(canvas, previewScale, clientX, clientY) {
     const rect = canvas.getBoundingClientRect();
     return {
@@ -570,8 +566,8 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     }
   }
 
-  // Menú contextual (click derecho) de una cara (cambio 00124, ampliado en el
-  // 00127): mismo componente reutilizable que el menú contextual de
+  // Menú contextual (click derecho) de una cara: mismo componente
+  // reutilizable que el menú contextual de
   // componentes en la mesa (modes/play/playMode.js), sin secciones de
   // descripción/específicas/interacciones. `kind`/`id` solo están presentes
   // si el click derecho fue sobre un elemento existente — si fue sobre una
@@ -681,8 +677,8 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     canvasInner.addEventListener('click', (e) => {
       if (e.target === canvasInner) deselectTextBox();
     });
-    // Click derecho en zona vacía del lienzo (cambio 00127): los listeners
-    // `contextmenu` de cada elemento (renderTextBox/renderShape) hacen
+    // Click derecho en zona vacía del lienzo: los listeners `contextmenu` de
+    // cada elemento (renderTextBox/renderShape) hacen
     // stopPropagation, así que este solo se dispara cuando el click fue
     // fuera de cualquier elemento.
     canvasInner.addEventListener('contextmenu', (e) => {
@@ -696,16 +692,15 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     });
     canvas.appendChild(canvasInner);
 
-    // Ver fix 00096 (extendido a triángulo en el cambio 00134): las
-    // proporciones hexagonales y triangulares no pueden usar `border` CSS
+    // Proporciones hexagonales y triangulares no pueden usar `border` CSS
     // (dibuja paralelo a la caja rectangular, no a las aristas de la
     // silueta recortada con clip-path) — en su lugar, `canvas` (capa
     // exterior) se rellena del color de borde y `canvasInner` (donde va
     // el contenido) se recorta con una silueta concéntrica más pequeña,
     // dejando visible el anillo entre ambos como borde de grosor uniforme.
-    // Con `borderStyle === 'bisel'` (cambio 00143, 'tableroPersonalizado'),
-    // el borde se pinta con el mismo criterio de dos tonos que
-    // 'tableroSimple'/'dado' en vez de una línea simple — solo aplicable a
+    // Con `borderStyle === 'bisel'` ('tableroPersonalizado'), el borde se
+    // pinta con el mismo criterio de dos tonos que 'tableroSimple'/'dado'
+    // en vez de línea simple — solo aplicable a
     // tipos sin proporción no rectangular, así que nunca convive con la rama
     // hex/triángulo de arriba.
     function applyCanvasBorder() {
@@ -740,8 +735,8 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     }
     applyCanvasBorder();
 
-    // 'color' e 'imagen'/ausente son excluyentes (cambio 00157): con color
-    // activo se pinta el fondo de canvasInner y no se pinta la imagen
+    // 'color' e 'imagen'/ausente son excluyentes: con color activo se pinta
+    // el fondo de canvasInner y no se pinta la imagen
     // (aunque siga configurada); en caso contrario, comportamiento de
     // siempre — canvasInner sin fondo propio, imagen si existe.
     let faceImg = null;
@@ -841,7 +836,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     );
 
     // Borde de la carta completa (por cara). Fila color+grosor con la misma
-    // excepción de estilo inline que ya usa componentModal.js (STYLE_BIBLE sección 8).
+    // excepción de estilo inline que ya usa componentModal.js (design/docs/style/index.md).
     const borderTitle = document.createElement('p');
     borderTitle.className = 'card-editor-modal__border-title';
     borderTitle.textContent = 'Borde';

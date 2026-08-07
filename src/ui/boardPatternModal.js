@@ -1,6 +1,5 @@
-// Sub-modal "Color y patrón" del fondo de un tablero, abierta desde la pestaña
-// "Específicas" de componentModal.js. Misma estructura visual que
-// resourceModal.js (overlay/modal/header/content/footer, sin tabs).
+// Sub-modal "Color y patrón" del fondo de tablero, abierta desde pestaña "Específicas" de componentModal.js.
+// Misma estructura visual que resourceModal.js (overlay/modal/header/content/footer, sin tabs).
 
 const MIN_CELLS = 1;
 const MAX_CELLS = 50;
@@ -26,25 +25,19 @@ export function openBoardPatternModal({ properties, onAccept }) {
   modal.appendChild(footer);
 
   const working = {
-    // Ausente (tablero guardado antes de este campo) → blanco opaco, mismo
-    // aspecto que tenía antes de existir esta propiedad. '' explícito (checkbox
-    // "Transparente" marcado) se distingue con '??' en vez de '||'.
+    // Ausente → blanco opaco. '' explícito (checkbox "Transparente" marcado) se distingue con '??', no '||'.
     colorFondo: properties.colorFondo ?? '#ffffff',
     patronColor: properties.patronColor || '#000000',
     patronGrosor: properties.patronGrosor || 1,
-    // 'hexagonal' es el valor guardado antes del cambio 00089 (una sola
-    // orientación) — se normaliza a su alias 'hex-horizontal' al abrir la
-    // modal, de forma que el desplegable muestre la opción equivalente y,
-    // al aceptar, quede guardado ya con el valor nuevo.
+    // 'hexagonal' es valor legado (orientación única): se normaliza a alias 'hex-horizontal' al abrir,
+    // así el desplegable muestra opción equivalente y al aceptar queda guardado con valor nuevo.
     patronForma: properties.patronForma === 'hexagonal' ? 'hex-horizontal' : (properties.patronForma || 'cuadrada'),
     patronFilas: properties.patronFilas || 8,
     patronColumnas: properties.patronColumnas || 8,
   };
 
-  // Sección "Configuración" (forma de casilla + filas/columnas) y sección
-  // "Color" (colores), cambio 00155 — patrón informativo ya documentado en
-  // STYLE_BIBLE.md sección 12.6 (fieldset.modal__section / legend.modal__section-title,
-  // sin --toggle).
+  // Sección "Configuración" (forma casilla + filas/columnas) y sección "Color": patrón documentado en
+  // design/docs/style/03-modales-menus.md (fieldset.modal__section / legend.modal__section-title, sin --toggle).
   const configSection = document.createElement('fieldset');
   configSection.className = 'modal__section';
   const configLegend = document.createElement('legend');
@@ -59,9 +52,8 @@ export function openBoardPatternModal({ properties, onAccept }) {
   colorLegend.textContent = 'Color';
   colorSection.appendChild(colorLegend);
 
-  // Color de fondo (con opción "Transparente"), detrás del patrón — mismo
-  // patrón simple ya usado en el campo "Color de fondo" de las propiedades
-  // específicas de 'carta' (ui/componentModal.js).
+  // Color de fondo (con opción "Transparente"), detrás del patrón. Mismo patrón que el campo
+  // "Color de fondo" de propiedades específicas de 'carta' (ui/componentModal.js).
   const bgColorField = document.createElement('div');
   bgColorField.className = 'modal__field';
   const bgColorLabel = document.createElement('label');
@@ -101,7 +93,7 @@ export function openBoardPatternModal({ properties, onAccept }) {
   bgColorField.appendChild(bgColorContainer);
   colorSection.appendChild(bgColorField);
 
-  // Color y grosor del patrón juntos en la misma fila (STYLE_BIBLE.md sección 8)
+  // Color y grosor del patrón en la misma fila (design/docs/style/01-tokens-visual.md)
   const colorRow = document.createElement('div');
   colorRow.className = 'modal__field';
   const colorRowInner = document.createElement('div');
@@ -166,7 +158,6 @@ export function openBoardPatternModal({ properties, onAccept }) {
   shapeField.appendChild(shapeSelect);
   configSection.appendChild(shapeField);
 
-  // Filas y columnas en la misma fila (mismo patrón que colorRow)
   const cellsRow = document.createElement('div');
   cellsRow.className = 'modal__field';
   const cellsRowInner = document.createElement('div');

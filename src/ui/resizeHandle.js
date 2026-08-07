@@ -5,7 +5,7 @@
 //
 // `corner` selects which corner the handle sits on and anchors from:
 // - 'br' (default): top-left corner stays fixed, growing extends down-right.
-// - 'tl' (cambio 00128): bottom-right corner stays fixed, growing extends
+// - 'tl': bottom-right corner stays fixed, growing extends
 //   up-left. The proposed size still comes out positive/clamped like 'br';
 //   in addition, `dx`/`dy` (how far the anchored bottom-right corner would
 //   need the element's own x/y shifted to stay put) are included in the

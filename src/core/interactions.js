@@ -1,8 +1,8 @@
-// Registro central de las interacciones de un click sobre un componente en Modo
-// Juego, por tipo (cambio 00115). Único sitio que declara qué interacciones tiene
-// programadas cada tipo, para poder listarlas en la pestaña "Generales" de
-// ui/componentModal.js y comprobar si siguen activas al renderizar en Modo Juego
-// (ui/componentRenderer.js).
+// Registro central de las interacciones de un click sobre un componente en
+// Modo Juego, por tipo. Único sitio que declara qué interacciones tiene
+// programadas cada tipo, para listarlas en la pestaña "Generales" de
+// ui/componentModal.js y comprobar si siguen activas al renderizar en Modo
+// Juego (ui/componentRenderer.js).
 
 export const TYPE_INTERACTIONS = {
   dado: [{ key: 'lanzar', label: 'Lanzar dado' }],

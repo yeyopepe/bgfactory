@@ -1,7 +1,7 @@
-// Panel flotante con el listado de grupos, usado en modo edición. Análogo a
-// ui/resourceList.js pero sin columna "Tipo" (los grupos no tienen tipo) y
-// sin clonar. Desde el cambio 00165 tiene el mismo filtro de texto libre y
-// redimensionado de columna que ya tenían Componentes y Recursos.
+// Panel flotante con listado de grupos, modo edición. Análogo a
+// ui/resourceList.js pero sin columna "Tipo" (grupos no tienen tipo) y sin
+// clonar. Mismo filtro de texto libre y redimensionado de columna que
+// Componentes y Recursos.
 
 import { attachResizeHandle } from './resizeHandle.js';
 import { attachColumnResizing } from './tableColumnResize.js';
@@ -13,7 +13,7 @@ const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
 const GROUP_LIST_COLUMNS = ['nombre', 'elementos', 'acciones'];
 
-// Columnas interactivas del menú de cabecera (cambio 00165) — todas menos "Acciones".
+// Columnas interactivas del menú de cabecera: todas menos "Acciones".
 function buildGroupListColumnDefs(components) {
   return [
     { key: 'nombre', filterable: true, getValue: (g) => g.name },
@@ -21,8 +21,8 @@ function buildGroupListColumnDefs(components) {
   ];
 }
 
-// Estado del cuadro de filtro/orden/filtro de columna. Mismo criterio
-// transitorio que ui/componentList.js y ui/resourceList.js.
+// Estado transitorio del filtro/orden/filtro de columna, mismo criterio que
+// ui/componentList.js y ui/resourceList.js.
 let filterText = '';
 let columnSort = null; // { column: string, direction: 'asc' | 'desc' } | null
 let columnFilters = {}; // { [column]: string }
@@ -66,7 +66,7 @@ function renderBody(body, groups, components, { onEdit, onRemove, onSelectGroup,
 
   const tbody = document.createElement('tbody');
 
-  // La cabecera se muestra siempre (fix 00172) — ver ui/componentList.js.
+  // Cabecera siempre visible aunque no haya filas, ver ui/componentList.js.
   if (groups.length === 0) {
     const emptyRow = document.createElement('tr');
     const emptyCell = document.createElement('td');
@@ -355,10 +355,10 @@ export function renderGroupList(
     },
   });
 
-  // Tirador en la esquina superior izquierda (cambio 00128): ancla la esquina
-  // inferior derecha del panel, así que además de tamaño hay que desplazar
-  // left/top. tlStart captura posición/tamaño de partida en getSize (llamada
-  // una única vez por arrastre, misma garantía que usa ui/resizeHandle.js).
+  // Tirador esquina superior izquierda: ancla la esquina inferior derecha del
+  // panel, por eso además de tamaño hay que desplazar left/top. tlStart
+  // captura posición/tamaño de partida en getSize (llamada una única vez por
+  // arrastre, misma garantía que ui/resizeHandle.js).
   const tlStart = { left: 0, top: 0, width: 0, height: 0 };
   attachResizeHandle(panel, {
     axis: collapsed ? 'x' : 'both',

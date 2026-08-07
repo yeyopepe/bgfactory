@@ -1,9 +1,7 @@
-// Sub-modal "Color de fondo" de una cara del editor visual (ui/visualEditorModal.js),
-// abierta desde la opción "Color de fondo…" del menú "Añadir elemento". Misma
-// estructura visual que el resto de sub-modales de configuración de fondo
-// (overlay/modal/header/content/footer, sin tabs) — campo único, sin fieldset,
-// mismo patrón de color + checkbox "Transparente" ya usado en
-// ui/boardPatternModal.js.
+// Sub-modal "Color de fondo" de una cara del editor visual (ui/visualEditorModal.js), abierta
+// desde opción "Color de fondo…" del menú "Añadir elemento". Misma estructura visual que el resto
+// de sub-modales de fondo (overlay/modal/header/content/footer, sin tabs, campo único sin fieldset).
+// Mismo patrón color + checkbox "Transparente" que ui/boardPatternModal.js.
 
 export function openCardBackgroundColorModal({ properties, onAccept }) {
   const overlay = document.createElement('div');
@@ -25,8 +23,7 @@ export function openCardBackgroundColorModal({ properties, onAccept }) {
   footer.className = 'modal__footer';
   modal.appendChild(footer);
 
-  // '' explícito (checkbox "Transparente" marcado) se distingue con '??' en
-  // vez de '||', mismo criterio que ui/boardPatternModal.js.
+  // '' explícito (checkbox "Transparente" marcado) se distingue con '??', no '||'. Mismo criterio que ui/boardPatternModal.js.
   const working = {
     colorFondo: properties.colorFondo ?? '#ffffff',
   };

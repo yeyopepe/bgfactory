@@ -1,6 +1,6 @@
-// Catálogo de proporciones de carta disponibles en el editor de cartas y en
-// la modal de configuración del componente "carta". Datos puros, análogos en
-// espíritu a data/defaultResources.js: sin dependencias de otras capas.
+// Catálogo de proporciones de carta (editor de cartas, modal de
+// configuración de 'carta'). Datos puros, sin dependencias, análogo a
+// data/defaultResources.js.
 
 export const CARD_PROPORTIONS = [
   { value: '5:7', label: 'Poker estándar vertical (5:7)', ratio: 5 / 7, shape: 'rect' },
@@ -18,31 +18,28 @@ export const CARD_PROPORTIONS = [
 
 const DEFAULT_PROPORTION = '5:7';
 
-// Polígonos de recorte exacto (silueta de aristas rectas, sin bisel) para las
-// proporciones hexagonales. Expresados en porcentajes: como el contenedor ya
-// tiene el ratio ancho:alto correcto de un hexágono regular (ver `ratio` de
-// arriba), el polígono no necesita conocer el tamaño real en píxeles.
+// Recorte exacto (aristas rectas, sin bisel) de las proporciones hexagonales.
+// En %: el contenedor ya tiene el ratio correcto de hexágono regular (ver
+// `ratio` arriba), no hace falta conocer el tamaño real en píxeles.
 const HEX_CLIP_PATHS = {
   'hex-vertical': 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
   'hex-horizontal': 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
 };
 
-// Recortes de silueta exacta para las dos proporciones triangulares (cambio
-// 00134): triángulo inscrito en la caja cuadrada (vértice + base opuestos,
-// no un triángulo estrictamente equilátero — ver plan.md de ese cambio),
-// mismo criterio que HEX_CLIP_PATHS de que el polígono no necesita conocer
-// el tamaño real en píxeles al estar la caja siempre en su ratio correcto.
+// Recorte de silueta exacta para las dos proporciones triangulares: triángulo
+// inscrito en la caja cuadrada (vértice + base opuestos, no estrictamente
+// equilátero), mismo criterio que HEX_CLIP_PATHS de no necesitar tamaño real
+// en píxeles.
 const TRIANGLE_CLIP_PATHS = {
   triangulo: 'polygon(50% 0%, 100% 100%, 0% 100%)',
   'triangulo-invertido': 'polygon(0% 0%, 100% 0%, 50% 100%)',
 };
 
-// Incentro (en % de la caja) e inradio (en fracción del lado) de cada
-// silueta triangular de arriba, usados por getTriangleInnerClipPath para
-// simular un borde de grosor uniforme escalando desde el incentro real (a
-// diferencia del hexágono regular, cuyo incentro coincide con el centro de
-// la caja, aquí no) — valores exactos derivados de las fórmulas estándar de
-// incentro/inradio de un triángulo a partir de sus vértices.
+// Incentro (% de la caja) e inradio (fracción del lado) de cada silueta
+// triangular, usados por getTriangleInnerClipPath para escalar el borde
+// desde el incentro real — a diferencia del hexágono regular, aquí el
+// incentro no coincide con el centro de la caja. Valores derivados de las
+// fórmulas estándar de incentro/inradio a partir de los vértices.
 const TRIANGLE_GEOMETRY = {
   triangulo: { centerXPercent: 50, centerYPercent: 69.09830056250526, inradiusFraction: 0.30901699437494745 },
   'triangulo-invertido': { centerXPercent: 50, centerYPercent: 30.90169943749474, inradiusFraction: 0.30901699437494745 },
@@ -53,23 +50,21 @@ export function getProporcionRatio(value) {
   return found ? found.ratio : CARD_PROPORTIONS.find((p) => p.value === DEFAULT_PROPORTION).ratio;
 }
 
-// `true` si la proporción indicada es una de las cinco rectangulares/cuadrada
-// (a diferencia de "Circular"/Hexagonal, con silueta fija) — usado por
-// ui/visualEditorModal.js (cambio 00117) para decidir cuándo mostrar el
-// checkbox "Esquinas redondeadas", sin duplicar esta búsqueda.
+// `true` si la proporción es una de las cinco rectangulares/cuadrada (no
+// Circular/Hexagonal, silueta fija). Usado por ui/visualEditorModal.js para
+// decidir si mostrar el checkbox "Esquinas redondeadas".
 export function isRectShape(value) {
   const found = CARD_PROPORTIONS.find((p) => p.value === value);
   const shape = found ? found.shape : 'rect';
   return shape === 'rect';
 }
 
-// Devuelve el `border-radius`/`clip-path` a aplicar según la proporción: las
-// cinco proporciones rectangulares/cuadrada usan el radio de "contenedores
-// destacados" (STYLE_BIBLE.md sección 5) si `esquinasRedondeadas` es `true`
-// (por defecto, cambio 00117; `false` las deja a 90°), "Circular" recorta en
-// redondo, y las dos hexagonales recortan por polígono exacto (border-radius
-// no puede producir una silueta de aristas rectas) — estas dos últimas no se
-// ven afectadas por `esquinasRedondeadas`.
+// `border-radius`/`clip-path` según proporción: las cinco rectangulares/
+// cuadrada usan el radio de "contenedores destacados"
+// (design/docs/style/01-tokens-visual.md) si `esquinasRedondeadas` es `true`
+// (por defecto; `false` = 90°); "Circular" recorta en redondo; las dos
+// hexagonales recortan por polígono exacto (border-radius no da aristas
+// rectas) y no dependen de `esquinasRedondeadas`.
 export function getCartaShapeCss(value, esquinasRedondeadas = true) {
   const found = CARD_PROPORTIONS.find((p) => p.value === value);
   const shape = found ? found.shape : 'rect';
@@ -79,15 +74,12 @@ export function getCartaShapeCss(value, esquinasRedondeadas = true) {
   return { borderRadius: esquinasRedondeadas ? '8px' : '0', clipPath: 'none' };
 }
 
-// Recorte interior (concéntrico, más pequeño) para simular un borde de
-// grosor uniforme en las proporciones hexagonales, donde `border` CSS no
-// sirve (ver fix 00096): al ser siempre un hexágono regular (su `ratio`
-// fuerza esa proporción), desplazar las seis aristas hacia dentro `bordePx`
-// equivale a escalar los vértices del polígono desde el centro por un
-// factor `s` calculado a partir de la apotema (mitad del lado que queda
-// perpendicular a los vértices agudos: `width/2` en 'hex-vertical',
-// `height/2` en 'hex-horizontal'). Devuelve `null` si la proporción no es
-// hexagonal o si no hay borde que simular.
+// Recorte interior concéntrico para simular borde de grosor uniforme en
+// hexágonos (`border` CSS no sirve aquí): al ser siempre hexágono regular
+// (su `ratio` lo fuerza), desplazar las seis aristas hacia dentro `bordePx`
+// equivale a escalar los vértices desde el centro por un factor calculado
+// con la apotema (`width/2` en 'hex-vertical', `height/2` en
+// 'hex-horizontal'). `null` si la proporción no es hexagonal o no hay borde.
 export function getHexInnerClipPath(proporcionValue, width, height, bordePx) {
   const found = CARD_PROPORTIONS.find((p) => p.value === proporcionValue);
   const shape = found ? found.shape : null;
@@ -110,13 +102,11 @@ export function getHexInnerClipPath(proporcionValue, width, height, bordePx) {
   return `polygon(${points.join(', ')})`;
 }
 
-// Recorte interior (concéntrico, más pequeño) para simular un borde de
-// grosor uniforme en las proporciones triangulares (cambio 00134), hermana
-// de getHexInnerClipPath: a diferencia del hexágono regular, el incentro de
-// este triángulo no coincide con el centro de la caja (50%, 50%), así que
-// el escalado se hace desde el incentro real (TRIANGLE_GEOMETRY) en vez de
-// desde el centro. La caja es siempre cuadrada (ratio 1), así que el lado
-// real en píxeles es indistintamente `width` o `height`.
+// Recorte interior concéntrico para borde de grosor uniforme en triángulos,
+// hermana de getHexInnerClipPath: a diferencia del hexágono, el incentro no
+// coincide con el centro de la caja (50%, 50%), el escalado se hace desde el
+// incentro real (TRIANGLE_GEOMETRY). Caja siempre cuadrada (ratio 1): `width`
+// y `height` son indistintos.
 export function getTriangleInnerClipPath(proporcionValue, width, height, bordePx) {
   const found = CARD_PROPORTIONS.find((p) => p.value === proporcionValue);
   const shape = found ? found.shape : null;
@@ -142,12 +132,10 @@ export function getTriangleInnerClipPath(proporcionValue, width, height, bordePx
   return `polygon(${points.join(', ')})`;
 }
 
-// Ancho de referencia del lienzo de diseño que usaban las cartas guardadas
-// antes del cambio 00151 (contenido en "unidades de diseño" reescaladas por
-// un único factor uniforme). Desde ese cambio, el contenido de 'carta' se
-// guarda directamente en píxeles reales (mismo criterio que
-// 'tableroPersonalizado', cambio 00152) — esta constante ya no interviene en
-// el editor ni en el render, solo la usa `core/state.js` (migración puntual
-// `migrateCartaMedidasReales`) para calcular el factor de conversión de las
-// cartas guardadas con el sistema anterior.
+// Ancho de referencia del lienzo de diseño del formato antiguo de carta
+// ("unidades de diseño" reescaladas por un factor uniforme). El contenido de
+// 'carta' ahora se guarda en píxeles reales; esta constante ya no interviene
+// en editor ni render, solo la usa `core/state.js` (migración
+// `migrateCartaMedidasReales`) para el factor de conversión de cartas
+// guardadas con el formato antiguo.
 export const CARD_DESIGN_WIDTH = 300;

@@ -16,9 +16,9 @@ const TYPE_LABELS = {
   [RESOURCE_TYPES.FONT]: 'Tipografía',
 };
 
-// Columnas interactivas del menú de cabecera (cambio 00165) — todas menos "Acciones".
-// `usos` depende de `components`, calculado en el momento de construir la definición
-// (ver renderResourceList), no de un valor fijo del propio recurso.
+// Columnas interactivas del menú de cabecera: todas menos "Acciones".
+// `usos` depende de `components`, calculado al construir la definición (ver
+// renderResourceList), no de un valor fijo del propio recurso.
 function buildResourceListColumnDefs(components) {
   return [
     { key: 'nombre', filterable: true, getValue: (r) => r.name },
@@ -33,8 +33,8 @@ function buildResourceListColumnDefs(components) {
 // recargar la página.
 let filterText = '';
 
-// Ordenación/filtros de columna (cambio 00165), mismo criterio transitorio
-// que `filterText` — ver ui/componentList.js.
+// Ordenación/filtros de columna, mismo criterio transitorio que `filterText`
+// — ver ui/componentList.js.
 let columnSort = null; // { column: string, direction: 'asc' | 'desc' } | null
 let columnFilters = {}; // { [column]: string }
 
@@ -82,7 +82,7 @@ function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnR
 
   const tbody = document.createElement('tbody');
 
-  // La cabecera se muestra siempre (fix 00172) — ver ui/componentList.js.
+  // Cabecera siempre visible aunque no haya filas, ver ui/componentList.js.
   if (resources.length === 0) {
     const emptyRow = document.createElement('tr');
     const emptyCell = document.createElement('td');
@@ -422,10 +422,10 @@ export function renderResourceList(
     },
   });
 
-  // Tirador en la esquina superior izquierda (cambio 00128): ancla la esquina
-  // inferior derecha del panel, así que además de tamaño hay que desplazar
-  // left/top. tlStart captura posición/tamaño de partida en getSize (llamada
-  // una única vez por arrastre, misma garantía que usa ui/resizeHandle.js).
+  // Tirador esquina superior izquierda: ancla la esquina inferior derecha del
+  // panel, por eso además de tamaño hay que desplazar left/top. tlStart
+  // captura posición/tamaño de partida en getSize (llamada una única vez por
+  // arrastre, misma garantía que ui/resizeHandle.js).
   const tlStart = { left: 0, top: 0, width: 0, height: 0 };
   attachResizeHandle(panel, {
     axis: collapsed ? 'x' : 'both',

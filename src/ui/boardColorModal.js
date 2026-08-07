@@ -1,8 +1,6 @@
-// Sub-modal "Color" del fondo de un tablero, abierta desde la pestaña
-// "Específicas" de componentModal.js. Misma estructura visual que
-// boardImageModal.js/boardPatternModal.js (overlay/modal/header/content/footer,
-// sin tabs) — a diferencia de boardPatternModal.js, no usa fieldset.modal__section
-// al tener un único campo, sin necesidad de agrupación.
+// Sub-modal "Color" del fondo de tablero, abierta desde pestaña "Específicas" de componentModal.js.
+// Misma estructura visual que boardImageModal.js/boardPatternModal.js (overlay/modal/header/content/footer,
+// sin tabs). A diferencia de boardPatternModal.js, sin fieldset.modal__section: un único campo, sin agrupación.
 
 export function openBoardColorModal({ properties, onAccept }) {
   const overlay = document.createElement('div');
@@ -25,9 +23,8 @@ export function openBoardColorModal({ properties, onAccept }) {
   modal.appendChild(footer);
 
   const working = {
-    // Ausente (tablero guardado antes de este campo) → blanco opaco. ''
-    // explícito (checkbox "Transparente" marcado) se distingue con '??' en
-    // vez de '||' — mismo criterio que colorFondo en boardPatternModal.js.
+    // Ausente → blanco opaco. '' explícito (checkbox "Transparente" marcado) se distingue con '??', no '||'.
+    // Mismo criterio que colorFondo en boardPatternModal.js.
     colorSolido: properties.colorSolido ?? '#ffffff',
   };
 

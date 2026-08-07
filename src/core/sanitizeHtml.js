@@ -1,9 +1,8 @@
 // Sanitización de HTML de usuario antes de insertarlo en el DOM. Necesaria
 // porque el estado del proyecto se guarda/exporta como un único HTML
 // autocontenido: sin sanitizar, un <script> pegado (o un manejador de evento
-// inline) se ejecutaría al reabrir ese fichero en otra sesión. Ver plan.md
-// 00036 (b). Usado por el componente "Visor de documentos"
-// (ui/componentRenderer.js).
+// inline) se ejecutaría al reabrir ese fichero en otra sesión. Usado por el
+// componente "Visor de documentos" (ui/componentRenderer.js).
 
 const JAVASCRIPT_PROTOCOL = /^\s*javascript:/i;
 

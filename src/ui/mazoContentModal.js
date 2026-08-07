@@ -1,7 +1,7 @@
-// Modal "Ver contenido del mazo" (cambio 00106): lista todas las cartas de un
-// mazo (miniatura de su cara frontal + id) con la posibilidad de sacar
-// cualquiera de ellas, no solo la de arriba del todo. Misma modal reutilizada
-// desde el menú contextual del mazo en modo juego ("Ver contenido...",
+// Modal "Ver contenido del mazo": lista todas las cartas de un mazo
+// (miniatura de su cara frontal + id) con la posibilidad de sacar cualquiera
+// de ellas, no solo la de arriba del todo. Misma modal reutilizada desde el
+// menú contextual del mazo en modo juego ("Ver contenido...",
 // modes/play/playMode.js) y desde el botón "Ver contenido del mazo" de la
 // pestaña específica del mazo en modo edición (ui/componentModal.js).
 //
@@ -70,8 +70,8 @@ export function openMazoContentModal({ mazoId, onSacar }) {
 
       const thumb = document.createElement('div');
       thumb.className = 'mazo-contenido__thumb';
-      // El diseño se guarda en píxeles reales (cambio 00151): encaja el
-      // ancho real de la carta en la miniatura de tamaño fijo.
+      // Diseño guardado en píxeles reales: encaja el ancho real de la carta
+      // en la miniatura de tamaño fijo.
       const renderScale = THUMB_WIDTH / (carta.width || THUMB_WIDTH);
       paintCartaFace(thumb, carta.properties?.caraFrontal, renderScale, THUMB_WIDTH, THUMB_HEIGHT);
       item.appendChild(thumb);

@@ -1,10 +1,9 @@
-// Ordenación/filtrado por columna de una tabla (cambio 00165), reutilizado
-// por ui/componentList.js, ui/resourceList.js y ui/groupList.js. Al pulsar
-// el nombre de una columna abre ui/columnHeaderMenu.js con las opciones de
+// Ordenación/filtrado por columna de una tabla, reutilizado por
+// ui/componentList.js, ui/resourceList.js y ui/groupList.js. Al pulsar el
+// nombre de una columna abre ui/columnHeaderMenu.js con las opciones de
 // ordenar/filtrar esa columna. Cualquier cabecera interactiva muestra siempre
-// un pequeño indicador junto a su texto (fix 00172 — antes solo aparecía si
-// la columna ya tenía algo activo, sin ninguna pista permanente para las
-// demás): tenue por defecto, destacado si tiene orden y/o filtro aplicados.
+// un pequeño indicador junto a su texto: tenue por defecto, destacado si
+// tiene orden y/o filtro aplicados.
 
 import { openColumnHeaderMenu } from './columnHeaderMenu.js';
 import { compareValues } from '../core/textSort.js';

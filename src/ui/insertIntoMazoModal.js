@@ -1,6 +1,6 @@
-// Modal "Meter en mazo..." (cambio 00106), abierta desde el menú contextual de
-// una carta en modo juego (modes/play/playMode.js). Elegir el mazo destino y
-// si la carta se coloca arriba o abajo del todo de su pila.
+// Modal "Meter en mazo...", abierta desde el menú contextual de una carta en
+// modo juego (modes/play/playMode.js). Elegir el mazo destino y si la carta
+// se coloca arriba o abajo del todo de su pila.
 
 import { formatComponentIdentifier } from './componentRenderer.js';
 

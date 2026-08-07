@@ -19,9 +19,9 @@ function parseState(raw) {
   }
   const panelState = (parsed.panelState && typeof parsed.panelState === 'object') ? parsed.panelState : null;
   const resourcePanelState = (parsed.resourcePanelState && typeof parsed.resourcePanelState === 'object') ? parsed.resourcePanelState : null;
-  // Compatibilidad hacia atrás (cambio 00105, "Mazo" → "Grupo"): un guardado hecho con
-  // la app anterior a este cambio tiene estas dos colecciones bajo las claves antiguas
-  // `decks`/`deckPanelState` — se siguen leyendo si las nuevas no están presentes.
+  // Compatibilidad hacia atrás ("Mazo" → "Grupo"): guardados antiguos tienen
+  // estas dos colecciones bajo las claves `decks`/`deckPanelState` — se
+  // siguen leyendo si las nuevas no están presentes.
   const groupPanelStateRaw = parsed.groupPanelState ?? parsed.deckPanelState;
   const groupPanelState = (groupPanelStateRaw && typeof groupPanelStateRaw === 'object') ? groupPanelStateRaw : null;
   const resources = Array.isArray(parsed.resources) ? parsed.resources : [];

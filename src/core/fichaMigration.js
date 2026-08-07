@@ -1,7 +1,7 @@
-// Migración del extinto tipo 'ficha' (cambio 00087) a 'carta': módulo puro,
-// sin dependencias de otras capas. Reutilizado tanto por la migración
-// silenciosa al cargar (core/state.js) como por el aviso de errores de la
-// importación explícita (ui/editModeToggle.js).
+// Migración del extinto tipo 'ficha' a 'carta': módulo puro, sin
+// dependencias de otras capas. Reutilizado por la migración silenciosa al
+// cargar (core/state.js) y por el aviso de errores de la importación
+// explícita (ui/editModeToggle.js).
 //
 // Nunca lanza excepción: siempre devuelve un `properties` de carta válido
 // (best-effort), más una lista de errores (vacía si no hubo ninguno). Quien
@@ -73,8 +73,8 @@ export function migrateFichaProperties(fichaProperties, componentSize) {
       color: '#000000',
       x: 0,
       y: 0,
-      // Ocupa toda la carta en píxeles reales (cambio 00151: 'carta' ya no
-      // guarda su contenido en unidades de diseño reescaladas).
+      // Ocupa toda la carta en píxeles reales ('carta' no guarda su
+      // contenido en unidades de diseño reescaladas).
       width: componentSize.width,
       height: componentSize.height,
       bordeActivo: false,
@@ -91,9 +91,8 @@ export function migrateFichaProperties(fichaProperties, componentSize) {
   const cartaProperties = {
     proporcion,
     caraActual: 'frontal',
-    // El contenido de esta migración ya nace en píxeles reales (ver arriba),
-    // así que no debe volver a pasar por `migrateCartaMedidasReales`
-    // (core/state.js, cambio 00151).
+    // Contenido ya nace en píxeles reales (ver arriba): no debe volver a
+    // pasar por `migrateCartaMedidasReales` (core/state.js).
     medidasReales: true,
     caraFrontal: { ...cara, ajusteImagen: { ...cara.ajusteImagen }, textBoxes: cara.textBoxes.map((tb) => ({ ...tb })) },
     caraTrasera: { ...cara, ajusteImagen: { ...cara.ajusteImagen }, textBoxes: cara.textBoxes.map((tb) => ({ ...tb })) },

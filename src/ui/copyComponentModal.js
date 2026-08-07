@@ -1,9 +1,7 @@
-// Modal reducida de propiedades para un componente de tipo Copia: sin pestañas,
-// nada editable salvo el toggle "Sincronizado" y, cuando está desmarcado,
-// "Bloqueado"/"Oculto" propios de esta copia (cambio 00149) — el resto de campos
-// se sincroniza siempre con el original (ver core/component.js/state.js).
-// Muestra el id, un aviso, el toggle "Sincronizado", Bloqueado/Oculto, el id del
-// original, y Eliminar/Cancelar/Aceptar.
+// Modal reducida de propiedades para un componente Copia: sin pestañas, nada
+// editable salvo "Sincronizado" y, si está desmarcado, "Bloqueado"/"Oculto"
+// propios — el resto de campos siempre sincroniza con el original (ver
+// core/component.js/state.js).
 
 import { getComponents } from '../core/state.js';
 import { createHelpIcon } from './helpIcon.js';

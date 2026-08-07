@@ -10,9 +10,8 @@ const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
 const COMPONENT_LIST_COLUMNS = ['orden', 'id', 'tipo', 'copia', 'acciones'];
 
-// Columnas interactivas del menú de cabecera (cambio 00165) — todas menos
-// "Acciones"; "Orden" no ofrece filtro (campo numérico de posición con su
-// propio mecanismo de edición inline, filtrar por él no aporta valor).
+// Columnas interactivas del menú de cabecera: todas menos "Acciones".
+// "Orden" no filtra (edición inline por posición, filtrar no aporta valor).
 const COMPONENT_LIST_COLUMN_DEFS = [
   { key: 'orden', filterable: false, getValue: (c) => c.order },
   { key: 'id', filterable: true, getValue: (c) => c.id },
@@ -27,10 +26,9 @@ const COMPONENT_LIST_COLUMN_DEFS_BY_KEY = Object.fromEntries(COMPONENT_LIST_COLU
 // resetea solo al recargar la página. Análogo a resourceList.js.
 let filterText = '';
 
-// Ordenación/filtros de columna (cambio 00165), mismo criterio de estado
-// transitorio que `filterText`: una única ordenación activa a la vez para
-// esta tabla, y un filtro por columna acumulable con los demás (AND) y con
-// `filterText`.
+// Mismo criterio de estado transitorio que `filterText`: una única
+// ordenación activa a la vez, filtros por columna acumulables (AND) entre sí
+// y con `filterText`.
 let columnSort = null; // { column: string, direction: 'asc' | 'desc' } | null
 let columnFilters = {}; // { [column]: string }
 
@@ -91,9 +89,8 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy,
 
   const tbody = document.createElement('tbody');
 
-  // La cabecera se muestra siempre (fix 00172), incluso sin filas que
-  // listar: solo así se puede seguir abriendo el menú de una columna para
-  // quitar un filtro que haya dejado la lista vacía.
+  // Cabecera siempre visible, incluso sin filas: permite abrir el menú de
+  // columna para quitar un filtro que haya dejado la lista vacía.
   if (displayedComponents.length === 0) {
     const emptyRow = document.createElement('tr');
     const emptyCell = document.createElement('td');
@@ -443,10 +440,9 @@ export function renderComponentList(
     },
   });
 
-  // Tirador en la esquina superior izquierda (cambio 00128): ancla la esquina
-  // inferior derecha del panel, así que además de tamaño hay que desplazar
-  // left/top. tlStart captura posición/tamaño de partida en getSize (llamada
-  // una única vez por arrastre, misma garantía que usa ui/resizeHandle.js).
+  // Tirador superior izquierdo: ancla la esquina inferior derecha del panel,
+  // así que además de tamaño hay que desplazar left/top. tlStart captura
+  // posición/tamaño de partida en getSize (llamada una vez por arrastre).
   const tlStart = { left: 0, top: 0, width: 0, height: 0 };
   attachResizeHandle(panel, {
     axis: collapsed ? 'x' : 'both',

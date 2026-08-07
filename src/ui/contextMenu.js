@@ -1,9 +1,8 @@
-// Menú contextual genérico posicionado junto al cursor (cambio 00088), reutilizable
-// para cualquier menú de click derecho de la app. Distinto de una modal: no bloquea
-// el resto de la pantalla, no tiene overlay. Distinto de `createAddMenu`
-// (ui/resourceList.js, sección 12.7 de STYLE_BIBLE.md), que es un desplegable fijo
-// bajo un botón: este se abre en cualquier punto de la pantalla y se cierra también
-// con ESC, no solo con click fuera.
+// Menú contextual genérico posicionado junto al cursor, para cualquier click
+// derecho de la app. Distinto de una modal: no bloquea el resto de la pantalla,
+// sin overlay. Distinto de `createAddMenu` (ui/resourceList.js,
+// design/docs/style/03-modales-menus.md), desplegable fijo bajo un botón: este
+// se abre en cualquier punto y cierra también con ESC, no solo click fuera.
 
 let currentMenu = null;
 
@@ -40,10 +39,9 @@ function addRow(menu, { icon, label, onClick, disabled }) {
   menu.appendChild(item);
 }
 
-// Fila con un `<select>` inline en vez de una acción de click directo (cambio 00170,
-// primer uso: "Añadir a grupo" en el menú contextual de Modo Edición). Mismo criterio
-// de `stopPropagation` en el propio control que ya usa `ui/columnHeaderMenu.js` para
-// que interactuar con el desplegable no dispare el cierre por click-fuera.
+// Fila con un `<select>` inline en vez de acción de click directo. Mismo
+// `stopPropagation` que `ui/columnHeaderMenu.js`: interactuar con el
+// desplegable no dispara el cierre por click-fuera.
 function addSelectRow(menu, { label, options = [], disabled, onChange }) {
   const row = document.createElement('div');
   row.className = 'context-menu__select-row';
@@ -141,9 +139,9 @@ function addInfoSection(menu, interactionItems) {
 }
 
 // `generalItems`/`specificItems`: `{ icon: SVGElement, label: string, onClick: () => void, disabled?: boolean }[]`,
-// o, para una fila con un `<select>` inline en vez de una acción de click directo (cambio 00170):
+// o, para una fila con `<select>` inline en vez de acción de click directo:
 // `{ label: string, select: { options: { value: string, label: string }[], disabled?: boolean, onChange: (value: string) => void } }`.
-// `disabled` (cambio 00127) muestra el item atenuado y sin acción (no se registra el listener de click).
+// `disabled`: item atenuado y sin acción (no registra listener de click).
 // El separador entre ambas secciones solo se dibuja si `specificItems` no está vacío.
 // `interactionItems`: `{ label: string, value: string }[]` — sección de solo lectura al final del menú.
 // `description`: `{ main: string, extra?: string }` — línea de solo lectura al principio del menú,

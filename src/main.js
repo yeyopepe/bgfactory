@@ -70,21 +70,18 @@ initGlobalShortcuts({
 });
 
 function seedDefaultResources() {
-  // Marcar el flag antes de añadir: cada addResource() dispara un autoguardado
-  // síncrono, así que debe quedar ya a `true` desde el primer recurso sembrado.
+  // Flag a true antes de añadir: cada addResource() dispara autoguardado síncrono.
   markResourcesSeeded();
   for (const resourceData of DEFAULT_RESOURCES) {
     addResource(createResource(resourceData));
   }
 }
 
-// Un guardado/semilla anterior a la galería de recursos no tiene `resourcesSeeded`
-// (o lo tiene a false): se rellena una única vez con los recursos por defecto, y a
-// partir de ahí son recursos normales — si el usuario los borra, no vuelven a aparecer.
-// Importante: hay que hidratar el flag ANTES de loadComponents()/loadResources(),
-// porque esas dos ya emiten components:changed/resources:changed y disparan un
-// autoguardado síncrono — si el flag no está hidratado todavía, ese autoguardado
-// persistiría su valor por defecto (false) y "olvidaría" que ya se había sembrado.
+// Guardado/semilla sin `resourcesSeeded` (o en false): se rellena una vez con
+// los recursos por defecto; a partir de ahí son normales (si se borran, no vuelven).
+// Hidratar el flag ANTES de loadComponents()/loadResources(): esas dos emiten
+// components:changed/resources:changed y disparan autoguardado síncrono, que
+// persistiría `false` si el flag no está hidratado ya.
 
 const saved = loadState();
 if (saved?.error) {

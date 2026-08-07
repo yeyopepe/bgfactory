@@ -1,7 +1,6 @@
-// Lógica pura del componente "Dado" (cambio 00020): sin dependencias de otras
-// capas, reutilizada tanto por ui/componentModal.js (validación/recálculo de
-// resultado al cambiar configuración) como por ui/componentRenderer.js
-// (parpadeo/tirada).
+// Lógica pura del componente "Dado": sin dependencias de otras capas,
+// reutilizada por ui/componentModal.js (validación/recálculo de resultado al
+// cambiar configuración) y ui/componentRenderer.js (parpadeo/tirada).
 
 export function parseListaValores(listaValores) {
   return (listaValores || '')

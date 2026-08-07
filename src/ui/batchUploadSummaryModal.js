@@ -1,9 +1,7 @@
-// Modal de resumen tras una subida en lote (varios ficheros o una carpeta,
-// change 00076): cuántos recursos se añadieron y, si los hay, el detalle de
-// los omitidos por formato no soportado (tabla, mismo patrón que
-// ui/importReportModal.js) y/o por estar dentro de una subcarpeta (recuento
-// agregado, sin listar cada fichero). Mismo esqueleto modal-overlay/modal
-// que ui/errorModal.js, con una variante de cabecera de éxito en vez de error.
+// Modal resumen tras subida en lote (varios ficheros o carpeta): recursos añadidos y, si hay,
+// detalle de omitidos por formato no soportado (tabla, mismo patrón que ui/importReportModal.js)
+// y/o por subcarpeta (recuento agregado, sin listar ficheros). Mismo esqueleto modal-overlay/modal
+// que ui/errorModal.js, variante de cabecera de éxito.
 
 export function openBatchUploadSummaryModal({ added, skippedFormat = [], skippedSubfolderCount = 0 }) {
   const overlay = document.createElement('div');

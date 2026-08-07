@@ -12,23 +12,19 @@ import { openMazoContentModal } from '../../ui/mazoContentModal.js';
 import { openInsertIntoMazoModal } from '../../ui/insertIntoMazoModal.js';
 import { isInteractionActive } from '../../core/interactions.js';
 
-// Mapea el `type` de componente a la `key` de core/interactions.js cuya
-// interacción de click corresponde a la fila "Clic izquierdo" de
-// `interactionsByType` (fix 00116) — solo estos tres tipos tienen una fila
-// distinta de "Ninguno" ahí.
+// Mapea el `type` de componente a la `key` de `core/interactions.js` cuya interacción
+// de click corresponde a la fila "Clic izquierdo" de `interactionsByType`. Solo estos
+// tres tipos tienen ahí una fila distinta de "Ninguno".
 const CLICK_INTERACTION_KEY_BY_TYPE = {
   dado: 'lanzar',
   carta: 'voltear',
   mazo: 'sacarCarta',
 };
 
-// Selección del menú contextual de modo juego (cambio 00088), estado transitorio de
-// la sesión de juego en curso: `renderPlayMode` se vuelve a invocar por completo
-// (desde main.js) ante cualquier `components:changed`, así que este estado vive
-// fuera de la función para no perderse cada vez que se mueve/bloquea/lanza un
-// componente cualquiera — mismo criterio que `selectedComponentId` de
-// `modes/edit/editMode.js`. No hay ningún otro concepto de selección en modo
-// juego más allá de este, ligado siempre al menú contextual abierto.
+// Selección del menú contextual, estado transitorio de la sesión en curso. Vive fuera
+// de `renderPlayMode`: `components:changed` remonta todo el modo, así no se pierde al
+// mover/bloquear/lanzar un componente. Único concepto de selección en modo juego,
+// ligado siempre al menú contextual abierto.
 let selectedComponentId = null;
 
 const interactionsByType = {
@@ -70,8 +66,8 @@ const interactionsByType = {
 };
 
 // Sustituye el valor de la fila "Clic izquierdo" por "Ninguno" cuando la interacción
-// de click de ese componente está desactivada (cambio 00115) — no muta
-// `interactionsByType`, que es una constante de módulo compartida entre renders.
+// de click de ese componente está desactivada. No muta `interactionsByType`, constante
+// de módulo compartida entre renders.
 function getInteractionItemsFor(component) {
   const items = interactionsByType[component.type] || [];
   const key = CLICK_INTERACTION_KEY_BY_TYPE[component.type];
@@ -171,8 +167,8 @@ export function renderPlayMode(container) {
         if (mazo.subirAlMoverInteractuar) reorderComponent(mazo.id, 1);
       },
       onContextMenu: (component, event) => {
-        // Click derecho configurable por componente (cambio 00142): con "Ninguno"
-        // seleccionado, el click derecho no hace nada — ni selecciona ni abre el menú.
+        // Click derecho configurable por componente: con "Ninguno" seleccionado, no
+        // hace nada — ni selecciona ni abre el menú.
         if (component.accionClickDerecho === 'ninguno') return;
 
         selectedComponentId = component.id;
@@ -232,8 +228,8 @@ export function renderPlayMode(container) {
           }
         }
 
-        // Una copia sincronizada (cambio 00149) no ofrece bloquear/desbloquear aquí:
-        // su "Bloqueado" sigue siempre al original mientras esté sincronizada.
+        // Una copia sincronizada no ofrece bloquear/desbloquear aquí: su "Bloqueado"
+        // sigue siempre al original mientras esté sincronizada.
         const generalItems = (!component.copyOf || component.sincronizado === false) ? [
           {
             icon: createLockIcon(bloqueado),

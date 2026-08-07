@@ -1,11 +1,11 @@
-// Aviso de errores al convertir fichas durante una importación explícita
-// (cambio 00087): a diferencia de ui/importReportModal.js (informativo,
-// posterior a aplicar la importación), esta modal se muestra ANTES de tocar
-// la partida actual y ofrece dos acciones con consecuencias distintas —
-// mismo patrón de "confirmación con consecuencias" que
-// ui/groupDeleteConfirmModal.js, con la cabecera de error de ui/errorModal.js
-// y la tabla/ancho de ui/importReportModal.js (clase `import-report-modal`
-// reutilizada tal cual, sin CSS nuevo).
+// Aviso de errores al convertir fichas durante una importación explícita. A
+// diferencia de ui/importReportModal.js (informativo, posterior a aplicar la
+// importación), esta modal se muestra ANTES de tocar la partida actual y
+// ofrece dos acciones con consecuencias distintas — mismo patrón de
+// "confirmación con consecuencias" que ui/groupDeleteConfirmModal.js, con la
+// cabecera de error de ui/errorModal.js y la tabla/ancho de
+// ui/importReportModal.js (clase `import-report-modal` reutilizada tal cual,
+// sin CSS nuevo).
 
 export function openImportConversionErrorModal({ errors, onContinue, onAbort }) {
   const overlay = document.createElement('div');

@@ -1,12 +1,10 @@
-// Modal de selección al pulsar "Copiar estilo" sobre una carta (change
-// 00085; checklist reducido a 4 elementos y "Grupo" integrado en el bloque
-// "Generales" en el cambio 00105): checklist de un único grupo fijo de 4
-// elementos (Generales, Proporción, Cara frontal, Cara trasera), todos
-// marcados por defecto. No reutiliza ui/elementSelectionModal.js (pensada
-// para colecciones dinámicas con id/label) — construye su propio marcado
-// reutilizando las mismas clases BEM `.element-selection-group*`
-// (STYLE_BIBLE.md sección 12.5) para heredar el mismo lenguaje visual sin
-// duplicar CSS.
+// Modal de selección al pulsar "Copiar estilo" sobre una carta: checklist de
+// un único grupo fijo de 4 elementos (Generales, Proporción, Cara frontal,
+// Cara trasera), todos marcados por defecto. No reutiliza
+// ui/elementSelectionModal.js (pensada para colecciones dinámicas con
+// id/label) — construye su propio marcado reutilizando las mismas clases BEM
+// `.element-selection-group*` (design/docs/style/02-componentes-layout.md)
+// para heredar el mismo lenguaje visual sin duplicar CSS.
 
 import { CARD_PROPORTIONS } from '../core/cardProportions.js';
 

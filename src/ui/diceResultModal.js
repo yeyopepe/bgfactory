@@ -1,7 +1,6 @@
-// Modal de "ver resultado en grande" del dado (doble click en modo juego,
-// description.md 00020). Reutiliza el patrón modal-overlay/modal sin tabs
-// (mismo criterio visual que ui/resourceModal.js), solo con el resultado
-// actual a tamaño grande y un botón "Cerrar".
+// Modal "ver resultado en grande" del dado (doble click en modo juego).
+// Reutiliza el patrón modal-overlay/modal sin tabs (mismo criterio que
+// ui/resourceModal.js), solo con el resultado a tamaño grande y "Cerrar".
 
 export function openDiceResultModal({ resultado }) {
   const overlay = document.createElement('div');

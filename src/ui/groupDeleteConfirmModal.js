@@ -1,9 +1,8 @@
-// Modal de confirmación para borrar un grupo en uso: a diferencia del bloqueo
-// de ui/errorModal.js (usado por Recursos), aquí sí se permite continuar —
-// muestra la lista de elementos afectados (id + tipo, ya que pueden ser de
-// cualquier tipo) y, si se acepta, borra el grupo y esos elementos pierden la
-// pertenencia a él (pueden seguir teniendo otros grupos, cambio 00139 — ver
-// modes/edit/editMode.js).
+// Confirmación de borrado de grupo en uso. A diferencia de ui/errorModal.js
+// (Recursos), aquí sí se permite continuar. Lista elementos afectados (id +
+// tipo, de cualquier tipo posible); al aceptar borra el grupo y esos
+// elementos pierden la pertenencia a él, pero conservan sus otros grupos
+// (ver modes/edit/editMode.js).
 
 import { getComponentTypeLabel } from './componentTypeModal.js';
 

@@ -68,11 +68,11 @@ Ejemplo de `.claude/ms-context.json` ya configurado en este proyecto:
     "numberWidth": 5,
     "docs": {
       "functional": {
-        "featuresDocPath": "design/docs/features"
+        "featuresDocPathDir": "design/docs/features"
       },
       "tech": {
-        "architectureDocPath": "design/docs/ARCHITECTURE.md",
-        "styleBibleDocPath": "design/docs/stylebible/STYLE_BIBLE.md"
+        "architectureDocDir": "design/docs/architecture",
+        "styleBibleDocDir": "design/docs/style"
       }
     }
   },
@@ -85,7 +85,7 @@ Ejemplo de `.claude/ms-context.json` ya configurado en este proyecto:
 }
 ```
 
-Todos los campos de `framework` (excepto `changesDir`) son opcionales — el framework funciona sin `docs.tech.architectureDocPath`, `docs.functional.featuresDocPath` o `docs.tech.styleBibleDocPath`, simplemente usa menos contexto al analizar y no mantiene esos documentos sincronizados.
+Todos los campos de `framework` (excepto `changesDir`) son opcionales — el framework funciona sin `docs.tech.architectureDocDir`, `docs.functional.featuresDocPathDir` o `docs.tech.styleBibleDocDir`, simplemente usa menos contexto al analizar y no mantiene esos documentos sincronizados.
 
 #### Elegir el modelo/esfuerzo de cada skill: `skillModels`
 
@@ -163,7 +163,7 @@ Para funcionalidad nueva o un cambio de comportamiento **intencionado** que no s
 
 Para un bug, algo que ya debería funcionar de otra forma. Ejemplo: `/ms-fix al recargar la página se pierde la partida en curso aunque estaba guardada`. También es el punto de entrada para algo tan pequeño que no merece pasar por `description.md` + `plan.md` + confirmación (un typo, un texto, un valor/constante puntual, un ajuste de estilo aislado, sea o no un bug): `/ms-fix corrige el texto del botón "Guradar" a "Guardar"`.
 
-`ms-fix` primero valora si lo pedido es trivial (sin ambigüedad, como mucho 2 ficheros, sin comportamiento nuevo, sin tocar `docs.tech.architectureDocPath` ni `docs.tech.styleBibleDocPath`):
+`ms-fix` primero valora si lo pedido es trivial (sin ambigüedad, como mucho 2 ficheros, sin comportamiento nuevo, sin tocar `docs.tech.architectureDocDir` ni `docs.tech.styleBibleDocDir`):
 
 - **Si es trivial** (atajo `fast`, bug o no): aplica el cambio directamente en el código y, en la misma invocación, documenta lo hecho en `changes/implemented/{xxxx}/description.md` — pasa brevemente por `inProgress` (numeración `xxxx` normal vía `ms-internal-workflow`) y se mueve a `implemented` en el mismo turno, sin generar `plan.md` ni encadenar `ms-how`/`ms-do`.
 - **Si no es trivial y es un bug**: sigue el flujo normal descrito abajo (documenta + encadena `ms-how`/`ms-do`).
@@ -183,9 +183,9 @@ Si ya existe una entrada en `inProgress` y quieres ampliarla en vez de crear una
 
 `/ms-how {xxxx}` toma una entrada ya documentada en `inProgress` y:
 
-1. Analiza la causa raíz (fix) o diseña la solución técnica (change), usando como fuente de verdad el código real, la documentación de arquitectura (`docs.tech.architectureDocPath`) y la guía de estilo (`docs.tech.styleBibleDocPath`) — nunca lo que otras entradas de `changes/` asuman ni la memoria de la conversación.
+1. Analiza la causa raíz (fix) o diseña la solución técnica (change), usando como fuente de verdad el código real, la documentación de arquitectura (`docs.tech.architectureDocDir`) y la guía de estilo (`docs.tech.styleBibleDocDir`) — nunca lo que otras entradas de `changes/` asuman ni la memoria de la conversación.
 2. Escribe `changes/inProgress/{xxxx}/plan.md` con tres secciones: (a) anotaciones funcionales, (b) solución técnica paso a paso, (c) cambios de arquitectura si aplica.
-3. Pregunta si quieres implementarlo ya. Si confirmas, encadena directamente `ms-do`, que edita el código, actualiza `docs.tech.architectureDocPath`/`docs.functional.featuresDocPath`/`docs.tech.styleBibleDocPath` según corresponda, y mueve la carpeta a `changes/implemented/{xxxx}/`.
+3. Pregunta si quieres implementarlo ya. Si confirmas, encadena directamente `ms-do`, que edita el código, actualiza `docs.tech.architectureDocDir`/`docs.functional.featuresDocPathDir`/`docs.tech.styleBibleDocDir` según corresponda, y mueve la carpeta a `changes/implemented/{xxxx}/`.
 
 Si invocas `/ms-how` sin argumento, lista lo que hay pendiente en `inProgress` y te pregunta cuál quieres. Si `plan.md` ya existía (por ejemplo, quieres retomarlo), te pregunta si quieres regenerarlo desde cero o implementar directamente lo que ya dice (en ese caso encadena `ms-do` sin volver a analizar). También puedes invocar `/ms-do {xxxx}` directamente sobre una entrada que ya tenga `plan.md`, sin pasar por `ms-how` de nuevo.
 
@@ -197,7 +197,7 @@ Si invocas `/ms-how` sin argumento, lista lo que hay pendiente en `inProgress` y
 
 1. `ms-fix` documenta el bug en `changes/inProgress/00008/description.md` y encadena `ms-how` automáticamente.
 2. `ms-how` analiza la causa raíz, escribe `plan.md` (acotado solo a ese bug) y pregunta si implementar.
-3. Confirmas → `ms-how` encadena `ms-do`, que edita el código, actualiza `FEATURES.md`/`ARCHITECTURE.md` si aplica, y mueve la carpeta a `changes/implemented/00008/`.
+3. Confirmas → `ms-how` encadena `ms-do`, que edita el código, actualiza `FEATURES.md`/`design/docs/architecture/` si aplica, y mueve la carpeta a `changes/implemented/00008/`.
 4. Cuando quieras cortar una nueva build: `python ./src/scripts/build.py` a mano (fuera del framework `ms-*`) → incrementa la versión en `version.js` y genera el entregable.
 
 Y para algo trivial:

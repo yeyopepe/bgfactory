@@ -37,15 +37,14 @@ export function updateResource(resource, changes) {
   return { ...resource, ...changes };
 }
 
-// Busca un recurso por `name`, insensible a mayúsculas y a tildes (mismo
-// criterio que core/textSort.js#sortByName), o null si no hay coincidencia.
+// Insensible a mayúsculas/tildes (mismo criterio que textSort.js#sortByName).
 export function findResourceByName(name, resources) {
   return resources.find((r) => r.name.localeCompare(name, 'es', { sensitivity: 'base' }) === 0) ?? null;
 }
 
-// Recorre objetos y arrays anidados (p.ej. las caras de una carta o sus
-// cuadros de texto) acumulando los valores primitivos hoja, para poder
-// detectar un id de recurso referenciado en cualquier nivel de `properties`.
+// Recorre objetos/arrays anidados (p.ej. caras de carta, cuadros de texto)
+// acumulando valores primitivos hoja, para detectar un id de recurso
+// referenciado en cualquier nivel de `properties`.
 function collectDeepValues(value, acc = []) {
   if (Array.isArray(value)) {
     for (const item of value) collectDeepValues(item, acc);
@@ -64,9 +63,8 @@ export function isResourceInUse(resourceId, components) {
   });
 }
 
-// Ids de los componentes que referencian `resourceId`, en cualquier nivel de
-// `properties` (vacío si ninguno) — usada para identificar en el mensaje de
-// error qué componente(s) bloquean el borrado de un recurso.
+// Ids de componentes que referencian `resourceId` en cualquier nivel de
+// `properties` — identifica qué bloquea el borrado de un recurso en uso.
 export function getComponentsUsingResource(resourceId, components) {
   return components
     .filter((component) => component.image === resourceId || collectDeepValues(component.properties ?? {}).includes(resourceId))

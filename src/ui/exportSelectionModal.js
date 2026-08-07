@@ -1,6 +1,5 @@
-// Modal de exportación (sustituye al prompt() del nombre de fichero, change
-// 00065): campo de nombre de fichero + selección de qué componentes/
-// recursos/grupos incluir, agrupados en tres bloques (ui/elementSelectionModal.js).
+// Modal de exportación: campo de nombre de fichero + selección de qué
+// componentes/recursos/grupos incluir, en tres bloques (ui/elementSelectionModal.js).
 
 import { createElementSelectionGroups } from './elementSelectionModal.js';
 

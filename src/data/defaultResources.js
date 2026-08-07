@@ -1,10 +1,11 @@
-// Recursos por defecto de la galeria: se siembran en una sesion totalmente nueva
-// (sin guardado en localStorage ni semilla embebida), igual que el componente de texto
-// de ejemplo -- ver seedDefaultResources() en main.js. Vive en data/ porque no depende
-// de ninguna otra capa (igual que data/version.js).
+// Recursos por defecto de la galería: se siembran en una sesión totalmente
+// nueva (sin guardado en localStorage ni semilla embebida), igual que el
+// componente de texto de ejemplo — ver seedDefaultResources() en main.js.
+// Vive en data/ porque no depende de ninguna otra capa (igual que
+// data/version.js).
 //
-// Todos estos recursos usan un id fijo (el nombre de fichero sin extension) en vez de un
-// UUID generado, a diferencia del resto de recursos de la galeria (ver resource.js).
+// Todos usan un id fijo (nombre de fichero sin extensión) en vez de UUID
+// generado, a diferencia del resto de recursos de la galería (resource.js).
 
 export const DEFAULT_RESOURCES = [
   {

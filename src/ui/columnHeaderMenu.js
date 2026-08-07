@@ -1,16 +1,13 @@
-// Menú desplegable de ordenación/filtrado de una columna de tabla (cambio
-// 00165), reutilizado por los paneles flotantes de modo edición (Componentes,
-// Recursos, Grupos) vía ui/tableColumnMenu.js. Hermano de ui/contextMenu.js
-// en mecánica (singleton de módulo, `position: fixed` insertado en
-// document.body, cierre por click fuera o Esc, reajuste tras insertarse para
-// no salirse de la ventana) — necesario porque el `<th>` que ancla este menú
-// vive dentro de un contenedor con overflow (`.component-panel__body` y
-// análogos) que recortaría un `position: absolute` colgando de él, a
-// diferencia de `.resource-add__menu` (sección 12.7 de STYLE_BIBLE), que sí
-// puede ser `position: absolute` al no estar dentro de ningún overflow.
-// Contenido propio (no reutiliza el DOM de contextMenu.js): dos filas de
-// ordenación tipo toggle y, si la columna es filtrable, un <select> con los
-// valores distintos de esa columna.
+// Menú desplegable de ordenación/filtrado de columna de tabla, reutilizado por paneles flotantes
+// de modo edición (Componentes, Recursos, Grupos) vía ui/tableColumnMenu.js. Hermano de ui/contextMenu.js
+// en mecánica (singleton de módulo, `position: fixed` en document.body, cierre por click fuera o Esc,
+// reajuste tras insertarse para no salirse de ventana). `position: fixed` es necesario porque el `<th>`
+// que ancla el menú vive dentro de contenedor con overflow (`.component-panel__body` y análogos), que
+// recortaría un `position: absolute` — a diferencia de `.resource-add__menu`
+// (design/docs/style/03-modales-menus.md), que
+// sí puede ser `absolute` al no estar dentro de overflow.
+// Contenido propio, no reutiliza DOM de contextMenu.js: dos filas de ordenación tipo toggle y,
+// si la columna es filtrable, un <select> con los valores distintos de esa columna.
 
 let currentMenu = null;
 
@@ -35,13 +32,12 @@ function addSortItem(menu, { label, active, onClick }) {
   menu.appendChild(item);
 }
 
-// `anchorEl`: el <th> pulsado, usado solo para calcular la posición inicial
-// (getBoundingClientRect) — el menú no queda anclado a él en el DOM.
-// `sortDirection`: 'asc' | 'desc' | null, la ordenación activa ahora mismo en esta columna.
-// `filterable`: si la columna ofrece el bloque "Filtrar" (falso para "Orden" en Componentes).
-// `filterValues`: string[] ya deduplicados/ordenados, valores distintos de la columna.
-// `activeFilterValue`: valor de filtro activo en esta columna, o null si no hay ninguno ("Todos").
-// `onToggleSort(direction)`: 'asc' | 'desc' pulsado — la exclusividad/apagado los decide quien invoca.
+// `anchorEl`: <th> pulsado, solo para posición inicial (getBoundingClientRect) — menú no queda anclado en el DOM.
+// `sortDirection`: 'asc' | 'desc' | null, ordenación activa en esta columna.
+// `filterable`: si la columna ofrece bloque "Filtrar" (falso para "Orden" en Componentes).
+// `filterValues`: string[] deduplicados/ordenados, valores distintos de la columna.
+// `activeFilterValue`: valor de filtro activo, o null si ninguno ("Todos").
+// `onToggleSort(direction)`: 'asc' | 'desc' pulsado — exclusividad/apagado los decide quien invoca.
 // `onSelectFilter(value)`: valor elegido, o null si se elige "Todos".
 export function openColumnHeaderMenu({
   anchorEl,

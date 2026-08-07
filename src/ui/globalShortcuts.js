@@ -1,10 +1,9 @@
-// Atajos de teclado globales (ESC/INTRO/SUPR/flechas), equivalentes directos de los
-// botones o acciones ya existentes en cada contexto — no introducen ninguna
-// acción/confirmación/validación nueva. Módulo agnóstico del dominio: solo conoce el
-// patrón DOM común a las modales (`.modal-overlay` > `.modal` > `.modal__footer` con
-// `.btn-cancel`/`.btn-accept`/`.btn-eliminar`), nunca `modes/*` — quien conecta el caso
-// "SUPR sin modal abierta" con el modo edición es `main.js`, vía el callback
-// `onDeleteSelected`, y quien conecta las flechas (cambio 00145) es `onMoveSelected`.
+// Atajos de teclado globales (ESC/INTRO/SUPR/flechas): equivalentes directos de
+// botones/acciones ya existentes, sin acción/confirmación/validación nueva.
+// Agnóstico del dominio: solo conoce el patrón DOM de las modales
+// (`.modal-overlay` > `.modal` > `.modal__footer` con `.btn-cancel`/`.btn-accept`/
+// `.btn-eliminar`), nunca `modes/*` — `main.js` conecta "SUPR sin modal" con
+// `onDeleteSelected` y flechas con `onMoveSelected`.
 
 function getTopModalOverlay() {
   const overlays = Array.from(document.body.children).filter((el) => el.classList.contains('modal-overlay'));

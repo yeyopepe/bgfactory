@@ -1,8 +1,6 @@
-// Sub-modal "Imagen" del fondo de un tablero, abierta desde la pestaña
-// "Específicas" de componentModal.js. Reutiliza el sistema de recursos ya
-// existente (core/resource.js, panel "Recursos" de editMode.js): la galería
-// lista los recursos de tipo 'imagen' ya subidos por el usuario, no requiere
-// ningún mecanismo nuevo de carpeta estática ni de build.
+// Sub-modal "Imagen" del fondo de tablero, abierta desde pestaña "Específicas" de componentModal.js.
+// Reutiliza sistema de recursos existente (core/resource.js, panel "Recursos" de editMode.js):
+// galería lista recursos tipo 'imagen' ya subidos, sin mecanismo nuevo de carpeta estática ni build.
 
 import { RESOURCE_TYPES } from '../core/resource.js';
 

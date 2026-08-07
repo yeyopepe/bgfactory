@@ -1,5 +1,5 @@
 // Modal de confirmación al añadir uno o varios recursos cuyo nombre ya existe
-// en la galería (fix 00166) — mismo patrón de callbacks onAccept/onCancel que
+// en la galería, mismo patrón de callbacks onAccept/onCancel que
 // ui/importConfirmModal.js. Cubre tanto un único duplicado (subida de un
 // fichero) como varios a la vez (subida múltiple o de carpeta).
 

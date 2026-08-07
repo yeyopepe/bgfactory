@@ -1,4 +1,4 @@
-// Lógica de fusión de una importación (change 00065): combina la selección de
+// Lógica de fusión de una importación: combina la selección de
 // componentes/recursos/grupos leída de un fichero con el estado actual del
 // juego, según el modo elegido (añadir/sobrescribir) y el comportamiento ante
 // id duplicado (sobrescribir/mantener ambos). Sin dependencias de DOM ni de
@@ -88,9 +88,9 @@ function remapRefsDeep(value, resourceIdMap) {
 // Reescribe, solo en los componentes seleccionados para importar, las
 // referencias a recursos/grupos cuyo id se haya renombrado por conflicto
 // ("mantener ambos"). Los componentes ya existentes no se tocan aquí.
-// `grupoIds` es una propiedad plana de primer nivel del componente (cambio
-// 00105, array desde el cambio 00139), igual que `image`, así que se remapea
-// aquí en vez de dentro de remapRefsDeep (que solo recorre `properties`).
+// `grupoIds` es propiedad plana de primer nivel del componente, igual que
+// `image`, así que se remapea aquí en vez de dentro de remapRefsDeep (que
+// solo recorre `properties`).
 function remapComponentRefs(components, resourceIdMap, groupIdMap) {
   if (resourceIdMap.size === 0 && groupIdMap.size === 0) return components;
   return components.map((component) => {
@@ -203,10 +203,10 @@ export function mergeImportedGame({
   const { groups: dedupedGroups, renames: groupRenames } = dedupeGroupNames(groups);
   groups = dedupedGroups;
 
-  // Los componentes importados pueden venir de un fichero exportado antes del
-  // cambio 00139 (campo escalar `grupoId`, o su ausencia total si es aún más
-  // antiguo) — se normalizan aquí, antes de remapear referencias, para no
-  // asumir que ya están en el formato `grupoIds: string[]` actual.
+  // Componentes importados pueden venir de un fichero exportado con formato
+  // antiguo (campo escalar `grupoId`, o su ausencia total) — se normalizan
+  // aquí, antes de remapear referencias, para no asumir que ya están en el
+  // formato `grupoIds: string[]` actual.
   const normalizedSelectedComponents = selectedComponents.map(normalizeComponentGrupoIds);
   const remappedSelectedComponents = remapComponentRefs(normalizedSelectedComponents, resourceIdMap, groupIdMap);
   const { result: components, insertedIds: importedComponentIds } = mergeCollection(existingComponents, remappedSelectedComponents, mode, conflictMode);

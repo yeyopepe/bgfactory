@@ -1,7 +1,6 @@
-// Conversión de un color hex a rgba con un nivel de transparencia, usada por
-// el fondo de TextBox/Forma (cara de carta) en sus dos puntos de renderizado
-// (ui/componentRenderer.js y ui/visualEditorModal.js). Datos puros, análogo en
-// espíritu a core/textBoxLayout.js: sin dependencias de otras capas.
+// Hex a rgba con transparencia. Usado en fondo de TextBox/Forma (cara de
+// carta): ui/componentRenderer.js y ui/visualEditorModal.js. Datos puros,
+// sin dependencias, análogo a core/textBoxLayout.js.
 
 export function hexToRgba(hex, transparenciaPercent) {
   if (!hex) return 'transparent';
@@ -15,10 +14,9 @@ export function hexToRgba(hex, transparenciaPercent) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-// Aclara (percent > 0) u oscurece (percent < 0) un color hex mezclándolo con
-// blanco/negro — usado para el bisel del borde de 'tableroSimple'/'dado'
-// (ui/componentRenderer.js) y de 'tableroPersonalizado' (ui/visualEditorModal.js,
-// STYLE_BIBLE.md sección 13).
+// Aclara (percent > 0) u oscurece (percent < 0) mezclando con blanco/negro.
+// Usado en bisel del borde de 'tableroSimple'/'dado' (ui/componentRenderer.js)
+// y 'tableroPersonalizado' (ui/visualEditorModal.js, design/docs/style/INDEX.md).
 export function shadeColor(hex, percent) {
   const num = parseInt(hex.replace('#', ''), 16);
   let r = (num >> 16) & 0xff;

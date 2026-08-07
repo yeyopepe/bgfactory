@@ -1,6 +1,5 @@
-// Genera una copia autocontenida del HTML actual con el estado embebido,
-// y dispara su descarga. Clona el documento vivo (CSS/JS ya embebidos por
-// el build) en vez de reconstruirlo desde cero.
+// Clona el documento vivo (CSS/JS ya embebidos por el build) en vez de
+// reconstruir el HTML desde cero, con el estado embebido en la copia.
 
 import { CURRENT_VERSION } from '../data/version.js';
 

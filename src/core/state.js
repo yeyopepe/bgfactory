@@ -122,7 +122,7 @@ export function reorderComponent(id, rawOrder) {
 // (click sobre el mazo, y "Ver contenido..." de su menú contextual) como
 // desde el modo edición (botón "Ver contenido del mazo" en las propiedades
 // del mazo) — vive aquí, no en `modes/play/playMode.js`, porque `ui/*` no
-// puede importar de `modes/*` (ver ARCHITECTURE.md, capas).
+// puede importar de `modes/*` (ver design/docs/architecture/INDEX.md, capas).
 export function sacarCartaDeMazo(mazoId, cartaId) {
   const mazo = state.components.find((c) => c.id === mazoId);
   const carta = state.components.find((c) => c.id === cartaId);
@@ -134,9 +134,9 @@ export function sacarCartaDeMazo(mazoId, cartaId) {
   reorderComponent(carta.id, 1);
 }
 
-// Migra en el sitio (sustituyendo cada entrada del array) cualquier componente
-// de tipo 'ficha' (tipo eliminado en el cambio 00087) a 'carta', best-effort
-// e ignorando siempre los errores de conversión — igual que la migración
+// Migra en el sitio (sustituyendo cada entrada del array) cualquier
+// componente de tipo 'ficha' (tipo eliminado) a 'carta', best-effort e
+// ignorando siempre los errores de conversión — igual que la migración
 // silenciosa de `order` de más arriba, nunca debe bloquear el arranque.
 function migrateFichas(components) {
   for (let i = 0; i < components.length; i += 1) {
@@ -147,10 +147,10 @@ function migrateFichas(components) {
 }
 
 // Migra en el sitio cualquier componente que todavía tenga el campo escalar
-// `grupoId` (anterior al cambio 00139, "1 grupo" → "N grupos") al nuevo campo
-// `grupoIds` (array), best-effort, mismo criterio que migrateFichas: nunca
-// debe bloquear el arranque. Debe ejecutarse antes que migrateDeckIdToGrupo,
-// que ya asume `grupoIds` como array.
+// `grupoId` (formato antiguo, "1 grupo") al campo `grupoIds` (array, "N
+// grupos"), best-effort, mismo criterio que migrateFichas: nunca debe
+// bloquear el arranque. Debe ejecutarse antes que migrateDeckIdToGrupo, que
+// ya asume `grupoIds` como array.
 function migrateGrupoIdToGrupoIds(components) {
   for (let i = 0; i < components.length; i += 1) {
     components[i] = normalizeComponentGrupoIds(components[i]);
@@ -158,9 +158,9 @@ function migrateGrupoIdToGrupoIds(components) {
 }
 
 // Migra en el sitio cualquier componente con `properties.deckId` (campo
-// específico de carta anterior al cambio 00105, "Mazo" → "Grupo") añadiendo
-// ese id a su `grupoIds`, best-effort, mismo criterio que migrateFichas:
-// nunca debe bloquear el arranque.
+// específico de carta del antiguo "Mazo", ahora "Grupo") añadiendo ese id a
+// su `grupoIds`, best-effort, mismo criterio que migrateFichas: nunca debe
+// bloquear el arranque.
 function migrateDeckIdToGrupo(components) {
   for (const component of components) {
     if (component.properties && 'deckId' in component.properties) {
@@ -172,10 +172,10 @@ function migrateDeckIdToGrupo(components) {
   }
 }
 
-// Migra en el sitio el campo `bloqueado` de booleano (anterior al cambio 00138) al
-// nuevo campo de 3 valores ('ninguno' | 'juego' | 'todos'): `true` conservaba
-// exactamente el comportamiento de 'juego' (solo restringía Modo Juego, nunca
-// edición), `false` pasa a 'ninguno'. Best-effort, mismo criterio que migrateFichas.
+// Migra en el sitio el campo `bloqueado` de booleano al campo de 3 valores
+// ('ninguno' | 'juego' | 'todos'): `true` conservaba exactamente el
+// comportamiento de 'juego' (solo restringía Modo Juego, nunca edición),
+// `false` pasa a 'ninguno'. Best-effort, mismo criterio que migrateFichas.
 function migrateBloqueado(components) {
   for (const component of components) {
     if (typeof component.bloqueado === 'boolean') {
@@ -184,11 +184,12 @@ function migrateBloqueado(components) {
   }
 }
 
-// Migra en el sitio los componentes guardados antes del cambio 00142 (sin el campo
-// `accionClickDerecho`) a `'menuContextual'`, para conservar su comportamiento previo:
-// hasta ese cambio, el click derecho abría siempre el menú contextual sin ser
-// configurable. Solo los componentes nuevos nacen en `'ninguno'` (ver
-// `core/component.js`, `createComponent`). Best-effort, mismo criterio que migrateFichas.
+// Migra en el sitio los componentes guardados sin el campo
+// `accionClickDerecho` a `'menuContextual'`, para conservar su comportamiento
+// previo: antes de este campo, el click derecho abría siempre el menú
+// contextual sin ser configurable. Componentes nuevos nacen en `'ninguno'`
+// (ver `core/component.js`, `createComponent`). Best-effort, mismo criterio
+// que migrateFichas.
 function migrateAccionClickDerecho(components) {
   for (const component of components) {
     if (component.accionClickDerecho === undefined) {
@@ -197,10 +198,9 @@ function migrateAccionClickDerecho(components) {
   }
 }
 
-// Migra en el sitio cualquier componente de tipo 'tablero' (nombre anterior
-// al cambio 00136, "tablero" → "tablero simple") a 'tableroSimple',
-// best-effort, mismo criterio que migrateFichas: nunca debe bloquear el
-// arranque.
+// Migra en el sitio cualquier componente de tipo 'tablero' (nombre antiguo
+// de 'tableroSimple') a 'tableroSimple', best-effort, mismo criterio que
+// migrateFichas: nunca debe bloquear el arranque.
 function migrateTableroSimple(components) {
   for (const component of components) {
     if (component.type === 'tablero') {
@@ -209,18 +209,18 @@ function migrateTableroSimple(components) {
   }
 }
 
-// Migra en el sitio el contenido de cualquier 'carta' guardada antes del
-// cambio 00151 (formas/textBoxes en "unidades de diseño" sobre un lienzo
-// abstracto de CARD_DESIGN_WIDTH px, reescaladas al pintarse) al nuevo
-// sistema de píxeles reales (mismo criterio que 'tableroPersonalizado' desde
-// el cambio 00152): multiplica sus coordenadas por el factor de escala que
-// tenían en ese momento, para que el diseño se vea exactamente igual que
-// antes de migrar. Reproduce a propósito el mismo factor único (basado solo
-// en el ancho) que usaba `ui/componentRenderer.js` antes de este cambio —
-// no separa X/Y porque el render anterior tampoco lo hacía. Best-effort,
-// mismo criterio que migrateFichas: nunca debe bloquear el arranque. Las
-// cartas recién convertidas desde 'ficha' (`migrateFichas`, más arriba) ya
-// nacen con `medidasReales: true` y se saltan sin tocar.
+// Migra en el sitio el contenido de cualquier 'carta' guardada en el formato
+// antiguo (formas/textBoxes en "unidades de diseño" sobre un lienzo
+// abstracto de CARD_DESIGN_WIDTH px, reescaladas al pintarse) al sistema de
+// píxeles reales (mismo criterio que 'tableroPersonalizado'): multiplica sus
+// coordenadas por el factor de escala que tenían, para que el diseño se vea
+// exactamente igual que antes de migrar. Reproduce a propósito el mismo
+// factor único (basado solo en el ancho) que usaba antes
+// `ui/componentRenderer.js` — no separa X/Y porque el render anterior
+// tampoco lo hacía. Best-effort, mismo criterio que migrateFichas: nunca
+// debe bloquear el arranque. Cartas recién convertidas desde 'ficha'
+// (`migrateFichas`, más arriba) ya nacen con `medidasReales: true` y se
+// saltan sin tocar.
 function migrateCartaMedidasReales(components) {
   for (const component of components) {
     if (component.type !== 'carta') continue;

@@ -15,11 +15,11 @@
     "numberWidth": 5,
     "docs": {
       "functional": {
-        "featuresDocPath": "design/docs/features"
+        "featuresDocPathDir": "design/docs/features"
       },
       "tech": {
-        "architectureDocPath": "design/docs/ARCHITECTURE.md",
-        "styleBibleDocPath": "design/docs/stylebible/STYLE_BIBLE.md"
+        "architectureDocDir": "design/docs/architecture",
+        "styleBibleDocDir": "design/docs/style"
       }
     }
   }

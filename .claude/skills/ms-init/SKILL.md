@@ -4,7 +4,7 @@ description: Inicializa el framework ms-* (change/fix/workflow) en el proyecto a
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.5.2
+  version: 1.6.0
   uses: []
 ---
 
@@ -49,55 +49,67 @@ Solo cuando las herramientas base estén disponibles (y las condicionales que ya
   python .claude/skills/ms-init/scripts/check-context.py
   ```
 
-  Imprime por stdout un único JSON `{"exists", "hasFramework", "missingRequired", "complete"}`. Parsea ese JSON para lo siguiente:
-  - **Si no falta ningún campo obligatorio** (el framework ya está completamente inicializado): usa `AskUserQuestion` para preguntar al usuario si quiere re-inicializar el proyecto desde cero. Deja claro que eso borra el contexto actual (`framework` y `project`) y repite todo el proceso de preguntas como si no existiera. Si confirma, borra el contenido actual y continúa desde el paso 2. Si no confirma, no hagas nada más — el framework ya está listo tal cual está.
+  Imprime por stdout un único JSON `{"exists", "hasFramework", "missingRequired", "complete"}`. `missingRequired` solo cubre `changesDir` (el único campo con `required: true` en `schema.json`) — el resto de campos de `framework` son opcionales a nivel de schema, así que este script nunca los reportará como "faltantes" aunque el usuario no los haya configurado todavía. Para saberlo, lee tú mismo `.claude/ms-context.json` y compáralo campo a campo contra las propiedades de `framework` en `schema.json` (`docs.tech.architectureDocDir`, `docs.tech.styleBibleDocDir`, `docs.functional.featuresDocPathDir`, `sourcecodeDir`, `skillModels`) para construir tu propia lista de "opcionales sin configurar". Con ambas listas (`missingRequired` del script + opcionales sin configurar detectados por ti):
+
+  - **Si no falta ningún campo obligatorio y no hay opcionales sin configurar**: usa `AskUserQuestion` para preguntar al usuario si quiere re-inicializar el proyecto desde cero. Deja claro que eso borra el contexto actual (`framework` y `project`) y repite todo el proceso de preguntas como si no existiera. Si confirma, borra el contenido actual y continúa desde el paso 2. Si no confirma, no hagas nada más — el framework ya está listo tal cual está.
 
     ```
     El framework `ms-*` ya está inicializado en este proyecto. ¿Quieres reinicializarlo desde cero? Esto borra la configuración actual (`framework` y `project`) de `.claude/ms-context.json` y repite todas las preguntas como si no existiera.
     ```
   - **Si `missingRequired` no está vacío**: no repitas todo el cuestionario. Pregunta solo por los campos listados en `missingRequired` (paso 3, acotado a esos) y en el paso 4 actualiza el fichero con merge, sin tocar lo que ya estaba configurado.
+  - **Si `missingRequired` está vacío pero hay opcionales sin configurar** (p.ej. el usuario inicializó una vez solo con `changesDir` y declinó lo demás): no ofrezcas el reinicio destructivo de entrada. Pregunta primero con `AskUserQuestion` si quiere completar/revisar esos campos opcionales concretos (listándolos) o prefiere dejarlo como está; solo si pide explícitamente reiniciar todo desde cero, sigue la rama de arriba. Si quiere completar, ve al paso 3 acotado a esos campos y actualiza en el paso 4 con merge, igual que con `missingRequired`.
 
 ## 2. Explorar el repo en busca de pistas
 
 Antes de preguntar en blanco, mira el repo para proponer valores por defecto razonables:
 
 - Carpeta de cambios existente: `_changes`, `changes`, `CHANGELOG*`.
-- Documento de arquitectura/diseño: algo bajo `docs/`, `design/`, o un `ARCHITECTURE.md`.
+- Documento de arquitectura/diseño: una carpeta con `INDEX.md` bajo `docs/`, `design/` (convención actual), o un `ARCHITECTURE.md`/`design_technical.md` suelto (convención antigua, migrable).
 - Documento de listado de funcionalidades: algo bajo `docs/`, `design/`, o un `FEATURES.md`.
-- Guía de estilo (visual/interacción/redacción): algo bajo `docs/`, `design/`, o un `STYLE_BIBLE.md`.
+- Guía de estilo (visual/interacción/redacción): una carpeta con `INDEX.md` bajo `docs/`, `design/` (convención actual), o un `STYLE_BIBLE.md` suelto (convención antigua, migrable).
 - Carpeta raíz del código fuente: `src`, `app`, `lib`, o la que tenga más peso en el repo.
 - Tipo de proyecto, stack y propósito (mirando `package.json`, `README.md`, la estructura de carpetas) para la sección `project`.
 
 ## 3. Preguntar lo que falte
 
-Usa `AskUserQuestion` cuando sea una decisión cerrada (p.ej. confirmar una ruta detectada, o si el proyecto versiona entregables o no); pregunta en texto libre lo que sea abierto (p.ej. nombre/resumen del proyecto).
+Recorre **todos** los campos de `framework` descritos en `schema.json`, sección por sección — ninguno se da por hecho ni se deja sin resolver en silencio: los obligatorios se preguntan siempre, los opcionales se preguntan o se confirman explícitamente (aunque la respuesta más habitual sea "usa el default"), y solo los de puro ajuste fino (ver más abajo) pueden asumir su default sin preguntar. Usa `AskUserQuestion` para cualquier decisión cerrada (confirmar una ruta detectada, elegir entre opciones, sí/no); texto libre para lo abierto (nombre/resumen del proyecto, estilo deseado).
 
 Campos a resolver — sección `framework`:
-- `changesDir` (obligatorio).
-- `numberWidth` (opcional, por defecto `4`, no hace falta preguntar salvo que el usuario quiera algo distinto).
-- `docs.functional.featuresDocPath` (opcional — pregunta si quiere que `ms-do` mantenga un listado de funcionalidades implementadas, y en qué ruta; si no, se omite. Se crea vacío la primera vez que `ms-do` lo necesite).
-- `docs.tech.architectureDocPath` y `docs.tech.styleBibleDocPath` (ambos obligatorios — pregunta si el usuario ya tiene un doc de arquitectura y/o una guía de estilo que mantener sincronizados):
-  - Si el usuario ya tiene alguno de los dos (o lo has detectado en el paso 2), usa esa ruta tal cual.
-  - Si al usuario **le falta alguno de los dos** (no tiene ese documento técnico todavía), no lo generes a ciegas: hazle estas preguntas básicas en texto libre antes de crearlo (solo las que hagan falta según qué documento falte):
+- `changesDir` (obligatorio) — pregunta o confirma la ruta detectada en el paso 2.
+- `docs.tech.architectureDocDir` y `docs.tech.styleBibleDocDir` (opcionales, pero pregúntalos siempre explícitamente — no los des por omitidos sin más, a diferencia de `numberWidth`/`mockupsSkill`: la calidad de todo el análisis técnico del framework depende de que existan). Pregunta si el usuario quiere mantener sincronizados un documento de arquitectura y/o una guía de estilo:
+  - Si el usuario **ya tiene alguno de los dos como carpeta** con `INDEX.md` (o lo has detectado en el paso 2), usa esa ruta tal cual.
+  - Si el usuario tiene alguno de los dos en la **convención antigua** (fichero único, p.ej. `ARCHITECTURE.md`/`STYLE_BIBLE.md`), ofrece migrarlo: crea la carpeta con un `INDEX.md` que resuma el fichero y un único fichero de contenido (`01-contenido.md` o similar) con el resto, y borra el fichero suelto.
+  - Si al usuario **le falta alguno de los dos** y quiere que se genere, no lo generes a ciegas: hazle estas preguntas básicas en texto libre antes de crearlo (solo las que hagan falta según qué documento falte):
     1. ¿De qué va el proyecto?
     2. ¿Qué tecnologías quieres usar?
     3. ¿Qué estilo tendrá o a qué se parecerá?
 
-    Con las respuestas, genera una **primera versión reducida** (no una documentación completa) de cada documento que falte:
-    - Arquitectura (por defecto `design/docs/ARCHITECTURE.md`): resumen del proyecto (respuesta 1) y stack/tecnologías elegidas (respuesta 2), como punto de partida mínimo que `ms-do` irá ampliando con cada cambio implementado.
-    - Guía de estilo (por defecto `design/docs/STYLE_BIBLE.md`): a partir de la respuesta 3 sobre estilo/referencias; si el usuario no da detalles suficientes para definir una paleta, cae en la paleta neutra en blanco, negro y tonos de grises ya prevista por defecto.
+    Con las respuestas, genera una **primera versión reducida** (no una documentación completa) de cada documento que falte, como carpeta con `INDEX.md` + un único fichero de contenido:
+    - Arquitectura (por defecto `design/docs/architecture/`): `INDEX.md` con una tabla-índice mínima (un solo fichero hermano por ahora) y `01-overview.md` con el resumen del proyecto (respuesta 1) y stack/tecnologías elegidas (respuesta 2), como punto de partida mínimo que `ms-do` irá ampliando (nuevos ficheros numerados) con cada cambio implementado.
+    - Guía de estilo (por defecto `design/docs/style/`): mismo patrón `INDEX.md` + `01-overview.md`, a partir de la respuesta 3 sobre estilo/referencias; si el usuario no da detalles suficientes para definir una paleta, cae en la paleta neutra en blanco, negro y tonos de grises ya prevista por defecto.
 
     Si alguna de estas preguntas ya se ha respondido al recoger la sección `project` (más abajo), no la repitas — reutiliza esa respuesta.
     Deja claro al usuario que son versiones iniciales mínimas y que se irán enriqueciendo con cada `ms-do`.
-- `sourcecodeDir` (opcional — propón la carpeta raíz del código fuente detectada; `ms-how` la usa como contexto de respaldo cuando no hay `docs.tech.architectureDocPath`).
+  - Si el usuario **decide explícitamente no configurar uno de los dos (o ninguno)** ahora mismo, respeta esa decisión y deja el campo sin definir — el resto de skills lo tratan como opcional y lo omiten sin preguntar nada. No insistas ni lo generes por tu cuenta.
+- `docs.functional.featuresDocPathDir` (opcional — pregunta si quiere que `ms-do` mantenga un listado de funcionalidades implementadas, y en qué ruta; si no, se omite. Se crea vacío la primera vez que `ms-do` lo necesite).
+- `sourcecodeDir` (opcional pero pregúntalo/confírmalo siempre — no lo des por supuesto en silencio): propón la carpeta raíz del código fuente detectada en el paso 2 y pide confirmación con `AskUserQuestion` (o el nombre correcto si la detección falló). La usa `ms-how` como contexto de respaldo cuando no hay `docs.tech.architectureDocDir`.
+- `numberWidth` (opcional, por defecto `4`, no hace falta preguntar salvo que el usuario quiera algo distinto).
 - `mockupsSkill` (opcional, por defecto `ms-internal-mockups-html`, no hace falta preguntar salvo que el usuario quiera usar otra skill/tecnología para generar las maquetas `design_*.html` de `ms-new`/`ms-fix`).
 
-Sección `project`: pregunta al usuario qué quiere dejar anotado sobre el proyecto (nombre, resumen, stack, convenciones relevantes para redactar documentación...). Es libre — si el usuario no quiere anotar nada, se deja `{}`.
+Sección `skillModels` (opcional, fuera de `framework`) — menciónala siempre aunque sea brevemente, no la omitas en silencio: pregunta si el usuario quiere fijar de entrada un modelo/esfuerzo distinto del propio de cada `SKILL.md` para alguna skill `ms-*` (p.ej. bajar a Haiku las más mecánicas como `ms-status`/`ms-todo`, o subir el esfuerzo de `ms-do`). Si no quiere tocar nada ahora, omite la sección entera — el valor por defecto es el que ya trae cada `SKILL.md` en su propio frontmatter. Si configura algo, recuerda al usuario en el paso 5 que debe ejecutar `python .claude/skills/ms-init/scripts/sync-skill-models.py` para que el cambio tenga efecto real (esta sección por sí sola no basta, ver su `description` en `schema.json`).
+
+Sección `project`: pregunta al usuario qué quiere dejar anotado sobre el proyecto (nombre, resumen, stack, convenciones relevantes para redactar documentación...). Es libre — si el usuario no quiere anotar nada, se deja `{}`. Cualquier respuesta dada de pasada en preguntas anteriores (p.ej. si el proyecto versiona entregables, o detalles de stack ya mencionados) que no tenga campo propio en `framework` debe capturarse aquí, no descartarse.
 
 ## 4. Escribir el fichero
 
-Crea `.claude/` si no existe. Escribe (o actualiza con merge, sin pisar campos ya presentes que el usuario no ha pedido cambiar) `.claude/ms-context.json` con la forma de [`schema.json`](schema.json).
+Crea `.claude/` si no existe. Escribe (o actualiza con merge, sin pisar campos ya presentes que el usuario no ha pedido cambiar) `.claude/ms-context.json` con la forma de [`schema.json`](schema.json) — mismos nombres de campo, sin propiedades fuera de las que declara el schema (`additionalProperties: false` en cada nivel).
 
-## 5. Confirmar
+## 5. Verificar y confirmar
 
-Muestra un resumen de lo que ha quedado configurado (ruta del fichero, campos de `framework` resueltos, y si se ha dejado algo en `project`) y recuerda al usuario que puede volver a invocar esta skill para reconfigurar cualquier campo más adelante.
+Antes de dar la inicialización por terminada:
+
+1. Vuelve a ejecutar `python .claude/skills/ms-init/scripts/check-context.py` sobre el fichero recién escrito y comprueba que devuelve `"complete": true`. Si no es así, algo se escribió mal (p.ej. `changesDir` quedó vacío) — corrígelo antes de continuar, no lo des por bueno sin comprobarlo.
+2. Si `docs.tech.architectureDocDir`/`docs.tech.styleBibleDocDir` se configuraron con generación de contenido mínimo, confirma que la carpeta y sus dos ficheros (`INDEX.md` + `01-overview.md`) existen de verdad en disco.
+3. Si `docs.functional.featuresDocPathDir` se configuró, no hace falta crear nada todavía (se crea vacío la primera vez que `ms-do` lo necesite) — solo confirma que el valor quedó guardado en el JSON.
+
+Muestra al usuario un resumen completo de lo que ha quedado configurado: ruta del fichero, cada campo de `framework` resuelto (incluidos los que se dejaron sin configurar y por qué), si se definió algo en `skillModels` (con el recordatorio de ejecutar `sync-skill-models.py` si aplica), y si se ha dejado algo en `project`. Recuerda al usuario que puede volver a invocar esta skill para reconfigurar cualquier campo más adelante.

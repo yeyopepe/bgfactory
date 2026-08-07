@@ -51,8 +51,8 @@ function measureTextoNaturalSize(component) {
   return size;
 }
 
-// Tamaño a mostrar en la sección "Tamaño" (cambio 00144) cuando width/height
-// todavía no están fijados en el modelo (tamaño automático según contenido).
+// Tamaño a mostrar en la sección "Tamaño" cuando width/height todavía no están fijados en el modelo
+// (tamaño automático según contenido).
 function getEffectiveSize(component) {
   let { width, height } = component;
   if (width == null || height == null) {
@@ -116,8 +116,7 @@ export const DEFAULT_CARTA_PROPERTIES = {
   proporcion: '5:7',
   esquinasRedondeadas: true,
   caraActual: 'trasera',
-  // Contenido siempre en píxeles reales desde su creación (cambio 00151) —
-  // no necesita pasar por la migración de core/state.js.
+  // Contenido siempre en píxeles reales desde su creación: no necesita migración de core/state.js.
   medidasReales: true,
   caraFrontal: {
     imagenResourceId: null,
@@ -143,10 +142,9 @@ export const DEFAULT_MAZO_PROPERTIES = {
   forma: 'rectangular',
 };
 
-// 'tableroPersonalizado' (cambio 00143): una única cara, mismo shape que
-// caraFrontal/caraTrasera de 'carta' salvo por no tener 'formas' vacío por
-// nombre distinto — se reutiliza el mismo shape completo (formas incluidas)
-// para poder compartir el editor visual generalizado sin condicionales.
+// 'tableroPersonalizado': una única cara, mismo shape que caraFrontal/caraTrasera de 'carta' salvo
+// nombre distinto — reutiliza el shape completo (formas incluidas) para compartir el editor visual
+// generalizado sin condicionales.
 export const DEFAULT_TABLERO_PERSONALIZADO_PROPERTIES = {
   biselado: true,
   sombra: true,
@@ -299,9 +297,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   idField.appendChild(idError);
   generalContent.appendChild(idField);
 
-  // General (cambio 00146): sección meramente informativa (STYLE_BIBLE.md
-  // 12.6, sin checkbox de activación entera) que agrupa Bloqueado, Oculto,
-  // Mostrar tooltip y Subir al mover/interactuar, antes sueltos sin título.
+  // General: sección informativa (design/docs/style/03-modales-menus.md, sin checkbox de activación
+  // entera) que agrupa Bloqueado, Oculto, Mostrar tooltip y Subir al mover/interactuar.
   const infoSection = document.createElement('fieldset');
   infoSection.className = 'modal__section';
   const infoLegend = document.createElement('legend');
@@ -309,13 +306,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   infoLegend.textContent = 'General';
   infoSection.appendChild(infoLegend);
 
-  // Tamaño (cambio 00144): alto/ancho editables directamente, con checkbox
-  // "Mantener proporción". No se escribe en workingComponent.width/height
-  // hasta que el usuario edite alguno de los dos campos, para que aceptar la
-  // modal sin tocarlos no fije un tamaño que antes era automático.
-  // `cartaProporcionSelect` (cambio 00164) lo rellena renderCartaSpecificFields
-  // cuando el componente es una carta, para que el listener de más abajo pueda
-  // sincronizar el desplegable "Proporción" al desmarcar esta casilla.
+  // Tamaño: alto/ancho editables directamente, con checkbox "Mantener proporción". No se escribe en
+  // workingComponent.width/height hasta que el usuario edite alguno de los dos campos, para que aceptar
+  // la modal sin tocarlos no fije un tamaño que antes era automático.
+  // `cartaProporcionSelect` lo rellena renderCartaSpecificFields cuando el componente es carta, para que
+  // el listener de más abajo pueda sincronizar el desplegable "Proporción" al desmarcar esta casilla.
   let cartaProporcionSelect = null;
   const sizeSection = document.createElement('fieldset');
   sizeSection.className = 'modal__section';
@@ -371,9 +366,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   keepRatioField.appendChild(keepRatioLabel);
   sizeSection.appendChild(keepRatioField);
 
-  // Cambio 00164: al desmarcarla en una carta, su proporción pasa a 'libre'
-  // para que deje de forzarse tanto aquí como en el redimensionado por
-  // arrastre (resizeHandle.js, que respeta getProporcionRatio(proporcion)).
+  // Al desmarcarla en una carta, su proporción pasa a 'libre' para dejar de forzarse aquí y en el
+  // redimensionado por arrastre (resizeHandle.js, que respeta getProporcionRatio(proporcion)).
   keepRatioCheckbox.addEventListener('change', () => {
     if (keepRatioCheckbox.checked || !cartaProporcionSelect) return;
     workingComponent.properties.proporcion = 'libre';
@@ -501,10 +495,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   generalContent.appendChild(infoSection);
   generalContent.appendChild(sizeSection);
 
-  // Grupos (cambio 00105, generalizado a varios a la vez en el cambio 00139):
-  // propiedad general de cualquier tipo de componente, antes exclusiva de
-  // "Carta/Ficha" bajo el nombre "Mazo". Sección informativa con borde (sin
-  // checkbox de activación entera, ver STYLE_BIBLE.md 12.6), con un checkbox
+  // Grupos: propiedad general de cualquier tipo de componente. Sección informativa con borde (sin
+  // checkbox de activación entera, ver design/docs/style/03-modales-menus.md), con un checkbox
   // por grupo existente más una fila para crear uno nuevo al vuelo.
   const groupSection = document.createElement('fieldset');
   groupSection.className = 'modal__section';
@@ -513,9 +505,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   groupLegend.textContent = 'Grupos';
   groupSection.appendChild(groupLegend);
 
-  // Zona con scroll propio (cambio 00141): tope de 3 checkboxes visibles a la
-  // vez, para que la sección no crezca sin límite con muchos grupos. La fila
-  // "+ Crear nuevo grupo…" queda fuera, en groupSection directamente, para
+  // Zona con scroll propio: tope de 3 checkboxes visibles a la vez, para que la sección no crezca sin
+  // límite con muchos grupos. Fila "+ Crear nuevo grupo…" fuera, en groupSection directamente, para
   // que no scrollee con el resto.
   const groupCheckboxList = document.createElement('div');
   groupCheckboxList.className = 'group-checkbox-list__scroll';
@@ -610,14 +601,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
   generalContent.appendChild(groupSection);
 
-  // Interacciones programadas (cambio 00115, ampliada en el cambio 00142): un combo
-  // por cada interacción de click izquierdo que el tipo actual tenga programada en
-  // Modo Juego (ver core/interactions.js), permitiendo desactivarla eligiendo
-  // "Ninguna", más una fila fija de click derecho (cambio 00142, ver más abajo) que
-  // aplica por igual a los 6 tipos de componente — por eso la sección se muestra
-  // siempre, ya no solo cuando el tipo tiene entradas en TYPE_INTERACTIONS. El tipo
-  // no cambia tras crear el componente, así que esta sección se calcula una sola vez
-  // al abrir la modal.
+  // Interacciones programadas: un combo por cada interacción de click izquierdo que el tipo actual
+  // tenga programada en Modo Juego (ver core/interactions.js), desactivable eligiendo "Ninguna", más
+  // una fila fija de click derecho (ver más abajo) que aplica por igual a los 6 tipos de componente —
+  // por eso la sección se muestra siempre, no solo cuando el tipo tiene entradas en TYPE_INTERACTIONS.
+  // El tipo no cambia tras crear el componente: esta sección se calcula una sola vez al abrir la modal.
   const typeInteractions = getInteractionsForType(workingComponent.type);
   {
     const interactionsSection = document.createElement('fieldset');
@@ -662,9 +650,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       interactionsSection.appendChild(interactionField);
     }
 
-    // Click derecho (cambio 00142): a diferencia de las filas anteriores, no depende
-    // del tipo — el menú contextual (bloquear/desbloquear + acciones específicas del
-    // tipo) existe hoy para los 6 tipos por igual.
+    // Click derecho: a diferencia de las filas anteriores, no depende del tipo — el menú contextual
+    // (bloquear/desbloquear + acciones específicas del tipo) existe para los 6 tipos por igual.
     const rightClickField = document.createElement('div');
     rightClickField.className = 'modal__field';
     const rightClickLabel = document.createElement('label');
@@ -854,12 +841,10 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   function renderBoardSpecificFields(container) {
     const props = workingComponent.properties;
 
-    // Visual: sección informativa (sin des/activador) con el único checkbox
-    // "Biselado en el borde" (cambio 00154) — decide si el borde (cuando está
-    // activo) se pinta con el bisel de dos tonos de siempre o totalmente
-    // plano de un color, mismo patrón .modal__field--checkbox que "Bloqueado"
-    // /"Oculto" (pestaña "Generales") o "Esquinas redondeadas" del Editor
-    // visual.
+    // Visual: sección informativa (sin des/activador) con checkbox "Biselado en el borde" — decide si
+    // el borde (cuando está activo) se pinta con bisel de dos tonos o totalmente plano de un color.
+    // Mismo patrón .modal__field--checkbox que "Bloqueado"/"Oculto" (pestaña "Generales") o
+    // "Esquinas redondeadas" del Editor visual.
     const visualSection = document.createElement('fieldset');
     visualSection.className = 'modal__section';
     const visualLegend = document.createElement('legend');
@@ -883,9 +868,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     biseladoField.appendChild(biseladoLabel);
     visualSection.appendChild(biseladoField);
 
-    // "Sombra" (cambio 00158): decide si se aplica la sombra de contacto
-    // habitual (.board--sin-sombra, src/styles/main.css) o el componente se
-    // dibuja totalmente plano.
+    // "Sombra": decide si se aplica la sombra de contacto habitual (.board--sin-sombra,
+    // src/styles/main.css) o el componente se dibuja totalmente plano.
     const sombraField = document.createElement('div');
     sombraField.className = 'modal__field modal__field--checkbox';
     const sombraCheckbox = document.createElement('input');
@@ -1301,16 +1285,15 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     });
   }
 
-  // 'tableroPersonalizado' (cambio 00143): sin proporción configurable (se
-  // redimensiona libremente en la mesa, igual que 'tableroSimple') ni bloque
-  // "Estilo" (Copiar/Pegar estilo queda fuera de alcance de esta primera
+  // 'tableroPersonalizado': sin proporción configurable (se redimensiona libremente en la mesa,
+  // igual que 'tableroSimple') ni bloque "Estilo" (Copiar/Pegar estilo queda fuera de alcance de esta
   // versión) — un único botón que abre el Editor visual generalizado sobre
   // su única cara.
   function renderTableroPersonalizadoSpecificFields(container) {
     const props = workingComponent.properties;
 
-    // Visual: misma sección informativa que 'tableroSimple' (cambio 00154),
-    // primera de la pestaña, antes del botón de edición del diseño.
+    // Visual: misma sección informativa que 'tableroSimple', primera de la pestaña, antes del
+    // botón de edición del diseño.
     const visualSection = document.createElement('fieldset');
     visualSection.className = 'modal__section';
     const visualLegend = document.createElement('legend');
@@ -1334,7 +1317,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     biseladoField.appendChild(biseladoLabel);
     visualSection.appendChild(biseladoField);
 
-    // "Sombra" (cambio 00158): mismo criterio que 'tableroSimple'.
+    // "Sombra": mismo criterio que 'tableroSimple'.
     const sombraField = document.createElement('div');
     sombraField.className = 'modal__field modal__field--checkbox';
     const sombraCheckbox = document.createElement('input');
@@ -1439,7 +1422,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     editField.appendChild(editBtn);
     container.appendChild(editField);
 
-    // Estilo de la carta — Copiar/Pegar estilo (change 00085)
+    // Estilo de la carta — Copiar/Pegar estilo
     const styleSection = document.createElement('fieldset');
     styleSection.className = 'modal__section';
     const styleLegend = document.createElement('legend');

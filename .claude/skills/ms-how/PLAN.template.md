@@ -16,11 +16,11 @@ Ordena las tareas en el orden en que se deberían implementar. No incluyas aquí
 
 ## (c) Cambios de arquitectura
 
-*Solo si `docs.tech.architectureDocPath` está configurado y esta solución modifica la arquitectura básica del proyecto.* [Qué hay que actualizar en ese documento. Omite la sección entera si no aplica.]
+*Solo si `docs.tech.architectureDocDir` está configurado y esta solución modifica la arquitectura básica del proyecto.* [Qué fichero(s) concretos de esa carpeta hay que actualizar y qué cambiar en cada uno. Omite la sección entera si no aplica.]
 
 ## (d) Cambios en estilo
 
-*Solo si `docs.tech.styleBibleDocPath` está configurado y esta solución modifica o amplía el estilo visual del proyecto.* [Qué hay que actualizar en ese documento. Omite la sección entera si no aplica.]
+*Solo si `docs.tech.styleBibleDocDir` está configurado y esta solución modifica o amplía el estilo visual del proyecto.* [Qué fichero(s) concretos de esa carpeta hay que actualizar y qué cambiar en cada uno. Omite la sección entera si no aplica.]
 
 ## (e) Verificación
 

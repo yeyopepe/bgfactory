@@ -1,41 +1,32 @@
 // Editor reutilizable de ajuste de imagen (posición/zoom) sobre la forma de un
-// componente (cuadrada o circular). Genérico y agnóstico del tipo de
-// componente que lo use — pensado para que cualquier tipo futuro con fondo de
-// imagen pueda reutilizarlo sin cambios.
+// componente. Genérico y agnóstico del tipo de componente — cualquier tipo
+// futuro con fondo de imagen puede reutilizarlo sin cambios.
 //
-// El recorte base lo resuelve el propio navegador (`object-fit: cover` sobre
-// un <img>), evitando tener que calcular a mano las dimensiones naturales de
-// la imagen. Hacen falta DOS mecanismos de paneo combinados, porque cada uno
-// cubre un eje distinto según el caso:
-// - `object-position` (variable, en %) recorre el margen que el propio
-//   `cover` genera cuando la proporción de la imagen no coincide con la del
-//   marco (ese margen solo existe en el eje que sobra tras encajar el otro).
-//   Si se fijara a un valor constante, ese margen quedaría descartado para
-//   siempre sin importar cuánto se mueva la caja después (fue el bug real de
-//   fijarlo a 50%/50%: en imágenes con proporción muy distinta del marco, el
-//   eje sin margen propio de object-fit quedaba inalcanzable).
-// - El zoom crece el propio tamaño (`width`/`height`) de la caja de la
-//   imagen (en vez de un `transform: scale()`) y `top`/`left` recorren el
-//   desbordamiento resultante frente al marco, añadiendo margen real en
-//   AMBOS ejes por igual en cuanto se aplica zoom, sin depender de la
-//   proporción de la imagen.
-// La misma combinación se usa tanto aquí como en el renderizado final
-// (`ui/componentRenderer.js`), vía `applyImageAdjustStyle`.
+// Recorte base vía `object-fit: cover` en <img> (evita calcular a mano las
+// dimensiones naturales de la imagen). Dos mecanismos de paneo combinados,
+// cada uno cubre un eje distinto:
+// - `object-position` (%, variable) recorre el margen que `cover` genera
+//   cuando la proporción de la imagen no coincide con la del marco (margen
+//   solo existe en el eje que sobra). Si se fijara a 50%/50% constante, ese
+//   margen quedaría inalcanzable para siempre en imágenes de proporción muy
+//   distinta a la del marco.
+// - El zoom crece `width`/`height` de la caja de imagen (no `transform:
+//   scale()`); `top`/`left` recorren el desbordamiento resultante, añadiendo
+//   margen real en AMBOS ejes por igual, sin depender de la proporción.
+// Misma combinación en el renderizado final (`ui/componentRenderer.js`), vía
+// `applyImageAdjustStyle`.
 
 const PREVIEW_MAX_SIDE = 390;
 
-// `boxWidth`/`boxHeight` son el tamaño real (en píxeles) del marco a cubrir
-// (la máscara/contenedor). Hacen falta para poder girar 90º/270º: en esos
-// ángulos la imagen debe cubrir un marco "virtual" con ancho/alto
-// intercambiados respecto al marco real, para que su huella visual tras
-// rotar vuelva a coincidir exactamente con `boxWidth`×`boxHeight` — algo que
-// no se puede expresar en porcentaje (un ancho no puede ser "% del alto del
-// contenedor" en CSS), de ahí el cambio de porcentajes a píxeles (cambio
-// 00140). El giro se aplica siempre alrededor del centro del marco REAL, no
-// del centro propio de la imagen (que el paneo/zoom pueden haber
-// desplazado), fijando `transform-origin` en el punto del marco expresado en
-// coordenadas locales de la imagen — así el giro nunca desplaza el resultado
-// ya ajustado.
+// `boxWidth`/`boxHeight`: tamaño real en píxeles del marco (máscara/
+// contenedor). Necesarios para girar 90º/270º: en esos ángulos la imagen debe
+// cubrir un marco "virtual" con ancho/alto intercambiados, para que su huella
+// visual tras rotar coincida con `boxWidth`×`boxHeight` — no expresable en
+// porcentaje (un ancho no puede ser "% del alto del contenedor" en CSS), de
+// ahí trabajar en píxeles. El giro se aplica siempre alrededor del centro del
+// marco REAL, no del centro propio de la imagen (que paneo/zoom pueden haber
+// desplazado): `transform-origin` fija ese punto en coordenadas locales de la
+// imagen, así el giro nunca desplaza el resultado ya ajustado.
 export function applyImageAdjustStyle(imgEl, adjustment, boxWidth, boxHeight) {
   const { zoom = 100, posX = 50, posY = 50, rotation = 0 } = adjustment || {};
   const rotated90 = rotation === 90 || rotation === 270;
@@ -65,11 +56,10 @@ function clamp(value, min, max) {
   return Math.min(Math.max(value, min), max);
 }
 
-// Recortes de silueta exacta (aristas rectas) para las formas hexagonales
-// (cambio 00089) y triangulares (cambio 00134), además de 'circular'/'cuadrada'.
-// Mismos polígonos que core/cardProportions.js — se mantienen duplicados aquí
-// a propósito, para que este módulo siga sin depender del catálogo de
-// proporciones de carta.
+// Recortes de silueta exacta (aristas rectas) para formas hexagonales y
+// triangulares, además de 'circular'/'cuadrada'. Mismos polígonos que
+// core/cardProportions.js, duplicados a propósito para que este módulo no
+// dependa del catálogo de proporciones de carta.
 const HEX_CLIP_PATHS = {
   'hex-vertical': 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
   'hex-horizontal': 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)',
@@ -97,11 +87,10 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   footer.className = 'modal__footer';
   modal.appendChild(footer);
 
-  // Entradas normalizadas: sin `faces`, un único stage anónimo (un solo
-  // recurso, para un tipo futuro con una sola imagen de fondo); con `faces`,
-  // N stages en posición fija (el orden del array decide la columna, no se
-  // reordenan nunca) — usado por ui/visualEditorModal.js para las caras de
-  // una carta.
+  // Entradas normalizadas: sin `faces`, un único stage anónimo (tipo futuro
+  // con una sola imagen de fondo); con `faces`, N stages en posición fija (el
+  // orden del array decide la columna, nunca se reordenan) — usado por
+  // ui/visualEditorModal.js para las caras de una carta.
   const entries = faces || [{ key: '__single__', label: null, shape, width, height, resource, adjustment }];
 
   const stagesRow = document.createElement('div');
@@ -174,9 +163,9 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
     ?? entries.find((entry) => entry.resource)?.key
     ?? null;
 
-  // Botón "90º" (cambio 00140): gira solo la cara/stage enfocada, sin resetear
-  // zoom/posición. Ubicado en el hueco central entre las dos caras (caso
-  // cartas) o junto al único stage (resto de casos), centrado verticalmente.
+  // Botón "90º": gira solo la cara/stage enfocada, sin resetear zoom/
+  // posición. Ubicado en el hueco central entre las dos caras (caso cartas) o
+  // junto al único stage (resto de casos), centrado verticalmente.
   const rotateWrap = document.createElement('div');
   rotateWrap.className = 'image-adjust-modal__rotate-wrap';
   const rotateBtn = document.createElement('button');

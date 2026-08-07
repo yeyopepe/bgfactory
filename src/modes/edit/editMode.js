@@ -1,5 +1,5 @@
-// Modo edición: mesa infinita con los componentes renderizados sobre ella (seleccionables
-// para editar) + panel flotante con listado de componentes y acciones de edición/borrado.
+// Modo edición: mesa infinita con componentes seleccionables/editables + panel flotante
+// con listado de componentes y acciones de edición/borrado.
 
 import {
   getComponents, addComponent, replaceComponent, removeComponent, reorderComponent, getPanelState, setPanelState,
@@ -30,8 +30,8 @@ import { openContextMenu } from '../../ui/contextMenu.js';
 import { showToast } from '../../ui/toast.js';
 import { sortByName } from '../../core/textSort.js';
 
-// Iconos del menú contextual de elemento (cambio 00170) — mismo patrón que
-// playMode.js (SVGs 24x24 locales, sin fichero de iconos compartido en el proyecto).
+// Iconos del menú contextual de elemento. Mismo patrón que playMode.js: SVGs 24x24
+// locales, sin fichero de iconos compartido en el proyecto.
 function createCloneIcon() {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 24 24');
@@ -62,23 +62,16 @@ function createRemoveIcon() {
   return svg;
 }
 
-// Selección de la sesión de edición en curso. `renderEditMode` se vuelve a invocar por
-// completo (desde main.js) ante cualquier `components:changed`, así que este estado
-// vive fuera de la función para no perderse cada vez que se mueve/redimensiona/edita
-// un componente cualquiera. El colapso/posición/ancho del panel y el ancho de sus
-// columnas, en cambio, viven en `core/state.js` (`panelState`) porque sí se
-// persisten en el autoguardado.
-// Selección múltiple (cambio 00108): conjunto de ids, en vez de un único id — Ctrl+clic
-// añade/quita un elemento sin tocar el resto; clic normal reemplaza la selección
-// completa por ese único elemento (o la vacía si ya era el único seleccionado, mismo
-// toggle que existía antes de este cambio con un solo elemento).
+// Selección de la sesión en curso. Vive fuera de `renderEditMode`: `components:changed`
+// remonta todo el modo, así no se pierde al mover/redimensionar/editar un componente.
+// Colapso/posición/ancho del panel sí persisten (`core/state.js`, `panelState`) en autoguardado.
+// Set de ids: Ctrl+clic añade/quita un elemento sin tocar el resto; clic normal reemplaza
+// la selección por ese único elemento (o la vacía si ya era el único seleccionado).
 let selectedComponentIds = new Set();
 
-// Orden de apilado (z-index) de los paneles flotantes del modo edición, de abajo a
-// arriba — cambio 00101. Vive fuera de `renderEditMode` por el mismo motivo que
-// `selectedComponentIds`: sobrevive a los remontados completos que disparan
-// `components:changed`/`resources:changed`/`groups:changed`. No se persiste en
-// `core/state.js`: es transitorio, se resetea al recargar la página.
+// Orden de apilado (z-index) de los paneles flotantes, de abajo a arriba. Vive fuera de
+// `renderEditMode` por el mismo motivo que `selectedComponentIds`. No se persiste:
+// transitorio, se resetea al recargar.
 let panelStackOrder = ['component', 'resource', 'group'];
 
 function bringPanelToFront(key, panelsByKey) {
@@ -93,9 +86,8 @@ function applyPanelStackOrder(panelsByKey) {
   });
 }
 
-// Borra uno o varios componentes, con la confirmación que corresponda (cambio 00108):
-// un único elemento mantiene el `confirm()` nativo de siempre; dos o más abren
-// `ui/bulkDeleteConfirmModal.js`, que enumera todos los afectados antes de confirmar.
+// Borra uno o varios componentes: un único elemento usa `confirm()` nativo; dos o más
+// abren `ui/bulkDeleteConfirmModal.js`, que enumera los afectados.
 function attemptDeleteComponents(components) {
   if (components.length === 0) return;
   if (components.length === 1) {
@@ -115,12 +107,10 @@ function attemptDeleteComponents(components) {
   });
 }
 
-// Arrastrar cartas seleccionadas sobre un mazo (cambio 00106): si todo el grupo
-// arrastrado (la selección múltiple si el componente soltado forma parte de
-// ella, o solo él si no) son cartas, y su rectángulo final solapa con el de
-// algún mazo, se pregunta si se quieren añadir todas al mazo. "El cursor está
-// sobre un mazo al soltar" se interpreta como solape de rectángulos (posición
-// final de la carta soltada), no como un test de punto exacto del ratón.
+// Arrastrar cartas seleccionadas sobre un mazo: si el grupo arrastrado (selección
+// múltiple, o solo el componente soltado) son todas cartas y su rectángulo final
+// solapa con un mazo, pregunta si añadirlas. Solape de rectángulos, no punto exacto
+// del cursor.
 function attemptDropOnMazo(groupIds, draggedRect) {
   const groupComponents = groupIds.map((id) => getComponents().find((c) => c.id === id)).filter(Boolean);
   if (groupComponents.length === 0 || !groupComponents.every((c) => c.type === 'carta')) return;
@@ -139,19 +129,15 @@ function attemptDropOnMazo(groupIds, draggedRect) {
   replaceComponent(mazo.id, updateComponent(mazo, { properties: { cartaIds } }));
 }
 
-// Atajo de teclado SUPR (`ui/globalShortcuts.js`) sin ninguna modal abierta: reutiliza
-// el mismo camino de borrado que ya usa la fila de `ui/componentList.js` (confirmación
-// con el mismo texto para un único elemento, o la modal de borrado en bloque si hay
-// más de uno seleccionado), aplicado a toda la selección múltiple actual.
+// Atajo SUPR (`ui/globalShortcuts.js`) sin modal abierta: mismo camino de borrado que
+// `ui/componentList.js`, aplicado a la selección múltiple actual.
 export function deleteSelectedComponent() {
   const components = getComponents().filter((c) => selectedComponentIds.has(c.id));
   attemptDeleteComponents(components);
 }
 
-// Atajo de teclado flechas (`ui/globalShortcuts.js`, cambio 00145): desplaza toda la
-// selección múltiple actual el mismo delta (manteniendo las distancias relativas entre
-// ellos sin necesidad de calcular un ancla, a diferencia del arrastre con ratón),
-// respetando la misma restricción de movimiento que ya usa `canMove` en `renderTable()`.
+// Atajo flechas (`ui/globalShortcuts.js`): desplaza la selección múltiple el mismo
+// delta, manteniendo distancias relativas sin ancla. Respeta `canMove` de `renderTable()`.
 export function moveSelectedComponent(dx, dy) {
   const components = getComponents()
     .filter((c) => selectedComponentIds.has(c.id) && c.bloqueado !== 'todos');
@@ -175,14 +161,12 @@ export function renderEditMode(container) {
   layout.style.height = `100%`;
   layout.style.gap = '0';
 
-  // Infinite table with components rendered directly on it
   const tableContainer = document.createElement('div');
   tableContainer.style.flex = '1';
   tableContainer.style.position = 'relative';
   const table = createInfiniteTable(tableContainer);
   layout.appendChild(tableContainer);
 
-  // Floating panel with component list, anchored top-right over the table
   const listContainer = document.createElement('div');
   listContainer.className = 'component-panel-container';
   if (panelPosition) {
@@ -195,7 +179,6 @@ export function renderEditMode(container) {
   }
   tableContainer.appendChild(listContainer);
 
-  // Floating panel with the resource gallery, independent position/width/collapse
   const resourceListContainer = document.createElement('div');
   resourceListContainer.className = 'resource-panel-container';
   if (resourcePanelPosition) {
@@ -208,7 +191,6 @@ export function renderEditMode(container) {
   }
   tableContainer.appendChild(resourceListContainer);
 
-  // Floating panel with the group list, independent position/width/collapse
   const groupListContainer = document.createElement('div');
   groupListContainer.className = 'group-panel-container';
   if (groupPanelPosition) {
@@ -221,11 +203,9 @@ export function renderEditMode(container) {
   }
   tableContainer.appendChild(groupListContainer);
 
-  // Traer al frente la ventana flotante interactuada (cambio 00101): captura para no
-  // depender de que ningún listener interno haga o no `stopPropagation`, y sin
-  // `preventDefault` para no interferir con el arrastre (`mousedown` en la cabecera,
-  // ver `ui/componentList.js`/`ui/resourceList.js`/`ui/groupList.js`) ni con clicks
-  // normales de botones/filas/campos.
+  // Trae la ventana flotante interactuada al frente: captura, para no depender de que
+  // listeners internos hagan `stopPropagation`; sin `preventDefault`, para no interferir
+  // con el arrastre (`mousedown` en cabecera) ni clicks de botones/filas/campos.
   const panelsByKey = { component: listContainer, resource: resourceListContainer, group: groupListContainer };
   listContainer.addEventListener('mousedown', () => bringPanelToFront('component', panelsByKey), true);
   resourceListContainer.addEventListener('mousedown', () => bringPanelToFront('resource', panelsByKey), true);
@@ -234,11 +214,9 @@ export function renderEditMode(container) {
 
   const RESOURCE_ACCEPT = '.png,.jpg,.jpeg,.gif,.svg,.webp,.ttf,.otf,.woff,.woff2';
 
-  // Lee y da de alta un recurso a partir de un `File` ya validado (extensión
-  // soportada). Reutilizada por las tres vías de subida (única, varios
-  // ficheros, carpeta). Con `replace: true`, reemplaza el recurso existente
-  // con el `id` indicado en vez de crear uno nuevo; sin `replace`, `id` es
-  // opcional (si no se indica, se genera uno nuevo automáticamente).
+  // Lee y da de alta un recurso desde un `File` ya validado. Reutilizada por las tres
+  // vías de subida. `replace: true` reemplaza el recurso con ese `id`; sin `replace`,
+  // `id` opcional (se genera uno nuevo si no se indica).
   async function loadResourceFromFile(file, { id = null, replace = false } = {}) {
     const type = resourceTypeForFileName(file.name);
     const dataUrl = await new Promise((resolve, reject) => {
@@ -280,12 +258,10 @@ export function renderEditMode(container) {
   });
   tableContainer.appendChild(resourceFileInput);
 
-  // Ambas vías de subida en lote (varios ficheros y carpeta) comparten esta
-  // lógica: separar los ficheros válidos en los que no chocan con ningún
-  // nombre existente (se cargan igual que antes, en paralelo) de los que sí
-  // (se agrupan en un único diálogo de confirmación de reemplazo). Un mismo
-  // nombre repetido entre varios ficheros del propio lote también cuenta como
-  // conflicto para el segundo y siguientes, contra el primero del lote.
+  // Subida en lote (varios ficheros o carpeta): separa válidos sin conflicto de nombre
+  // (se cargan en paralelo) de los que colisionan (un único modal de confirmación de
+  // reemplazo). Nombre repetido dentro del propio lote cuenta como conflicto desde el
+  // segundo fichero en adelante.
   async function loadResourceBatch(files, { skippedSubfolderCount = 0, warnIfNoneValid = false } = {}) {
     const skippedFormat = [];
     const validFiles = [];
@@ -469,9 +445,8 @@ export function renderEditMode(container) {
     renderTable();
   }
 
-  // Selección de grupo desde el panel de Grupos (cambio 00130): reemplaza siempre
-  // la selección completa por los miembros del grupo, sin toggle ni modo aditivo
-  // (a diferencia de `toggleSelect`, pensada para clic/Ctrl+clic sobre un componente).
+  // Selección de grupo desde el panel de Grupos: reemplaza siempre la selección
+  // completa por los miembros del grupo, sin toggle (a diferencia de `toggleSelect`).
   function selectGroup(group) {
     const ids = getComponentsUsingGroup(group.id, getComponents());
     selectedComponentIds.clear();
@@ -488,10 +463,8 @@ export function renderEditMode(container) {
     renderTable();
   }
 
-  // Menú contextual de clic derecho sobre un elemento de la mesa en Modo Edición
-  // (cambio 00170): Clonar/Copiar/Eliminar (mismo comportamiento que el listado de
-  // Componentes) y "Añadir a grupo", todos actuando sobre la selección múltiple
-  // vigente en el momento de abrir el menú.
+  // Menú contextual de clic derecho en modo edición: Clonar/Copiar/Eliminar (igual que
+  // el listado de Componentes) y "Añadir a grupo", sobre la selección múltiple vigente.
   function handleComponentContextMenu(component, event) {
     if (!selectedComponentIds.has(component.id)) {
       selectedComponentIds.clear();
