@@ -7,7 +7,7 @@ import { renderComponentsOnTable, formatComponentIdentifier } from '../../ui/com
 import { openDiceResultModal } from '../../ui/diceResultModal.js';
 import { openContextMenu } from '../../ui/contextMenu.js';
 import { getPosibleValores } from '../../core/dice.js';
-import { getCartaIdsEnAlgunMazo, shuffleCartaIds } from '../../core/deck.js';
+import { getCartaIdsEnAlgunMazo, shuffleCartaIds, rectsOverlap } from '../../core/deck.js';
 import { openMazoContentModal } from '../../ui/mazoContentModal.js';
 import { openInsertIntoMazoModal } from '../../ui/insertIntoMazoModal.js';
 import { isInteractionActive } from '../../core/interactions.js';
@@ -145,6 +145,16 @@ export function renderPlayMode(container) {
       liftOnDrag: true,
       selectedIds: selectedComponentId ? new Set([selectedComponentId]) : new Set(),
       onMove: (component, x, y) => {
+        if (component.type === 'carta') {
+          const mazo = getComponents()
+            .filter((c) => c.type === 'mazo')
+            .find((m) => rectsOverlap({ x, y, width: component.width ?? 100, height: component.height ?? 100 }, { x: m.x ?? 100, y: m.y ?? 100, width: m.width ?? 100, height: m.height ?? 100 }));
+          if (mazo) {
+            const cartaIds = [...(mazo.properties?.cartaIds || []), component.id];
+            replaceComponent(mazo.id, updateComponent(mazo, { properties: { cartaIds } }));
+            return;
+          }
+        }
         replaceComponent(component.id, updateComponent(component, { x, y }));
         if (component.subirAlMoverInteractuar) reorderComponent(component.id, 1);
       },

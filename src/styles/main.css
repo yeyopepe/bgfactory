@@ -1056,6 +1056,15 @@ fieldset.modal__section--untitled {
   pointer-events: none;
 }
 
+/* Estado transitorio durante arrastre de carta sobre un mazo: contorno sólido
+   (distinto del contorno discontinuo de selección) + halo para feedback visual
+   de zona de suelta. Añadido/quitado por JS (ui/componentRenderer.js). */
+.drop-target {
+  outline: 3px solid var(--accent-blue);
+  outline-offset: 3px;
+  box-shadow: var(--shadow-2), 0 0 0 6px var(--accent-blue-light);
+}
+
 /* Zona de revelado del mazo: recuadro decorativo, no interactivo, marca dónde
    aparecen las cartas al sacarlas. Mismo tono neutro que una fila informativa
    de solo lectura (p. ej. .context-menu__info-row). */

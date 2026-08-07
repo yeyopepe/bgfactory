@@ -29,10 +29,10 @@
   - (1) Encuentros: 1x2zombis, 2x1zombi, 3xnada
 
 
-## Preparación
+## Preparación de la partida
 
-### Componentes y mazos
-- Prepara bolsa de saqueo con todas las fichas de objetos básicos. Deja aparte todos los objetos fabricables.
+### 1. Componentes y mazos
+- Prepara la bolsa de saqueo con todas las fichas de objetos básicos. Deja aparte todos los objetos fabricables.
 - Prepara la pila inicial de basura
 - Cada jugador elige:
   - Un tablero de jugador
@@ -44,17 +44,27 @@
 - Crea y braja el mazo con localizaciones secundarias (cartas alargadas).
 - Crea y braja el mazo con localizaciones secundarias (cartas cuadradas).
 
-### Preparación del mapa
-1. Toma las 6 cartas de montaña y colócalas aleatoriamente dentro de las 3 zonas grises del tablero.
-2. Elige una casilla de localización principal del tablero (<icono>), toma la primera carta del mazo de localizaciones principales y colócala teniendo en cuenta que debes tapar la casilla con <icono>. Repite hasta colocar 4 localizaciones principales (quedarán casillas libres). Retira del juego las cartas sobrantes del mazo.
-3. Empezando desde la esquina superior izquierda ve sacando cartas del mazo de localizaciones secundarias (cartas alargadas) y colocándolas de izquierda a derecha y de arriba a abajo hasta haber cubierto el tablero todo lo posible. Retira del juego las cartas sobrantes del mazo.
-4. Seguramente te habrás dejado algunas casillas individuales por el camino porque no habrás podido encajarlas perfectamente todas las cartas anteriores. Si es así, rellena todas las casillas restantes con cartas del mazo con localizaciones secundarias (cartas cuadradas). Después retira del juego las cartas sobrantes del mazo.
+### 2. El mapa
+1. **Cartas de montaña**: Toma las 6 **cartas de montaña** y colócalas aleatoriamente dentro de las 3 zonas grises del tablero.
+2. **Localizaciones principales**: Elige una casilla de localización principal del tablero (<icono>), toma la primera carta del mazo de **localizaciones principales** y colócala teniendo en cuenta que debes tapar la casilla con <icono>. Si no fuera posible tapar la casilla <icono> elegida, coloca la carta tapando otra casilla <icono>.
+Repite hasta colocar 4 localizaciones principales (quedarán casillas libres). Retira del juego las cartas sobrantes del mazo.
+3. **Localizaciones secundarias**:
+  1. Empezando desde la esquina superior izquierda ve sacando cartas del mazo de **localizaciones secundarias (cartas alargadas)** y colocándolas de izquierda a derecha y de arriba a abajo hasta haber cubierto el tablero todo lo posible.
+  2. No importa que vayan quedando casillas vacías en el tablero, pero intenta ir encajando cada carta de la mejor manera posible siguiendo siempre la dirección izquierda-derecha, arriba-abajo.
+  3. Cuando ya no puedas colocar más cartas de localizaciones secundarias retira del juego las cartas sobrantes del mazo. También es posible que se hayan terminado.
+  4. Finalmente rellena todas las casillas restantes con cartas del mazo con **localizaciones secundarias (cartas cuadradas)**. Cuandoel mapa esté completo retira del juego las cartas sobrantes del mazo.
+4. **Pilas de saqueo**:
+  1. Toma tantas fichas de la bolsa de saqueo como indique el límite de saqueo de la localización, barájalas y ponlas boca abajo formando una pila sobre la carta.
+  2. Repite este paso hasta que todas las localizaciones tengan su pila de saqueo. Las fichas restantes déjalas en la bolsa.
 
-Una vez el mapa esté completo monta las pilas de saqueo de cada localización:
-1. Toma tantas fichas de la bolsa de saqueo como indique el límite de saqueo de la localización, barájalas y ponlas boca abajo formando una pila sobre la carta.
-2. Repite este paso hasta que todas las localizaciones tengan su pila de saqueo. Las fichas restantes déjalas en la bolsa.
 
-### Calendario de eventos
+### 3. El personaje
+- Tablero de personaje
+- Mochila
+- Cartas de trasfondo
+
+
+### 4. Calendario de eventos
 Coloca el número de eventos para la primera semana según el nivel de dificultad elegido (ver sección __Termina la semana__).
 
 **Niveles de dificultad**

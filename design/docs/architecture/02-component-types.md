@@ -184,7 +184,7 @@ Mientras el id de una carta esté en `cartaIds` de cualquier mazo, esa carta **n
 
 **`ui/insertIntoMazoModal.js`**: desplegable de mazos + desplegable de posición ("Arriba del todo"/"Abajo del todo"); `onAccept({ mazoId, posicion })` añade el id de la carta al principio o final de `cartaIds`.
 
-**Arrastrar cartas seleccionadas sobre un mazo** (modo edición): en `onMove` de `renderTable()`, tras aplicar el movimiento, `attemptDropOnMazo(groupIds, draggedRect)` comprueba si todo el grupo arrastrado son cartas y si su rectángulo final solapa (`rectsOverlap`) con algún mazo. Si hay solape, `confirm()` nativo pregunta si añadirlas al mazo; si se acepta, se añaden al final de `cartaIds`. No usa `ui/bulkDeleteConfirmModal.js` (reservado a borrado) — acción reversible.
+**Arrastrar cartas sobre un mazo** (modo juego y modo edición): `onMove` de `renderComponentsOnTable` (compartido por ambos modos) detecta solape entre la carta/selección bajo arrastre y un mazo. En modo juego (una sola carta, sin `confirm()`): inserción directa al final de `cartaIds` al soltar. En modo edición (puede ser selección múltiple de solo cartas): `attemptDropOnMazo(groupIds, draggedRect)` pide `confirm()` nativo antes de añadir al final; acción reversible. Detección de solape utiliza `rectsOverlap` en ambos modos. Resaltado visual (contorno azul + halo) se aplica mientras se arrastra sobre el mazo, en ambos modos, mientras la selección sea compuesta solo por cartas (no se resalta si hay mezcla de tipos de componente).
 
 ## `'tableroPersonalizado'`
 

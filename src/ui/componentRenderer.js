@@ -11,7 +11,7 @@ import { applyImageAdjustStyle } from './imageAdjustModal.js';
 import { getProporcionRatio, getCartaShapeCss, getHexInnerClipPath, getTriangleInnerClipPath } from '../core/cardProportions.js';
 import { getOrderedFaceElements } from '../core/cardFaceElements.js';
 import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
-import { getMazoRevealZoneRect } from '../core/deck.js';
+import { getMazoRevealZoneRect, rectsOverlap } from '../core/deck.js';
 import { hexToRgba, shadeColor } from '../core/colorUtils.js';
 import { isInteractionActive } from '../core/interactions.js';
 
@@ -524,6 +524,8 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
   // vivo, durante el propio arrastre, al resto de componentes seleccionados.
   const elementsById = new Map();
 
+  let dropTargetMazoEl = null;
+
   const copyCountByOriginalId = new Map();
   for (const c of componentsToCount) {
     if (c.copyOf) copyCountByOriginalId.set(c.copyOf, (copyCountByOriginalId.get(c.copyOf) ?? 0) + 1);
@@ -540,6 +542,21 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       targets.push({ el, startX: other.x ?? 100, startY: other.y ?? 100 });
     }
     return targets;
+  }
+
+  function updateMazoDropHighlight(rect) {
+    const mazo = components.find((c) => c.type === 'mazo' &&
+      rectsOverlap(rect, { x: c.x ?? 100, y: c.y ?? 100, width: c.width ?? 100, height: c.height ?? 100 }));
+    const targetEl = mazo ? elementsById.get(mazo.id) : null;
+    if (targetEl === dropTargetMazoEl) return;
+    if (dropTargetMazoEl) dropTargetMazoEl.classList.remove('drop-target');
+    dropTargetMazoEl = targetEl || null;
+    if (dropTargetMazoEl) dropTargetMazoEl.classList.add('drop-target');
+  }
+
+  function clearMazoDropHighlight() {
+    if (dropTargetMazoEl) dropTargetMazoEl.classList.remove('drop-target');
+    dropTargetMazoEl = null;
   }
 
   for (const component of stackedComponents) {
@@ -1579,6 +1596,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         let lifted = false;
         let broughtToFront = false;
         let blockDragTargets = [];
+        let isCartaOnlyGroup = false;
 
         function handleMouseMove(e) {
           const zoom = getWorldZoom(worldEl);
@@ -1604,6 +1622,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
             for (const target of blockDragTargets) worldEl.appendChild(target.el);
             worldEl.appendChild(carta);
           }
+          if (isCartaOnlyGroup) updateMazoDropHighlight({ x: currentX, y: currentY, width: component.width ?? 100, height: component.height ?? 100 });
           if (liftOnDrag && !lifted) {
             lifted = true;
             beginDragLift(carta, worldEl);
@@ -1613,6 +1632,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         function handleMouseUp() {
           document.removeEventListener('mousemove', handleMouseMove);
           document.removeEventListener('mouseup', handleMouseUp);
+          clearMazoDropHighlight();
           if (lifted) endDragLift(carta);
           lifted = false;
           broughtToFront = false;
@@ -1623,6 +1643,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         carta.addEventListener('mousedown', (e) => {
           if (e.button !== 0) return;
           e.stopPropagation();
+          isCartaOnlyGroup = selectedIds.size <= 1 || [...selectedIds].every((id) => components.find((c) => c.id === id)?.type === 'carta');
           startMouseX = e.clientX;
           startMouseY = e.clientY;
           startX = component.x ?? 100;

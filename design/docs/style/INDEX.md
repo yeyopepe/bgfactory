@@ -18,7 +18,7 @@ Convención: `bloque__elemento--modificador`.
 - Bloque en kebab-case: `.component-list`, `.modal`, `.infinite-table`, `.edit-mode-panel`, `.help-icon`, `.board`, `.board-image-modal`, `.component-type-modal`. Nombres en inglés, sin relación con el identificador `'tableroSimple'` del tipo de componente — no se renombran al renombrar ese tipo.
 - Elemento con doble guion bajo: `.component-list__item`, `.modal__header`, `.modal__tabs`, `.modal__field`, `.infinite-table__world`, `.help-icon__tooltip`.
 - Modificador con doble guion: `.text-box--selectable`, `.text-box--movable`, `.modal__field--checkbox`.
-- Estados transitorios (no BEM, clases simples añadidas/quitadas por JS): `.grabbing`, `.active`, `.lifted`.
+- Estados transitorios (no BEM, clases simples añadidas/quitadas por JS): `.grabbing`, `.active`, `.lifted`, `.drop-target`.
   - Sin prefijo de bloque, usadas tal cual.
   - Siempre junto a `classList.add/remove`, nunca reemplazando `className` entero.
   - Excepción: `.carta--flip-feedback` sí lleva prefijo `carta--` pese a ser transitorio — describe un estado exclusivo de ese bloque, no genérico como `.lifted`.
@@ -154,6 +154,16 @@ Integrado en el sistema de elevación (ver `01-tokens-visual.md` §6).
 - Transiciona con `var(--transition-fast)`, simétrico al levantar y al soltar — no instantáneo.
 - No reabre la prohibición general de animaciones complejas (`@keyframes`, narrativas): sigue aplicando sin cambios al resto de casos (temblor/parpadeo del dado, contorno `--selectable`/`--selected`).
 - Es el estado "en el aire" del mismo sistema de elevación que usan en reposo el resto de piezas — acotado únicamente a este estado transitorio y este gesto (arrastre en Modo Juego).
+
+### Resaltado de zona de suelta en mazo — "Mazo" durante arrastre de carta
+
+Estado transitorio mientras una carta (o selección de solo cartas, en Modo Edición) se arrastra sobre un mazo.
+
+- Estado transitorio `.drop-target` (`src/styles/main.css`), añadido/quitado por `ui/componentRenderer.js` (`updateMazoDropHighlight`/`clearMazoDropHighlight`) sobre el elemento del `'mazo'`.
+- Aplica en ambos modos (Juego y Edición) por igual — vive en el punto de renderizado compartido (`renderComponentsOnTable`).
+- Disparo: cuando el rectángulo de la carta bajo arrastre solapa con un mazo (mismo criterio de solape que el drag&drop de inserción). Solo se resalta si la selección arrastrada contiene únicamente cartas (en Modo Juego es siempre una sola carta, en Modo Edición puede ser selección múltiple si todas son cartas; si la selección mezcla tipos de componente, no se resalta nada).
+- Contorno sólido azul + halo (`outline: 3px solid var(--accent-blue)` + `box-shadow` con `var(--accent-blue-light)`) — visualmente distinto del contorno discontinuo de selección (`.carta--selected`, `dashed`), para no confundir la semántica "zona de suelta" con "elemento seleccionado".
+- Se retira siempre al soltar el ratón, se inserte o no la carta en el mazo — la mesa se redibuja completamente si se ejecuta la inserción de todos modos.
 
 ### Feedback de volteo de "Carta"
 
