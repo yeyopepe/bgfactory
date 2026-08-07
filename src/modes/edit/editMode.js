@@ -62,6 +62,16 @@ function createRemoveIcon() {
   return svg;
 }
 
+function createHiddenIcon() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.innerHTML = '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="21" x2="21" y2="3" stroke-linecap="round"/>';
+  return svg;
+}
+
 // Selección de la sesión en curso. Vive fuera de `renderEditMode`: `components:changed`
 // remonta todo el modo, así no se pierde al mover/redimensionar/editar un componente.
 // Colapso/posición/ancho del panel sí persisten (`core/state.js`, `panelState`) en autoguardado.
@@ -478,6 +488,18 @@ export function renderEditMode(container) {
     const cloneables = affectedComponents.filter((c) => !c.copyOf);
 
     const generalItems = [
+      {
+        icon: createHiddenIcon(),
+        label: affectedComponents.every((c) => c.oculto) ? 'Mostrar' : 'Ocultar',
+        onClick: () => {
+          const newOculto = !affectedComponents.every((c) => c.oculto);
+          for (const c of affectedComponents) {
+            const changes = { oculto: newOculto };
+            if (c.copyOf && c.sincronizado) changes.sincronizado = false;
+            replaceComponent(c.id, updateComponent(c, changes));
+          }
+        },
+      },
       {
         icon: createCloneIcon(),
         label: 'Clonar',
