@@ -31,7 +31,7 @@ En cualquier momento de la invocación, si el usuario pregunta cómo funciona el
 
 Es posible que el usuario invoque esta skill únicamente para informar de un cambio en el procedimiento de compilación/generación del entregable (p.ej. "ahora el build también genera un PDF de reglas", "cambia el comando de compilación a..."), sin pedir explícitamente preparar una entrega ahora mismo.
 
-Si esa es la intención: actualiza `.claude/skills/ms-version/how-to-compile-version.md` con la información nueva, siguiendo [`how-to-compile-version.template.md`](how-to-compile-version.template.md) (incluido su soporte para procesos de varios pasos/artefactos si aplica — ver el propio template), y **no continúes con el resto del flujo**. Pregunta explícitamente al usuario si quiere lanzar el proceso de versionado ahora con este procedimiento ya actualizado. Solo si confirma específicamente, continúa con el paso 0.5; si no confirma (o no contesta a eso), detente aquí.
+Si esa es la intención: actualiza `{workFolder}/framework/how-to-compile-version.md` con la información nueva, siguiendo [`how-to-compile-version.template.md`](how-to-compile-version.template.md) (incluido su soporte para procesos de varios pasos/artefactos si aplica — ver el propio template), y **no continúes con el resto del flujo**. Pregunta explícitamente al usuario si quiere lanzar el proceso de versionado ahora con este procedimiento ya actualizado. Solo si confirma específicamente, continúa con el paso 0.5; si no confirma (o no contesta a eso), detente aquí.
 
 ## 0.5. Guardarraíl: `implemented/` debe estar vacío antes de empezar
 
@@ -65,7 +65,7 @@ Crea `{workFolder}/versions/{XXXX}/` con subcarpetas vacías `files/` y `docs/`,
 
 ## 3. Comprobar `how-to-compile-version.md`
 
-Busca `.claude/skills/ms-version/how-to-compile-version.md` (fichero propio de la skill, no en `ms-context.json`: es un procedimiento de shell/build, no configuración declarativa).
+Busca `{workFolder}/framework/how-to-compile-version.md` (fichero propio del proyecto, no de la skill ni de `ms-context.json`: es un procedimiento de shell/build, no configuración declarativa).
 
 - **Si no existe**: pregunta al usuario el procedimiento exacto para generar el entregable de este proyecto (qué comando(s) ejecutar, dónde queda el fichero resultante y cómo identificarlo — o, si el proceso consta de varios pasos que generan artefactos distintos, cada paso con su propio comando y fichero resultante), y escríbelo siguiendo [`how-to-compile-version.template.md`](how-to-compile-version.template.md). No continúes con el paso 4 en la misma respuesta sin haber guardado el fichero.
 - **Si ya existe**: léelo y síguelo tal cual, sin volver a preguntar.

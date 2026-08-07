@@ -194,7 +194,7 @@ Si invocas `/ms-how` sin argumento, lista lo que hay pendiente en `inProgress` y
 
 Cuando ya hay trabajo listo (`changes/implemented/`) y quieres cortar una entrega, `/ms-version <XXXX>` empaqueta todo en `{workFolder}/versions/{XXXX}/`: genera el entregable, comprime y copia la documentación técnica y funcional vigente, y redacta el changelog funcional a partir de lo que se haya ido cerrando en `changes/closed/`. `{XXXX}` es texto libre que eliges tú en cada invocación (p.ej. `00001`, `v1`, `beta3`) — no tiene relación con la numeración `xxxx` de change/fix, ni con `src/_output/versions/` (la carpeta que ya genera `build.py` por su cuenta con su propio contador `NNNN`): son tres espacios completamente independientes.
 
-Si invocas `/ms-version` solo para informar de un cambio en el procedimiento de build (p.ej. "ahora el build también genera un PDF de reglas"), sin pedir preparar una entrega, actualiza `how-to-compile-version.md` con eso y te pregunta si quieres lanzar el proceso de versionado ahora — no lo lanza por su cuenta.
+Si invocas `/ms-version` solo para informar de un cambio en el procedimiento de build (p.ej. "ahora el build también genera un PDF de reglas"), sin pedir preparar una entrega, actualiza `{workFolder}/framework/how-to-compile-version.md` con eso y te pregunta si quieres lanzar el proceso de versionado ahora — no lo lanza por su cuenta.
 
 ```mermaid
 flowchart LR
@@ -225,7 +225,7 @@ En prosa:
 
 1. **Guardarraíl de arranque**: si `changes/implemented/` tiene alguna entrada, `/ms-version` no avanza hasta resolverlas todas — por cada una pregunta si pasa a `closed` (irreversible sin confirmación) antes de seguir.
 2. **Crear la carpeta de la versión**: `{workFolder}/versions/{XXXX}/{files,docs}/`. Si `{XXXX}` ya existe, pregunta si regenerar sobre lo existente o elegir otro código.
-3. **Generar el entregable**: sigue el procedimiento de `.claude/skills/ms-version/how-to-compile-version.md` (se pregunta y se escribe la primera vez que hace falta, con un paso por artefacto si el build genera varios; en este repo ejecuta `python ./src/scripts/build.py`) y copia el resultado a `files/` mediante script.
+3. **Generar el entregable**: sigue el procedimiento de `{workFolder}/framework/how-to-compile-version.md` (se pregunta y se escribe la primera vez que hace falta, con un paso por artefacto si el build genera varios; en este repo ejecuta `python ./src/scripts/build.py`) y copia el resultado a `files/` mediante script.
 4. **Comprimir y copiar documentación**: las rutas configuradas en `docs.tech.architectureDocDir`/`docs.tech.styleBibleDocDir`/`docs.functional.featuresDocPathDir` (las que estén configuradas) se comprimen en un `.zip` cada una y se guardan en `docs/`, como constancia de qué documentación estaba vigente en el momento de esta entrega.
 5. **Changelog funcional**: `ms-internal-changelog` (skill interna) lee cada `description.md` de `changes/closed/`. Las entradas de tipo `fix` van directas a **Fixes**; el resto se compara contra el changelog de la versión anterior detectada en `{workFolder}/versions/` (confirmándotela antes de usarla) y se clasifica en **Nuevo** / **Cambios** / **Eliminado**. `changelog.md` lleva una cabecera con el número de entradas de cada sección, en lenguaje puramente funcional. Tras tu confirmación explícita, borra de `closed/` solo las carpetas ya incorporadas (nunca "todo `closed/`" a ciegas); si no confirmas el borrado, el changelog queda escrito igualmente y `closed/` no se toca.
 

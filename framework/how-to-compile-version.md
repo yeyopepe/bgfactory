@@ -1,6 +1,6 @@
 # Cómo compilar el entregable de este proyecto
 
-Fichero propio de `ms-version` (no forma parte de `.claude/ms-context.json`): describe el procedimiento de shell/build concreto de este repo para generar el entregable jugable. Lo rellena `ms-version` la primera vez que se invoca y no existe todavía, preguntando al usuario; en invocaciones siguientes se lee y se sigue tal cual, sin volver a preguntar.
+Fichero propio de este proyecto (no de la skill `ms-version` ni de `.claude/ms-context.json`): describe el procedimiento de shell/build concreto de este repo para generar el entregable jugable. Lo rellena `ms-version` la primera vez que se invoca y no existe todavía, preguntando al usuario; en invocaciones siguientes se lee y se sigue tal cual, sin volver a preguntar.
 
 ## Comando(s) a ejecutar
 
