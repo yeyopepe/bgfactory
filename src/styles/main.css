@@ -566,7 +566,7 @@ legend.modal__section-title--toggle {
 /* Zona con scroll propio dentro de .modal__section: topa una lista potencialmente
    larga a una altura aproximada en vez de crecer sin límite. Mismo criterio que
    .element-selection-group__list (design/docs/style/02-componentes-layout.md). */
-.group-checkbox-list__scroll {
+.tag-checkbox-list__scroll {
   max-height: 6.5rem;
   overflow-y: auto;
 }
@@ -1175,16 +1175,16 @@ fieldset.modal__section--untitled {
   font-family: ui-monospace, monospace;
 }
 
-/* Sección "Elementos del grupo" en la modal de edición de grupo
-   (ui/groupModal.js), mismo patrón visual que .mazo-contenido__* de arriba */
-.group-modal__elements-label {
+/* Sección "Elementos de la etiqueta" en la modal de edición de etiqueta
+   (ui/tagModal.js), mismo patrón visual que .mazo-contenido__* de arriba */
+.tag-modal__elements-label {
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
   margin-bottom: 0.4rem;
 }
 
-.group-modal__elements-list {
+.tag-modal__elements-list {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -1195,7 +1195,7 @@ fieldset.modal__section--untitled {
   padding: 0.25rem;
 }
 
-.group-modal__element-item {
+.tag-modal__element-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1203,11 +1203,11 @@ fieldset.modal__section--untitled {
   border-radius: var(--radius-sm);
 }
 
-.group-modal__element-item:hover {
+.tag-modal__element-item:hover {
   background: var(--bg-hover);
 }
 
-.group-modal__element-id {
+.tag-modal__element-id {
   flex: 1 1 auto;
   font-size: 0.8125rem;
   overflow: hidden;
@@ -1215,11 +1215,11 @@ fieldset.modal__section--untitled {
   white-space: nowrap;
 }
 
-.group-modal__element-id .type {
+.tag-modal__element-id .type {
   color: var(--text-muted);
 }
 
-.group-modal__elements-empty {
+.tag-modal__elements-empty {
   padding: 1rem 0.5rem;
   text-align: center;
   color: var(--text-muted);
@@ -1656,7 +1656,7 @@ fieldset.modal__section--untitled {
   max-width: 640px;
 }
 
-.element-selection-modal__groups {
+.element-selection-modal__tags {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -2281,7 +2281,7 @@ fieldset.modal__section--untitled {
   border-top: 1px solid rgba(44, 125, 216, 0.25);
 }
 
-/* Fila con un <select> inline, p.ej. "Añadir a grupo" — cursor por defecto
+/* Fila con un <select> inline, p.ej. "Añadir a etiqueta" — cursor por defecto
    (no es acción de click directo como .context-menu__item), mismo bloque
    etiqueta-arriba/select-a-todo-lo-ancho que .column-header-menu__filter
    (design/docs/style/03-modales-menus.md). */
@@ -2644,18 +2644,18 @@ fieldset.modal__section--untitled {
   background: var(--error);
 }
 
-/* Floating group panel (edit mode), analogous to .resource-panel* but without
-   the filter box or the add-menu (single "+ Añadir grupo" button instead).
+/* Floating tag panel (edit mode), analogous to .resource-panel* but without
+   the filter box or the add-menu (single "+ Añadir etiqueta" button instead).
    Stacked below the resource panel on the same (right) side by default.
    z-index is assigned dynamically in JS (editMode.js, applyPanelStackOrder). */
-.group-panel-container {
+.tag-panel-container {
   position: absolute;
   top: 55rem;
   right: 1rem;
   width: 440px;
 }
 
-.group-panel {
+.tag-panel {
   position: relative;
   width: 100%;
   background: var(--bg-card);
@@ -2664,7 +2664,7 @@ fieldset.modal__section--untitled {
   box-shadow: var(--shadow-1);
 }
 
-.group-panel__header {
+.tag-panel__header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -2675,11 +2675,11 @@ fieldset.modal__section--untitled {
   user-select: none;
 }
 
-.group-panel__header.grabbing {
+.tag-panel__header.grabbing {
   cursor: grabbing;
 }
 
-.group-panel__header button {
+.tag-panel__header button {
   background: none;
   border: none;
   color: inherit;
@@ -2688,9 +2688,9 @@ fieldset.modal__section--untitled {
 }
 
 /* Cuadro de filtro de texto libre, mismo aspecto que
-   .component-panel__filter/.resource-panel__filter — Grupos a la par de las
+   .component-panel__filter/.resource-panel__filter — Etiquetas a la par de las
    otras dos ventanas de modo edición. */
-.group-panel__filter {
+.tag-panel__filter {
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--border-neutral);
   display: flex;
@@ -2698,7 +2698,7 @@ fieldset.modal__section--untitled {
   gap: 0.4rem;
 }
 
-.group-panel__filter input[type="text"] {
+.tag-panel__filter input[type="text"] {
   flex: 1;
   box-sizing: border-box;
   padding: 0.5rem;
@@ -2709,7 +2709,7 @@ fieldset.modal__section--untitled {
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.group-panel__filter input[type="text"]:focus {
+.tag-panel__filter input[type="text"]:focus {
   outline: none;
   border-color: var(--accent-blue);
   box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
@@ -2717,7 +2717,7 @@ fieldset.modal__section--untitled {
 
 /* Botón de limpiar filtro — mismo patrón que .component-panel__filter-clear
    y .resource-panel__filter-clear. */
-.group-panel__filter-clear {
+.tag-panel__filter-clear {
   flex-shrink: 0;
   width: 1.75rem;
   height: 1.75rem;
@@ -2733,33 +2733,33 @@ fieldset.modal__section--untitled {
   transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast), opacity var(--transition-fast);
 }
 
-.group-panel__filter-clear svg {
+.tag-panel__filter-clear svg {
   width: 14px;
   height: 14px;
 }
 
-.group-panel__filter-clear:hover {
+.tag-panel__filter-clear:hover {
   background: var(--bg-hover);
   color: var(--text-primary);
 }
 
-.group-panel__filter-clear.is-empty {
+.tag-panel__filter-clear.is-empty {
   opacity: 0.5;
   cursor: default;
 }
 
-.group-panel__body {
+.tag-panel__body {
   height: 320px;
   overflow-y: auto;
   overflow-x: auto;
 }
 
-.group-panel__footer {
+.tag-panel__footer {
   padding: 0.5rem 1rem;
   border-top: 1px solid var(--border-neutral);
 }
 
-.group-panel__footer button {
+.tag-panel__footer button {
   width: 100%;
   padding: 0.5rem;
   background: var(--accent-blue);
@@ -2770,30 +2770,30 @@ fieldset.modal__section--untitled {
   transition: opacity var(--transition-fast);
 }
 
-.group-panel__footer button:hover {
+.tag-panel__footer button:hover {
   opacity: 0.9;
 }
 
-/* Group list (table inside the floating group panel) */
-.group-list {
+/* Tag list (table inside the floating tag panel) */
+.tag-list {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.875rem;
 }
 
-.group-list__empty {
+.tag-list__empty {
   color: var(--text-muted);
   text-align: center;
   padding: 1rem;
 }
 
-.group-list__empty-filter {
+.tag-list__empty-filter {
   color: var(--text-muted);
   text-align: center;
   padding: 1rem;
 }
 
-.group-list th {
+.tag-list th {
   position: sticky;
   top: 0;
   z-index: 2;
@@ -2803,33 +2803,33 @@ fieldset.modal__section--untitled {
   background: var(--bg-subtle);
 }
 
-.group-list td {
+.tag-list td {
   padding: 0.5rem;
   border-top: 1px solid var(--border-neutral);
 }
 
-.group-list__count-cell {
+.tag-list__count-cell {
   text-align: center;
 }
 
-.group-list__row {
+.tag-list__row {
   cursor: pointer;
 }
 
-.group-list__row:hover {
+.tag-list__row:hover {
   background: var(--bg-hover);
 }
 
-.group-list__row:focus {
+.tag-list__row:focus {
   outline: none;
   background: rgba(44, 125, 216, 0.15);
 }
 
-.group-list__actions-cell {
+.tag-list__actions-cell {
   white-space: nowrap;
 }
 
-.group-list__action-btn {
+.tag-list__action-btn {
   padding: 0.25rem 0.5rem;
   margin-right: 0.25rem;
   background: var(--accent-blue);
@@ -2841,17 +2841,17 @@ fieldset.modal__section--untitled {
   transition: opacity var(--transition-fast);
 }
 
-.group-list__action-btn:hover {
+.tag-list__action-btn:hover {
   opacity: 0.9;
 }
 
-.group-list__action-btn--danger {
+.tag-list__action-btn--danger {
   background: var(--error);
 }
 
-/* Group delete confirmation modal (change 00079) — lista de elementos afectados
-   por el borrado de un grupo en uso. */
-.group-delete-confirm-modal__list {
+/* Tag delete confirmation modal (change 00079) — lista de elementos afectados
+   por el borrado de una etiqueta en uso. */
+.tag-delete-confirm-modal__list {
   max-height: 200px;
   overflow-y: auto;
   margin: 0.5rem 0;

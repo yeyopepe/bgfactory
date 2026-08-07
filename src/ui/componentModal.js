@@ -1,9 +1,9 @@
 // Modal for creating/editing components with tabs.
 // Generically handles different component types via type-specific tab content.
 
-import { getComponents, getResources, getGroups, addGroup, sacarCartaDeMazo } from '../core/state.js';
+import { getComponents, getResources, getTags, addTag, sacarCartaDeMazo } from '../core/state.js';
 import { createComponent, updateComponent } from '../core/component.js';
-import { createGroup, isGroupNameTaken } from '../core/group.js';
+import { createTag, isTagNameTaken } from '../core/tag.js';
 import { createHelpIcon } from './helpIcon.js';
 import { openBoardPatternModal } from './boardPatternModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
@@ -528,111 +528,111 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   generalContent.appendChild(infoSection);
   generalContent.appendChild(sizeSection);
 
-  // Grupos: propiedad general de cualquier tipo de componente. Sección informativa con borde (sin
+  // Etiquetas: propiedad general de cualquier tipo de componente. Sección informativa con borde (sin
   // checkbox de activación entera, ver design/docs/style/03-modales-menus.md), con un checkbox
-  // por grupo existente más una fila para crear uno nuevo al vuelo.
-  const groupSection = document.createElement('fieldset');
-  groupSection.className = 'modal__section';
-  const groupLegend = document.createElement('legend');
-  groupLegend.className = 'modal__section-title';
-  groupLegend.textContent = 'Grupos';
-  groupSection.appendChild(groupLegend);
+  // por etiqueta existente más una fila para crear una nueva al vuelo.
+  const tagSection = document.createElement('fieldset');
+  tagSection.className = 'modal__section';
+  const tagLegend = document.createElement('legend');
+  tagLegend.className = 'modal__section-title';
+  tagLegend.textContent = 'Etiquetas';
+  tagSection.appendChild(tagLegend);
 
   // Zona con scroll propio: tope de 3 checkboxes visibles a la vez, para que la sección no crezca sin
-  // límite con muchos grupos. Fila "+ Crear nuevo grupo…" fuera, en groupSection directamente, para
+  // límite con muchas etiquetas. Fila "+ Crear nueva etiqueta…" fuera, en tagSection directamente, para
   // que no scrollee con el resto.
-  const groupCheckboxList = document.createElement('div');
-  groupCheckboxList.className = 'group-checkbox-list__scroll';
-  groupSection.appendChild(groupCheckboxList);
+  const tagCheckboxList = document.createElement('div');
+  tagCheckboxList.className = 'tag-checkbox-list__scroll';
+  tagSection.appendChild(tagCheckboxList);
 
-  const createGroupItem = document.createElement('div');
-  createGroupItem.className = 'modal__field modal__field--checkbox';
-  createGroupItem.style.cursor = 'pointer';
-  createGroupItem.textContent = '+ Crear nuevo grupo…';
-  createGroupItem.addEventListener('click', () => {
-    newGroupRow.style.display = 'block';
-    newGroupInput.focus();
+  const createTagItem = document.createElement('div');
+  createTagItem.className = 'modal__field modal__field--checkbox';
+  createTagItem.style.cursor = 'pointer';
+  createTagItem.textContent = '+ Crear nueva etiqueta…';
+  createTagItem.addEventListener('click', () => {
+    newTagRow.style.display = 'block';
+    newTagInput.focus();
   });
-  groupSection.appendChild(createGroupItem);
+  tagSection.appendChild(createTagItem);
 
-  const newGroupRow = document.createElement('div');
-  newGroupRow.style.display = 'none';
-  newGroupRow.style.marginTop = '0.5rem';
-  const newGroupInputRow = document.createElement('div');
-  newGroupInputRow.style.display = 'flex';
-  newGroupInputRow.style.gap = '0.5rem';
-  const newGroupInput = document.createElement('input');
-  newGroupInput.type = 'text';
-  newGroupInput.placeholder = 'Nombre del grupo nuevo';
-  const newGroupCreateBtn = document.createElement('button');
-  newGroupCreateBtn.type = 'button';
-  newGroupCreateBtn.className = 'btn-cancel';
-  newGroupCreateBtn.textContent = 'Crear';
-  newGroupInputRow.appendChild(newGroupInput);
-  newGroupInputRow.appendChild(newGroupCreateBtn);
-  const newGroupError = document.createElement('div');
-  newGroupError.className = 'modal__error';
-  newGroupError.style.display = 'none';
-  newGroupError.style.marginTop = '0.25rem';
-  newGroupRow.appendChild(newGroupInputRow);
-  newGroupRow.appendChild(newGroupError);
-  groupSection.appendChild(newGroupRow);
+  const newTagRow = document.createElement('div');
+  newTagRow.style.display = 'none';
+  newTagRow.style.marginTop = '0.5rem';
+  const newTagInputRow = document.createElement('div');
+  newTagInputRow.style.display = 'flex';
+  newTagInputRow.style.gap = '0.5rem';
+  const newTagInput = document.createElement('input');
+  newTagInput.type = 'text';
+  newTagInput.placeholder = 'Nombre de la etiqueta nueva';
+  const newTagCreateBtn = document.createElement('button');
+  newTagCreateBtn.type = 'button';
+  newTagCreateBtn.className = 'btn-cancel';
+  newTagCreateBtn.textContent = 'Crear';
+  newTagInputRow.appendChild(newTagInput);
+  newTagInputRow.appendChild(newTagCreateBtn);
+  const newTagError = document.createElement('div');
+  newTagError.className = 'modal__error';
+  newTagError.style.display = 'none';
+  newTagError.style.marginTop = '0.25rem';
+  newTagRow.appendChild(newTagInputRow);
+  newTagRow.appendChild(newTagError);
+  tagSection.appendChild(newTagRow);
 
-  function populateGroupCheckboxes() {
-    groupCheckboxList.innerHTML = '';
+  function populateTagCheckboxes() {
+    tagCheckboxList.innerHTML = '';
 
-    for (const group of sortByName(getGroups())) {
+    for (const tag of sortByName(getTags())) {
       const item = document.createElement('div');
       item.className = 'modal__field modal__field--checkbox';
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
-      checkbox.checked = workingComponent.grupoIds.includes(group.id);
+      checkbox.checked = workingComponent.etiquetaIds.includes(tag.id);
       const label = document.createElement('label');
-      label.textContent = group.name;
+      label.textContent = tag.name;
       checkbox.addEventListener('change', () => {
         if (checkbox.checked) {
-          if (!workingComponent.grupoIds.includes(group.id)) workingComponent.grupoIds = [...workingComponent.grupoIds, group.id];
+          if (!workingComponent.etiquetaIds.includes(tag.id)) workingComponent.etiquetaIds = [...workingComponent.etiquetaIds, tag.id];
         } else {
-          workingComponent.grupoIds = workingComponent.grupoIds.filter((id) => id !== group.id);
+          workingComponent.etiquetaIds = workingComponent.etiquetaIds.filter((id) => id !== tag.id);
         }
       });
       item.appendChild(checkbox);
       item.appendChild(label);
-      groupCheckboxList.appendChild(item);
+      tagCheckboxList.appendChild(item);
     }
   }
-  populateGroupCheckboxes();
+  populateTagCheckboxes();
 
-  function validateNewGroupName() {
-    const name = newGroupInput.value.trim();
+  function validateNewTagName() {
+    const name = newTagInput.value.trim();
     if (!name) {
-      newGroupError.textContent = 'El nombre no puede estar vacío';
-      newGroupError.style.display = 'block';
+      newTagError.textContent = 'El nombre no puede estar vacío';
+      newTagError.style.display = 'block';
       return false;
     }
-    if (isGroupNameTaken(name, getGroups())) {
-      newGroupError.textContent = 'Ya existe un grupo con este nombre';
-      newGroupError.style.display = 'block';
+    if (isTagNameTaken(name, getTags())) {
+      newTagError.textContent = 'Ya existe una etiqueta con este nombre';
+      newTagError.style.display = 'block';
       return false;
     }
-    newGroupError.style.display = 'none';
+    newTagError.style.display = 'none';
     return true;
   }
 
-  newGroupInput.addEventListener('input', validateNewGroupName);
+  newTagInput.addEventListener('input', validateNewTagName);
 
-  newGroupCreateBtn.addEventListener('click', () => {
-    if (!validateNewGroupName()) return;
-    const name = newGroupInput.value.trim();
-    const group = createGroup({ name });
-    addGroup(group);
-    workingComponent.grupoIds = [...workingComponent.grupoIds, group.id];
-    newGroupRow.style.display = 'none';
-    newGroupInput.value = '';
-    populateGroupCheckboxes();
+  newTagCreateBtn.addEventListener('click', () => {
+    if (!validateNewTagName()) return;
+    const name = newTagInput.value.trim();
+    const tag = createTag({ name });
+    addTag(tag);
+    workingComponent.etiquetaIds = [...workingComponent.etiquetaIds, tag.id];
+    newTagRow.style.display = 'none';
+    newTagInput.value = '';
+    populateTagCheckboxes();
   });
 
-  generalContent.appendChild(groupSection);
+  generalContent.appendChild(tagSection);
 
   // Interacciones programadas: un combo por cada interacción de click izquierdo que el tipo actual
   // tenga programada en Modo Juego (ver core/interactions.js), desactivable eligiendo "Ninguna", más
@@ -1481,8 +1481,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
               oculto: workingComponent.oculto,
               mostrarTooltip: workingComponent.mostrarTooltip,
               subirAlMoverInteractuar: workingComponent.subirAlMoverInteractuar,
-              grupoIds: [...workingComponent.grupoIds],
-              grupoNames: workingComponent.grupoIds.map((id) => getGroups().find((g) => g.id === id)?.name ?? id),
+              etiquetaIds: [...workingComponent.etiquetaIds],
+              etiquetaNames: workingComponent.etiquetaIds.map((id) => getTags().find((t) => t.id === id)?.name ?? id),
             };
           }
           if (selection.proporcion) {
@@ -1508,7 +1508,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     pasteStyleBtn.title = hasStyleClipboard() ? '' : 'Pegar estilo (nada copiado)';
     pasteStyleBtn.addEventListener('click', () => {
       const clip = getStyleClipboard();
-      const incidencias = validateStyleClipboardForPaste(clip, { groups: getGroups(), resources: getResources() });
+      const incidencias = validateStyleClipboardForPaste(clip, { tags: getTags(), resources: getResources() });
       if (incidencias.length > 0) {
         openStyleClipboardPasteErrorModal(incidencias);
         return;
@@ -1519,12 +1519,12 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
         workingComponent.oculto = clip.generales.oculto;
         workingComponent.mostrarTooltip = clip.generales.mostrarTooltip;
         workingComponent.subirAlMoverInteractuar = clip.generales.subirAlMoverInteractuar;
-        workingComponent.grupoIds = [...clip.generales.grupoIds];
+        workingComponent.etiquetaIds = [...clip.generales.etiquetaIds];
         moveSelect.value = workingComponent.bloqueado;
         hiddenCheckbox.checked = workingComponent.oculto;
         tooltipCheckbox.checked = workingComponent.mostrarTooltip;
         upOnMoveCheckbox.checked = workingComponent.subirAlMoverInteractuar;
-        populateGroupCheckboxes();
+        populateTagCheckboxes();
       }
       if (clip.caraFrontal) props.caraFrontal = cloneFace(clip.caraFrontal);
       if (clip.caraTrasera) props.caraTrasera = cloneFace(clip.caraTrasera);
@@ -1545,7 +1545,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
     const styleHint = document.createElement('p');
     styleHint.className = 'modal__hint';
-    styleHint.textContent = 'Copia/pega solo los elementos que elijas: generales (incluye el grupo), proporción, cara frontal y/o cara trasera.';
+    styleHint.textContent = 'Copia/pega solo los elementos que elijas: generales (incluye la etiqueta), proporción, cara frontal y/o cara trasera.';
     styleSection.appendChild(styleHint);
 
     container.appendChild(styleSection);

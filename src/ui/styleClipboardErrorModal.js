@@ -1,5 +1,5 @@
 // Modal de error al pegar estilo: alguna referencia del estilo copiado
-// (grupo, imagen, tipografía) ya no existe en el proyecto, así que no se
+// (etiqueta, imagen, tipografía) ya no existe en el proyecto, así que no se
 // aplica ningún cambio a la carta destino. Mismo patrón que
 // ui/importConversionErrorModal.js — cabecera de error de ui/errorModal.js
 // combinada con la tabla de ui/importReportModal.js, reutilizando tal cual

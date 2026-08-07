@@ -1,22 +1,22 @@
-# Grupos, recursos, migración de `'ficha'`, portapapeles de estilo
+# Etiquetas, recursos, migración de `'ficha'`, portapapeles de estilo
 
-## Modelo de datos de grupo
+## Modelo de datos de etiqueta
 
 Entidad ligera e independiente para agrupar/organizar elementos por nombre, en colección propia de `core/state.js` (no texto libre suelto en cada componente). Puramente organizativo, sin funcionalidad de juego asociada.
 
 | Campo | Tipo | Descripción |
 |---|---|---|
 | `id` | string | Identificador único (`crypto.randomUUID()`) |
-| `name` | string | Nombre visible en la sección "Grupos" (lista de checkboxes) de la pestaña "Generales" |
+| `name` | string | Nombre visible en la sección "Etiquetas" (lista de checkboxes) de la pestaña "Generales" |
 
-`core/group.js` expone:
-- `createGroup({ id, name })` / `updateGroup(group, changes)` — mismo patrón que `core/resource.js`/`core/component.js`.
-- `getComponentsUsingGroup(groupId, components)` — filtra `component.grupoIds.includes(groupId)`; `grupoIds` es siempre propiedad plana de primer nivel (sin recorrido profundo, a diferencia de `isResourceInUse`). Usada para saber qué elementos quedan afectados al borrar un grupo.
-- `isGroupNameTaken(name, groups, excludeId)` — único punto de validación de unicidad de nombre: `true` si algún grupo (con `id !== excludeId`) tiene el mismo nombre tras normalizar (recortado, sin distinguir mayúsculas). Reutilizado por `ui/groupModal.js`, `ui/componentModal.js` (creación de grupo desde sección "Grupos" de "Generales", disponible para todos los tipos) y `core/importMerge.js` (deduplica nombres tras merge por `id`; para grupo referenciado ausente, reutiliza uno existente con el mismo nombre en vez de duplicarlo — reportado con `tipoError: 'grupoDuplicado'`).
+`core/tag.js` expone:
+- `createTag({ id, name })` / `updateTag(tag, changes)` — mismo patrón que `core/resource.js`/`core/component.js`.
+- `getComponentsUsingTag(tagId, components)` — filtra `component.etiquetaIds.includes(tagId)`; `etiquetaIds` es siempre propiedad plana de primer nivel (sin recorrido profundo, a diferencia de `isResourceInUse`). Usada para saber qué elementos quedan afectados al borrar una etiqueta.
+- `isTagNameTaken(name, tags, excludeId)` — único punto de validación de unicidad de nombre: `true` si alguna etiqueta (con `id !== excludeId`) tiene el mismo nombre tras normalizar (recortado, sin distinguir mayúsculas). Reutilizado por `ui/tagModal.js`, `ui/componentModal.js` (creación de etiqueta desde sección "Etiquetas" de "Generales", disponible para todos los tipos) y `core/importMerge.js` (deduplica nombres tras merge por `id`; para etiqueta referenciada ausente, reutiliza una existente con el mismo nombre en vez de duplicarla — reportado con `tipoError: 'etiquetaDuplicada'`).
 
-`core/state.js` mantiene colección independiente `groups` (`getGroups`/`addGroup`/`replaceGroup`/`removeGroup`/`loadGroups`, evento `groups:changed`) y `panelState` propio para la ventana "Grupos" (`groupPanelState`, shape `{ collapsed, position, width }`, sin `columnWidths`, evento `groupPanelState:changed`). Alta de grupo posible al vuelo desde pestaña "Generales" de cualquier componente, o desde panel dedicado "Grupos" (`ui/groupList.js`/`ui/groupModal.js`, ver `04-modes.md`), que también permite editar nombre y eliminar.
+`core/state.js` mantiene colección independiente `tags` (`getTags`/`addTag`/`replaceTag`/`removeTag`/`loadTags`, evento `tags:changed`) y `panelState` propio para la ventana "Etiquetas" (`tagPanelState`, shape `{ collapsed, position, width }`, sin `columnWidths`, evento `tagPanelState:changed`). Alta de etiqueta posible al vuelo desde pestaña "Generales" de cualquier componente, o desde panel dedicado "Etiquetas" (`ui/tagList.js`/`ui/tagModal.js`, ver `04-modes.md`), que también permite editar nombre y eliminar.
 
-**Compatibilidad hacia atrás**: guardado hecho con la app anterior a la introducción de "Grupos" tiene esta colección y su `panelState` bajo las claves antiguas `decks`/`deckPanelState` — `core/persistence.js` (`parseState`/`parseImportedComponents`) las lee si las nuevas (`groups`/`groupPanelState`) no están presentes, para no perder grupos ya creados.
+**Compatibilidad hacia atrás**: cadena de 3 niveles. Guardado hecho con la app anterior a la introducción de "Grupos" tiene esta colección y su `panelState` bajo las claves más antiguas `decks`/`deckPanelState`; guardado hecho tras "Grupos" pero antes de este renombrado a "Etiquetas" las tiene bajo `groups`/`groupPanelState`. `core/persistence.js` (`parseState`/`parseImportedComponents`) encadena la lectura: usa `tags`/`tagPanelState` si están presentes, si no `groups`/`groupPanelState`, si no `decks`/`deckPanelState` — para no perder etiquetas ya creadas en ningún guardado anterior.
 
 ## Modelo de datos de recurso (galería)
 
@@ -51,12 +51,12 @@ Tipo `'ficha'` (cuadrado o círculo con borde/fondo configurables) retirado: ya 
   - `bordeColor`/`bordeGrosor`: se copian tal cual a ambas caras.
   - Según `fondoTipo`: `'imagen'` copia `imagenResourceId`/`ajusteImagen` a ambas caras (un `ajusteImagen` con forma inválida es error); `'texto'` traslada `texto` como un único `TextBox` que ocupa toda la carta en píxeles reales (`x:0, y:0, width: componentSize.width, height: componentSize.height`) con `colorFondo` igual al de la ficha; `'color'` (o ausente) no tiene equivalente — `colorFondo` se pierde sin contar como error.
   - `caraFrontal`/`caraTrasera` resultantes son siempre idénticas (la ficha no distinguía caras). `properties` resultante nace con `medidasReales: true` (no necesita pasar por `migrateCartaMedidasReales`).
-- `migrateFichaComponent(component)` → `{ component, errors }`: envuelve la función anterior, fija `type: 'carta'`, `grupoId: null` y `properties.caraActual: 'frontal'` (no `'trasera'`, para que la migración se note) en el resultado; el resto de campos generales no se tocan.
+- `migrateFichaComponent(component)` → `{ component, errors }`: envuelve la función anterior, fija `type: 'carta'`, `etiquetaIds: []` y `properties.caraActual: 'frontal'` (no `'trasera'`, para que la migración se note) en el resultado; el resto de campos generales no se tocan.
 
 Dos puntos de uso, distinto criterio ante `errors`:
 
 - **Migración silenciosa al cargar** (`core/state.js`, `loadComponents`): función interna `migrateFichas(components)` sustituye en el sitio cualquier `type === 'ficha'` por el resultado de `migrateFichaComponent`, ignorando siempre `errors` (best-effort, nunca bloquea el arranque). Cubre automáticamente los dos puntos de entrada de arranque (`localStorage` y semilla del HTML embebido).
-- **Importación explícita** (`ui/editModeToggle.js`, `importComponentsFromFile`, ver `06-persistence-build.md`): único punto de conversión que puede interrumpirse. Cada ficha seleccionada para importar pasa por `migrateFichaComponent` antes de `mergeImportedGame`; si alguna devuelve `errors` no vacíos, se abre `ui/importConversionErrorModal.js` (ver `05-ui-layer.md`) con la lista antes de aplicar ningún cambio. El usuario elige "Continuar sin esas fichas" (se excluyen del `selectedComponents`, resto sigue con normalidad) o "Abortar importación" (no se llama a `mergeImportedGame` ni a `loadComponents`/`loadResources`/`loadGroups`, partida actual queda intacta).
+- **Importación explícita** (`ui/editModeToggle.js`, `importComponentsFromFile`, ver `06-persistence-build.md`): único punto de conversión que puede interrumpirse. Cada ficha seleccionada para importar pasa por `migrateFichaComponent` antes de `mergeImportedGame`; si alguna devuelve `errors` no vacíos, se abre `ui/importConversionErrorModal.js` (ver `05-ui-layer.md`) con la lista antes de aplicar ningún cambio. El usuario elige "Continuar sin esas fichas" (se excluyen del `selectedComponents`, resto sigue con normalidad) o "Abortar importación" (no se llama a `mergeImportedGame` ni a `loadComponents`/`loadResources`/`loadTags`, partida actual queda intacta).
 
 ## Portapapeles de estilo
 
@@ -64,13 +64,13 @@ Dos puntos de uso, distinto criterio ante `errors`:
 
 Forma del dato: `{ generales?, proporcion?, caraFrontal?, caraTrasera? }` — solo los bloques marcados al copiar llevan valor.
 
-- `generales` es `{ bloqueado, mostrarTooltip, subirAlMoverInteractuar, oculto, grupoIds, grupoNames }` — campos generales de primer nivel del componente (no de `properties`), editables en pestaña "Generales" de `ui/componentModal.js`.
+- `generales` es `{ bloqueado, mostrarTooltip, subirAlMoverInteractuar, oculto, etiquetaIds, etiquetaNames }` — campos generales de primer nivel del componente (no de `properties`), editables en pestaña "Generales" de `ui/componentModal.js`.
 - `caraFrontal`/`caraTrasera` tienen el mismo shape que `properties.caraFrontal`/`caraTrasera` de una carta, clonados en profundidad al copiar (`cloneFace`, interno) para que ediciones posteriores de la carta origen no muten el portapapeles.
-- `grupoNames` es de solo lectura (mismo índice que `grupoIds`), guardado solo para mostrar el nombre de cada grupo en el mensaje de error si deja de existir al pegar — no se usa para restaurar grupos.
+- `etiquetaNames` es de solo lectura (mismo índice que `etiquetaIds`), guardado solo para mostrar el nombre de cada etiqueta en el mensaje de error si deja de existir al pegar — no se usa para restaurar etiquetas.
 
-Expone `setStyleClipboard(data)`, `getStyleClipboard()` (`null` si nada copiado), `hasStyleClipboard()` (booleano, usado por `ui/componentModal.js` para habilitar/deshabilitar "Pegar estilo"). También `validateStyleClipboardForPaste(clip, { groups, resources })`, función pura que recorre solo los bloques presentes en `clip` y devuelve lista de incidencias `{ elemento, referencia, detalle }` (vacía si todo válido): comprueba que cada id de `clip.generales.grupoIds` (si presente) siga existiendo en `groups`, y que `imagenResourceId`/`fuenteResourceId` de cada cara presente (y sus `textBoxes`) sigan existiendo en `resources`. No toca estado ni portapapeles.
+Expone `setStyleClipboard(data)`, `getStyleClipboard()` (`null` si nada copiado), `hasStyleClipboard()` (booleano, usado por `ui/componentModal.js` para habilitar/deshabilitar "Pegar estilo"). También `validateStyleClipboardForPaste(clip, { tags, resources })`, función pura que recorre solo los bloques presentes en `clip` y devuelve lista de incidencias `{ elemento, referencia, detalle }` (vacía si todo válido): comprueba que cada id de `clip.generales.etiquetaIds` (si presente) siga existiendo en `tags`, y que `imagenResourceId`/`fuenteResourceId` de cada cara presente (y sus `textBoxes`) sigan existiendo en `resources`. No toca estado ni portapapeles.
 
 Flujo de uso, ambos en `ui/componentModal.js` (`renderCartaSpecificFields`, sección "Estilo de la carta"):
 
 - **Copiar**: botón "Copiar estilo" abre `ui/styleClipboardSelectionModal.js` con checklist de 4 bloques (Generales, Proporción, Cara frontal, Cara trasera), todos marcados por defecto; al confirmar, construye el objeto a guardar a partir de la selección y valores actuales del componente, llama a `setStyleClipboard`, muestra `showToast('Estilo copiado')`.
-- **Pegar**: botón "Pegar estilo" (deshabilitado si `!hasStyleClipboard()`) valida primero con `validateStyleClipboardForPaste`; si hay incidencias, abre `ui/styleClipboardErrorModal.js` sin tocar el componente (pegado todo o nada); si no hay incidencias, aplica sobre `workingComponent`/`workingComponent.properties` solo los bloques presentes (clonados de nuevo, sin compartir referencia con el portapapeles), sustituyendo por completo cada bloque de destino, y refresca en pantalla los campos afectados (checkboxes de "Generales" incluida lista de Grupos, desplegable de Proporción, tamaño del componente).
+- **Pegar**: botón "Pegar estilo" (deshabilitado si `!hasStyleClipboard()`) valida primero con `validateStyleClipboardForPaste`; si hay incidencias, abre `ui/styleClipboardErrorModal.js` sin tocar el componente (pegado todo o nada); si no hay incidencias, aplica sobre `workingComponent`/`workingComponent.properties` solo los bloques presentes (clonados de nuevo, sin compartir referencia con el portapapeles), sustituyendo por completo cada bloque de destino, y refresca en pantalla los campos afectados (checkboxes de "Generales" incluida lista de Etiquetas, desplegable de Proporción, tamaño del componente).

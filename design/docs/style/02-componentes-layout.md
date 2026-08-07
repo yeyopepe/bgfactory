@@ -33,7 +33,7 @@ transition: background var(--transition-fast), opacity var(--transition-fast);
 - App = columna flex de altura completa: `html, body { height: 100% }`, `body { display:flex; flex-direction:column; height:100vh }`. Header fijo (`h1`, `3.5rem`) + `#content` flexible (`flex: 1 1 auto; min-height: 0`).
 - Paneles laterales de ancho fijo: `400px` (`.component-list`, `.edit-mode-panel`).
 - Posición inicial por defecto de paneles flotantes del modo edición: ambos anclados al lado derecho, apilados verticalmente (`.component-panel-container` arriba, `.resource-panel-container` debajo) — solo posición de partida, el usuario puede arrastrar cada panel libremente después.
-- `z-index` de `.component-panel-container`/`.resource-panel-container`/`.group-panel-container`: no es valor CSS fijo — se calcula en `modes/edit/editMode.js` (`applyPanelStackOrder`, base `15`, uno por posición en `panelStackOrder`) para reflejar cuál de los tres está en primer plano tras la última interacción del usuario.
+- `z-index` de `.component-panel-container`/`.resource-panel-container`/`.tag-panel-container`: no es valor CSS fijo — se calcula en `modes/edit/editMode.js` (`applyPanelStackOrder`, base `15`, uno por posición en `panelStackOrder`) para reflejar cuál de los tres está en primer plano tras la última interacción del usuario.
   - Al ser `position: absolute` dentro de `tableContainer` (no `fixed`), quedan fuera de la tabla de capas siguiente, pero siempre muy por debajo de su primera capa (`99`, toolbar de edición).
 
 ### Z-index de overlays (`position: fixed`)
@@ -76,7 +76,7 @@ Patrón estándar para hacer redimensionable cualquier elemento de la app (no ex
 
 ## 11.1 Cabecera de tabla fija al hacer scroll (`position: sticky`)
 
-Primer uso de `position: sticky` en el proyecto: `.component-list th`/`.resource-list th`/`.group-list th` — `position: sticky; top: 0; z-index: 2;`, dentro de su contenedor con scroll propio (`.component-panel__body`/`.resource-panel__body`/`.group-panel__body`, `overflow-y: auto`).
+Primer uso de `position: sticky` en el proyecto: `.component-list th`/`.resource-list th`/`.tag-list th` — `position: sticky; top: 0; z-index: 2;`, dentro de su contenedor con scroll propio (`.component-panel__body`/`.resource-panel__body`/`.tag-panel__body`, `overflow-y: auto`).
 
 - Objetivo: cabecera de columna siempre visible al bajar por una lista larga, en vez de desplazarse con las filas.
 - Condición para que funcione: la cabecera necesita fondo opaco (`background: var(--bg-subtle)`, ya lo tenían las tres) — sin él, el contenido de las filas se transparentaría al pasar por debajo.

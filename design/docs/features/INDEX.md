@@ -9,7 +9,7 @@
 - [005 — Elementos tipo Copia, vinculados y sincronizados con un original](005-elementos-tipo-copia-vinculados-y-sincronizados-con-un-original.md)
 - [006 — Panel flotante de recursos, con filtro de texto](006-panel-flotante-de-recursos-con-filtro-de-texto.md)
 - [007 — Edición de un recurso Imagen, con vista previa ampliada de zoom y pan](007-edicion-de-un-recurso-imagen-con-vista-previa-ampliada-de-zoom-y-pan.md)
-- [008 — Grupos, organización de elementos por nombre](008-grupos-organizacion-de-elementos-por-nombre.md)
+- [008 — Etiquetas, organización de elementos por nombre](008-grupos-organizacion-de-elementos-por-nombre.md)
 - [009 — Subida múltiple y por carpeta de recursos](009-subida-multiple-y-por-carpeta-de-recursos.md)
 - [010 — Conversión automática a WebP al subir imágenes](010-conversion-automatica-a-webp-al-subir-imagenes.md)
 - [011 — Búsqueda de imagen en el modal "Elegir imagen"](011-busqueda-de-imagen-en-el-modal-elegir-imagen.md)

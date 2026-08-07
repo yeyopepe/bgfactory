@@ -1,9 +1,9 @@
 // Modal de exportación: campo de nombre de fichero + selección de qué
-// componentes/recursos/grupos incluir, en tres bloques (ui/elementSelectionModal.js).
+// componentes/recursos/etiquetas incluir, en tres bloques (ui/elementSelectionModal.js).
 
 import { createElementSelectionGroups } from './elementSelectionModal.js';
 
-export function openExportSelectionModal({ components, resources, groups, defaultFilename, onAccept }) {
+export function openExportSelectionModal({ components, resources, tags, defaultFilename, onAccept }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -30,9 +30,9 @@ export function openExportSelectionModal({ components, resources, groups, defaul
   nameField.appendChild(nameInput);
   content.appendChild(nameField);
 
-  const groupsContainer = document.createElement('div');
-  groupsContainer.className = 'element-selection-modal__groups';
-  content.appendChild(groupsContainer);
+  const tagsContainer = document.createElement('div');
+  tagsContainer.className = 'element-selection-modal__tags';
+  content.appendChild(tagsContainer);
 
   const footer = document.createElement('div');
   footer.className = 'modal__footer';
@@ -49,9 +49,9 @@ export function openExportSelectionModal({ components, resources, groups, defaul
   exportBtn.textContent = 'Exportar';
   footer.appendChild(exportBtn);
 
-  const { getSelection } = createElementSelectionGroups(groupsContainer, { components, resources, groups }, {
+  const { getSelection } = createElementSelectionGroups(tagsContainer, { components, resources, tags }, {
     onSelectionChange: (selection) => {
-      const hasSelection = selection.componentIds.length > 0 || selection.resourceIds.length > 0 || selection.groupIds.length > 0;
+      const hasSelection = selection.componentIds.length > 0 || selection.resourceIds.length > 0 || selection.tagIds.length > 0;
       exportBtn.disabled = !hasSelection;
     },
   });

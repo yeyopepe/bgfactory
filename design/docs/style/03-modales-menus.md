@@ -182,7 +182,7 @@ Cuando el contenido de una `.modal__section` es una lista potencialmente larga (
 
 - La lista se envuelve en contenedor propio con `max-height` + `overflow-y: auto` — tope aproximado por número de filas visibles, no cálculo dinámico exacto (mismo criterio que `.element-selection-group__list`, §12.5, tope `12rem`).
 - El resto de la sección (título, filas de acción como "+ Crear...") queda **fuera** de ese contenedor, para no desplazarse junto con la lista.
-- Primer uso: `.group-checkbox-list__scroll` en sección "Grupos" de `ui/componentModal.js` — tope `6.5rem` (~3 filas de checkbox), fila "+ Crear nuevo grupo…" fuera de la zona de scroll, como hijo directo de `.modal__section`, siempre visible.
+- Primer uso: `.tag-checkbox-list__scroll` en sección "Etiquetas" de `ui/componentModal.js` — tope `6.5rem` (~3 filas de checkbox), fila "+ Crear nueva etiqueta…" fuera de la zona de scroll, como hijo directo de `.modal__section`, siempre visible.
 - Cualquier sección futura con esta necesidad: reutilizar este patrón (contenedor de scroll separado de fila de acción fija) en vez de aplicar `max-height`/`overflow-y` a la sección entera.
 
 ## 12.7 Menú desplegable de acciones
@@ -199,7 +199,7 @@ Patrón para ofrecer varias variantes de una misma acción desde un único botó
 ### Otros usos del patrón
 
 - `ui/cardEditorModal.js`: mismas clases (`resource-add`/`resource-add__button`/`resource-add__menu`/`resource-add__item`/`resource-add__item-label`) para el botón "Añadir elemento" de cada cara del editor de cartas (Imagen de fondo / Cuadro de texto / Figura geométrica) — confirma que el patrón es agnóstico al dominio.
-- `ui/columnHeaderMenu.js` (`openColumnHeaderMenu`): mismo lenguaje visual (fondo `var(--accent-blue-light)`, borde `rgba(44, 125, 216, 0.25)`, `border-radius: var(--radius-sm)`, `box-shadow: var(--shadow-2)`, hover `var(--accent-blue)`/texto `var(--text-light)`) para el menú de ordenación/filtrado al pulsar el nombre de una columna en paneles de Componentes/Recursos/Grupos (ver `design/docs/architecture/04-modes.md`), con clases propias (`.column-header-menu`/`.column-header-menu__item`/`.column-header-menu__separator`/`.column-header-menu__filter`).
+- `ui/columnHeaderMenu.js` (`openColumnHeaderMenu`): mismo lenguaje visual (fondo `var(--accent-blue-light)`, borde `rgba(44, 125, 216, 0.25)`, `border-radius: var(--radius-sm)`, `box-shadow: var(--shadow-2)`, hover `var(--accent-blue)`/texto `var(--text-light)`) para el menú de ordenación/filtrado al pulsar el nombre de una columna en paneles de Componentes/Recursos/Etiquetas (ver `design/docs/architecture/04-modes.md`), con clases propias (`.column-header-menu`/`.column-header-menu__item`/`.column-header-menu__separator`/`.column-header-menu__filter`).
   - Contenido distinto: dos filas de ordenación tipo interruptor (`.column-header-menu__item--active` en la activa, misma convención de "opción activa" que §12.10 — fondo `var(--accent-blue)`, texto `var(--text-light)`) y, si la columna es filtrable, bloque con `<select>` nativo.
   - **Variante de posicionamiento**: `position: fixed` insertado en `document.body`, calculando posición desde `getBoundingClientRect()` del `<th>` pulsado y reajustando para no salirse de la ventana — mismo mecanismo que `.context-menu` (§12.8), porque su punto de anclaje vive dentro de contenedores con `overflow: auto`/`overflow: hidden` que recortarían un `position: absolute`.
   - Mismo `z-index` que `.context-menu` (`1050`) por el mismo motivo: puede abrirse con modal ya visible detrás.
@@ -236,11 +236,11 @@ La sección informativa (3) no sigue el patrón interactivo (icono + hover azul)
 
 ### Menú en Modo Edición y fila con `<select>` inline
 
-`ui/contextMenu.js` se reutiliza en Modo Edición (clic derecho sobre elemento de la mesa), con sección general Clonar/Copiar/Eliminar (mismas filas con icono) y sección específica con fila única "Añadir a grupo".
+`ui/contextMenu.js` se reutiliza en Modo Edición (clic derecho sobre elemento de la mesa), con sección general Clonar/Copiar/Eliminar (mismas filas con icono) y sección específica con fila única "Añadir a etiqueta".
 
 - Esa fila introduce un cuarto tipo de contenido, distinto de acción de click directo: bloque `.context-menu__select-row` (`cursor: default`, sin hover, separado por `border-bottom` igual que `.context-menu__item`) con etiqueta arriba (`.context-menu__select-row-label`) y `<select>` nativo a todo lo ancho debajo — mismo criterio visual que `.column-header-menu__filter`/`.column-header-menu__filter-label`/`.column-header-menu__filter select` (§12.7).
-- Elegir opción real (no el placeholder "Elegir grupo…") ejecuta la acción y cierra el menú, igual que pulsar cualquier fila de acción.
-- Sin opciones disponibles (p. ej. "Añadir a grupo" sin grupos creados): `<select>` deshabilitado (mismo `:disabled` que resto de controles — fondo `var(--border-neutral)`, `cursor: not-allowed`), muestra "Sin grupos" en vez del placeholder habitual.
+- Elegir opción real (no el placeholder "Elegir etiqueta…") ejecuta la acción y cierra el menú, igual que pulsar cualquier fila de acción.
+- Sin opciones disponibles (p. ej. "Añadir a etiqueta" sin etiquetas creadas): `<select>` deshabilitado (mismo `:disabled` que resto de controles — fondo `var(--border-neutral)`, `cursor: not-allowed`), muestra "Sin etiquetas" en vez del placeholder habitual.
 
 ### Línea de descripción
 
@@ -261,7 +261,7 @@ Patrón para copiar el estilo visual de un componente y pegarlo en otro del mism
   - "Pegar estilo" se muestra `disabled` (con `title` indicando el motivo) mientras no haya nada copiado en la sesión — `.btn-cancel:disabled` mismo criterio genérico de deshabilitado (`opacity: 0.5; cursor: not-allowed`, sin `transform` en hover).
 - **Modal de selección al copiar**: un único grupo fijo (no colección dinámica) con clases BEM de §12.5 (`element-selection-group`/`__select-all`/`__list`/`__item`), todos los ítems marcados por defecto, cada uno con nota auxiliar opcional a la derecha (`.element-selection-group__item-hint`, `font-size: 0.75rem`, `color: var(--text-muted)`, `margin-left: auto` — mismo criterio que `.resource-add__hint`) con el valor actual de ese elemento. Botón de confirmar deshabilitado si no queda ningún ítem marcado.
 - **Confirmación de copia**: `ui/toast.js` (§12.1.1 — no modal, confirmación breve sin detalle que revisar) con texto "Estilo copiado".
-- **Error al pegar**: si algo copiado ya no es válido en el proyecto (referencia a grupo/recurso eliminado), modal de error con cabecera estándar (`modal__header--error`/`modal__error-icon`, §12.1) y detalle en tabla — reutilizando **tal cual, sin CSS propio**, `.import-report-modal`/`.import-report-modal__table` (§12.4), columnas según el dominio (para "Copiar/Pegar estilo": Elemento/Referencia/Detalle).
+- **Error al pegar**: si algo copiado ya no es válido en el proyecto (referencia a etiqueta/recurso eliminado), modal de error con cabecera estándar (`modal__header--error`/`modal__error-icon`, §12.1) y detalle en tabla — reutilizando **tal cual, sin CSS propio**, `.import-report-modal`/`.import-report-modal__table` (§12.4), columnas según el dominio (para "Copiar/Pegar estilo": Elemento/Referencia/Detalle).
   - Pegado todo o nada: cualquier incidencia, no se aplica ningún cambio al destino.
   - Solo botón "Cerrar" (sin acción alternativa de "continuar sin eso", a diferencia de `ui/importConversionErrorModal.js`).
 

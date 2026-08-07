@@ -56,7 +56,7 @@ function addSelectRow(menu, { label, options = [], disabled, onChange }) {
 
   const placeholder = document.createElement('option');
   placeholder.value = '';
-  placeholder.textContent = options.length === 0 ? 'Sin grupos' : 'Elegir grupo…';
+  placeholder.textContent = options.length === 0 ? 'Sin etiquetas' : 'Elegir etiqueta…';
   placeholder.disabled = true;
   placeholder.selected = true;
   select.appendChild(placeholder);

@@ -3,7 +3,7 @@
 // clave-valor, imagen opcional. `order` gobierna apilado visual — lo
 // asigna/recalcula core/state.js, aquí solo valor por defecto.
 
-export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = 'ninguno', mostrarTooltip = false, subirAlMoverInteractuar = false, oculto = false, grupoIds = [], order = null, copyOf = null, sincronizado = true, interaccionesDesactivadas = [], accionClickDerecho = 'ninguno' } = {}) {
+export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = 'ninguno', mostrarTooltip = false, subirAlMoverInteractuar = false, oculto = false, etiquetaIds = [], order = null, copyOf = null, sincronizado = true, interaccionesDesactivadas = [], accionClickDerecho = 'ninguno' } = {}) {
   return {
     id: crypto.randomUUID(),
     type,
@@ -18,7 +18,7 @@ export function createComponent({ type = 'generico', name = '', properties = {},
     mostrarTooltip,
     subirAlMoverInteractuar,
     oculto,
-    grupoIds,
+    etiquetaIds,
     order,
     copyOf,
     sincronizado,
@@ -27,16 +27,20 @@ export function createComponent({ type = 'generico', name = '', properties = {},
   };
 }
 
-// Normaliza pertenencia a grupo(s) al formato actual (`grupoIds: string[]`),
-// aceptando también el campo escalar `grupoId` antiguo o su ausencia total.
-// Pura: no muta `component`. Reutilizada por la migración silenciosa al
-// cargar (core/state.js) y por el flujo de importación
-// (ui/editModeToggle.js), que maneja componentes ajenos al estado ya cargado
-// y no necesariamente migrados.
-export function normalizeComponentGrupoIds(component) {
-  if (Array.isArray(component.grupoIds)) return component;
+// Normaliza pertenencia a etiqueta(s) al formato actual (`etiquetaIds: string[]`),
+// aceptando también el formato intermedio `grupoIds` (array) o el escalar
+// antiguo `grupoId`, o su ausencia total. Pura: no muta `component`.
+// Reutilizada por la migración silenciosa al cargar (core/state.js) y por el
+// flujo de importación (ui/editModeToggle.js), que maneja componentes ajenos
+// al estado ya cargado y no necesariamente migrados.
+export function normalizeComponentEtiquetaIds(component) {
+  if (Array.isArray(component.etiquetaIds)) return component;
+  if (Array.isArray(component.grupoIds)) {
+    const { grupoIds, ...rest } = component;
+    return { ...rest, etiquetaIds: grupoIds };
+  }
   const { grupoId, ...rest } = component;
-  return { ...rest, grupoIds: grupoId != null ? [grupoId] : [] };
+  return { ...rest, etiquetaIds: grupoId != null ? [grupoId] : [] };
 }
 
 export function updateComponent(component, changes) {
@@ -152,7 +156,7 @@ export function syncCopyWithOriginal(copy, original) {
     height: original.height,
     mostrarTooltip: original.mostrarTooltip,
     subirAlMoverInteractuar: original.subirAlMoverInteractuar,
-    grupoIds: [...original.grupoIds],
+    etiquetaIds: [...original.etiquetaIds],
     interaccionesDesactivadas: original.interaccionesDesactivadas,
     accionClickDerecho: original.accionClickDerecho,
     ...(copy.sincronizado !== false ? { bloqueado: original.bloqueado, oculto: original.oculto } : {}),

@@ -17,7 +17,7 @@ Modelo genérico y extensible: no requiere cambios estructurales al definir tipo
   mostrarTooltip: boolean,
   subirAlMoverInteractuar: boolean,
   oculto: boolean,
-  grupoIds: string[],
+  etiquetaIds: string[],
   order: number,
   copyOf: string | null,
   sincronizado: boolean,
@@ -41,7 +41,7 @@ Modelo genérico y extensible: no requiere cambios estructurales al definir tipo
 | `mostrarTooltip` | boolean | `false` | Si `ui/componentRenderer.js` fija el `title` del elemento con el identificador del componente (junto con `identifyMode` global `'tooltip'` en modo juego) | Pestaña "Generales" |
 | `subirAlMoverInteractuar` | boolean | `false` (`true` para `'carta'`/`'dado'`) | Si sube a `order = 1` al mover/interactuar en modo juego. `modes/play/playMode.js` invoca `reorderComponent(id, 1)` tras cada interacción propia de Modo Juego (arrastre, lanzamiento de dado, volteo de carta). Independiente de `bloqueado` | Pestaña "Generales" |
 | `oculto` | boolean | `false` | Si el componente NO se renderiza en modo juego (filtrado antes de `renderComponentsOnTable`). En modo edición no restringe nada, solo añade insignia (`showHiddenIndicator`) | Pestaña "Generales", segundo checkbox tras "Bloqueado" |
-| `grupoIds` | string[] | `[]` | Ids de grupos (`getGroups()`) a los que pertenece el componente. Un componente puede pertenecer a varios grupos a la vez | Sección "Grupos" de la pestaña "Generales": checkbox por grupo existente, ordenados alfabéticamente, más fila "+ Crear nuevo grupo…" |
+| `etiquetaIds` | string[] | `[]` | Ids de etiquetas (`getTags()`) a las que pertenece el componente. Un componente puede pertenecer a varias etiquetas a la vez | Sección "Etiquetas" de la pestaña "Generales": checkbox por etiqueta existente, ordenados alfabéticamente, más fila "+ Crear nueva etiqueta…" |
 | `order` | number | calculado | Posición de apilado en la mesa: `1` = más arriba, `n` = más abajo. Ver lógica dedicada más abajo | No editable directo salvo vía columna "Orden" del panel de Componentes |
 | `copyOf` | string \| null | `null` | Id del componente original si este es una "Copia" vinculada. Ver "Copias vinculadas" más abajo | Creado por acción "Copiar", no editable |
 | `sincronizado` | boolean | `true` | Solo con efecto si `copyOf` no es `null`: si `bloqueado`/`oculto` de esta copia siguen al original | `ui/copyComponentModal.js` |
@@ -52,7 +52,7 @@ Notas sobre migraciones silenciosas al cargar (`core/state.js`, `loadComponents`
 
 - `bloqueado`: guardados con el booleano anterior se migran vía `migrateBloqueado` (`true` → `'juego'`, `false` → `'ninguno'`).
 - `mostrarTooltip`, `oculto`, `subirAlMoverInteractuar`, `interaccionesDesactivadas`: ausencia del campo se comporta como su valor por defecto (desmarcado / `[]`), sin necesidad de migración explícita.
-- `grupoIds`: componente sin este campo, o con el escalar `grupoId` anterior, se migra vía `migrateGrupoIdToGrupoIds`; cartas con `properties.deckId` asignado añaden automáticamente ese id vía `migrateDeckIdToGrupo` (ejecutada justo después). `core/component.js` expone la conversión pura como `normalizeComponentGrupoIds(component)`, reutilizada también por `core/importMerge.js` (`mergeImportedGame`) para que importar un fichero anterior a esta migración no falle.
+- `etiquetaIds`: componente sin este campo, o con el formato intermedio `grupoIds` (array) o el escalar `grupoId` anterior, se migra vía `migrateGrupoIdToEtiquetaIds`; cartas con `properties.deckId` asignado añaden automáticamente ese id vía `migrateDeckIdToEtiqueta` (ejecutada justo después). `core/component.js` expone la conversión pura como `normalizeComponentEtiquetaIds(component)`, reutilizada también por `core/importMerge.js` (`mergeImportedGame`) para que importar un fichero anterior a esta migración no falle.
 - `accionClickDerecho`: componente guardado sin este campo se migra a `'menuContextual'` (`migrateAccionClickDerecho`), para conservar el comportamiento previo — a diferencia del resto de campos de esta familia, el default de un componente nuevo (`'ninguno'`) y el valor migrado de uno preexistente (`'menuContextual'`) son deliberadamente distintos.
 
 `core/component.js` expone `createComponent()`/`updateComponent()` como única vía para construir/modificar componentes. `createComponent()` inicializa `x`/`y` a `0`; `width`/`height` a `null`. También expone `cloneComponent(component, components)` y `nextCloneId(baseComponentId, components)`:
@@ -76,7 +76,7 @@ A diferencia de "Clonar" (independiente tras crearse), una **Copia** queda perma
 - Se crea desde el panel de componentes con el botón "Copiar" (`ui/componentList.js`, junto a "Editar"/"Clonar"/"Eliminar"; oculto para filas que ya son copia — no se admiten copias de copias). Acción inmediata sin modal previa, nace siempre con `sincronizado: true`.
 - **Id**: `${idOriginal}-COPY-XXX`, `XXX` = primer entero de 3 dígitos libre entre las copias ya vinculadas a ese original (`core/component.js`, `nextCopyId(originalId, components)`, filtra por `copyOf`, no por el propio `id`). `createCopy(component, components)` construye la copia completa (mismo offset +30/+30 y `order: null` que `cloneComponent`).
 - **Sincronización en vivo**: vive en `core/state.js`, enganchada en `replaceComponent(id, updatedComponent)` — lógica específica de este vínculo, no un mecanismo genérico de eventos. Al actualizar un original, cada copia vinculada (`copyOf === id`) se sustituye vía `core/component.js` → `syncCopyWithOriginal(copy, original)`.
-  - Siempre propagado: `type`, `name`, `image`, `width`, `height`, `mostrarTooltip`, `subirAlMoverInteractuar`, `grupoIds`, `interaccionesDesactivadas`, `properties` de configuración/diseño del tipo (todo lo editable desde `ui/componentModal.js`).
+  - Siempre propagado: `type`, `name`, `image`, `width`, `height`, `mostrarTooltip`, `subirAlMoverInteractuar`, `etiquetaIds`, `interaccionesDesactivadas`, `properties` de configuración/diseño del tipo (todo lo editable desde `ui/componentModal.js`).
   - `bloqueado`/`oculto`: solo se propagan si `copy.sincronizado` es `true` (default). Con `sincronizado: false`, quedan como valor propio de la copia.
   - Siempre independientes por copia, sin excepción: `x`/`y`, `order`, claves de `properties` que son estado de interacción de juego por tipo (`NON_SYNCED_PROPERTY_KEYS` en `core/component.js`: `resultadoActual` en `'dado'`, `caraActual` en `'carta'`).
   - Si el `id` del original cambia en la misma actualización: `renameCopyId` renombra el `id` de cada copia (conserva sufijo `-COPY-XXX`, sustituye solo el prefijo) y actualiza su `copyOf`.

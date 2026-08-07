@@ -1,12 +1,12 @@
 // Modal de informe final de una importación: tabla con una fila por cada
 // referencia rota resuelta automáticamente (recurso no incluido en la
-// selección/fichero, o grupo ausente autocreado). Mismo patrón modal-overlay/
+// selección/fichero, o etiqueta ausente autocreada). Mismo patrón modal-overlay/
 // modal que el resto, con tabla en vez de campos de formulario.
 
 const ERROR_LABELS = {
   recurso: 'Recurso no incluido',
-  grupo: 'Grupo no incluido',
-  grupoDuplicado: 'Nombre de grupo duplicado',
+  etiqueta: 'Etiqueta no incluida',
+  etiquetaDuplicada: 'Nombre de etiqueta duplicado',
 };
 
 export function openImportReportModal(report) {

@@ -107,7 +107,7 @@ export function migrateFichaComponent(component) {
     height: component.height,
   });
   return {
-    component: { ...component, type: 'carta', properties, grupoIds: [] },
+    component: { ...component, type: 'carta', properties, etiquetaIds: [] },
     errors,
   };
 }

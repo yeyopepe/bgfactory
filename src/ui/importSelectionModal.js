@@ -4,7 +4,7 @@
 
 import { createElementSelectionGroups } from './elementSelectionModal.js';
 
-export function openImportSelectionModal({ components, resources, groups, onAccept, onCancel }) {
+export function openImportSelectionModal({ components, resources, tags, onAccept, onCancel }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -20,9 +20,9 @@ export function openImportSelectionModal({ components, resources, groups, onAcce
   content.className = 'modal__content';
   modal.appendChild(content);
 
-  const groupsContainer = document.createElement('div');
-  groupsContainer.className = 'element-selection-modal__groups';
-  content.appendChild(groupsContainer);
+  const tagsContainer = document.createElement('div');
+  tagsContainer.className = 'element-selection-modal__tags';
+  content.appendChild(tagsContainer);
 
   const footer = document.createElement('div');
   footer.className = 'modal__footer';
@@ -46,9 +46,9 @@ export function openImportSelectionModal({ components, resources, groups, onAcce
   continueBtn.textContent = 'Continuar';
   footer.appendChild(continueBtn);
 
-  const { getSelection } = createElementSelectionGroups(groupsContainer, { components, resources, groups }, {
+  const { getSelection } = createElementSelectionGroups(tagsContainer, { components, resources, tags }, {
     onSelectionChange: (selection) => {
-      const hasSelection = selection.componentIds.length > 0 || selection.resourceIds.length > 0 || selection.groupIds.length > 0;
+      const hasSelection = selection.componentIds.length > 0 || selection.resourceIds.length > 0 || selection.tagIds.length > 0;
       continueBtn.disabled = !hasSelection;
     },
   });

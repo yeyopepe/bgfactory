@@ -1,5 +1,5 @@
 // Modal de confirmación para borrar varios componentes a la vez (selección múltiple en modo edición).
-// Mismo patrón que ui/groupDeleteConfirmModal.js: enumera elementos afectados (id + tipo) antes de confirmar.
+// Mismo patrón que ui/tagDeleteConfirmModal.js: enumera elementos afectados (id + tipo) antes de confirmar.
 
 import { getComponentTypeLabel } from './componentTypeModal.js';
 

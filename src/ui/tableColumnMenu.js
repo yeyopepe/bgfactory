@@ -1,5 +1,5 @@
 // Ordenación/filtrado por columna de una tabla, reutilizado por
-// ui/componentList.js, ui/resourceList.js y ui/groupList.js. Al pulsar el
+// ui/componentList.js, ui/resourceList.js y ui/tagList.js. Al pulsar el
 // nombre de una columna abre ui/columnHeaderMenu.js con las opciones de
 // ordenar/filtrar esa columna. Cualquier cabecera interactiva muestra siempre
 // un pequeño indicador junto a su texto: tenue por defecto, destacado si

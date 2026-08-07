@@ -1,23 +1,23 @@
-// Panel flotante con listado de grupos, modo edición. Análogo a
-// ui/resourceList.js pero sin columna "Tipo" (grupos no tienen tipo) y sin
+// Panel flotante con listado de etiquetas, modo edición. Análogo a
+// ui/resourceList.js pero sin columna "Tipo" (etiquetas no tienen tipo) y sin
 // clonar. Mismo filtro de texto libre y redimensionado de columna que
 // Componentes y Recursos.
 
 import { attachResizeHandle } from './resizeHandle.js';
 import { attachColumnResizing } from './tableColumnResize.js';
 import { attachColumnMenu } from './tableColumnMenu.js';
-import { getComponentsUsingGroup } from '../core/group.js';
+import { getComponentsUsingTag } from '../core/tag.js';
 import { sortByName, compareValues } from '../core/textSort.js';
 
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
-const GROUP_LIST_COLUMNS = ['nombre', 'elementos', 'acciones'];
+const TAG_LIST_COLUMNS = ['nombre', 'elementos', 'acciones'];
 
 // Columnas interactivas del menú de cabecera: todas menos "Acciones".
-function buildGroupListColumnDefs(components) {
+function buildTagListColumnDefs(components) {
   return [
-    { key: 'nombre', filterable: true, getValue: (g) => g.name },
-    { key: 'elementos', filterable: true, getValue: (g) => getComponentsUsingGroup(g.id, components).length },
+    { key: 'nombre', filterable: true, getValue: (t) => t.name },
+    { key: 'elementos', filterable: true, getValue: (t) => getComponentsUsingTag(t.id, components).length },
   ];
 }
 
@@ -31,34 +31,34 @@ function normalize(str) {
   return str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 }
 
-function matchesFilter(group, query) {
+function matchesFilter(tag, query) {
   const normalizedQuery = normalize(query);
-  return normalize(group.name).includes(normalizedQuery) || normalize(group.id).includes(normalizedQuery);
+  return normalize(tag.name).includes(normalizedQuery) || normalize(tag.id).includes(normalizedQuery);
 }
 
-function matchesColumnFilters(group, columnDefsByKey) {
+function matchesColumnFilters(tag, columnDefsByKey) {
   return Object.entries(columnFilters).every(([key, value]) => {
     const def = columnDefsByKey[key];
-    return String(def.getValue(group)) === value;
+    return String(def.getValue(tag)) === value;
   });
 }
 
-function renderBody(body, groups, components, { onEdit, onRemove, onSelectGroup, columnWidths, onColumnResize, allGroups = [], onColumnSortChange, onColumnFilterChange } = {}) {
+function renderBody(body, tags, components, { onEdit, onRemove, onSelectTag, columnWidths, onColumnResize, allTags = [], onColumnSortChange, onColumnFilterChange } = {}) {
   body.innerHTML = '';
 
   const hasActiveFilter = filterText.trim() !== '' || Object.keys(columnFilters).length > 0;
 
   const table = document.createElement('table');
-  table.className = 'group-list';
+  table.className = 'tag-list';
 
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
   const headLabels = { nombre: 'Nombre', elementos: 'Elementos', acciones: 'Acciones' };
-  for (const key of GROUP_LIST_COLUMNS) {
+  for (const key of TAG_LIST_COLUMNS) {
     const th = document.createElement('th');
     th.dataset.col = key;
     th.textContent = headLabels[key];
-    if (key === 'elementos') th.className = 'group-list__count-cell';
+    if (key === 'elementos') th.className = 'tag-list__count-cell';
     headRow.appendChild(th);
   }
   thead.appendChild(headRow);
@@ -67,49 +67,49 @@ function renderBody(body, groups, components, { onEdit, onRemove, onSelectGroup,
   const tbody = document.createElement('tbody');
 
   // Cabecera siempre visible aunque no haya filas, ver ui/componentList.js.
-  if (groups.length === 0) {
+  if (tags.length === 0) {
     const emptyRow = document.createElement('tr');
     const emptyCell = document.createElement('td');
-    emptyCell.colSpan = GROUP_LIST_COLUMNS.length;
+    emptyCell.colSpan = TAG_LIST_COLUMNS.length;
     if (!hasActiveFilter) {
-      emptyCell.className = 'group-list__empty';
-      emptyCell.textContent = 'No hay grupos todavía.';
+      emptyCell.className = 'tag-list__empty';
+      emptyCell.textContent = 'No hay etiquetas todavía.';
     } else {
-      emptyCell.className = 'group-list__empty-filter';
-      emptyCell.textContent = `No hay grupos que coincidan con «${filterText}».`;
+      emptyCell.className = 'tag-list__empty-filter';
+      emptyCell.textContent = `No hay etiquetas que coincidan con «${filterText}».`;
     }
     emptyRow.appendChild(emptyCell);
     tbody.appendChild(emptyRow);
   }
 
-  for (const group of groups) {
+  for (const tag of tags) {
     const row = document.createElement('tr');
-    row.className = 'group-list__row';
+    row.className = 'tag-list__row';
     row.tabIndex = 0;
-    if (onSelectGroup) {
-      row.addEventListener('click', () => onSelectGroup(group));
+    if (onSelectTag) {
+      row.addEventListener('click', () => onSelectTag(tag));
     }
 
     const nameCell = document.createElement('td');
-    nameCell.textContent = group.name;
+    nameCell.textContent = tag.name;
     row.appendChild(nameCell);
 
     const countCell = document.createElement('td');
-    countCell.className = 'group-list__count-cell';
-    countCell.textContent = String(getComponentsUsingGroup(group.id, components).length);
+    countCell.className = 'tag-list__count-cell';
+    countCell.textContent = String(getComponentsUsingTag(tag.id, components).length);
     row.appendChild(countCell);
 
     const actionsCell = document.createElement('td');
-    actionsCell.className = 'group-list__actions-cell';
+    actionsCell.className = 'tag-list__actions-cell';
 
     if (onEdit) {
       const editButton = document.createElement('button');
       editButton.type = 'button';
-      editButton.className = 'group-list__action-btn';
+      editButton.className = 'tag-list__action-btn';
       editButton.textContent = 'Editar';
       editButton.addEventListener('click', (event) => {
         event.stopPropagation();
-        onEdit(group);
+        onEdit(tag);
       });
       actionsCell.appendChild(editButton);
     }
@@ -117,11 +117,11 @@ function renderBody(body, groups, components, { onEdit, onRemove, onSelectGroup,
     if (onRemove) {
       const removeButton = document.createElement('button');
       removeButton.type = 'button';
-      removeButton.className = 'group-list__action-btn group-list__action-btn--danger';
+      removeButton.className = 'tag-list__action-btn tag-list__action-btn--danger';
       removeButton.textContent = 'Eliminar';
       removeButton.addEventListener('click', (event) => {
         event.stopPropagation();
-        onRemove(group);
+        onRemove(tag);
       });
       actionsCell.appendChild(removeButton);
     }
@@ -134,11 +134,11 @@ function renderBody(body, groups, components, { onEdit, onRemove, onSelectGroup,
   body.appendChild(table);
 
   if (onColumnResize) {
-    attachColumnResizing(table, GROUP_LIST_COLUMNS, columnWidths, onColumnResize);
+    attachColumnResizing(table, TAG_LIST_COLUMNS, columnWidths, onColumnResize);
   }
 
   if (onColumnSortChange && onColumnFilterChange) {
-    attachColumnMenu(table, buildGroupListColumnDefs(components), allGroups, {
+    attachColumnMenu(table, buildTagListColumnDefs(components), allTags, {
       sortState: columnSort,
       filterState: columnFilters,
       onToggleSort: onColumnSortChange,
@@ -147,15 +147,15 @@ function renderBody(body, groups, components, { onEdit, onRemove, onSelectGroup,
   }
 }
 
-export function renderGroupList(
+export function renderTagList(
   container,
-  groups,
+  tags,
   components,
   {
     onEdit,
     onRemove,
     onAdd,
-    onSelectGroup,
+    onSelectTag,
     collapsed = false,
     onToggleCollapse,
     onPanelMove,
@@ -168,14 +168,14 @@ export function renderGroupList(
   container.innerHTML = '';
 
   const panel = document.createElement('div');
-  panel.className = 'group-panel';
+  panel.className = 'tag-panel';
   let body;
 
   const header = document.createElement('div');
-  header.className = 'group-panel__header';
+  header.className = 'tag-panel__header';
 
   const title = document.createElement('strong');
-  title.textContent = `Grupos (${groups.length})`;
+  title.textContent = `Etiquetas (${tags.length})`;
   header.appendChild(title);
 
   const toggleButton = document.createElement('button');
@@ -226,10 +226,10 @@ export function renderGroupList(
   panel.appendChild(header);
 
   if (!collapsed) {
-    const columnDefsByKey = Object.fromEntries(buildGroupListColumnDefs(components).map((d) => [d.key, d]));
+    const columnDefsByKey = Object.fromEntries(buildTagListColumnDefs(components).map((d) => [d.key, d]));
 
-    function computeDisplayedGroups() {
-      let list = groups.filter((g) => matchesFilter(g, filterText) && matchesColumnFilters(g, columnDefsByKey));
+    function computeDisplayedTags() {
+      let list = tags.filter((t) => matchesFilter(t, filterText) && matchesColumnFilters(t, columnDefsByKey));
       if (columnSort) {
         const def = columnDefsByKey[columnSort.column];
         const sign = columnSort.direction === 'asc' ? 1 : -1;
@@ -241,7 +241,7 @@ export function renderGroupList(
     }
 
     const bodyOptions = {
-      onEdit, onRemove, onSelectGroup, columnWidths, onColumnResize, allGroups: groups,
+      onEdit, onRemove, onSelectTag, columnWidths, onColumnResize, allTags: tags,
       onColumnSortChange: (column, direction) => {
         columnSort = columnSort?.column === column && columnSort.direction === direction ? null : { column, direction };
         rerenderBody();
@@ -255,18 +255,18 @@ export function renderGroupList(
     };
 
     function rerenderBody() {
-      const displayed = computeDisplayedGroups();
-      title.textContent = `Grupos (${displayed.length})`;
+      const displayed = computeDisplayedTags();
+      title.textContent = `Etiquetas (${displayed.length})`;
       renderBody(body, displayed, components, bodyOptions);
     }
 
-    if (groups.length > 0) {
+    if (tags.length > 0) {
       const filterBar = document.createElement('div');
-      filterBar.className = 'group-panel__filter';
+      filterBar.className = 'tag-panel__filter';
 
       const filterInput = document.createElement('input');
       filterInput.type = 'text';
-      filterInput.placeholder = 'Filtrar grupos…';
+      filterInput.placeholder = 'Filtrar etiquetas…';
       filterInput.value = filterText;
       filterInput.addEventListener('input', () => {
         filterText = filterInput.value;
@@ -277,7 +277,7 @@ export function renderGroupList(
 
       const clearBtn = document.createElement('button');
       clearBtn.type = 'button';
-      clearBtn.className = 'group-panel__filter-clear';
+      clearBtn.className = 'tag-panel__filter-clear';
       clearBtn.title = 'Limpiar búsqueda';
       clearBtn.setAttribute('aria-label', 'Limpiar búsqueda');
       clearBtn.innerHTML = `
@@ -307,7 +307,7 @@ export function renderGroupList(
     }
 
     body = document.createElement('div');
-    body.className = 'group-panel__body';
+    body.className = 'tag-panel__body';
     if (bodyHeight != null) {
       body.style.height = `${bodyHeight}px`;
     }
@@ -315,11 +315,11 @@ export function renderGroupList(
     panel.appendChild(body);
 
     const footer = document.createElement('div');
-    footer.className = 'group-panel__footer';
+    footer.className = 'tag-panel__footer';
 
     const addButton = document.createElement('button');
     addButton.type = 'button';
-    addButton.textContent = '+ Añadir grupo';
+    addButton.textContent = '+ Añadir etiqueta';
     addButton.addEventListener('click', () => {
       if (onAdd) onAdd();
     });

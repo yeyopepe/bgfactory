@@ -52,7 +52,7 @@ main.js ──▶ data/*, ui/*, modes/*, core/*
 
 Funcionalidades transversales, no ligadas a un único tipo — recorren "todos los que haya". Revisar cada una al añadir un tipo de componente o una colección nueva a nivel de `core/state.js`:
 
-- **Persistencia y guardado a fichero** (`core/persistence.js`, `core/fileExport.js`): ambos serializan una lista fija de campos (`components`, `panelState`, `resources`, `resourcePanelState`, `resourcesSeeded`, `groups`, `groupPanelState`, `appTitle`). Colección/campo nuevo a nivel de `state.js` debe añadirse explícitamente en los dos sitios, y a la suscripción de eventos del autoguardado — si no, no se guarda ni se exporta.
+- **Persistencia y guardado a fichero** (`core/persistence.js`, `core/fileExport.js`): ambos serializan una lista fija de campos (`components`, `panelState`, `resources`, `resourcePanelState`, `resourcesSeeded`, `tags`, `tagPanelState`, `appTitle`). Colección/campo nuevo a nivel de `state.js` debe añadirse explícitamente en los dos sitios, y a la suscripción de eventos del autoguardado — si no, no se guarda ni se exporta.
 - **Detección de uso de un recurso** (`core/resource.js`, `isResourceInUse`/`getComponentsUsingResource` + helper `collectDeepValues`): recorre `component.properties` en profundidad para encontrar cualquier referencia a un `resourceId`. Si un tipo nuevo guarda referencias fuera de objetos/arrays planos (p. ej. claves de un `Map`), el borrado de ese recurso no se bloquea aunque esté en uso.
 - **Alta de un tipo de componente nuevo** (`ui/componentTypeModal.js` + `createDefaultComponent`/`DEFAULT_*_PROPERTIES` de `ui/componentModal.js`): lista de tipos disponibles y valores por defecto (tamaño inicial, `bloqueado`, `properties` de partida) están hardcodeados ahí. Tipo nuevo no aparece en el selector de alta ni tiene valores por defecto si no se añade en ambos sitios.
 - **Renderizado en la mesa** (`ui/componentRenderer.js`): cada tipo necesita su propia rama de dibujo dentro de `renderComponentsOnTable`. Debe respetar reglas transversales: overflow del contenido recortado en contenedor interno (nunca en el exterior, por la etiqueta `identifyMode: 'label'`), orden de dibujo según `order` (z-index visual), soporte de `onSelect`/`onToggleSelect`/`onMove`/`onResize` si aplica.
@@ -69,7 +69,7 @@ Funcionalidades transversales, no ligadas a un único tipo — recorren "todos l
 |---|---|
 | `01-component-model.md` | Modelo genérico de componente (campos, tabla), lógica de `order`, copias vinculadas (`copyOf`) |
 | `02-component-types.md` | Los ocho tipos de componente implementados y sus propiedades específicas |
-| `03-groups-resources.md` | Modelo de grupo, modelo de recurso/galería, migración de `'ficha'`, portapapeles de estilo |
+| `03-groups-resources.md` | Modelo de etiqueta, modelo de recurso/galería, migración de `'ficha'`, portapapeles de estilo |
 | `04-modes.md` | Modo juego vs modo edición: paneles, selección, menús contextuales, indicadores, z-index, título editable |
 | `05-ui-layer.md` | Módulos de la capa UI reutilizables entre modos |
 | `06-persistence-build.md` | Flujo de desarrollo/build y persistencia/guardado a fichero |

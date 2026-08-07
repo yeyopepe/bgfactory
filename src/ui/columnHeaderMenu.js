@@ -1,5 +1,5 @@
 // Menú desplegable de ordenación/filtrado de columna de tabla, reutilizado por paneles flotantes
-// de modo edición (Componentes, Recursos, Grupos) vía ui/tableColumnMenu.js. Hermano de ui/contextMenu.js
+// de modo edición (Componentes, Recursos, Etiquetas) vía ui/tableColumnMenu.js. Hermano de ui/contextMenu.js
 // en mecánica (singleton de módulo, `position: fixed` en document.body, cierre por click fuera o Esc,
 // reajuste tras insertarse para no salirse de ventana). `position: fixed` es necesario porque el `<th>`
 // que ancla el menú vive dentro de contenedor con overflow (`.component-panel__body` y análogos), que

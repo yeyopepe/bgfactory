@@ -1,12 +1,12 @@
-// Modal mínima de alta/edición de un grupo, misma estructura visual que
+// Modal mínima de alta/edición de una etiqueta, misma estructura visual que
 // ui/resourceModal.js (overlay/modal/header/content/footer) pero única para
-// ambos casos: sin `group`, alta (sin botón "Eliminar"); con `group`, edición.
+// ambos casos: sin `tag`, alta (sin botón "Eliminar"); con `tag`, edición.
 
-import { createGroup, updateGroup, isGroupNameTaken, getComponentsUsingGroup } from '../core/group.js';
-import { getGroups, getComponents } from '../core/state.js';
+import { createTag, updateTag, isTagNameTaken, getComponentsUsingTag } from '../core/tag.js';
+import { getTags, getComponents } from '../core/state.js';
 import { getComponentTypeLabel } from './componentTypeModal.js';
 
-export function openGroupModal({ group = null, onAccept, onDelete, onRemoveFromGroup }) {
+export function openTagModal({ tag = null, onAccept, onDelete, onRemoveFromTag }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -15,7 +15,7 @@ export function openGroupModal({ group = null, onAccept, onDelete, onRemoveFromG
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = group ? `Grupo: ${group.name}` : 'Nuevo grupo';
+  header.textContent = tag ? `Etiqueta: ${tag.name}` : 'Nueva etiqueta';
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -28,7 +28,7 @@ export function openGroupModal({ group = null, onAccept, onDelete, onRemoveFromG
   nameLabel.textContent = 'Nombre';
   const nameInput = document.createElement('input');
   nameInput.type = 'text';
-  nameInput.value = group?.name ?? '';
+  nameInput.value = tag?.name ?? '';
   const nameError = document.createElement('div');
   nameError.className = 'modal__error';
   nameError.style.display = 'none';
@@ -37,45 +37,45 @@ export function openGroupModal({ group = null, onAccept, onDelete, onRemoveFromG
   nameField.appendChild(nameError);
   content.appendChild(nameField);
 
-  if (group) {
+  if (tag) {
     const elementsField = document.createElement('div');
     elementsField.className = 'modal__field';
     content.appendChild(elementsField);
 
     const elementsLabel = document.createElement('label');
-    elementsLabel.className = 'group-modal__elements-label';
+    elementsLabel.className = 'tag-modal__elements-label';
     elementsField.appendChild(elementsLabel);
 
     const elementsBody = document.createElement('div');
     elementsField.appendChild(elementsBody);
 
     function renderElements() {
-      const componentIds = getComponentsUsingGroup(group.id, getComponents());
+      const componentIds = getComponentsUsingTag(tag.id, getComponents());
       const components = componentIds
         .map((id) => getComponents().find((c) => c.id === id))
         .filter(Boolean)
         .sort((a, b) => a.id.localeCompare(b.id));
 
-      elementsLabel.textContent = `Elementos del grupo (${components.length})`;
+      elementsLabel.textContent = `Elementos de la etiqueta (${components.length})`;
       elementsBody.innerHTML = '';
 
       if (components.length === 0) {
         const empty = document.createElement('div');
-        empty.className = 'group-modal__elements-empty';
-        empty.textContent = 'No hay elementos en este grupo.';
+        empty.className = 'tag-modal__elements-empty';
+        empty.textContent = 'No hay elementos en esta etiqueta.';
         elementsBody.appendChild(empty);
         return;
       }
 
       const list = document.createElement('div');
-      list.className = 'group-modal__elements-list';
+      list.className = 'tag-modal__elements-list';
 
       for (const component of components) {
         const item = document.createElement('div');
-        item.className = 'group-modal__element-item';
+        item.className = 'tag-modal__element-item';
 
         const idEl = document.createElement('span');
-        idEl.className = 'group-modal__element-id';
+        idEl.className = 'tag-modal__element-id';
         const typeEl = document.createElement('span');
         typeEl.className = 'type';
         typeEl.textContent = `${getComponentTypeLabel(component.type)}:`;
@@ -88,7 +88,7 @@ export function openGroupModal({ group = null, onAccept, onDelete, onRemoveFromG
         sacarBtn.className = 'btn-sacar';
         sacarBtn.textContent = 'Sacar';
         sacarBtn.addEventListener('click', () => {
-          onRemoveFromGroup(group, component.id);
+          onRemoveFromTag(tag, component.id);
           renderElements();
         });
         item.appendChild(sacarBtn);
@@ -106,12 +106,12 @@ export function openGroupModal({ group = null, onAccept, onDelete, onRemoveFromG
   footer.className = 'modal__footer';
   modal.appendChild(footer);
 
-  if (group) {
+  if (tag) {
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn-eliminar';
     deleteBtn.textContent = 'Eliminar';
     deleteBtn.addEventListener('click', () => {
-      onDelete(group, () => overlay.remove());
+      onDelete(tag, () => overlay.remove());
     });
     footer.appendChild(deleteBtn);
   }
@@ -134,8 +134,8 @@ export function openGroupModal({ group = null, onAccept, onDelete, onRemoveFromG
       nameError.style.display = 'block';
       return false;
     }
-    if (isGroupNameTaken(name, getGroups(), group?.id ?? null)) {
-      nameError.textContent = 'Ya existe un grupo con este nombre';
+    if (isTagNameTaken(name, getTags(), tag?.id ?? null)) {
+      nameError.textContent = 'Ya existe una etiqueta con este nombre';
       nameError.style.display = 'block';
       return false;
     }
@@ -152,7 +152,7 @@ export function openGroupModal({ group = null, onAccept, onDelete, onRemoveFromG
   acceptBtn.addEventListener('click', () => {
     if (!validateName()) return;
     const name = nameInput.value.trim();
-    onAccept(group ? updateGroup(group, { name }) : createGroup({ name }));
+    onAccept(tag ? updateTag(tag, { name }) : createTag({ name }));
     overlay.remove();
   });
 

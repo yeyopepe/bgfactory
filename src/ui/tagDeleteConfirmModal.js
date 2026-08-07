@@ -1,12 +1,12 @@
-// Confirmación de borrado de grupo en uso. A diferencia de ui/errorModal.js
+// Confirmación de borrado de etiqueta en uso. A diferencia de ui/errorModal.js
 // (Recursos), aquí sí se permite continuar. Lista elementos afectados (id +
-// tipo, de cualquier tipo posible); al aceptar borra el grupo y esos
-// elementos pierden la pertenencia a él, pero conservan sus otros grupos
-// (ver modes/edit/editMode.js).
+// tipo, de cualquier tipo posible); al aceptar borra la etiqueta y esos
+// elementos pierden la pertenencia a ella, pero conservan sus otras
+// etiquetas (ver modes/edit/editMode.js).
 
 import { getComponentTypeLabel } from './componentTypeModal.js';
 
-export function openGroupDeleteConfirmModal({ groupName, affectedComponents, onConfirm }) {
+export function openTagDeleteConfirmModal({ tagName, affectedComponents, onConfirm }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -15,18 +15,18 @@ export function openGroupDeleteConfirmModal({ groupName, affectedComponents, onC
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Eliminar grupo en uso';
+  header.textContent = 'Eliminar etiqueta en uso';
   modal.appendChild(header);
 
   const content = document.createElement('div');
   content.className = 'modal__content';
 
   const message = document.createElement('p');
-  message.textContent = `El grupo "${groupName}" está siendo usado por los siguientes elementos. Si continúas, se eliminará el grupo y esos elementos perderán la pertenencia a este grupo.`;
+  message.textContent = `La etiqueta "${tagName}" está siendo usada por los siguientes elementos. Si continúas, se eliminará la etiqueta y esos elementos perderán la pertenencia a esta etiqueta.`;
   content.appendChild(message);
 
   const list = document.createElement('ul');
-  list.className = 'group-delete-confirm-modal__list';
+  list.className = 'tag-delete-confirm-modal__list';
   for (const component of affectedComponents) {
     const item = document.createElement('li');
     item.textContent = `${getComponentTypeLabel(component.type)}: ${component.id}`;

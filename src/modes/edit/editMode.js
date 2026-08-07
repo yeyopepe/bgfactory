@@ -4,11 +4,11 @@
 import {
   getComponents, addComponent, replaceComponent, removeComponent, reorderComponent, getPanelState, setPanelState,
   getResources, addResource, replaceResource, removeResource, getResourcePanelState, setResourcePanelState,
-  getGroups, addGroup, replaceGroup, removeGroup, getGroupPanelState, setGroupPanelState, sacarCartaDeMazo,
+  getTags, addTag, replaceTag, removeTag, getTagPanelState, setTagPanelState, sacarCartaDeMazo,
 } from '../../core/state.js';
 import { updateComponent, cloneComponent, createCopy } from '../../core/component.js';
 import { createResource, resourceTypeForFileName, getComponentsUsingResource, findResourceByName } from '../../core/resource.js';
-import { getComponentsUsingGroup } from '../../core/group.js';
+import { getComponentsUsingTag } from '../../core/tag.js';
 import { getCartaIdsEnAlgunMazo, rectsOverlap } from '../../core/deck.js';
 import { convertImageToWebP } from '../../core/imageConversion.js';
 import { createInfiniteTable } from '../../ui/table.js';
@@ -19,9 +19,9 @@ import { renderComponentList } from '../../ui/componentList.js';
 import { renderComponentsOnTable } from '../../ui/componentRenderer.js';
 import { openResourceModal } from '../../ui/resourceModal.js';
 import { renderResourceList } from '../../ui/resourceList.js';
-import { renderGroupList } from '../../ui/groupList.js';
-import { openGroupModal } from '../../ui/groupModal.js';
-import { openGroupDeleteConfirmModal } from '../../ui/groupDeleteConfirmModal.js';
+import { renderTagList } from '../../ui/tagList.js';
+import { openTagModal } from '../../ui/tagModal.js';
+import { openTagDeleteConfirmModal } from '../../ui/tagDeleteConfirmModal.js';
 import { openBulkDeleteConfirmModal } from '../../ui/bulkDeleteConfirmModal.js';
 import { showErrorModal } from '../../ui/errorModal.js';
 import { openBatchUploadSummaryModal } from '../../ui/batchUploadSummaryModal.js';
@@ -82,7 +82,7 @@ let selectedComponentIds = new Set();
 // Orden de apilado (z-index) de los paneles flotantes, de abajo a arriba. Vive fuera de
 // `renderEditMode` por el mismo motivo que `selectedComponentIds`. No se persiste:
 // transitorio, se resetea al recargar.
-let panelStackOrder = ['component', 'resource', 'group'];
+let panelStackOrder = ['component', 'resource', 'tag'];
 
 function bringPanelToFront(key, panelsByKey) {
   panelStackOrder = panelStackOrder.filter((k) => k !== key);
@@ -163,8 +163,8 @@ export function renderEditMode(container) {
   let collapsed = getPanelState().collapsed;
   const { position: resourcePanelPosition, width: resourcePanelWidth } = getResourcePanelState();
   let resourceCollapsed = getResourcePanelState().collapsed;
-  const { position: groupPanelPosition, width: groupPanelWidth } = getGroupPanelState();
-  let groupCollapsed = getGroupPanelState().collapsed;
+  const { position: tagPanelPosition, width: tagPanelWidth } = getTagPanelState();
+  let tagCollapsed = getTagPanelState().collapsed;
 
   const layout = document.createElement('div');
   layout.style.display = 'flex';
@@ -201,25 +201,25 @@ export function renderEditMode(container) {
   }
   tableContainer.appendChild(resourceListContainer);
 
-  const groupListContainer = document.createElement('div');
-  groupListContainer.className = 'group-panel-container';
-  if (groupPanelPosition) {
-    groupListContainer.style.left = `${groupPanelPosition.left}px`;
-    groupListContainer.style.top = `${groupPanelPosition.top}px`;
-    groupListContainer.style.right = 'auto';
+  const tagListContainer = document.createElement('div');
+  tagListContainer.className = 'tag-panel-container';
+  if (tagPanelPosition) {
+    tagListContainer.style.left = `${tagPanelPosition.left}px`;
+    tagListContainer.style.top = `${tagPanelPosition.top}px`;
+    tagListContainer.style.right = 'auto';
   }
-  if (groupPanelWidth != null) {
-    groupListContainer.style.width = `${groupPanelWidth}px`;
+  if (tagPanelWidth != null) {
+    tagListContainer.style.width = `${tagPanelWidth}px`;
   }
-  tableContainer.appendChild(groupListContainer);
+  tableContainer.appendChild(tagListContainer);
 
   // Trae la ventana flotante interactuada al frente: captura, para no depender de que
   // listeners internos hagan `stopPropagation`; sin `preventDefault`, para no interferir
   // con el arrastre (`mousedown` en cabecera) ni clicks de botones/filas/campos.
-  const panelsByKey = { component: listContainer, resource: resourceListContainer, group: groupListContainer };
+  const panelsByKey = { component: listContainer, resource: resourceListContainer, tag: tagListContainer };
   listContainer.addEventListener('mousedown', () => bringPanelToFront('component', panelsByKey), true);
   resourceListContainer.addEventListener('mousedown', () => bringPanelToFront('resource', panelsByKey), true);
-  groupListContainer.addEventListener('mousedown', () => bringPanelToFront('group', panelsByKey), true);
+  tagListContainer.addEventListener('mousedown', () => bringPanelToFront('tag', panelsByKey), true);
   applyPanelStackOrder(panelsByKey);
 
   const RESOURCE_ACCEPT = '.png,.jpg,.jpeg,.gif,.svg,.webp,.ttf,.otf,.woff,.woff2';
@@ -362,29 +362,29 @@ export function renderEditMode(container) {
     return true;
   }
 
-  function attemptDeleteGroup(group, { onDeleted } = {}) {
-    const affectedIds = getComponentsUsingGroup(group.id, getComponents());
+  function attemptDeleteTag(tag, { onDeleted } = {}) {
+    const affectedIds = getComponentsUsingTag(tag.id, getComponents());
     if (affectedIds.length > 0) {
       const affectedComponents = affectedIds
         .map((id) => getComponents().find((c) => c.id === id))
         .filter(Boolean)
         .map((c) => ({ id: c.id, type: c.type }));
-      openGroupDeleteConfirmModal({
-        groupName: group.name,
+      openTagDeleteConfirmModal({
+        tagName: tag.name,
         affectedComponents,
         onConfirm: () => {
           for (const componentId of affectedIds) {
             const component = getComponents().find((c) => c.id === componentId);
-            if (component) replaceComponent(componentId, updateComponent(component, { grupoIds: component.grupoIds.filter((id) => id !== group.id) }));
+            if (component) replaceComponent(componentId, updateComponent(component, { etiquetaIds: component.etiquetaIds.filter((id) => id !== tag.id) }));
           }
-          removeGroup(group.id);
+          removeTag(tag.id);
           if (onDeleted) onDeleted();
         },
       });
       return false;
     }
-    if (!confirm(`¿Eliminar el grupo "${group.name}"?`)) return false;
-    removeGroup(group.id);
+    if (!confirm(`¿Eliminar la etiqueta "${tag.name}"?`)) return false;
+    removeTag(tag.id);
     return true;
   }
 
@@ -455,10 +455,10 @@ export function renderEditMode(container) {
     renderTable();
   }
 
-  // Selección de grupo desde el panel de Grupos: reemplaza siempre la selección
-  // completa por los miembros del grupo, sin toggle (a diferencia de `toggleSelect`).
-  function selectGroup(group) {
-    const ids = getComponentsUsingGroup(group.id, getComponents());
+  // Selección de etiqueta desde el panel de Etiquetas: reemplaza siempre la selección
+  // completa por los miembros de la etiqueta, sin toggle (a diferencia de `toggleSelect`).
+  function selectTag(tag) {
+    const ids = getComponentsUsingTag(tag.id, getComponents());
     selectedComponentIds.clear();
     for (const id of ids) selectedComponentIds.add(id);
 
@@ -474,7 +474,7 @@ export function renderEditMode(container) {
   }
 
   // Menú contextual de clic derecho en modo edición: Clonar/Copiar/Eliminar (igual que
-  // el listado de Componentes) y "Añadir a grupo", sobre la selección múltiple vigente.
+  // el listado de Componentes) y "Añadir a etiqueta", sobre la selección múltiple vigente.
   function handleComponentContextMenu(component, event) {
     if (!selectedComponentIds.has(component.id)) {
       selectedComponentIds.clear();
@@ -529,15 +529,15 @@ export function renderEditMode(container) {
 
     const specificItems = [
       {
-        label: 'Añadir a grupo',
+        label: 'Añadir a etiqueta',
         select: {
-          options: sortByName(getGroups()).map((g) => ({ value: g.id, label: g.name })),
-          onChange: (groupId) => {
+          options: sortByName(getTags()).map((t) => ({ value: t.id, label: t.name })),
+          onChange: (tagId) => {
             for (const c of affectedComponents) {
-              if (c.grupoIds.includes(groupId)) continue;
-              replaceComponent(c.id, updateComponent(c, { grupoIds: [...c.grupoIds, groupId] }));
+              if (c.etiquetaIds.includes(tagId)) continue;
+              replaceComponent(c.id, updateComponent(c, { etiquetaIds: [...c.etiquetaIds, tagId] }));
             }
-            showToast('Grupo añadido');
+            showToast('Etiqueta añadida');
           },
         },
       },
@@ -669,42 +669,42 @@ export function renderEditMode(container) {
     });
   }
 
-  function renderGroupPanel() {
-    renderGroupList(groupListContainer, getGroups(), getComponents(), {
-      onEdit: (group) => {
-        openGroupModal({
-          group,
-          onAccept: (updated) => replaceGroup(group.id, updated),
-          onDelete: (g, closeModal) => attemptDeleteGroup(g, { onDeleted: closeModal }),
-          onRemoveFromGroup: (g, componentId) => {
+  function renderTagPanel() {
+    renderTagList(tagListContainer, getTags(), getComponents(), {
+      onEdit: (tag) => {
+        openTagModal({
+          tag,
+          onAccept: (updated) => replaceTag(tag.id, updated),
+          onDelete: (t, closeModal) => attemptDeleteTag(t, { onDeleted: closeModal }),
+          onRemoveFromTag: (t, componentId) => {
             const component = getComponents().find((c) => c.id === componentId);
-            if (component) replaceComponent(componentId, updateComponent(component, { grupoIds: component.grupoIds.filter((id) => id !== g.id) }));
+            if (component) replaceComponent(componentId, updateComponent(component, { etiquetaIds: component.etiquetaIds.filter((id) => id !== t.id) }));
           },
         });
       },
-      onRemove: (group) => attemptDeleteGroup(group),
+      onRemove: (tag) => attemptDeleteTag(tag),
       onAdd: () => {
-        openGroupModal({ onAccept: (newGroup) => addGroup(newGroup) });
+        openTagModal({ onAccept: (newTag) => addTag(newTag) });
       },
-      onSelectGroup: selectGroup,
-      collapsed: groupCollapsed,
+      onSelectTag: selectTag,
+      collapsed: tagCollapsed,
       onToggleCollapse: () => {
-        groupCollapsed = !groupCollapsed;
-        setGroupPanelState({ collapsed: groupCollapsed });
-        renderGroupPanel();
+        tagCollapsed = !tagCollapsed;
+        setTagPanelState({ collapsed: tagCollapsed });
+        renderTagPanel();
       },
       onPanelMove: (left, top) => {
-        setGroupPanelState({ position: { left, top } });
+        setTagPanelState({ position: { left, top } });
       },
       onPanelResize: (width, height, left, top) => {
         const patch = height ? { width, height } : { width };
         if (left != null) patch.position = { left, top };
-        setGroupPanelState(patch);
+        setTagPanelState(patch);
       },
-      bodyHeight: getGroupPanelState().height,
-      columnWidths: getGroupPanelState().columnWidths,
+      bodyHeight: getTagPanelState().height,
+      columnWidths: getTagPanelState().columnWidths,
       onColumnResize: (columnWidths) => {
-        setGroupPanelState({ columnWidths });
+        setTagPanelState({ columnWidths });
       },
     });
   }
@@ -714,5 +714,5 @@ export function renderEditMode(container) {
   renderTable();
   renderList();
   renderResourcePanel();
-  renderGroupPanel();
+  renderTagPanel();
 }

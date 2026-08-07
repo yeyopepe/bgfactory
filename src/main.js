@@ -5,8 +5,8 @@ import { on } from './core/eventBus.js';
 import {
   MODES, getState, loadComponents, getComponents, getPanelState, loadPanelState,
   addResource, loadResources, getResources, getResourcePanelState, loadResourcePanelState,
-  getResourcesSeeded, markResourcesSeeded, loadResourcesSeeded, getGroups, loadGroups,
-  getGroupPanelState, loadGroupPanelState, getAppTitle, loadAppTitle,
+  getResourcesSeeded, markResourcesSeeded, loadResourcesSeeded, getTags, loadTags,
+  getTagPanelState, loadTagPanelState, getAppTitle, loadAppTitle,
 } from './core/state.js';
 import { CURRENT_VERSION } from './data/version.js';
 import { DEFAULT_RESOURCES } from './data/defaultResources.js';
@@ -46,7 +46,7 @@ function renderAll() {
 }
 
 function persistState() {
-  saveState(getComponents(), getPanelState(), getResources(), getResourcePanelState(), getResourcesSeeded(), getGroups(), getGroupPanelState(), getAppTitle());
+  saveState(getComponents(), getPanelState(), getResources(), getResourcePanelState(), getResourcesSeeded(), getTags(), getTagPanelState(), getAppTitle());
 }
 
 on('mode:changed', renderAll);
@@ -57,9 +57,9 @@ on('resources:changed', renderAll);
 on('resources:changed', persistState);
 on('resources:changed', (resources) => syncFontFaces(resources));
 on('resourcePanelState:changed', persistState);
-on('groups:changed', renderAll);
-on('groups:changed', persistState);
-on('groupPanelState:changed', persistState);
+on('tags:changed', renderAll);
+on('tags:changed', persistState);
+on('tagPanelState:changed', persistState);
 on('appTitle:changed', renderAll);
 on('appTitle:changed', persistState);
 
@@ -94,14 +94,14 @@ if (saved?.error) {
   if (saved.resourcePanelState) {
     loadResourcePanelState(saved.resourcePanelState);
   }
-  if (saved.groupPanelState) {
-    loadGroupPanelState(saved.groupPanelState);
+  if (saved.tagPanelState) {
+    loadTagPanelState(saved.tagPanelState);
   }
   loadAppTitle(saved.appTitle);
   loadResourcesSeeded(saved.resourcesSeeded === true);
   loadComponents(saved.components);
   loadResources(saved.resources);
-  loadGroups(saved.groups ?? []);
+  loadTags(saved.tags ?? []);
   if (!getResourcesSeeded()) {
     seedDefaultResources();
   }
@@ -112,7 +112,7 @@ if (saved?.error) {
     loadResourcesSeeded(seed.resourcesSeeded === true);
     loadComponents(seed.components);
     loadResources(seed.resources);
-    loadGroups(seed.groups ?? []);
+    loadTags(seed.tags ?? []);
     if (!getResourcesSeeded()) {
       seedDefaultResources();
     }

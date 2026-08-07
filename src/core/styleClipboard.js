@@ -15,9 +15,9 @@ function cloneFace(face) {
 
 // `data` solo debe incluir las claves de los bloques marcados al copiar:
 // { generales, proporcion, esquinasRedondeadas, caraFrontal, caraTrasera }.
-// `generales` incluye `grupoIds`/`grupoNames` (este último de solo lectura,
-// para el mensaje de error si algún grupo deja de existir al pegar; un
-// componente puede tener varios grupos a la vez). `esquinasRedondeadas` viaja
+// `generales` incluye `etiquetaIds`/`etiquetaNames` (este último de solo
+// lectura, para el mensaje de error si alguna etiqueta deja de existir al
+// pegar; un componente puede tener varias etiquetas a la vez). `esquinasRedondeadas` viaja
 // siempre junto a `proporcion`, dentro del bloque "Proporción" del checklist
 // de copiar/pegar estilo. Los bloques copiados se clonan en profundidad para
 // que futuras ediciones de la carta origen no muten el portapapeles ya
@@ -43,18 +43,18 @@ export function hasStyleClipboard() {
 // Recorre solo los bloques presentes en `clip` (no los de la carta destino) y
 // devuelve la lista de referencias que ya no existen en el proyecto —
 // `[]` si todo es válido. Función pura: no toca el estado ni el portapapeles.
-export function validateStyleClipboardForPaste(clip, { groups, resources }) {
+export function validateStyleClipboardForPaste(clip, { tags, resources }) {
   const incidencias = [];
   if (!clip) return incidencias;
 
-  if (clip.generales && Array.isArray(clip.generales.grupoIds)) {
-    clip.generales.grupoIds.forEach((grupoId, index) => {
-      const exists = groups.some((g) => g.id === grupoId);
+  if (clip.generales && Array.isArray(clip.generales.etiquetaIds)) {
+    clip.generales.etiquetaIds.forEach((etiquetaId, index) => {
+      const exists = tags.some((t) => t.id === etiquetaId);
       if (!exists) {
         incidencias.push({
           elemento: 'Generales',
-          referencia: 'Grupo',
-          detalle: `"${clip.generales.grupoNames?.[index] || grupoId}" ya no existe`,
+          referencia: 'Etiqueta',
+          detalle: `"${clip.generales.etiquetaNames?.[index] || etiquetaId}" ya no existe`,
         });
       }
     });

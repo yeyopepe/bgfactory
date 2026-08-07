@@ -9,7 +9,7 @@
 import { CARD_PROPORTIONS } from '../core/cardProportions.js';
 
 const ITEMS = [
-  { key: 'generales', label: 'Generales', hint: 'Bloqueado, tooltip, subir al interactuar, grupo' },
+  { key: 'generales', label: 'Generales', hint: 'Bloqueado, tooltip, subir al interactuar, etiqueta' },
   { key: 'proporcion', label: 'Proporción' },
   { key: 'caraFrontal', label: 'Cara frontal' },
   { key: 'caraTrasera', label: 'Cara trasera' },

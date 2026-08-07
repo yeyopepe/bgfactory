@@ -1,5 +1,5 @@
 // Lógica pura del componente "Mazo": sin dependencias de otras capas, mismo
-// patrón que core/dice.js / core/group.js.
+// patrón que core/dice.js / core/tag.js.
 
 // Copia barajada de `cartaIds` (Fisher-Yates + Math.random(), mismo generador
 // que core/dice.js), sin mutar el array recibido.

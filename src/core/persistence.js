@@ -19,21 +19,22 @@ function parseState(raw) {
   }
   const panelState = (parsed.panelState && typeof parsed.panelState === 'object') ? parsed.panelState : null;
   const resourcePanelState = (parsed.resourcePanelState && typeof parsed.resourcePanelState === 'object') ? parsed.resourcePanelState : null;
-  // Compatibilidad hacia atrás ("Mazo" → "Grupo"): guardados antiguos tienen
-  // estas dos colecciones bajo las claves `decks`/`deckPanelState` — se
-  // siguen leyendo si las nuevas no están presentes.
-  const groupPanelStateRaw = parsed.groupPanelState ?? parsed.deckPanelState;
-  const groupPanelState = (groupPanelStateRaw && typeof groupPanelStateRaw === 'object') ? groupPanelStateRaw : null;
+  // Compatibilidad hacia atrás ("Mazo" → "Grupo" → "Etiqueta"): guardados
+  // antiguos tienen estas dos colecciones bajo las claves `deckPanelState`/
+  // `groupPanelState` o `decks`/`groups` — se siguen leyendo si las nuevas
+  // no están presentes.
+  const tagPanelStateRaw = parsed.tagPanelState ?? parsed.groupPanelState ?? parsed.deckPanelState;
+  const tagPanelState = (tagPanelStateRaw && typeof tagPanelStateRaw === 'object') ? tagPanelStateRaw : null;
   const resources = Array.isArray(parsed.resources) ? parsed.resources : [];
   const resourcesSeeded = parsed.resourcesSeeded === true;
-  const groups = Array.isArray(parsed.groups) ? parsed.groups : (Array.isArray(parsed.decks) ? parsed.decks : []);
+  const tags = Array.isArray(parsed.tags) ? parsed.tags : (Array.isArray(parsed.groups) ? parsed.groups : (Array.isArray(parsed.decks) ? parsed.decks : []));
   const appTitle = (typeof parsed.appTitle === 'string' && parsed.appTitle.trim() !== '') ? parsed.appTitle : DEFAULT_APP_TITLE;
-  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded, groups, groupPanelState, appTitle };
+  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, appTitle };
 }
 
-export function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded, groups, groupPanelState, appTitle) {
+export function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, appTitle) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, groups, groupPanelState, appTitle }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, appTitle }));
   } catch {
     // Cuota excedida u otro fallo de localStorage: el autoguardado se omite
     // silenciosamente, sin interrumpir el uso normal de la aplicación.
@@ -68,18 +69,19 @@ export function parseImportedComponents(raw) {
     return { error: true, detail: 'El fichero no contiene un listado de componentes válido.' };
   }
   const resources = Array.isArray(parsed.resources) ? parsed.resources : [];
-  const groups = Array.isArray(parsed.groups) ? parsed.groups : (Array.isArray(parsed.decks) ? parsed.decks : []);
+  const tags = Array.isArray(parsed.tags) ? parsed.tags : (Array.isArray(parsed.groups) ? parsed.groups : (Array.isArray(parsed.decks) ? parsed.decks : []));
   // A diferencia de parseState, aquí `null` en vez de DEFAULT_APP_TITLE: este
   // resultado no siempre se aplica al importar (solo en modo "Sobrescribir
   // todo el juego", ui/editModeToggle.js), así que un fichero sin título no
   // debe forzar el título por defecto sobre la partida actual.
   const appTitle = (typeof parsed.appTitle === 'string' && parsed.appTitle.trim() !== '') ? parsed.appTitle : null;
-  return { components: parsed.components, resources, groups, appTitle };
+  return { components: parsed.components, resources, tags, appTitle };
 }
 
-// JSON ligero con los componentes, todos los recursos y los grupos (a diferencia
-// de "Guardar", que exporta la app completa) — pensado para sobrevivir a
-// cambios de versión de la app, sin incluir la configuración del panel flotante.
-export function buildComponentsExport(components, resources, groups, appTitle) {
-  return { version: CURRENT_VERSION, components, resources, groups, appTitle };
+// JSON ligero con los componentes, todos los recursos y las etiquetas (a
+// diferencia de "Guardar", que exporta la app completa) — pensado para
+// sobrevivir a cambios de versión de la app, sin incluir la configuración
+// del panel flotante.
+export function buildComponentsExport(components, resources, tags, appTitle) {
+  return { version: CURRENT_VERSION, components, resources, tags, appTitle };
 }

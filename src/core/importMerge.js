@@ -1,19 +1,19 @@
 // Lógica de fusión de una importación: combina la selección de
-// componentes/recursos/grupos leída de un fichero con el estado actual del
+// componentes/recursos/etiquetas leída de un fichero con el estado actual del
 // juego, según el modo elegido (añadir/sobrescribir) y el comportamiento ante
 // id duplicado (sobrescribir/mantener ambos). Sin dependencias de DOM ni de
 // core/state.js: recibe y devuelve datos planos, quien la invoca decide cómo
 // aplicarlo al estado (mismo criterio que core/component.js / core/resource.js).
 
-import { createGroup, isGroupNameTaken } from './group.js';
-import { normalizeComponentGrupoIds } from './component.js';
+import { createTag, isTagNameTaken } from './tag.js';
+import { normalizeComponentEtiquetaIds } from './component.js';
 
 const RESOURCE_REF_KEYS = new Set(['imagenResourceId', 'fuenteResourceId']);
 
 // Calcula el siguiente id libre para `baseId` con el sufijo "-imported" (o
 // "-imported(n)" si también choca), análogo a nextCloneId (core/component.js)
 // pero genérico: opera sobre el conjunto de ids ya usados que le pasen,
-// indistintamente de si son de componente, recurso o grupo.
+// indistintamente de si son de componente, recurso o etiqueta.
 export function nextImportedId(baseId, usedIds) {
   const root = `${baseId}-imported`;
   if (!usedIds.has(root)) return root;
@@ -86,19 +86,19 @@ function remapRefsDeep(value, resourceIdMap) {
 }
 
 // Reescribe, solo en los componentes seleccionados para importar, las
-// referencias a recursos/grupos cuyo id se haya renombrado por conflicto
+// referencias a recursos/etiquetas cuyo id se haya renombrado por conflicto
 // ("mantener ambos"). Los componentes ya existentes no se tocan aquí.
-// `grupoIds` es propiedad plana de primer nivel del componente, igual que
+// `etiquetaIds` es propiedad plana de primer nivel del componente, igual que
 // `image`, así que se remapea aquí en vez de dentro de remapRefsDeep (que
 // solo recorre `properties`).
-function remapComponentRefs(components, resourceIdMap, groupIdMap) {
-  if (resourceIdMap.size === 0 && groupIdMap.size === 0) return components;
+function remapComponentRefs(components, resourceIdMap, tagIdMap) {
+  if (resourceIdMap.size === 0 && tagIdMap.size === 0) return components;
   return components.map((component) => {
     let image = component.image;
     if (typeof image === 'string' && resourceIdMap.has(image)) image = resourceIdMap.get(image);
-    const grupoIds = component.grupoIds.map((id) => (groupIdMap.has(id) ? groupIdMap.get(id) : id));
+    const etiquetaIds = component.etiquetaIds.map((id) => (tagIdMap.has(id) ? tagIdMap.get(id) : id));
     const properties = remapRefsDeep(component.properties ?? {}, resourceIdMap);
-    return { ...component, image, grupoIds, properties };
+    return { ...component, image, etiquetaIds, properties };
   });
 }
 
@@ -136,21 +136,21 @@ function findNameById(id, items) {
   return found ? found.name : id;
 }
 
-// Deduplica nombres de grupos tras el merge por id: para cada grupo cuyo
-// nombre ya aparece antes en la lista, renombra añadiendo " (importado)" (o
-// " (importado n)" si esa forma también colisiona). Devuelve los grupos
-// deduplicated y un array de renombres aplicados.
-function dedupeGroupNames(groups) {
+// Deduplica nombres de etiquetas tras el merge por id: para cada etiqueta
+// cuyo nombre ya aparece antes en la lista, renombra añadiendo " (importado)"
+// (o " (importado n)" si esa forma también colisiona). Devuelve las
+// etiquetas deduplicated y un array de renombres aplicados.
+function dedupeTagNames(tags) {
   const result = [];
   const seenNames = new Map();
   const renames = [];
 
-  for (const group of groups) {
-    const normalizedName = group.name.trim().toLowerCase();
+  for (const tag of tags) {
+    const normalizedName = tag.name.trim().toLowerCase();
 
     if (seenNames.has(normalizedName)) {
       let newName;
-      const root = `${group.name} (importado)`;
+      const root = `${tag.name} (importado)`;
       const rootNormalized = root.trim().toLowerCase();
 
       if (!seenNames.has(rootNormalized)) {
@@ -159,7 +159,7 @@ function dedupeGroupNames(groups) {
       } else {
         let n = 2;
         while (true) {
-          const candidate = `${group.name} (importado ${n})`;
+          const candidate = `${tag.name} (importado ${n})`;
           const candidateNormalized = candidate.trim().toLowerCase();
           if (!seenNames.has(candidateNormalized)) {
             newName = candidate;
@@ -170,56 +170,56 @@ function dedupeGroupNames(groups) {
         }
       }
 
-      renames.push({ groupId: group.id, oldName: group.name, newName });
-      result.push({ ...group, name: newName });
+      renames.push({ tagId: tag.id, oldName: tag.name, newName });
+      result.push({ ...tag, name: newName });
     } else {
       seenNames.set(normalizedName, true);
-      result.push(group);
+      result.push(tag);
     }
   }
 
-  return { groups: result, renames };
+  return { tags: result, renames };
 }
 
 // Punto de entrada: fusiona la selección de una importación con el estado
 // actual, resuelve las referencias rotas resultantes (recurso ausente se
-// descarta, grupo ausente se autocrea) y devuelve el estado final más un
+// descarta, etiqueta ausente se autocrea) y devuelve el estado final más un
 // informe de los avisos generados (una fila por referencia rota detectada).
 export function mergeImportedGame({
   mode,
   conflictMode,
   existingComponents,
   existingResources,
-  existingGroups,
+  existingTags,
   selectedComponents,
   selectedResources,
-  selectedGroups,
+  selectedTags,
   allImportedResources = [],
-  allImportedGroups = [],
+  allImportedTags = [],
 }) {
   const { result: resources, idMap: resourceIdMap } = mergeCollection(existingResources, selectedResources, mode, conflictMode);
-  let { result: groups, idMap: groupIdMap } = mergeCollection(existingGroups, selectedGroups, mode, conflictMode);
+  let { result: tags, idMap: tagIdMap } = mergeCollection(existingTags, selectedTags, mode, conflictMode);
 
-  const { groups: dedupedGroups, renames: groupRenames } = dedupeGroupNames(groups);
-  groups = dedupedGroups;
+  const { tags: dedupedTags, renames: tagRenames } = dedupeTagNames(tags);
+  tags = dedupedTags;
 
   // Componentes importados pueden venir de un fichero exportado con formato
-  // antiguo (campo escalar `grupoId`, o su ausencia total) — se normalizan
-  // aquí, antes de remapear referencias, para no asumir que ya están en el
-  // formato `grupoIds: string[]` actual.
-  const normalizedSelectedComponents = selectedComponents.map(normalizeComponentGrupoIds);
-  const remappedSelectedComponents = remapComponentRefs(normalizedSelectedComponents, resourceIdMap, groupIdMap);
+  // antiguo (campo escalar `grupoId`, array `grupoIds`, o su ausencia total)
+  // — se normalizan aquí, antes de remapear referencias, para no asumir que
+  // ya están en el formato `etiquetaIds: string[]` actual.
+  const normalizedSelectedComponents = selectedComponents.map(normalizeComponentEtiquetaIds);
+  const remappedSelectedComponents = remapComponentRefs(normalizedSelectedComponents, resourceIdMap, tagIdMap);
   const { result: components, insertedIds: importedComponentIds } = mergeCollection(existingComponents, remappedSelectedComponents, mode, conflictMode);
 
   const resourceIds = new Set(resources.map((r) => r.id));
-  const groupIds = new Set(groups.map((g) => g.id));
-  const createdGroupIds = new Set();
+  const tagIds = new Set(tags.map((t) => t.id));
+  const createdTagIds = new Set();
   const report = [];
 
-  for (const rename of groupRenames) {
+  for (const rename of tagRenames) {
     report.push({
-      tipoError: 'grupoDuplicado',
-      solucion: 'Se renombró el grupo importado para evitar un nombre duplicado',
+      tipoError: 'etiquetaDuplicada',
+      solucion: 'Se renombró la etiqueta importada para evitar un nombre duplicado',
       elemento: rename.newName,
     });
   }
@@ -242,34 +242,34 @@ export function mergeImportedGame({
       }
     }
 
-    for (let i = 0; i < component.grupoIds.length; i += 1) {
-      const grupoId = component.grupoIds[i];
-      if (!grupoId || groupIds.has(grupoId)) continue;
-      const candidateName = findNameById(grupoId, allImportedGroups);
+    for (let i = 0; i < component.etiquetaIds.length; i += 1) {
+      const etiquetaId = component.etiquetaIds[i];
+      if (!etiquetaId || tagIds.has(etiquetaId)) continue;
+      const candidateName = findNameById(etiquetaId, allImportedTags);
 
-      if (createdGroupIds.has(grupoId)) continue;
+      if (createdTagIds.has(etiquetaId)) continue;
 
-      const existingGroupWithSameName = groups.find(
-        (g) => isGroupNameTaken(candidateName, [g], grupoId)
+      const existingTagWithSameName = tags.find(
+        (t) => isTagNameTaken(candidateName, [t], etiquetaId)
       );
 
-      if (existingGroupWithSameName) {
-        component.grupoIds[i] = existingGroupWithSameName.id;
+      if (existingTagWithSameName) {
+        component.etiquetaIds[i] = existingTagWithSameName.id;
         changed = true;
         report.push({
-          tipoError: 'grupoDuplicado',
-          solucion: 'Se vinculó a un grupo ya existente con el mismo nombre en vez de crear uno duplicado',
+          tipoError: 'etiquetaDuplicada',
+          solucion: 'Se vinculó a una etiqueta ya existente con el mismo nombre en vez de crear una duplicada',
           elemento: candidateName,
         });
       } else {
-        groups.push(createGroup({ id: grupoId, name: candidateName }));
-        groupIds.add(grupoId);
-        createdGroupIds.add(grupoId);
+        tags.push(createTag({ id: etiquetaId, name: candidateName }));
+        tagIds.add(etiquetaId);
+        createdTagIds.add(etiquetaId);
         changed = true;
         report.push({
           componentId: component.id,
-          tipoError: 'grupo',
-          solucion: 'Se creó el grupo automáticamente',
+          tipoError: 'etiqueta',
+          solucion: 'Se creó la etiqueta automáticamente',
           elemento: candidateName,
         });
       }
@@ -278,5 +278,5 @@ export function mergeImportedGame({
     return changed ? { ...component } : component;
   });
 
-  return { components: finalComponents, resources, groups, report };
+  return { components: finalComponents, resources, tags, report };
 }

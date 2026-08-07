@@ -1,4 +1,4 @@
-// Lista de selección agrupada en tres bloques (Componentes/Recursos/Grupos),
+// Lista de selección agrupada en tres bloques (Componentes/Recursos/Etiquetas),
 // reutilizada por ui/exportSelectionModal.js y ui/importSelectionModal.js.
 // Cada bloque tiene su propio checkbox "seleccionar todo el bloque" (marca/
 // desmarca de golpe los checks de ese bloque) y la lista de checks
@@ -10,26 +10,26 @@ import { formatComponentIdentifier } from './componentRenderer.js';
 // con los ids marcados en cada bloque. `onSelectionChange(selection)` se
 // invoca cada vez que cambia algún check (incluido el pintado inicial), para
 // que el caller pueda habilitar/deshabilitar su botón de confirmar.
-export function createElementSelectionGroups(container, { components = [], resources = [], groups = [] }, { onSelectionChange } = {}) {
+export function createElementSelectionGroups(container, { components = [], resources = [], tags = [] }, { onSelectionChange } = {}) {
   container.innerHTML = '';
 
   const selected = {
     componentIds: new Set(components.map((c) => c.id)),
     resourceIds: new Set(resources.map((r) => r.id)),
-    groupIds: new Set(groups.map((g) => g.id)),
+    tagIds: new Set(tags.map((t) => t.id)),
   };
 
   const blocks = [
     { key: 'componentIds', title: 'Componentes', items: components, label: formatComponentIdentifier },
     { key: 'resourceIds', title: 'Recursos', items: resources, label: (r) => r.name },
-    { key: 'groupIds', title: 'Grupos', items: groups, label: (g) => g.name },
+    { key: 'tagIds', title: 'Etiquetas', items: tags, label: (t) => t.name },
   ];
 
   function getSelection() {
     return {
       componentIds: Array.from(selected.componentIds),
       resourceIds: Array.from(selected.resourceIds),
-      groupIds: Array.from(selected.groupIds),
+      tagIds: Array.from(selected.tagIds),
     };
   }
 

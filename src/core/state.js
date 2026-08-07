@@ -3,7 +3,7 @@
 
 import { emit } from './eventBus.js';
 import { migrateFichaComponent } from './fichaMigration.js';
-import { syncCopyWithOriginal, renameCopyId, updateComponent, normalizeComponentGrupoIds } from './component.js';
+import { syncCopyWithOriginal, renameCopyId, updateComponent, normalizeComponentEtiquetaIds } from './component.js';
 import { computeSacarCartaDeMazo } from './deck.js';
 import { DEFAULT_APP_TITLE } from './appTitle.js';
 import { CARD_DESIGN_WIDTH } from './cardProportions.js';
@@ -14,12 +14,12 @@ const state = {
   mode: MODES.PLAY,
   components: [],
   resources: [],
-  groups: [],
+  tags: [],
 };
 
 let panelState = { collapsed: false, position: null, width: null, height: null };
 let resourcePanelState = { collapsed: false, position: null, width: null, height: null };
-let groupPanelState = { collapsed: false, position: null, width: null, height: null };
+let tagPanelState = { collapsed: false, position: null, width: null, height: null };
 let appTitle = DEFAULT_APP_TITLE;
 // Recuerda si los recursos por defecto (data/defaultResources.js) ya se han
 // sembrado alguna vez en este guardado, para no reponerlos cada vez que el
@@ -146,27 +146,27 @@ function migrateFichas(components) {
   }
 }
 
-// Migra en el sitio cualquier componente que todavía tenga el campo escalar
-// `grupoId` (formato antiguo, "1 grupo") al campo `grupoIds` (array, "N
-// grupos"), best-effort, mismo criterio que migrateFichas: nunca debe
-// bloquear el arranque. Debe ejecutarse antes que migrateDeckIdToGrupo, que
-// ya asume `grupoIds` como array.
-function migrateGrupoIdToGrupoIds(components) {
+// Migra en el sitio cualquier componente que todavía tenga el formato
+// antiguo (escalar `grupoId`, o array `grupoIds`) al campo `etiquetaIds`
+// (array, "N etiquetas"), best-effort, mismo criterio que migrateFichas:
+// nunca debe bloquear el arranque. Debe ejecutarse antes que
+// migrateDeckIdToEtiqueta, que ya asume `etiquetaIds` como array.
+function migrateGrupoIdToEtiquetaIds(components) {
   for (let i = 0; i < components.length; i += 1) {
-    components[i] = normalizeComponentGrupoIds(components[i]);
+    components[i] = normalizeComponentEtiquetaIds(components[i]);
   }
 }
 
 // Migra en el sitio cualquier componente con `properties.deckId` (campo
-// específico de carta del antiguo "Mazo", ahora "Grupo") añadiendo ese id a
-// su `grupoIds`, best-effort, mismo criterio que migrateFichas: nunca debe
-// bloquear el arranque.
-function migrateDeckIdToGrupo(components) {
+// específico de carta del antiguo "Mazo", ahora "Etiqueta") añadiendo ese id
+// a su `etiquetaIds`, best-effort, mismo criterio que migrateFichas: nunca
+// debe bloquear el arranque.
+function migrateDeckIdToEtiqueta(components) {
   for (const component of components) {
     if (component.properties && 'deckId' in component.properties) {
       const { deckId, ...restProperties } = component.properties;
-      if (!Array.isArray(component.grupoIds)) component.grupoIds = [];
-      if (deckId != null && !component.grupoIds.includes(deckId)) component.grupoIds.push(deckId);
+      if (!Array.isArray(component.etiquetaIds)) component.etiquetaIds = [];
+      if (deckId != null && !component.etiquetaIds.includes(deckId)) component.etiquetaIds.push(deckId);
       component.properties = restProperties;
     }
   }
@@ -252,8 +252,8 @@ function migrateCartaMedidasReales(components) {
 export function loadComponents(components) {
   migrateFichas(components);
   migrateCartaMedidasReales(components);
-  migrateGrupoIdToGrupoIds(components);
-  migrateDeckIdToGrupo(components);
+  migrateGrupoIdToEtiquetaIds(components);
+  migrateDeckIdToEtiqueta(components);
   migrateBloqueado(components);
   migrateAccionClickDerecho(components);
   migrateTableroSimple(components);
@@ -339,41 +339,41 @@ export function loadResourcesSeeded(value) {
   resourcesSeeded = value;
 }
 
-export function getGroups() {
-  return state.groups;
+export function getTags() {
+  return state.tags;
 }
 
-export function addGroup(group) {
-  state.groups.push(group);
-  emit('groups:changed', state.groups);
+export function addTag(tag) {
+  state.tags.push(tag);
+  emit('tags:changed', state.tags);
 }
 
-export function replaceGroup(id, updatedGroup) {
-  const index = state.groups.findIndex((g) => g.id === id);
+export function replaceTag(id, updatedTag) {
+  const index = state.tags.findIndex((t) => t.id === id);
   if (index === -1) return;
-  state.groups[index] = updatedGroup;
-  emit('groups:changed', state.groups);
+  state.tags[index] = updatedTag;
+  emit('tags:changed', state.tags);
 }
 
-export function removeGroup(id) {
-  state.groups = state.groups.filter((g) => g.id !== id);
-  emit('groups:changed', state.groups);
+export function removeTag(id) {
+  state.tags = state.tags.filter((t) => t.id !== id);
+  emit('tags:changed', state.tags);
 }
 
-export function loadGroups(groups) {
-  state.groups = groups;
-  emit('groups:changed', state.groups);
+export function loadTags(tags) {
+  state.tags = tags;
+  emit('tags:changed', state.tags);
 }
 
-export function getGroupPanelState() {
-  return groupPanelState;
+export function getTagPanelState() {
+  return tagPanelState;
 }
 
-export function setGroupPanelState(partial) {
-  groupPanelState = { ...groupPanelState, ...partial };
-  emit('groupPanelState:changed', groupPanelState);
+export function setTagPanelState(partial) {
+  tagPanelState = { ...tagPanelState, ...partial };
+  emit('tagPanelState:changed', tagPanelState);
 }
 
-export function loadGroupPanelState(newGroupPanelState) {
-  groupPanelState = newGroupPanelState;
+export function loadTagPanelState(newTagPanelState) {
+  tagPanelState = newTagPanelState;
 }

@@ -1,7 +1,7 @@
 // UI para entrar/salir del modo edición: botón de entrada en modo juego,
 // barra de herramientas propia (con botón de salida) en modo edición.
 
-import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadGroups, getGroups, getGroupPanelState, getAppTitle, setAppTitle } from '../core/state.js';
+import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadTags, getTags, getTagPanelState, getAppTitle, setAppTitle } from '../core/state.js';
 import { getFullAppTitle } from '../core/appTitle.js';
 import { buildExportHtml, downloadHtml, downloadJson } from '../core/fileExport.js';
 import { buildComponentsExport, parseImportedComponents } from '../core/persistence.js';
@@ -18,7 +18,7 @@ import { openImportConversionErrorModal } from './importConversionErrorModal.js'
 import { migrateFichaComponent } from '../core/fichaMigration.js';
 
 function saveAs(filename) {
-  const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded(), getGroups(), getGroupPanelState(), getAppTitle());
+  const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded(), getTags(), getTagPanelState(), getAppTitle());
   downloadHtml(filename, html);
   showToast(`Guardado como "${filename}"`);
 }
@@ -32,10 +32,10 @@ function openExportFlow() {
   openExportSelectionModal({
     components: getComponents(),
     resources: getResources(),
-    groups: getGroups(),
+    tags: getTags(),
     defaultFilename: `${getFullAppTitle(getAppTitle())}.json`,
-    onAccept: ({ filename, componentIds, resourceIds, groupIds }) => {
-      const data = buildComponentsExport(byIds(getComponents(), componentIds), byIds(getResources(), resourceIds), byIds(getGroups(), groupIds), getAppTitle());
+    onAccept: ({ filename, componentIds, resourceIds, tagIds }) => {
+      const data = buildComponentsExport(byIds(getComponents(), componentIds), byIds(getResources(), resourceIds), byIds(getTags(), tagIds), getAppTitle());
       downloadJson(filename.endsWith('.json') ? filename : `${filename}.json`, data);
     },
   });
@@ -53,8 +53,8 @@ function importComponentsFromFile(file) {
     openImportSelectionModal({
       components: result.components,
       resources: result.resources,
-      groups: result.groups,
-      onAccept: ({ componentIds, resourceIds, groupIds }) => {
+      tags: result.tags,
+      onAccept: ({ componentIds, resourceIds, tagIds }) => {
         openImportConfirmModal({
           onAccept: ({ mode, conflictMode }) => {
             const selectedComponents = byIds(result.components, componentIds);
@@ -72,22 +72,22 @@ function importComponentsFromFile(file) {
             }
 
             const proceedWithImport = (components) => {
-              const { components: mergedComponents, resources, groups, report } = mergeImportedGame({
+              const { components: mergedComponents, resources, tags, report } = mergeImportedGame({
                 mode,
                 conflictMode,
                 existingComponents: getComponents(),
                 existingResources: getResources(),
-                existingGroups: getGroups(),
+                existingTags: getTags(),
                 selectedComponents: components,
                 selectedResources: byIds(result.resources, resourceIds),
-                selectedGroups: byIds(result.groups, groupIds),
+                selectedTags: byIds(result.tags, tagIds),
                 allImportedResources: result.resources,
-                allImportedGroups: result.groups,
+                allImportedTags: result.tags,
               });
 
               loadComponents(mergedComponents);
               loadResources(resources);
-              loadGroups(groups);
+              loadTags(tags);
               if (mode === 'overwrite' && result.appTitle) setAppTitle(result.appTitle);
 
               if (report.length > 0) openImportReportModal(report);

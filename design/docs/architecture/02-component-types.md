@@ -157,7 +157,7 @@ Cara sin `imagenResourceId` ni `textBoxes`: carta se muestra en blanco con la pr
 
 ## `'mazo'`
 
-Pila ordenada de cartas boca abajo. Concepto independiente de "Grupo" (puramente organizativo) — ambos conviven sin relación entre sí. Creado con `width`/`height` = `180 × 180/getProporcionRatio('5:7')` px (mismo tamaño de partida que "Carta/Ficha"), `bloqueado: true` y `subirAlMoverInteractuar: true` por defecto. No admite proporciones especiales: solo orientación "Vertical"/"Horizontal", que al cambiarse transpone `width`/`height` (no resetea a tamaño por defecto).
+Pila ordenada de cartas boca abajo. Concepto independiente de "Etiqueta" (puramente organizativo) — ambos conviven sin relación entre sí. Creado con `width`/`height` = `180 × 180/getProporcionRatio('5:7')` px (mismo tamaño de partida que "Carta/Ficha"), `bloqueado: true` y `subirAlMoverInteractuar: true` por defecto. No admite proporciones especiales: solo orientación "Vertical"/"Horizontal", que al cambiarse transpone `width`/`height` (no resetea a tamaño por defecto).
 
 | Propiedad | Tipo | Default | Descripción |
 |---|---|---|---|
