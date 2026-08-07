@@ -22,7 +22,15 @@ Decisiones ya confirmadas con el usuario:
 flowchart TD
     Start(["/ms-version XXXX"]) --> Guard{"¿ms-context.json\ncon framework.changesDir?"}
     Guard -- No --> StopInit["Pedir /ms-init y parar"]
-    Guard -- Sí --> ResolveXXXX{"¿XXXX indicado?"}
+    Guard -- Sí --> GuardImpl{"¿implemented/\ntiene alguna carpeta?"}
+    GuardImpl -- No --> ResolveXXXX
+    GuardImpl -- Sí --> PickImpl["Tomar la siguiente carpeta\nde implemented/ sin resolver"]
+    PickImpl --> AskClosed{"Preguntar al usuario:\n¿esta pasa a closed?"}
+    AskClosed -- No --> WaitUser["Esperar confirmación\n(no se avanza de ninguna manera)"]
+    WaitUser --> AskClosed
+    AskClosed -- Sí --> MoveClosed["move-change.py\n--from implemented --to closed"]
+    MoveClosed --> GuardImpl
+    ResolveXXXX{"¿XXXX indicado?"}
     ResolveXXXX -- No --> AskXXXX["Preguntar XXXX al usuario"]
     AskXXXX --> CreateFolder
     ResolveXXXX -- Sí --> CreateFolder["init-version-folder.py\ncrea versions/XXXX/{files,docs}"]
@@ -63,6 +71,43 @@ flowchart TD
     DeleteClosed --> Confirm["Confirmar al usuario:\nfiles/, docs/, changelog.md\ny estado final de closed/"]
 ```
 
+## Diagrama general del proceso de versionado (plantilla reutilizable)
+
+Además del flowchart técnico de implementación de arriba, se añade un **diagrama general, orientado al usuario**, sin detalle de scripts ni nombres de parámetros — pensado para poder enseñárselo tal cual si pregunta "¿cómo funciona `/ms-version`?" durante la invocación, o para documentación.
+
+Se guarda como plantilla reutilizable en `.claude/skills/ms-version/version-flow-diagram.template.md`, con este contenido:
+
+```mermaid
+flowchart LR
+    Guard{"implemented/\n¿vacío?"}
+    Resolve["Resolver cada entrada\n(usuario confirma → closed)"]
+    Folder["Crear versions/XXXX\n(files/, docs/)"]
+    Compile["Generar el entregable\n(how-to-compile-version.md)"]
+    Docs["Copiar documentación técnica\nvigente a docs/"]
+    Changelog["ms-internal-changelog\nredacta changelog.md desde closed/"]
+    Confirm["Confirmar entrega\nal usuario"]
+
+    Guard -- No --> Resolve --> Guard
+    Guard -- Sí --> Folder --> Compile --> Docs --> Changelog --> Confirm
+
+    classDef guardrail fill:#e03131,color:#fff
+    classDef core fill:#2b6cb0,color:#fff
+    classDef internal fill:#805ad5,color:#fff
+    classDef done fill:#2f9e44,color:#fff
+    class Guard,Resolve guardrail
+    class Folder,Compile,Docs core
+    class Changelog internal
+    class Confirm done
+```
+
+Leyenda: rojo = guardarraíl de `implemented/` (bloquea hasta resolverse); azul = pasos mecánicos de `ms-version`; morado = delegado en `ms-internal-changelog`; verde = fin del proceso.
+
+Usos de esta misma plantilla (un único fichero, tres puntos de uso — no se redacta el diagrama de nuevo en ningún sitio):
+
+1. **`ms-version`** — si durante la invocación el usuario pregunta cómo funciona el proceso (o pide explícitamente "el diagrama"/"el flujo"), la skill lee `version-flow-diagram.template.md` y muestra su contenido **directamente**, sin regenerarlo ni parafrasearlo.
+2. **`ms-design.md`** — en la sección "Diagrama de relaciones" (o una nueva subsección para `ms-version`/`ms-internal-changelog`, ya que hoy esas skills no aparecen en ese fichero), añadir una referencia/enlace a `.claude/skills/ms-version/version-flow-diagram.template.md` en vez de duplicar el mermaid ahí.
+3. **`ms-guide.md`** — copiar el bloque mermaid completo (no solo un enlace, ya que este fichero es la guía leída por humanos) en una nueva sección "Preparar una entrega: `/ms-version`", junto con una explicación breve del flujo en prosa. Esta sección también debe corregir la frase ya desactualizada en la línea 3/44 de `ms-guide.md` ("Generar una versión del entregable **no** forma parte del framework `ms-*`... es un paso manual"), puesto que con esta skill sí pasa a formar parte del framework.
+
 ## Hallazgo técnico a corregir de paso
 
 `.claude/skills/ms-internal-workflow/scripts/next-change-number.py` calcula el siguiente `xxxx` de change/fix recorriendo **todas** las subcarpetas directas de `changesDir` excepto `todo`, buscando nombres numéricos dentro. Si se crea `changes/versions/00128/`, ese `00128` contaminaría el cálculo del siguiente `xxxx` de change/fix (colisión de dos espacios de numeración que deben ser independientes, según lo confirmado arriba). Hay que añadir `"versions"` a `EXCLUDED_STATE_DIRS` en ese script (mismo tratamiento que ya recibe `"todo"`), y actualizar su docstring. `get-max-change-codes.py` no necesita cambios: usa una lista fija `STATES = ("inProgress", "implemented", "closed")`, no escanea genéricamente.
@@ -88,6 +133,10 @@ Sin entrada en `skillModels.overrides` de `.claude/ms-context.json`: se queda en
 Pasos:
 
 0. **Framework inicializado** — mismo guardarraíl que el resto (`.claude/ms-context.json` con `framework.changesDir`; si falta, remitir a `/ms-init` y parar).
+
+0.1. **Diagrama del proceso, bajo demanda** — en cualquier momento de la invocación, si el usuario pregunta cómo funciona el proceso o pide "el diagrama"/"el flujo", mostrar el contenido íntegro de `.claude/skills/ms-version/version-flow-diagram.template.md` tal cual (sin regenerarlo) y continuar donde se había quedado el flujo.
+
+0.5. **Guardarraíl: `implemented/` debe estar vacío antes de empezar** — al arrancar el proceso de versionado no puede haber ningún change/fix en estado `implemented`. Listar las carpetas de `{changesDir}/implemented/`; si hay alguna, **no se puede avanzar de ninguna manera** (ni crear la carpeta de versión, ni nada de lo que sigue) hasta resolverlas todas. Por cada carpeta encontrada, preguntar explícitamente al usuario si ese change/fix pasa a `closed` — si confirma, ejecutar `move-change.py --xxxx <xxxx> --from implemented --to closed` (script ya existente en `ms-internal-workflow`); si no confirma, **esperar la confirmación del usuario** sin continuar el flujo (no se salta ni se ignora la entrada, no hay "seguir de todas formas"). Repetir hasta que `implemented/` quede vacío; solo entonces continuar con el paso 1.
 
 1. **Resolver `XXXX`** — si no se indica al invocar, preguntarlo explícitamente (no asumir). Es texto libre elegido por el usuario, no se calcula ni se valida contra `numberWidth` (espacio de numeración independiente del de change/fix, confirmado arriba).
 
@@ -147,6 +196,7 @@ Pasos:
 
 - `.claude/skills/ms-version/SKILL.md`
 - `.claude/skills/ms-version/how-to-compile-version.template.md`
+- `.claude/skills/ms-version/version-flow-diagram.template.md` — diagrama general del proceso (ver sección dedicada arriba), leído y mostrado tal cual por `ms-version` si el usuario lo pide durante la invocación.
 - `.claude/skills/ms-version/scripts/init-version-folder.py`
 - `.claude/skills/ms-version/scripts/copy-tech-docs.py`
 - `.claude/skills/ms-internal-changelog/SKILL.md`
@@ -157,9 +207,11 @@ Pasos:
 
 Nota: `how-to-compile-version.md` (el fichero real, no la plantilla) **no** se crea durante esta implementación — se crea la primera vez que alguien invoque `/ms-version` en este repo y el fichero no exista todavía, tal como pide el requisito original.
 
-## Fichero modificado
+## Ficheros modificados
 
 - `.claude/skills/ms-internal-workflow/scripts/next-change-number.py` — añadir `"versions"` a `EXCLUDED_STATE_DIRS` y actualizar el comentario del docstring, para que `changes/versions/{XXXX}/` nunca contamine la numeración de change/fix.
+- `.claude/ms-design.md` — referenciar `.claude/skills/ms-version/version-flow-diagram.template.md` (enlace, sin duplicar el mermaid) junto a la documentación de `ms-version`/`ms-internal-changelog`.
+- `.claude/ms-guide.md` — nueva sección "Preparar una entrega: `/ms-version`" con el bloque mermaid de `version-flow-diagram.template.md` copiado íntegro más explicación en prosa, y corrección de la frase desactualizada sobre que generar una versión es "un paso manual" fuera del framework.
 
 ## Verificación
 
