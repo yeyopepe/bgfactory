@@ -76,4 +76,4 @@ Borra únicamente esas carpetas concretas de `{workFolder}/changes/closed/`, nun
 
 ## 6. Confirmar a quien invoca
 
-Indica la ruta de `changelog.md` generado, cuántas entradas cayeron en cada sección (Nuevo/Cambios/Eliminado/Fixes), y si se borraron o no las carpetas de `closed/` (y en su caso, cuáles).
+Indica la ruta de `changelog.md` generado, cuántas entradas cayeron en cada sección (Nuevo/Cambios/Eliminado/Correcciones y ajustes), y si se borraron o no las carpetas de `closed/` (y en su caso, cuáles).

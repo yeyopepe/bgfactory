@@ -1,6 +1,6 @@
 # Versión {XXXX} — {fecha}
 
-Nuevo: {N} · Cambios: {N} · Eliminado: {N} · Fixes: {N}
+Nuevo: {N} · Cambios: {N} · Eliminado: {N} · Correcciones y ajustes: {N}
 
 <Cada entrada: nombre en negrita + un resumen funcional de una o dos frases, tono changelog (pasado), sin mencionar ficheros, funciones ni detalles técnicos. Omite una sección entera si queda vacía — no la dejes con el título y sin entradas.>
 
@@ -16,6 +16,6 @@ Nuevo: {N} · Cambios: {N} · Eliminado: {N} · Fixes: {N}
 
 - **{Nombre}** — {resumen funcional}.
 
-## Fixes
+## Correcciones y ajustes
 
 - **{Nombre}** — {resumen funcional}.
