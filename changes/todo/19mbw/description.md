@@ -14,3 +14,4 @@ Revisión completa de todas las ayudas, detectar ayudas faltantes y definir form
 - Identificar funcionalidades que les falta ayuda
 - Definir un formato específico y consistente para estas ventanas de ayuda
 - Asegurar que todas sigan el mismo patrón visual y de contenido
+- Crear un manual de usuario visual, con capturas de la app
