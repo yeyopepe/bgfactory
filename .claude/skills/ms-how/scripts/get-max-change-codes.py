@@ -2,14 +2,16 @@
 """Obtiene el codigo (xxxx) mas alto existente en cada estado del framework ms-*.
 
 Busca, por separado, el numero mas alto entre las subcarpetas puramente
-numericas de {changesDir}/inProgress, {changesDir}/implemented y
-{changesDir}/closed. Se usa como verificacion previa de ms-how: si el
-xxxx que se va a planificar es menor que el maximo de cualquiera de estos
+numericas de {workFolder}/changes/inProgress, {workFolder}/changes/implemented
+y {workFolder}/changes/closed. Se usa como verificacion previa de ms-how: si
+el xxxx que se va a planificar es menor que el maximo de cualquiera de estos
 tres estados, significa que se ha creado despues de otro cambio/fix mas
 reciente y conviene reanalizarlo antes de planificar.
 
-changesDir y numberWidth se leen de .claude/ms-context.json (seccion
-framework) salvo que se pasen explicitamente por parametro.
+workFolder y numberWidth se leen de .claude/ms-context.json (seccion
+framework) salvo que se pasen explicitamente por parametro. workFolder es
+opcional (default "/", la raiz del repo); la subcarpeta "changes" dentro de
+el es siempre de nombre fijo, no configurable.
 
 Imprime UNICAMENTE un JSON en stdout con los tres codigos ya formateados con
 numberWidth digitos y ceros a la izquierda, o null si ese estado no tiene
@@ -56,6 +58,12 @@ def load_framework_defaults(root: Path) -> dict:
     return framework
 
 
+def resolve_changes_dir(root: Path, work_folder_rel: str) -> Path:
+    work_folder_rel = work_folder_rel or "/"
+    work_root = root if work_folder_rel in ("/", "") else root / work_folder_rel
+    return work_root / "changes"
+
+
 def max_number_in(state_dir: Path) -> int | None:
     if not state_dir.is_dir():
         return None
@@ -72,9 +80,9 @@ def max_number_in(state_dir: Path) -> int | None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--changes-dir",
-        help="Ruta a la carpeta de changes/fixes, relativa a la raiz del repo. "
-        "Si no se indica, se lee de .claude/ms-context.json.",
+        "--work-folder",
+        help="Ruta a workFolder, relativa a la raiz del repo. Si no se indica, "
+        "se lee de .claude/ms-context.json (default '/').",
     )
     parser.add_argument(
         "--number-width",
@@ -86,28 +94,23 @@ def main() -> None:
 
     root = repo_root()
 
-    changes_dir_rel = args.changes_dir
+    work_folder_rel = args.work_folder
     number_width = args.number_width
 
-    if not changes_dir_rel or not number_width:
+    if not work_folder_rel or not number_width:
         framework = load_framework_defaults(root)
-        if not changes_dir_rel:
-            changes_dir_rel = framework.get("changesDir")
+        if not work_folder_rel:
+            work_folder_rel = framework.get("workFolder", "/")
         if not number_width:
             number_width = framework.get("numberWidth")
 
-    if not changes_dir_rel:
-        raise SystemExit(
-            "No se ha podido determinar 'changesDir' (ni por parametro ni desde "
-            "ms-context.json)."
-        )
     if not number_width:
         raise SystemExit(
             "No se ha podido determinar 'numberWidth' (ni por parametro ni desde "
             "ms-context.json)."
         )
 
-    changes_dir = root / changes_dir_rel
+    changes_dir = resolve_changes_dir(root, work_folder_rel)
 
     result = {}
     for state in STATES:

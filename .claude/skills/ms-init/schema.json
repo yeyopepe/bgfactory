@@ -30,14 +30,13 @@
     "framework": {
       "type": "object",
       "description": "Configuracion que entienden y usan las skills ms-* directamente (rutas del proceso de tracking de cambios). Forma fija, a diferencia de 'project'.",
-      "required": ["changesDir"],
       "additionalProperties": false,
       "properties": {
-        "changesDir": {
+        "workFolder": {
           "type": "string",
-          "required": true,
-          "description": "OBLIGATORIO. Carpeta (relativa a la raiz del repo) bajo la que viven dos subarboles, cada uno con subcarpetas numeradas ({xxxx}): '{changesDir}/inProgress/' (cambios/fixes documentados por ms-new/ms-fix, pendientes de implementar o de planificar) y '{changesDir}/implemented/' (cambios/fixes cuyo plan.md ya se ha implementado -- los mueve ahi ms-do). Un mismo {xxxx} nunca debe repetirse entre los dos subarboles: al calcular el siguiente numero hay que mirar el maximo de ambos. Puede convivir ahi tambien '{changesDir}/todo/', usada exclusivamente por la skill ms-todo para ideas sueltas: esa subcarpeta es ajena al flujo de change/fix y ninguna otra skill ms-* la lee, la escribe ni la cuenta al numerar.",
-          "examples": ["src/_changes", "docs/changes"]
+          "default": "/",
+          "description": "OPCIONAL (por defecto '/', la raiz del repo). Carpeta relativa a la raiz del repo bajo la que el framework ms-* gestiona TODO su trabajo. Dentro de workFolder, las skills crean por si mismas dos subcarpetas de nombre fijo -- '{workFolder}/changes/' y '{workFolder}/versions/' -- que el usuario no elige ni renombra, para evitar cualquier configuracion manual que pueda romper o hacer colisionar esas rutas. '{workFolder}/changes/' contiene dos subarboles con subcarpetas numeradas ({xxxx}): 'changes/inProgress/' (cambios/fixes documentados por ms-new/ms-fix, pendientes de implementar o de planificar) y 'changes/implemented/' (cambios/fixes cuyo plan.md ya se ha implementado -- los mueve ahi ms-do); un mismo {xxxx} nunca debe repetirse entre ambos. Tambien puede convivir ahi 'changes/todo/' (ideas sueltas de ms-todo, ajenas al flujo de change/fix) y 'changes/closed/' (cambios/fixes ya incorporados a una entrega, gestionados por ms-version/ms-internal-changelog). '{workFolder}/versions/' contiene una subcarpeta por cada entrega preparada con ms-version, con codigo XXXX de texto libre elegido por el usuario en cada invocacion -- espacio de numeracion totalmente independiente del {xxxx} de changes/.",
+          "examples": ["/", "_ms"]
         },
         "sourcecodeDir": {
           "type": "string",
@@ -138,7 +137,7 @@
         }
       },
       "framework": {
-        "changesDir": "src/_changes",
+        "workFolder": "/",
         "numberWidth": 4,
         "docs": {
           "functional": {
@@ -159,7 +158,7 @@
     },
     {
       "framework": {
-        "changesDir": "docs/changes"
+        "workFolder": "_ms"
       },
       "project": {}
     }

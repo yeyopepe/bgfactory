@@ -16,7 +16,7 @@ No escribe nada en disco: imprime el markdown final por stdout.
 
 Uso:
   python list_todo.py
-  python list_todo.py --changes-dir changes
+  python list_todo.py --work-folder /
 """
 
 import re
@@ -84,9 +84,9 @@ def main() -> None:
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--changes-dir",
-        help="Ruta a {changesDir} relativa a la raiz del repo. Si no se indica, "
-        "se lee de .claude/ms-context.json.",
+        "--work-folder",
+        help="Ruta a workFolder relativa a la raiz del repo. Si no se indica, "
+        "se lee de .claude/ms-context.json (default '/').",
     )
     args = parser.parse_args()
 
@@ -94,7 +94,7 @@ def main() -> None:
         sys.stdout.reconfigure(encoding="utf-8")
 
     root = repo_root()
-    changes_dir = load_changes_dir(root, args.changes_dir)
+    changes_dir = load_changes_dir(root, args.work_folder)
     entries = collect_todo(changes_dir)
     print(render_report(entries))
 

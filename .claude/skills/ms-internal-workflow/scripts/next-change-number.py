@@ -2,15 +2,18 @@
 """Calcula el siguiente numero de change/fix (xxxx) del framework ms-*.
 
 Busca el numero mas alto entre TODAS las subcarpetas puramente numericas
-que existan bajo cualquier subarbol de {changesDir} (inProgress, implemented,
-closed, o cualquier otro que se anada en el futuro) y devuelve ese numero + 1,
-formateado con numberWidth digitos y ceros a la izquierda.
+que existan bajo cualquier subarbol de {workFolder}/changes (inProgress,
+implemented, closed, o cualquier otro que se anada en el futuro) y devuelve
+ese numero + 1, formateado con numberWidth digitos y ceros a la izquierda.
 
-Excepcion: {changesDir}/todo/ (usada por la skill ms-todo, ajena al flujo de
-change/fix) se ignora siempre, aunque contenga subcarpetas numericas.
+Excepcion: {workFolder}/changes/todo/ (usada por la skill ms-todo, ajena al
+flujo de change/fix) se ignora siempre, aunque contenga subcarpetas
+numericas.
 
-changesDir y numberWidth se leen de .claude/ms-context.json (seccion
-framework) salvo que se pasen explicitamente por parametro.
+workFolder y numberWidth se leen de .claude/ms-context.json (seccion
+framework) salvo que se pasen explicitamente por parametro. workFolder es
+opcional (default "/", la raiz del repo); la subcarpeta "changes" dentro de
+el es siempre de nombre fijo, no configurable.
 
 Imprime UNICAMENTE el numero siguiente en stdout (p.ej. "0002"), para poder
 capturarlo directamente desde otro script o skill sin parsear texto extra.
@@ -53,13 +56,19 @@ def load_framework_defaults(root: Path) -> dict:
     return framework
 
 
+def resolve_changes_dir(root: Path, work_folder_rel: str) -> Path:
+    work_folder_rel = work_folder_rel or "/"
+    work_root = root if work_folder_rel in ("/", "") else root / work_folder_rel
+    return work_root / "changes"
+
+
 def compute_next_number(changes_dir: Path) -> int:
     max_number = 0
 
     if not changes_dir.is_dir():
         return max_number + 1
 
-    # Cada subcarpeta directa de {changesDir} es un "estado" (inProgress,
+    # Cada subcarpeta directa de changes/ es un "estado" (inProgress,
     # implemented, closed...). Se recorren TODOS, no solo inProgress/implemented,
     # para no reasignar un xxxx que ya se uso en closed.
     for state_dir in changes_dir.iterdir():
@@ -75,9 +84,9 @@ def compute_next_number(changes_dir: Path) -> int:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--changes-dir",
-        help="Ruta a la carpeta de changes/fixes, relativa a la raiz del repo. "
-        "Si no se indica, se lee de .claude/ms-context.json.",
+        "--work-folder",
+        help="Ruta a workFolder, relativa a la raiz del repo. Si no se indica, "
+        "se lee de .claude/ms-context.json (default '/').",
     )
     parser.add_argument(
         "--number-width",
@@ -89,28 +98,23 @@ def main() -> None:
 
     root = repo_root()
 
-    changes_dir_rel = args.changes_dir
+    work_folder_rel = args.work_folder
     number_width = args.number_width
 
-    if not changes_dir_rel or not number_width:
+    if not work_folder_rel or not number_width:
         framework = load_framework_defaults(root)
-        if not changes_dir_rel:
-            changes_dir_rel = framework.get("changesDir")
+        if not work_folder_rel:
+            work_folder_rel = framework.get("workFolder", "/")
         if not number_width:
             number_width = framework.get("numberWidth")
 
-    if not changes_dir_rel:
-        raise SystemExit(
-            "No se ha podido determinar 'changesDir' (ni por parametro ni desde "
-            "ms-context.json)."
-        )
     if not number_width:
         raise SystemExit(
             "No se ha podido determinar 'numberWidth' (ni por parametro ni desde "
             "ms-context.json)."
         )
 
-    changes_dir = root / changes_dir_rel
+    changes_dir = resolve_changes_dir(root, work_folder_rel)
     next_number = compute_next_number(changes_dir)
 
     print(str(next_number).zfill(number_width))

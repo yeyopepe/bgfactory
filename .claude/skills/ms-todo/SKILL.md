@@ -17,13 +17,13 @@ Vive en `{changesDir}/todo/`, una subcarpeta hermana de `inProgress`/`implemente
 
 ## 0. Comprobar que el framework está inicializado
 
-Si `.claude/ms-context.json` no existe en la raíz del repo, o le falta la sección `framework` (o el campo `changesDir`), no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí.
+Si `.claude/ms-context.json` no existe en la raíz del repo, o le falta la sección `framework`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí.
 
 ```
 Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta configuración). Ejecuta primero `/ms-init` antes de volver a invocarme.
 ```
 
-A partir de aquí, `changesDir` se refiere al valor de `framework.changesDir` en ese fichero.
+A partir de aquí, `changesDir` es notación abreviada para `{workFolder}/changes` (subcarpeta de nombre fijo dentro de `framework.workFolder`, que por defecto es `"/"`, la raíz del repo).
 
 ## 1. Decidir si es una idea nueva o una ampliación
 
@@ -42,7 +42,7 @@ La generación y comprobación de colisión las hace de forma determinista y gra
 python .claude/skills/ms-todo/scripts/new-todo-code.py
 ```
 
-El script lee `changesDir` de `.claude/ms-context.json` (o usa `--changes-dir` si se lo pasas), lista las subcarpetas que ya existan bajo `{changesDir}/todo/` (sin necesidad de que exista todavía — en ese caso no hay ninguna carpeta que colisione), genera un código alfanumérico corto (`[a-z0-9]`, 5 caracteres por defecto, `--length` para otro tamaño) que no coincida con ninguna ya existente ahí, e imprime únicamente ese código por stdout. No consulta ni tiene en cuenta ninguna otra carpeta del repo (ni `inProgress`/`implemented`/`closed`, ni nada fuera de `{changesDir}/todo/`): la única condición de unicidad es no repetirse dentro de esta subcarpeta. Usa ese valor tal cual como código — no lo recalcules a mano.
+El script lee `workFolder` de `.claude/ms-context.json` (o usa `--work-folder` si se lo pasas), lista las subcarpetas que ya existan bajo `{changesDir}/todo/` (sin necesidad de que exista todavía — en ese caso no hay ninguna carpeta que colisione), genera un código alfanumérico corto (`[a-z0-9]`, 5 caracteres por defecto, `--length` para otro tamaño) que no coincida con ninguna ya existente ahí, e imprime únicamente ese código por stdout. No consulta ni tiene en cuenta ninguna otra carpeta del repo (ni `inProgress`/`implemented`/`closed`, ni nada fuera de `{changesDir}/todo/`): la única condición de unicidad es no repetirse dentro de esta subcarpeta. Usa ese valor tal cual como código — no lo recalcules a mano.
 
 ## 3. Anotar la idea
 

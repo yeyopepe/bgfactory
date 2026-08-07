@@ -34,7 +34,7 @@ Si te han invocado sin ese contexto (el usuario ha tecleado el comando directame
 
 Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta la sección `framework` (o campos suyos que esta acción necesita), no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí — no reimplementes el bootstrap aquí. El esquema completo está en [`../ms-init/schema.json`](../ms-init/schema.json) (léelo primero si no lo has hecho ya en esta sesión, para saber qué campos comprobar).
 
-A partir de aquí, `changesDir` y `numberWidth` se refieren a los valores de `framework` en ese fichero.
+A partir de aquí, `changesDir` es notación abreviada para `{workFolder}/changes` (subcarpeta de nombre fijo dentro de `framework.workFolder`, que por defecto es `"/"`, la raíz del repo — no un campo propio en `ms-context.json`), y `numberWidth` se refiere al valor de `framework` en ese fichero.
 
 Continúa con la sección de abajo que corresponda a la `action` recibida.
 
@@ -52,7 +52,7 @@ Cada cambio/fix vive en una subcarpeta numerada bajo alguno de los subárboles d
 python .claude/skills/ms-internal-workflow/scripts/next-change-number.py
 ```
 
-El script lee `changesDir` y `numberWidth` de `.claude/ms-context.json`, recorre **todas** las subcarpetas de `{changesDir}` (no solo `inProgress`/`implemented`, pero siempre ignorando `todo/`) buscando nombres puramente numéricos, y devuelve por stdout el siguiente `xxxx` ya formateado con `numberWidth` dígitos y ceros a la izquierda (p.ej. `0002`, o `1` si no hubiera ninguna carpeta numerada todavía). Usa ese valor tal cual como `xxxx` — no lo recalcules a mano ni mires solo `inProgress`/`implemented`.
+El script lee `workFolder` y `numberWidth` de `.claude/ms-context.json`, recorre **todas** las subcarpetas de `{changesDir}` (no solo `inProgress`/`implemented`, pero siempre ignorando `todo/`) buscando nombres puramente numéricos, y devuelve por stdout el siguiente `xxxx` ya formateado con `numberWidth` dígitos y ceros a la izquierda (p.ej. `0002`, o `1` si no hubiera ninguna carpeta numerada todavía). Usa ese valor tal cual como `xxxx` — no lo recalcules a mano ni mires solo `inProgress`/`implemented`.
 
 ### create.2 Generar el documento de intención del cambio/fix
 
@@ -94,6 +94,6 @@ python .claude/skills/ms-internal-workflow/scripts/move-change.py --xxxx <xxxx> 
 ```
 
 - Si `{changesDir}/{from}/{xxxx}/` no existe, o ya hay algo en `{changesDir}/{to}/{xxxx}/`, el script termina con error y no mueve nada — es un error de quien invoca (esa skill ya debería haber identificado y verificado la carpeta antes de llamar a `ms-internal-workflow`). Repórtaselo a quien invoca tal cual, sin improvisar una solución.
-- Si va bien, el script imprime en stdout la ruta destino relativa a la raíz del repo (p.ej. `src/_changes/implemented/0002`).
+- Si va bien, el script imprime en stdout la ruta destino relativa a la raíz del repo (p.ej. `changes/implemented/0002`).
 
 Confirma a quien invoca esa ruta destino, para que la skill llamante continúe su propio proceso (mensaje al usuario, pasos siguientes como generar versión o actualizar el grafo, etc. — eso lo gestiona ella, no `ms-internal-workflow`).
