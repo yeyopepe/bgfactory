@@ -31,7 +31,7 @@ No escribe nada en disco: imprime el markdown final por stdout.
 
 Uso:
   python render_status.py
-  python render_status.py --changes-dir changes
+  python render_status.py --work-folder /
   python render_status.py --show-fast
 """
 
@@ -178,9 +178,9 @@ def render(result: dict, changes_dir: Path, show_fast: bool = False) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--changes-dir",
-        help="Ruta a {changesDir} relativa a la raiz del repo. Si no se indica, "
-        "se lee de .claude/ms-context.json.",
+        "--work-folder",
+        help="Ruta a workFolder relativa a la raiz del repo. Si no se indica, "
+        "se lee de .claude/ms-context.json (default '/').",
     )
     parser.add_argument(
         "--show-fast",
@@ -194,7 +194,7 @@ def main() -> None:
         sys.stdout.reconfigure(encoding="utf-8")
 
     root = repo_root()
-    changes_dir = load_changes_dir(root, args.changes_dir)
+    changes_dir = load_changes_dir(root, args.work_folder)
     result = collect(changes_dir)
     print(render(result, changes_dir, show_fast=args.show_fast))
 

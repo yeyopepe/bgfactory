@@ -11,7 +11,7 @@
   "framework": {
     "mockupsSkill": "ms-internal-mockups-html",
     "sourcecodeDir": "src",
-    "changesDir": "changes",
+    "workFolder": "/",
     "numberWidth": 5,
     "docs": {
       "functional": {

@@ -31,7 +31,7 @@ los totales agregados, para que la skill los use al redactar el informe.
 
 Uso:
   python collect_status.py
-  python collect_status.py --changes-dir changes
+  python collect_status.py --work-folder /
 """
 
 import argparse
@@ -60,9 +60,15 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[4]
 
 
+def resolve_changes_dir(root: Path, work_folder_rel: str) -> Path:
+    work_folder_rel = work_folder_rel or "/"
+    work_root = root if work_folder_rel in ("/", "") else root / work_folder_rel
+    return work_root / "changes"
+
+
 def load_changes_dir(root: Path, override: str | None) -> Path:
     if override:
-        return root / override
+        return resolve_changes_dir(root, override)
 
     context_path = root / ".claude" / "ms-context.json"
     if not context_path.is_file():
@@ -72,12 +78,12 @@ def load_changes_dir(root: Path, override: str | None) -> Path:
         )
     context = json.loads(context_path.read_text(encoding="utf-8"))
     framework = context.get("framework")
-    if not framework or not framework.get("changesDir"):
+    if not framework:
         raise SystemExit(
-            f"{context_path} no tiene 'framework.changesDir'. Ejecuta ms-init "
+            f"{context_path} no tiene la seccion 'framework'. Ejecuta ms-init "
             "para completarlo."
         )
-    return root / framework["changesDir"]
+    return resolve_changes_dir(root, framework.get("workFolder", "/"))
 
 
 def parse_description(description_path: Path) -> dict:
@@ -222,9 +228,9 @@ def collect(changes_dir: Path) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--changes-dir",
-        help="Ruta a {changesDir} relativa a la raiz del repo. Si no se indica, "
-        "se lee de .claude/ms-context.json.",
+        "--work-folder",
+        help="Ruta a workFolder relativa a la raiz del repo. Si no se indica, "
+        "se lee de .claude/ms-context.json (default '/').",
     )
     args = parser.parse_args()
 
@@ -234,7 +240,7 @@ def main() -> None:
         sys.stdout.reconfigure(encoding="utf-8")
 
     root = repo_root()
-    changes_dir = load_changes_dir(root, args.changes_dir)
+    changes_dir = load_changes_dir(root, args.work_folder)
     result = collect(changes_dir)
     print(json.dumps(result, ensure_ascii=False, indent=2))
 

@@ -1,6 +1,6 @@
 # Guía de uso — MinSDD
 
-MinSDD (nombre provisional para el framework `ms-*`) es un conjunto de skills de Claude Code que estandariza cómo se documentan, planifican e implementan los cambios en este proyecto. Todo cambio real en el código pasa por el mismo ciclo: **documentar la intención → planificar la solución técnica → implementar**. Generar una versión/build del entregable queda fuera del framework: es un paso manual (ver [Preparación](#preparación)).
+MinSDD (nombre provisional para el framework `ms-*`) es un conjunto de skills de Claude Code que estandariza cómo se documentan, planifican e implementan los cambios en este proyecto. Todo cambio real en el código pasa por el mismo ciclo: **documentar la intención → planificar la solución técnica → implementar**. Empaquetar una entrega (generar el entregable, copiar la documentación técnica vigente y redactar el changelog funcional) también forma parte del framework: lo hace `/ms-version` (ver [Preparar una entrega: `/ms-version`](#preparar-una-entrega-ms-version)).
 
 Todas las skills viven bajo `.claude/skills/ms-*` y comparten un único fichero de configuración: `.claude/ms-context.json`.
 
@@ -17,6 +17,7 @@ Todas las skills viven bajo `.claude/skills/ms-*` y comparten un único fichero 
     - [1. `/ms-new` — funcionalidad nueva o cambio de comportamiento intencionado](#1-ms-new--funcionalidad-nueva-o-cambio-de-comportamiento-intencionado)
     - [2. `/ms-fix` — corregir un bug (o aplicar un cambio trivial al vuelo)](#2-ms-fix--corregir-un-bug-o-aplicar-un-cambio-trivial-al-vuelo)
   - [Paso 2 — Planificar e implementar: `ms-how` + `ms-do`](#paso-2--planificar-e-implementar-ms-how--ms-do)
+- [Preparar una entrega: `/ms-version`](#preparar-una-entrega-ms-version)
 - [Ejemplo de ciclo completo](#ejemplo-de-ciclo-completo)
 - [Trucos](#trucos)
 - [Notas](#notas)
@@ -41,7 +42,7 @@ El propio `ms-init` comprueba esto por ti la primera vez, pero para referencia:
   - Node/npm si hay `package.json`.
   - Cualquier otro intérprete que necesite el proyecto.
 
-Generar una versión del entregable **no** forma parte del framework `ms-*` (no hay ninguna skill de versionado): en este repo (Errantes) se hace ejecutando `python ./src/scripts/build.py` directamente, a mano, cuando se quiera cortar una build.
+Generar una versión del entregable **sí** forma parte del framework `ms-*`: `/ms-version` la empaqueta (ver [Preparar una entrega: `/ms-version`](#preparar-una-entrega-ms-version)). En este repo (Errantes), el comando de compilación que usa por debajo es `python ./src/scripts/build.py`, que autoincrementa `CURRENT_VERSION` en `src/data/version.js` y escribe `src/_output/versions/index-v{NNNN}.html` — carpeta y numeración propias del build script, sin relación con la numeración de `/ms-version`.
 
 ### 2. Inicializar el framework: `/ms-init`
 
@@ -64,7 +65,7 @@ Ejemplo de `.claude/ms-context.json` ya configurado en este proyecto:
   },
   "framework": {
     "sourcecodeDir": "src",
-    "changesDir": "changes",
+    "workFolder": "/",
     "numberWidth": 5,
     "docs": {
       "functional": {
@@ -85,7 +86,7 @@ Ejemplo de `.claude/ms-context.json` ya configurado en este proyecto:
 }
 ```
 
-Todos los campos de `framework` (excepto `changesDir`) son opcionales — el framework funciona sin `docs.tech.architectureDocDir`, `docs.functional.featuresDocPathDir` o `docs.tech.styleBibleDocDir`, simplemente usa menos contexto al analizar y no mantiene esos documentos sincronizados.
+Todos los campos de `framework` son opcionales, incluido `workFolder` (default `"/"`, la raíz del repo) — el framework funciona sin `docs.tech.architectureDocDir`, `docs.functional.featuresDocPathDir` o `docs.tech.styleBibleDocDir`, simplemente usa menos contexto al analizar y no mantiene esos documentos sincronizados. `workFolder` es la única ruta que se elige: dentro de él, `changes/` y `versions/` son subcarpetas de nombre fijo que las skills crean por sí mismas, para que no se puedan desconfigurar por error.
 
 #### Elegir el modelo/esfuerzo de cada skill: `skillModels`
 
@@ -189,6 +190,45 @@ Si ya existe una entrada en `inProgress` y quieres ampliarla en vez de crear una
 
 Si invocas `/ms-how` sin argumento, lista lo que hay pendiente en `inProgress` y te pregunta cuál quieres. Si `plan.md` ya existía (por ejemplo, quieres retomarlo), te pregunta si quieres regenerarlo desde cero o implementar directamente lo que ya dice (en ese caso encadena `ms-do` sin volver a analizar). También puedes invocar `/ms-do {xxxx}` directamente sobre una entrada que ya tenga `plan.md`, sin pasar por `ms-how` de nuevo.
 
+## Preparar una entrega: `/ms-version`
+
+Cuando ya hay trabajo listo (`changes/implemented/`) y quieres cortar una entrega, `/ms-version <XXXX>` empaqueta todo en `{workFolder}/versions/{XXXX}/`: genera el entregable, copia la documentación técnica vigente, y redacta el changelog funcional a partir de lo que se haya ido cerrando en `changes/closed/`. `{XXXX}` es texto libre que eliges tú en cada invocación (p.ej. `00001`, `v1`, `beta3`) — no tiene relación con la numeración `xxxx` de change/fix, ni con `src/_output/versions/` (la carpeta que ya genera `build.py` por su cuenta con su propio contador `NNNN`): son tres espacios completamente independientes.
+
+```mermaid
+flowchart LR
+    Guard{"implemented/\n¿vacío?"}
+    Resolve["Resolver cada entrada\n(usuario confirma → closed)"]
+    Folder["Crear versions/XXXX\n(files/, docs/)"]
+    Compile["Generar el entregable\n(how-to-compile-version.md)"]
+    Docs["Copiar documentación técnica\nvigente a docs/"]
+    Changelog["ms-internal-changelog\nredacta changelog.md desde closed/"]
+    Confirm["Confirmar entrega\nal usuario"]
+
+    Guard -- No --> Resolve --> Guard
+    Guard -- Sí --> Folder --> Compile --> Docs --> Changelog --> Confirm
+
+    classDef guardrail fill:#e03131,color:#fff
+    classDef core fill:#2b6cb0,color:#fff
+    classDef internal fill:#805ad5,color:#fff
+    classDef done fill:#2f9e44,color:#fff
+    class Guard,Resolve guardrail
+    class Folder,Compile,Docs core
+    class Changelog internal
+    class Confirm done
+```
+
+Leyenda: rojo = guardarraíl de `implemented/` (bloquea hasta resolverse); azul = pasos mecánicos de `ms-version`; morado = delegado en `ms-internal-changelog`; verde = fin del proceso.
+
+En prosa:
+
+1. **Guardarraíl de arranque**: si `changes/implemented/` tiene alguna entrada, `/ms-version` no avanza hasta resolverlas todas — por cada una pregunta si pasa a `closed` (irreversible sin confirmación) antes de seguir.
+2. **Crear la carpeta de la versión**: `{workFolder}/versions/{XXXX}/{files,docs}/`. Si `{XXXX}` ya existe, pregunta si regenerar sobre lo existente o elegir otro código.
+3. **Generar el entregable**: sigue el procedimiento de `.claude/skills/ms-version/how-to-compile-version.md` (se pregunta y se escribe la primera vez que hace falta; en este repo ejecuta `python ./src/scripts/build.py`) y copia el resultado a `files/`.
+4. **Copiar documentación técnica**: las carpetas completas configuradas en `docs.tech.architectureDocDir`/`docs.tech.styleBibleDocDir` (las que estén configuradas) se copian a `docs/`, como constancia de qué documentación estaba vigente en el momento de esta entrega.
+5. **Changelog funcional**: `ms-internal-changelog` (skill interna) lee cada `description.md` de `changes/closed/`, lo compara contra el changelog de la versión anterior detectada en `{workFolder}/versions/` (confirmándotela antes de usarla), y redacta `changelog.md` en tres secciones — Nuevo / Cambios / Eliminado — en lenguaje puramente funcional. Tras tu confirmación explícita, borra de `closed/` solo las carpetas ya incorporadas (nunca "todo `closed/`" a ciegas); si no confirmas el borrado, el changelog queda escrito igualmente y `closed/` no se toca.
+
+Puedes preguntar "¿cómo funciona `/ms-version`?" en mitad de la invocación y te muestra este mismo diagrama.
+
 ## Ejemplo de ciclo completo
 
 ```
@@ -198,7 +238,7 @@ Si invocas `/ms-how` sin argumento, lista lo que hay pendiente en `inProgress` y
 1. `ms-fix` documenta el bug en `changes/inProgress/00008/description.md` y encadena `ms-how` automáticamente.
 2. `ms-how` analiza la causa raíz, escribe `plan.md` (acotado solo a ese bug) y pregunta si implementar.
 3. Confirmas → `ms-how` encadena `ms-do`, que edita el código, actualiza `FEATURES.md`/`design/docs/architecture/` si aplica, y mueve la carpeta a `changes/implemented/00008/`.
-4. Cuando quieras cortar una nueva build: `python ./src/scripts/build.py` a mano (fuera del framework `ms-*`) → incrementa la versión en `version.js` y genera el entregable.
+4. Cuando quieras cortar una nueva entrega: `/ms-version 00001` → mueve `00008` (y cualquier otra entrada de `implemented/`) a `closed`, genera el entregable (`python ./src/scripts/build.py` por debajo, que incrementa la versión en `version.js`), copia la documentación técnica vigente, y redacta `changelog.md` con lo acumulado en `closed/`.
 
 Y para algo trivial:
 

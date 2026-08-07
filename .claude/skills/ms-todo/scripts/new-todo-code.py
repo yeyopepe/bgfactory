@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """Genera un codigo alfanumerico unico para una idea nueva de ms-todo.
 
-Lista las subcarpetas ya existentes bajo {changesDir}/todo/ y genera un
-codigo aleatorio corto ([a-z0-9], 5 caracteres por defecto) que no colisione
-con ninguna de ellas. Este codigo es local a {changesDir}/todo/ y no tiene
-ninguna relacion con el 'xxxx' numerico de change/fix (ver
-next-change-number.py en ms-internal-workflow): ninguna otra skill del framework
-cuenta ni consulta estas carpetas al numerar.
+Lista las subcarpetas ya existentes bajo {workFolder}/changes/todo/ y genera
+un codigo aleatorio corto ([a-z0-9], 5 caracteres por defecto) que no
+colisione con ninguna de ellas. Este codigo es local a
+{workFolder}/changes/todo/ y no tiene ninguna relacion con el 'xxxx'
+numerico de change/fix (ver next-change-number.py en ms-internal-workflow):
+ninguna otra skill del framework cuenta ni consulta estas carpetas al
+numerar.
 
-changesDir se lee de .claude/ms-context.json (seccion framework) salvo que
-se pase explicitamente por parametro.
+workFolder se lee de .claude/ms-context.json (seccion framework) salvo que
+se pase explicitamente por parametro. Es opcional (default "/", la raiz del
+repo); la subcarpeta "changes" dentro de el es siempre de nombre fijo, no
+configurable.
 
 Imprime UNICAMENTE el codigo generado en stdout (p.ej. "a3f9k"), para poder
 capturarlo directamente desde la skill sin parsear texto extra.
@@ -35,9 +38,15 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[4]
 
 
+def resolve_changes_dir(root: Path, work_folder_rel: str) -> Path:
+    work_folder_rel = work_folder_rel or "/"
+    work_root = root if work_folder_rel in ("/", "") else root / work_folder_rel
+    return work_root / "changes"
+
+
 def load_changes_dir(root: Path, override: str | None) -> Path:
     if override:
-        return root / override
+        return resolve_changes_dir(root, override)
 
     context_path = root / ".claude" / "ms-context.json"
     if not context_path.is_file():
@@ -47,12 +56,12 @@ def load_changes_dir(root: Path, override: str | None) -> Path:
         )
     context = json.loads(context_path.read_text(encoding="utf-8"))
     framework = context.get("framework")
-    if not framework or not framework.get("changesDir"):
+    if not framework:
         raise SystemExit(
-            f"{context_path} no tiene 'framework.changesDir'. Ejecuta ms-init "
+            f"{context_path} no tiene la seccion 'framework'. Ejecuta ms-init "
             "para completarlo."
         )
-    return root / framework["changesDir"]
+    return resolve_changes_dir(root, framework.get("workFolder", "/"))
 
 
 def existing_codes(todo_dir: Path) -> set[str]:
@@ -75,9 +84,9 @@ def generate_code(existing: set[str], length: int) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
-        "--changes-dir",
-        help="Ruta a {changesDir} relativa a la raiz del repo. Si no se indica, "
-        "se lee de .claude/ms-context.json.",
+        "--work-folder",
+        help="Ruta a workFolder relativa a la raiz del repo. Si no se indica, "
+        "se lee de .claude/ms-context.json (default '/').",
     )
     parser.add_argument(
         "--length",
@@ -91,7 +100,7 @@ def main() -> None:
         sys.stdout.reconfigure(encoding="utf-8")
 
     root = repo_root()
-    changes_dir = load_changes_dir(root, args.changes_dir)
+    changes_dir = load_changes_dir(root, args.work_folder)
     todo_dir = changes_dir / "todo"
 
     code = generate_code(existing_codes(todo_dir), args.length)
