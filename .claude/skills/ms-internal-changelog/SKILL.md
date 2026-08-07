@@ -58,7 +58,7 @@ Por cada entrada de `closed/`, lee su `description.md` y toma sus campos **Nombr
   - **Cambios** — modifica o amplía algo que ya aparecía en el changelog anterior.
   - **Eliminado** — quita o desactiva algo que aparecía en el changelog anterior.
 
-Escribe `{workFolder}/versions/{XXXX}/changelog.md` siguiendo la plantilla [`changelog.template.md`](changelog.template.md): cabecera con el `XXXX` de la versión, la fecha, y el número de elementos de cada sección (Nuevo, Cambios, Eliminado, Fixes — cuenta también las que queden en 0), seguida de las cuatro secciones (omite una sección entera si queda vacía), cada entrada con nombre en negrita + resumen funcional en una o dos frases (tono changelog, en pasado), sin mencionar ficheros, funciones ni detalles técnicos.
+Escribe `{workFolder}/versions/{XXXX}/changelog.md` siguiendo la plantilla [`changelog.template.md`](changelog.template.md): cabecera con el `XXXX` de la versión, la fecha, y el número de elementos de cada sección (Nuevo, Cambios, Eliminado, Correcciones y ajustes — cuenta también las que queden en 0), seguida de las cuatro secciones (omite una sección entera si queda vacía), cada entrada con nombre en negrita + resumen funcional en una o dos frases (tono changelog, en pasado), sin mencionar ficheros, funciones ni detalles técnicos.
 
 ## 4. Confirmar borrado con el usuario antes de borrar nada
 
