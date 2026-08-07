@@ -5,6 +5,7 @@
 import { getResources } from '../core/state.js';
 import { openBoardImageModal } from './boardImageModal.js';
 import { openImageAdjustModal } from './imageAdjustModal.js';
+import { createRotationSliderField } from './rotationSlider.js';
 
 export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   const overlay = document.createElement('div');
@@ -31,6 +32,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   working.colorFondo = working.colorFondo ?? '';
   working.colorFondoTransparencia = working.colorFondoTransparencia ?? 0;
   working.imagenTransparencia = working.imagenTransparencia ?? 0;
+  working.rotation = working.rotation ?? 0;
   working.bordeColor = working.bordeColor || '#000000';
   working.bordeGrosor = working.bordeGrosor ?? 2;
   working.bordeActivo = working.bordeActivo ?? true;
@@ -317,6 +319,14 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   updateBgTypeVisibility();
 
   content.appendChild(bgSection);
+
+  const rotationSlider = createRotationSliderField({
+    value: working.rotation,
+    onChange: (v) => {
+      working.rotation = v;
+    },
+  });
+  content.appendChild(rotationSlider.field);
 
   // Borde: línea simple (sin bisel), mismo patrón de checkbox activador que ui/cardTextBoxModal.js.
   const borderSection = document.createElement('fieldset');

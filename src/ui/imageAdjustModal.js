@@ -16,31 +16,26 @@
 // Misma combinación en el renderizado final (`ui/componentRenderer.js`), vía
 // `applyImageAdjustStyle`.
 
+import { createRotationSliderField } from './rotationSlider.js';
+
 const PREVIEW_MAX_SIDE = 390;
 
 // `boxWidth`/`boxHeight`: tamaño real en píxeles del marco (máscara/
-// contenedor). Necesarios para girar 90º/270º: en esos ángulos la imagen debe
-// cubrir un marco "virtual" con ancho/alto intercambiados, para que su huella
-// visual tras rotar coincida con `boxWidth`×`boxHeight` — no expresable en
-// porcentaje (un ancho no puede ser "% del alto del contenedor" en CSS), de
-// ahí trabajar en píxeles. El giro se aplica siempre alrededor del centro del
-// marco REAL, no del centro propio de la imagen (que paneo/zoom pueden haber
-// desplazado): `transform-origin` fija ese punto en coordenadas locales de la
-// imagen, así el giro nunca desplaza el resultado ya ajustado.
+// contenedor). Rotación estricta: el tamaño de la imagen (según zoom) es
+// siempre el mismo cualquiera que sea `rotation` — solo cambia el ángulo del
+// `transform: rotate()`, nunca `width`/`height`. Puede dejar huecos en las
+// esquinas al girar (el recorte del marco/máscara sigue ocultando lo que
+// sobra fuera de él, no se compensa creciendo la imagen). El giro se aplica
+// siempre alrededor del centro del marco REAL, no del centro propio de la
+// imagen (que paneo/zoom pueden haber desplazado): `transform-origin` fija
+// ese punto en coordenadas locales de la imagen, así el giro nunca desplaza
+// el resultado ya ajustado.
 export function applyImageAdjustStyle(imgEl, adjustment, boxWidth, boxHeight) {
   const { zoom = 100, posX = 50, posY = 50, rotation = 0 } = adjustment || {};
-  const rotated90 = rotation === 90 || rotation === 270;
-  const coverWidth = rotated90 ? boxHeight : boxWidth;
-  const coverHeight = rotated90 ? boxWidth : boxHeight;
-
-  const widthPx = (coverWidth * zoom) / 100;
-  const heightPx = (coverHeight * zoom) / 100;
-  const frameLeft = (boxWidth - coverWidth) / 2;
-  const frameTop = (boxHeight - coverHeight) / 2;
-  const panLeft = (-(posX / 100) * (zoom - 100) * coverWidth) / 100;
-  const panTop = (-(posY / 100) * (zoom - 100) * coverHeight) / 100;
-  const leftPx = frameLeft + panLeft;
-  const topPx = frameTop + panTop;
+  const widthPx = (boxWidth * zoom) / 100;
+  const heightPx = (boxHeight * zoom) / 100;
+  const leftPx = (-(posX / 100) * (zoom - 100) * boxWidth) / 100;
+  const topPx = (-(posY / 100) * (zoom - 100) * boxHeight) / 100;
 
   imgEl.style.objectFit = 'cover';
   imgEl.style.objectPosition = `${posX}% ${posY}%`;
@@ -163,31 +158,6 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
     ?? entries.find((entry) => entry.resource)?.key
     ?? null;
 
-  // Botón "90º": gira solo la cara/stage enfocada, sin resetear zoom/
-  // posición. Ubicado en el hueco central entre las dos caras (caso cartas) o
-  // junto al único stage (resto de casos), centrado verticalmente.
-  const rotateWrap = document.createElement('div');
-  rotateWrap.className = 'image-adjust-modal__rotate-wrap';
-  const rotateBtn = document.createElement('button');
-  rotateBtn.type = 'button';
-  rotateBtn.className = 'btn-rotate';
-  rotateBtn.title = 'Girar 90º';
-  rotateBtn.innerHTML =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-    '<path d="M21 12a9 9 0 1 1-3.2-6.9" /><polyline points="21 3 21 9 15 9" /></svg>' +
-    '<span>90º</span>';
-  rotateBtn.addEventListener('click', () => {
-    if (!focusedKey) return;
-    state[focusedKey].rotation = (state[focusedKey].rotation + 90) % 360;
-    updatePreview(focusedKey);
-  });
-  rotateWrap.appendChild(rotateBtn);
-  if (entries.length > 1) {
-    stagesRow.insertBefore(rotateWrap, stageEls[entries[1].key]);
-  } else {
-    stagesRow.appendChild(rotateWrap);
-  }
-
   function refreshFocusClasses() {
     for (const entry of entries) {
       const isFocused = entry.key === focusedKey;
@@ -199,6 +169,7 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
     if (focusedKey) {
       zoomInput.value = state[focusedKey].zoom;
       zoomTextInput.value = state[focusedKey].zoom;
+      rotationSlider.setValue(state[focusedKey].rotation);
       if (opacitySlider) {
         opacitySlider.value = state[focusedKey].transparencia;
         opacityTextInput.value = state[focusedKey].transparencia;
@@ -295,6 +266,16 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   zoomField.appendChild(zoomInput);
   zoomField.appendChild(zoomValue);
   content.appendChild(zoomField);
+
+  const rotationSlider = createRotationSliderField({
+    value: focusedKey ? state[focusedKey].rotation : 0,
+    onChange: (v) => {
+      if (!focusedKey) return;
+      state[focusedKey].rotation = v;
+      updatePreview(focusedKey);
+    },
+  });
+  content.appendChild(rotationSlider.field);
 
   const hasTransparencia = entries.some((entry) => entry.transparencia !== undefined);
   let opacitySlider = null;

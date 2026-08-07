@@ -3,6 +3,7 @@
 
 import { openDiceFontModal } from './diceFontModal.js';
 import { getResources } from '../core/state.js';
+import { createRotationSliderField } from './rotationSlider.js';
 
 export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate }) {
   const overlay = document.createElement('div');
@@ -26,6 +27,7 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
 
   const working = { ...textBox };
   working.colorFondoTransparencia = working.colorFondoTransparencia ?? 0;
+  working.rotation = working.rotation ?? 0;
 
   const contentField = document.createElement('div');
   contentField.className = 'modal__field';
@@ -475,6 +477,14 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   bgSection.appendChild(bgOpacityField);
 
   content.appendChild(bgSection);
+
+  const rotationSlider = createRotationSliderField({
+    value: working.rotation,
+    onChange: (v) => {
+      working.rotation = v;
+    },
+  });
+  content.appendChild(rotationSlider.field);
 
   const deleteBtn = document.createElement('button');
   deleteBtn.className = 'btn-eliminar';

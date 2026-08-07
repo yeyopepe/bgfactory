@@ -113,7 +113,7 @@ Coordenadas (`x`/`y`/`width`/`height` de cada `Forma`/`TextBox`, `tamañoFuente`
 
 ### Shape `Forma`
 
-`{ id, tipo: 'circular' | 'cuadrada' | 'redondeada', x, y, width, height, colorFondo, colorFondoTransparencia, fondoTipo: 'color' | 'imagen' | undefined, imagenResourceId, ajusteImagen, imagenTransparencia, bordeActivo, bordeColor, bordeGrosor, orden, rotation: 0 | 90 | 180 | 270 | undefined }`
+`{ id, tipo: 'circular' | 'cuadrada' | 'redondeada', x, y, width, height, colorFondo, colorFondoTransparencia, fondoTipo: 'color' | 'imagen' | undefined, imagenResourceId, ajusteImagen, imagenTransparencia, bordeActivo, bordeColor, bordeGrosor, orden, rotation: number (0-360) | undefined }`
 
 Tercer tipo de elemento repetible dentro de una cara (junto a imagen de fondo única y `textBoxes`). Mismo comportamiento de interacción que `TextBox`: seleccionable, editable con doble click (`ui/cardShapeModal.js`), arrastrable, redimensionable, duplicable, eliminable, con el mismo menú contextual.
 
@@ -121,7 +121,7 @@ Tercer tipo de elemento repetible dentro de una cara (junto a imagen de fondo ú
 |---|---|---|---|
 | `x`, `y`, `width`, `height` | number | — | Mismas unidades que `TextBox` (píxeles reales) |
 | `orden` | number \| undefined | fallback si ausente | Menor = más adelante en el apilado. Ver "Orden de apilado" arriba |
-| `rotation` | `0\|90\|180\|270 \| undefined` | equivalente a `0` | Gira la figura completa (borde+relleno) sobre su centro (`transform: rotate`) — a diferencia de `ajusteImagen.rotation`, que solo rota la imagen de relleno. `x`/`y`/`width`/`height` no cambian al girar, el contenido puede recortarse. Se activa con "Girar 90°" del menú contextual (cicla 0→90→180→270→0) |
+| `rotation` | número entero, `0`-`360` \| `undefined` | equivalente a `0` | Gira la figura completa (borde+relleno) sobre su centro (`transform: rotate`) — a diferencia de `ajusteImagen.rotation`, que solo rota la imagen de relleno. `x`/`y`/`width`/`height` no cambian al girar, el contenido puede recortarse. Conviven dos vías de edición: "Girar 90°" del menú contextual (cicla 0→90→180→270→0) y el slider de rotación (`ui/rotationSlider.js`) dentro de `ui/cardShapeModal.js`, con marcas imantadas cada 90º pero libre para cualquier ángulo intermedio |
 | `tipo` | `'circular'\|'cuadrada'\|'redondeada'` | — | `'redondeada'`: esquinas curvas `border-radius: 8px` (`SHAPE_BORDER_RADIUS`) |
 | `fondoTipo` | `'color'\|'imagen'\|undefined` | `undefined` ≈ `'color'` | Cambiar de uno a otro no borra el otro |
 | `colorFondo` | string (hex o vacío) | vacío | Con `fondoTipo === 'color'` |
@@ -137,7 +137,7 @@ Botón "Añadir elemento" de cada cara (menú desplegable): "Elegir imagen…", 
 
 ### Shape `TextBox`
 
-`{ id, contenido, fuenteResourceId, tamañoFuente, color, x, y, width, height, bordeActivo, bordeColor, bordeGrosor, bordeTipo: 'continua'|'punteada', colorFondo, colorFondoTransparencia, alineacionHorizontal: 'izquierda'|'centro'|'derecha', alineacionVertical: 'arriba'|'centro'|'abajo', margenSuperior, margenDerecha, margenInferior, margenIzquierda, negrita, cursiva, subrayado, orden, rotation: 0|90|180|270|undefined }`
+`{ id, contenido, fuenteResourceId, tamañoFuente, color, x, y, width, height, bordeActivo, bordeColor, bordeGrosor, bordeTipo: 'continua'|'punteada', colorFondo, colorFondoTransparencia, alineacionHorizontal: 'izquierda'|'centro'|'derecha', alineacionVertical: 'arriba'|'centro'|'abajo', margenSuperior, margenDerecha, margenInferior, margenIzquierda, negrita, cursiva, subrayado, orden, rotation: number (0-360) | undefined }`
 
 | Campo | Tipo | Default | Descripción |
 |---|---|---|---|
@@ -146,7 +146,7 @@ Botón "Añadir elemento" de cada cara (menú desplegable): "Elegir imagen…", 
 | `alineacionHorizontal`, `alineacionVertical` | enum | `'izquierda'` / `'arriba'` | Posición del texto en la zona interior del cuadro (tras descontar márgenes) |
 | `margenSuperior/Derecha/Inferior/Izquierda` | number, px | `0` | Reducen la zona interior sin cambiar tamaño del cuadro. Sin negativos ni tope propio |
 | `negrita`, `cursiva`, `subrayado` | boolean | `false` | Interruptores independientes y combinables, aplicados al contenido completo (no a rangos) |
-| `orden`, `rotation` | igual que `Forma` | — | Misma semántica y disparador ("Girar 90°") que en `Forma` |
+| `orden`, `rotation` | igual que `Forma` | — | Misma semántica y disparadores (menú contextual "Girar 90°" + slider de rotación en `ui/cardTextBoxModal.js`) que en `Forma` |
 
 `core/textBoxLayout.js` (módulo puro) expone `getTextBoxLayoutStyle(textBox, scale)`: traduce alineación+márgenes a `{ justifyContent, textAlign, paddingTop/Right/Bottom/Left }` (últimos 4 ya escalados en `px`) — punto único reutilizado por `ui/componentRenderer.js` y `ui/visualEditorModal.js`, ambos aplicando el resultado sobre contenedor `display:flex; flex-direction:column; box-sizing:border-box`.
 

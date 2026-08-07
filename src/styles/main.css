@@ -1413,41 +1413,6 @@ fieldset.modal__section--untitled {
   pointer-events: none;
 }
 
-/* Botón "90º": gira la imagen de la cara/stage enfocada. Ubicado en el hueco
-   central entre los dos stages (cartas) o junto al único stage (resto de
-   casos), misma altura que .image-adjust-modal__mask para centrar verticalmente. */
-.image-adjust-modal__rotate-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  align-self: stretch;
-}
-
-.btn-rotate {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.6rem 0.7rem;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: var(--bg-subtle);
-  color: var(--text-primary);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background var(--transition-fast);
-}
-
-.btn-rotate:hover {
-  background: var(--bg-hover);
-}
-
-.btn-rotate svg {
-  width: 20px;
-  height: 20px;
-}
-
 .image-adjust-modal__zoom-value {
   display: flex;
   align-items: center;
@@ -1485,6 +1450,94 @@ fieldset.modal__section--untitled {
 .modal__opacity-value input[type="text"] {
   width: 4rem;
   text-align: center;
+}
+
+/* Slider con marcas imantadas cada 90º (ui/rotationSlider.js). Bloque propio
+   e independiente de image-adjust-modal, ya que también lo usan
+   cardShapeModal.js/cardTextBoxModal.js. */
+.rotation-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.rotation-slider__wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.rotation-slider__track {
+  position: relative;
+  flex: 1;
+  height: 28px;
+  display: flex;
+  align-items: center;
+}
+
+.rotation-slider__track input[type="range"] {
+  width: 100%;
+  margin: 0;
+  accent-color: var(--accent-blue);
+  position: relative;
+  z-index: 2;
+}
+
+.rotation-slider__marks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 1;
+  padding: 0 1px;
+}
+
+.rotation-slider__mark {
+  width: 3px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--accent-blue-dark);
+  opacity: 0.55;
+}
+
+.rotation-slider__mark--active {
+  opacity: 1;
+  background: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.2);
+}
+
+.rotation-slider__labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.rotation-slider__value {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.rotation-slider__value input[type="text"] {
+  width: 3.4rem;
+  text-align: center;
+  padding: 0.4rem;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+.rotation-slider__value span {
+  color: var(--text-muted);
+  font-size: 0.875rem;
 }
 
 /* Card editor modal — editor de las dos caras de una carta a la vez */

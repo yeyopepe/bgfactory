@@ -87,15 +87,31 @@ Subir una imagen de otros objetos anteriores en blancoy negro
 Copia este estilo de ilustración de objetos.
 
 >Crea una imagen de XXX.
+>Fondo blanco.
 >Sin texto superfluo, sin marcos ni sombras.
 >Formato 1:1
 
 ### Color
 Subir imagen en bn:
 
->colorea con acuarela, colores apagados, trazos gruesos e imprecisos, sin respetar los bordes
+>Colorea con acuarela, colores apagados, trazos gruesos e imprecisos
+>Sin respetar los bordes
 
 Objetos fabricables:
 >colorea con acuarela, colores ricos y vivos, trazos precisos. Añade un leve aura de objeto especial
 
 
+# Pesonajes
+--------------------------
+## Nano Banana
+
+>Crea un boceto a mano alzada en blanco y negro de una superviviente urbana de mediana edad. Solo ropa básica, sin artilugios. Mochila pequeña.
+>Cuerpo entero.
+>Fondo blanco.
+>Sin texto superfluo, sin marcos ni sombras.
+>Formato 5:7
+
+
+# Útiles
+--------------------------
+https://www.pixelcut.ai/t/uncrop

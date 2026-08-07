@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Maqueta — Modal edición de forma con slider de rotación añadido</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --accent-blue: #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --text-primary: #1a1a1a;
+    --text-muted: #666666;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e8e8e8;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-2: 0 4px 20px rgba(0, 0, 0, 0.15);
+    --transition-fast: 150ms ease;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+  .modal {
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    max-width: 460px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal__header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-neutral);
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  .modal__content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .modal__field label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+  }
+
+  .modal__field input[type="color"] {
+    height: 40px;
+    cursor: pointer;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+  }
+
+  .field-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .slider-row input[type="range"] {
+    flex: 1;
+    accent-color: var(--accent-blue);
+  }
+
+  .value-box {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+  }
+
+  .value-box input[type="text"] {
+    width: 3.4rem;
+    text-align: center;
+    padding: 0.4rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.875rem;
+  }
+
+  .value-box span {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+
+  .field-note {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.3rem;
+  }
+
+  /* --- Nuevo control de rotación --- */
+  .rotation-field {
+    padding-top: 0.9rem;
+    border-top: 1px dashed var(--border-neutral);
+  }
+
+  .new-badge {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: var(--accent-blue-dark);
+    background: #eaf3fc;
+    border-radius: 3px;
+    padding: 0.1rem 0.4rem;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+    text-transform: uppercase;
+  }
+
+  .rotation-slider-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .rotation-slider-track {
+    position: relative;
+    flex: 1;
+    height: 28px;
+    display: flex;
+    align-items: center;
+  }
+
+  .rotation-slider-track input[type="range"] {
+    width: 100%;
+    margin: 0;
+    accent-color: var(--accent-blue);
+    position: relative;
+    z-index: 2;
+  }
+
+  .rotation-marks {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 1;
+    padding: 0 1px;
+  }
+
+  .rotation-mark {
+    width: 3px;
+    height: 10px;
+    border-radius: 2px;
+    background: var(--accent-blue-dark);
+    opacity: 0.55;
+  }
+
+  .rotation-mark--active {
+    opacity: 1;
+    background: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.2);
+  }
+
+  .rotation-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+  }
+
+  .rotation-labels span:first-child { text-align: left; width: 1.5em; }
+  .rotation-labels span:last-child { text-align: right; width: 1.5em; }
+
+  .context-menu-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px dashed var(--border-neutral);
+    border-radius: var(--radius-sm);
+    background: #fafafa;
+  }
+
+  .context-menu-note svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+  <div class="modal">
+    <div class="modal__header">Editar forma</div>
+    <div class="modal__content">
+
+      <div class="field-row" style="gap:0.75rem;">
+        <div class="modal__field" style="flex:1;">
+          <label>Color de fondo</label>
+          <input type="color" value="#eaf3fc" style="width:100%;">
+        </div>
+      </div>
+
+      <div class="modal__field">
+        <label>Nivel de transparencia</label>
+        <div class="slider-row">
+          <input type="range" min="0" max="100" value="80">
+          <div class="value-box"><input type="text" value="80"><span>%</span></div>
+        </div>
+      </div>
+
+      <!-- Nuevo control: la forma/caja de texto no tenía hasta ahora ningún
+           control de rotación en este modal. -->
+      <div class="modal__field rotation-field">
+        <label>Rotación<span class="new-badge">Nuevo</span></label>
+        <div class="rotation-slider-wrap">
+          <div class="rotation-slider-track">
+            <div class="rotation-marks">
+              <div class="rotation-mark rotation-mark--active"></div>
+              <div class="rotation-mark"></div>
+              <div class="rotation-mark"></div>
+              <div class="rotation-mark"></div>
+              <div class="rotation-mark"></div>
+            </div>
+            <input type="range" min="0" max="360" value="0">
+          </div>
+          <div class="value-box"><input type="text" value="0"><span>º</span></div>
+        </div>
+        <div class="rotation-labels">
+          <span>0º</span><span>90º</span><span>180º</span><span>270º</span><span>360º</span>
+        </div>
+        <div class="field-note">El slider se ajusta automáticamente al pasar cerca de una marca</div>
+
+        <div class="context-menu-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          La opción "Girar 90°" del menú contextual (clic derecho) se mantiene igual, como acción rápida independiente de este slider.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

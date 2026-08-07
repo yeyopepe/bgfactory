@@ -287,3 +287,13 @@ Patrón para el único texto editable in-place fuera de un modal/formulario (`ui
 - En modo juego, o modo edición sin hover/edición activa: el `h1` no lleva ninguna de las dos clases — se comporta como el `h1` genérico (`01-tokens-visual.md` §3), sin cursor especial ni icono.
 
 Cualquier título/etiqueta futuro que necesite edición in-place directamente sobre el elemento visible (en vez de abrir modal): reutilizar este criterio (hover discreto con icono, sustitución por `<input>` a medida del contexto, confirmación con blur/Enter).
+
+## 12.12 Slider con marcas imantadas
+
+Primer uso de este patrón en el proyecto: no había precedente de `<datalist>` ni de marcas de referencia sobre un `<input type="range">` antes de `ui/rotationSlider.js` (control de rotación 0-360º de `ui/imageAdjustModal.js`, `ui/cardShapeModal.js`, `ui/cardTextBoxModal.js` — ver `design/docs/architecture/05-ui-layer.md`).
+
+- Bloque `.rotation-field` (`div.modal__field.rotation-field`) con: `<label>`, pista (`.rotation-slider__track`) que superpone el `<input type="range">` y las marcas visuales (`.rotation-slider__marks` > `.rotation-slider__mark`, una por valor de referencia), etiquetas numéricas debajo (`.rotation-slider__labels`) y, a la derecha de la pista, campo numérico sincronizado (`.rotation-slider__value` > `<input type="text">` + `<span>`) — mismo patrón slider↔texto que "Zoom"/"Transparencia" de `ui/imageAdjustModal.js`.
+- Marca activa: `.rotation-slider__mark--active` sobre la marca más cercana al valor actual, dentro del umbral de imán.
+- **Umbral de imán como constante de módulo**, no un valor "mágico" disperso por el código: `ROTATION_SNAP_THRESHOLD_DEG` en `ui/rotationSlider.js`. Al arrastrar el slider, si el valor crudo cae a esa distancia o menos de una marca, se fuerza al valor exacto de la marca antes de propagarlo — no es solo guía visual, ajusta el dato real.
+- Convive deliberadamente con una acción rápida existente sobre el mismo campo (`rotation`): el menú contextual "Girar 90°" (§12.8) sigue incrementando +90° cíclicamente, sin relación de código con este slider — dos mecanismos de edición del mismo campo, uno rápido y cíclico, otro preciso y de rango completo.
+- Cualquier control futuro que necesite "elegir un valor en un rango continuo, con referencias discretas hacia las que conviene alinearse": reutilizar este patrón en vez de un slider liso o un `<select>` de valores fijos.

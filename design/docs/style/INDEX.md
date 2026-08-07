@@ -183,4 +183,4 @@ Segundo estado transitorio distinto de `.lifted`.
 |---|---|
 | `01-tokens-visual.md` | Design tokens (`:root`), tipografía, espaciado, bordes/esquinas, elevación/sombra/transición |
 | `02-componentes-layout.md` | Botones, layout general (columna flex, z-index de overlays), redimensionado (manejador de esquina), cabecera de tabla fija (`sticky`) |
-| `03-modales-menus.md` | Icono de ayuda, modales de error/éxito, cursores, etiquetas/insignias de componente, modales anchas, botón maximizar, checklist agrupado, secciones dentro de pestañas, menú desplegable de acciones, menú contextual, copiar/pegar estilo, grupo de botones icono-solo, título de cabecera editable |
+| `03-modales-menus.md` | Icono de ayuda, modales de error/éxito, cursores, etiquetas/insignias de componente, modales anchas, botón maximizar, checklist agrupado, secciones dentro de pestañas, menú desplegable de acciones, menú contextual, copiar/pegar estilo, grupo de botones icono-solo, título de cabecera editable, slider con marcas imantadas |
