@@ -276,6 +276,25 @@ function createCopyBadge() {
   return badge;
 }
 
+// Indicador de "Tiene copias": insignia superpuesta, solo pintada en modo edición
+// (`showCopyIndicator`) sobre el componente ORIGINAL (`component.copyOf` es `null`) cuando
+// tiene al menos una copia vinculada — mismo icono/color que `.component-copy-badge` (la
+// insignia que lleva la copia), pero en forma de píldora con el número de copias entre
+// paréntesis, ya que no cabe en el círculo fijo de 18px. Misma esquina inferior izquierda:
+// nunca coincide con `.component-copy-badge` en el mismo componente, porque un original
+// nunca tiene `copyOf` propio (no se permiten copias de copias).
+function createHasCopiesBadge(count) {
+  const badge = document.createElement('span');
+  badge.className = 'component-has-copies-badge';
+  badge.innerHTML =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+    '<rect x="3" y="8" width="11" height="11" rx="1.5"/>' +
+    '<path d="M8 8V5a1.5 1.5 0 0 1 1.5-1.5H19A1.5 1.5 0 0 1 20.5 5v11A1.5 1.5 0 0 1 19 17.5h-3" stroke-linecap="round" stroke-linejoin="round"/>' +
+    '</svg>' +
+    `<span>(${count})</span>`;
+  return badge;
+}
+
 // Pinta la imagen de fondo (si tiene) y los textBoxes de una cara de carta
 // (`cara`: caraFrontal/caraTrasera de una carta, o la única `cara` de
 // 'tableroPersonalizado', mismo shape en los tres) sobre `contentParent`,
@@ -492,8 +511,10 @@ function applyFlipFeedbackIfChanged(carta, componentId, caraActual) {
   }, 250));
 }
 
-export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedIds = new Set(), onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, onCartaFlip, onMazoDraw, onContextMenu, identifyMode, liftOnDrag = false, showLockIndicator = false, showHiddenIndicator = false, showCopyIndicator = false } = {}) {
+export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedIds = new Set(), onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, onCartaFlip, onMazoDraw, onContextMenu, identifyMode, liftOnDrag = false, showLockIndicator = false, showHiddenIndicator = false, showCopyIndicator = false, allComponents } = {}) {
   worldEl.innerHTML = '';
+
+  const componentsToCount = allComponents ?? components;
 
   // El componente con `order` más alto se dibuja primero (queda por debajo); el de
   // `order = 1` se dibuja el último (appendChild posterior = por encima visualmente).
@@ -502,6 +523,11 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
   // Registro de elemento DOM por id (selección múltiple): permite mover en
   // vivo, durante el propio arrastre, al resto de componentes seleccionados.
   const elementsById = new Map();
+
+  const copyCountByOriginalId = new Map();
+  for (const c of componentsToCount) {
+    if (c.copyOf) copyCountByOriginalId.set(c.copyOf, (copyCountByOriginalId.get(c.copyOf) ?? 0) + 1);
+  }
 
   function getBlockDragTargets(component) {
     if (!(selectedIds.size > 1 && selectedIds.has(component.id))) return [];
@@ -544,6 +570,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (showLockIndicator && component.bloqueado !== 'ninguno') textBox.appendChild(createLockBadge());
       if (showHiddenIndicator && component.oculto) textBox.appendChild(createHiddenBadge());
       if (showCopyIndicator && component.copyOf) textBox.appendChild(createCopyBadge());
+      if (showCopyIndicator && !component.copyOf) {
+        const copyCount = copyCountByOriginalId.get(component.id) ?? 0;
+        if (copyCount > 0) textBox.appendChild(createHasCopiesBadge(copyCount));
+      }
 
       if (onSelect) {
         textBox.classList.add('text-box--selectable');
@@ -681,6 +711,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (showLockIndicator && component.bloqueado !== 'ninguno') board.appendChild(createLockBadge());
       if (showHiddenIndicator && component.oculto) board.appendChild(createHiddenBadge());
       if (showCopyIndicator && component.copyOf) board.appendChild(createCopyBadge());
+      if (showCopyIndicator && !component.copyOf) {
+        const copyCount = copyCountByOriginalId.get(component.id) ?? 0;
+        if (copyCount > 0) board.appendChild(createHasCopiesBadge(copyCount));
+      }
 
       const props = component.properties || {};
       board.classList.toggle('board--sin-sombra', props.sombra === false);
@@ -910,6 +944,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (showLockIndicator && component.bloqueado !== 'ninguno') tablero.appendChild(createLockBadge());
       if (showHiddenIndicator && component.oculto) tablero.appendChild(createHiddenBadge());
       if (showCopyIndicator && component.copyOf) tablero.appendChild(createCopyBadge());
+      if (showCopyIndicator && !component.copyOf) {
+        const copyCount = copyCountByOriginalId.get(component.id) ?? 0;
+        if (copyCount > 0) tablero.appendChild(createHasCopiesBadge(copyCount));
+      }
 
       const tableroContent = document.createElement('div');
       tableroContent.style.position = 'absolute';
@@ -1049,6 +1087,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (showLockIndicator && component.bloqueado !== 'ninguno') dice.appendChild(createLockBadge());
       if (showHiddenIndicator && component.oculto) dice.appendChild(createHiddenBadge());
       if (showCopyIndicator && component.copyOf) dice.appendChild(createCopyBadge());
+      if (showCopyIndicator && !component.copyOf) {
+        const copyCount = copyCountByOriginalId.get(component.id) ?? 0;
+        if (copyCount > 0) dice.appendChild(createHasCopiesBadge(copyCount));
+      }
 
       const props = component.properties || {};
       const colorCuerpo = props.colorCuerpo || '#888888';
@@ -1267,6 +1309,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (showLockIndicator && component.bloqueado !== 'ninguno') documentViewer.appendChild(createLockBadge());
       if (showHiddenIndicator && component.oculto) documentViewer.appendChild(createHiddenBadge());
       if (showCopyIndicator && component.copyOf) documentViewer.appendChild(createCopyBadge());
+      if (showCopyIndicator && !component.copyOf) {
+        const copyCount = copyCountByOriginalId.get(component.id) ?? 0;
+        if (copyCount > 0) documentViewer.appendChild(createHasCopiesBadge(copyCount));
+      }
 
       const content = document.createElement('div');
       content.className = 'document-viewer__content';
@@ -1483,6 +1529,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (showLockIndicator && component.bloqueado !== 'ninguno') carta.appendChild(createLockBadge());
       if (showHiddenIndicator && component.oculto) carta.appendChild(createHiddenBadge());
       if (showCopyIndicator && component.copyOf) carta.appendChild(createCopyBadge());
+      if (showCopyIndicator && !component.copyOf) {
+        const copyCount = copyCountByOriginalId.get(component.id) ?? 0;
+        if (copyCount > 0) carta.appendChild(createHasCopiesBadge(copyCount));
+      }
 
       applyFlipFeedbackIfChanged(carta, component.id, caraActual);
 
@@ -1692,6 +1742,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (showLockIndicator && component.bloqueado !== 'ninguno') mazo.appendChild(createLockBadge());
       if (showHiddenIndicator && component.oculto) mazo.appendChild(createHiddenBadge());
       if (showCopyIndicator && component.copyOf) mazo.appendChild(createCopyBadge());
+      if (showCopyIndicator && !component.copyOf) {
+        const copyCount = copyCountByOriginalId.get(component.id) ?? 0;
+        if (copyCount > 0) mazo.appendChild(createHasCopiesBadge(copyCount));
+      }
 
       const countLabel = document.createElement('span');
       countLabel.className = 'mazo-count-label';

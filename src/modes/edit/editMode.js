@@ -525,8 +525,10 @@ export function renderEditMode(container) {
   }
 
   function renderTable() {
-    const cartasEnMazo = getCartaIdsEnAlgunMazo(getComponents());
-    renderComponentsOnTable(table.worldEl, getComponents().filter((c) => !cartasEnMazo.has(c.id)), {
+    const allComponents = getComponents();
+    const cartasEnMazo = getCartaIdsEnAlgunMazo(allComponents);
+    renderComponentsOnTable(table.worldEl, allComponents.filter((c) => !cartasEnMazo.has(c.id)), {
+      allComponents,
       identifyMode: 'label',
       showLockIndicator: true,
       showHiddenIndicator: true,

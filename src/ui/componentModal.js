@@ -17,6 +17,7 @@ import { openStyleClipboardSelectionModal } from './styleClipboardSelectionModal
 import { openStyleClipboardPasteErrorModal } from './styleClipboardErrorModal.js';
 import { showToast } from './toast.js';
 import { openMazoContentModal } from './mazoContentModal.js';
+import { openComponentCopiesModal } from './componentCopiesModal.js';
 import { getInteractionsForType, isInteractionActive } from '../core/interactions.js';
 import { sortByName } from '../core/textSort.js';
 
@@ -491,6 +492,38 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     text: 'Si está marcado, este componente se coloca automáticamente encima de todos los demás cada vez que se mueve o se interactúa con él (voltear, lanzar) en Modo Juego.',
   }));
   infoSection.appendChild(upOnMoveField);
+
+  const linkedCopies = getComponents().filter((c) => c.copyOf === workingComponent.id);
+  if (linkedCopies.length > 0) {
+    const copiesSummary = document.createElement('div');
+    copiesSummary.className = 'component-copies-summary';
+
+    const row = document.createElement('div');
+    row.className = 'component-copies-summary__row';
+
+    const label = document.createElement('span');
+    label.className = 'component-copies-summary__label';
+    label.textContent = 'Copias vinculadas';
+    row.appendChild(label);
+
+    const value = document.createElement('span');
+    value.className = 'component-copies-summary__value';
+    value.textContent = String(linkedCopies.length);
+    row.appendChild(value);
+
+    copiesSummary.appendChild(row);
+
+    const button = document.createElement('button');
+    button.className = 'btn-cancel component-copies-summary__button';
+    button.type = 'button';
+    button.textContent = 'Ver copias vinculadas...';
+    button.addEventListener('click', () => {
+      openComponentCopiesModal({ originalId: workingComponent.id });
+    });
+    copiesSummary.appendChild(button);
+
+    infoSection.appendChild(copiesSummary);
+  }
 
   generalContent.appendChild(infoSection);
   generalContent.appendChild(sizeSection);

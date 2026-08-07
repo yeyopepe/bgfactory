@@ -81,6 +81,14 @@ Mismo patrón de superposición que candado/oculto (círculo `18px`, icono `var(
   - Fondo `var(--error)` en vez del `rgba(0,0,0,.55)` neutro de las otras dos — primer uso de este token fuera de su semántica de error/acción destructiva (decidido explícitamente solo para este indicador, no reabre la convención para otros usos).
   - Anclada en esquina inferior **izquierda** — la última de las cuatro libre (superior izquierda: etiqueta identificativa; superior derecha: candado; inferior derecha: oculto).
 
+### Indicador de "Tiene copias" (`.component-has-copies-badge`)
+
+Mismo icono y esquina inferior izquierda que `.component-copy-badge`, pero con fondo `var(--accent-blue-dark)` — mismo azul que ya usa `.component-id-label` (§12.3, "Etiqueta identificativa de componente") — precisamente para diferenciarse a simple vista del indicador de copia (que sigue en rojo), en vez de compartir su familia visual. `pointer-events: none`, permanente mientras el componente tenga copias vinculadas, solo modo edición vía `showCopyIndicator`, en forma de píldora para incorporar el número de copias (p. ej., "(2)") junto al icono.
+
+- Anclada en esquina inferior **izquierda**, exactamente igual que `.component-copy-badge` — mutuamente excluyente (un componente original nunca tiene `copyOf` propio, así que nunca muestra las dos insignias a la vez).
+- Altura fija `18px` (match con los otros badges), ancho variable según cantidad de dígitos del número (padding y `border-radius: 9px` para la forma redondeada).
+- Mismo tamaño de icono que los otros badges (`14px` en esta píldora, `18px` en el círculo de copia), mismo criterio de espacio interior (`gap: 3px` entre icono y número).
+
 ### Contorno de selección y etiqueta en rojo para copias
 
 Además de la insignia anterior: cuando un componente con `copyOf` no nulo está en `:hover`/`.<tipo>--selected`, el contorno discontinuo de selección y el fondo de `.component-id-label` (normalmente `var(--accent-blue)`/`var(--accent-blue-dark)`) se pintan en `var(--error)` — mismo tono que el indicador de copia, refuerza de un vistazo que el elemento es una copia.
@@ -146,6 +154,16 @@ Patrón para agrupar visualmente varios campos relacionados dentro de una pesta�
   - **Meramente informativo** (`.modal__section-title`): solo texto, sin control. Campos de dentro siempre activos.
   - **Des/activador** (`.modal__section-title--toggle`): mismo `<legend>`, precedido de checkbox formando una fila (`display:flex; align-items:center; gap:0.5rem`, igual que `.modal__field--checkbox` pero haciendo de título de sección). Controla si la sección entera está activa: desmarcado, resto de campos (`.modal__section--disabled`) se muestran deshabilitados (`opacity: 0.5; pointer-events: none`, más `disabled` en cada input desde JS) sin perder valores ya introducidos; marcado, se habilitan de nuevo tal cual estaban.
 - `.modal__section--untitled`: mismo `<fieldset>`/CSS sin `<legend>`, para un grupo que necesita el mismo marco pero no tiene nombre propio.
+
+### 12.6.1 Número + botón que abre modal aparte
+
+Patrón para listas potencialmente largas de solo lectura dentro de una sección de la modal de propiedades: un contador numérico (p. ej. "5") seguido de un botón que abre una modal independiente con la lista completa, evitando descontrolar el alto de la sección si hay muchos elementos.
+
+- Bloque `.{bloque}-summary` (p. ej. `.component-copies-summary`) con fila de lectura internamente (`.{bloque}-summary__row` con `.{bloque}-summary__label` a la izquierda y `.{bloque}-summary__value` a la derecha, mismo criterio visual que `.context-menu__info-label`/`__info-value` de §12.8 sin reutilizar literalmente esas clases si el bloque vive fuera de `.context-menu`), seguida de botón a todo lo ancho (`.{bloque}-summary__button` con `width: 100%`).
+- Botón reutiliza `.btn-cancel` — misma excepción visual que el botón "Ver contenido del mazo" de la modal de edición de mazo (§12.4).
+- La modal que abre el botón (`.{bloque}-modal`, p. ej. `.component-copies-modal`) sigue el esqueleto estándar de `.modal` con cabecera, pista/hint y contenido, sin `max-width` especial necesario (el ancho por defecto `500px` es suficiente para listas de ids).
+- Primer uso: `.component-copies-summary` → `.component-copies-modal` (`ui/componentModal.js` + `ui/componentCopiesModal.js`) para la lista de copias vinculadas a un Original.
+- Cualquier lista de solo lectura potencialmente larga dentro de una sección: reutilizar este patrón en vez de desplegarla inline.
 
 ### Usos del patrón
 

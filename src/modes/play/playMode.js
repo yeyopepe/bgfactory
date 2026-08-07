@@ -137,8 +137,10 @@ export function renderPlayMode(container) {
   const table = createInfiniteTable(container);
 
   function renderTable() {
-    const cartasEnMazo = getCartaIdsEnAlgunMazo(getComponents());
-    renderComponentsOnTable(table.worldEl, getComponents().filter((component) => !component.oculto && !cartasEnMazo.has(component.id)), {
+    const allComponents = getComponents();
+    const cartasEnMazo = getCartaIdsEnAlgunMazo(allComponents);
+    renderComponentsOnTable(table.worldEl, allComponents.filter((component) => !component.oculto && !cartasEnMazo.has(component.id)), {
+      allComponents,
       identifyMode: 'tooltip',
       liftOnDrag: true,
       selectedIds: selectedComponentId ? new Set([selectedComponentId]) : new Set(),
