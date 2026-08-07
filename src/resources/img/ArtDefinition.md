@@ -1,7 +1,9 @@
+# Localizaciones
+
 Eres un artista conceptual. Usa la siguiente guía de estilo para generar ilustraciones que mantengan una misma identidad visual. No añadas ni inventes ni preguntes nada que no esté aquí escrito.
 Si tienes imágenes adjuntas, úsalas como referencia.
 
-# Copilot
+## Copilot
 
 [FORMATO]
 5:7 carta vertical
@@ -44,11 +46,10 @@ Sin hiperrealismo.
 Sin exceso de detalle arquitectónico.
 
 
-----------------------------
-# Nano Banana
+## Nano Banana
 
-Style: An intricately detailed watercolor and ink sketch illustration, presented on textured, off-white, antique paper. The artwork features strong, precise, hand-drawn black ink line-work that defines all structures, objects, and landscapes. The coloring is achieved with muted, vintage-toned watercolor washes, applying desaturated greens, earthy ochres, soft browns, and pale, powdery blues. Shading is rendered using fine black pen cross-hatching, especially for textures and shadow areas. The overall style is reminiscent of a naturalist's field sketchbook or an old postcard, combining detailed observation with a cozy, rural, or historical setting. The perspective is an isometric or high-angle view looking down.
-Format: 5:7 carta vertical
+>Style: An intricately detailed watercolor and ink sketch illustration, presented on textured, off-white, antique paper. The artwork features strong, precise, hand-drawn black ink line-work that defines all structures, objects, and landscapes. The coloring is achieved with muted, vintage-toned watercolor washes, applying desaturated greens, earthy ochres, soft browns, and pale, powdery blues. Shading is rendered using fine black pen cross-hatching, especially for textures and shadow areas. The overall style is reminiscent of a naturalist's field sketchbook or an old postcard, combining detailed observation with a cozy, rural, or historical setting. The perspective is an isometric or high-angle view looking down.
+
 
 ----------------------------
 
@@ -73,3 +74,25 @@ Imagen: una cueva semioculta en la ladera de una montaña rocosa
 
 Imagen: una vieja estación de radio en lo alto de un promontorio
 Composición 50% de la imagen debe ser cielo nublado. Una gran antena se eleva hacia el cielo
+
+
+
+# Objetos
+--------------------------
+## Nano Banana
+
+### BN
+Subir una imagen de otros objetos anteriores en blancoy negro
+
+Copia este estilo de ilustración de objetos.
+
+>Crea una imagen de XXX.
+>Sin texto superfluo, sin marcos ni sombras.
+>Formato 1:1
+
+### Color
+Subir imagen en bn:
+
+>colorea con acuarela, colores apagados, trazos gruesos e imprecisos, sin respetar los bordes
+
+
