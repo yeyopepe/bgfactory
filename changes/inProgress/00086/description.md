@@ -8,6 +8,9 @@
 
 "en este listado hay que añadir una columna titulada Cantidad que lleva el número de copias que tiene este elemento (más él mismo). ejemplo: si una carta con id ASDF tiene 5 copias, en la columna cantidad debe aparecer el número 6"
 
+## Comentarios adicionales
+- Tener en cuenta si un objeto tiene copias. ¿Se añade el original o solo las copias?
+
 ## Descripción completa
 
 Se añade, en modo edición, un botón "Exportar CSV" junto a los botones existentes "Exportar"/"Importar" (JSON) y "Guardar" de la barra de edición. Al pulsarlo, descarga directamente un fichero CSV con una fila por cada componente actual del juego — sin selección previa ni modal intermedia, a diferencia de "Exportar" (JSON), que sí permite elegir qué incluir.
