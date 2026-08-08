@@ -2,7 +2,7 @@
 
 MinSDD (nombre provisional para el framework `ms-*`) es un conjunto de skills de Claude Code que estandariza cómo se documentan, planifican e implementan los cambios en este proyecto. Todo cambio real en el código pasa por el mismo ciclo: **documentar la intención → planificar la solución técnica → implementar**. Empaquetar una entrega (generar el entregable, copiar la documentación técnica vigente y redactar el changelog funcional) también forma parte del framework: lo hace `/ms-version` (ver [Preparar una entrega: `/ms-version`](#preparar-una-entrega-ms-version)).
 
-Todas las skills viven bajo `.claude/skills/ms-*` y comparten un único fichero de configuración: `.claude/ms-context.json`.
+Todas las skills viven bajo `.claude/skills/ms-*` y comparten dos ficheros de configuración: `.claude/ms-context.json` (puntero fijo, solo `workFolder`) y `{workFolder}/framework/context.json` (configuración real del proyecto — ver más abajo por qué están separados).
 
 ## Índice
 
@@ -46,11 +46,22 @@ Generar una versión del entregable **sí** forma parte del framework `ms-*`: `/
 
 ### 2. Inicializar el framework: `/ms-init`
 
-Antes de poder usar cualquier otra skill `ms-*`, hay que ejecutar `/ms-init` una vez por proyecto. Genera `.claude/ms-context.json`, que es el único sitio donde vive la configuración: dónde se guardan los cambios, si el proyecto versiona entregables, dónde está el código fuente, qué documentos mantener sincronizados, etc.
+Antes de poder usar cualquier otra skill `ms-*`, hay que ejecutar `/ms-init` una vez por proyecto. Genera dos ficheros:
+
+- **`.claude/ms-context.json`** — puntero FIJO, siempre en esta misma ruta, con un único campo: `workFolder`. Existe para que cualquier skill pueda localizar el segundo fichero sin depender de conocer `workFolder` de antemano (si el fichero de configuración real viviera dentro de `workFolder`, nada podría encontrarlo sin saber ya `workFolder` — una dependencia circular).
+- **`{workFolder}/framework/context.json`** — la configuración real, específica de este proyecto: dónde se guardan los cambios (implícito en `workFolder`), si el proyecto versiona entregables, dónde está el código fuente, qué documentos mantener sincronizados, etc.
 
 `ms-init` explora el repo en busca de pistas (carpeta de cambios existente, `package.json`, docs de arquitectura...) y solo pregunta lo que no puede deducir. Si se vuelve a invocar sobre un proyecto ya inicializado, permite reconfigurar o completar campos que falten sin repetir todo el cuestionario.
 
-Ejemplo de `.claude/ms-context.json` ya configurado en este proyecto:
+Ejemplo de `.claude/ms-context.json` (puntero) ya configurado en este proyecto:
+
+```json
+{
+  "workFolder": "/"
+}
+```
+
+Y de `{workFolder}/framework/context.json` (aquí, `framework/context.json` en la raíz, porque `workFolder` es `"/"`):
 
 ```json
 {
@@ -65,7 +76,6 @@ Ejemplo de `.claude/ms-context.json` ya configurado en este proyecto:
   },
   "framework": {
     "sourcecodeDir": "src",
-    "workFolder": "/",
     "numberWidth": 5,
     "docs": {
       "functional": {
@@ -86,11 +96,11 @@ Ejemplo de `.claude/ms-context.json` ya configurado en este proyecto:
 }
 ```
 
-Todos los campos de `framework` son opcionales, incluido `workFolder` (default `"/"`, la raíz del repo) — el framework funciona sin `docs.tech.architectureDocDir`, `docs.functional.featuresDocPathDir` o `docs.tech.styleBibleDocDir`, simplemente usa menos contexto al analizar y no mantiene esos documentos sincronizados. `workFolder` es la única ruta que se elige: dentro de él, `changes/` y `versions/` son subcarpetas de nombre fijo que las skills crean por sí mismas, para que no se puedan desconfigurar por error.
+Todos los campos de `framework` son opcionales (salvo `workFolder`, en el puntero, que siempre está presente con default `"/"`, la raíz del repo) — el framework funciona sin `docs.tech.architectureDocDir`, `docs.functional.featuresDocPathDir` o `docs.tech.styleBibleDocDir`, simplemente usa menos contexto al analizar y no mantiene esos documentos sincronizados. `workFolder` es la única ruta que se elige: dentro de él, `changes/`, `versions/` y `framework/` son subcarpetas de nombre fijo que las skills crean por sí mismas, para que no se puedan desconfigurar por error.
 
 #### Elegir el modelo/esfuerzo de cada skill: `skillModels`
 
-`.claude/ms-context.json` también puede incluir una sección opcional `skillModels` que decide con qué modelo (Sonnet, Haiku...) y esfuerzo corre cada skill `ms-*` del proyecto — por ejemplo, para bajar a Haiku las skills más mecánicas (`ms-status`, `ms-todo`) o subir el esfuerzo de las que implementan código (`ms-do`) sin tocar las que razonan sobre arquitectura.
+`{workFolder}/framework/context.json` también puede incluir una sección opcional `skillModels` que decide con qué modelo (Sonnet, Haiku...) y esfuerzo corre cada skill `ms-*` del proyecto — por ejemplo, para bajar a Haiku las skills más mecánicas (`ms-status`, `ms-todo`) o subir el esfuerzo de las que implementan código (`ms-do`) sin tocar las que razonan sobre arquitectura.
 
 - `default`: modelo/esfuerzo que aplica a cualquier skill `ms-*` sin entrada propia en `overrides`.
 - `overrides`: una entrada por nombre de skill (el `name:` de su `SKILL.md`) para las que necesiten algo distinto del `default`.
@@ -101,7 +111,7 @@ Importante: el harness de Claude Code solo lee el campo `model`/`effort` del fro
 python .claude/skills/ms-init/scripts/sync-skill-models.py
 ```
 
-Este script reescribe el frontmatter `model`/`effort` de cada `SKILL.md` `ms-*` según lo configurado, sin lo cual los cambios en `ms-context.json` no tienen ningún efecto. Es un script determinista (sin LLM); puede ejecutarse manualmente en cualquier momento tras editar `skillModels` a mano, o pedirle a `ms-init` que lo haga por ti la próxima vez que lo invoques.
+Este script reescribe el frontmatter `model`/`effort` de cada `SKILL.md` `ms-*` según lo configurado, sin lo cual los cambios en `context.json` no tienen ningún efecto. Es un script determinista (sin LLM); puede ejecutarse manualmente en cualquier momento tras editar `skillModels` a mano, o pedirle a `ms-init` que lo haga por ti la próxima vez que lo invoques.
 
 ## Guía de uso rápida: el flujo natural
 
@@ -262,5 +272,5 @@ Y para algo trivial:
 
 - Nunca se escribe a mano el `description.md`, el `plan.md` ni se numeran/mueven carpetas — eso lo hace siempre `ms-internal-workflow` (skill interna, no invocable directamente) para mantener esa lógica en un único sitio.
 - Un `xxxx` nunca se reutiliza ni se calcula a mano: siempre lo asigna el script de `ms-internal-workflow` recorriendo todas las subcarpetas de `changes/`.
-- Las skills verifican siempre que `.claude/ms-context.json` existe y está completo antes de actuar; si falta algo, piden ejecutar/completar `ms-init` en vez de improvisar valores por defecto.
+- Las skills verifican siempre que `.claude/ms-context.json` (puntero) y `{workFolder}/framework/context.json` existen y están completos antes de actuar; si falta algo, piden ejecutar/completar `ms-init` en vez de improvisar valores por defecto.
 - Siempre que `ms-new`, `ms-fix` o `ms-how` necesitan contexto técnico, lo piden invocando `ms-internal-tech-analysis` (skill interna, no invocable directamente): primero lee la documentación de `framework.docs.tech` ya configurada, y solo explora código si hace falta completar información. Si documentación y código no coinciden, el código manda y la incongruencia se devuelve como hallazgo — nunca se corrige el documento dentro de esa misma skill sin que la skill llamante lo decida.

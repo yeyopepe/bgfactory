@@ -7,8 +7,8 @@ por cada una, su xxxx (nombre de la carpeta) y la ruta a su description.md
 description.md -- eso lo hace la skill ms-internal-changelog, que necesita
 juicio real para clasificar cada entrada (Nuevo/Cambios/Eliminado).
 
-workFolder se lee de .claude/ms-context.json (seccion framework) salvo que
-se pase explicitamente por parametro.
+workFolder se lee de .claude/ms-context.json salvo que se pase
+explicitamente por parametro.
 
 Imprime UNICAMENTE un JSON en stdout:
 
@@ -40,14 +40,8 @@ def load_work_folder(root: Path) -> str:
             "listar entradas de closed."
         )
 
-    context = json.loads(context_path.read_text(encoding="utf-8"))
-    framework = context.get("framework")
-    if not framework:
-        raise SystemExit(
-            f"{context_path} no tiene la seccion 'framework'. Ejecuta la skill "
-            "ms-init para completarla."
-        )
-    return framework.get("workFolder", "/")
+    pointer = json.loads(context_path.read_text(encoding="utf-8"))
+    return pointer.get("workFolder", "/")
 
 
 def resolve_changes_dir(root: Path, work_folder_rel: str) -> Path:

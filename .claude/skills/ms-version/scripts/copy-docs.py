@@ -3,8 +3,10 @@
 
 Comprime en un .zip cada una de las rutas configuradas en
 framework.docs.tech.architectureDocDir, framework.docs.tech.styleBibleDocDir
-y framework.docs.functional.featuresDocPathDir de .claude/ms-context.json, y
-guarda cada .zip en {workFolder}/versions/{xxxx}/docs/. Cada ruta puede ser
+y framework.docs.functional.featuresDocPathDir de
+{workFolder}/framework/context.json (workFolder se lee primero del puntero
+fijo .claude/ms-context.json), y guarda cada .zip en
+{workFolder}/versions/{xxxx}/docs/. Cada ruta puede ser
 una carpeta (se comprime entera, incluido su INDEX.md si lo tiene) o un
 unico fichero .md (caso valido de featuresDocPathDir en proyectos que no
 migraron a carpeta) -- en ambos casos el .zip resultante se llama como el
@@ -33,8 +35,31 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[4]
 
 
-def load_framework(root: Path) -> dict:
-    context_path = root / ".claude" / "ms-context.json"
+def load_work_folder(root: Path) -> str:
+    pointer_path = root / ".claude" / "ms-context.json"
+    if not pointer_path.is_file():
+        raise SystemExit(
+            f"No se encuentra {pointer_path}. Ejecuta la skill ms-init antes de "
+            "copiar documentacion."
+        )
+    pointer = json.loads(pointer_path.read_text(encoding="utf-8"))
+    return pointer.get("workFolder", "/")
+
+
+def resolve_versions_dir(root: Path, work_folder_rel: str) -> Path:
+    work_folder_rel = work_folder_rel or "/"
+    work_root = root if work_folder_rel in ("/", "") else root / work_folder_rel
+    return work_root / "versions"
+
+
+def resolve_context_path(root: Path, work_folder_rel: str) -> Path:
+    work_folder_rel = work_folder_rel or "/"
+    work_root = root if work_folder_rel in ("/", "") else root / work_folder_rel
+    return work_root / "framework" / "context.json"
+
+
+def load_framework(root: Path, work_folder_rel: str) -> dict:
+    context_path = resolve_context_path(root, work_folder_rel)
     if not context_path.is_file():
         raise SystemExit(
             f"No se encuentra {context_path}. Ejecuta la skill ms-init antes de "
@@ -49,12 +74,6 @@ def load_framework(root: Path) -> dict:
             "ms-init para completarla."
         )
     return framework
-
-
-def resolve_versions_dir(root: Path, work_folder_rel: str) -> Path:
-    work_folder_rel = work_folder_rel or "/"
-    work_root = root if work_folder_rel in ("/", "") else root / work_folder_rel
-    return work_root / "versions"
 
 
 def zip_dir(source_dir: Path, dest_zip: Path) -> None:
@@ -83,8 +102,8 @@ def main() -> None:
         sys.stdout.reconfigure(encoding="utf-8")
 
     root = repo_root()
-    framework = load_framework(root)
-    work_folder_rel = args.work_folder or framework.get("workFolder", "/")
+    work_folder_rel = args.work_folder or load_work_folder(root)
+    framework = load_framework(root, work_folder_rel)
     versions_dir = resolve_versions_dir(root, work_folder_rel)
 
     version_docs_dir = versions_dir / args.xxxx / "docs"

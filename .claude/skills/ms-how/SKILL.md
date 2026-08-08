@@ -5,7 +5,7 @@ argument-hint: <xxxx o descripción del cambio/fix a planificar>
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.2.2
+  version: 1.2.3
   uses: [ms-internal-tech-analysis, ms-do]
 ---
 
@@ -21,7 +21,7 @@ Al escribir o actualizar `plan.md`, si lo que hay que describir es un flujo, un 
 
 ## 0. Cargar el contexto del proyecto
 
-Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta la sección `framework`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí. El esquema completo está en [`../ms-init/schema.json`](../ms-init/schema.json) (léelo primero si no lo has hecho ya en esta sesión).
+Lee `.claude/ms-context.json` (puntero fijo) en la raíz del repo para obtener `workFolder`, y a partir de ahí `{workFolder}/framework/context.json`. Si el puntero no existe, o ese fichero no existe o le falta la sección `framework`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí. El esquema completo está en [`../ms-init/context.schema.json`](../ms-init/context.schema.json) (léelo primero si no lo has hecho ya en esta sesión).
 
 ```
 Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta configuración). Ejecuta primero `/ms-init` antes de volver a invocarme.

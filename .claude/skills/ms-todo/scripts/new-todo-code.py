@@ -9,8 +9,8 @@ numerico de change/fix (ver next-change-number.py en ms-internal-workflow):
 ninguna otra skill del framework cuenta ni consulta estas carpetas al
 numerar.
 
-workFolder se lee de .claude/ms-context.json (seccion framework) salvo que
-se pase explicitamente por parametro. Es opcional (default "/", la raiz del
+workFolder se lee de .claude/ms-context.json salvo que se pase
+explicitamente por parametro. Es opcional (default "/", la raiz del
 repo); la subcarpeta "changes" dentro de el es siempre de nombre fijo, no
 configurable.
 
@@ -54,14 +54,8 @@ def load_changes_dir(root: Path, override: str | None) -> Path:
             f"No se encuentra {context_path}. Ejecuta la skill ms-init antes de "
             "generar un codigo de idea."
         )
-    context = json.loads(context_path.read_text(encoding="utf-8"))
-    framework = context.get("framework")
-    if not framework:
-        raise SystemExit(
-            f"{context_path} no tiene la seccion 'framework'. Ejecuta ms-init "
-            "para completarlo."
-        )
-    return resolve_changes_dir(root, framework.get("workFolder", "/"))
+    pointer = json.loads(context_path.read_text(encoding="utf-8"))
+    return resolve_changes_dir(root, pointer.get("workFolder", "/"))
 
 
 def existing_codes(todo_dir: Path) -> set[str]:

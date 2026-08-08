@@ -5,7 +5,7 @@ argument-hint: "[código] <idea a anotar o desarrollar>"
 model: claude-haiku-4-5
 effort: medium
 metadata:
-  version: 1.3.1
+  version: 1.3.2
   uses: []
 ---
 
@@ -17,13 +17,13 @@ Vive en `{changesDir}/todo/`, una subcarpeta hermana de `inProgress`/`implemente
 
 ## 0. Comprobar que el framework está inicializado
 
-Si `.claude/ms-context.json` no existe en la raíz del repo, o le falta la sección `framework`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí.
+Lee `.claude/ms-context.json` (puntero fijo) en la raíz del repo para obtener `workFolder`, y a partir de ahí `{workFolder}/framework/context.json`. Si el puntero no existe, o ese fichero no existe o le falta la sección `framework`, no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí.
 
 ```
 Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta configuración). Ejecuta primero `/ms-init` antes de volver a invocarme.
 ```
 
-A partir de aquí, `changesDir` es notación abreviada para `{workFolder}/changes` (subcarpeta de nombre fijo dentro de `framework.workFolder`, que por defecto es `"/"`, la raíz del repo).
+A partir de aquí, `changesDir` es notación abreviada para `{workFolder}/changes` (subcarpeta de nombre fijo dentro de `workFolder`, que por defecto es `"/"`, la raíz del repo).
 
 ## 1. Decidir si es una idea nueva o una ampliación
 

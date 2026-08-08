@@ -5,7 +5,7 @@ argument-hint: <descripción del bug o cambio a aplicar>
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 2.1.0
+  version: 2.1.1
   uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-internal-mockups-html, ms-new, ms-how]
 ---
 
@@ -34,7 +34,7 @@ Para el fix no trivial, esta skill no implementa nada por sí misma: documenta l
 
 ## 0. Comprobar que el framework está inicializado
 
-Si `.claude/ms-context.json` no existe en la raíz del repo, o le falta la sección `framework` (o campos suyos necesarios), no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí.
+Lee `.claude/ms-context.json` (puntero fijo) en la raíz del repo para obtener `workFolder`, y a partir de ahí `{workFolder}/framework/context.json`. Si el puntero no existe, o ese fichero no existe o le falta la sección `framework` (o campos suyos necesarios), no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí.
 
 ```
 Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta configuración). Ejecuta primero `/ms-init` antes de volver a invocarme.
@@ -54,8 +54,8 @@ Invoca la skill `ms-internal-tech-analysis` (herramienta Skill) pasándole un re
 - No introduce comportamiento nuevo ni cambia un flujo o interacción existente — como mucho ajusta un valor, texto o aspecto de algo que ya existe.
 - No tiene casos límite relevantes que analizar, ni afecta a cómo conviven distintas partes del proyecto entre sí.
 - Si es un bug: no es, ni de lejos, uno cuya causa raíz haya que investigar — si hace falta indagar para encontrar por qué falla algo, no es `fast` (pero sigue siendo un fix: ve al paso 3).
-- Si el cambio afecta a **`docs.tech.architectureDocDir`** o **`docs.tech.styleBibleDocDir`** (si están configurados en `.claude/ms-context.json`) solo en valores de constantes o parámetros, es `fast`.
-- Si el cambio afecta a **`docs.tech.architectureDocDir`** o **`docs.tech.styleBibleDocDir`** (si están configurados en `.claude/ms-context.json`) de forma relevante (una decisión de arquitectura, una convención de estilo visual/interacción/redacción), no es `fast`, aunque el cambio en el código en sí sea pequeño. Si `ms-internal-tech-analysis` reporta alguna incongruencia entre esos documentos y el código, tampoco califica como `fast`: una incongruencia con la documentación técnica es, por definición, algo que afecta a esos documentos.
+- Si el cambio afecta a **`docs.tech.architectureDocDir`** o **`docs.tech.styleBibleDocDir`** (si están configurados en `{workFolder}/framework/context.json`) solo en valores de constantes o parámetros, es `fast`.
+- Si el cambio afecta a **`docs.tech.architectureDocDir`** o **`docs.tech.styleBibleDocDir`** (si están configurados en `{workFolder}/framework/context.json`) de forma relevante (una decisión de arquitectura, una convención de estilo visual/interacción/redacción), no es `fast`, aunque el cambio en el código en sí sea pequeño. Si `ms-internal-tech-analysis` reporta alguna incongruencia entre esos documentos y el código, tampoco califica como `fast`: una incongruencia con la documentación técnica es, por definición, algo que afecta a esos documentos.
 - Si el cambio afecta a **`docs.functional.*`** no es `fast`.
 
 Ejemplos orientativos que sí calificarían: corregir un texto o typo, cambiar un color/tamaño/margen puntual, ajustar el valor de una constante o configuración, corregir un enlace o ruta mal escrita, renombrar una etiqueta visible, o un bug evidente de un vistazo (p.ej. una condición invertida en un único sitio).
@@ -82,7 +82,7 @@ Si la funcionalidad que se describe incorpora un flujo, una secuencia de pasos/d
 
 ## 4. Generar la propuesta visual (fix no trivial)
 
-Si el cambio tiene componente visual (hay algo que decir en el punto "Definición visual de alto nivel" del paso 1), invoca (herramienta Skill) la skill de maquetas configurada en `framework.mockupsSkill` de `.claude/ms-context.json` (si no está configurado, `ms-internal-mockups-html`), pasándole la carpeta destino (`{changesDir}/inProgress/{xxxx}/`) y, por cada elemento visual diferenciado de la propuesta, su descripción y qué debe mostrar (p.ej. un elemento para el modal de selección de mazo, otro para la barra de progreso), marcando la acción como `crear`. Anota las rutas `design_*.html` que te devuelva. Si el cambio no tiene componente visual (lógica interna, datos, backend), omite este paso por completo — no invoques la skill de maquetas "por si acaso".
+Si el cambio tiene componente visual (hay algo que decir en el punto "Definición visual de alto nivel" del paso 1), invoca (herramienta Skill) la skill de maquetas configurada en `framework.mockupsSkill` de `{workFolder}/framework/context.json` (si no está configurado, `ms-internal-mockups-html`), pasándole la carpeta destino (`{changesDir}/inProgress/{xxxx}/`) y, por cada elemento visual diferenciado de la propuesta, su descripción y qué debe mostrar (p.ej. un elemento para el modal de selección de mazo, otro para la barra de progreso), marcando la acción como `crear`. Anota las rutas `design_*.html` que te devuelva. Si el cambio no tiene componente visual (lógica interna, datos, backend), omite este paso por completo — no invoques la skill de maquetas "por si acaso".
 
 ## 5. Validar la representación visual con el usuario (fix no trivial)
 

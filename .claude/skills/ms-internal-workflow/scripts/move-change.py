@@ -5,8 +5,8 @@ Mueve {workFolder}/changes/{from}/{xxxx}/ (con todo su contenido) a
 {workFolder}/changes/{to}/{xxxx}/, creando {workFolder}/changes/{to}/ si no
 existe.
 
-workFolder se lee de .claude/ms-context.json (seccion framework) salvo que
-se pase explicitamente por parametro. Es opcional (default "/", la raiz del
+workFolder se lee de .claude/ms-context.json salvo que se pase
+explicitamente por parametro. Es opcional (default "/", la raiz del
 repo); la subcarpeta "changes" dentro de el es siempre de nombre fijo, no
 configurable.
 
@@ -41,14 +41,8 @@ def load_work_folder(root: Path) -> str:
             "mover un change/fix."
         )
 
-    context = json.loads(context_path.read_text(encoding="utf-8"))
-    framework = context.get("framework")
-    if not framework:
-        raise SystemExit(
-            f"{context_path} no tiene la seccion 'framework'. Ejecuta la skill "
-            "ms-init para completarla."
-        )
-    return framework.get("workFolder", "/")
+    pointer = json.loads(context_path.read_text(encoding="utf-8"))
+    return pointer.get("workFolder", "/")
 
 
 def resolve_changes_dir(root: Path, work_folder_rel: str) -> Path:

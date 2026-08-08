@@ -1,11 +1,11 @@
 ---
 name: ms-internal-mockups-html
-description: Procedimiento compartido, agnóstico al proyecto, para crear o editar maquetas visuales estáticas en HTML (`design_*.html`) de un change/fix. Recibe la carpeta destino y la lista de elementos visuales a maquetar (nuevos o a editar) y devuelve las rutas de los ficheros creados/editados, sin decidir por sí misma qué elementos hacen falta ni validar nada con el usuario. Uso interno de las skills ms-new y ms-fix (directamente o desde extend-entry.md), invocada por el nombre configurado en `framework.mockupsSkill` de `.claude/ms-context.json` (por defecto, esta misma skill).
+description: Procedimiento compartido, agnóstico al proyecto, para crear o editar maquetas visuales estáticas en HTML (`design_*.html`) de un change/fix. Recibe la carpeta destino y la lista de elementos visuales a maquetar (nuevos o a editar) y devuelve las rutas de los ficheros creados/editados, sin decidir por sí misma qué elementos hacen falta ni validar nada con el usuario. Uso interno de las skills ms-new y ms-fix (directamente o desde extend-entry.md), invocada por el nombre configurado en `framework.mockupsSkill` de `{workFolder}/framework/context.json` (por defecto, esta misma skill).
 user-invocable: false
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.0.0
+  version: 1.0.1
   uses: []
 ---
 

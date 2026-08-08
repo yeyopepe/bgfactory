@@ -40,14 +40,8 @@ def load_work_folder(root: Path) -> str:
             "copiar el entregable."
         )
 
-    context = json.loads(context_path.read_text(encoding="utf-8"))
-    framework = context.get("framework")
-    if not framework:
-        raise SystemExit(
-            f"{context_path} no tiene la seccion 'framework'. Ejecuta la skill "
-            "ms-init para completarla."
-        )
-    return framework.get("workFolder", "/")
+    pointer = json.loads(context_path.read_text(encoding="utf-8"))
+    return pointer.get("workFolder", "/")
 
 
 def resolve_versions_dir(root: Path, work_folder_rel: str) -> Path:

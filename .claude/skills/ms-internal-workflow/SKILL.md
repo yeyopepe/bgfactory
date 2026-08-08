@@ -5,7 +5,7 @@ user-invocable: false
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 2.3.0
+  version: 2.3.1
   uses: []
 ---
 
@@ -32,9 +32,9 @@ Si te han invocado sin ese contexto (el usuario ha tecleado el comando directame
 
 ## 0. Cargar el contexto del proyecto
 
-Lee `.claude/ms-context.json` en la raíz del repo. Si no existe, o le falta la sección `framework` (o campos suyos que esta acción necesita), no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí — no reimplementes el bootstrap aquí. El esquema completo está en [`../ms-init/schema.json`](../ms-init/schema.json) (léelo primero si no lo has hecho ya en esta sesión, para saber qué campos comprobar).
+Lee `.claude/ms-context.json` (puntero fijo) en la raíz del repo para obtener `workFolder`, y a partir de ahí `{workFolder}/framework/context.json`. Si el puntero no existe, o ese fichero no existe o le falta la sección `framework` (o campos suyos que esta acción necesita), no continúes: dile al usuario que primero debe ejecutar la skill `ms-init` para inicializar/completar el framework en este proyecto, y detente ahí — no reimplementes el bootstrap aquí. Los esquemas completos están en [`../ms-init/schema.json`](../ms-init/schema.json) (puntero) y [`../ms-init/context.schema.json`](../ms-init/context.schema.json) (contenido) — léelos primero si no lo has hecho ya en esta sesión, para saber qué campos comprobar.
 
-A partir de aquí, `changesDir` es notación abreviada para `{workFolder}/changes` (subcarpeta de nombre fijo dentro de `framework.workFolder`, que por defecto es `"/"`, la raíz del repo — no un campo propio en `ms-context.json`), y `numberWidth` se refiere al valor de `framework` en ese fichero.
+A partir de aquí, `changesDir` es notación abreviada para `{workFolder}/changes` (subcarpeta de nombre fijo dentro de `workFolder`, que por defecto es `"/"`, la raíz del repo — el único campo del puntero fijo `.claude/ms-context.json`), y `numberWidth` se refiere al valor de `framework` en `{workFolder}/framework/context.json`.
 
 Continúa con la sección de abajo que corresponda a la `action` recibida.
 
@@ -42,7 +42,7 @@ Continúa con la sección de abajo que corresponda a la `action` recibida.
 
 ## Acción `create`
 
-La sección `project` de `ms-context.json` úsala como contexto adicional al redactar (vocabulario del dominio, convenciones) pero ningún paso de esta acción depende de ella.
+La sección `project` de `{workFolder}/framework/context.json` úsala como contexto adicional al redactar (vocabulario del dominio, convenciones) pero ningún paso de esta acción depende de ella.
 
 ### create.1 Calcular el código de cambio `xxxx`
 
@@ -52,7 +52,7 @@ Cada cambio/fix vive en una subcarpeta numerada bajo alguno de los subárboles d
 python .claude/skills/ms-internal-workflow/scripts/next-change-number.py
 ```
 
-El script lee `workFolder` y `numberWidth` de `.claude/ms-context.json`, recorre **todas** las subcarpetas de `{changesDir}` (no solo `inProgress`/`implemented`, pero siempre ignorando `todo/`) buscando nombres puramente numéricos, y devuelve por stdout el siguiente `xxxx` ya formateado con `numberWidth` dígitos y ceros a la izquierda (p.ej. `0002`, o `1` si no hubiera ninguna carpeta numerada todavía). Usa ese valor tal cual como `xxxx` — no lo recalcules a mano ni mires solo `inProgress`/`implemented`.
+El script lee `workFolder` de `.claude/ms-context.json` (puntero) y `numberWidth` de `{workFolder}/framework/context.json`, recorre **todas** las subcarpetas de `{changesDir}` (no solo `inProgress`/`implemented`, pero siempre ignorando `todo/`) buscando nombres puramente numéricos, y devuelve por stdout el siguiente `xxxx` ya formateado con `numberWidth` dígitos y ceros a la izquierda (p.ej. `0002`, o `1` si no hubiera ninguna carpeta numerada todavía). Usa ese valor tal cual como `xxxx` — no lo recalcules a mano ni mires solo `inProgress`/`implemented`.
 
 ### create.2 Generar el documento de intención del cambio/fix
 

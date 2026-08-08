@@ -19,7 +19,8 @@ Diagrama simplificado con solo el flujo principal visible al usuario. Las skills
 graph TD
     subgraph Configuracion
         ms_init["ms-init<br/>(config del framework)"]
-        ms_context[("ms-context.json")]
+        ms_pointer[(".claude/ms-context.json<br/>(puntero: workFolder)")]
+        ms_context[("{workFolder}/framework/<br/>context.json")]
     end
 
     subgraph Entrada
@@ -37,6 +38,7 @@ graph TD
         ms_version["ms-version<br/>(preparar entrega)"]
     end
 
+    ms_init -.->|crea/completa| ms_pointer
     ms_init -.->|crea/completa| ms_context
 
     ms_new -.->|"si el usuario quiere implementar ya"| ms_how
@@ -51,7 +53,7 @@ graph TD
     classDef delivery fill:#2f9e44,color:#fff
     class ms_new,ms_fix,ms_todo entry
     class ms_how,ms_do core
-    class ms_init,ms_context config
+    class ms_init,ms_pointer,ms_context config
     class ms_version delivery
 ```
 
@@ -61,13 +63,13 @@ Leyenda:
 - `ms-todo` no tiene ninguna flecha hacia el resto del flujo: vive aislado en `{changesDir}/todo/`, ajeno al resto de skills.
 - `ms-fix` es la única skill de "Entrada" que puede terminar sin pasar por `plan.md`: si el cambio (bug o no) de verdad califica como trivial, crea la entrada en `{changesDir}/inProgress/{xxxx}/` vía `ms-internal-workflow` (numeración `xxxx` normal) y la mueve a `implemented` en la misma invocación, sin generar `plan.md` ni encadenar `ms-how`/`ms-do`. Solo cae en `ms-new` cuando el análisis revela que no era trivial y tampoco es un bug (afecta a arquitectura/estilo, falta información, toca más de 2 ficheros, o es funcionalidad nueva).
 - `ms-version` no consume la salida de `ms-do` directamente: solo exige, como guardarraíl de arranque, que `{changesDir}/implemented/` esté vacío (cada entrada resuelta se mueve a `closed` antes de continuar).
-- Todas las skills leen `.claude/ms-context.json` para funcionar, no solo las que aparecen aquí conectadas a él — se omite esa flecha hacia cada una para no saturar el diagrama; `ms-init` es la única que lo escribe.
+- Todas las skills leen `.claude/ms-context.json` (puntero) y `{workFolder}/framework/context.json` para funcionar, no solo las que aparecen aquí conectadas a ellos — se omite esa flecha hacia cada una para no saturar el diagrama; `ms-init` es la única que los escribe.
 
 ## Responsabilidades de cada skill
 
 ### Invocables por el usuario
 
-- **ms-init** — Inicializa el framework: crea/completa `.claude/ms-context.json` (`framework.workFolder` — raíz relativa al repo bajo la que el framework gestiona `changes/` y `versions/`, subcarpetas de nombre fijo que las skills crean por sí mismas —, docs a sincronizar) y comprueba que las herramientas de línea de comandos necesarias estén instaladas. Único punto de configuración del que dependen todas las demás skills. *Usa:* ninguna otra skill.
+- **ms-init** — Inicializa el framework: crea/completa `.claude/ms-context.json` (puntero fijo, solo `workFolder` — raíz relativa al repo bajo la que el framework gestiona `changes/`, `versions/` y `framework/`, subcarpetas de nombre fijo que las skills crean por sí mismas) y `{workFolder}/framework/context.json` (configuración real: docs a sincronizar, `sourcecodeDir`, `skillModels`, `project`...), y comprueba que las herramientas de línea de comandos necesarias estén instaladas. Único punto de configuración del que dependen todas las demás skills. *Usa:* ninguna otra skill.
 - **ms-new** — Documenta un cambio intencionado (funcionalidad nueva o modificación de comportamiento a propósito, no un bug). Invoca `ms-internal-tech-analysis` para reunir contexto técnico antes de anticipar dudas funcionales típicas, genera `description.md` vía `ms-internal-workflow` y, si aplica, maquetas visuales `design_*.html` y diagramas de navegación/interacción de UI `design_navigation_*.md`. No implementa nada por sí misma, pero si el usuario quiere implementar de inmediato puede invocar directamente `ms-how` sobre la entrada recién creada. *Usa:* `ms-internal-workflow`, `ms-internal-tech-analysis`, `ms-how`.
 - **ms-fix** — Documenta un bug y lo implementa de punta a punta, y además es la vía rápida del framework para cambios tan pequeños que casi no requieren análisis (typo, texto, un valor/constante, un ajuste de estilo aislado, sea o no un bug). Primero invoca `ms-internal-tech-analysis` para valorar si lo pedido es `fast` (sin ambigüedad, ≤2 ficheros, sin afectar a `docs.tech.architectureDocDir`/`docs.tech.styleBibleDocDir` ni incongruencias detectadas con ellos, sin comportamiento nuevo). Si es `fast`, crea la entrada vía `ms-internal-workflow` (`action=create`, `type=fast`), aplica el cambio directamente y la mueve a `implemented` (`action=move`) en la misma invocación, sin `plan.md`. Si no es `fast` y es un bug, genera `description.md` vía `ms-internal-workflow` (`type=fix`) y encadena automáticamente `ms-how` para corregirlo de punta a punta, con el análisis acotado estrictamente a la causa raíz (sin ampliar alcance). Si no es `fast` y no es un bug, avisa al usuario e invoca `ms-new` con su petición. *Usa:* `ms-internal-workflow`, `ms-internal-tech-analysis`, `ms-new`, `ms-how`.
 - **ms-how** — Toma una entrada ya documentada en `inProgress`, invoca `ms-internal-tech-analysis` para reunir el contexto técnico, analiza la solución técnica y escribe `plan.md`; si el usuario confirma que quiere implementar ya, encadena directamente `ms-do` sobre la misma entrada. *Usa:* `ms-internal-tech-analysis`, `ms-do`.

@@ -5,7 +5,7 @@ user-invocable: false
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.1.0
+  version: 1.1.1
   uses: []
 ---
 
@@ -32,7 +32,7 @@ Dada `docs.functional.featuresDocPathDir` (p.ej. `design/docs/features/`):
 
 ## Entrada esperada de quien invoca
 
-Quien invoca debe indicar la `action` (`find` o `upsert`) y sus parámetros propios (ver más abajo). Si `docs.functional.featuresDocPathDir` no está configurado en `.claude/ms-context.json`, dilo y detente — quien invoca decide qué hacer (normalmente, omitir el paso sin preguntar nada).
+Quien invoca debe indicar la `action` (`find` o `upsert`) y sus parámetros propios (ver más abajo). Si `docs.functional.featuresDocPathDir` no está configurado en `{workFolder}/framework/context.json`, dilo y detente — quien invoca decide qué hacer (normalmente, omitir el paso sin preguntar nada).
 
 ## Acción `find`
 

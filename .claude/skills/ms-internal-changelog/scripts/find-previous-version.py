@@ -8,8 +8,8 @@ ordenable cronologicamente). Quien invoca debe confirmar con el usuario que
 la candidata devuelta es realmente la version anterior correcta antes de
 usarla, por si hubiera ambiguedad.
 
-workFolder se lee de .claude/ms-context.json (seccion framework) salvo que
-se pase explicitamente por parametro.
+workFolder se lee de .claude/ms-context.json salvo que se pase
+explicitamente por parametro.
 
 Imprime UNICAMENTE un JSON en stdout:
 
@@ -43,14 +43,8 @@ def load_work_folder(root: Path) -> str:
             "buscar la version anterior."
         )
 
-    context = json.loads(context_path.read_text(encoding="utf-8"))
-    framework = context.get("framework")
-    if not framework:
-        raise SystemExit(
-            f"{context_path} no tiene la seccion 'framework'. Ejecuta la skill "
-            "ms-init para completarla."
-        )
-    return framework.get("workFolder", "/")
+    pointer = json.loads(context_path.read_text(encoding="utf-8"))
+    return pointer.get("workFolder", "/")
 
 
 def resolve_versions_dir(root: Path, work_folder_rel: str) -> Path:

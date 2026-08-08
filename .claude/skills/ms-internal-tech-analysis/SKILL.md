@@ -5,7 +5,7 @@ user-invocable: false
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.2.0
+  version: 1.2.1
   uses: []
 ---
 
@@ -21,11 +21,11 @@ Quien invoca debe pasar un resumen breve de **qué se está analizando** (el cha
 
 ## 0. Cargar el contexto del proyecto
 
-Lee `.claude/ms-context.json` en la raíz del repo (si no lo has hecho ya en esta sesión). No valides aquí que el framework está inicializado — eso ya lo ha comprobado la skill llamante antes de invocar esta; si `framework` faltara por completo, limítate a tratar todo `docs.tech` como no configurado y sigue directamente al paso 2 con `sourcecodeDir` (o el repo en general) como única fuente.
+Lee `.claude/ms-context.json` (puntero fijo) en la raíz del repo para obtener `workFolder`, y a partir de ahí `{workFolder}/framework/context.json` (si no lo has hecho ya en esta sesión). No valides aquí que el framework está inicializado — eso ya lo ha comprobado la skill llamante antes de invocar esta; si `framework` faltara por completo, limítate a tratar todo `docs.tech` como no configurado y sigue directamente al paso 2 con `sourcecodeDir` (o el repo en general) como única fuente.
 
 ## 1. Leer primero la documentación técnica existente
 
-Antes de tocar código, mira `framework.docs.tech` en `.claude/ms-context.json`:
+Antes de tocar código, mira `framework.docs.tech` en `{workFolder}/framework/context.json`:
 
 - **Si ya leíste un fichero concreto antes en esta sesión** y no ha cambiado desde entonces, no vuelvas a leerlo — reutiliza lo que ya tienes en contexto. Esta regla se aplica por fichero individual, no al directorio completo: los documentos de `architectureDocDir`/`styleBibleDocDir` son varios ficheros pequeños, así que en un ciclo típico (invocación desde `ms-new`/`ms-fix`, luego otra vez desde `ms-how`) solo hace falta releer `INDEX.md` la segunda vez y comprobar si los ficheros hermanos ya leídos siguen siendo los relevantes — releer solo los que falten, nunca el directorio entero de nuevo. Esto es estrictamente más eficiente que releer un fichero monolítico completo dos veces por ciclo.
 - Para cada uno de `architectureDocDir` y `styleBibleDocDir` que esté configurado **y** exista de verdad como carpeta en el repo:
@@ -35,7 +35,7 @@ Antes de tocar código, mira `framework.docs.tech` en `.claude/ms-context.json`:
 - Los que no estén configurados, o estén configurados pero la carpeta no exista todavía, sáltalos sin más — no es un error, simplemente esa fuente no está disponible.
 - Si `framework.docs.tech` no existe en absoluto, o ninguno de los dos campos está configurado, no hay nada que leer en este paso: pasa directamente al paso 2.
 
-Devuelve al usuario la lista de documentos que tienes en `.claude/ms-context.json` y cuáles has encontrado y cuáles no.
+Devuelve al usuario la lista de documentos que tienes en `{workFolder}/framework/context.json` y cuáles has encontrado y cuáles no.
 
 Con esto construye un contexto preliminar (arquitectura/capas, convenciones de estilo, mapa de ficheros y símbolos) antes de leer una sola línea de código fuente.
 

@@ -5,7 +5,7 @@ argument-hint: "[xxxx | todo <código>] <descripción del cambio>"
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.11.0
+  version: 1.11.1
   uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-internal-mockups-html, ms-how]
 ---
 
@@ -26,10 +26,12 @@ Solo prescinde de los tres cuando el cambio no tenga de verdad ninguna dimensió
 
 ## 0. Comprobar que el framework está inicializado
 
-Si `.claude/ms-context.json` no existe en la raíz del repo, o le falta la
-sección `framework` (o campos suyos necesarios), no continúes: dile al
-usuario que primero debe ejecutar la skill `ms-init` para
-inicializar/completar el framework en este proyecto, y detente ahí.
+Lee `.claude/ms-context.json` (puntero fijo) en la raíz del repo para
+obtener `workFolder`, y a partir de ahí `{workFolder}/framework/context.json`.
+Si el puntero no existe, o ese fichero no existe o le falta la sección
+`framework` (o campos suyos necesarios), no continúes: dile al usuario que
+primero debe ejecutar la skill `ms-init` para inicializar/completar el
+framework en este proyecto, y detente ahí.
 
 ```
 Este proyecto todavía no tiene el framework `ms-*` inicializado (o le falta configuración). Ejecuta primero `/ms-init` antes de volver a invocarme.
@@ -66,7 +68,7 @@ Si no se invocó así, sigue con el proceso habitual desde el paso 1 de "Pasos".
 
    Si la funcionalidad que se describe incorpora un flujo, una secuencia de pasos/decisiones o una interacción entre estados o componentes (p.ej. cómo transiciona una pantalla, el orden de una operación, casos límite encadenados), incluye ese análisis como diagrama Mermaid (`flowchart`, `sequenceDiagram`, `stateDiagram-v2`, etc.) con las notas imprescindibles al pasárselo a `ms-internal-workflow`, en vez de describirlo solo en prosa — así queda ya así en `description.md`. Usa prosa cuando no haya un flujo/relación clara que representar.
 3. **Generar la propuesta visual y el diagrama de navegación.** Si el cambio tiene componente visual (hay algo que decir en el punto "Definición visual de alto nivel" del paso 1):
-   - **Maquetas HTML.** Invoca (herramienta Skill) la skill de maquetas configurada en `framework.mockupsSkill` de `.claude/ms-context.json` (si no está configurado, `ms-internal-mockups-html`), pasándole la carpeta destino (`{changesDir}/inProgress/{xxxx}/`) y, por cada elemento visual diferenciado de la propuesta, su descripción y qué debe mostrar (p.ej. un elemento para el modal de selección de mazo, otro para la barra de progreso), marcando la acción como `crear`. Solo la invoques cuando haya de verdad al menos un elemento que maquetar — nunca "por si acaso". Anota las rutas `design_*.html` que te devuelva.
+   - **Maquetas HTML.** Invoca (herramienta Skill) la skill de maquetas configurada en `framework.mockupsSkill` de `{workFolder}/framework/context.json` (si no está configurado, `ms-internal-mockups-html`), pasándole la carpeta destino (`{changesDir}/inProgress/{xxxx}/`) y, por cada elemento visual diferenciado de la propuesta, su descripción y qué debe mostrar (p.ej. un elemento para el modal de selección de mazo, otro para la barra de progreso), marcando la acción como `crear`. Solo la invoques cuando haya de verdad al menos un elemento que maquetar — nunca "por si acaso". Anota las rutas `design_*.html` que te devuelva.
    - **Diagrama de navegación.** Si además el cambio introduce o modifica navegación o interacción de UI (cambio de pantalla, apertura de un modal o desplegable, o cualquier transición de estado visual disparada por una acción del usuario, aunque no salga de una sola pantalla), crea tú mismo, directamente en `{changesDir}/inProgress/{xxxx}/`, uno o varios ficheros `design_navigation_<descripción>.md` — uno por cada flujo independiente.
 
    Si el cambio no tiene componente visual, omite este paso por completo — ni invoques la skill de maquetas ni crees ficheros `design_navigation_*.md` de relleno.

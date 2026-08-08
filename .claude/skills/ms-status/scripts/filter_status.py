@@ -91,14 +91,8 @@ def load_changes_dir(root: Path, override: str | None) -> Path:
             f"No se encuentra {context_path}. Ejecuta la skill ms-init antes de "
             "consultar el estado."
         )
-    context = json.loads(context_path.read_text(encoding="utf-8"))
-    framework = context.get("framework")
-    if not framework:
-        raise SystemExit(
-            f"{context_path} no tiene la seccion 'framework'. Ejecuta ms-init "
-            "para completarlo."
-        )
-    return resolve_changes_dir(root, framework.get("workFolder", "/"))
+    pointer = json.loads(context_path.read_text(encoding="utf-8"))
+    return resolve_changes_dir(root, pointer.get("workFolder", "/"))
 
 
 DESCRIPTION_MAX_CHARS = 250

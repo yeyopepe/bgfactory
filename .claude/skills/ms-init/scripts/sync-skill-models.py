@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-"""Sincroniza .claude/ms-context.json#skillModels con el frontmatter de cada SKILL.md 'ms-*'.
+"""Sincroniza {workFolder}/framework/context.json#skillModels con el frontmatter de cada SKILL.md 'ms-*'.
 
 El harness de Claude Code decide que modelo/esfuerzo usa una skill leyendo
 los campos 'model'/'effort' del frontmatter de su propio SKILL.md, en el
-momento de cargarla -- no lee .claude/ms-context.json. Por eso la seccion
-'skillModels' de ms-context.json es solo la fuente de verdad "humana": este
-script es el que de verdad propaga esos valores al frontmatter real.
+momento de cargarla -- no lee context.json. Por eso la seccion 'skillModels'
+de {workFolder}/framework/context.json es solo la fuente de verdad "humana":
+este script es el que de verdad propaga esos valores al frontmatter real.
+workFolder se lee siempre del puntero fijo .claude/ms-context.json.
 
 Reglas:
 - Recorre .claude/skills/ms-*/SKILL.md (ignora skills que no empiecen por 'ms-').
 - Para cada skill, resuelve su modelo/esfuerzo: 'overrides[<name>]' si existe,
-  si no 'default'. Si no hay seccion 'skillModels' en ms-context.json, no toca nada.
+  si no 'default'. Si no hay seccion 'skillModels' en context.json, no toca nada.
 - Inserta o actualiza (en el nivel superior del frontmatter, junto a 'name'/
   'description') las claves 'model:' y 'effort:', justo antes de 'metadata:'
   (o antes del cierre '---' si esa skill no tiene bloque 'metadata:').
@@ -110,15 +111,23 @@ def main() -> None:
         sys.stdout.reconfigure(encoding="utf-8")
 
     root = repo_root()
-    context_path = root / ".claude/ms-context.json"
-    if not context_path.is_file():
+    pointer_path = root / ".claude" / "ms-context.json"
+    if not pointer_path.is_file():
         print("No existe .claude/ms-context.json -- nada que sincronizar.")
+        return
+
+    pointer = json.loads(pointer_path.read_text(encoding="utf-8"))
+    work_folder_rel = pointer.get("workFolder", "/") or "/"
+    work_root = root if work_folder_rel in ("/", "") else root / work_folder_rel
+    context_path = work_root / "framework" / "context.json"
+    if not context_path.is_file():
+        print(f"No existe {context_path} -- nada que sincronizar.")
         return
 
     context = json.loads(context_path.read_text(encoding="utf-8"))
     skill_models = context.get("skillModels")
     if not skill_models or "default" not in skill_models:
-        print("No hay seccion 'skillModels.default' en ms-context.json -- nada que sincronizar.")
+        print(f"No hay seccion 'skillModels.default' en {context_path} -- nada que sincronizar.")
         return
 
     default = skill_models["default"]
@@ -149,7 +158,7 @@ def main() -> None:
         for line in changed:
             print(f"  - {line}")
     else:
-        print("Todo el frontmatter ya estaba sincronizado con ms-context.json.")
+        print(f"Todo el frontmatter ya estaba sincronizado con {context_path}.")
 
 
 if __name__ == "__main__":

@@ -8,9 +8,12 @@ el xxxx que se va a planificar es menor que el maximo de cualquiera de estos
 tres estados, significa que se ha creado despues de otro cambio/fix mas
 reciente y conviene reanalizarlo antes de planificar.
 
-workFolder y numberWidth se leen de .claude/ms-context.json (seccion
-framework) salvo que se pasen explicitamente por parametro. workFolder es
-opcional (default "/", la raiz del repo); la subcarpeta "changes" dentro de
+workFolder y numberWidth se leen de context.json salvo que se pasen
+explicitamente por parametro: workFolder del puntero fijo
+.claude/ms-context.json, numberWidth (seccion framework) de
+{workFolder}/framework/context.json -- hace falta el primero para poder
+localizar el segundo. workFolder es opcional (default "/", la raiz del
+repo); la subcarpeta "changes" dentro de
 el es siempre de nombre fijo, no configurable.
 
 Imprime UNICAMENTE un JSON en stdout con los tres codigos ya formateados con
@@ -40,8 +43,31 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[4]
 
 
-def load_framework_defaults(root: Path) -> dict:
-    context_path = root / ".claude" / "ms-context.json"
+def load_work_folder(root: Path) -> str:
+    pointer_path = root / ".claude" / "ms-context.json"
+    if not pointer_path.is_file():
+        raise SystemExit(
+            f"No se encuentra {pointer_path}. Ejecuta la skill ms-init antes de "
+            "comprobar los codigos existentes."
+        )
+    pointer = json.loads(pointer_path.read_text(encoding="utf-8"))
+    return pointer.get("workFolder", "/")
+
+
+def resolve_changes_dir(root: Path, work_folder_rel: str) -> Path:
+    work_folder_rel = work_folder_rel or "/"
+    work_root = root if work_folder_rel in ("/", "") else root / work_folder_rel
+    return work_root / "changes"
+
+
+def resolve_context_path(root: Path, work_folder_rel: str) -> Path:
+    work_folder_rel = work_folder_rel or "/"
+    work_root = root if work_folder_rel in ("/", "") else root / work_folder_rel
+    return work_root / "framework" / "context.json"
+
+
+def load_framework_defaults(root: Path, work_folder_rel: str) -> dict:
+    context_path = resolve_context_path(root, work_folder_rel)
     if not context_path.is_file():
         raise SystemExit(
             f"No se encuentra {context_path}. Ejecuta la skill ms-init antes de "
@@ -56,12 +82,6 @@ def load_framework_defaults(root: Path) -> dict:
             "ms-init para completarla."
         )
     return framework
-
-
-def resolve_changes_dir(root: Path, work_folder_rel: str) -> Path:
-    work_folder_rel = work_folder_rel or "/"
-    work_root = root if work_folder_rel in ("/", "") else root / work_folder_rel
-    return work_root / "changes"
 
 
 def max_number_in(state_dir: Path) -> int | None:
@@ -88,26 +108,23 @@ def main() -> None:
         "--number-width",
         type=int,
         help="Numero de digitos para el padding. Si no se indica, se lee de "
-        ".claude/ms-context.json.",
+        "{workFolder}/framework/context.json.",
     )
     args = parser.parse_args()
 
     root = repo_root()
 
-    work_folder_rel = args.work_folder
+    work_folder_rel = args.work_folder or load_work_folder(root)
     number_width = args.number_width
 
-    if not work_folder_rel or not number_width:
-        framework = load_framework_defaults(root)
-        if not work_folder_rel:
-            work_folder_rel = framework.get("workFolder", "/")
-        if not number_width:
-            number_width = framework.get("numberWidth")
+    if not number_width:
+        framework = load_framework_defaults(root, work_folder_rel)
+        number_width = framework.get("numberWidth")
 
     if not number_width:
         raise SystemExit(
             "No se ha podido determinar 'numberWidth' (ni por parametro ni desde "
-            "ms-context.json)."
+            "context.json)."
         )
 
     changes_dir = resolve_changes_dir(root, work_folder_rel)

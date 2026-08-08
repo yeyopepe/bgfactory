@@ -6,8 +6,8 @@ Crea {workFolder}/versions/{xxxx}/ con dos subcarpetas vacias, 'files/' y
 nada (mismo criterio que move-change.py) -- quien invoca decide entonces si
 regenerar sobre lo existente o pedir otro xxxx al usuario.
 
-workFolder se lee de .claude/ms-context.json (seccion framework) salvo que
-se pase explicitamente por parametro. Es opcional (default "/", la raiz del
+workFolder se lee de .claude/ms-context.json salvo que se pase
+explicitamente por parametro. Es opcional (default "/", la raiz del
 repo); la subcarpeta "versions" dentro de el es siempre de nombre fijo, no
 configurable, y totalmente independiente de "changes/" (numeracion xxxx de
 change/fix) y de cualquier otra carpeta llamada "versions" que exista en el
@@ -41,14 +41,8 @@ def load_work_folder(root: Path) -> str:
             "preparar una version."
         )
 
-    context = json.loads(context_path.read_text(encoding="utf-8"))
-    framework = context.get("framework")
-    if not framework:
-        raise SystemExit(
-            f"{context_path} no tiene la seccion 'framework'. Ejecuta la skill "
-            "ms-init para completarla."
-        )
-    return framework.get("workFolder", "/")
+    pointer = json.loads(context_path.read_text(encoding="utf-8"))
+    return pointer.get("workFolder", "/")
 
 
 def resolve_versions_dir(root: Path, work_folder_rel: str) -> Path:

@@ -8,8 +8,8 @@ y que el usuario confirmara el borrado. Solo se invoca tras confirmacion
 explicita del usuario: esta accion es irreversible y no la decide este
 script.
 
-workFolder se lee de .claude/ms-context.json (seccion framework) salvo que
-se pase explicitamente por parametro.
+workFolder se lee de .claude/ms-context.json salvo que se pase
+explicitamente por parametro.
 
 Imprime UNICAMENTE un JSON en stdout con lo realmente borrado:
 
@@ -42,14 +42,8 @@ def load_work_folder(root: Path) -> str:
             "borrar entradas de closed."
         )
 
-    context = json.loads(context_path.read_text(encoding="utf-8"))
-    framework = context.get("framework")
-    if not framework:
-        raise SystemExit(
-            f"{context_path} no tiene la seccion 'framework'. Ejecuta la skill "
-            "ms-init para completarla."
-        )
-    return framework.get("workFolder", "/")
+    pointer = json.loads(context_path.read_text(encoding="utf-8"))
+    return pointer.get("workFolder", "/")
 
 
 def resolve_changes_dir(root: Path, work_folder_rel: str) -> Path:

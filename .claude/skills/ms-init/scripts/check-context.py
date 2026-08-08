@@ -1,25 +1,35 @@
 #!/usr/bin/env python3
-"""Valida .claude/ms-context.json contra los campos obligatorios de schema.json.
+"""Valida el estado de los dos ficheros de configuracion del framework ms-*.
 
-'framework' ya no tiene ningun campo obligatorio propio (ver schema.json):
-'workFolder' es opcional con default "/". Por tanto lo unico que determina
-si el framework esta inicializado es que la seccion 'framework' exista --
-la crea ms-init, nunca otra skill.
+El framework se apoya en dos ficheros (ver schema.json y context.schema.json,
+en esta misma carpeta):
 
-No decide nada por si mismo (no crea ni completa el fichero) -- solo
-determina que campos obligatorios faltan, para que ms-init sepa si debe
-preguntar el cuestionario completo, solo lo que falta, o nada.
+  1. .claude/ms-context.json -- puntero FIJO, siempre en la misma ruta,
+     solo con el campo 'workFolder'. Existe para poder localizar el fichero
+     2 sin depender de conocer workFolder de antemano.
+  2. {workFolder}/framework/context.json -- fichero real de configuracion
+     del proyecto (framework.*, project, skillModels).
+
+'framework' ya no tiene ningun campo obligatorio propio en context.schema.json
+salvo su propia presencia. Por tanto lo unico que determina si el framework
+esta inicializado es que el puntero exista con 'workFolder' y que el fichero
+de contenido exista con la seccion 'framework'.
+
+No decide nada por si mismo (no crea ni completa ningun fichero) -- solo
+determina que falta, para que ms-init sepa si debe preguntar el cuestionario
+completo, solo lo que falta, o nada.
 
 Imprime UNICAMENTE un JSON en stdout:
 
-  {"exists": true, "hasFramework": true, "missingRequired": [], "complete": true}
-  {"exists": false, "hasFramework": false, "missingRequired": [], "complete": false}
+  {"pointerExists": true, "workFolder": "/", "contextPath": "framework/context.json",
+   "contextExists": true, "hasFramework": true, "missingRequired": [], "complete": true}
+  {"pointerExists": false, "workFolder": null, "contextPath": null,
+   "contextExists": false, "hasFramework": false, "missingRequired": [], "complete": false}
 
 Uso:
   python check-context.py
 """
 
-import argparse
 import json
 import sys
 from pathlib import Path
@@ -32,24 +42,43 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[4]
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument(
-        "--context-path",
-        help="Ruta a ms-context.json relativa a la raiz del repo. Por defecto "
-        ".claude/ms-context.json.",
-    )
-    args = parser.parse_args()
+def resolve_context_path(root: Path, work_folder_rel: str) -> Path:
+    work_folder_rel = work_folder_rel or "/"
+    work_root = root if work_folder_rel in ("/", "") else root / work_folder_rel
+    return work_root / "framework" / "context.json"
 
+
+def main() -> None:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
 
     root = repo_root()
-    context_path = root / (args.context_path or ".claude/ms-context.json")
+    pointer_path = root / ".claude" / "ms-context.json"
+
+    if not pointer_path.is_file():
+        result = {
+            "pointerExists": False,
+            "workFolder": None,
+            "contextPath": None,
+            "contextExists": False,
+            "hasFramework": False,
+            "missingRequired": list(ALWAYS_REQUIRED),
+            "complete": False,
+        }
+        json.dump(result, sys.stdout, ensure_ascii=False)
+        print()
+        return
+
+    pointer = json.loads(pointer_path.read_text(encoding="utf-8"))
+    work_folder = pointer.get("workFolder", "/")
+    context_path = resolve_context_path(root, work_folder)
 
     if not context_path.is_file():
         result = {
-            "exists": False,
+            "pointerExists": True,
+            "workFolder": work_folder,
+            "contextPath": context_path.relative_to(root).as_posix(),
+            "contextExists": False,
             "hasFramework": False,
             "missingRequired": list(ALWAYS_REQUIRED),
             "complete": False,
@@ -65,11 +94,15 @@ def main() -> None:
     missing = [field for field in ALWAYS_REQUIRED if field not in framework]
 
     result = {
-        "exists": True,
+        "pointerExists": True,
+        "workFolder": work_folder,
+        "contextPath": context_path.relative_to(root).as_posix(),
+        "contextExists": True,
         "hasFramework": has_framework,
         "missingRequired": missing,
-        # Sin campos obligatorios propios en 'framework' (workFolder tiene
-        # default), "completo" significa que la seccion 'framework' existe.
+        # Sin campos obligatorios propios en 'framework' (todos tienen
+        # default o son opcionales), "completo" significa que la seccion
+        # 'framework' existe en el fichero de contenido.
         "complete": has_framework and not missing,
     }
     json.dump(result, sys.stdout, ensure_ascii=False)
