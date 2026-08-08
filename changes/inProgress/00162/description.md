@@ -3,18 +3,6 @@
 - **Tipo**: change
 - **Fecha creación**: 2026-08-06
 
-## Prompt original del usuario
-
-Crear un nuevo elemento tipo "Meeple" con las siguientes características:
-- Forma rectangular base
-- Capacidad de redimensionar
-- Acepta un recurso de imagen como contenido (zoom y ajuste de posición)
-- Si la imagen tiene fondo transparente, la forma del meeple también aplica transparencia (respetando los píxeles transparentes de la imagen)
-
-Este elemento combina la funcionalidad de forma redimensionable con la capacidad de llevar contenido visual (imagen), similar a cómo funcionarían las figuras geométricas mejoradas y tableros personalizados.
-
-(Idea apuntada previamente en `todo/x7jyb` y convertida en este cambio, refinada en conversación con el usuario antes de documentarla.)
-
 ## Descripción completa
 
 Se añade un nuevo tipo de elemento, "Meeple", como opción más al crear un componente nuevo. No sustituye ni modifica ningún elemento existente: convive con todos los tipos actuales.

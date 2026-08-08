@@ -3,14 +3,6 @@
 - **Tipo**: fix
 - **Fecha creación**: 2026-08-07
 
-## Prompt original del usuario
-
-pasos para reproducir el error:
-1. copio el estilo de una carta y elijo la cara trasera
-2. abro las propiedades de otra carta y pego el estilo (cara trasera)
-3. abro el editor de la carta y veo la carta trasera correcta, la que era del estilo pegado (captura 1)
-4. pulso el botón Ajustar imagen... y entonces veo la carta trasera anterior, no la nueva que he pegado
-
 ## Descripción completa
 
 En el editor de diseño de una carta, tras copiar el estilo de una carta origen marcando solo el bloque "Cara trasera" y pegarlo sobre otra carta destino, el editor visual muestra correctamente la cara trasera recién pegada: en el caso reportado, sin imagen de fondo, solo con un cuadro de texto. Hasta aquí el comportamiento es el esperado.

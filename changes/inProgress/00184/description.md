@@ -3,10 +3,6 @@
 - **Tipo**: change
 - **Fecha creación**: 2026-08-07
 
-## Prompt original del usuario
-
-quiero que elimines todos los recursos que ahora se incorporan de base (hay 38 imágenes) y que añadas solo 1 de cada tipo a modo de ejemplo
-
 ## Descripción completa
 
 Al arrancar una partida totalmente nueva (sin ninguna partida guardada previamente), la galería de recursos se rellena hoy automáticamente con 38 recursos de imagen predefinidos: fondos de localización, imágenes de mochila, iconos de objetos y reversos de cartas de evento. Todo ese contenido es específico del juego "Errantes" y viene incluido de fábrica en cualquier partida nueva.

@@ -2,12 +2,6 @@
 - **Código**: 00052
 - **Tipo**: change
 
-## Prompt original del usuario
-
-"Añadir en los dados la configuración de caras una lista de recursos (imagen)."
-
-Notas de la idea original (todo/b7k2m): "Añadir una opción a la configuración de caras: una lista de recursos (imagen). Hay que incluir también que se pueda ajustar cada imagen por separado. Depende del editor de imágenes que se implementará con las fichas en el change 00029."
-
 ## Descripción completa
 
 Se añade a la configuración de caras de los dados una tercera forma de definir las caras, junto a las dos que ya existen (número máximo de caras, y lista de valores): un modo de **imágenes por cara**, en el que cada cara del dado muestra una imagen en lugar de un número.

@@ -3,14 +3,6 @@
 - **Tipo**: change
 - **Fecha creación**: 2026-08-06
 
-## Prompt original del usuario
-
-vamos rediseñar la barra superior del modo edición. Quiero mockup de un nuevo estilo visual para esa barra teniendo en cuenta las funcionalidades actuales y las futuras.
-
-Funcionalidades futuras:
-- Exportar recursos: permite seleccionar un tipo de recursos (o todos) y exportarlos en un zip
-- Exportar hoja de producción: permite exportar en formato csv una lista de todos los elementos con su información necesaria para producir el juego.
-
 ## Descripción completa
 
 La barra superior que aparece en Modo Edición se rediseña visualmente: se reorganizan y restilizan las acciones que ya existen hoy, sin cambiar lo que hace ninguna de ellas. Las cinco acciones actuales — "Salir del modo edición", "Guardar", "Exportar", "Importar" y "Ajustar zoom" — siguen comportándose exactamente igual que ahora; solo cambia cómo se agrupan y se presentan visualmente dentro de la barra.

@@ -2,12 +2,6 @@
 - **Código**: 00086
 - **Tipo**: change
 
-## Prompt original del usuario
-
-"Botón para exportar la lista de componentes a CSV — con los campos: tipo, id, contenido de 'mazo' (si es de tipo carta), imagen asociada (si la tienen), número de caras (si es de tipo dado)." (idea original apuntada en changes/todo/n8w3z)
-
-"en este listado hay que añadir una columna titulada Cantidad que lleva el número de copias que tiene este elemento (más él mismo). ejemplo: si una carta con id ASDF tiene 5 copias, en la columna cantidad debe aparecer el número 6"
-
 ## Comentarios adicionales
 - Tener en cuenta si un objeto tiene copias. ¿Se añade el original o solo las copias?
 

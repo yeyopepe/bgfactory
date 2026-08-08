@@ -2,17 +2,6 @@
 - **Código**: 00080
 - **Tipo**: change
 
-## Prompt original del usuario
-
-quiero crear un script /src/scripts/build_game.py para generar una nueva versión pero solo la mesa de juego, sin el modo edición. Para ello supongo que es más fácil primero tener marcadores en el código que diferencien código exclusivo de cada código para que el script pueda hacer limpieza, no solo eliminar el botón del modo edición.
-No hace falta borrar el 100% del código del modo edición, pero sí todo lo que sea exclusivo de ese modo. Lo que sea compartido o del modo juego, se queda
-
-**Ampliación:** añade que además se deben eliminar todos los recursos que no están siendo usados en ningún elemento del juego.
-
-**Ampliación:** en la realidad, generar la variante "solo mesa" ofuscada no debe requerir ejecutar ningún script Python desde terminal — debe poder hacerse desde dentro de la propia app, con un botón "Publicar" que guarde el fichero html ofuscado de la app (con el sufijo "game").
-
-**Ampliación:** sí se mantiene un script Python para la build completa (mesa + edición) ya ofuscada: `build_obf.py`, que ejecuta `build.py` y, con el fichero que genere, lo ofusca y genera otro con el sufijo `_obf`.
-
 ## Descripción completa
 
 Se quieren dos vías nuevas, independientes entre sí, para obtener entregables ofuscados del proyecto (hoy solo existe `build.py`, que genera la build completa sin ofuscar):

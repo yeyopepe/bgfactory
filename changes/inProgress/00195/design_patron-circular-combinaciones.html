@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Maqueta — Combinaciones de propiedades de "Patrón" (Circular)</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --text-primary: #1a1a1a;
+    --text-muted: #666666;
+    --text-light: #ffffff;
+    --border-neutral: #dcdcdc;
+    --accent-blue: #2c7dd8;
+    --section-accent: #5b5f97;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-1: 0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);
+    --shadow-2: 0 4px 20px rgba(0,0,0,0.15);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg-table);
+    color: var(--text-primary);
+    padding: 2.5rem;
+  }
+
+  h1 {
+    font-size: 1.125rem;
+    margin: 0 0 0.25rem;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+    color: #333;
+    margin: 0 0 2rem;
+    max-width: 760px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 1.5rem;
+    max-width: 1180px;
+  }
+
+  .cell {
+    background: white;
+    border-radius: 8px;
+    box-shadow: var(--shadow-1);
+    padding: 1rem;
+  }
+
+  .cell-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+
+  .cell-body {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  /* Panel compacto = solo la sección "Patrón" del modal real, con los valores
+     ya fijados (sin controles editables) para comparar contra el resultado. */
+  .mini-panel {
+    flex: 1;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 0.9rem;
+    min-width: 190px;
+  }
+
+  .mini-panel__title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--section-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-bottom: 0.6rem;
+  }
+
+  .mini-field {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px dashed var(--border-neutral);
+  }
+
+  .mini-field:last-child { border-bottom: none; }
+
+  .mini-field__label { color: var(--text-muted); }
+
+  .mini-field__value {
+    font-weight: 500;
+    text-align: right;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.2);
+    vertical-align: middle;
+  }
+
+  .swatch--transparent {
+    background:
+      linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%) 0 0/6px 6px,
+      linear-gradient(45deg, #ccc 25%, white 25%, white 75%, #ccc 75%) 3px 3px/6px 6px;
+  }
+
+  .board-wrap {
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .board {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto;
+    box-shadow: var(--shadow-1);
+    border-style: solid;
+    border-width: 4px;
+    border-top-color: #b5754a;
+    border-left-color: #b5754a;
+    border-bottom-color: #6e3d1e;
+    border-right-color: #6e3d1e;
+    background-color: #f0e6d2;
+    overflow: hidden;
+  }
+
+  .board svg { position: absolute; top: 0; left: 0; }
+
+  .caption {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    color: var(--text-light);
+    font-size: 0.8rem;
+    background: rgba(0,0,0,0.4);
+    padding: 0.35rem 0.6rem;
+    border-radius: var(--radius-sm);
+  }
+</style>
+</head>
+<body>
+<div class="caption">Maqueta estática — no funcional</div>
+
+<h1>Combinaciones de la sección "Patrón" (forma Circular)</h1>
+<p class="subtitle">Por cada combinación de "Color del círculo" (relleno) y "Grosor" (0 = sin contorno, ya no hay checkbox "Activar borde" — descartado tras ver esta misma maqueta, por redundante), con "Margen" = 0 (círculos tocándose) o &gt; 0 (círculos separados): a la izquierda, los valores de la sección "Patrón" tal y como quedarían en el modal; a la derecha, el resultado sobre el tablero. El "Color de fondo" (sección "Fondo") es el mismo tono claro en todos los casos, visible en el hueco entre círculos y en el margen cuando lo hay.</p>
+
+<div class="grid" id="grid"></div>
+
+<script>
+  const CASES = [
+    { fill: '#c0392b', fillLabel: 'Rojo', transparent: false, grosor: 3, margin: 0,  title: '1. Relleno + contorno (Grosor 3) — Margen 0' },
+    { fill: '#c0392b', fillLabel: 'Rojo', transparent: false, grosor: 3, margin: 14, title: '2. Relleno + contorno (Grosor 3) — Margen > 0' },
+    { fill: '#c0392b', fillLabel: 'Rojo', transparent: false, grosor: 0, margin: 0,  title: '3. Solo relleno (Grosor 0) — Margen 0' },
+    { fill: '#c0392b', fillLabel: 'Rojo', transparent: false, grosor: 0, margin: 14, title: '4. Solo relleno (Grosor 0) — Margen > 0' },
+    { fill: null,      fillLabel: '—',    transparent: true,  grosor: 3, margin: 0,  title: '5. Solo contorno (anillo, Grosor 3) — Margen 0' },
+    { fill: null,      fillLabel: '—',    transparent: true,  grosor: 3, margin: 14, title: '6. Solo contorno (anillo, Grosor 3) — Margen > 0' },
+    { fill: null,      fillLabel: '—',    transparent: true,  grosor: 0, margin: 0,  title: '7. Nada dibujado (Grosor 0) — Margen 0' },
+    { fill: null,      fillLabel: '—',    transparent: true,  grosor: 0, margin: 14, title: '8. Nada dibujado (Grosor 0) — Margen > 0 (sin efecto visible)' },
+  ];
+
+  const grid = document.getElementById('grid');
+
+  CASES.forEach((c, i) => {
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+
+    const fillValueHtml = c.transparent
+      ? '<span class="swatch swatch--transparent"></span>Transparente'
+      : `<span class="swatch" style="background:${c.fill}"></span>${c.fillLabel}`;
+
+    cell.innerHTML = `
+      <div class="cell-title">${c.title}</div>
+      <div class="cell-body">
+        <div class="mini-panel">
+          <div class="mini-panel__title">Patrón</div>
+          <div class="mini-field"><span class="mini-field__label">Margen</span><span class="mini-field__value">${c.margin}</span></div>
+          <div class="mini-field"><span class="mini-field__label">Color del patrón</span><span class="mini-field__value"><span class="swatch" style="background:#5b3a29"></span>Marrón</span></div>
+          <div class="mini-field"><span class="mini-field__label">Grosor</span><span class="mini-field__value">${c.grosor}</span></div>
+          <div class="mini-field"><span class="mini-field__label">Color del círculo</span><span class="mini-field__value">${fillValueHtml}</span></div>
+        </div>
+        <div class="board-wrap">
+          <div class="board" id="board-${i}"></div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(cell);
+  });
+
+  function renderCircles(boardId, { fill, grosor, margin }) {
+    const rows = 4, cols = 4;
+    const size = 132; // 140 - 2*4 de borde del tablero
+    const board = document.getElementById(boardId);
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('width', size);
+    svg.setAttribute('height', size);
+    board.appendChild(svg);
+
+    const cellW = size / cols;
+    const cellH = size / rows;
+    const maxDiameter = Math.min(cellW, cellH) - margin;
+    const radius = Math.max(0, (maxDiameter - grosor) / 2);
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const cx = c * cellW + cellW / 2;
+        const cy = r * cellH + cellH / 2;
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', cx);
+        circle.setAttribute('cy', cy);
+        circle.setAttribute('r', radius);
+        circle.setAttribute('fill', fill || 'none');
+        if (grosor > 0) {
+          circle.setAttribute('stroke', '#5b3a29');
+          circle.setAttribute('stroke-width', grosor);
+        }
+        svg.appendChild(circle);
+      }
+    }
+  }
+
+  CASES.forEach((c, i) => {
+    renderCircles(`board-${i}`, { fill: c.transparent ? null : c.fill, grosor: c.grosor, margin: c.margin });
+  });
+</script>
+</body>
+</html>

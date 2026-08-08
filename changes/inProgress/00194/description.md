@@ -3,13 +3,6 @@
 - **Tipo**: change
 - **Fecha creación**: 2026-08-08
 
-## Prompt original del usuario
-
-quiero que las copias puedan convertirse en elementos originales. Es decir: convertir copias en clones.
-- en la pestaña Copias añade un botón "Convertir copias en originales" que convierta todas las copias de ese elemento en uno original, desvinculándolos para siempre. Requiere confirmación del usuario.
-- añadir a las propiedades de cada elemento copia un botón "Convertir en original" para convertir esa copia en un elemento original. Requiere confirmación del usuario.
-- cada vez que una copia se convierta en original, asígnale un id igual al elemento original que tenía añadiendo un sufijo numérico correcto y único; mismo mecanismo que tenemos ahora cuando sacamos clones de un elemento.
-
 ## Descripción completa
 
 Hoy, cada "Copia" de un componente queda permanentemente vinculada a su original: se sincroniza automáticamente con él (tipo, nombre, imagen, tamaño, etc.) mientras ambos existan, y solo puede desvincularse de esa sincronización en vivo campo a campo (checkbox "Sincronizado", que solo afecta a "Bloqueado"/"Oculto"). No existe ninguna forma de romper del todo el vínculo y convertir una copia en un elemento completamente independiente ("original").
