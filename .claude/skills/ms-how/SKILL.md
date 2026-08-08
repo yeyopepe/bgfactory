@@ -5,7 +5,7 @@ argument-hint: <xxxx o descripción del cambio/fix a planificar>
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.4.0
+  version: 1.5.0
   uses: [ms-internal-tech-analysis, ms-internal-tech-mermaid, ms-internal-mockups-html, ms-do]
 ---
 
@@ -13,7 +13,7 @@ metadata:
 
 Toma una entrada ya documentada por `ms-new`/`ms-fix` en `{changesDir}/inProgress/{xxxx}/` y analiza su solución técnica, dejándola escrita en `plan.md`. Si el usuario confirma que quiere implementarla ya, encadena directamente la skill `ms-do`, que es quien edita el código y mueve la carpeta a `{changesDir}/implemented/{xxxx}/`.
 
-**Fuente de la verdad.** La documentación técnica (`docs.tech.*`) y el código real son la única fuente de verdad sobre cómo funciona hoy el proyecto — no lo que `description.md` asuma implícitamente sobre la implementación, ni memoria de conversaciones anteriores. Reúne ese contexto siempre invocando la skill `ms-internal-tech-analysis` (nunca leyendo tú mismo `framework.docs.tech` a pelo o explorando código a ciegas) al analizar la causa raíz y diseñar la solución (paso 3), incluso si ya tienes una idea de cómo funciona algo por contexto previo. Tampoco cuenta como fuente de verdad el `description.md` o `plan.md` de **otros** cambios/fixes bajo `{changesDir}/**` (en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto — el único documento de otra entrada que sí es relevante aquí es el que consulta explícitamente el paso 0.1 (los `xxxx` máximos, para la verificación de orden).
+**Fuente de la verdad.** La documentación técnica (`docs.tech.*`) y el código real son la única fuente de verdad sobre cómo funciona hoy el proyecto — no lo que `description.md` asuma implícitamente sobre la implementación, ni memoria de conversaciones anteriores. Reúne ese contexto siempre invocando la skill `ms-internal-tech-analysis` (nunca leyendo tú mismo `framework.docs.tech` a pelo o explorando código a ciegas) al analizar la causa raíz y diseñar la solución (paso 3), incluso si ya tienes una idea de cómo funciona algo por contexto previo. Tampoco cuenta como fuente de verdad el `description.md` o `plan.md` de **otros** cambios/fixes bajo `{changesDir}/**` (en `inProgress`, `implemented` o `closed`): son intención o análisis de otra entrada, no el estado real del proyecto — el único documento de otra entrada que sí es relevante aquí es el que consulta explícitamente el paso 0.1 (los `xxxx` máximos, para la verificación de orden). Si la entrada `{xxxx}` tiene un `history.md`, ignóralo por completo: es historial de prompts de uso exclusivo de `ms-new`/`ms-fix` (puede ser incompleto o contradictorio a propósito), nunca una fuente a tener en cuenta aquí — lo vigente es siempre `description.md`.
 
 ## Formato de la documentación: diagramas antes que prosa
 

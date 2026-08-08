@@ -16,9 +16,9 @@ Para cada entrada de la carpeta de estado se calculan cuatro columnas:
     description.md.
   - description: primeros 250 caracteres de la seccion '## Descripcion
     completa' de description.md (con "..." al final si se trunco); si esa
-    seccion esta vacia o no existe, los primeros 250 caracteres de
-    '## Prompt original del usuario' (mismo criterio); si tampoco existe,
-    None.
+    seccion esta vacia o no existe, None. No se usa history.md como
+    fallback: es historial de prompts de uso exclusivo de ms-new/ms-fix,
+    ninguna otra skill (incluido ms-status) debe leerlo.
   - fecha: el campo '**Fecha**' de description.md si existe (formato tal
     cual esta escrito); si no, la fecha de modificacion (mtime) de
     description.md formateada como YYYY-MM-DD; si no hay description.md, la
@@ -60,11 +60,6 @@ KNOWN_TYPES = {"change", "fix", "fast"}
 _BOUNDARY = r"(?=\n##\s|\n-\s*\*\*[^\n]+\*\*|\Z)"
 DESCRIPCION_FULL_RE = re.compile(
     r"(?:^##\s*Descripci[oó]n completa\s*\n+|^-\s*\*\*Descripci[oó]n completa\*\*:?\s*\n*)(.+?)"
-    + _BOUNDARY,
-    re.IGNORECASE | re.MULTILINE | re.DOTALL,
-)
-PROMPT_FULL_RE = re.compile(
-    r"(?:^##\s*Prompt original del usuario\s*\n+|^-\s*\*\*Prompt original del usuario\*\*:?\s*\n*)(.+?)"
     + _BOUNDARY,
     re.IGNORECASE | re.MULTILINE | re.DOTALL,
 )
@@ -115,10 +110,6 @@ def summarize(text: str) -> str:
 
 def extract_description(text: str) -> str | None:
     match = DESCRIPCION_FULL_RE.search(text)
-    if match and match.group(1).strip():
-        return summarize(match.group(1))
-
-    match = PROMPT_FULL_RE.search(text)
     if match and match.group(1).strip():
         return summarize(match.group(1))
 

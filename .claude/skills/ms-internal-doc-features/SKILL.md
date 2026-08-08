@@ -5,7 +5,7 @@ user-invocable: false
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.1.0
+  version: 1.2.0
   uses: []
 ---
 
@@ -24,6 +24,7 @@ Dada `docs.functional.featuresDocPathDir` (p.ej. `design/docs/features/`):
   - `# {NNN} — {Nombre de la funcionalidad}` — el número identificador es estable: se asigna una vez al crear la funcionalidad (ver acción `upsert`) y no vuelve a cambiar aunque el título se edite después ni aunque otra funcionalidad se borre (tanto en el título como en el nombre de fichero). Sirve para localizarla rápido, no para ordenar nada por relevancia.
   - `**Área**: {Área funcional}`
   - Cuerpo funcional (una o más frases/párrafos).
+  - Diagramas funcionales (opcional) — cero o más bloques ```mermaid```, cada uno representando un flujo/caso de uso de esta funcionalidad desde el punto de vista del usuario. Nunca diagramas técnicos (flujo interno, secuencia entre componentes): esos viven en la documentación técnica, no aquí.
   - `- **Disponible en**: ...`
   - `- **Código**: {xxxx}, {xxxx}, ...` — todos los códigos de change/fix que han creado o modificado esta entrada, no solo el último.
   - `- **Desde**: {AAAA-MM-DD}` — fecha en la que se creó esta entrada (el primer `xxxx` de **Código**). No cambia nunca tras asignarse.
@@ -53,6 +54,7 @@ Parámetros:
 - `area` — nombre del área funcional (tal cual debe aparecer en `**Área**:` y agrupar en el índice).
 - `título` — nombre de la funcionalidad (tal cual debe aparecer como `# ...`).
 - `cuerpo` — descripción funcional completa ya redactada (una o más frases/párrafos, con enlaces cruzados ya en formato `[texto](otro-slug.md)` si aplica).
+- `diagramas` — opcional; lista completa de diagramas funcionales que deben quedar en el fichero final, cada uno ya como bloque ```mermaid``` completo (si es una edición in place, la lista resultante tras añadir/actualizar/quitar lo que corresponda, no solo los nuevos). Omitido o lista vacía si la funcionalidad no tiene ningún diagrama funcional.
 - `disponible_en` — contenido de la línea `- **Disponible en**:`.
 - `códigos` — lista completa de códigos `xxxx` que deben quedar en `- **Código**:` (si es una edición in place, la lista completa resultante tras añadir el nuevo, no solo el nuevo).
 - `fichero_existente` — ruta devuelta por una llamada previa a `find`, si esto es una edición in place; omitido si es una funcionalidad nueva.
@@ -66,6 +68,6 @@ Pasos:
    - Calcula el slug del título con `python .claude/skills/ms-internal-doc-features/scripts/slugify.py "{título}"`.
    - El nombre de fichero es `{número}-{slug}.md`.
    - Tanto `- **Desde**:` como `- **Última modificación**:` son la fecha de hoy.
-4. Escribe (crea o sobrescribe por completo) `{featuresDocPathDir}/{NNN}-{slug}.md` siguiendo [`FEATURE.template.md`](FEATURE.template.md) con los parámetros recibidos, con `# {número} — {título}` como primera línea.
+4. Escribe (crea o sobrescribe por completo) `{featuresDocPathDir}/{NNN}-{slug}.md` siguiendo [`FEATURE.template.md`](FEATURE.template.md) con los parámetros recibidos, con `# {número} — {título}` como primera línea. Si `diagramas` viene vacío u omitido, no dejes la sección de diagramas del template en el fichero final — omítela por completo.
 5. Ejecuta `python .claude/skills/ms-internal-doc-features/scripts/rebuild-index.py --folder {featuresDocPathDir}` para regenerar `INDEX.md` de forma determinista a partir de todos los ficheros de la carpeta — no edites `INDEX.md` a mano.
 6. Devuelve a quien invoca la ruta del fichero escrito.

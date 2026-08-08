@@ -5,7 +5,7 @@ user-invocable: false
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 2.4.0
+  version: 3.0.0
   uses: []
 ---
 
@@ -15,7 +15,7 @@ Proceso genérico y único punto donde el framework `ms-*` sabe crear y mover la
 
 Tiene dos acciones independientes, cada una invocada con un parámetro `action`:
 
-- **`action=create`** — la invocan `ms-new` y `ms-fix`, con `type` (`change`/`fix`/`fast`) y la descripción de lo que se pide. Dimensiona el alcance funcional y crea la entrada en `{changesDir}/inProgress/`. Para `type=fast` (atajo de `ms-fix` para cambios triviales), quien invoca típicamente encadena a continuación `action=move` hacia `implemented` en la misma invocación, sin pasar por `plan.md`.
+- **`action=create`** — la invocan `ms-new` y `ms-fix`, con `type` (`change`/`fix`/`fast`), la descripción de lo que se pide y el prompt original del usuario tal cual (`promptOriginal`). Dimensiona el alcance funcional y crea la entrada en `{changesDir}/inProgress/`, con `description.md` (información vigente) y `history.md` (historial de prompts, ver más abajo) como ficheros separados. Para `type=fast` (atajo de `ms-fix` para cambios triviales), quien invoca típicamente encadena a continuación `action=move` hacia `implemented` en la misma invocación, sin pasar por `plan.md`.
 - **`action=move`** — la invoca `ms-do`, con `xxxx`, `from` y `to` (nombres de subcarpeta de `{changesDir}`: `inProgress` o `implemented`). Mueve la carpeta `{xxxx}` entre esos subestados.
 
 Ninguna de las dos acciones implementa ni analiza técnicamente nada, ni decide **si** debe producirse la transición o confirmación con el usuario — eso ya lo ha resuelto la skill llamante antes de invocar `ms-internal-workflow`. Esta skill solo ejecuta la mecánica de fichero (numerar+crear, o mover) de forma consistente en un único sitio.
@@ -58,19 +58,19 @@ El script lee `workFolder` y `numberWidth` de `.claude/ms-context.json`, recorre
 
 Si hay dudas relevantes sobre el alcance de lo que se pide que no se puedan resolver con lo que ya sabes, pregúntalas antes de escribir el documento — no hace falta que sean dudas técnicas de implementación (eso lo resuelve `ms-how` más adelante), solo las de alcance funcional. Guarda esas preguntas junto con las respuestas del usuario: van incluidas en el documento (ver más abajo).
 
-Crea (creando `{changesDir}/inProgress/` si no existe):
+Crea (creando `{changesDir}/inProgress/` si no existe) dos ficheros separados:
 
 ```
 {changesDir}/inProgress/{xxxx}/description.md
+{changesDir}/inProgress/{xxxx}/history.md
 ```
 
-Sigue exactamente la plantilla [`description.template.md`](description.template.md) de esta misma carpeta, con estas reglas por sección:
+**`description.md`** sigue exactamente la plantilla [`description.template.md`](description.template.md) de esta misma carpeta, con estas reglas por sección:
 
 - **Nombre** — nombre corto y descriptivo del cambio/fix.
 - **Código** — el `xxxx` calculado en el paso anterior.
 - **Tipo** — `fix`, `change` o `fast`, según corresponda.
 - **Fecha creación** — la fecha actual (formato `YYYY-MM-DD`) en el momento de crear este `description.md`.
-- **Prompt original del usuario** — la petición tal cual la ha escrito el usuario, sin reformular.
 - **Descripción completa** — resumen funcional de lo que se ha analizado que pide, entendible por cualquier persona no técnica, sin entrar en solución técnica ni mencionar ficheros, funciones, clases o estructuras de datos:
   - Para un `fix`: qué comportamiento está roto, cómo reproducirlo o identificarlo, y qué se espera que pase en su lugar.
   - Para un `change`: qué se pide añadir o modificar, por qué, y cómo debería comportarse el resultado.
@@ -79,9 +79,11 @@ Sigue exactamente la plantilla [`description.template.md`](description.template.
 
 Esta separación es estricta: cualquier mención a ficheros, funciones, clases CSS u otros detalles de implementación va siempre en **Apuntes técnicos**, nunca en **Descripción completa**, aunque haya surgido de forma natural durante el análisis. El análisis técnico en profundidad y la solución en sí los sigue haciendo `plan.md`, que genera `ms-how`.
 
+**`history.md`** sigue exactamente la plantilla [`history.template.md`](history.template.md): un único encabezado `## {fecha de hoy} — sesión inicial` seguido del `promptOriginal` recibido, tal cual, sin reformular. Es información histórica, de uso exclusivo de `ms-new`/`ms-fix` (ver la propia plantilla) — nunca mezcles su contenido dentro de `description.md`.
+
 ### create.3 Confirmar a quien invoca
 
-Indica el fichero creado (`{changesDir}/inProgress/{xxxx}/description.md`) y el `xxxx` resuelto, para que la skill llamante (`ms-new`/`ms-fix`) continúe su propio proceso.
+Indica los ficheros creados (`{changesDir}/inProgress/{xxxx}/description.md` y `.../history.md`) y el `xxxx` resuelto, para que la skill llamante (`ms-new`/`ms-fix`) continúe su propio proceso.
 
 ## Acción `move`
 

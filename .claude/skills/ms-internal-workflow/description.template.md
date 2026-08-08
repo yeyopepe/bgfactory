@@ -3,10 +3,6 @@
 - **Tipo**: 
 - **Fecha creación**: 
 
-## Prompt original del usuario
-
-<prompt original del usuario, tal cual, sin reformular>
-
 ## Descripción completa
 
 <Toda la información funcional del cambio/fix. Debe ser completa y entendible por cualquier persona no técnica: qué pasa, por qué, cómo se comporta. Esta es la parte importante — la que tiene que describirlo todo bien. Puede incluir cualquier subapartado que se considere necesario (casos límite, preguntas de alcance resueltas, etc.), siempre en términos funcionales, sin nombres de fichero, funciones, clases CSS ni detalles de implementación.>

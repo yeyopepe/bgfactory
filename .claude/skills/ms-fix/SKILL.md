@@ -5,7 +5,7 @@ argument-hint: <descripción del bug o cambio a aplicar>
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 2.2.0
+  version: 2.3.0
   uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-internal-mockups-html, ms-internal-tech-mermaid, ms-new, ms-how]
 ---
 
@@ -76,7 +76,7 @@ Si tienes dudas razonables sobre si califica, no lo fuerces: trátalo como que n
 
 ## 3. Documentar la intención (fix no trivial)
 
-Invoca la skill `ms-internal-workflow` (herramienta Skill) con `action=create`, `type=fix` y el resumen funcional de qué está mal y qué se espera en su lugar, para que se encargue de numerar el fix y crear el documento en `{changesDir}/inProgress/{xxxx}/`.
+Invoca la skill `ms-internal-workflow` (herramienta Skill) con `action=create`, `type=fix`, el resumen funcional de qué está mal y qué se espera en su lugar, y `promptOriginal` (la petición tal cual la ha escrito el usuario, sin reformular), para que se encargue de numerar el fix y crear `description.md` y `history.md` en `{changesDir}/inProgress/{xxxx}/`.
 
 Si la funcionalidad que se describe incorpora un flujo, una secuencia de pasos/decisiones o una interacción entre estados o componentes desde el punto de vista del usuario (p.ej. cómo transiciona una pantalla, el orden de una operación, casos límite encadenados), invoca (herramienta Skill) la skill de diagramas configurada en `framework.skills.diagrams` de `.claude/ms-context.json` (si no está configurado, `ms-internal-tech-mermaid`), pidiéndole un diagrama de tipo `funcional` por cada caso de uso o historia de usuario distinto que tenga ese flujo — nunca mezcles varios en un mismo diagrama. Incluye el/los diagrama(s) que te devuelva, junto con las notas imprescindibles, al pasárselo a `ms-internal-workflow`, en vez de describirlo solo en prosa — así queda ya así en `description.md`. Usa prosa cuando no haya un flujo/relación clara que representar.
 
@@ -98,7 +98,7 @@ No escribas tú mismo el documento de fix ni calcules el número `xxxx` — eso 
 
 Si el paso 2 concluyó que el cambio es `fast`, sigue estos pasos en vez de los anteriores:
 
-1. **Documentar la intención.** Invoca la skill `ms-internal-workflow` (herramienta Skill) con `action=create`, `type=fast` y el resumen funcional de qué se pide (qué estaba mal o qué texto/valor/estilo se ajusta), para que numere la entrada y cree `{changesDir}/inProgress/{xxxx}/description.md`. Anota el `xxxx` que devuelva.
+1. **Documentar la intención.** Invoca la skill `ms-internal-workflow` (herramienta Skill) con `action=create`, `type=fast`, el resumen funcional de qué se pide (qué estaba mal o qué texto/valor/estilo se ajusta) y `promptOriginal` (la petición tal cual la ha escrito el usuario, sin reformular), para que numere la entrada y cree `{changesDir}/inProgress/{xxxx}/description.md` y `.../history.md`. Anota el `xxxx` que devuelva.
 2. **Aplicar el cambio.** Implementa el cambio directamente en el código con tu proceso normal de ingeniería (editar, verificar que compila/pasan los tests si los hay). Sigue siendo un cambio real sobre el proyecto: aplícalo con el mismo cuidado que cualquier otra edición, aunque no pase por `plan.md`.
 
    Un cambio `fast` **nunca** debe tocar `docs.tech.architectureDocDir` ni `docs.tech.styleBibleDocDir` (ver paso 2 de arriba) — no los actualices, ni actualices tampoco `docs.functional.featuresDocPathDir`, como parte de esta rama. Si durante la implementación descubres que sí hace falta tocar arquitectura, biblia de estilo, o que el cambio se extiende a más ficheros de los previstos, es señal de que el cambio no era tan trivial: para inmediatamente, no lo apliques a medias (deshaz lo ya tocado si llegaste a tocar algo), y sigue en su lugar el paso 3 (si es un bug) o el aviso + invocación de `ms-new` (si no lo es) descritos en el paso 2 de arriba.
