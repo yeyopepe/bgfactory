@@ -9,7 +9,10 @@
     }
   },
   "framework": {
-    "mockupsSkill": "ms-internal-mockups-html",
+    "skills": {
+      "mockups": "ms-internal-mockups-html",
+      "diagrams": "ms-internal-tech-mermaid"
+    },
     "sourcecodeDir": "src",
     "workFolder": "/",
     "numberWidth": 5,

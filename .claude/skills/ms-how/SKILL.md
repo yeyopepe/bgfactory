@@ -5,8 +5,8 @@ argument-hint: <xxxx o descripción del cambio/fix a planificar>
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.2.2
-  uses: [ms-internal-tech-analysis, ms-do]
+  version: 1.3.0
+  uses: [ms-internal-tech-analysis, ms-internal-tech-mermaid, ms-do]
 ---
 
 # ms-how
@@ -17,7 +17,7 @@ Toma una entrada ya documentada por `ms-new`/`ms-fix` en `{changesDir}/inProgres
 
 ## Formato de la documentación: diagramas antes que prosa
 
-Al escribir o actualizar `plan.md`, si lo que hay que describir es un flujo, un proceso con pasos/decisiones, una secuencia de interacciones o una relación entre estados o componentes, prioriza representarlo con un diagrama Mermaid (`flowchart`, `sequenceDiagram`, `stateDiagram-v2`, etc.) acompañado de las notas imprescindibles, en lugar de un párrafo largo explicando lo mismo en prosa. Reserva la prosa para lo que el diagrama no pueda expresar (matices, motivos, excepciones puntuales) o para contenido sin estructura de flujo/relación clara que representar.
+Al escribir o actualizar `plan.md`, si lo que hay que describir es un flujo, un proceso con pasos/decisiones, una secuencia de interacciones o una relación entre estados o componentes, invoca (herramienta Skill) la skill de diagramas configurada en `framework.skills.diagrams` de `.claude/ms-context.json` (si no está configurado, `ms-internal-tech-mermaid`), pidiéndole un diagrama de tipo `flujo-técnico` (proceso interno con pasos/decisiones) o `secuencia-técnica` (comunicación entre componentes/actores) según lo que toque representar — pide los dos por separado si el caso tiene ambas dimensiones. Incluye el/los diagrama(s) que te devuelva, acompañados de las notas imprescindibles, en lugar de un párrafo largo explicando lo mismo en prosa. Reserva la prosa para lo que el diagrama no pueda expresar (matices, motivos, excepciones puntuales) o para contenido sin estructura de flujo/relación clara que representar. No redactes tú mismo el código Mermaid.
 
 ## 0. Cargar el contexto del proyecto
 

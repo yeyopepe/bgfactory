@@ -5,7 +5,7 @@ user-invocable: false
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 2.3.0
+  version: 2.4.0
   uses: []
 ---
 
@@ -38,7 +38,7 @@ A partir de aquí, `changesDir` es notación abreviada para `{workFolder}/change
 
 Continúa con la sección de abajo que corresponda a la `action` recibida.
 
-**Formato de la documentación:** al redactar `description.md` (acción `create`), si hay que describir un flujo, una secuencia de pasos o una interacción entre componentes/estados (p.ej. cómo reproducir un bug, o cómo debería comportarse un flujo nuevo), prioriza un diagrama Mermaid (`flowchart`, `sequenceDiagram`, etc.) con las notas imprescindibles antes que un párrafo largo. Usa prosa cuando no haya un flujo/relación clara que representar.
+**Formato de la documentación:** al redactar `description.md` (acción `create`), si quien invoca te ha pasado uno o varios diagramas Mermaid ya generados (obtenidos de la skill configurada en `framework.skills.diagrams`, ver `ms-new`/`ms-fix`), insértalos junto con las notas imprescindibles en el punto que corresponda, en vez de repetir en prosa lo que el diagrama ya deja claro. Esta skill no genera diagramas por sí misma ni decide si hacen falta — eso ya lo resolvió quien invoca antes de llamarte.
 
 ## Acción `create`
 

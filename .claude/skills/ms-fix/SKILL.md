@@ -5,8 +5,8 @@ argument-hint: <descripción del bug o cambio a aplicar>
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 2.1.0
-  uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-internal-mockups-html, ms-new, ms-how]
+  version: 2.2.0
+  uses: [ms-internal-workflow, ms-internal-tech-analysis, ms-internal-mockups-html, ms-internal-tech-mermaid, ms-new, ms-how]
 ---
 
 # ms-fix
@@ -78,11 +78,11 @@ Si tienes dudas razonables sobre si califica, no lo fuerces: trátalo como que n
 
 Invoca la skill `ms-internal-workflow` (herramienta Skill) con `action=create`, `type=fix` y el resumen funcional de qué está mal y qué se espera en su lugar, para que se encargue de numerar el fix y crear el documento en `{changesDir}/inProgress/{xxxx}/`.
 
-Si la funcionalidad que se describe incorpora un flujo, una secuencia de pasos/decisiones o una interacción entre estados o componentes (p.ej. cómo transiciona una pantalla, el orden de una operación, casos límite encadenados), incluye ese análisis como diagrama Mermaid (`flowchart`, `sequenceDiagram`, `stateDiagram-v2`, etc.) con las notas imprescindibles al pasárselo a `ms-internal-workflow`, en vez de describirlo solo en prosa — así queda ya así en `description.md`. Usa prosa cuando no haya un flujo/relación clara que representar.
+Si la funcionalidad que se describe incorpora un flujo, una secuencia de pasos/decisiones o una interacción entre estados o componentes desde el punto de vista del usuario (p.ej. cómo transiciona una pantalla, el orden de una operación, casos límite encadenados), invoca (herramienta Skill) la skill de diagramas configurada en `framework.skills.diagrams` de `.claude/ms-context.json` (si no está configurado, `ms-internal-tech-mermaid`), pidiéndole un diagrama de tipo `funcional` por cada caso de uso o historia de usuario distinto que tenga ese flujo — nunca mezcles varios en un mismo diagrama. Incluye el/los diagrama(s) que te devuelva, junto con las notas imprescindibles, al pasárselo a `ms-internal-workflow`, en vez de describirlo solo en prosa — así queda ya así en `description.md`. Usa prosa cuando no haya un flujo/relación clara que representar.
 
 ## 4. Generar la propuesta visual (fix no trivial)
 
-Si el cambio tiene componente visual (hay algo que decir en el punto "Definición visual de alto nivel" del paso 1), invoca (herramienta Skill) la skill de maquetas configurada en `framework.mockupsSkill` de `.claude/ms-context.json` (si no está configurado, `ms-internal-mockups-html`), pasándole la carpeta destino (`{changesDir}/inProgress/{xxxx}/`) y, por cada elemento visual diferenciado de la propuesta, su descripción y qué debe mostrar (p.ej. un elemento para el modal de selección de mazo, otro para la barra de progreso), marcando la acción como `crear`. Anota las rutas `design_*.html` que te devuelva. Si el cambio no tiene componente visual (lógica interna, datos, backend), omite este paso por completo — no invoques la skill de maquetas "por si acaso".
+Si el cambio tiene componente visual (hay algo que decir en el punto "Definición visual de alto nivel" del paso 1), invoca (herramienta Skill) la skill de maquetas configurada en `framework.skills.mockups` de `.claude/ms-context.json` (si no está configurado, `ms-internal-mockups-html`), pasándole la carpeta destino (`{changesDir}/inProgress/{xxxx}/`) y, por cada elemento visual diferenciado de la propuesta, su descripción y qué debe mostrar (p.ej. un elemento para el modal de selección de mazo, otro para la barra de progreso), marcando la acción como `crear`. Anota las rutas `design_*.html` que te devuelva. Si el cambio no tiene componente visual (lógica interna, datos, backend), omite este paso por completo — no invoques la skill de maquetas "por si acaso".
 
 ## 5. Validar la representación visual con el usuario (fix no trivial)
 
@@ -92,7 +92,7 @@ Si el paso 3 incluyó algún diagrama Mermaid o el paso 4 generó algún `design
 
 Invoca directamente la skill `ms-how` (herramienta Skill) sobre ese mismo `xxxx`, indicando explícitamente que es un fix y que su análisis y solución deben limitarse estrictamente a corregir el bug documentado — cambio mínimo, sin ampliar alcance ni tocar nada no relacionado con la causa raíz. No le pidas al usuario que invoque `ms-how` por separado: continúa tú mismo con ese flujo (análisis → `plan.md` → confirmación → `ms-do` implementa → mueve a `implemented`), tal como lo define `ms-how`.
 
-No escribas tú mismo el documento de fix ni calcules el número `xxxx` — eso lo hace `ms-internal-workflow` para mantener un único sitio con esa lógica. Los ficheros `design_*.html` los genera la skill de maquetas configurada (`ms-internal-mockups-html` por defecto) — no los escribas tú mismo. No escribas tú mismo el `plan.md` ni toques código directamente — eso lo hacen `ms-how` y `ms-do` para mantener un único sitio con esa lógica.
+No escribas tú mismo el documento de fix ni calcules el número `xxxx` — eso lo hace `ms-internal-workflow` para mantener un único sitio con esa lógica. Los ficheros `design_*.html` los genera la skill de maquetas configurada (`ms-internal-mockups-html` por defecto) — no los escribas tú mismo. El código de los diagramas Mermaid del paso 3 lo genera la skill de diagramas configurada (`ms-internal-tech-mermaid` por defecto) — tampoco lo redactes tú mismo. No escribas tú mismo el `plan.md` ni toques código directamente — eso lo hacen `ms-how` y `ms-do` para mantener un único sitio con esa lógica.
 
 ## Rama fast-track (cambio trivial, bug o no)
 
