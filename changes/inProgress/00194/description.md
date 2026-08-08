@@ -1,0 +1,42 @@
+- **Nombre**: Convertir copias en originales
+- **Código**: 00194
+- **Tipo**: change
+- **Fecha creación**: 2026-08-08
+
+## Prompt original del usuario
+
+quiero que las copias puedan convertirse en elementos originales. Es decir: convertir copias en clones.
+- en la pestaña Copias añade un botón "Convertir copias en originales" que convierta todas las copias de ese elemento en uno original, desvinculándolos para siempre. Requiere confirmación del usuario.
+- añadir a las propiedades de cada elemento copia un botón "Convertir en original" para convertir esa copia en un elemento original. Requiere confirmación del usuario.
+- cada vez que una copia se convierta en original, asígnale un id igual al elemento original que tenía añadiendo un sufijo numérico correcto y único; mismo mecanismo que tenemos ahora cuando sacamos clones de un elemento.
+
+## Descripción completa
+
+Hoy, cada "Copia" de un componente queda permanentemente vinculada a su original: se sincroniza automáticamente con él (tipo, nombre, imagen, tamaño, etc.) mientras ambos existan, y solo puede desvincularse de esa sincronización en vivo campo a campo (checkbox "Sincronizado", que solo afecta a "Bloqueado"/"Oculto"). No existe ninguna forma de romper del todo el vínculo y convertir una copia en un elemento completamente independiente ("original").
+
+Este cambio añade esa posibilidad, en dos sitios:
+
+**1. Conversión masiva, desde el componente Original.** En la pestaña "Copias" de la modal de configuración de un componente que tiene copias vinculadas, un nuevo botón **"Convertir copias en originales"** (situado justo debajo del ya existente "Sincronizar todas las copias", antes de la sección "Desincronizar todas las copias"). Al pulsarlo, pide confirmación explícita indicando cuántas copias se van a convertir y dejando claro que la acción es permanente (p. ej. *"¿Convertir las N copias de "X" en elementos originales independientes? Esta acción no se puede deshacer."*). Al confirmar, todas las copias vinculadas a ese original quedan convertidas de golpe en elementos completamente independientes (ver "Qué implica convertir" más abajo). Tras la conversión, la pestaña se actualiza al instante para reflejar que el componente ya no tiene copias ("Este objeto no tiene copias."), sin cerrar la modal — igual que ya hacen hoy "Sincronizar"/"Desincronizar todas las copias".
+
+**2. Conversión individual, desde la propia copia.** La modal reducida que se abre al editar un componente que es en sí mismo una Copia incluye una nueva sección con su propio botón **"Convertir en original"**. Al pulsarlo, pide la misma confirmación (adaptada a un único elemento, p. ej. *"¿Convertir "X" en un elemento original independiente? Esta acción no se puede deshacer."*). Al confirmar, esa copia concreta queda convertida en un elemento independiente.
+
+**Qué implica convertir una copia en original:**
+- Deja de estar vinculada a su original: no se sincroniza nunca más con él, y desaparece de su pestaña "Copias" y de su listado "Ver copias vinculadas...".
+- Conserva tal cual todos los valores que tenía en el momento de la conversión (los que ya estaban sincronizados con el original, más cualquier valor propio de "Bloqueado"/"Oculto" si estaba desincronizada) — no hay ningún reseteo ni recálculo de propiedades al convertir, solo se rompe el vínculo.
+- Recibe un **id nuevo**, calculado igual que al "Clonar" un componente: se parte del id del elemento **original** (quitándole cualquier sufijo `(n)` que ya tuviera, no del id propio de la copia, que tiene formato `id-COPY-XXX`) y se le añade `(n)` con el siguiente entero libre de esa familia — compartiendo numeración con los clones que ya existan de ese mismo original (p. ej. si ya existe un clon "abc(1)", la primera copia convertida de "abc" sería "abc(2)"). En la conversión masiva, cada copia convertida calcula su propio siguiente número libre según se van convirtiendo, para que ninguna de las nuevas coincida con otra del mismo lote.
+- Pasa a comportarse como cualquier otro componente normal: aparece en el panel de Componentes con todas las acciones disponibles (Editar/Clonar/Copiar/Eliminar), no solo Editar/Eliminar como una copia.
+
+**Fuera de alcance de este cambio**: la modal de solo lectura "Ver copias vinculadas..." (tabla con columnas Id/Sincronizada, abierta desde "Ver copias vinculadas..." en la pestaña "Copias") no incorpora ninguna acción de conversión por fila — se mantiene tal cual, sin cambios.
+
+### Caso límite pendiente de resolver en la planificación técnica
+
+Si la copia que se convierte está en ese momento guardada dentro de un mazo (referenciada por su id desde ese mazo), su id cambia al convertirse — queda pendiente decidir en `ms-how` si la referencia del mazo se actualiza automáticamente al nuevo id, o si la carta se saca del mazo como parte de la conversión.
+
+## Apuntes técnicos
+
+- **Incongruencia detectada entre documentación técnica y código real** (a corregir por `ms-how`/`ms-do` en su actualización de documentación): `design/docs/architecture/05-ui-layer.md` y `01-component-model.md` describen `ui/componentModal.js` con solo dos pestañas ("Generales" y "Específicas"). El código real (`src/ui/componentModal.js`, líneas ~723-814) ya tiene una **tercera pestaña "Copias"**, solo visible/poblada con contenido cuando el componente tiene copias vinculadas (`getComponents().filter(c => c.copyOf === workingComponent.id)`): resumen "Copias: N" + botón "Ver copias vinculadas..." (abre `ui/componentCopiesModal.js`, tabla de solo lectura Id/Sincronizada), botón "Sincronizar todas las copias" y sección "Desincronizar todas las copias" (checkbox "Oculto"). Documentación pendiente de actualizar para reflejar esta pestaña.
+- **Generación de id al clonar** (`core/component.js`): `nextCloneId(baseComponentId, components)` quita el sufijo `\(\d+\)$` del id base y busca el siguiente entero libre entre los componentes cuyo id, tras quitarle igualmente el sufijo, coincide con esa raíz. `cloneComponent(component, components)` lo usa para construir el clon completo (offset +30/+30, `order: null`). Este es el mecanismo a reutilizar para el nuevo id de la copia convertida, pasando como `baseComponentId` el **id del original** (`component.copyOf`), no el id propio de la copia (formato `${originalId}-COPY-XXX`, generado por `nextCopyId`/`createCopy`, que no es compatible con la regexp de `nextCloneId`).
+- **Desvinculación**: no existe hoy ningún mecanismo de "romper" `copyOf`; es funcionalidad nueva. La sincronización en vivo entre original y copia vive en `core/state.js` (`replaceComponent`), enganchada a `updatedComponent.copyOf` falsy → propaga a `c.copyOf === id`. Al convertir, basta con que el componente resultante tenga `copyOf: null` para salir de ese circuito (y de `removeComponent`, que hoy borra en cascada `copyOf === id`).
+- Campos sincronizables hoy en vivo (`syncCopyWithOriginal`, `core/component.js`): `type`, `name`, `image`, `width`, `height`, `mostrarTooltip`, `subirAlMoverInteractuar`, `etiquetaIds`, `interaccionesDesactivadas`, `properties` de configuración/diseño (excepto `NON_SYNCED_PROPERTY_KEYS` por tipo: `resultadoActual` en `'dado'`, `caraActual` en `'carta'`, siempre independientes). `bloqueado`/`oculto` solo se sincronizan si `sincronizado: true`. Todos estos valores, sean cuales sean en el momento de convertir, se conservan tal cual en el nuevo elemento independiente — no requiere lógica adicional, es la copia superficial del objeto ya existente sin `copyOf`.
+- **Referencia potencial rota**: `properties.cartaIds` de un componente `'mazo'` referencia cartas por `id` (`core/deck.js`); si una copia de tipo `'carta'` estuviera dentro de un mazo al convertirse, ese array quedaría con un id obsoleto salvo que se actualice explícitamente como parte de esta funcionalidad (ver caso límite abierto arriba).
+- Confirmado en código (no solo documentación) el resto de los puntos: sin más incongruencias relevantes detectadas.
