@@ -5,8 +5,8 @@ argument-hint: <xxxx o descripción del cambio/fix a planificar>
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.3.0
-  uses: [ms-internal-tech-analysis, ms-internal-tech-mermaid, ms-do]
+  version: 1.4.0
+  uses: [ms-internal-tech-analysis, ms-internal-tech-mermaid, ms-internal-mockups-html, ms-do]
 ---
 
 # ms-how
@@ -65,6 +65,23 @@ No hay ningún cambio/fix pendiente en `{changesDir}/inProgress/`.
 
 - Si no encuentras ninguna carpeta que corresponda dentro de `{changesDir}/inProgress/`, **no hagas nada más**: si existe con ese `xxxx` en `{changesDir}/implemented/`, dile al usuario que ese cambio/fix ya está implementado; si no existe en ningún sitio, dile que no lo encuentras y pregunta el `xxxx` o la carpeta correctos. No busques ni operes sobre carpetas fuera de `{changesDir}/inProgress/`.
 - Si la encuentras, esa es `{xxxx}` y su carpeta `{changesDir}/inProgress/{xxxx}/` para el resto del proceso.
+
+## 1.1 Validar los documentos del cambio antes de analizar
+
+Antes de reunir contexto técnico o escribir `plan.md`, lee `description.md` (y, si existen, los `design_*.html`/`design_*.txt`) de `{changesDir}/inProgress/{xxxx}/` en busca de incoherencias o problemas: requisitos que se contradicen entre sí, información contradictoria entre `description.md` y las maquetas, pasos o criterios de aceptación ambiguos, referencias a elementos que las maquetas no muestran (o viceversa), huecos que impiden saber qué se pide.
+
+- **Si no encuentras nada**: continúa directamente con el paso 2.
+- **Si encuentras algo**: no lo resuelvas por tu cuenta ni sigas adelante con el análisis. Expón el problema al usuario con claridad (qué documentos están implicados y en qué consisten la incoherencia o el hueco) y pregúntale cómo resolverlo.
+
+  ```
+  Antes de analizar la solución técnica, he encontrado lo siguiente en los documentos de `{xxxx}`:
+  - {incoherencia o problema 1}
+  - ...
+
+  ¿Cómo lo resolvemos?
+  ```
+
+  Con la respuesta del usuario, actualiza tú mismo el/los documento(s) de definición afectados (`description.md` y/o los `design_*`) para que queden coherentes antes de continuar. Si la corrección requiere generar o editar una maqueta visual, invoca (herramienta Skill) la skill configurada en `framework.skills.mockups` de `.claude/ms-context.json` (si no está configurado, `ms-internal-mockups-html`) en vez de editar tú mismo el HTML/ASCII de la maqueta. Repite esta validación sobre los documentos ya corregidos antes de dar el paso por bueno.
 
 ## 2. Comprobar si ya existe `plan.md`
 
