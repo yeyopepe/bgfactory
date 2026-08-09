@@ -25,3 +25,26 @@ El resto estaba bien. Añade otra característica:
 ## 2026-08-09 — ampliación 2
 
 añade también en la parte derecha de la barra de título un icono para copiar todo el contenido de la nota al portapapeles (sin formato: titulo + cuerpo)
+
+## 2026-08-09 — ampliación 3
+
+el componente se llamará "Bloc de notas" e inicialmente son 2 botones uno al lado del otro:
+- uno cuadrado y amarillo con una etiqueta "Nueva hoja (0)".
+- otro redondo con el dibujo de un ojo que muestra/oculta las hojas (todas).
+Al pulsar el botón se añade una nueva hoja con toda la funcionalidad descrita y se actualiza el contador de la etiqueta.
+Se pueden añadir múltiples hojas, cada una independiente (redimensionable, movible, etc), pero todas forman parte del mismo componente. Cada hoja lleva un id interno formado con el nombre del componente y un sufijo numerado.
+El editor es WYSIWYG pero el formato que usa es markdown.
+El botón de copiar contenido copia ese contenido en formato markdown.
+
+Respuestas a las dudas planteadas:
+2. También redimensiona
+4. Simplifica y que no se reutilice. El usuario tampoco lo va a ver nunca.
+6. Si el ojo está en ocultar, el botón de añadir hoja está deshabilitado.
+7. Añade un botón para borrar cada hoja
+8. Aunque el bloc de notas esté bloqueado, se pueden añadir hojas nuevas. El bloqueo afecta solo al elemento del bloc de notas.
+Añade al menú contextual del bloc de notas una opción Bloquear notas (des/bloquea todas las notas a la vez).
+Añade también un botón para des/bloquear cada nota por separado.
+11. WYSIWYG
+12. Al pulsar el botón permite elegir: con formato, sin formato
+
+Confirmación final: sí a las 3 propuestas de cierre (bloqueo rápido individual/global solo entre Ninguno/Todos, borrado de hoja con confirmación, copia "con formato" en markdown con título como encabezado `# Título`).

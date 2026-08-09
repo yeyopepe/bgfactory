@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Maqueta — Bloc de notas (edición del cuerpo)</title>
+<title>Maqueta — Bloc de notas (edición WYSIWYG del cuerpo)</title>
 <style>
   :root {
     --bg-table:     #c2c2c2;
@@ -39,7 +39,7 @@
     font-weight: 500;
   }
 
-  /* --- Componente Bloc de notas, cuerpo en edición --- */
+  /* --- Componente hoja, cuerpo en edición --- */
   .bloc-notas {
     width: 260px;
     background: #ffffff;
@@ -56,7 +56,7 @@
     padding: 0.4rem 0.5rem;
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.35rem;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   }
 
@@ -76,7 +76,7 @@
     color: #000000;
   }
 
-  .bloc-notas__copy-btn {
+  .bloc-notas__icon-btn {
     width: 20px;
     height: 20px;
     border-radius: var(--radius-sm);
@@ -88,7 +88,7 @@
     flex-shrink: 0;
     color: var(--text-muted);
   }
-  .bloc-notas__copy-btn svg { width: 14px; height: 14px; }
+  .bloc-notas__icon-btn svg { width: 14px; height: 14px; }
 
   /* --- Barra de herramientas del cuerpo (solo visible en edición) --- */
   .bloc-notas__toolbar {
@@ -135,28 +135,35 @@
   .toolbar-btn--textcolor .swatch { background: #b3261e; }
   .toolbar-btn--bgcolor .swatch { background: #fff3b0; border: 1px solid var(--border-neutral); }
 
-  .toolbar-note {
-    margin-left: 0.4rem;
-    font-size: 0.65rem;
-    color: var(--text-muted);
-    font-style: italic;
-  }
-
+  /* --- Cuerpo WYSIWYG: siempre muestra el formato aplicado, también en edición --- */
   .bloc-notas__body-edit {
     flex: 1;
     min-height: 110px;
     padding: 0.6rem 0.65rem;
     font-size: 0.8rem;
     line-height: 1.5;
-    font-family: ui-monospace, monospace;
+    font-family: system-ui, sans-serif;
     color: var(--text-primary);
     background: var(--accent-blue-light);
-    border: none;
     outline: 2px solid var(--accent-blue);
     outline-offset: -2px;
     border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-    resize: none;
-    white-space: pre-wrap;
+  }
+
+  .bloc-notas__body-edit .selected {
+    background: rgba(44, 125, 216, 0.25);
+    border-radius: 2px;
+  }
+
+  mark.color-text {
+    background: none;
+    color: #b3261e;
+  }
+  mark.color-bg {
+    background: #fff3b0;
+    color: inherit;
+    padding: 0 2px;
+    border-radius: 2px;
   }
 
   .bloc-notas__resize-handle {
@@ -184,15 +191,28 @@
 <body>
 
   <div>
-    <p class="caption">Cuerpo en edición (tras click sobre el cuerpo)</p>
+    <p class="caption">Cuerpo en edición WYSIWYG (tras click sobre el cuerpo)</p>
     <div class="bloc-notas">
       <div class="bloc-notas__header">
         <button class="bloc-notas__color-btn" title="Color de fondo de la cabecera"></button>
         <div class="bloc-notas__title">Notas de la partida</div>
-        <button class="bloc-notas__copy-btn" title="Copiar contenido al portapapeles">
+        <button class="bloc-notas__icon-btn" title="Bloquear hoja">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="11" width="16" height="9" rx="1.5"></rect>
+            <path d="M7 11V7a5 5 0 0 1 9-3"></path>
+          </svg>
+        </button>
+        <button class="bloc-notas__icon-btn" title="Copiar contenido al portapapeles">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="9" y="9" width="11" height="11" rx="1.5"></rect>
             <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+          </svg>
+        </button>
+        <button class="bloc-notas__icon-btn" title="Borrar hoja">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7h16"></path>
+            <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+            <path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"></path>
           </svg>
         </button>
       </div>
@@ -209,7 +229,10 @@
           <span class="swatch"></span>
         </button>
       </div>
-      <textarea class="bloc-notas__body-edit" readonly>Recuerda **traer** el mazo de *eventos* y el <u>track</u> de turnos.</textarea>
+      <div class="bloc-notas__body-edit" contenteditable="true">
+        Recuerda <b class="selected">traer</b> el mazo de <i>eventos</i> y el <u>track</u> de turnos.
+        El <span class="color-text" style="color:#b3261e;">jugador inicial</span> reparte las cartas.
+      </div>
       <div class="bloc-notas__resize-handle">
         <svg viewBox="0 0 12 12"><path d="M12 0 L12 12 L0 12 Z" fill="#000"/></svg>
       </div>
@@ -217,7 +240,7 @@
   </div>
 
   <div class="callout">
-    <b>Nota:</b> los 5 botones de la barra actúan sobre el texto que el usuario tenga seleccionado dentro del cuerpo en ese momento. Sin selección, pulsar un botón no hace nada. Al salir de la edición (click fuera del componente), el cuerpo vuelve a mostrarse ya formateado y esta barra desaparece.
+    <b>Nota:</b> el editor es WYSIWYG puro — el cuerpo se ve siempre con el formato ya aplicado (negrita, cursiva, subrayado, colores), tanto fuera de edición como durante la edición. Nunca se muestran las marcas de markdown en crudo (<code>**</code>, <code>&lt;u&gt;</code>...), aunque por debajo se siga guardando como markdown. Los 5 botones de la barra actúan sobre el texto seleccionado en ese momento (aquí, "traer", resaltado). Al salir de la edición (click fuera del componente), el cuerpo no cambia de aspecto y la barra desaparece.
   </div>
 
 </body>

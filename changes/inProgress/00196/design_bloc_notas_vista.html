@@ -9,6 +9,8 @@
     --bg-card:      #f5f5f5;
     --accent-blue:  #2c7dd8;
     --accent-blue-light: #eaf3fc;
+    --accent-yellow: #f5c518;
+    --accent-yellow-dark: #c9a10a;
     --text-primary: #1a1a1a;
     --text-light:   #ffffff;
     --text-muted:   #666666;
@@ -46,7 +48,61 @@
     flex-direction: column;
   }
 
-  /* --- Componente Bloc de notas --- */
+  /* --- Panel lanzador "Bloc de notas" --- */
+  .launcher {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #ffffff;
+    padding: 0.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-1);
+  }
+
+  .launcher__new-btn {
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: var(--radius-sm);
+    background: var(--accent-yellow);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .launcher__new-btn:disabled,
+  .launcher__new-btn.is-disabled {
+    background: #efe6bd;
+    color: var(--text-muted);
+    border-color: var(--border-neutral);
+    cursor: not-allowed;
+  }
+
+  .launcher__eye-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--border-neutral);
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    color: var(--text-primary);
+  }
+  .launcher__eye-btn svg { width: 18px; height: 18px; }
+
+  .launcher-note {
+    max-width: 220px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin-top: 0.5rem;
+    font-style: italic;
+  }
+
+  /* --- Componente hoja --- */
   .bloc-notas {
     width: 220px;
     height: 180px;
@@ -64,7 +120,7 @@
     padding: 0.4rem 0.5rem;
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.35rem;
     flex-shrink: 0;
   }
 
@@ -88,7 +144,7 @@
     text-overflow: ellipsis;
   }
 
-  .bloc-notas__copy-btn {
+  .bloc-notas__icon-btn {
     width: 20px;
     height: 20px;
     border-radius: var(--radius-sm);
@@ -100,8 +156,9 @@
     cursor: pointer;
     flex-shrink: 0;
     color: var(--text-muted);
+    position: relative;
   }
-  .bloc-notas__copy-btn svg { width: 14px; height: 14px; }
+  .bloc-notas__icon-btn svg { width: 14px; height: 14px; }
 
   .bloc-notas__body {
     flex: 1;
@@ -137,9 +194,63 @@
     cursor: nwse-resize;
   }
   .bloc-notas__resize-handle svg { width: 100%; height: 100%; opacity: 0.35; }
+
+  /* --- Menú "elegir formato" al copiar --- */
+  .copy-menu-demo {
+    position: relative;
+    width: 220px;
+  }
+  .copy-menu {
+    position: absolute;
+    top: 28px;
+    right: 8px;
+    background: #ffffff;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-1);
+    min-width: 130px;
+    overflow: hidden;
+    z-index: 2;
+  }
+  .copy-menu__item {
+    padding: 0.45rem 0.7rem;
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+  .copy-menu__item:hover { background: var(--bg-hover); }
+  .copy-menu__item + .copy-menu__item { border-top: 1px solid var(--border-neutral); }
 </style>
 </head>
 <body>
+
+  <div class="block">
+    <p class="caption">Panel lanzador "Bloc de notas" — habilitado</p>
+    <div class="launcher">
+      <button class="launcher__new-btn">Nueva hoja (3)</button>
+      <button class="launcher__eye-btn" title="Mostrar/ocultar todas las hojas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="block">
+    <p class="caption">Panel lanzador — hojas ocultas ("Nueva hoja" deshabilitado)</p>
+    <div class="launcher">
+      <button class="launcher__new-btn is-disabled" disabled>Nueva hoja (3)</button>
+      <button class="launcher__eye-btn" title="Mostrar todas las hojas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 3l18 18"></path>
+          <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path>
+          <path d="M9.4 5.5A10.9 10.9 0 0 1 12 5c7 0 11 7 11 7a13.2 13.2 0 0 1-3.1 3.6M6.6 6.6C3.4 8.6 1 12 1 12s4 7 11 7a10.6 10.6 0 0 0 4.2-.9"></path>
+        </svg>
+      </button>
+    </div>
+    <p class="launcher-note">Mientras el ojo está en "ocultar", no se pueden añadir hojas nuevas.</p>
+  </div>
 
   <div class="block">
     <p class="caption">Estado: con contenido</p>
@@ -147,10 +258,23 @@
       <div class="bloc-notas__header">
         <button class="bloc-notas__color-btn" title="Color de fondo de la cabecera"></button>
         <div class="bloc-notas__title">Notas de la partida</div>
-        <button class="bloc-notas__copy-btn" title="Copiar contenido al portapapeles">
+        <button class="bloc-notas__icon-btn" title="Bloquear hoja">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="11" width="16" height="9" rx="1.5"></rect>
+            <path d="M7 11V7a5 5 0 0 1 9-3"></path>
+          </svg>
+        </button>
+        <button class="bloc-notas__icon-btn" title="Copiar contenido al portapapeles">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="9" y="9" width="11" height="11" rx="1.5"></rect>
             <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+          </svg>
+        </button>
+        <button class="bloc-notas__icon-btn" title="Borrar hoja">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7h16"></path>
+            <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+            <path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"></path>
           </svg>
         </button>
       </div>
@@ -171,16 +295,100 @@
       <div class="bloc-notas__header">
         <button class="bloc-notas__color-btn" title="Color de fondo de la cabecera" style="background: linear-gradient(135deg, #f5f5f5 50%, #dcdcdc 50%);"></button>
         <div class="bloc-notas__title" style="color: var(--text-muted); font-weight: normal;"></div>
-        <button class="bloc-notas__copy-btn" title="Copiar contenido al portapapeles">
+        <button class="bloc-notas__icon-btn" title="Bloquear hoja">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="11" width="16" height="9" rx="1.5"></rect>
+            <path d="M7 11V7a5 5 0 0 1 9-3"></path>
+          </svg>
+        </button>
+        <button class="bloc-notas__icon-btn" title="Copiar contenido al portapapeles">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="9" y="9" width="11" height="11" rx="1.5"></rect>
             <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+          </svg>
+        </button>
+        <button class="bloc-notas__icon-btn" title="Borrar hoja">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7h16"></path>
+            <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+            <path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"></path>
           </svg>
         </button>
       </div>
       <div class="bloc-notas__body bloc-notas__body--empty"></div>
       <div class="bloc-notas__resize-handle">
         <svg viewBox="0 0 12 12"><path d="M12 0 L12 12 L0 12 Z" fill="#000"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="block">
+    <p class="caption">Estado: hoja bloqueada</p>
+    <div class="bloc-notas">
+      <div class="bloc-notas__header">
+        <button class="bloc-notas__color-btn" title="Color de fondo de la cabecera"></button>
+        <div class="bloc-notas__title">Reglas acordadas</div>
+        <button class="bloc-notas__icon-btn" title="Desbloquear hoja" style="color: var(--accent-blue);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="11" width="16" height="9" rx="1.5"></rect>
+            <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+          </svg>
+        </button>
+        <button class="bloc-notas__icon-btn" title="Copiar contenido al portapapeles">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="11" height="11" rx="1.5"></rect>
+            <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+          </svg>
+        </button>
+        <button class="bloc-notas__icon-btn" title="Borrar hoja" style="opacity: 0.35; cursor: not-allowed;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7h16"></path>
+            <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+            <path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="bloc-notas__body">
+        No mover las cartas de <b>evento</b> una vez repartidas.
+      </div>
+      <div class="bloc-notas__resize-handle" style="opacity: 0.35;">
+        <svg viewBox="0 0 12 12"><path d="M12 0 L12 12 L0 12 Z" fill="#000"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <div class="block copy-menu-demo">
+    <p class="caption">Menú al pulsar el icono de copiar</p>
+    <div class="bloc-notas" style="height: auto;">
+      <div class="bloc-notas__header">
+        <button class="bloc-notas__color-btn" title="Color de fondo de la cabecera"></button>
+        <div class="bloc-notas__title">Notas de la partida</div>
+        <button class="bloc-notas__icon-btn" title="Bloquear hoja">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="11" width="16" height="9" rx="1.5"></rect>
+            <path d="M7 11V7a5 5 0 0 1 9-3"></path>
+          </svg>
+        </button>
+        <button class="bloc-notas__icon-btn" title="Copiar contenido al portapapeles" style="color: var(--accent-blue);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="11" height="11" rx="1.5"></rect>
+            <path d="M5 15V5a2 2 0 0 1 2-2h10"></path>
+          </svg>
+        </button>
+        <button class="bloc-notas__icon-btn" title="Borrar hoja">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7h16"></path>
+            <path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+            <path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="bloc-notas__body" style="padding-bottom: 1.5rem;">
+        Recuerda <b>traer</b> el mazo de <i>eventos</i>.
+      </div>
+      <div class="copy-menu">
+        <div class="copy-menu__item">Con formato</div>
+        <div class="copy-menu__item">Sin formato</div>
       </div>
     </div>
   </div>
