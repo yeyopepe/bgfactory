@@ -8,11 +8,11 @@
 
 ## (b) Solución técnica
 
-1. **`[fichero]` — [resumen breve de la tarea].** [Qué hay que tocar exactamente (función, variable, regla CSS...), dónde, y por qué — con el detalle suficiente para que se pueda implementar sin volver a decidir nada de diseño. Si hace falta un snippet o un valor exacto (una regla CSS, un nombre de clase, una condición), inclúyelo literal en vez de describirlo en prosa.]
-2. **`[fichero]` — [resumen breve de la siguiente tarea].** [...]
-3. [...]
+- [ ] **`[fichero]` — [resumen breve de la tarea].** [Qué hay que tocar exactamente (función, variable, regla CSS...), dónde, y por qué — con el detalle suficiente para que se pueda implementar sin volver a decidir nada de diseño. Si hace falta un snippet o un valor exacto (una regla CSS, un nombre de clase, una condición), inclúyelo literal en vez de describirlo en prosa.]
+- [ ] **`[fichero]` — [resumen breve de la siguiente tarea].** [...]
+- [ ] [...]
 
-Ordena las tareas en el orden en que se deberían implementar. No incluyas aquí pasos de comprobación/verificación manual — esos van en (e).
+Ordena las tareas en el orden en que se deberían implementar. No incluyas aquí pasos de comprobación/verificación manual — esos van en (e). Formato checklist (`- [ ]`) obligatorio: quien implemente debe marcar cada casilla `[x]` solo cuando esa tarea concreta esté hecha, nunca todas de golpe al final.
 
 ## (c) Cambios de arquitectura
 
@@ -24,7 +24,7 @@ Ordena las tareas en el orden en que se deberían implementar. No incluyas aquí
 
 ## (e) Verificación
 
-1. [Un resultado observable del sistema ya cambiado — no un paso más de implementación. Redáctalo de forma autocontenida (qué se hace y qué se debería ver), sin remitir a un número de tarea de (b): una misma comprobación puede depender de varias tareas a la vez, o una tarea puede no tener una comprobación propia y aportar solo a una compartida. La lista se recorre entera *después* de terminar toda la sección (b), como un checklist de cierre.]
-2. [...]
+- [ ] [Un resultado observable del sistema ya cambiado — no un paso más de implementación. Redáctalo de forma autocontenida (qué se hace y qué se debería ver), sin remitir a un número de tarea de (b): una misma comprobación puede depender de varias tareas a la vez, o una tarea puede no tener una comprobación propia y aportar solo a una compartida. La lista se recorre entera *después* de terminar toda la sección (b), como un checklist de cierre.]
+- [ ] [...]
 
-Incluye siempre esta sección (salvo que la solución no tenga ningún comportamiento observable que comprobar, lo cual es raro) — es lo que permite dar la implementación por terminada con confianza, incluso a quien la ejecute sin conocer más contexto que este documento.
+Incluye siempre esta sección (salvo que la solución no tenga ningún comportamiento observable que comprobar, lo cual es raro) — es lo que permite dar la implementación por terminada con confianza, incluso a quien la ejecute sin conocer más contexto que este documento. Formato checklist (`- [ ]`) obligatorio, igual que en (b).

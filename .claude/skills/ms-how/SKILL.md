@@ -5,7 +5,7 @@ argument-hint: <xxxx o descripción del cambio/fix a planificar>
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.5.0
+  version: 1.6.0
   uses: [ms-internal-tech-analysis, ms-internal-tech-mermaid, ms-internal-mockups-html, ms-do]
 ---
 
@@ -98,10 +98,10 @@ Antes de reunir contexto técnico o escribir `plan.md`, lee `description.md` (y,
 4. Reúne contexto adicional invocando la skill `ms-internal-tech-analysis` (herramienta Skill), pasándole un resumen de la causa raíz o del cambio a diseñar: ella lee primero la documentación técnica configurada en `framework.docs.tech` y solo explora código (`sourcecodeDir`) si hace falta completar información, devolviéndote el contexto reunido y cualquier incongruencia detectada entre documentación y código (recuerda: en ese caso el código manda). Si reporta alguna incongruencia, tenla en cuenta al diseñar la solución y al escribir las secciones (c)/(d) del plan (paso 5) para que quede reflejada en la actualización de documentación que hará `ms-do` tras implementar.
 5. Escribe `{changesDir}/inProgress/{xxxx}/plan.md` siguiendo la plantilla [`PLAN.template.md`](PLAN.template.md) de esta skill, empezando con el campo **Fecha creación** (formato `YYYY-MM-DD`, la fecha actual en el momento de crear este `plan.md` — si ya existe porque se está regenerando, actualízala a la fecha de esta regeneración), seguido de estas secciones:
    - **(a) Anotaciones funcionales** — qué queda explícitamente fuera de alcance, y las dudas que se han resuelto con el usuario (pregunta y respuesta, en breve).
-   - **(b) Solución técnica** — listado de tareas concretas y explicadas (qué hay que tocar, dónde, y por qué), en el orden en que se deberían implementar. No mezcles aquí pasos de comprobación manual — esos van en (e).
+   - **(b) Solución técnica** — checklist (`- [ ]`) de tareas concretas y explicadas (qué hay que tocar, dónde, y por qué), en el orden en que se deberían implementar, todas sin marcar al escribir el plan. No mezcles aquí pasos de comprobación manual — esos van en (e).
    - **(c) Cambios de arquitectura** — *solo si aplica*: si `docs.tech.architectureDocDir` está configurado y esta solución modifica la arquitectura básica del proyecto, indica **qué fichero(s) concretos** de esa carpeta hay que actualizar (puede haber varios candidatos) y qué hay que cambiar en cada uno. Si no aplica (no hay `docs.tech.architectureDocDir`, o la solución no toca arquitectura), omite esta sección por completo — no la dejes vacía ni con "N/A".
    - **(d) Cambios en estilo** — *solo si aplica*: si `docs.tech.styleBibleDocDir` está configurado y esta solución modifica o amplia el estilo visual del proyecto, indica **qué fichero(s) concretos** de esa carpeta hay que actualizar y qué hay que cambiar en cada uno. Si no aplica, omite esta sección — no la dejes vacía ni con "N/A".
-   - **(e) Verificación** — checklist de resultados observables del sistema ya cambiado, a comprobar *después* de completar toda la sección (b). Cada ítem se redacta de forma autocontenida (qué hacer y qué se debería ver), sin remitir a un número de tarea de (b) — una comprobación puede depender de varias tareas a la vez, o compartirse entre varias. Inclúyela siempre salvo que la solución no tenga ningún comportamiento observable que comprobar.
+   - **(e) Verificación** — checklist (`- [ ]`) de resultados observables del sistema ya cambiado, a comprobar *después* de completar toda la sección (b). Cada ítem se redacta de forma autocontenida (qué hacer y qué se debería ver), sin remitir a un número de tarea de (b) — una comprobación puede depender de varias tareas a la vez, o compartirse entre varias. Inclúyela siempre salvo que la solución no tenga ningún comportamiento observable que comprobar.
 
 ## 3.1 Preguntar si se quiere implementar
 

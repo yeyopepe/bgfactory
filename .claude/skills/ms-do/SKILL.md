@@ -5,7 +5,7 @@ argument-hint: <xxxx del cambio/fix ya planificado>
 model: claude-haiku-4-5
 effort: medium
 metadata:
-  version: 1.6.0
+  version: 1.7.0
   uses: [ms-internal-workflow, ms-internal-doc-features]
 ---
 
@@ -56,11 +56,12 @@ Una vez identificada, esa es `{xxxx}` y su carpeta `{changesDir}/inProgress/{xxx
 
 ## 2. Implementar
 
-Implementa todo lo que dice `plan.md`:
+Implementa todo lo que dice `plan.md`. Sus checklists (`(b)` y, si existe, `(e)`) son la única lista de tareas fiable — no confíes en lo que recuerdes de haberlas leído antes, ve casilla por casilla:
 
-- Ejecuta cada tarea de la sección **(b) Solución técnica** con tu proceso normal de ingeniería (editar código, verificar que compila / pasan los tests si los hay).
+- Recorre la sección **(b) Solución técnica** **una tarea a la vez, en orden**: implementa esa tarea concreta (editar código, verificar que compila / pasan los tests si los hay) y, inmediatamente después de darla por hecha, edita `plan.md` marcando esa casilla como `- [x]` antes de pasar a la siguiente. No implementes varias tareas seguidas y las marques todas al final — el marcado inmediato es lo que evita saltarse una sin darte cuenta.
 - Si `plan.md` tiene sección **(c) Cambios de arquitectura**, aplica esos cambios al fichero (o ficheros) de `docs.tech.architectureDocDir` que indique esa sección, como parte de esta implementación.
-- Si `plan.md` tiene sección **(e) Verificación**, una vez completada toda la sección (b), recorre cada uno de sus ítems y comprueba que el resultado observable descrito se cumple de verdad (leyendo el código/DOM/estilos resultantes, no dando por hecho que la tarea de (b) que lo produce quedó bien). Si algún ítem no se cumple, corrígelo antes de continuar — no lo des por terminado ni lo menciones como pendiente al usuario.
+- Si `plan.md` tiene sección **(e) Verificación**, una vez marcadas todas las casillas de (b), recorre cada ítem de (e) **uno a uno** y comprueba que el resultado observable descrito se cumple de verdad (leyendo el código/DOM/estilos resultantes, no dando por hecho que la tarea de (b) que lo produce quedó bien). Marca su casilla `- [x]` solo cuando lo hayas comprobado así. Si algún ítem no se cumple, corrígelo antes de marcarlo — no lo des por terminado ni lo menciones como pendiente al usuario.
+- **Antes de pasar al paso 3**, relee `plan.md` completo buscando casillas `- [ ]` sin marcar en (b) o (e). Si encuentras alguna, esa tarea o verificación quedó pendiente sin que te dieras cuenta: complétala ahora, no la ignores ni la des por implícita.
 
 Si durante la implementación descubres que el plan no es viable tal cual está escrito, para y coméntaselo al usuario en vez de improvisar una solución distinta sin decírselo.
 
