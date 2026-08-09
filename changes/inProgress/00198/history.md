@@ -1,4 +1,6 @@
-# Historial de prompts — 00080
+# Historial de prompts — 00198
+
+Heredado tal cual del cambio 00080 (dividido en 00197 y 00198, ver `description.md`) — el historial original no distinguía todavía entre `build_obf.py` y el botón "Publicar", así que se conserva íntegro en ambas entradas.
 
 Información histórica del proceso de análisis, no información vigente. Recoge, tal cual y sin reformular, los prompts sucesivos con los que el usuario ha ido planteando y ampliando esta entrada — pueden ser incompletos o contradictorios entre sí, ya que reflejan cómo evolucionó la petición sesión a sesión, no el resultado final (eso vive en `description.md`).
 
