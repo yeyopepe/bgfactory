@@ -95,6 +95,12 @@ Número de eventos semanales:
 
 Es posible que obtengas más de un evento para un mismo dia de la semana. En ese caso forma una pequeño mazo para ese día y, cuando llegue el momento de resolverlos, hazlo en estricto orden, terminando de resolver por completo cada evento antes de desvelar el siguiente.
 
+#### Tipos de cartas de evento
+1. 💥: el efecto del evento debe resolverse de inmediato al reverla la carta.
+2. 📅: el efecto del evento dura todo el día en curso.
+3. 👨‍👩‍👧‍👦: todos los jugadores se ven afectados o deben resolver el efecto del evento.
+4. 🙍‍♀️: solo el jugador que revela el evento debe resolver el efecto del evento.
+
 
 ## 2. Secuencia de juego
 
@@ -286,11 +292,7 @@ Una vez colocado un objeto en la mochila solo puedes moverlo de 3 maneras:
   4. Se puede [Cazar]() en la localización.
   5. Se puede [Pescar]() en la localización.
 
-### Cartas de evento
-1. 💥: el efecto del evento debe resolverse de inmediato al reverla la carta.
-2. 📅: el efecto del evento dura todo el día en curso.
-3. 👨‍👩‍👧‍👦: cada jugador se ve afectado o debe resolver el efecto del evento.
-4. 🙍‍♀️: solo el jugador que revela el evento debe resolver el efecto del evento.
+
 
 
 ## 9. Preguntas frecuentes
