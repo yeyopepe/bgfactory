@@ -7,17 +7,24 @@ import { attachResizeHandle } from './resizeHandle.js';
 import { attachColumnResizing } from './tableColumnResize.js';
 import { attachColumnMenu } from './tableColumnMenu.js';
 import { getComponentsUsingTag } from '../core/tag.js';
+import { getGroupsUsingTag } from '../core/group.js';
 import { sortByName, compareValues } from '../core/textSort.js';
 
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
 const TAG_LIST_COLUMNS = ['nombre', 'elementos', 'acciones'];
 
+// Recuento de "elementos" de una etiqueta: componentes que la llevan + grupos
+// que la llevan como etiqueta propia (ver core/group.js).
+function countTagUsage(tagId, components, groups) {
+  return getComponentsUsingTag(tagId, components).length + getGroupsUsingTag(tagId, groups).length;
+}
+
 // Columnas interactivas del menú de cabecera: todas menos "Acciones".
-function buildTagListColumnDefs(components) {
+function buildTagListColumnDefs(components, groups) {
   return [
     { key: 'nombre', filterable: true, getValue: (t) => t.name },
-    { key: 'elementos', filterable: true, getValue: (t) => getComponentsUsingTag(t.id, components).length },
+    { key: 'elementos', filterable: true, getValue: (t) => countTagUsage(t.id, components, groups) },
   ];
 }
 
@@ -43,7 +50,7 @@ function matchesColumnFilters(tag, columnDefsByKey) {
   });
 }
 
-function renderBody(body, tags, components, { onEdit, onRemove, onSelectTag, columnWidths, onColumnResize, allTags = [], onColumnSortChange, onColumnFilterChange } = {}) {
+function renderBody(body, tags, components, groups, { onEdit, onRemove, onSelectTag, columnWidths, onColumnResize, allTags = [], onColumnSortChange, onColumnFilterChange } = {}) {
   body.innerHTML = '';
 
   const hasActiveFilter = filterText.trim() !== '' || Object.keys(columnFilters).length > 0;
@@ -96,7 +103,7 @@ function renderBody(body, tags, components, { onEdit, onRemove, onSelectTag, col
 
     const countCell = document.createElement('td');
     countCell.className = 'tag-list__count-cell';
-    countCell.textContent = String(getComponentsUsingTag(tag.id, components).length);
+    countCell.textContent = String(countTagUsage(tag.id, components, groups));
     row.appendChild(countCell);
 
     const actionsCell = document.createElement('td');
@@ -138,7 +145,7 @@ function renderBody(body, tags, components, { onEdit, onRemove, onSelectTag, col
   }
 
   if (onColumnSortChange && onColumnFilterChange) {
-    attachColumnMenu(table, buildTagListColumnDefs(components), allTags, {
+    attachColumnMenu(table, buildTagListColumnDefs(components, groups), allTags, {
       sortState: columnSort,
       filterState: columnFilters,
       onToggleSort: onColumnSortChange,
@@ -151,6 +158,7 @@ export function renderTagList(
   container,
   tags,
   components,
+  groups = [],
   {
     onEdit,
     onRemove,
@@ -226,7 +234,7 @@ export function renderTagList(
   panel.appendChild(header);
 
   if (!collapsed) {
-    const columnDefsByKey = Object.fromEntries(buildTagListColumnDefs(components).map((d) => [d.key, d]));
+    const columnDefsByKey = Object.fromEntries(buildTagListColumnDefs(components, groups).map((d) => [d.key, d]));
 
     function computeDisplayedTags() {
       let list = tags.filter((t) => matchesFilter(t, filterText) && matchesColumnFilters(t, columnDefsByKey));
@@ -257,7 +265,7 @@ export function renderTagList(
     function rerenderBody() {
       const displayed = computeDisplayedTags();
       title.textContent = `Etiquetas (${displayed.length})`;
-      renderBody(body, displayed, components, bodyOptions);
+      renderBody(body, displayed, components, groups, bodyOptions);
     }
 
     if (tags.length > 0) {

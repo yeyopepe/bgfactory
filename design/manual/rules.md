@@ -35,39 +35,43 @@
 - Prepara la bolsa de saqueo con todas las fichas de objetos básicos. Deja aparte todos los objetos fabricables.
 - Prepara la pila inicial de basura
 - Prepara la pila de objetos fabricables
-- Cada jugador elige:
-  - Un tablero de jugador
+- Cada jugador elige un personaje con:
+  - 1 tablero de jugador
   - 1 ficha de personaje
-  - 1 dado de búsqueda y 1 dado de combate
+  - 1 dado de búsqueda y 1 dado de combate más otros dados extra que pueda indicar el tablero de jugador.
   - <u>**???**</u> Toma cartas de trasfondo y resuélvelas
+  - <u>**???**</u> Algunos objetos iniciales?
 - Crea y braja el mazo de eventos.
 - Crea y braja el mazo con localizaciones principales.
 - Crea y braja el mazo con localizaciones secundarias (cartas alargadas).
 - Crea y braja el mazo con localizaciones secundarias (cartas cuadradas).
 
+### El personaje
+- Tablero de personaje
+  - Mochila
+  - Acciones y dados extra
+
+- Cartas de trasfondo
+
 ### El mapa
 1. **Cartas de montaña**: Toma las 6 **cartas de montaña** y colócalas aleatoriamente dentro de las 3 zonas grises del tablero.
-2. **Localizaciones principales**: Elige una casilla de localización principal del tablero (<icono>), toma la primera carta del mazo de **localizaciones principales** y colócala teniendo en cuenta que debes tapar la casilla con <icono>. Si no fuera posible tapar la casilla <icono> elegida, coloca la carta tapando otra casilla <icono>.
-Repite hasta colocar 4 localizaciones principales (quedarán casillas libres). Retira del juego las cartas sobrantes del mazo.
+2. **Localizaciones principales**: Elige una casilla de localización principal del tablero (<icono>), toma la primera carta del mazo de **localizaciones principales** y colócala teniendo en cuenta que debes tapar la casilla con <icono>. Si no fuera posible tapar la casilla <icono> elegida, coloca la carta tapando otra casilla de localización principal <icono>. En el difícil caso que no puedas colocar la carta sobre ninguna casilla de localización principal, descártala y saca la siguiente carta.
+Repite hasta colocar 4 localizaciones principales (quedarán casillas libres). Retira del juego las cartas sobrantes.
 3. **Localizaciones secundarias**:
   1. Empezando desde la esquina superior izquierda ve sacando cartas del mazo de **localizaciones secundarias (cartas alargadas)** y colocándolas de izquierda a derecha y de arriba a abajo hasta haber cubierto el tablero todo lo posible.
-  2. No importa que vayan quedando casillas vacías en el tablero, pero intenta ir encajando cada carta de la mejor manera posible siguiendo siempre la dirección izquierda-derecha, arriba-abajo.
-  3. Cuando ya no puedas colocar más cartas de localizaciones secundarias retira del juego las cartas sobrantes del mazo. También es posible que se hayan terminado.
-  4. Finalmente rellena todas las casillas restantes con cartas del mazo con **localizaciones secundarias (cartas cuadradas)**. Cuandoel mapa esté completo retira del juego las cartas sobrantes del mazo.
-4. Coloca en cada localización que 
+  2. Es posible que obtengas una carta que no puedas colocar inmediatamante a la derecha y/o abajo de la última que colocaste. No pasa nada: colócala en el primer sitio que puedas más adelante y cuando saques la siguiente carta intenta colocarla en el hueco que has dejado anteriormente.
+  3. No importa que vayan quedando casillas vacías en el tablero, pero intenta ir encajando cada carta de la mejor manera posible siguiendo siempre la dirección izquierda-derecha, arriba-abajo.
+  4. Cuando ya no puedas colocar más cartas de localizaciones secundarias retira del juego las cartas sobrantes del mazo. También es posible que se hayan terminado.
+  5. Finalmente rellena todas las casillas restantes con cartas del mazo con **localizaciones secundarias (cartas cuadradas)**. Cuandoel mapa esté completo retira del juego las cartas sobrantes del mazo.
+4. En cada localización que permita subir su nivel de asentamiento coloca una ficha de nivel de asentamiento con valor 0.
 5. **Pilas de saqueo**:
   1. Toma tantas fichas de la bolsa de saqueo como indique el límite de saqueo de la localización, barájalas y ponlas boca abajo formando una pila sobre la carta.
   2. Repite este paso hasta que todas las localizaciones tengan su pila de saqueo. Las fichas restantes déjalas en la bolsa.
 
 
-### El personaje
-- Tablero de personaje
-- Mochila
-- Cartas de trasfondo
-
 
 ### Calendario de eventos
-Coloca el número de eventos para la primera semana según el nivel de dificultad elegido (ver sección __Termina la semana__).
+Coloca el número de eventos para la primera semana según el nivel de dificultad elegido (ver sección [Termina la semana]()).
 
 **Niveles de dificultad**
 Número de eventos semanales:
@@ -100,7 +104,7 @@ Cuando termina el domingo y, por lo tanto, la semana en curso:
 
 1. Saca un objeto de la bolsa de saqueo y colocalo en la parte superior de la pila de saqueo de cada localización que tenga comerciantes (<icono>) disponibles. Si no quedan objetos en la bolsa de saqueo, no realices este paso.
 2. Según el nivel de dificultad repite este paso las veces indicadas:
-  1. Toma la primera carta del mazo de eventos y colócalo en el día de la semana que indique el dorso de la es ahora la primera carta del mazo.
+  1. Toma la primera carta del mazo de eventos (boca abajo,sin darle la vuelta) y colócalo en el día de la semana que indique el dorso de la que ahora es la primera carta del mazo.
 
 
 #### Termina la partida
@@ -110,9 +114,9 @@ Cuando termina el domingo y, por lo tanto, la semana en curso:
 - <u>**???**</u> La esperanza del jugador llega a cero  y se suicida
 
 
-## 3. Acciones
+## 3. Acciones que pueden realizarse siempre
 
-### 3.1 Acciones que pueden realizarse siempre
+### 3.1 Acciones que cuestan 1 punto de acción
 
 ### Moverse
 
@@ -125,11 +129,8 @@ Cuando un jugador realiza esta acción puede llevar consigo a cualquier otro per
 - <u>**???**</u> acción gratis al entrar en una localización
 - <u>**???**</u> Si hay enemigos en la localización -> combate
 
-- Las localizaciones con el <icono> (X) no pueden visitarse por los personajes.
+- Si la localización tiene el icono 💀, se resuelve automáticamente un encuentro: tira tantos dados de encuentros como indique la carta y coloca en la localización tantos enemigos como indique la tirada.
 
-#### Resultados del dado de encuentros
-- <icono>: Coloca 1 o 2 fichas de enemigo en la localización actual y resuelve una pelea.
-- <icono>: No ocurre nada.
 
 
 ### Subir el nivel de asentamiento
@@ -147,18 +148,19 @@ De vez en cuando captas alguna emisión interesante. Puedes hacer una de las sig
 - Consigues información valiosa: puedes mirar la pila de saqueo de una localización cualquiera menos la tuya y devolverla en cualquier orden.
 - Te anticipas a los enemigos: puedes mover hasta 3 enemigos de una misma localización (que no sea la tuya) a otra adyacente.
 
+## 4. Acciones que pueden realizarse si NO hay enemigos en la localización
 
-### 3.2 Acciones que no pueden realizarse si hay enemigos en la localización
+### 4.1 Acciones que cuestan 1 punto de acción
 
 ### Saquear
-Si en la localización actual queda algún objeto en la pila de saqueo, el jugador puede tirar 1 vez el dado de saqueo y resuelve su resultado (ver apartado "Resultados del dado de saqueo").
+Esta acción permite al jugador saquear la localización en busca de objetos interesantes o necesarios. Para ello el jugador tira tantos dados de saqueo como indique el nivel de saqueo de la localización y resuelve sus resultados (ver apartado "Resultados del dado de saqueo").
 
-Si en la localización actual la pila de saqueo está vacía, primero toma de la bolsa de saqueo tantos objetos como  indique el límite de saqueo de la localización y forma una nueva pila.
+Una vez resueltos los resultados de todos los dados, el jugador puede meter en su mochila un solo objeto entre todos los obtenidos, dejando todos los demás en la localización.
 
 #### Resultados del dado de saqueo
-- <icono>: Conseguir una ficha de basura.
-- <icono>:Conseguir el primer objeto de la pila de saqueo de la localización actual.
-- <icono>:No encuentras nada
+- 🔩: Consigue una ficha de la pila de basura.
+- 📦: Saca un objeto de la bolsa de saqueo.
+- No encuentras nada.
 
 
 ### Cazar/pescar
@@ -174,54 +176,124 @@ Mete el objeto intercambiado en la pila de saqueo y barájala.
 El jugador podrá gastar una acción para poder realizar cualquiera de estas actividades en el orden que quiera:
 - Intercambiar cualquiera cantidad de objetos con otros jugadores que estén en la misma localización.
 - Reordenar los objetos de su mochila.
-- Dejar o recoger cualquier número de objetos en la localización que no estén en la pila de saqueo.
+- Dejar o recoger cualquier número de objetos que haya en la localización.
 
 ### Fabricar un objeto
 
-Esta acción solo puede realizarse XXXXX
+Si estás en una localización que puede aumentar su nivel de asentamiento (independientemente de su valor), puedes realizar esta acción para combinar varios objetos que tengas en tu mochila o que estén en la localización y fabricar uno nuevo. Todos los objetos utilizados vuelven a la bolsa de saqueo y el objeto construido lo puedes meter en tu mochila, pudiendo reórdenarla si quieres dentro de la misma acción.
+
+Consulta la [Lista de objetos]() para más información.
 
 
-#### Objetos fabricados:
-- Botiquín (vendas, alcohol, aguja): el jugador puede usarlo para retirar inmeditamente hasta 3 fichas de herida. Tras esto, lo deja de nuevo en la pila de objetos fabricables.
-- Caña de pescar (palo, cuerda): necesaria para pescar en las localizaciones permitidas.
-- Lanza (palo, cuchillo, cinta aislante): necesaria para cazas (o el cuchillo) en las localizaciones permitidas.
+### 4.2 Acciones gratuitas
+
+### Conseguir agua
+<u>**???**</u>
+Si el personaje dispone de una botella de agua, puede consumirla y rellenarla automáticamente, así que puede curarse 1 herida sin sacarla de su mochila.
+Localización con icono de agua
 
 
 
 
 
-## 4. Combate
-- Cada vez que aparezcan nuevos enemigos en la localización del personaje del jugador, se realiza una secuencia de combate:
-  - Tira los dados de combate del personaje.
-  - <u>**???**</u> El jugador puede tirar de nuevo 1 dado por cada arma que tenga en una mano (Max 2)
-  - Resuelve los dados (ver apartado "Resultados del dado de pelea")
-  - Si el personaje está en una localización con al menos nivel de asentamiento 1, mata tantos enemigos adicionales como el nivel de asentamiento.
 
 
-- Cada vez que el jugador entre en una localización:
-  1. Si hay al menos 1 enemigo en la localización -> ejecuta una secuencia de combate.
-  2. Tira los dados de encuentro requeridos si es necesario. Si esto  añade enemigos nuevos a la localización -> ejecuta una nueva secuencia de combate.
+
+
+
+
+## 5. Combate
+Se produce un combate siempre que se cumple al menos una de las siguientes condiciones:
+
+1. Si uno o varios personajes entran en una localización que contiene al menos 1 enemigo, realiza inmediatamente una secuencia de combate.
+  
+2. Si algún efecto añade enemigos en la localización en la que se encuentran uno o varios personajes, realiza inmediatamente una secuencia de combate.
+
+Es posible que tras una sola acción tengas que realizar varias secuencias de combate, como por ejemplo:
+1. Tu personaje entra en una localización que tiene 2 enemigos.
+2. Realizas inmediatamente una secuencia de combate (1 dado) y obtienes 💀, así que retiras uno de los enemigos.
+3. La localización tiene un nivel de peligro 1, así que tiras un dado de encuentros y obtienes un 2, por lo que añades 2 enemigos más a la localización (ahora hay 3).
+4. Realizas inmediatamente otra secuencia de combate (1 dado) y obtienes una herida (🩸).
+
+### Secuencia de combate
+  1. Tira los dados de combate del personaje.
+  2. <u>**???**</u> El jugador puede tirar de nuevo 1 dado por cada arma que tenga en una mano (Max 2)
+  3. Resuelve los dados (ver apartado [Resultados del dado de pelea]())
+  4. Si el personaje está en una localización con al menos nivel de asentamiento 1, mata tantos enemigos adicionales como el nivel de asentamiento.
+
 
 
 #### Resultados del dado de pelea
-- <icono> Herida: coloca una ficha de herida en un espacio vacío de su mochila. Si no tienes ningún espacio vacío puedes abandonar un objeto (colocándolo arriba del todo en la pila de saqueo de la localización actual) para colocar la herida en su lugar. Si tampoco puedes hacer esto, tu personaje muere.
+- 🩸Herida: coloca una ficha de herida en un espacio vacío de su mochila. Si no tienes ningún espacio vacío puedes abandonar un objeto (colocándolo arriba del todo en la pila de saqueo de la localización actual) para colocar la herida en su lugar. Si tampoco puedes hacer esto, tu personaje muere.
 Esta acción no permite mover ningún otro objeto de la mochila.
-- <icono> Enemigo aniquilado: tu personaje consigue matar a un enemigo y descarta una ficha de enemigo de la localización actual
-- <icono> Dispersar: tu personaje gana tiempo y consigue dispersar al enemigo. Mueve un enemigo de tu localización a cada localización adyacente. Tu localización actual puede quedar vacía tras esta acción.
-- <icono> Esquiva: tu personaje esquiva el ataque del enemigo.
+- 💀 Enemigo aniquilado: tu personaje consigue matar a un enemigo y descarta una ficha de enemigo de la localización actual.
+- 💢 Dispersar: tu personaje gana tiempo y consigue dispersar al enemigo. Mueve un enemigo de tu localización a cada localización adyacente. Tu localización actual puede quedar vacía tras esta acción.
+- 🏃‍♂️ Esquiva: tu personaje esquiva el ataque del enemigo.
 
-## 5. La mochila
+## 6. La mochila
 
 ### Como añadir objetos a la mochila
 Cada vez que consigas un objeto nuevo lo tendrás que meter en tu mochila. Para ello, tienes que colocar la ficha del objeto en una de las casillas disponibles de tu mochila teniendo en cuenta que siempre tienen que estar "apoyados" sobre algo: XXXX
 
-Si en algún momento sacas un objeto de tu mochila y este tenía encima otros objetos, todos estos objetos que se apoyaban en él "caen" en tu mochila hasta volver quedar apoyados en otro objeto o en uno de los bordes de tu mochila.
-
+Si en algún momento tienes que sacar un objeto de tu mochila (por ejemplo por efecto de alguna carta) y este tenía encima otros objetos, todos estos objetos que se apoyaban en él "caen" en tu mochila hasta volver quedar apoyados en otro objeto o en uno de los bordes de tu mochila. En este caso no puedes reordenar tu mochila hasta que realices la acción que te permita hacerlo (sigue leyendo.).
 
 ### Ordenar la mochila
 Una vez colocado un objeto en la mochila solo puedes moverlo de 3 maneras:
-- Con la acción de <u>fabricar</u> un nuevo objeto: en este caso primero saca de tu mochila los objetos necesarios para construir el nuevo, los metes de nuevo en la bolsa de saqueo y añades el nuevo a la mochila. En este momento puedes reordenar también los objetos de tu mochila si quieres.
-- con las acciones de <u>intercambiar</u> y <u>comerciar</u>: en este caso también puedes aprovechar para reordenar los objetos de tu mochila como quieras cuando saques o metas nuevas objetos fruto del intercambio.
+- Con la acción de [Fabricar]() un nuevo objeto: en este caso primero saca de tu mochila los objetos necesarios para construir el nuevo, los metes de nuevo en la bolsa de saqueo y añades el nuevo a la mochila. En este momento puedes reordenar también los objetos de tu mochila si quieres.
+- con las acciones de [Intercambiar]() y [Comerciar](): en este caso también puedes aprovechar para reordenar los objetos de tu mochila como quieras cuando saques o metas nuevas objetos fruto del intercambio.
 
 
-## 6. Preguntas frecuentes
+## 7. Explicación de las cartas
+
+### Cartas de localización
+- Imagen: <imagen>
+1. Fondo de la carta que representa la localización.
+2. Requisito/s para entrar/pasar por la localización.
+3. Nivel de asentamiento:
+  1. Máximo nivel de asentamiento (ver acción [Subir el nivel de asentamiento]())
+  2. Número de fichas de basura necesarias acumular en la localización para subir de nivel
+4. Nivel de saqueo: indica el número de dados de saqueo que se pueden tirar en la localización (ver acción [Saquear]())
+5. Acciones disponibles en la localización (iconos):
+  1. Encuentros: indica el número de dados de encuentro que hay que tirar al entrar en esta localización (ver acción [Moverse]())
+  2. Hay un médico disponible en la localización (ver [Secuencia de juego]())
+  3. Hay comerciantes disponible en la localización (ver acción [Comerciar]())
+  4. Se puede [Cazar]() en la localización.
+  5. Se puede [Pescar]() en la localización.
+
+## 8. Preguntas frecuentes
+
+## 9. Lista de objetos
+
+### Objetos básicos
+| Objeto | Acción |
+|---|---|
+| Basura||
+| Pilas ||
+| Cinta aislante||
+| Agua ||
+| Desinfectante ||
+| Linterna ||
+| Barra de hierro ||
+| Cuchillo ||
+| Radio ||
+| Comida ||
+| Cuerda ||
+| Palo ||
+| Aguja ||
+| Pico ||
+| Saco de dormir ||
+| Vendas ||
+| Arco | Hay que tenerlo en la mochila (junto con flechas) para poder cazar en las localizaciones permitidas |
+| Flechas | Hay que tenerlo en la mochila (junto con el arco) para poder cazar en las localizaciones permitidas |
+
+
+### Objetos fabricables
+| Objeto | Acción | Se fabrica con... |
+|---|---|---|
+| Botiquín | Retira inmeditamente hasta 3 fichas de herida. Luego devuelve este objeto a la pila de objetos fabricables | Vendas, Alcohol, Aguja |
+| Caña de pescar || Hay que tenerlo en la mochila para poder pescar en las localizaciones permitidas | Palo, Cuerda |
+| Lanza | Hay que tenerlo en la mochila para poder cazar en las localizaciones permitidas | Palo, Cuchillo, Cinta aislante |
+
+
+
+

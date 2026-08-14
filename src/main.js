@@ -6,7 +6,7 @@ import {
   MODES, getState, loadComponents, getComponents, getPanelState, loadPanelState,
   addResource, loadResources, getResources, getResourcePanelState, loadResourcePanelState,
   getResourcesSeeded, markResourcesSeeded, loadResourcesSeeded, getTags, loadTags,
-  getTagPanelState, loadTagPanelState, getAppTitle, loadAppTitle,
+  getTagPanelState, loadTagPanelState, getAppTitle, loadAppTitle, getGroups, loadGroups,
 } from './core/state.js';
 import { CURRENT_VERSION } from './data/version.js';
 import { DEFAULT_RESOURCES } from './data/defaultResources.js';
@@ -16,6 +16,7 @@ import { initGlobalShortcuts } from './ui/globalShortcuts.js';
 import { renderPlayMode } from './modes/play/playMode.js';
 import { renderEditMode, deleteSelectedComponent, moveSelectedComponent } from './modes/edit/editMode.js';
 import { createResource } from './core/resource.js';
+import { deriveMissingGroups } from './core/group.js';
 import { saveState, loadState, readSeedState } from './core/persistence.js';
 import { showErrorModal } from './ui/errorModal.js';
 import { syncFontFaces } from './ui/fontFaceRegistry.js';
@@ -46,7 +47,7 @@ function renderAll() {
 }
 
 function persistState() {
-  saveState(getComponents(), getPanelState(), getResources(), getResourcePanelState(), getResourcesSeeded(), getTags(), getTagPanelState(), getAppTitle());
+  saveState(getComponents(), getPanelState(), getResources(), getResourcePanelState(), getResourcesSeeded(), getTags(), getTagPanelState(), getGroups(), getAppTitle());
 }
 
 on('mode:changed', renderAll);
@@ -60,6 +61,8 @@ on('resourcePanelState:changed', persistState);
 on('tags:changed', renderAll);
 on('tags:changed', persistState);
 on('tagPanelState:changed', persistState);
+on('groups:changed', renderAll);
+on('groups:changed', persistState);
 on('appTitle:changed', renderAll);
 on('appTitle:changed', persistState);
 
@@ -102,6 +105,10 @@ if (saved?.error) {
   loadComponents(saved.components);
   loadResources(saved.resources);
   loadTags(saved.tags ?? []);
+  // Backfill: guardados anteriores a la introducción del registro de grupo
+  // (`componentGroups` ausente) derivan una entrada por defecto por cada
+  // `groupId` ya presente en los componentes.
+  loadGroups(deriveMissingGroups(getComponents(), saved.componentGroups ?? []));
   if (!getResourcesSeeded()) {
     seedDefaultResources();
   }
@@ -113,6 +120,7 @@ if (saved?.error) {
     loadComponents(seed.components);
     loadResources(seed.resources);
     loadTags(seed.tags ?? []);
+    loadGroups(deriveMissingGroups(getComponents(), seed.componentGroups ?? []));
     if (!getResourcesSeeded()) {
       seedDefaultResources();
     }

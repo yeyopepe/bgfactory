@@ -15,6 +15,7 @@ const state = {
   components: [],
   resources: [],
   tags: [],
+  groups: [],
 };
 
 let panelState = { collapsed: false, position: null, width: null, height: null };
@@ -89,8 +90,29 @@ export function removeComponent(id) {
   for (const c of state.components) {
     if (c.copyOf === id) idsToRemove.add(c.id);
   }
+
+  const affectedGroupIds = new Set();
+  for (const c of state.components) {
+    if (idsToRemove.has(c.id) && c.groupId != null) affectedGroupIds.add(c.groupId);
+  }
+
   state.components = state.components.filter((c) => !idsToRemove.has(c.id));
   compactOrders(state.components);
+
+  // Un grupo que se queda con ≤1 miembro tras un borrado se disuelve
+  // automáticamente: no tiene sentido como unidad de agrupación. Su registro
+  // de propiedades (colección `groups`) se destruye con él, sin dejar rastro.
+  let dissolvedAnyGroup = false;
+  for (const groupId of affectedGroupIds) {
+    const remaining = state.components.filter((c) => c.groupId === groupId);
+    if (remaining.length <= 1) {
+      for (const c of remaining) c.groupId = null;
+      state.groups = state.groups.filter((g) => g.id !== groupId);
+      dissolvedAnyGroup = true;
+    }
+  }
+  if (dissolvedAnyGroup) emit('groups:changed', state.groups);
+
   emit('components:changed', state.components);
 }
 
@@ -112,6 +134,38 @@ export function reorderComponent(id, rawOrder) {
     if (other.order >= newOrder) other.order += 1;
   }
   component.order = newOrder;
+
+  emit('components:changed', state.components);
+}
+
+// Generalización de reorderComponent para mover un bloque de N ids contiguos a la vez
+// (miembros de un grupo) en vez de uno solo, dentro del mismo espacio compartido `order`
+// 1..total. Sin atajo de salida anticipada por "newStart === oldStart": se recalcula
+// siempre, aunque la posición de arranque no cambie — "Agrupar" (editMode.js) llama a esta
+// función con `rawTargetOrder` = la posición mínima YA actual de los miembros (por tanto
+// newStart === oldStart casi siempre), pero sus `order` pueden no ser consecutivos entre sí
+// todavía (dispersos); un atajo de "si no cambia la posición no hago nada" dejaría el
+// bloque disperso sin consecutivizar.
+export function reorderGroupBlock(memberIds, rawTargetOrder) {
+  const memberIdSet = new Set(memberIds);
+  const block = state.components
+    .filter((c) => memberIdSet.has(c.id))
+    .sort((a, b) => a.order - b.order);
+  if (block.length === 0) return;
+
+  const k = block.length;
+  const n = state.components.length;
+  const maxStart = Math.max(1, n - k + 1);
+  const newStart = Math.min(Math.max(rawTargetOrder, 1), maxStart);
+
+  const others = state.components
+    .filter((c) => !memberIdSet.has(c.id))
+    .sort((a, b) => a.order - b.order);
+  others.forEach((c, i) => { c.order = i + 1; });
+  for (const c of others) {
+    if (c.order >= newStart) c.order += k;
+  }
+  block.forEach((c, i) => { c.order = newStart + i; });
 
   emit('components:changed', state.components);
 }
@@ -376,4 +430,30 @@ export function setTagPanelState(partial) {
 
 export function loadTagPanelState(newTagPanelState) {
   tagPanelState = newTagPanelState;
+}
+
+export function getGroups() {
+  return state.groups;
+}
+
+export function addGroup(group) {
+  state.groups.push(group);
+  emit('groups:changed', state.groups);
+}
+
+export function replaceGroup(id, updatedGroup) {
+  const index = state.groups.findIndex((g) => g.id === id);
+  if (index === -1) return;
+  state.groups[index] = updatedGroup;
+  emit('groups:changed', state.groups);
+}
+
+export function removeGroup(id) {
+  state.groups = state.groups.filter((g) => g.id !== id);
+  emit('groups:changed', state.groups);
+}
+
+export function loadGroups(groups) {
+  state.groups = groups;
+  emit('groups:changed', state.groups);
 }

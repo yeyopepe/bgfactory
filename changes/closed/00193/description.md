@@ -47,23 +47,23 @@ Notas:
 - **Acceso a un miembro individual sin desagrupar**: no aplica — mientras un componente está en un grupo no se puede editar individualmente en absoluto (ver regla en "Descripción completa"), así que no hace falta ningún gesto para "entrar" al grupo.
 - **Qué aporta "agrupar" frente a Ctrl+click**: persiste la selección con identidad propia (clic simple reselecciona el grupo entero) y añade la restricción de no-edición individual; ambas piezas ya están fijadas por el usuario.
 
-### Preguntas abiertas para refinar en una próxima sesión
+### Resuelto en esta ronda (ms-how)
 
-Ninguna de estas está confirmada por el usuario todavía — quedan pendientes de resolver antes o durante la planificación técnica (`ms-how`):
+- **Anidación**: fuera de alcance. Solo grupos planos — un grupo no puede contener a otro grupo como miembro. La fila propia de grupo en el panel de Componentes no necesita distinguir "raíz" de "anidado".
+- **Grupo con 0 o 1 miembro**: si al eliminar un componente el grupo queda con 1 o 0 miembros, se deshace automáticamente; el/los miembro(s) restante(s) vuelve(n) a comportarse como componente(s) suelto(s).
+- **Miembro bloqueado dentro de un grupo**: el campo "Bloqueado" de un miembro no bloquea el movimiento del grupo en ningún sentido. Mientras el componente pertenece a un grupo, si se mueve el grupo, ese miembro se mueve también junto con el resto, esté bloqueado o no.
+- **Convivencia con "Copias vinculadas"**: la pertenencia a un grupo **no** se sincroniza entre una copia y su original — se trata igual que la posición o el orden de apilado (siempre independiente por copia), no igual que las Etiquetas.
+- **Carta guardada dentro de un mazo**: no es un caso a resolver aparte — hoy una carta dentro de un mazo no se dibuja como componente independiente en la mesa, así que nunca es seleccionable/arrastrable y por tanto nunca puede ser miembro de un grupo.
+- **Miembros con distinto estado ("Oculto"/"Bloqueado") o de distinto tipo dentro del mismo grupo**: permitido sin restricción — cada miembro mantiene su propio estado individual (salvo la regla de bloqueo de arriba), el grupo no impone homogeneidad.
 
-1. Anidación: ¿grupos dentro de grupos desde el principio, o se deja fuera de esta versión y solo se documenta/implementa el caso plano (un grupo de componentes sueltos, sin grupos anidados)? Relacionado con la fila propia del grupo en el panel: si hay anidación, ¿un grupo anidado también tiene su propia fila en el panel, o solo los grupos "raíz"?
-2. Casos límite pendientes de definir:
-   - Qué pasa con el grupo si se elimina un componente que pertenece a él (¿se deshace automáticamente si queda con 0 o 1 miembro, o el grupo puede tener un único miembro?).
-   - Si un miembro está bloqueado (campo "Bloqueado"): ¿bloquea el movimiento de todo el grupo, o solo el suyo dentro del grupo (el resto sí se mueve)?
-   - Qué pasa si alguno de los miembros del grupo es una carta guardada dentro de un mazo (hoy una carta metida en un mazo no se dibuja como componente independiente, así que no sería seleccionable/arrastrable en la mesa).
-   - Si conviven dentro del mismo grupo miembros con distinto estado de "Oculto"/"Bloqueado", o de distintos tipos de componente.
-3. Convivencia con "Copias vinculadas": ¿un grupo puede contener a la vez una copia y su original? ¿La pertenencia a un grupo se sincroniza automáticamente entre una copia y su original (como ya ocurre con la pertenencia a Etiquetas), o queda fuera de esa sincronización (como la posición o el orden de apilado, que son siempre independientes por copia)?
-4. Alcance y persistencia de los datos: se asume que, al pedirse una unidad "persistente", el grupo (incluida su fila en el panel de Componentes) debe guardarse en el autoguardado del navegador y en "Guardar a fichero"/"Exportar" igual que el resto de datos de un componente — a confirmar explícitamente.
-5. Quién puede usarlo: se asume que, igual que la selección múltiple actual, esta funcionalidad es exclusiva de modo edición (no existe agrupación en modo juego) — a confirmar.
-6. Definición visual: si además del resaltado de selección ya existente hace falta algún indicador visual propio y permanente de "este elemento pertenece a un grupo", visible incluso cuando no está seleccionado.
-7. Alcance exacto de "no se podrán editar" mientras un componente está en un grupo: ¿bloquea solo abrir su modal de propiedades (doble click / botón "Editar" del panel), o también otras acciones individuales? Propuesta de partida: solo bloquea el modal de propiedades; el resto de acciones (Clonar, Copiar, Eliminar, Ocultar, Añadir a etiqueta) siguen disponibles sobre el grupo como unidad, según la tabla del menú contextual de arriba.
-8. ¿Existe alguna vía para incorporar un elemento suelto a un grupo ya existente sin desagrupar y volver a agrupar todo (p. ej. arrastrar un elemento sobre un grupo), o queda fuera de esta versión (propuesta de partida: queda fuera)?
-9. Filtro/orden de la columna "Tipo" del panel de Componentes: al incluir "Grupo" como valor de esa columna, ¿los grupos deben poder filtrarse/ordenarse junto con el resto de tipos sin tratamiento especial (comportamiento por defecto de esa columna), o necesitan quedar excluidos de algún filtro existente?
+### Asumido de partida (propuestas del documento, sin objeción del usuario)
+
+- **Persistencia**: el grupo (incluida su fila en el panel de Componentes) se guarda en el autoguardado del navegador y en "Guardar a fichero"/"Exportar", igual que el resto de datos de un componente.
+- **Alcance de uso**: exclusivo de modo edición, igual que la selección múltiple actual — no existe agrupación en modo juego.
+- **Indicador visual permanente**: no se añade ninguna marca visual adicional mientras el grupo no está seleccionado, más allá del resaltado de selección ya existente.
+- **Alcance de "no se puede editar"**: solo bloquea abrir el modal de propiedades (doble click / botón "Editar" del panel); el resto de acciones (Clonar, Copiar, Eliminar, Ocultar, Añadir a etiqueta) siguen disponibles sobre el grupo como unidad, según la tabla del menú contextual de arriba.
+- **Incorporar un elemento suelto a un grupo ya existente**: fuera de esta versión — la única vía es agrupar una selección completamente suelta, o desagrupar un grupo entero.
+- **Filtro/orden de la columna "Tipo"**: "Grupo" se comporta como cualquier otro valor de esa columna, sin tratamiento especial ni exclusión de filtros existentes.
 
 ## Apuntes técnicos
 

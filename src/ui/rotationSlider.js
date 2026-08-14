@@ -1,9 +1,9 @@
-// Control reutilizable de rotación 0-360º con marcas imantadas en los
+// Control reutilizable de rotación -360º a 360º con marcas imantadas en los
 // múltiplos de 90º. Mismo criterio que ui/resizeHandle.js: lógica genérica
 // reutilizada entre varios llamadores (imageAdjustModal.js, cardShapeModal.js,
 // cardTextBoxModal.js), sin conocer el modelo de datos del componente/carta.
 
-const SNAP_MARKS = [0, 90, 180, 270, 360];
+const SNAP_MARKS = [-360, -270, -180, -90, 0, 90, 180, 270, 360];
 const ROTATION_SNAP_THRESHOLD_DEG = 8;
 
 function clamp(value, min, max) {
@@ -42,7 +42,7 @@ export function createRotationSliderField({ label = 'Rotación', value = 0, onCh
 
   const slider = document.createElement('input');
   slider.type = 'range';
-  slider.min = 0;
+  slider.min = -360;
   slider.max = 360;
   slider.step = 1;
   slider.value = value;
@@ -94,7 +94,7 @@ export function createRotationSliderField({ label = 'Rotación', value = 0, onCh
       textInput.value = slider.value;
       return;
     }
-    const clamped = clamp(parsed, 0, 360);
+    const clamped = clamp(parsed, -360, 360);
     textInput.value = clamped;
     slider.value = clamped;
     refreshActiveMark(clamped);

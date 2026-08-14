@@ -84,8 +84,7 @@ Composición 50% de la imagen debe ser cielo nublado. Una gran antena se eleva h
 ### BN
 Subir una imagen de otros objetos anteriores en blancoy negro
 
-Copia este estilo de ilustración de objetos.
-
+>Copia este estilo de ilustración de objetos.
 >Crea una imagen de XXX.
 >Fondo blanco.
 >Sin texto superfluo, sin marcos ni sombras.

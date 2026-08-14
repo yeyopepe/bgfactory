@@ -1,11 +1,12 @@
 // UI para entrar/salir del modo edición: botón de entrada en modo juego,
 // barra de herramientas propia (con botón de salida) en modo edición.
 
-import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadTags, getTags, getTagPanelState, getAppTitle, setAppTitle } from '../core/state.js';
+import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadTags, getTags, getTagPanelState, getAppTitle, setAppTitle, getGroups, loadGroups } from '../core/state.js';
 import { getFullAppTitle } from '../core/appTitle.js';
 import { buildExportHtml, downloadHtml, downloadJson } from '../core/fileExport.js';
 import { buildComponentsExport, parseImportedComponents } from '../core/persistence.js';
 import { mergeImportedGame } from '../core/importMerge.js';
+import { deriveMissingGroups } from '../core/group.js';
 import { getComponentsBounds } from './componentRenderer.js';
 import { fitToBounds } from './table.js';
 import { showToast } from './toast.js';
@@ -18,7 +19,7 @@ import { openImportConversionErrorModal } from './importConversionErrorModal.js'
 import { migrateFichaComponent } from '../core/fichaMigration.js';
 
 function saveAs(filename) {
-  const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded(), getTags(), getTagPanelState(), getAppTitle());
+  const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded(), getTags(), getTagPanelState(), getGroups(), getAppTitle());
   downloadHtml(filename, html);
   showToast(`Guardado como "${filename}"`);
 }
@@ -35,7 +36,10 @@ function openExportFlow() {
     tags: getTags(),
     defaultFilename: `${getFullAppTitle(getAppTitle())}.json`,
     onAccept: ({ filename, componentIds, resourceIds, tagIds }) => {
-      const data = buildComponentsExport(byIds(getComponents(), componentIds), byIds(getResources(), resourceIds), byIds(getTags(), tagIds), getAppTitle());
+      const exportedComponents = byIds(getComponents(), componentIds);
+      const exportedGroupIds = new Set(exportedComponents.filter((c) => c.groupId != null).map((c) => c.groupId));
+      const exportedGroups = getGroups().filter((g) => exportedGroupIds.has(g.id));
+      const data = buildComponentsExport(exportedComponents, byIds(getResources(), resourceIds), byIds(getTags(), tagIds), exportedGroups, getAppTitle());
       downloadJson(filename.endsWith('.json') ? filename : `${filename}.json`, data);
     },
   });
@@ -88,6 +92,16 @@ function importComponentsFromFile(file) {
               loadComponents(mergedComponents);
               loadResources(resources);
               loadTags(tags);
+              // Registro de grupo: se fusiona por id igual que recursos/etiquetas, sin
+              // deduplicación adicional. "Sobrescribir" parte solo de los grupos del
+              // fichero importado; "Añadir" conserva los actuales y suma los importados
+              // que no colisionen por id. deriveMissingGroups cubre además ficheros
+              // exportados antes de este cambio (sin `componentGroups`).
+              const importedGroups = result.componentGroups ?? [];
+              const mergedGroups = mode === 'overwrite'
+                ? importedGroups
+                : [...getGroups(), ...importedGroups.filter((g) => !getGroups().some((existing) => existing.id === g.id))];
+              loadGroups(deriveMissingGroups(mergedComponents, mergedGroups));
               if (mode === 'overwrite' && result.appTitle) setAppTitle(result.appTitle);
 
               if (report.length > 0) openImportReportModal(report);

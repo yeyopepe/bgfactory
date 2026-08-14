@@ -113,7 +113,7 @@ Coordenadas (`x`/`y`/`width`/`height` de cada `Forma`/`TextBox`, `tamañoFuente`
 
 ### Shape `Forma`
 
-`{ id, tipo: 'circular' | 'cuadrada' | 'redondeada', x, y, width, height, colorFondo, colorFondoTransparencia, fondoTipo: 'color' | 'imagen' | undefined, imagenResourceId, ajusteImagen, imagenTransparencia, bordeActivo, bordeColor, bordeGrosor, orden, rotation: number (0-360) | undefined }`
+`{ id, tipo: 'circular' | 'cuadrada' | 'redondeada', x, y, width, height, colorFondo, colorFondoTransparencia, fondoTipo: 'color' | 'imagen' | undefined, imagenResourceId, ajusteImagen, imagenTransparencia, bordeActivo, bordeColor, bordeGrosor, orden, rotation: number (-360-360) | undefined }`
 
 Tercer tipo de elemento repetible dentro de una cara (junto a imagen de fondo única y `textBoxes`). Mismo comportamiento de interacción que `TextBox`: seleccionable, editable con doble click (`ui/cardShapeModal.js`), arrastrable, redimensionable, duplicable, eliminable, con el mismo menú contextual.
 
@@ -121,7 +121,7 @@ Tercer tipo de elemento repetible dentro de una cara (junto a imagen de fondo ú
 |---|---|---|---|
 | `x`, `y`, `width`, `height` | number | — | Mismas unidades que `TextBox` (píxeles reales) |
 | `orden` | number \| undefined | fallback si ausente | Menor = más adelante en el apilado. Ver "Orden de apilado" arriba |
-| `rotation` | número entero, `0`-`360` \| `undefined` | equivalente a `0` | Gira la figura completa (borde+relleno) sobre su centro (`transform: rotate`) — a diferencia de `ajusteImagen.rotation`, que solo rota la imagen de relleno. `x`/`y`/`width`/`height` no cambian al girar, el contenido puede recortarse. Conviven dos vías de edición: "Girar 90°" del menú contextual (cicla 0→90→180→270→0) y el slider de rotación (`ui/rotationSlider.js`) dentro de `ui/cardShapeModal.js`, con marcas imantadas cada 90º pero libre para cualquier ángulo intermedio |
+| `rotation` | número entero, `-360`-`360` \| `undefined` | equivalente a `0` | Gira la figura completa (borde+relleno) sobre su centro (`transform: rotate`) — a diferencia de `ajusteImagen.rotation`, que solo rota la imagen de relleno. `x`/`y`/`width`/`height` no cambian al girar, el contenido puede recortarse. El signo indica el sentido: negativo antihorario, positivo horario. Conviven dos vías de edición: "Girar 90° (horario)"/"Girar 90° (antihorario)" del menú contextual (ciclan ±90° dando la vuelta al extremo opuesto del rango al superarlo) y el slider de rotación (`ui/rotationSlider.js`) dentro de `ui/cardShapeModal.js`, con marcas imantadas cada 90º (simétricas a ambos lados de 0) pero libre para cualquier ángulo intermedio |
 | `tipo` | `'circular'\|'cuadrada'\|'redondeada'` | — | `'redondeada'`: esquinas curvas `border-radius: 8px` (`SHAPE_BORDER_RADIUS`) |
 | `fondoTipo` | `'color'\|'imagen'\|undefined` | `undefined` ≈ `'color'` | Cambiar de uno a otro no borra el otro |
 | `colorFondo` | string (hex o vacío) | vacío | Con `fondoTipo === 'color'` |
@@ -137,7 +137,7 @@ Botón "Añadir elemento" de cada cara (menú desplegable): "Elegir imagen…", 
 
 ### Shape `TextBox`
 
-`{ id, contenido, fuenteResourceId, tamañoFuente, color, x, y, width, height, bordeActivo, bordeColor, bordeGrosor, bordeTipo: 'continua'|'punteada', colorFondo, colorFondoTransparencia, alineacionHorizontal: 'izquierda'|'centro'|'derecha', alineacionVertical: 'arriba'|'centro'|'abajo', margenSuperior, margenDerecha, margenInferior, margenIzquierda, negrita, cursiva, subrayado, orden, rotation: number (0-360) | undefined }`
+`{ id, contenido, fuenteResourceId, tamañoFuente, color, x, y, width, height, bordeActivo, bordeColor, bordeGrosor, bordeTipo: 'continua'|'punteada', colorFondo, colorFondoTransparencia, alineacionHorizontal: 'izquierda'|'centro'|'derecha', alineacionVertical: 'arriba'|'centro'|'abajo', margenSuperior, margenDerecha, margenInferior, margenIzquierda, negrita, cursiva, subrayado, orden, rotation: number (-360-360) | undefined }`
 
 | Campo | Tipo | Default | Descripción |
 |---|---|---|---|
@@ -146,7 +146,7 @@ Botón "Añadir elemento" de cada cara (menú desplegable): "Elegir imagen…", 
 | `alineacionHorizontal`, `alineacionVertical` | enum | `'izquierda'` / `'arriba'` | Posición del texto en la zona interior del cuadro (tras descontar márgenes) |
 | `margenSuperior/Derecha/Inferior/Izquierda` | number, px | `0` | Reducen la zona interior sin cambiar tamaño del cuadro. Sin negativos ni tope propio |
 | `negrita`, `cursiva`, `subrayado` | boolean | `false` | Interruptores independientes y combinables, aplicados al contenido completo (no a rangos) |
-| `orden`, `rotation` | igual que `Forma` | — | Misma semántica y disparadores (menú contextual "Girar 90°" + slider de rotación en `ui/cardTextBoxModal.js`) que en `Forma` |
+| `orden`, `rotation` | igual que `Forma` | — | Misma semántica y disparadores (menú contextual "Girar 90° (horario)"/"Girar 90° (antihorario)" + slider de rotación en `ui/cardTextBoxModal.js`) que en `Forma` |
 
 `core/textBoxLayout.js` (módulo puro) expone `getTextBoxLayoutStyle(textBox, scale)`: traduce alineación+márgenes a `{ justifyContent, textAlign, paddingTop/Right/Bottom/Left }` (últimos 4 ya escalados en `px`) — punto único reutilizado por `ui/componentRenderer.js` y `ui/visualEditorModal.js`, ambos aplicando el resultado sobre contenedor `display:flex; flex-direction:column; box-sizing:border-box`.
 
@@ -165,6 +165,9 @@ Pila ordenada de cartas boca abajo. Concepto independiente de "Etiqueta" (purame
 | `cartaIds` | string[] | `[]` | Lista ordenada de ids de componentes `'carta'` en el mazo — índice `0` es la de arriba. Referencia en sentido mazo→carta |
 | `orientacion` | `'vertical'\|'horizontal'` | `'vertical'` | Solo determina forma de la caja al crearse/transponer. Solo se muestra su control cuando `forma === 'rectangular'` |
 | `forma` | `'rectangular'\|'circular'` | `'rectangular'` | Silueta de la caja, independiente de `orientacion`. `'circular'` recorta caja/contenido/zona de revelado en redondo (`border-radius: 50%`). Cambiar a `'circular'` iguala `width`/`height` al mayor de los dos |
+| `disposicion` | `'arriba'\|'abajo'\|'derecha'\|'izquierda'` | `'derecha'` | Lado del mazo donde se pinta la "zona de revelado" y aparece la carta al sacarla (`getMazoRevealZoneRect`). Se muestra también con `forma === 'circular'` (a diferencia de `orientacion`) |
+| `textoCartaRevelada` | string | `'Carta revelada'` | Texto pintado dentro de la zona de revelado. Cadena vacía es un valor válido: la zona se pinta sin texto |
+| `caraCartaRevelada` | `'frontal'\|'trasera'` | `'frontal'` | Cara con la que queda mostrada la carta al sacarla del mazo (`computeSacarCartaDeMazo` fija `caraActual` a este valor) — `'frontal'` es boca arriba, `'trasera'` boca abajo |
 | `imagenResourceId` | `string\|null` | `null` | Imagen propia del mazo, independiente del contenido de la pila. `null`: sin imagen propia, ver comportamiento de fallback abajo |
 | `ajusteImagen` | `{ zoom, posX, posY, rotation }\|undefined` | — | Solo presente si hay `imagenResourceId`. Mismo shape que usa `ui/imageAdjustModal.js` en general |
 | `transparenciaImagen` | `number, 0–100\|undefined` | `0` cuando está presente | Solo presente si hay `imagenResourceId`; se reinicia a `0` al elegir/cambiar imagen |
@@ -172,15 +175,15 @@ Pila ordenada de cartas boca abajo. Concepto independiente de "Etiqueta" (purame
 `core/deck.js` (módulo de datos puro) expone:
 - `getCartaIdsEnAlgunMazo(components)`: `Set` con todos los ids referenciados por cualquier mazo.
 - `shuffleCartaIds(cartaIds)`: Fisher-Yates + `Math.random()`, mismo generador que `core/dice.js`.
-- `computeSacarCartaDeMazo(mazo, carta)`: función pura, calcula cambios de sacar una carta cualquiera de la pila (esté donde esté).
-- `getMazoRevealZoneRect(mazo)`: rectángulo de la "zona de revelado".
+- `computeSacarCartaDeMazo(mazo, carta)`: función pura, calcula cambios de sacar una carta cualquiera de la pila (esté donde esté); la carta queda con `caraActual` igual a `properties.caraCartaRevelada` del mazo (fallback `'frontal'`).
+- `getMazoRevealZoneRect(mazo)`: rectángulo de la "zona de revelado", pegada al lado indicado por `properties.disposicion` (fallback `'derecha'`).
 - `rectsOverlap`: test de solape de rectángulos.
 
 Mientras el id de una carta esté en `cartaIds` de cualquier mazo, esa carta **no se dibuja como componente independiente en la mesa, en ningún modo** (a diferencia de `oculto`, solo filtrado en modo juego) — `modes/play/playMode.js` y `modes/edit/editMode.js` excluyen esos ids con `getCartaIdsEnAlgunMazo`. Sigue apareciendo en el panel de Componentes sin filtrar.
 
 `core/state.js` expone `sacarCartaDeMazo(mazoId, cartaId)` (usa `computeSacarCartaDeMazo`, aplica cambios con `replaceComponent`/`reorderComponent`, sube la carta extraída al frente) — vive en esta capa porque `ui/componentModal.js` también la necesita y `ui/*` no puede importar de `modes/*`.
 
-**Renderizado**: reutiliza clase `.carta` para la caja (mismo radio/sombra), `border-radius` inline a `50%` si `forma === 'circular'`. Con `imagenResourceId` propio, se pinta siempre esa imagen (con su `ajusteImagen`/`transparenciaImagen`) vía `paintCartaFace(contentParent, { imagenResourceId, ajusteImagen, transparenciaImagen, fondoTipo: 'imagen' }, 1, width, height)`, sin relación con `cartaIds` — el mazo la muestra tenga o no cartas dentro. Sin `imagenResourceId` propio, se mantiene el comportamiento previo (fallback): pinta `caraTrasera` de la carta de arriba (`cartaIds[0]`) vía `paintCartaFace(contentParent, cara, renderScale, faceWidth, faceHeight)` — `renderScale = width / (cartaArriba.width || MIN_CARTA_WIDTH)` encaja el diseño real de la carta en la caja del mazo. Sin carta: placeholder neutro (`renderMazoEmptyPlaceholder`, icono SVG). Junto al mazo siempre se pinta la "zona de revelado" (`renderMazoRevealZone`, en ambos modos): recuadro decorativo pegado al lado derecho (`MAZO_REVEAL_GAP = 20px`), misma `forma` que el mazo. Parámetro `onMazoDraw` de `renderComponentsOnTable`: click sobre el mazo lo invoca (exclusivo de `modes/play/playMode.js`). Etiqueta con el nº de cartas antepone el `id` del mazo (`"<id> — <N> cartas"`). Pestaña "Específicas" (modo edición) añade, junto a "Forma"/"Orientación", el campo "Imagen" con botones "Elegir imagen…"/"Ajustar imagen…"/"Quitar imagen" (mismos patrones de `ui/boardImageModal.js`/`ui/imageAdjustModal.js` que otros elementos del juego).
+**Renderizado**: reutiliza clase `.carta` para la caja (mismo radio/sombra), `border-radius` inline a `50%` si `forma === 'circular'`. Con `imagenResourceId` propio, se pinta siempre esa imagen (con su `ajusteImagen`/`transparenciaImagen`) vía `paintCartaFace(contentParent, { imagenResourceId, ajusteImagen, transparenciaImagen, fondoTipo: 'imagen' }, 1, width, height)`, sin relación con `cartaIds` — el mazo la muestra tenga o no cartas dentro. Sin `imagenResourceId` propio, se mantiene el comportamiento previo (fallback): pinta `caraTrasera` de la carta de arriba (`cartaIds[0]`) vía `paintCartaFace(contentParent, cara, renderScale, faceWidth, faceHeight)` — `renderScale = width / (cartaArriba.width || MIN_CARTA_WIDTH)` encaja el diseño real de la carta en la caja del mazo. Sin carta: placeholder neutro (`renderMazoEmptyPlaceholder`, icono SVG). Junto al mazo siempre se pinta la "zona de revelado" (`renderMazoRevealZone`, en ambos modos): recuadro decorativo pegado al lado indicado por `properties.disposicion` (`MAZO_REVEAL_GAP = 20px` de separación en los 4 casos), misma `forma` que el mazo, con el texto de `properties.textoCartaRevelada` (fallback `'Carta revelada'`). Sigue al mazo en vivo durante el arrastre (`handleMouseMove` recalcula `getMazoRevealZoneRect` con las coordenadas en curso, pasando también `properties` para respetar la disposición). Parámetro `onMazoDraw` de `renderComponentsOnTable`: click sobre el mazo lo invoca (exclusivo de `modes/play/playMode.js`). Etiqueta con el nº de cartas antepone el `id` del mazo (`"<id> — <N> cartas"`). Pestaña "Específicas" (modo edición) organiza sus campos en tres secciones (`fieldset.modal__section`, ver `design/docs/style/03-modales-menus.md` §12.6): "Forma" (Forma, Orientación), "Cartas reveladas" (Disposición carta revelada, Texto carta revelada, Revelar carta) e "Imagen" (preview + "Elegir imagen…"/"Ajustar imagen…"/"Quitar imagen", mismos patrones de `ui/boardImageModal.js`/`ui/imageAdjustModal.js` que otros elementos del juego); el contador de cartas y "Ver contenido del mazo" quedan fuera de cualquier sección.
 
 **Menú contextual** (modo juego): mazo añade "Barajar" (`shuffleCartaIds`) y "Ver contenido..." (`ui/mazoContentModal.js`); carta añade "Meter en mazo..." (`ui/insertIntoMazoModal.js`) solo si existe al menos un mazo. Nº de cartas se muestra en `description.extra` del menú.
 

@@ -21,6 +21,7 @@ Modelo genérico y extensible: no requiere cambios estructurales al definir tipo
   order: number,
   copyOf: string | null,
   sincronizado: boolean,
+  groupId: string | null,
   interaccionesDesactivadas: string[],
   accionClickDerecho: 'ninguno' | 'menuContextual',
 }
@@ -45,6 +46,7 @@ Modelo genérico y extensible: no requiere cambios estructurales al definir tipo
 | `order` | number | calculado | Posición de apilado en la mesa: `1` = más arriba, `n` = más abajo. Ver lógica dedicada más abajo | No editable directo salvo vía columna "Orden" del panel de Componentes |
 | `copyOf` | string \| null | `null` | Id del componente original si este es una "Copia" vinculada. Ver "Copias vinculadas" más abajo | Creado por acción "Copiar", no editable |
 | `sincronizado` | boolean | `true` | Solo con efecto si `copyOf` no es `null`: si `bloqueado`/`oculto` de esta copia siguen al original | `ui/copyComponentModal.js` |
+| `groupId` | string \| null | `null` | Id del "Grupo" (`grupo-N`) al que pertenece el componente, si alguno. Plano, sin anidación: un grupo no puede contener a otro grupo. Ver "Grupos en modo edición" en `04-modes.md` | Entradas "Agrupar"/"Desagrupar" del menú contextual de modo edición |
 | `interaccionesDesactivadas` | string[] | `[]` (todas activas) | Keys de `core/interactions.js` desactivadas para este componente | Pestaña "Generales", sección "Interacciones programadas": un `<select>` por interacción de click izquierdo que el `type` tenga registrada |
 | `accionClickDerecho` | `'ninguno' \| 'menuContextual'` | `'ninguno'` | Qué hace el click derecho en Modo Juego | Pestaña "Generales", fila fija dentro de "Interacciones programadas" ("Click derecho"), independiente de `type` |
 
@@ -54,11 +56,12 @@ Notas sobre migraciones silenciosas al cargar (`core/state.js`, `loadComponents`
 - `mostrarTooltip`, `oculto`, `subirAlMoverInteractuar`, `interaccionesDesactivadas`: ausencia del campo se comporta como su valor por defecto (desmarcado / `[]`), sin necesidad de migración explícita.
 - `etiquetaIds`: componente sin este campo, o con el formato intermedio `grupoIds` (array) o el escalar `grupoId` anterior, se migra vía `migrateGrupoIdToEtiquetaIds`; cartas con `properties.deckId` asignado añaden automáticamente ese id vía `migrateDeckIdToEtiqueta` (ejecutada justo después). `core/component.js` expone la conversión pura como `normalizeComponentEtiquetaIds(component)`, reutilizada también por `core/importMerge.js` (`mergeImportedGame`) para que importar un fichero anterior a esta migración no falle.
 - `accionClickDerecho`: componente guardado sin este campo se migra a `'menuContextual'` (`migrateAccionClickDerecho`), para conservar el comportamiento previo — a diferencia del resto de campos de esta familia, el default de un componente nuevo (`'ninguno'`) y el valor migrado de uno preexistente (`'menuContextual'`) son deliberadamente distintos.
+- `groupId`: ausencia del campo se comporta como su valor por defecto (`null`, sin grupo), sin necesidad de migración explícita — mismo criterio que `mostrarTooltip`/`oculto`/`subirAlMoverInteractuar`.
 
 `core/component.js` expone `createComponent()`/`updateComponent()` como única vía para construir/modificar componentes. `createComponent()` inicializa `x`/`y` a `0`; `width`/`height` a `null`. También expone `cloneComponent(component, components)` y `nextCloneId(baseComponentId, components)`:
 
 - `nextCloneId` calcula el id del clon quitando cualquier sufijo `(n)` final del id original (para que clones de un clon compartan raíz/familia) y añade `(n)` con el siguiente entero libre para esa raíz.
-- `cloneComponent` construye el objeto clon completo (copia superficial + `properties`/`id` propios, posición desplazada +30/+30 respecto al original) con `order: null`, resuelto al añadirse con `addComponent` (queda en `order = 1`, igual que un componente nuevo).
+- `cloneComponent` construye el objeto clon completo (copia superficial + `properties`/`id` propios, posición desplazada +30/+30 respecto al original) con `order: null`, resuelto al añadirse con `addComponent` (queda en `order = 1`, igual que un componente nuevo). También nace con `groupId: null`: un clon es independiente, no se incorpora automáticamente al grupo del componente clonado.
 
 ## Lógica de `order`
 
@@ -68,6 +71,7 @@ Notas sobre migraciones silenciosas al cargar (`core/state.js`, `loadComponents`
 - `removeComponent(id)`: recompacta los órdenes restantes para que sigan siendo consecutivos de 1 a n (`compactOrders`, función interna).
 - `reorderComponent(id, rawOrder)`: mueve un componente a nueva posición — lo saca de su hueco actual (compactando lo que iba detrás), lo inserta en la posición indicada (desplazando hacia abajo lo que esté ahí o después), clampea `rawOrder` a `[1, n]`.
 - `loadComponents(components)`: pasa la lista por `compactOrders` al cargar, migrando silenciosamente guardados sin campo `order` (o con valores inválidos) a partir de su orden de inserción existente.
+- `reorderGroupBlock(memberIds, rawTargetOrder)` (00204): generalización de `reorderComponent` para mover un **bloque** de N ids contiguos a la vez (los miembros de un grupo, ver "Grupos en modo edición" en `04-modes.md`) en vez de uno solo, dentro del mismo espacio compartido `order` 1..n. Un miembro de un grupo no edita su propio `order` directamente — el panel de Componentes deshabilita ese campo en su fila; se edita en bloque desde el "Orden" de la fila de su grupo, que mueve a todos sus miembros manteniendo el orden relativo que ya tenían entre sí y clampea la posición de arranque del bloque a `[1, n-k+1]` (`k` = tamaño del bloque) para que quepa entero. La acción "Agrupar" del menú contextual llama también a esta función (con la posición del menor `order` de los seleccionados) para consolidar a consecutivos cualquier selección de miembros dispersos por la lista en el momento de formar el grupo.
 
 ## Copias vinculadas (`copyOf`)
 
@@ -78,7 +82,7 @@ A diferencia de "Clonar" (independiente tras crearse), una **Copia** queda perma
 - **Sincronización en vivo**: vive en `core/state.js`, enganchada en `replaceComponent(id, updatedComponent)` — lógica específica de este vínculo, no un mecanismo genérico de eventos. Al actualizar un original, cada copia vinculada (`copyOf === id`) se sustituye vía `core/component.js` → `syncCopyWithOriginal(copy, original)`.
   - Siempre propagado: `type`, `name`, `image`, `width`, `height`, `mostrarTooltip`, `subirAlMoverInteractuar`, `etiquetaIds`, `interaccionesDesactivadas`, `properties` de configuración/diseño del tipo (todo lo editable desde `ui/componentModal.js`).
   - `bloqueado`/`oculto`: solo se propagan si `copy.sincronizado` es `true` (default). Con `sincronizado: false`, quedan como valor propio de la copia.
-  - Siempre independientes por copia, sin excepción: `x`/`y`, `order`, claves de `properties` que son estado de interacción de juego por tipo (`NON_SYNCED_PROPERTY_KEYS` en `core/component.js`: `resultadoActual` en `'dado'`, `caraActual` en `'carta'`).
+  - Siempre independientes por copia, sin excepción: `x`/`y`, `order`, `groupId` (pertenencia a un "Grupo", ver `04-modes.md` — se trata igual que la posición, nunca se sincroniza; `createCopy` nace siempre con `groupId: null`), claves de `properties` que son estado de interacción de juego por tipo (`NON_SYNCED_PROPERTY_KEYS` en `core/component.js`: `resultadoActual` en `'dado'`, `caraActual` en `'carta'`).
   - Si el `id` del original cambia en la misma actualización: `renameCopyId` renombra el `id` de cada copia (conserva sufijo `-COPY-XXX`, sustituye solo el prefijo) y actualiza su `copyOf`.
 - **Borrado**: `removeComponent(id)` elimina en cascada cualquier copia vinculada (`copyOf === id`) — evita copias huérfanas. Eliminar una copia individual no afecta al original ni a otras copias.
 - **Modal reducida**: `ui/copyComponentModal.js` (`openCopyComponentModal`) se abre en vez de `ui/componentModal.js` cuando `component.copyOf` es truthy (mismo punto de entrada, `modes/edit/editMode.js` → `openEditModalFor`). Sin pestañas: id (solo lectura), aviso, checkbox "Sincronizado", y dentro de `fieldset.modal__section` "Bloqueado / Oculto" (deshabilitada en bloque cuando "Sincronizado" está marcado) los controles "Bloqueado" (`<select>`) y "Oculto" (checkbox). Con "Sincronizado" marcado, ambos controles muestran y fuerzan el valor del original; desmarcado, quedan editables como valor propio. Id del original y botones Eliminar/Cancelar/Aceptar sin cambios. Aparte de esta modal, la fila "Ocultar"/"Mostrar" del menú contextual de Modo Edición (`04-modes.md`) es la única otra vía (fuera del interior de esta modal) que puede alterar `oculto` de una copia — y a diferencia de la modal (que bloquea el campo mientras `sincronizado: true`), esa fila permite el cambio siempre y desactiva `sincronizado` automáticamente al aplicarlo sobre una copia sincronizada.

@@ -3,10 +3,11 @@
 // ambos casos: sin `tag`, alta (sin botón "Eliminar"); con `tag`, edición.
 
 import { createTag, updateTag, isTagNameTaken, getComponentsUsingTag } from '../core/tag.js';
-import { getTags, getComponents } from '../core/state.js';
+import { getTags, getComponents, getGroups } from '../core/state.js';
+import { getGroupsUsingTag } from '../core/group.js';
 import { getComponentTypeLabel } from './componentTypeModal.js';
 
-export function openTagModal({ tag = null, onAccept, onDelete, onRemoveFromTag }) {
+export function openTagModal({ tag = null, onAccept, onDelete, onRemoveFromTag, onRemoveGroupFromTag }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -55,11 +56,15 @@ export function openTagModal({ tag = null, onAccept, onDelete, onRemoveFromTag }
         .map((id) => getComponents().find((c) => c.id === id))
         .filter(Boolean)
         .sort((a, b) => a.id.localeCompare(b.id));
+      const groups = getGroupsUsingTag(tag.id, getGroups())
+        .map((id) => getGroups().find((g) => g.id === id))
+        .filter(Boolean)
+        .sort((a, b) => a.id.localeCompare(b.id));
 
-      elementsLabel.textContent = `Elementos de la etiqueta (${components.length})`;
+      elementsLabel.textContent = `Elementos de la etiqueta (${components.length + groups.length})`;
       elementsBody.innerHTML = '';
 
-      if (components.length === 0) {
+      if (components.length === 0 && groups.length === 0) {
         const empty = document.createElement('div');
         empty.className = 'tag-modal__elements-empty';
         empty.textContent = 'No hay elementos en esta etiqueta.';
@@ -89,6 +94,32 @@ export function openTagModal({ tag = null, onAccept, onDelete, onRemoveFromTag }
         sacarBtn.textContent = 'Sacar';
         sacarBtn.addEventListener('click', () => {
           onRemoveFromTag(tag, component.id);
+          renderElements();
+        });
+        item.appendChild(sacarBtn);
+
+        list.appendChild(item);
+      }
+
+      for (const group of groups) {
+        const item = document.createElement('div');
+        item.className = 'tag-modal__element-item';
+
+        const idEl = document.createElement('span');
+        idEl.className = 'tag-modal__element-id';
+        const typeEl = document.createElement('span');
+        typeEl.className = 'type';
+        typeEl.textContent = 'Grupo:';
+        idEl.appendChild(typeEl);
+        idEl.appendChild(document.createTextNode(` ${group.id}`));
+        item.appendChild(idEl);
+
+        const sacarBtn = document.createElement('button');
+        sacarBtn.type = 'button';
+        sacarBtn.className = 'btn-sacar';
+        sacarBtn.textContent = 'Sacar';
+        sacarBtn.addEventListener('click', () => {
+          onRemoveGroupFromTag(tag, group.id);
           renderElements();
         });
         item.appendChild(sacarBtn);

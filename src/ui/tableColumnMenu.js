@@ -18,8 +18,10 @@ function buildIndicator(active) {
 }
 
 // `table` debe estar ya insertado en el DOM, con `<th data-col="clave">` por columna.
-// `columnDefs`: `{ key, filterable, getValue(item) }[]` — una entrada por columna interactiva
-// (todas menos "Acciones"; columnas no filtrables como "Orden" llevan `filterable: false`).
+// `columnDefs`: `{ key, filterable, getValue(item), formatFilterLabel? }[]` — una entrada por columna
+// interactiva (todas menos "Acciones"; columnas no filtrables como "Orden" llevan `filterable: false`).
+// `formatFilterLabel(value)` es opcional: transforma el texto mostrado en las opciones del filtro sin
+// afectar al valor real usado para filtrar (identidad si se omite).
 // `items`: lista completa sin filtrar, usada para calcular los valores distintos del combo.
 // `sortState`: `{ column, direction } | null`, la ordenación activa ahora mismo en esta tabla.
 // `filterState`: `{ [column]: string }`, los filtros de columna activos ahora mismo.
@@ -27,7 +29,7 @@ function buildIndicator(active) {
 // la semántica de exclusividad/apagado y de acumulación de filtros, y vuelve a pintar tras aplicar.
 export function attachColumnMenu(table, columnDefs, items, { sortState, filterState, onToggleSort, onSelectFilter } = {}) {
   for (const columnDef of columnDefs) {
-    const { key, filterable, getValue } = columnDef;
+    const { key, filterable, getValue, formatFilterLabel } = columnDef;
     const th = table.querySelector(`th[data-col="${key}"]`);
     if (!th) continue;
 
@@ -52,6 +54,7 @@ export function attachColumnMenu(table, columnDefs, items, { sortState, filterSt
         activeFilterValue: filterState?.[key] ?? null,
         onToggleSort: (direction) => onToggleSort(key, direction),
         onSelectFilter: (value) => onSelectFilter(key, value),
+        ...(formatFilterLabel ? { formatFilterLabel } : {}),
       });
     });
   }

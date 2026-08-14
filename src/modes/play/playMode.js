@@ -1,7 +1,8 @@
 // Modo juego: mesa infinita con los componentes renderizados directamente sobre ella.
 
-import { getComponents, replaceComponent, reorderComponent, sacarCartaDeMazo } from '../../core/state.js';
+import { getComponents, replaceComponent, reorderComponent, sacarCartaDeMazo, getGroups } from '../../core/state.js';
 import { updateComponent } from '../../core/component.js';
+import { getEffectiveGeneralProps } from '../../core/group.js';
 import { createInfiniteTable } from '../../ui/table.js';
 import { renderComponentsOnTable, formatComponentIdentifier } from '../../ui/componentRenderer.js';
 import { openDiceResultModal } from '../../ui/diceResultModal.js';
@@ -139,8 +140,10 @@ export function renderPlayMode(container) {
   function renderTable() {
     const allComponents = getComponents();
     const cartasEnMazo = getCartaIdsEnAlgunMazo(allComponents);
-    renderComponentsOnTable(table.worldEl, allComponents.filter((component) => !component.oculto && !cartasEnMazo.has(component.id)), {
+    const groups = getGroups();
+    renderComponentsOnTable(table.worldEl, allComponents.filter((component) => !getEffectiveGeneralProps(component, groups).oculto && !cartasEnMazo.has(component.id)), {
       allComponents,
+      groups,
       identifyMode: 'tooltip',
       liftOnDrag: true,
       selectedIds: selectedComponentId ? new Set([selectedComponentId]) : new Set(),
@@ -156,27 +159,27 @@ export function renderPlayMode(container) {
           }
         }
         replaceComponent(component.id, updateComponent(component, { x, y }));
-        if (component.subirAlMoverInteractuar) reorderComponent(component.id, 1);
+        if (getEffectiveGeneralProps(component, groups).subirAlMoverInteractuar) reorderComponent(component.id, 1);
       },
-      canMove: (component) => component.bloqueado === 'ninguno',
+      canMove: (component) => getEffectiveGeneralProps(component, groups).bloqueado === 'ninguno',
       onDiceResult: (component, resultado) => {
         replaceComponent(component.id, updateComponent(component, {
           properties: { resultadoActual: resultado },
         }));
-        if (component.subirAlMoverInteractuar) reorderComponent(component.id, 1);
+        if (getEffectiveGeneralProps(component, groups).subirAlMoverInteractuar) reorderComponent(component.id, 1);
       },
       onDiceOpenResult: (component) => {
         openDiceResultModal({ resultado: component.properties.resultadoActual });
       },
       onCartaFlip: (component, nuevaCara) => {
         replaceComponent(component.id, updateComponent(component, { properties: { caraActual: nuevaCara } }));
-        if (component.subirAlMoverInteractuar) reorderComponent(component.id, 1);
+        if (getEffectiveGeneralProps(component, groups).subirAlMoverInteractuar) reorderComponent(component.id, 1);
       },
       onMazoDraw: (mazo) => {
         const cartaIds = mazo.properties?.cartaIds || [];
         if (cartaIds.length === 0) return;
         sacarCartaDeMazo(mazo.id, cartaIds[0]);
-        if (mazo.subirAlMoverInteractuar) reorderComponent(mazo.id, 1);
+        if (getEffectiveGeneralProps(mazo, groups).subirAlMoverInteractuar) reorderComponent(mazo.id, 1);
       },
       onContextMenu: (component, event) => {
         // Click derecho configurable por componente: con "Ninguno" seleccionado, no
@@ -186,7 +189,7 @@ export function renderPlayMode(container) {
         selectedComponentId = component.id;
         renderTable();
 
-        const bloqueado = component.bloqueado !== 'ninguno';
+        const bloqueado = getEffectiveGeneralProps(component, groups).bloqueado !== 'ninguno';
         let extra;
         if (component.type === 'dado') {
           extra = `${getPosibleValores(component.properties || {}).length} caras`;

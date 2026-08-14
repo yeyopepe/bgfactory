@@ -2,18 +2,21 @@
 // con listado de componentes y acciones de edición/borrado.
 
 import {
-  getComponents, addComponent, replaceComponent, removeComponent, reorderComponent, getPanelState, setPanelState,
+  getComponents, addComponent, replaceComponent, removeComponent, reorderComponent, reorderGroupBlock, getPanelState, setPanelState,
   getResources, addResource, replaceResource, removeResource, getResourcePanelState, setResourcePanelState,
   getTags, addTag, replaceTag, removeTag, getTagPanelState, setTagPanelState, sacarCartaDeMazo,
+  getGroups, addGroup, replaceGroup, removeGroup,
 } from '../../core/state.js';
-import { updateComponent, cloneComponent, createCopy } from '../../core/component.js';
+import { updateComponent, cloneComponent, createCopy, nextGroupId } from '../../core/component.js';
 import { createResource, resourceTypeForFileName, getComponentsUsingResource, findResourceByName } from '../../core/resource.js';
 import { getComponentsUsingTag } from '../../core/tag.js';
+import { createGroup, updateGroup, getEffectiveGeneralProps, getGroupsUsingTag } from '../../core/group.js';
 import { getCartaIdsEnAlgunMazo, rectsOverlap } from '../../core/deck.js';
 import { convertImageToWebP } from '../../core/imageConversion.js';
 import { createInfiniteTable } from '../../ui/table.js';
 import { openComponentModal, createDefaultComponent } from '../../ui/componentModal.js';
 import { openCopyComponentModal } from '../../ui/copyComponentModal.js';
+import { openGroupModal } from '../../ui/groupModal.js';
 import { openComponentTypeModal } from '../../ui/componentTypeModal.js';
 import { renderComponentList } from '../../ui/componentList.js';
 import { renderComponentsOnTable } from '../../ui/componentRenderer.js';
@@ -72,12 +75,49 @@ function createHiddenIcon() {
   return svg;
 }
 
+function createGroupIcon() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.innerHTML = '<rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><path d="M11 7h4a2 2 0 0 1 2 2v4" stroke-dasharray="2 2"/>';
+  return svg;
+}
+
+function createUngroupIcon() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.innerHTML = '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>';
+  return svg;
+}
+
+function createFlipIcon() {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('fill', 'none');
+  svg.setAttribute('stroke', 'currentColor');
+  svg.setAttribute('stroke-width', '2');
+  svg.innerHTML = '<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M3 9a6 6 0 0 1 4-5" stroke-linecap="round"/><path d="M3 9l0-3.5M3 9l3-1" stroke-linecap="round"/><path d="M21 15a6 6 0 0 1-4 5" stroke-linecap="round"/><path d="M21 15l0 3.5M21 15l-3 1" stroke-linecap="round"/>';
+  return svg;
+}
+
 // Selección de la sesión en curso. Vive fuera de `renderEditMode`: `components:changed`
 // remonta todo el modo, así no se pierde al mover/redimensionar/editar un componente.
 // Colapso/posición/ancho del panel sí persisten (`core/state.js`, `panelState`) en autoguardado.
 // Set de ids: Ctrl+clic añade/quita un elemento sin tocar el resto; clic normal reemplaza
 // la selección por ese único elemento (o la vacía si ya era el único seleccionado).
 let selectedComponentIds = new Set();
+
+// Subconjunto de `selectedComponentIds` que fue el objetivo *directo* de un click (no
+// arrastrado a la selección por pertenecer al mismo grupo que el clicado). Solo se usa
+// para pintar el contorno de la mesa (azul = clicado, gris = resto del grupo) — nunca
+// para decidir qué está seleccionado a efectos de acciones, eso lo sigue haciendo en
+// exclusiva `selectedComponentIds`.
+let primarySelectedIds = new Set();
 
 // Orden de apilado (z-index) de los paneles flotantes, de abajo a arriba. Vive fuera de
 // `renderEditMode` por el mismo motivo que `selectedComponentIds`. No se persiste:
@@ -105,6 +145,7 @@ function attemptDeleteComponents(components) {
     if (confirm(`¿Eliminar el componente "${component.id}"?`)) {
       removeComponent(component.id);
       selectedComponentIds.delete(component.id);
+      primarySelectedIds.delete(component.id);
     }
     return;
   }
@@ -113,6 +154,7 @@ function attemptDeleteComponents(components) {
     onConfirm: () => {
       for (const component of components) removeComponent(component.id);
       selectedComponentIds.clear();
+      primarySelectedIds.clear();
     },
   });
 }
@@ -145,7 +187,7 @@ export function deleteSelectedComponent() {
 // delta, manteniendo distancias relativas sin ancla. Respeta `canMove` de `renderTable()`.
 export function moveSelectedComponent(dx, dy) {
   const components = getComponents()
-    .filter((c) => selectedComponentIds.has(c.id) && c.bloqueado !== 'todos');
+    .filter((c) => selectedComponentIds.has(c.id) && getEffectiveGeneralProps(c, getGroups()).bloqueado !== 'todos');
   for (const c of components) {
     replaceComponent(c.id, updateComponent(c, { x: (c.x ?? 0) + dx, y: (c.y ?? 0) + dy }));
   }
@@ -359,11 +401,15 @@ export function renderEditMode(container) {
 
   function attemptDeleteTag(tag, { onDeleted } = {}) {
     const affectedIds = getComponentsUsingTag(tag.id, getComponents());
-    if (affectedIds.length > 0) {
-      const affectedComponents = affectedIds
-        .map((id) => getComponents().find((c) => c.id === id))
-        .filter(Boolean)
-        .map((c) => ({ id: c.id, type: c.type }));
+    const affectedGroupIds = getGroupsUsingTag(tag.id, getGroups());
+    if (affectedIds.length > 0 || affectedGroupIds.length > 0) {
+      const affectedComponents = [
+        ...affectedIds
+          .map((id) => getComponents().find((c) => c.id === id))
+          .filter(Boolean)
+          .map((c) => ({ id: c.id, type: c.type })),
+        ...affectedGroupIds.map((id) => ({ id, type: 'Grupo' })),
+      ];
       openTagDeleteConfirmModal({
         tagName: tag.name,
         affectedComponents,
@@ -371,6 +417,10 @@ export function renderEditMode(container) {
           for (const componentId of affectedIds) {
             const component = getComponents().find((c) => c.id === componentId);
             if (component) replaceComponent(componentId, updateComponent(component, { etiquetaIds: component.etiquetaIds.filter((id) => id !== tag.id) }));
+          }
+          for (const groupId of affectedGroupIds) {
+            const group = getGroups().find((g) => g.id === groupId);
+            if (group) replaceGroup(groupId, updateGroup(group, { etiquetaIds: group.etiquetaIds.filter((id) => id !== tag.id) }));
           }
           removeTag(tag.id);
           if (onDeleted) onDeleted();
@@ -392,6 +442,7 @@ export function renderEditMode(container) {
         },
         onDelete: (deletedComponent) => {
           selectedComponentIds.delete(deletedComponent.id);
+          primarySelectedIds.delete(deletedComponent.id);
           removeComponent(deletedComponent.id);
         },
       });
@@ -404,7 +455,27 @@ export function renderEditMode(container) {
       },
       onDelete: (deletedComponent) => {
         selectedComponentIds.delete(deletedComponent.id);
+        primarySelectedIds.delete(deletedComponent.id);
         removeComponent(deletedComponent.id);
+      },
+    });
+  }
+
+  // Abre el modal de propiedades de un grupo (botón "Editar" de su fila en el
+  // panel de Componentes). El registro debería existir siempre (alta automática
+  // al "Agrupar"); si por lo que sea no está, no hay nada que editar.
+  function openEditModalForGroup(groupId) {
+    const group = getGroups().find((g) => g.id === groupId);
+    if (!group) return;
+    openGroupModal({
+      group,
+      onAccept: (updated) => {
+        if (updated.id !== group.id) {
+          for (const c of getComponents().filter((c) => c.groupId === group.id)) {
+            replaceComponent(c.id, updateComponent(c, { groupId: updated.id }));
+          }
+        }
+        replaceGroup(group.id, updated);
       },
     });
   }
@@ -425,6 +496,7 @@ export function renderEditMode(container) {
           },
           onDelete: (deletedComponent) => {
             selectedComponentIds.delete(deletedComponent.id);
+            primarySelectedIds.delete(deletedComponent.id);
             removeComponent(deletedComponent.id);
           },
         });
@@ -432,19 +504,34 @@ export function renderEditMode(container) {
     });
   }
 
+  // Unidad afectada por un click sobre `component`: el grupo completo si pertenece a
+  // uno (todos los ids con el mismo `groupId`), o solo su propio id si no. Un grupo
+  // siempre entra/sale de la selección como bloque atómico, nunca parcialmente.
+  function getSelectionUnit(component) {
+    if (component.groupId == null) return [component.id];
+    return getComponents().filter((c) => c.groupId === component.groupId).map((c) => c.id);
+  }
+
   function toggleSelect(component, event) {
     const ctrl = event && (event.ctrlKey || event.metaKey);
+    const unit = getSelectionUnit(component);
     if (ctrl) {
-      if (selectedComponentIds.has(component.id)) {
-        selectedComponentIds.delete(component.id);
+      if (selectedComponentIds.has(unit[0])) {
+        for (const id of unit) {
+          selectedComponentIds.delete(id);
+          primarySelectedIds.delete(id);
+        }
       } else {
-        selectedComponentIds.add(component.id);
+        for (const id of unit) selectedComponentIds.add(id);
+        primarySelectedIds.add(component.id);
       }
-    } else if (selectedComponentIds.size === 1 && selectedComponentIds.has(component.id)) {
+    } else if (selectedComponentIds.size === unit.length && unit.every((id) => selectedComponentIds.has(id))) {
       selectedComponentIds.clear();
+      primarySelectedIds.clear();
     } else {
       selectedComponentIds.clear();
-      selectedComponentIds.add(component.id);
+      for (const id of unit) selectedComponentIds.add(id);
+      primarySelectedIds = new Set([component.id]);
     }
     renderList();
     renderTable();
@@ -455,7 +542,19 @@ export function renderEditMode(container) {
   function selectTag(tag) {
     const ids = getComponentsUsingTag(tag.id, getComponents());
     selectedComponentIds.clear();
-    for (const id of ids) selectedComponentIds.add(id);
+    primarySelectedIds.clear();
+    for (const id of ids) {
+      const component = getComponents().find((c) => c.id === id);
+      const unit = component ? getSelectionUnit(component) : [id];
+      for (const unitId of unit) selectedComponentIds.add(unitId);
+    }
+    // Grupos etiquetados directamente (etiqueta propia del grupo, no de sus
+    // miembros): seleccionar el grupo entero, igual que un componente etiquetado.
+    for (const groupId of getGroupsUsingTag(tag.id, getGroups())) {
+      for (const c of getComponents().filter((c) => c.groupId === groupId)) {
+        selectedComponentIds.add(c.id);
+      }
+    }
 
     const cartasEnMazo = getCartaIdsEnAlgunMazo(getComponents());
     for (const id of ids) {
@@ -471,9 +570,11 @@ export function renderEditMode(container) {
   // Menú contextual de clic derecho en modo edición: Clonar/Copiar/Eliminar (igual que
   // el listado de Componentes) y "Añadir a etiqueta", sobre la selección múltiple vigente.
   function handleComponentContextMenu(component, event) {
-    if (!selectedComponentIds.has(component.id)) {
+    const unit = getSelectionUnit(component);
+    if (!unit.every((id) => selectedComponentIds.has(id))) {
       selectedComponentIds.clear();
-      selectedComponentIds.add(component.id);
+      for (const id of unit) selectedComponentIds.add(id);
+      primarySelectedIds = new Set([component.id]);
       renderList();
       renderTable();
     }
@@ -482,11 +583,35 @@ export function renderEditMode(container) {
     const affectedComponents = getComponents().filter((c) => affectedIds.includes(c.id));
     const cloneables = affectedComponents.filter((c) => !c.copyOf);
 
+    // Unidades de la selección: cada `groupId` distinto cuenta como 1 unidad
+    // (grupo completo), cada componente suelto cuenta 1 a 1.
+    const groupIdsInSelection = new Set(affectedComponents.filter((c) => c.groupId != null).map((c) => c.groupId));
+    const looseCount = affectedComponents.filter((c) => c.groupId == null).length;
+    const unitCount = groupIdsInSelection.size + looseCount;
+    const hasGroup = groupIdsInSelection.size > 0;
+
+    if (unitCount >= 2 && hasGroup) {
+      // 2+ unidades con al menos un grupo entre ellas: sin menú contextual.
+      return;
+    }
+
+    const canGroup = unitCount >= 2 && !hasGroup;
+    const canUngroup = unitCount === 1 && hasGroup;
+
+    // Selección de un único grupo completo: "Ocultar/Mostrar" y "Añadir a etiqueta"
+    // operan sobre el registro propio del grupo, no sobre cada miembro (ver
+    // description.md/plan.md — propiedades del grupo, no en bloque).
+    const selectedGroup = canUngroup ? getGroups().find((g) => g.id === [...groupIdsInSelection][0]) : null;
+
     const generalItems = [
       {
         icon: createHiddenIcon(),
-        label: affectedComponents.every((c) => c.oculto) ? 'Mostrar' : 'Ocultar',
+        label: (selectedGroup ? selectedGroup.oculto : affectedComponents.every((c) => c.oculto)) ? 'Mostrar' : 'Ocultar',
         onClick: () => {
+          if (selectedGroup) {
+            replaceGroup(selectedGroup.id, updateGroup(selectedGroup, { oculto: !selectedGroup.oculto }));
+            return;
+          }
           const newOculto = !affectedComponents.every((c) => c.oculto);
           for (const c of affectedComponents) {
             const changes = { oculto: newOculto };
@@ -520,14 +645,60 @@ export function renderEditMode(container) {
         label: 'Eliminar',
         onClick: () => attemptDeleteComponents(affectedComponents),
       },
+      {
+        icon: createGroupIcon(),
+        label: 'Agrupar',
+        disabled: !canGroup,
+        onClick: () => {
+          const newGroupId = nextGroupId(getComponents());
+          const minOrder = Math.min(...affectedComponents.map((c) => c.order));
+          for (const c of affectedComponents) {
+            replaceComponent(c.id, updateComponent(c, { groupId: newGroupId }));
+          }
+          addGroup(createGroup({ id: newGroupId }));
+          reorderGroupBlock(affectedComponents.map((c) => c.id), minOrder);
+        },
+      },
+      {
+        icon: createUngroupIcon(),
+        label: 'Desagrupar',
+        disabled: !canUngroup,
+        onClick: () => {
+          const groupId = selectedGroup?.id;
+          for (const c of affectedComponents) {
+            replaceComponent(c.id, updateComponent(c, { groupId: null }));
+          }
+          if (groupId != null) removeGroup(groupId);
+        },
+      },
     ];
 
+    const allCartas = affectedComponents.length > 0 && affectedComponents.every((c) => c.type === 'carta');
+
     const specificItems = [
+      ...(allCartas ? [{
+        icon: createFlipIcon(),
+        label: 'Voltear carta',
+        onClick: () => {
+          for (const c of affectedComponents) {
+            const caraActual = c.properties?.caraActual === 'frontal' ? 'frontal' : 'trasera';
+            const nuevaCara = caraActual === 'trasera' ? 'frontal' : 'trasera';
+            replaceComponent(c.id, updateComponent(c, { properties: { caraActual: nuevaCara } }));
+          }
+        },
+      }] : []),
       {
         label: 'Añadir a etiqueta',
         select: {
           options: sortByName(getTags()).map((t) => ({ value: t.id, label: t.name })),
           onChange: (tagId) => {
+            if (selectedGroup) {
+              if (!selectedGroup.etiquetaIds.includes(tagId)) {
+                replaceGroup(selectedGroup.id, updateGroup(selectedGroup, { etiquetaIds: [...selectedGroup.etiquetaIds, tagId] }));
+              }
+              showToast('Etiqueta añadida');
+              return;
+            }
             for (const c of affectedComponents) {
               if (c.etiquetaIds.includes(tagId)) continue;
               replaceComponent(c.id, updateComponent(c, { etiquetaIds: [...c.etiquetaIds, tagId] }));
@@ -546,19 +717,24 @@ export function renderEditMode(container) {
     const cartasEnMazo = getCartaIdsEnAlgunMazo(allComponents);
     renderComponentsOnTable(table.worldEl, allComponents.filter((c) => !cartasEnMazo.has(c.id)), {
       allComponents,
+      groups: getGroups(),
       identifyMode: 'label',
       showLockIndicator: true,
       showHiddenIndicator: true,
       showCopyIndicator: true,
-      onSelect: openEditModalFor,
+      onSelect: (component) => {
+        if (component.groupId != null) return;
+        openEditModalFor(component);
+      },
       onToggleSelect: toggleSelect,
       onContextMenu: handleComponentContextMenu,
       selectedIds: selectedComponentIds,
-      canMove: (component) => component.bloqueado !== 'todos',
+      primarySelectedIds,
+      canMove: (component) => getEffectiveGeneralProps(component, getGroups()).bloqueado !== 'todos',
       onMove: (component, x, y) => {
         const group = selectedComponentIds.size > 1 && selectedComponentIds.has(component.id)
           ? [...selectedComponentIds]
-          : [component.id];
+          : getSelectionUnit(component);
 
         if (group.length > 1) {
           const dx = x - (component.x ?? 0);
@@ -600,10 +776,22 @@ export function renderEditMode(container) {
           return;
         }
         selectedComponentIds.delete(component.id);
+        primarySelectedIds.delete(component.id);
         removeComponent(component.id);
+      },
+      onEditGroup: openEditModalForGroup,
+      onUngroup: (memberIds) => {
+        const first = getComponents().find((comp) => comp.id === memberIds[0]);
+        const groupId = first?.groupId;
+        for (const id of memberIds) {
+          const c = getComponents().find((comp) => comp.id === id);
+          if (c) replaceComponent(id, updateComponent(c, { groupId: null }));
+        }
+        if (groupId != null) removeGroup(groupId);
       },
       onAdd: openAddModal,
       onReorder: (component, newOrder) => reorderComponent(component.id, newOrder),
+      onReorderGroup: (groupId, memberIds, newOrder) => reorderGroupBlock(memberIds, newOrder),
       selectedIds: selectedComponentIds,
       collapsed,
       onSelectRow: toggleSelect,
@@ -665,7 +853,7 @@ export function renderEditMode(container) {
   }
 
   function renderTagPanel() {
-    renderTagList(tagListContainer, getTags(), getComponents(), {
+    renderTagList(tagListContainer, getTags(), getComponents(), getGroups(), {
       onEdit: (tag) => {
         openTagModal({
           tag,
@@ -674,6 +862,10 @@ export function renderEditMode(container) {
           onRemoveFromTag: (t, componentId) => {
             const component = getComponents().find((c) => c.id === componentId);
             if (component) replaceComponent(componentId, updateComponent(component, { etiquetaIds: component.etiquetaIds.filter((id) => id !== t.id) }));
+          },
+          onRemoveGroupFromTag: (t, groupId) => {
+            const group = getGroups().find((g) => g.id === groupId);
+            if (group) replaceGroup(groupId, updateGroup(group, { etiquetaIds: group.etiquetaIds.filter((id) => id !== t.id) }));
           },
         });
       },

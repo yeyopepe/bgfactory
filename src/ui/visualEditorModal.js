@@ -102,6 +102,14 @@ function createRotateIcon() {
   return svg;
 }
 
+// Envuelve al extremo opuesto del rango -360..360 (720 = tamaño del rango) en vez de
+// cortar, para preservar el carácter cíclico del atajo "Girar 90°" con el rango ampliado.
+function wrapRotation(value) {
+  if (value > 360) return value - 720;
+  if (value < -360) return value + 720;
+  return value;
+}
+
 function createCopyIcon() {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 24 24');
@@ -606,12 +614,23 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
         },
         {
           icon: createRotateIcon(),
-          label: 'Girar 90°',
+          label: 'Girar 90° (horario)',
           onClick: () => {
             const collection = kind === 'forma' ? cara.formas : cara.textBoxes;
             const element = collection.find((item) => item.id === id);
             if (!element) return;
-            element.rotation = ((element.rotation ?? 0) + 90) % 360;
+            element.rotation = wrapRotation((element.rotation ?? 0) + 90);
+            renderFaces();
+          },
+        },
+        {
+          icon: createRotateIcon(),
+          label: 'Girar 90° (antihorario)',
+          onClick: () => {
+            const collection = kind === 'forma' ? cara.formas : cara.textBoxes;
+            const element = collection.find((item) => item.id === id);
+            if (!element) return;
+            element.rotation = wrapRotation((element.rotation ?? 0) - 90);
             renderFaces();
           },
         },

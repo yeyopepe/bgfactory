@@ -3,7 +3,7 @@
 // clave-valor, imagen opcional. `order` gobierna apilado visual — lo
 // asigna/recalcula core/state.js, aquí solo valor por defecto.
 
-export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = 'ninguno', mostrarTooltip = false, subirAlMoverInteractuar = false, oculto = false, etiquetaIds = [], order = null, copyOf = null, sincronizado = true, interaccionesDesactivadas = [], accionClickDerecho = 'ninguno' } = {}) {
+export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = 'ninguno', mostrarTooltip = false, subirAlMoverInteractuar = false, oculto = false, etiquetaIds = [], order = null, copyOf = null, sincronizado = true, groupId = null, interaccionesDesactivadas = [], accionClickDerecho = 'ninguno' } = {}) {
   return {
     id: crypto.randomUUID(),
     type,
@@ -22,6 +22,7 @@ export function createComponent({ type = 'generico', name = '', properties = {},
     order,
     copyOf,
     sincronizado,
+    groupId,
     interaccionesDesactivadas,
     accionClickDerecho,
   };
@@ -75,6 +76,7 @@ export function cloneComponent(component, components) {
     x: component.x + 30,
     y: component.y + 30,
     order: null,
+    groupId: null,
   };
 }
 
@@ -113,6 +115,21 @@ export function nextCopyId(originalId, components) {
   return `${originalId}-COPY-${String(n).padStart(3, '0')}`;
 }
 
+// Siguiente id de grupo libre, formato `grupo-N`: escanea `groupId` de todos
+// los componentes, devuelve el primer entero libre (mismo patrón que
+// nextCloneId/nextCopyId). Solo se llama al "Agrupar" una selección sin
+// ningún grupo entre sus miembros.
+export function nextGroupId(components) {
+  const usedNumbers = new Set();
+  for (const component of components) {
+    const match = typeof component.groupId === 'string' && component.groupId.match(/^grupo-(\d+)$/);
+    if (match) usedNumbers.add(parseInt(match[1], 10));
+  }
+  let n = 1;
+  while (usedNumbers.has(n)) n += 1;
+  return `grupo-${n}`;
+}
+
 // Copia vinculada de `component`, análoga a cloneComponent pero con
 // id/vínculo propios del mecanismo de Copia (ver core/state.js:
 // sincronización en vivo, borrado en cascada).
@@ -126,6 +143,7 @@ export function createCopy(component, components) {
     x: component.x + 30,
     y: component.y + 30,
     order: null,
+    groupId: null,
   };
 }
 

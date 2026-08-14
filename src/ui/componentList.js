@@ -6,6 +6,10 @@ import { attachColumnResizing } from './tableColumnResize.js';
 import { attachColumnMenu } from './tableColumnMenu.js';
 import { compareValues } from '../core/textSort.js';
 
+function capitalize(value) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
 const COMPONENT_LIST_COLUMNS = ['orden', 'id', 'tipo', 'copia', 'acciones'];
@@ -15,7 +19,7 @@ const COMPONENT_LIST_COLUMNS = ['orden', 'id', 'tipo', 'copia', 'acciones'];
 const COMPONENT_LIST_COLUMN_DEFS = [
   { key: 'orden', filterable: false, getValue: (c) => c.order },
   { key: 'id', filterable: true, getValue: (c) => c.id },
-  { key: 'tipo', filterable: true, getValue: (c) => c.type },
+  { key: 'tipo', filterable: true, getValue: (c) => c.type, formatFilterLabel: capitalize },
   { key: 'copia', filterable: true, getValue: (c) => (c.copyOf ? 'Sí' : 'No') },
 ];
 const COMPONENT_LIST_COLUMN_DEFS_BY_KEY = Object.fromEntries(COMPONENT_LIST_COLUMN_DEFS.map((d) => [d.key, d]));
@@ -39,14 +43,77 @@ function matchesColumnFilters(component) {
   });
 }
 
+// Filas sintéticas de grupo: una por cada `groupId` con 2+ miembros, derivadas
+// en tiempo de render a partir de `component.groupId` — no son una colección
+// persistida aparte (a diferencia de "Etiquetas"). Participan en filtro/orden
+// de columna igual que un componente ("id" = groupId, "tipo" = "Grupo",
+// "copia" sin valor propio, "orden" = el mínimo de sus miembros) fusionándose
+// con la lista real. `__members` son los componentes reales del grupo, ya
+// ordenados ascendente por su propio `order` — ese orden relativo entre
+// miembros de un mismo grupo nunca lo altera ningún criterio de columna.
+function buildGroupRows(components) {
+  const membersByGroup = new Map();
+  for (const c of components) {
+    if (c.groupId == null) continue;
+    if (!membersByGroup.has(c.groupId)) membersByGroup.set(c.groupId, []);
+    membersByGroup.get(c.groupId).push(c);
+  }
+  return [...membersByGroup.entries()]
+    .filter(([, members]) => members.length >= 2)
+    .map(([groupId, members]) => {
+      const sortedMembers = [...members].sort((a, b) => a.order - b.order);
+      return {
+        id: groupId,
+        type: 'Grupo',
+        order: sortedMembers[0].order,
+        copyOf: null,
+        __isGroupRow: true,
+        __members: sortedMembers,
+      };
+    });
+}
+
+// ¿El grupo (fila propia) o alguno de sus miembros coincide con el filtro de
+// texto/columna activo? Un grupo se muestra si cualquiera de los dos coincide
+// — igual que un explorador de ficheros mostrando la carpeta entera si algo
+// dentro coincide con la búsqueda.
+function groupOrAnyMemberMatches(groupRow) {
+  if (matchesFilter(groupRow, filterText) && matchesColumnFilters(groupRow)) return true;
+  return groupRow.__members.some((m) => matchesFilter(m, filterText) && matchesColumnFilters(m));
+}
+
+// Construye la lista a renderizar como bloques contiguos: cada grupo (con sus
+// miembros ya resueltos) o componente suelto cuenta como "nivel superior" a
+// efectos de orden/filtro de columna; los miembros de un mismo grupo se
+// insertan siempre justo debajo de su fila de grupo, nunca intercalados con
+// otros bloques, y entre ellos se ordenan siempre por su propio `order`
+// ascendente (nunca por el criterio de columna activo). Con un filtro activo,
+// el grupo se muestra si él o algún miembro coincide, pero debajo solo
+// aparecen los miembros que coinciden individualmente.
 function computeDisplayedList(components) {
-  let list = components.filter((c) => matchesFilter(c, filterText) && matchesColumnFilters(c));
+  const groupRows = buildGroupRows(components);
+  const looseComponents = components.filter((c) => c.groupId == null);
+  let topLevel = [...looseComponents, ...groupRows];
+
   if (columnSort) {
     const def = COMPONENT_LIST_COLUMN_DEFS_BY_KEY[columnSort.column];
     const sign = columnSort.direction === 'asc' ? 1 : -1;
-    list = [...list].sort((a, b) => sign * compareValues(def.getValue(a), def.getValue(b)));
+    topLevel = [...topLevel].sort((a, b) => sign * compareValues(def.getValue(a), def.getValue(b)));
   } else {
-    list = [...list].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    topLevel = [...topLevel].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  }
+
+  const list = [];
+  for (const row of topLevel) {
+    if (row.__isGroupRow) {
+      if (!groupOrAnyMemberMatches(row)) continue;
+      list.push(row);
+      for (const member of row.__members) {
+        if (matchesFilter(member, filterText) && matchesColumnFilters(member)) list.push(member);
+      }
+    } else if (matchesFilter(row, filterText) && matchesColumnFilters(row)) {
+      list.push(row);
+    }
   }
   return list;
 }
@@ -67,7 +134,7 @@ function matchesFilter(component, query) {
   );
 }
 
-function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy, onRemove, onSelectRow, onReorder, selectedIds = new Set(), columnWidths, onColumnResize, allComponents = [], onColumnSortChange, onColumnFilterChange } = {}) {
+function renderBody(body, displayedComponents, total, { onEdit, onEditGroup, onClone, onCopy, onRemove, onUngroup, onSelectRow, onReorder, onReorderGroup, selectedIds = new Set(), columnWidths, onColumnResize, allComponents = [], onColumnSortChange, onColumnFilterChange } = {}) {
   body.innerHTML = '';
 
   const hasActiveFilter = filterText.trim() !== '' || Object.keys(columnFilters).length > 0;
@@ -107,8 +174,93 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy,
   }
 
   for (const component of displayedComponents) {
+    if (component.__isGroupRow) {
+      const row = document.createElement('tr');
+      row.className = 'component-list__row component-list__row--group';
+      row.dataset.id = component.id;
+      if (component.__members.every((m) => selectedIds.has(m.id))) {
+        row.classList.add('component-list__row--selected');
+      }
+
+      const orderCell = document.createElement('td');
+      orderCell.className = 'component-list__order-cell';
+      const groupOrderInput = document.createElement('input');
+      groupOrderInput.type = 'number';
+      groupOrderInput.className = 'component-list__order-input';
+      groupOrderInput.min = 1;
+      groupOrderInput.max = total;
+      groupOrderInput.value = component.order;
+      groupOrderInput.addEventListener('click', (event) => event.stopPropagation());
+      groupOrderInput.addEventListener('input', () => {
+        const sanitized = groupOrderInput.value.replace(/\D+/g, '');
+        if (sanitized !== groupOrderInput.value) {
+          groupOrderInput.value = sanitized;
+        }
+      });
+      groupOrderInput.addEventListener('change', () => {
+        if (groupOrderInput.value === '') {
+          groupOrderInput.value = component.order;
+          return;
+        }
+        const parsed = Math.min(Math.max(parseInt(groupOrderInput.value, 10), 1), total);
+        groupOrderInput.value = parsed;
+        if (onReorderGroup) onReorderGroup(component.id, component.__members.map((m) => m.id), parsed);
+      });
+      orderCell.appendChild(groupOrderInput);
+      row.appendChild(orderCell);
+
+      const idCell = document.createElement('td');
+      idCell.className = 'component-list__id-cell';
+      idCell.textContent = component.id;
+      row.appendChild(idCell);
+
+      const typeCell = document.createElement('td');
+      typeCell.textContent = capitalize(component.type);
+      row.appendChild(typeCell);
+
+      const copyCell = document.createElement('td');
+      copyCell.className = 'component-list__copy-cell';
+      row.appendChild(copyCell);
+
+      const actionsCell = document.createElement('td');
+      actionsCell.className = 'component-list__actions-cell';
+      if (onEditGroup) {
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'component-list__action-btn';
+        editButton.textContent = 'Editar';
+        editButton.addEventListener('click', (event) => {
+          event.stopPropagation();
+          onEditGroup(component.id);
+        });
+        actionsCell.appendChild(editButton);
+      }
+      if (onUngroup) {
+        const ungroupButton = document.createElement('button');
+        ungroupButton.type = 'button';
+        ungroupButton.className = 'component-list__action-btn';
+        ungroupButton.textContent = 'Desagrupar';
+        ungroupButton.addEventListener('click', (event) => {
+          event.stopPropagation();
+          onUngroup(component.__members.map((m) => m.id));
+        });
+        actionsCell.appendChild(ungroupButton);
+      }
+      row.appendChild(actionsCell);
+
+      if (onSelectRow) {
+        row.addEventListener('click', (event) => {
+          onSelectRow(component.__members[0], event);
+        });
+      }
+
+      tbody.appendChild(row);
+      continue;
+    }
+
+    const isGroupMember = component.groupId != null;
     const row = document.createElement('tr');
-    row.className = 'component-list__row';
+    row.className = isGroupMember ? 'component-list__row component-list__row--member' : 'component-list__row';
     row.dataset.id = component.id;
     if (selectedIds.has(component.id)) {
       row.classList.add('component-list__row--selected');
@@ -122,6 +274,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy,
     orderInput.min = 1;
     orderInput.max = total;
     orderInput.value = component.order;
+    orderInput.disabled = isGroupMember;
     orderInput.addEventListener('click', (event) => event.stopPropagation());
     orderInput.addEventListener('input', () => {
       const sanitized = orderInput.value.replace(/\D+/g, '');
@@ -147,7 +300,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy,
     row.appendChild(idCell);
 
     const typeCell = document.createElement('td');
-    typeCell.textContent = component.type;
+    typeCell.textContent = capitalize(component.type);
     row.appendChild(typeCell);
 
     const copyCell = document.createElement('td');
@@ -175,6 +328,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy,
       cloneButton.type = 'button';
       cloneButton.className = 'component-list__action-btn';
       cloneButton.textContent = 'Clonar';
+      cloneButton.disabled = component.groupId != null;
       cloneButton.addEventListener('click', (event) => {
         event.stopPropagation();
         onClone(component);
@@ -187,6 +341,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onClone, onCopy,
       copyButton.type = 'button';
       copyButton.className = 'component-list__action-btn';
       copyButton.textContent = 'Copiar';
+      copyButton.disabled = component.groupId != null;
       copyButton.addEventListener('click', (event) => {
         event.stopPropagation();
         onCopy(component);
@@ -243,12 +398,15 @@ export function renderComponentList(
   components,
   {
     onEdit,
+    onEditGroup,
     onClone,
     onCopy,
     onRemove,
+    onUngroup,
     onSelectRow,
     onAdd,
     onReorder,
+    onReorderGroup,
     selectedIds = new Set(),
     collapsed = false,
     onToggleCollapse,
@@ -325,8 +483,8 @@ export function renderComponentList(
 
   if (!collapsed) {
     const rowHandlers = {
-      onEdit, onClone, onCopy, onRemove, onSelectRow, onReorder, selectedIds, columnWidths, onColumnResize,
-      allComponents: components,
+      onEdit, onEditGroup, onClone, onCopy, onRemove, onUngroup, onSelectRow, onReorder, onReorderGroup, selectedIds, columnWidths, onColumnResize,
+      allComponents: [...components, ...buildGroupRows(components)],
       onColumnSortChange: (column, direction) => {
         columnSort = columnSort?.column === column && columnSort.direction === direction ? null : { column, direction };
         rerenderBody();
@@ -341,7 +499,7 @@ export function renderComponentList(
 
     function rerenderBody() {
       const displayed = computeDisplayedList(components);
-      title.textContent = `Componentes (${displayed.length})`;
+      title.textContent = `Componentes (${displayed.filter((r) => !r.__isGroupRow).length})`;
       renderBody(body, displayed, components.length, rowHandlers);
     }
 

@@ -30,6 +30,7 @@
 - [026 — Menú contextual de componente en modo juego](026-menu-contextual-de-componente-en-modo-juego.md)
 - [027 — Menú contextual de elemento en modo edición](027-menu-contextual-de-elemento-en-modo-edicion.md)
 - [028 — Atajos de teclado en modo edición](028-atajos-de-teclado-en-modo-edicion.md)
+- [034 — Agrupación de elementos: agrupar y desagrupar](034-agrupacion-de-elementos-agrupar-y-desagrupar.md)
 
 ## Notificación de errores
 

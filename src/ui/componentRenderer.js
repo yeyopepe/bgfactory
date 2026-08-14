@@ -14,6 +14,7 @@ import { getTextBoxLayoutStyle } from '../core/textBoxLayout.js';
 import { getMazoRevealZoneRect, rectsOverlap } from '../core/deck.js';
 import { hexToRgba, shadeColor } from '../core/colorUtils.js';
 import { isInteractionActive } from '../core/interactions.js';
+import { getEffectiveGeneralProps } from '../core/group.js';
 
 const MIN_TEXT_BOX_WIDTH = 40;
 const MIN_TEXT_BOX_HEIGHT = 24;
@@ -229,8 +230,9 @@ function createIdentifierLabel(component) {
 }
 
 // Indicador de bloqueo: insignia superpuesta en una esquina del componente, solo pintada en modo
-// edición (`showLockIndicator`) cuando `component.bloqueado` es distinto de `'ninguno'` (`'juego'` o
-// `'todos'`) — en modo juego el bloqueo solo se percibe vía menú contextual, nunca con este indicador.
+// edición (`showLockIndicator`) cuando el bloqueo EFECTIVO (getEffectiveGeneralProps — el del grupo si
+// el componente pertenece a uno, si no el propio) es distinto de `'ninguno'` (`'juego'` o `'todos'`) —
+// en modo juego el bloqueo solo se percibe vía menú contextual, nunca con este indicador.
 function createLockBadge() {
   const badge = document.createElement('span');
   badge.className = 'component-lock-badge';
@@ -243,8 +245,8 @@ function createLockBadge() {
 }
 
 // Indicador de "Oculto": insignia superpuesta, solo pintada en modo edición (`showHiddenIndicator`)
-// cuando `component.oculto` es `true` — en modo juego el componente oculto no se renderiza, no hace
-// falta indicador ahí.
+// cuando el `oculto` EFECTIVO (getEffectiveGeneralProps) es `true` — en modo juego el componente oculto
+// no se renderiza, no hace falta indicador ahí.
 // Anclada en la esquina inferior derecha (a diferencia de la de candado, en la
 // superior derecha) para que ambas puedan convivir sin superponerse cuando un
 // componente está bloqueado y oculto a la vez.
@@ -449,7 +451,7 @@ function renderMazoRevealZone(worldEl, mazo) {
   zone.style.width = `${rect.width}px`;
   zone.style.height = `${rect.height}px`;
   zone.style.borderRadius = mazo.properties?.forma === 'circular' ? '50%' : '';
-  zone.textContent = 'Carta revelada';
+  zone.textContent = mazo.properties?.textoCartaRevelada ?? 'Carta revelada';
   worldEl.appendChild(zone);
   return zone;
 }
@@ -512,7 +514,7 @@ function applyFlipFeedbackIfChanged(carta, componentId, caraActual) {
   }, 250));
 }
 
-export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedIds = new Set(), onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, onCartaFlip, onMazoDraw, onContextMenu, identifyMode, liftOnDrag = false, showLockIndicator = false, showHiddenIndicator = false, showCopyIndicator = false, allComponents } = {}) {
+export function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect, selectedIds = new Set(), primarySelectedIds = new Set(), onMove, onResize, canMove = () => true, onDiceResult, onDiceOpenResult, onCartaFlip, onMazoDraw, onContextMenu, identifyMode, liftOnDrag = false, showLockIndicator = false, showHiddenIndicator = false, showCopyIndicator = false, allComponents, groups = [] } = {}) {
   worldEl.innerHTML = '';
 
   const componentsToCount = allComponents ?? components;
@@ -561,6 +563,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
   }
 
   for (const component of stackedComponents) {
+    const effective = getEffectiveGeneralProps(component, groups);
     if (component.type === 'texto') {
       const textBox = document.createElement('div');
       elementsById.set(component.id, textBox);
@@ -583,10 +586,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       textBox.textContent = component.properties.contenido || '';
 
-      if (identifyMode === 'tooltip' && component.mostrarTooltip) textBox.title = formatComponentIdentifier(component);
+      if (identifyMode === 'tooltip' && effective.mostrarTooltip) textBox.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') textBox.appendChild(createIdentifierLabel(component));
-      if (showLockIndicator && component.bloqueado !== 'ninguno') textBox.appendChild(createLockBadge());
-      if (showHiddenIndicator && component.oculto) textBox.appendChild(createHiddenBadge());
+      if (showLockIndicator && effective.bloqueado !== 'ninguno') textBox.appendChild(createLockBadge());
+      if (showHiddenIndicator && effective.oculto) textBox.appendChild(createHiddenBadge());
       if (showCopyIndicator && component.copyOf) textBox.appendChild(createCopyBadge());
       if (showCopyIndicator && !component.copyOf) {
         const copyCount = copyCountByOriginalId.get(component.id) ?? 0;
@@ -616,6 +619,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (selectedIds.has(component.id)) {
         textBox.classList.add('text-box--selected');
+        if (component.groupId != null && !primarySelectedIds.has(component.id)) textBox.classList.add('is-group-passenger');
       }
 
       if (onMove && canMove(component)) {
@@ -724,10 +728,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       board.style.width = `${width}px`;
       board.style.height = `${height}px`;
 
-      if (identifyMode === 'tooltip' && component.mostrarTooltip) board.title = formatComponentIdentifier(component);
+      if (identifyMode === 'tooltip' && effective.mostrarTooltip) board.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') board.appendChild(createIdentifierLabel(component));
-      if (showLockIndicator && component.bloqueado !== 'ninguno') board.appendChild(createLockBadge());
-      if (showHiddenIndicator && component.oculto) board.appendChild(createHiddenBadge());
+      if (showLockIndicator && effective.bloqueado !== 'ninguno') board.appendChild(createLockBadge());
+      if (showHiddenIndicator && effective.oculto) board.appendChild(createHiddenBadge());
       if (showCopyIndicator && component.copyOf) board.appendChild(createCopyBadge());
       if (showCopyIndicator && !component.copyOf) {
         const copyCount = copyCountByOriginalId.get(component.id) ?? 0;
@@ -835,6 +839,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (selectedIds.has(component.id)) {
         board.classList.add('board--selected');
+        if (component.groupId != null && !primarySelectedIds.has(component.id)) board.classList.add('is-group-passenger');
       }
 
       if (onMove && canMove(component)) {
@@ -957,10 +962,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         tablero.style.borderColor = bordeColor;
       }
 
-      if (identifyMode === 'tooltip' && component.mostrarTooltip) tablero.title = formatComponentIdentifier(component);
+      if (identifyMode === 'tooltip' && effective.mostrarTooltip) tablero.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') tablero.appendChild(createIdentifierLabel(component));
-      if (showLockIndicator && component.bloqueado !== 'ninguno') tablero.appendChild(createLockBadge());
-      if (showHiddenIndicator && component.oculto) tablero.appendChild(createHiddenBadge());
+      if (showLockIndicator && effective.bloqueado !== 'ninguno') tablero.appendChild(createLockBadge());
+      if (showHiddenIndicator && effective.oculto) tablero.appendChild(createHiddenBadge());
       if (showCopyIndicator && component.copyOf) tablero.appendChild(createCopyBadge());
       if (showCopyIndicator && !component.copyOf) {
         const copyCount = copyCountByOriginalId.get(component.id) ?? 0;
@@ -1001,6 +1006,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (selectedIds.has(component.id)) {
         tablero.classList.add('tablero-personalizado--selected');
+        if (component.groupId != null && !primarySelectedIds.has(component.id)) tablero.classList.add('is-group-passenger');
       }
 
       if (onMove && canMove(component)) {
@@ -1100,10 +1106,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       dice.style.width = `${size}px`;
       dice.style.height = `${size}px`;
 
-      if (identifyMode === 'tooltip' && component.mostrarTooltip) dice.title = formatComponentIdentifier(component);
+      if (identifyMode === 'tooltip' && effective.mostrarTooltip) dice.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') dice.appendChild(createIdentifierLabel(component));
-      if (showLockIndicator && component.bloqueado !== 'ninguno') dice.appendChild(createLockBadge());
-      if (showHiddenIndicator && component.oculto) dice.appendChild(createHiddenBadge());
+      if (showLockIndicator && effective.bloqueado !== 'ninguno') dice.appendChild(createLockBadge());
+      if (showHiddenIndicator && effective.oculto) dice.appendChild(createHiddenBadge());
       if (showCopyIndicator && component.copyOf) dice.appendChild(createCopyBadge());
       if (showCopyIndicator && !component.copyOf) {
         const copyCount = copyCountByOriginalId.get(component.id) ?? 0;
@@ -1166,6 +1172,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (selectedIds.has(component.id)) {
         dice.classList.add('dice--selected');
+        if (component.groupId != null && !primarySelectedIds.has(component.id)) dice.classList.add('is-group-passenger');
       }
 
       if (onMove && canMove(component)) {
@@ -1322,10 +1329,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       documentViewer.style.width = `${width}px`;
       documentViewer.style.height = `${height}px`;
 
-      if (identifyMode === 'tooltip' && component.mostrarTooltip) documentViewer.title = formatComponentIdentifier(component);
+      if (identifyMode === 'tooltip' && effective.mostrarTooltip) documentViewer.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') documentViewer.appendChild(createIdentifierLabel(component));
-      if (showLockIndicator && component.bloqueado !== 'ninguno') documentViewer.appendChild(createLockBadge());
-      if (showHiddenIndicator && component.oculto) documentViewer.appendChild(createHiddenBadge());
+      if (showLockIndicator && effective.bloqueado !== 'ninguno') documentViewer.appendChild(createLockBadge());
+      if (showHiddenIndicator && effective.oculto) documentViewer.appendChild(createHiddenBadge());
       if (showCopyIndicator && component.copyOf) documentViewer.appendChild(createCopyBadge());
       if (showCopyIndicator && !component.copyOf) {
         const copyCount = copyCountByOriginalId.get(component.id) ?? 0;
@@ -1388,6 +1395,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (selectedIds.has(component.id)) {
         documentViewer.classList.add('document-viewer--selected');
+        if (component.groupId != null && !primarySelectedIds.has(component.id)) documentViewer.classList.add('is-group-passenger');
       }
 
       if (onMove && canMove(component)) {
@@ -1542,10 +1550,10 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         cartaContent.style.border = (cara?.bordeGrosor ?? 0) > 0 ? `${cara.bordeGrosor}px solid ${cara.bordeColor || '#000000'}` : 'none';
       }
 
-      if (identifyMode === 'tooltip' && component.mostrarTooltip) carta.title = formatComponentIdentifier(component);
+      if (identifyMode === 'tooltip' && effective.mostrarTooltip) carta.title = formatComponentIdentifier(component);
       if (identifyMode === 'label') carta.appendChild(createIdentifierLabel(component));
-      if (showLockIndicator && component.bloqueado !== 'ninguno') carta.appendChild(createLockBadge());
-      if (showHiddenIndicator && component.oculto) carta.appendChild(createHiddenBadge());
+      if (showLockIndicator && effective.bloqueado !== 'ninguno') carta.appendChild(createLockBadge());
+      if (showHiddenIndicator && effective.oculto) carta.appendChild(createHiddenBadge());
       if (showCopyIndicator && component.copyOf) carta.appendChild(createCopyBadge());
       if (showCopyIndicator && !component.copyOf) {
         const copyCount = copyCountByOriginalId.get(component.id) ?? 0;
@@ -1583,6 +1591,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (selectedIds.has(component.id)) {
         carta.classList.add('carta--selected');
+        if (component.groupId != null && !primarySelectedIds.has(component.id)) carta.classList.add('is-group-passenger');
       }
 
       if (onMove && canMove(component)) {
@@ -1768,8 +1777,8 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (identifyMode === 'tooltip') mazo.title = 'Pulsa para sacar la primera carta.';
       if (identifyMode === 'label') mazo.appendChild(createIdentifierLabel(component));
-      if (showLockIndicator && component.bloqueado !== 'ninguno') mazo.appendChild(createLockBadge());
-      if (showHiddenIndicator && component.oculto) mazo.appendChild(createHiddenBadge());
+      if (showLockIndicator && effective.bloqueado !== 'ninguno') mazo.appendChild(createLockBadge());
+      if (showHiddenIndicator && effective.oculto) mazo.appendChild(createHiddenBadge());
       if (showCopyIndicator && component.copyOf) mazo.appendChild(createCopyBadge());
       if (showCopyIndicator && !component.copyOf) {
         const copyCount = copyCountByOriginalId.get(component.id) ?? 0;
@@ -1806,6 +1815,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       if (selectedIds.has(component.id)) {
         mazo.classList.add('carta--selected');
+        if (component.groupId != null && !primarySelectedIds.has(component.id)) mazo.classList.add('is-group-passenger');
       }
 
       if (onMove && canMove(component)) {
@@ -1834,7 +1844,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           }
           // La zona de revelado sigue al mazo en vivo durante el arrastre, no
           // solo al soltar — mismo cálculo que el render inicial.
-          const revealRect = getMazoRevealZoneRect({ x: currentX, y: currentY, width, height });
+          const revealRect = getMazoRevealZoneRect({ x: currentX, y: currentY, width, height, properties: component.properties });
           revealZone.style.left = `${revealRect.x}px`;
           revealZone.style.top = `${revealRect.y}px`;
           if (liftOnDrag && !lifted) {

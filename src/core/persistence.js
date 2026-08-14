@@ -28,13 +28,16 @@ function parseState(raw) {
   const resources = Array.isArray(parsed.resources) ? parsed.resources : [];
   const resourcesSeeded = parsed.resourcesSeeded === true;
   const tags = Array.isArray(parsed.tags) ? parsed.tags : (Array.isArray(parsed.groups) ? parsed.groups : (Array.isArray(parsed.decks) ? parsed.decks : []));
+  // `componentGroups`: registro de propiedades de grupo (core/group.js), colección nueva sin alias de
+  // compatibilidad — no puede llamarse `groups`, esa clave ya está reservada como alias legacy de `tags`.
+  const componentGroups = Array.isArray(parsed.componentGroups) ? parsed.componentGroups : [];
   const appTitle = (typeof parsed.appTitle === 'string' && parsed.appTitle.trim() !== '') ? parsed.appTitle : DEFAULT_APP_TITLE;
-  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, appTitle };
+  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, componentGroups, appTitle };
 }
 
-export function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, appTitle) {
+export function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, componentGroups, appTitle) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, appTitle }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, componentGroups, appTitle }));
   } catch {
     // Cuota excedida u otro fallo de localStorage: el autoguardado se omite
     // silenciosamente, sin interrumpir el uso normal de la aplicación.
@@ -70,18 +73,19 @@ export function parseImportedComponents(raw) {
   }
   const resources = Array.isArray(parsed.resources) ? parsed.resources : [];
   const tags = Array.isArray(parsed.tags) ? parsed.tags : (Array.isArray(parsed.groups) ? parsed.groups : (Array.isArray(parsed.decks) ? parsed.decks : []));
+  const componentGroups = Array.isArray(parsed.componentGroups) ? parsed.componentGroups : [];
   // A diferencia de parseState, aquí `null` en vez de DEFAULT_APP_TITLE: este
   // resultado no siempre se aplica al importar (solo en modo "Sobrescribir
   // todo el juego", ui/editModeToggle.js), así que un fichero sin título no
   // debe forzar el título por defecto sobre la partida actual.
   const appTitle = (typeof parsed.appTitle === 'string' && parsed.appTitle.trim() !== '') ? parsed.appTitle : null;
-  return { components: parsed.components, resources, tags, appTitle };
+  return { components: parsed.components, resources, tags, componentGroups, appTitle };
 }
 
-// JSON ligero con los componentes, todos los recursos y las etiquetas (a
+// JSON ligero con los componentes, todos los recursos, las etiquetas y los grupos (a
 // diferencia de "Guardar", que exporta la app completa) — pensado para
 // sobrevivir a cambios de versión de la app, sin incluir la configuración
 // del panel flotante.
-export function buildComponentsExport(components, resources, tags, appTitle) {
-  return { version: CURRENT_VERSION, components, resources, tags, appTitle };
+export function buildComponentsExport(components, resources, tags, componentGroups, appTitle) {
+  return { version: CURRENT_VERSION, components, resources, tags, componentGroups, appTitle };
 }

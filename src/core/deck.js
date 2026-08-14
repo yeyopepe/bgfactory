@@ -30,15 +30,26 @@ export function getCartaIdsEnAlgunMazo(components) {
 export const MAZO_REVEAL_GAP = 20;
 
 // Rectángulo `{ x, y, width, height }` de la zona de revelado de un mazo:
-// siempre pegada a su lado derecho, con su misma altura y anchura. Único
-// punto de cálculo, reutilizado tanto para pintar el recuadro decorativo
-// como para calcular dónde debe aparecer una carta al sacarla.
+// pegada al lado indicado por `properties.disposicion` (fallback 'derecha'),
+// con su misma altura y anchura. Único punto de cálculo, reutilizado tanto
+// para pintar el recuadro decorativo como para calcular dónde debe aparecer
+// una carta al sacarla.
+const REVEAL_ZONE_OFFSET_BY_DISPOSICION = {
+  derecha: (x, y, width, height) => ({ x: x + width + MAZO_REVEAL_GAP, y }),
+  izquierda: (x, y, width, height) => ({ x: x - width - MAZO_REVEAL_GAP, y }),
+  abajo: (x, y, width, height) => ({ x, y: y + height + MAZO_REVEAL_GAP }),
+  arriba: (x, y, width, height) => ({ x, y: y - height - MAZO_REVEAL_GAP }),
+};
+
 export function getMazoRevealZoneRect(mazo) {
   const width = mazo.width ?? 100;
   const height = mazo.height ?? 100;
+  const x = mazo.x ?? 100;
+  const y = mazo.y ?? 100;
+  const disposicion = mazo.properties?.disposicion;
+  const offsetFn = REVEAL_ZONE_OFFSET_BY_DISPOSICION[disposicion] || REVEAL_ZONE_OFFSET_BY_DISPOSICION.derecha;
   return {
-    x: (mazo.x ?? 100) + width + MAZO_REVEAL_GAP,
-    y: mazo.y ?? 100,
+    ...offsetFn(x, y, width, height),
     width,
     height,
   };
@@ -59,6 +70,6 @@ export function computeSacarCartaDeMazo(mazo, carta) {
   const { x, y } = getMazoRevealZoneRect(mazo);
   return {
     mazoProperties: { cartaIds: cartaIds.filter((id) => id !== carta.id) },
-    cartaChanges: { x, y, properties: { caraActual: 'frontal' } },
+    cartaChanges: { x, y, properties: { caraActual: mazo.properties?.caraCartaRevelada ?? 'frontal' } },
   };
 }

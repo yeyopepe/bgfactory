@@ -282,6 +282,12 @@ h1 {
   box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
 }
 
+.component-list__order-input:disabled {
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
 .component-list__actions-cell {
   white-space: nowrap;
 }
@@ -317,6 +323,25 @@ h1 {
 
 .component-list__row.component-list__row--selected {
   background: rgba(44, 125, 216, 0.15);
+}
+
+/* Miembro de un grupo, anidado justo debajo de la fila de su grupo (00204):
+   fondo sutil distinto + sangrado en la celda Id, sin línea conectora ni
+   icono — se lee como "contenido de la carpeta" del grupo de encima. */
+.component-list__row--member {
+  background: var(--accent-blue-light);
+}
+
+.component-list__row--member:hover {
+  background: #ddebf9;
+}
+
+.component-list__row--member.component-list__row--selected {
+  background: rgba(44, 125, 216, 0.15);
+}
+
+.component-list__row--member .component-list__id-cell {
+  padding-left: 1.75rem;
 }
 
 .modal-overlay {
@@ -714,6 +739,18 @@ fieldset.modal__section--untitled {
   background: var(--error);
 }
 
+/* Miembro de un grupo (00193) arrastrado a la selección sin haber sido el
+   clicado directamente (00201): mismo contorno/etiqueta, en gris en vez de
+   azul/rojo, para distinguirlo del elemento realmente clicado. Gana sobre
+   is-copy si coinciden (declarada después). */
+.text-box--selectable.is-group-passenger.text-box--selected {
+  outline-color: var(--text-muted);
+}
+
+.text-box--selectable.is-group-passenger.text-box--selected .component-id-label {
+  background: var(--text-muted);
+}
+
 .text-box--movable {
   cursor: move;
 }
@@ -759,6 +796,15 @@ fieldset.modal__section--untitled {
 .board--selectable.is-copy:hover .component-id-label,
 .board--selectable.is-copy.board--selected .component-id-label {
   background: var(--error);
+}
+
+/* Miembro de grupo no clicado directamente (00201): ver .text-box--selectable.is-group-passenger más arriba. */
+.board--selectable.is-group-passenger.board--selected {
+  outline-color: var(--text-muted);
+}
+
+.board--selectable.is-group-passenger.board--selected .component-id-label {
+  background: var(--text-muted);
 }
 
 .board--movable {
@@ -807,6 +853,15 @@ fieldset.modal__section--untitled {
   background: var(--error);
 }
 
+/* Miembro de grupo no clicado directamente (00201): ver .text-box--selectable.is-group-passenger más arriba. */
+.tablero-personalizado--selectable.is-group-passenger.tablero-personalizado--selected {
+  outline-color: var(--text-muted);
+}
+
+.tablero-personalizado--selectable.is-group-passenger.tablero-personalizado--selected .component-id-label {
+  background: var(--text-muted);
+}
+
 .tablero-personalizado--movable {
   cursor: move;
 }
@@ -847,6 +902,15 @@ fieldset.modal__section--untitled {
 .dice--selectable.is-copy:hover .component-id-label,
 .dice--selectable.is-copy.dice--selected .component-id-label {
   background: var(--error);
+}
+
+/* Miembro de grupo no clicado directamente (00201): ver .text-box--selectable.is-group-passenger más arriba. */
+.dice--selectable.is-group-passenger.dice--selected {
+  outline-color: var(--text-muted);
+}
+
+.dice--selectable.is-group-passenger.dice--selected .component-id-label {
+  background: var(--text-muted);
 }
 
 .component-id-label {
@@ -969,6 +1033,15 @@ fieldset.modal__section--untitled {
   background: var(--error);
 }
 
+/* Miembro de grupo no clicado directamente (00201): ver .text-box--selectable.is-group-passenger más arriba. */
+.document-viewer--selectable.is-group-passenger.document-viewer--selected {
+  outline-color: var(--text-muted);
+}
+
+.document-viewer--selectable.is-group-passenger.document-viewer--selected .component-id-label {
+  background: var(--text-muted);
+}
+
 .document-viewer--movable {
   cursor: move;
 }
@@ -1020,6 +1093,16 @@ fieldset.modal__section--untitled {
 .carta--selectable.is-copy:hover .component-id-label,
 .carta--selectable.is-copy.carta--selected .component-id-label {
   background: var(--error);
+}
+
+/* Miembro de grupo no clicado directamente (00201): ver .text-box--selectable.is-group-passenger
+   más arriba. Cubre también 'mazo', que reutiliza estas mismas clases. */
+.carta--selectable.is-group-passenger.carta--selected {
+  outline-color: var(--text-muted);
+}
+
+.carta--selectable.is-group-passenger.carta--selected .component-id-label {
+  background: var(--text-muted);
 }
 
 .carta--movable {

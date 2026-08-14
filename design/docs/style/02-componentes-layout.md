@@ -83,3 +83,13 @@ Primer uso de `position: sticky` en el proyecto: `.component-list th`/`.resource
 - `z-index: 2` es local a la propia tabla (por encima de las filas, que no tienen `z-index` propio) — sin relación con los niveles fijos de `position: fixed` de la sección Layout (paneles, modal, menús).
 - `position: sticky` sigue siendo elemento posicionado a efectos de contener descendientes `position: absolute` — `.column-resize-handle` sigue funcionando sin cambios sobre una cabecera `sticky`, igual que sobre una `relative`.
 - Cualquier tabla futura con scroll interno propio: reutilizar este mismo patrón (cabecera `sticky` + fondo opaco + `z-index` local) en vez de crear uno ad-hoc.
+
+## 11.2 Fila anidada bajo un bloque padre (`.component-list__row--member`, 00204)
+
+Primer uso de anidación visual dentro de una fila de tabla: los miembros de un grupo se muestran siempre justo debajo de la fila de su grupo en `.component-list`, indentados y con fondo distinto — como el contenido desplegado de una carpeta.
+
+- **Fondo**: `var(--accent-blue-light)` en reposo (mismo token que "fondo claro para paneles interactivos" de `01-tokens-visual.md` §2 — no un valor ad-hoc nuevo), `#ddebf9` en `:hover` (un tono más oscuro de la misma familia), y el azul de selección estándar (`rgba(44,125,216,.15)`) si además está seleccionada — mismo criterio de prioridad que cualquier fila de `.component-list__row--selected`.
+- **Indentación**: `padding-left` adicional en `.component-list__id-cell` (no en toda la fila) — solo la celda Id se desplaza, el resto de columnas (Orden, Tipo, Copia, Acciones) mantiene su alineación normal de tabla.
+- **Sin línea conectora ni icono**: a diferencia de un árbol de ficheros con guías visuales, aquí basta la indentación + el fondo distinto para leerse como "contenido del bloque de encima" — decisión explícita (confirmada sobre maqueta) para no añadir ruido visual.
+- **Campo deshabilitado dentro de una fila anidada**: `.component-list__order-input:disabled` — fondo `var(--bg-subtle)`, texto `var(--text-muted)`, `cursor: not-allowed` — mismo criterio que cualquier control deshabilitado de la app (§9, "Deshabilitado").
+- Patrón acotado a este caso por ahora — cualquier otra tabla que necesite anidar filas bajo un padre puede reutilizarlo (fondo del token `--accent-blue-light`, indentación solo en la celda "identificadora", sin línea conectora) en vez de crear uno nuevo.

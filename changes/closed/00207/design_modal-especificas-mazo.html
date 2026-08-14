@@ -1,0 +1,295 @@
+<title>Maqueta — Específicas de mazo</title>
+<style>
+  :root {
+    --accent-blue: #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --text-primary: #1a1a1a;
+    --text-muted: #666666;
+    --text-light: #ffffff;
+    --error: #d32f2f;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e6e6e6;
+    --radius-sm: 4px;
+    --shadow-2: 0 4px 20px rgba(0, 0, 0, 0.15);
+    --section-accent: #5b5f97;
+  }
+
+  body {
+    font-family: system-ui, sans-serif;
+    color: var(--text-primary);
+    background: #e9e9e9;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: 500px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: var(--shadow-2);
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+  }
+
+  .modal__header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+
+  .modal__header h2 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+
+  .modal__tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-neutral);
+    padding: 0 1.25rem;
+  }
+
+  .modal__tab {
+    padding: 0.75rem 1rem;
+    background: none;
+    border: none;
+    font: inherit;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+
+  .modal__tab.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--accent-blue);
+    font-weight: 600;
+  }
+
+  .modal__body {
+    padding: 1.25rem;
+    overflow-y: auto;
+  }
+
+  .modal__hint {
+    margin: 0 0 1rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .modal__section {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    margin-top: 1rem;
+    padding: 1rem;
+  }
+
+  .modal__section:first-of-type {
+    margin-top: 0;
+  }
+
+  .modal__section-title {
+    color: var(--section-accent);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    padding: 0 0.35rem;
+  }
+
+  .modal__field {
+    margin-top: 0.9rem;
+  }
+
+  .modal__section .modal__field:first-child {
+    margin-top: 0;
+  }
+
+  .modal__field label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .modal__field select,
+  .modal__field input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+
+  .modal__field input[type="text"] {
+    cursor: text;
+  }
+
+  .modal__field-note {
+    margin: 0.35rem 0 0;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .imagen-preview {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .imagen-preview__thumb {
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-neutral);
+    background: linear-gradient(135deg, #cfe2f3, #9fc5e8);
+  }
+
+  .imagen-buttons {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .btn-cancel {
+    flex: 1;
+    padding: 0.5rem 0.6rem;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 0.82rem;
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+
+  .btn-content {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.6rem;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+
+  .modal__footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--border-neutral);
+  }
+
+  .footer-right {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .btn-eliminar {
+    padding: 0.5rem 1rem;
+    background: var(--error);
+    color: var(--text-light);
+    border: none;
+    border-radius: var(--radius-sm);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .btn-accept {
+    padding: 0.5rem 1.1rem;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    border: none;
+    border-radius: var(--radius-sm);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .annot {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.75rem;
+  }
+
+  .annot b { color: var(--section-accent); }
+</style>
+
+<div class="modal">
+  <div class="modal__header">
+    <h2>Editar propiedades del componente</h2>
+  </div>
+
+  <div class="modal__tabs">
+    <button class="modal__tab">Generales</button>
+    <button class="modal__tab active">Específicas</button>
+    <button class="modal__tab">Copias</button>
+  </div>
+
+  <div class="modal__body">
+    <p class="modal__hint">14 cartas</p>
+
+    <fieldset class="modal__section">
+      <legend class="modal__section-title">Disposición</legend>
+
+      <div class="modal__field">
+        <label>Forma</label>
+        <select><option selected>Rectangular</option><option>Circular</option></select>
+      </div>
+
+      <div class="modal__field">
+        <label>Orientación</label>
+        <select><option selected>Vertical</option><option>Horizontal</option></select>
+      </div>
+
+      <div class="modal__field">
+        <label>Disposición carta revelada</label>
+        <select>
+          <option>Arriba</option>
+          <option>Abajo</option>
+          <option selected>Derecha</option>
+          <option>Izquierda</option>
+        </select>
+        <p class="modal__field-note">Lado del mazo donde aparecen las cartas al sacarlas</p>
+      </div>
+
+      <div class="modal__field">
+        <label>Texto carta revelada</label>
+        <input type="text" value="Carta revelada">
+      </div>
+    </fieldset>
+
+    <fieldset class="modal__section">
+      <legend class="modal__section-title">Imagen</legend>
+
+      <div class="imagen-preview">
+        <div class="imagen-preview__thumb"></div>
+        <span>calendar_color</span>
+      </div>
+
+      <div class="imagen-buttons">
+        <button class="btn-cancel">Elegir imagen…</button>
+        <button class="btn-cancel">Ajustar imagen…</button>
+        <button class="btn-cancel">Quitar imagen</button>
+      </div>
+    </fieldset>
+
+    <button class="btn-content">Ver contenido del mazo</button>
+
+    <p class="annot">↑ Campos nuevos: <b>Disposición carta revelada</b> y <b>Texto carta revelada</b> — el resto (Forma, Orientación, Imagen, Ver contenido del mazo) ya existían, solo se reagrupan en secciones.</p>
+  </div>
+
+  <div class="modal__footer">
+    <button class="btn-eliminar">Eliminar</button>
+    <div class="footer-right">
+      <button class="btn-cancel" style="flex: initial; padding: 0.5rem 1rem;">Cancelar</button>
+      <button class="btn-accept">Aceptar</button>
+    </div>
+  </div>
+</div>

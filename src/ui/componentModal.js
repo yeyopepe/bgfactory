@@ -80,6 +80,18 @@ export const MAZO_FORMAS = [
   { value: 'circular', label: 'Circular' },
 ];
 
+export const MAZO_DISPOSICIONES = [
+  { value: 'arriba', label: 'Arriba' },
+  { value: 'abajo', label: 'Abajo' },
+  { value: 'derecha', label: 'Derecha' },
+  { value: 'izquierda', label: 'Izquierda' },
+];
+
+export const MAZO_REVELAR_CARA = [
+  { value: 'frontal', label: 'Boca arriba' },
+  { value: 'trasera', label: 'Boca abajo' },
+];
+
 export const DEFAULT_BOARD_PROPERTIES = {
   bordeColor: '#000000',
   bordeGrosor: 2,
@@ -142,6 +154,9 @@ export const DEFAULT_MAZO_PROPERTIES = {
   cartaIds: [],
   orientacion: 'vertical',
   forma: 'rectangular',
+  disposicion: 'derecha',
+  textoCartaRevelada: 'Carta revelada',
+  caraCartaRevelada: 'frontal',
   imagenResourceId: null,
 };
 
@@ -1434,6 +1449,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     editBtn.type = 'button';
     editBtn.className = 'btn-cancel';
     editBtn.textContent = 'Editar diseño del tablero';
+    editBtn.style.width = '100%';
     editBtn.addEventListener('click', () => {
       openVisualEditorModal({
         component: workingComponent,
@@ -1618,6 +1634,14 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     countHint.textContent = `${(props.cartaIds || []).length} cartas`;
     container.appendChild(countHint);
 
+    // "Forma": agrupa Forma y Orientación (§12.6 Style Bible).
+    const formaSection = document.createElement('fieldset');
+    formaSection.className = 'modal__section';
+    const formaSectionLegend = document.createElement('legend');
+    formaSectionLegend.className = 'modal__section-title';
+    formaSectionLegend.textContent = 'Forma';
+    formaSection.appendChild(formaSectionLegend);
+
     // Forma: rectangular (por defecto) o circular. Al cambiar a circular se
     // iguala ancho y alto (círculo perfecto) tomando el mayor de los dos
     // valores actuales, mismo criterio que "Carta" al cambiar a su
@@ -1646,7 +1670,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     });
     formaField.appendChild(formaLabel);
     formaField.appendChild(formaSelect);
-    container.appendChild(formaField);
+    formaSection.appendChild(formaField);
 
     // Orientación: intercambia width/height al cambiar, para transponer la
     // caja del mazo conservando cualquier redimensionado manual ya hecho.
@@ -1675,16 +1699,98 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     });
     orientacionField.appendChild(orientacionLabel);
     orientacionField.appendChild(orientacionSelect);
-    container.appendChild(orientacionField);
+    formaSection.appendChild(orientacionField);
+
+    container.appendChild(formaSection);
+
+    // "Cartas reveladas": agrupa dónde y cómo aparece la carta al sacarla del mazo
+    // (§12.6 Style Bible).
+    const revealSection = document.createElement('fieldset');
+    revealSection.className = 'modal__section';
+    const revealLegend = document.createElement('legend');
+    revealLegend.className = 'modal__section-title';
+    revealLegend.textContent = 'Cartas reveladas';
+    revealSection.appendChild(revealLegend);
+
+    // Disposición carta revelada: lado del mazo donde se pinta la zona de revelado
+    // (ui/componentRenderer.js → renderMazoRevealZone) y aparece la carta al sacarla
+    // (core/deck.js → getMazoRevealZoneRect). A diferencia de "Orientación", se
+    // muestra también con forma circular.
+    const disposicionField = document.createElement('div');
+    disposicionField.className = 'modal__field';
+    const disposicionLabel = document.createElement('label');
+    disposicionLabel.textContent = 'Disposición carta revelada';
+    const disposicionSelect = document.createElement('select');
+    for (const { value, label } of MAZO_DISPOSICIONES) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      if (value === (props.disposicion || DEFAULT_MAZO_PROPERTIES.disposicion)) option.selected = true;
+      disposicionSelect.appendChild(option);
+    }
+    disposicionSelect.addEventListener('change', () => {
+      props.disposicion = disposicionSelect.value;
+    });
+    disposicionField.appendChild(disposicionLabel);
+    disposicionField.appendChild(disposicionSelect);
+    const disposicionNote = document.createElement('p');
+    disposicionNote.className = 'modal__hint';
+    disposicionNote.textContent = 'Lado del mazo donde aparecen las cartas al sacarlas';
+    disposicionField.appendChild(disposicionNote);
+    revealSection.appendChild(disposicionField);
+
+    // Texto carta revelada: texto libre pintado dentro de la zona de revelado.
+    // Cadena vacía es un valor válido (zona sin texto), ver ui/componentRenderer.js.
+    const textoRevelaField = document.createElement('div');
+    textoRevelaField.className = 'modal__field';
+    const textoRevelaLabel = document.createElement('label');
+    textoRevelaLabel.textContent = 'Texto carta revelada';
+    const textoRevelaInput = document.createElement('input');
+    textoRevelaInput.type = 'text';
+    textoRevelaInput.value = props.textoCartaRevelada ?? DEFAULT_MAZO_PROPERTIES.textoCartaRevelada;
+    textoRevelaInput.addEventListener('input', () => {
+      props.textoCartaRevelada = textoRevelaInput.value;
+    });
+    textoRevelaField.appendChild(textoRevelaLabel);
+    textoRevelaField.appendChild(textoRevelaInput);
+    revealSection.appendChild(textoRevelaField);
+
+    // Revelar carta: cara con la que queda mostrada la carta al sacarla del mazo
+    // (core/deck.js → computeSacarCartaDeMazo), independiente de `caraActual` que
+    // ya tuviera la carta mientras estaba dentro del mazo.
+    const revelarCaraField = document.createElement('div');
+    revelarCaraField.className = 'modal__field';
+    const revelarCaraLabel = document.createElement('label');
+    revelarCaraLabel.textContent = 'Revelar carta';
+    const revelarCaraSelect = document.createElement('select');
+    for (const { value, label } of MAZO_REVELAR_CARA) {
+      const option = document.createElement('option');
+      option.value = value;
+      option.textContent = label;
+      if (value === (props.caraCartaRevelada || DEFAULT_MAZO_PROPERTIES.caraCartaRevelada)) option.selected = true;
+      revelarCaraSelect.appendChild(option);
+    }
+    revelarCaraSelect.addEventListener('change', () => {
+      props.caraCartaRevelada = revelarCaraSelect.value;
+    });
+    revelarCaraField.appendChild(revelarCaraLabel);
+    revelarCaraField.appendChild(revelarCaraSelect);
+    revealSection.appendChild(revelarCaraField);
+
+    container.appendChild(revealSection);
 
     // Imagen propia del mazo: independiente del contenido de la pila. Mientras no se
     // elija ninguna, el mazo sigue mostrando el dorso de la carta de arriba (o el
     // icono de "vacío"), ver fallback en ui/componentRenderer.js.
+    const imagenSection = document.createElement('fieldset');
+    imagenSection.className = 'modal__section';
+    const imagenLegend = document.createElement('legend');
+    imagenLegend.className = 'modal__section-title';
+    imagenLegend.textContent = 'Imagen';
+    imagenSection.appendChild(imagenLegend);
+
     const imagenField = document.createElement('div');
     imagenField.className = 'modal__field';
-    const imagenLabel = document.createElement('label');
-    imagenLabel.textContent = 'Imagen';
-    imagenField.appendChild(imagenLabel);
 
     const imagenPreview = document.createElement('div');
     imagenPreview.style.display = 'flex';
@@ -1778,17 +1884,20 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     imagenField.appendChild(imagenButtons);
 
     refreshImageField();
-    container.appendChild(imagenField);
+    imagenSection.appendChild(imagenField);
+    container.appendChild(imagenSection);
 
     // Ver contenido del mazo: opera siempre sobre el componente ya guardado en
     // el estado (mazoId), no sobre workingComponent, para que "Sacar" refleje
     // siempre los datos reales aunque esta modal de propiedades siga abierta.
     const contentField = document.createElement('div');
     contentField.className = 'modal__field';
+    contentField.style.marginTop = '1rem';
     const contentBtn = document.createElement('button');
     contentBtn.type = 'button';
     contentBtn.className = 'btn-cancel';
     contentBtn.textContent = 'Ver contenido del mazo';
+    contentBtn.style.width = '100%';
     contentBtn.addEventListener('click', () => {
       openMazoContentModal({
         mazoId: workingComponent.id,

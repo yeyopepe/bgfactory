@@ -39,6 +39,8 @@ function addSortItem(menu, { label, active, onClick }) {
 // `activeFilterValue`: valor de filtro activo, o null si ninguno ("Todos").
 // `onToggleSort(direction)`: 'asc' | 'desc' pulsado — exclusividad/apagado los decide quien invoca.
 // `onSelectFilter(value)`: valor elegido, o null si se elige "Todos".
+// `formatFilterLabel(value)`: transforma un valor de `filterValues` en el texto mostrado en el
+// `<option>` (p.ej. capitalizar); el valor real usado para filtrar no cambia. Por defecto, identidad.
 export function openColumnHeaderMenu({
   anchorEl,
   sortDirection = null,
@@ -47,6 +49,7 @@ export function openColumnHeaderMenu({
   activeFilterValue = null,
   onToggleSort,
   onSelectFilter,
+  formatFilterLabel = (value) => value,
 } = {}) {
   closeCurrentMenu();
 
@@ -85,7 +88,7 @@ export function openColumnHeaderMenu({
     for (const value of filterValues) {
       const option = document.createElement('option');
       option.value = value;
-      option.textContent = value;
+      option.textContent = formatFilterLabel(value);
       select.appendChild(option);
     }
     select.value = activeFilterValue ?? '';

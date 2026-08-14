@@ -18,6 +18,30 @@ Entidad ligera e independiente para agrupar/organizar elementos por nombre, en c
 
 **Compatibilidad hacia atrás**: cadena de 3 niveles. Guardado hecho con la app anterior a la introducción de "Grupos" tiene esta colección y su `panelState` bajo las claves más antiguas `decks`/`deckPanelState`; guardado hecho tras "Grupos" pero antes de este renombrado a "Etiquetas" las tiene bajo `groups`/`groupPanelState`. `core/persistence.js` (`parseState`/`parseImportedComponents`) encadena la lectura: usa `tags`/`tagPanelState` si están presentes, si no `groups`/`groupPanelState`, si no `decks`/`deckPanelState` — para no perder etiquetas ya creadas en ningún guardado anterior.
 
+## Modelo de datos de grupo
+
+Registro de propiedades propio de un grupo de componentes (unidad de agrupación en modo edición, ver `04-modes.md`, "Grupos en modo edición"). Desde 00202, independiente del `groupId` compartido por sus miembros — antes de ese cambio un grupo no tenía ningún estado propio.
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| `id` | string | Mismo valor que el `groupId` de sus miembros — `grupo-N` autogenerado (`core/component.js#nextGroupId`) al formar el grupo, o libre si se renombra desde su modal de propiedades |
+| `bloqueado` | `'ninguno' \| 'juego' \| 'todos'` | Igual semántica que el campo homónimo de componente |
+| `oculto` | boolean | Igual semántica que el campo homónimo de componente |
+| `mostrarTooltip` | boolean | Igual semántica que el campo homónimo de componente |
+| `subirAlMoverInteractuar` | boolean | Igual semántica que el campo homónimo de componente |
+| `etiquetaIds` | string[] | Etiquetas propias del grupo — lista independiente de las de cada miembro, sin relación entre ambas |
+
+`core/group.js` expone:
+- `createGroup({ id, ... })` / `updateGroup(group, changes)` — mismo patrón que `core/tag.js`/`core/resource.js`. A diferencia de esas dos, `id` no se autogenera aquí: siempre lo fija quien llama.
+- `isGroupIdTaken(id, groups, excludeId)` — comparación exacta (no normalizada, a diferencia de `isTagNameTaken`): `id` es un identificador literal, no un nombre libre.
+- `getEffectiveGeneralProps(component, groups)` — ver `04-modes.md`. Resuelve qué valores de `bloqueado`/`oculto`/`mostrarTooltip`/`subirAlMoverInteractuar`/`etiquetaIds` gobiernan de verdad a un componente: los de su grupo si pertenece a uno, los suyos propios si no.
+- `getGroupsUsingTag(tagId, groups)` — mismo criterio que `getComponentsUsingTag` (`core/tag.js`), aplicado a `groups`.
+- `deriveMissingGroups(components, existingGroups)` — backfill: añade una entrada con valores por defecto por cada `groupId` (2+ miembros) sin registro ya en `existingGroups`. Cubre tanto guardados de antes de 00202 (sin la colección) como una importación cuyo fichero no incluye algún grupo referenciado por sus componentes.
+
+`core/state.js` mantiene colección `groups` (`getGroups`/`addGroup`/`replaceGroup`/`removeGroup`/`loadGroups`, evento `groups:changed`) — sin `panelState` propio (no tiene panel flotante dedicado, a diferencia de "Etiquetas"/"Recursos"; se edita desde el modal abierto por el botón "Editar" de su fila en el panel "Componentes"). Persistida bajo la clave `componentGroups` (`core/persistence.js`, `core/fileExport.js`) — deliberadamente **no** `groups`, porque esa clave ya está reservada como alias de compatibilidad hacia atrás de `tags` (ver más abajo, "Compatibilidad hacia atrás"). Sin alias propio: es una colección nueva, no existía con otro nombre antes.
+
+Alta automática (valores por defecto) al formar el grupo, baja automática (sin dejar rastro) al desagruparse — manual o por disolución automática al quedar ≤1 miembro (ver `04-modes.md`). Importación (`core/importMerge.js`): se fusiona por `id` igual que recursos/etiquetas, sin la deduplicación adicional que sí tienen las etiquetas (renombrado por nombre duplicado) — colisión de `id` de grupo entre partida actual e importada no se resuelve especialmente, fuera de alcance de 00202.
+
 ## Modelo de datos de recurso (galería)
 
 "Recurso de galería" (imagen o tipografía usada por la partida), independiente del modelo de componente:
