@@ -28,6 +28,17 @@
   - (1) Pelea: 1xherida, 2xesquiva, 1x-1enemigo, 2xdispersión
   - (1) Encuentros: 1x2zombis, 2x1zombi, 3xnada
 
+## 0. Descripción
+Errantes es un juego de supervivencia
+
+### ¿Cómo se gana?
+
+### ¿Cómo se pierde?
+Los personajes pueden morir de muy diveras maneras:
+- Estando en una localización cuando esta se infesta y se desata el apocalipsis.
+- Cuando sufre una herida y ya no tiene ningún sitio para colocar la ficha de herida.
+
+
 
 ## 1. Preparación de la partida
 
@@ -83,6 +94,7 @@ Número de eventos semanales:
 | Difícil | 2 | 3 |
 
 Es posible que obtengas más de un evento para un mismo dia de la semana. En ese caso forma una pequeño mazo para ese día y, cuando llegue el momento de resolverlos, hazlo en estricto orden, terminando de resolver por completo cada evento antes de desvelar el siguiente.
+
 
 ## 2. Secuencia de juego
 
@@ -148,6 +160,9 @@ De vez en cuando captas alguna emisión interesante. Puedes hacer una de las sig
 - Consigues información valiosa: puedes mirar la pila de saqueo de una localización cualquiera menos la tuya y devolverla en cualquier orden.
 - Te anticipas a los enemigos: puedes mover hasta 3 enemigos de una misma localización (que no sea la tuya) a otra adyacente.
 
+
+
+
 ## 4. Acciones que pueden realizarse si NO hay enemigos en la localización
 
 ### 4.1 Acciones que cuestan 1 punto de acción
@@ -194,15 +209,20 @@ Localización con icono de agua
 
 
 
+## 5. Localizaciones infestadas
+En el momento en que una localización llegue a su límite de enemigos, los jugadores deben colocar una ficha de Localización Infestada.
+Las localizaciones con una ficha de Localización Infestada siguen funcionando igual que antes con la única excepción de que los jugadores no pueden entrar ni pasar por dicha casilla.
+Si una localización llega a su límite de enemigos, los personajes que haya en esa localización mueren.
+
+Límite enemigos de una localización = nivel de asentamiento x 5.
+Límite para localizaciones con nivel de asentamiento 0 = 3.
 
 
 
 
 
 
-
-
-## 5. Combate
+## 6. Combate
 Se produce un combate siempre que se cumple al menos una de las siguientes condiciones:
 
 1. Si uno o varios personajes entran en una localización que contiene al menos 1 enemigo, realiza inmediatamente una secuencia de combate.
@@ -230,7 +250,9 @@ Esta acción no permite mover ningún otro objeto de la mochila.
 - 💢 Dispersar: tu personaje gana tiempo y consigue dispersar al enemigo. Mueve un enemigo de tu localización a cada localización adyacente. Tu localización actual puede quedar vacía tras esta acción.
 - 🏃‍♂️ Esquiva: tu personaje esquiva el ataque del enemigo.
 
-## 6. La mochila
+
+
+## 7. La mochila
 
 ### Como añadir objetos a la mochila
 Cada vez que consigas un objeto nuevo lo tendrás que meter en tu mochila. Para ello, tienes que colocar la ficha del objeto en una de las casillas disponibles de tu mochila teniendo en cuenta que siempre tienen que estar "apoyados" sobre algo: XXXX
@@ -243,7 +265,11 @@ Una vez colocado un objeto en la mochila solo puedes moverlo de 3 maneras:
 - con las acciones de [Intercambiar]() y [Comerciar](): en este caso también puedes aprovechar para reordenar los objetos de tu mochila como quieras cuando saques o metas nuevas objetos fruto del intercambio.
 
 
-## 7. Explicación de las cartas
+
+
+
+
+## 8. Explicación de las cartas
 
 ### Cartas de localización
 - Imagen: <imagen>
@@ -260,9 +286,16 @@ Una vez colocado un objeto en la mochila solo puedes moverlo de 3 maneras:
   4. Se puede [Cazar]() en la localización.
   5. Se puede [Pescar]() en la localización.
 
-## 8. Preguntas frecuentes
+### Cartas de evento
+1. 💥: el efecto del evento debe resolverse de inmediato al reverla la carta.
+2. 📅: el efecto del evento dura todo el día en curso.
+3. 👨‍👩‍👧‍👦: cada jugador se ve afectado o debe resolver el efecto del evento.
+4. 🙍‍♀️: solo el jugador que revela el evento debe resolver el efecto del evento.
 
-## 9. Lista de objetos
+
+## 9. Preguntas frecuentes
+
+## 10. Lista de objetos
 
 ### Objetos básicos
 | Objeto | Acción |
