@@ -104,25 +104,28 @@ Es posible que obtengas más de un evento para un mismo dia de la semana. En ese
 
 ## 2. Secuencia de juego
 
-1. Avanza al día siguiente en el calendario. Si es domingo -> termina la semana. (Se omite en el turno 1)
-2. Resuelve los eventos del dia actual y cada jugador calcula el número de acciones que puede realizar este nuevo día, que es la suma de:
+
+1. Resuelve los eventos del dia actual y cada jugador calcula el número de acciones que puede realizar este nuevo día, que es la suma de:
   1. 1 acción (mínimo disponible siempre, salvo que una carta indique lo contrario)
   2. Número de casillas "+1" que estén visibles en la mochila (no tapadas por ningún objeto). Si durante el día alguna de estas casillas es tapada por un objeto, solo afectará al cálculo de acciones a partir del día siguiente.
   3. Número de acciones a sumar o restar por el efecto de las cartas.
-3. Los jugadores pueden realizar sus acciones en el orden que elijan, pudiendo repetir un mismo tipo de acción varias veces.
-4. Cuando todos los jugadores hayan agotado sus acciones principales, se termina el día.
+2. Los jugadores pueden realizar sus acciones en el orden que elijan, pudiendo repetir un mismo tipo de acción varias veces.
+3. Cuando todos los jugadores hayan agotado sus acciones principales, se termina el día.
    1. Cada jugador que esté en un enclave con médico disponible, se cura 1 herida.
    2. Si un jugador ha decidido no usar todas sus acciones, estás se pierden, no se acumulan para el día siguiente.
-5. Si has jugado el último día de la última semana -> termina la partida.
+5. Avanza al día siguiente en el calendario. Si es domingo -> [Termina la semana]().
+4. Si has jugado el último día de la última semana -> [Termina la partida]().
 
 
 #### Termina la semana
 
 Cuando termina el domingo y, por lo tanto, la semana en curso:
 
-1. Saca un objeto de la bolsa de saqueo y colocalo en la parte superior de la pila de saqueo de cada localización que tenga comerciantes (<icono>) disponibles. Si no quedan objetos en la bolsa de saqueo, no realices este paso.
-2. Según el nivel de dificultad repite este paso las veces indicadas:
-  1. Toma la primera carta del mazo de eventos (boca abajo,sin darle la vuelta) y colócalo en el día de la semana que indique el dorso de la que ahora es la primera carta del mazo.
+1. Según el nivel de dificultad repite este paso las veces indicadas:
+  - Toma la primera carta del mazo de eventos (boca abajo, sin darle la vuelta) y colócalo en el día de la semana que indique el dorso de la que ahora es la primera carta del mazo.
+2. Lanza tantos dados de encuentro como jugadores sigan vivos:
+  - Sumad el número de enemigos resultantes.
+  - Colocada vuestra elección los enemigos en localizaciones adyacentes a localizaciones de personajes (nunca dónde estén los personajes) que no tengan requisitos de entrada.
 
 
 #### Termina la partida
@@ -159,12 +162,8 @@ Para subir en 1 el nivel de asentamiento hace falta reunir en esa localización 
 Todas las localizaciones empiezan con nivel de asentamiento 0, indicando la carta de cada localización cuál es el nivel máximo.
 
 ### Acciones con objetos
-Las siguientes acciones solo pueden realizarla personajes que disponen de la combinación indicada de objetos
+Hay combinaciones de objetos que, si los tienes en tu mochila y/o en la localización en la que se encuentre un personaje, le permiten realizar acciones adicionales. Consulta la [Lista de objetos]() para más información.
 
-#### Radio + pilas
-De vez en cuando captas alguna emisión interesante. Puedes hacer una de las siguientes acciones:
-- Consigues información valiosa: puedes mirar la pila de saqueo de una localización cualquiera menos la tuya y devolverla en cualquier orden.
-- Te anticipas a los enemigos: puedes mover hasta 3 enemigos de una misma localización (que no sea la tuya) a otra adyacente.
 
 
 
@@ -185,8 +184,8 @@ Una vez resueltos los resultados de todos los dados, el jugador puede meter en s
 
 
 ### Cazar/pescar
-En localizaciones dónde haya disponible animales para cazar o pescar <iconos>, si el jugador tiene en su mochila un arma o una caña de pescar, podrá conseguir 1 objeto comida.
-- Caza: cuchillo y lanza.
+En localizaciones dónde haya disponible animales para cazar o pescar <iconos>, si el jugador tiene en su mochila un arma o una caña de pescar, podrá conseguir 1 comida.
+- Caza: lanza y arco.
 - Pesca: caña de pescar.
 
 ### Comerciar
@@ -302,26 +301,24 @@ Una vez colocado un objeto en la mochila solo puedes moverlo de 3 maneras:
 ### Objetos básicos
 | Objeto | Acción |
 |---|---|
-| Basura||
-| Pilas ||
-| Cinta aislante||
-| Agua ||
-| Desinfectante ||
-| Linterna ||
-| Barra de hierro ||
-| Cuchillo ||
-| Radio ||
-| Comida ||
-| Cuerda ||
-| Palo ||
-| Aguja ||
-| Pico ||
-| Saco de dormir ||
-| Vendas ||
+| Agua | Permite devolverla a la bolsa de saqueo para curar una herida |
+| Aguja | Ver [Objetos fabricables]() |
 | Arco | Hay que tenerlo en la mochila (junto con flechas) para poder cazar en las localizaciones permitidas |
+| Barra de hierro | Necesario para algunas localizaciones |
+| Basura| Permite subir el nivel de asentamiento |
+| Cinta aislante| Ver [Objetos fabricables]() |
+| Comida | Permite devolverla a la bolsa de saqueo para curar una herida |
+| Cuerda | Ver [Objetos fabricables]() |
+| Cuchillo | Ver [Objetos fabricables]()|
+| Desinfectante | Ver [Objetos fabricables]() |
 | Flechas | Hay que tenerlo en la mochila (junto con el arco) para poder cazar en las localizaciones permitidas |
-
-
+| Linterna | Necesita pilas |
+| Palo | Ver [Objetos fabricables]() |
+| Pico | Necesario para algunas localizaciones |
+| Pilas ||
+| Radio | Necesita pilas |
+| Saco de dormir | Necesario para algunas localizaciones |
+| Vendas | Ver [Objetos fabricables]() |
 ### Objetos fabricables
 | Objeto | Acción | Se fabrica con... |
 |---|---|---|
@@ -330,5 +327,14 @@ Una vez colocado un objeto en la mochila solo puedes moverlo de 3 maneras:
 | Lanza | Hay que tenerlo en la mochila para poder cazar en las localizaciones permitidas | Palo, Cuchillo, Cinta aislante |
 
 
+### Acciones disponibles según combinaciones de objetos
+
+### Radio + pilas
+*De vez en cuando captas alguna emisión interesante y hasta a veces te permite anticiparte*.
+
+Puedes hacer una de las acciones disponibles:
+- Consigues información valiosa: puedes mirar la pila de saqueo de una localización cualquiera menos la tuya y devolverla en cualquier orden.
+- Te anticipas a los enemigos: puedes mover hasta 3 enemigos de una misma localización (que no sea la tuya) a otra adyacente.
 
 
+### Linterna + pilas
