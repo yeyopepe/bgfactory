@@ -31,6 +31,32 @@ const DOCUMENTO_IFRAME_LOAD_TIMEOUT_MS = 3000;
 const DICE_ROLL_DURATION_MS = 1000;
 const DICE_ROLL_INTERVAL_MS = 70;
 
+// Sanitizador mínimo para el campo "Tooltip" de un componente (Ayuda jugador): a diferencia de
+// core/sanitizeHtml.js (permisivo, solo quita <script>/handlers inline para el Visor de documentos),
+// aquí solo se permite un whitelist fijo de etiquetas de formato básico sin atributos — cualquier otra
+// etiqueta se desenvuelve conservando su texto/hijos, en vez de eliminarla junto con su contenido.
+const TOOLTIP_ALLOWED_TAGS = new Set(['b', 'strong', 'i', 'em', 'br', 'ul', 'ol', 'li']);
+
+export function sanitizeBasicTooltipHtml(text) {
+  const template = document.createElement('template');
+  template.innerHTML = text;
+
+  function sanitizeChildren(parent) {
+    for (const node of [...parent.childNodes]) {
+      if (node.nodeType !== Node.ELEMENT_NODE) continue;
+      sanitizeChildren(node);
+      if (TOOLTIP_ALLOWED_TAGS.has(node.tagName.toLowerCase())) {
+        for (const attr of [...node.attributes]) node.removeAttribute(attr.name);
+      } else {
+        node.replaceWith(...node.childNodes);
+      }
+    }
+  }
+
+  sanitizeChildren(template.content);
+  return template.innerHTML;
+}
+
 function getWorldZoom(worldEl) {
   const match = getComputedStyle(worldEl).transform.match(/^matrix\(([^,]+),/);
   return match ? parseFloat(match[1]) : 1;
@@ -227,6 +253,28 @@ function createIdentifierLabel(component) {
   label.className = 'component-id-label';
   label.textContent = formatComponentIdentifier(component);
   return label;
+}
+
+// Tooltip propio en Modo Juego (identifyMode === 'tooltip'), sustituye al antiguo `title` nativo:
+// contenido personalizable (component.tooltipTexto, con formato básico saneado) o, en su defecto, el
+// identificador del componente — misma condición `effective.mostrarTooltip` de antes, pero el texto
+// SIEMPRE sale de `component.tooltipTexto` (nunca de `effective`: getEffectiveGeneralProps/core/group.js
+// no expone ese campo, no es override de grupo).
+// Mostrado/ocultado por CSS puro vía la clase marcadora `.component-tooltip-host` (`:hover > .component-tooltip`,
+// ver styles/main.css) — sin listeners JS ni tocar `element.style.position`: los 7 elementos raíz de
+// componente ya tienen `position: absolute` fijado para su colocación x/y en la mesa, que ya sirve de
+// contexto de posicionamiento para este hijo `position: absolute`. Sobrescribirlo a `relative` rompería
+// esa colocación (así se rompía el posicionamiento de "Mazo"/"Carta" en un intento anterior).
+function attachComponentTooltip(element, component) {
+  element.classList.add('component-tooltip-host');
+  const tooltip = document.createElement('span');
+  tooltip.className = 'component-tooltip';
+  if (component.tooltipTexto) {
+    tooltip.innerHTML = sanitizeBasicTooltipHtml(component.tooltipTexto);
+  } else {
+    tooltip.textContent = formatComponentIdentifier(component);
+  }
+  element.appendChild(tooltip);
 }
 
 // Indicador de bloqueo: insignia superpuesta en una esquina del componente, solo pintada en modo
@@ -586,7 +634,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       textBox.textContent = component.properties.contenido || '';
 
-      if (identifyMode === 'tooltip' && effective.mostrarTooltip) textBox.title = formatComponentIdentifier(component);
+      if (identifyMode === 'tooltip' && effective.mostrarTooltip) attachComponentTooltip(textBox, component);
       if (identifyMode === 'label') textBox.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && effective.bloqueado !== 'ninguno') textBox.appendChild(createLockBadge());
       if (showHiddenIndicator && effective.oculto) textBox.appendChild(createHiddenBadge());
@@ -728,7 +776,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       board.style.width = `${width}px`;
       board.style.height = `${height}px`;
 
-      if (identifyMode === 'tooltip' && effective.mostrarTooltip) board.title = formatComponentIdentifier(component);
+      if (identifyMode === 'tooltip' && effective.mostrarTooltip) attachComponentTooltip(board, component);
       if (identifyMode === 'label') board.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && effective.bloqueado !== 'ninguno') board.appendChild(createLockBadge());
       if (showHiddenIndicator && effective.oculto) board.appendChild(createHiddenBadge());
@@ -962,7 +1010,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         tablero.style.borderColor = bordeColor;
       }
 
-      if (identifyMode === 'tooltip' && effective.mostrarTooltip) tablero.title = formatComponentIdentifier(component);
+      if (identifyMode === 'tooltip' && effective.mostrarTooltip) attachComponentTooltip(tablero, component);
       if (identifyMode === 'label') tablero.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && effective.bloqueado !== 'ninguno') tablero.appendChild(createLockBadge());
       if (showHiddenIndicator && effective.oculto) tablero.appendChild(createHiddenBadge());
@@ -1106,7 +1154,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       dice.style.width = `${size}px`;
       dice.style.height = `${size}px`;
 
-      if (identifyMode === 'tooltip' && effective.mostrarTooltip) dice.title = formatComponentIdentifier(component);
+      if (identifyMode === 'tooltip' && effective.mostrarTooltip) attachComponentTooltip(dice, component);
       if (identifyMode === 'label') dice.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && effective.bloqueado !== 'ninguno') dice.appendChild(createLockBadge());
       if (showHiddenIndicator && effective.oculto) dice.appendChild(createHiddenBadge());
@@ -1329,7 +1377,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       documentViewer.style.width = `${width}px`;
       documentViewer.style.height = `${height}px`;
 
-      if (identifyMode === 'tooltip' && effective.mostrarTooltip) documentViewer.title = formatComponentIdentifier(component);
+      if (identifyMode === 'tooltip' && effective.mostrarTooltip) attachComponentTooltip(documentViewer, component);
       if (identifyMode === 'label') documentViewer.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && effective.bloqueado !== 'ninguno') documentViewer.appendChild(createLockBadge());
       if (showHiddenIndicator && effective.oculto) documentViewer.appendChild(createHiddenBadge());
@@ -1550,7 +1598,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         cartaContent.style.border = (cara?.bordeGrosor ?? 0) > 0 ? `${cara.bordeGrosor}px solid ${cara.bordeColor || '#000000'}` : 'none';
       }
 
-      if (identifyMode === 'tooltip' && effective.mostrarTooltip) carta.title = formatComponentIdentifier(component);
+      if (identifyMode === 'tooltip' && effective.mostrarTooltip) attachComponentTooltip(carta, component);
       if (identifyMode === 'label') carta.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && effective.bloqueado !== 'ninguno') carta.appendChild(createLockBadge());
       if (showHiddenIndicator && effective.oculto) carta.appendChild(createHiddenBadge());
@@ -1775,7 +1823,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         renderMazoEmptyPlaceholder(mazoContent, width, height);
       }
 
-      if (identifyMode === 'tooltip') mazo.title = 'Pulsa para sacar la primera carta.';
+      if (identifyMode === 'tooltip' && effective.mostrarTooltip) attachComponentTooltip(mazo, component);
       if (identifyMode === 'label') mazo.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && effective.bloqueado !== 'ninguno') mazo.appendChild(createLockBadge());
       if (showHiddenIndicator && effective.oculto) mazo.appendChild(createHiddenBadge());

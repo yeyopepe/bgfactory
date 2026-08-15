@@ -232,6 +232,8 @@ export function createDefaultComponent(type) {
     component.width = DEFAULT_MAZO_WIDTH;
     component.height = DEFAULT_MAZO_HEIGHT;
     component.subirAlMoverInteractuar = true;
+    component.mostrarTooltip = true;
+    component.tooltipTexto = 'Pulsa para sacar la primera carta.';
     component.properties = { ...DEFAULT_MAZO_PROPERTIES };
   }
   return component;
@@ -472,25 +474,6 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   }));
   infoSection.appendChild(hiddenField);
 
-  const tooltipField = document.createElement('div');
-  tooltipField.className = 'modal__field modal__field--checkbox';
-  const tooltipCheckbox = document.createElement('input');
-  tooltipCheckbox.type = 'checkbox';
-  tooltipCheckbox.checked = workingComponent.mostrarTooltip ?? false;
-  const tooltipLabel = document.createElement('label');
-  tooltipLabel.textContent = 'Mostrar tooltip';
-
-  tooltipCheckbox.addEventListener('change', () => {
-    workingComponent.mostrarTooltip = tooltipCheckbox.checked;
-  });
-
-  tooltipField.appendChild(tooltipCheckbox);
-  tooltipField.appendChild(tooltipLabel);
-  tooltipField.appendChild(createHelpIcon({
-    text: 'Si está marcado, este componente muestra su identificador como tooltip al pasar el ratón por encima, pero solo en Modo Juego. Desmarcado por defecto.',
-  }));
-  infoSection.appendChild(tooltipField);
-
   const upOnMoveField = document.createElement('div');
   upOnMoveField.className = 'modal__field modal__field--checkbox';
   const upOnMoveCheckbox = document.createElement('input');
@@ -510,7 +493,63 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   }));
   infoSection.appendChild(upOnMoveField);
 
+  // Ayuda jugador: sección propia (antes el checkbox "Mostrar tooltip" vivía en "General") con el
+  // checkbox y el campo de texto nuevo que personaliza el contenido del tooltip.
+  const helpSection = document.createElement('fieldset');
+  helpSection.className = 'modal__section';
+  const helpLegend = document.createElement('legend');
+  helpLegend.className = 'modal__section-title';
+  helpLegend.textContent = 'Ayuda jugador';
+  helpSection.appendChild(helpLegend);
+
+  const tooltipField = document.createElement('div');
+  tooltipField.className = 'modal__field modal__field--checkbox';
+  const tooltipCheckbox = document.createElement('input');
+  tooltipCheckbox.type = 'checkbox';
+  tooltipCheckbox.checked = workingComponent.mostrarTooltip ?? false;
+  const tooltipLabel = document.createElement('label');
+  tooltipLabel.textContent = 'Mostrar tooltip';
+
+  tooltipCheckbox.addEventListener('change', () => {
+    workingComponent.mostrarTooltip = tooltipCheckbox.checked;
+    tooltipTextarea.disabled = !tooltipCheckbox.checked;
+  });
+
+  tooltipField.appendChild(tooltipCheckbox);
+  tooltipField.appendChild(tooltipLabel);
+  tooltipField.appendChild(createHelpIcon({
+    text: 'Si está marcado, este componente muestra un tooltip al pasar el ratón por encima en Modo Juego: el texto de \'Tooltip\' si tiene contenido, o su identificador si está vacío.',
+  }));
+  helpSection.appendChild(tooltipField);
+
+  const tooltipTextoField = document.createElement('div');
+  tooltipTextoField.className = 'modal__field';
+  const tooltipTextoLabelRow = document.createElement('div');
+  tooltipTextoLabelRow.style.display = 'flex';
+  tooltipTextoLabelRow.style.alignItems = 'center';
+  tooltipTextoLabelRow.style.gap = '0.35rem';
+  const tooltipTextoLabel = document.createElement('label');
+  tooltipTextoLabel.textContent = 'Tooltip';
+  tooltipTextoLabel.style.marginBottom = '0';
+  tooltipTextoLabelRow.appendChild(tooltipTextoLabel);
+  tooltipTextoLabelRow.appendChild(createHelpIcon({
+    text: 'Texto que verá el jugador como tooltip. Admite varias líneas y formato básico (negrita, cursiva, listas). Si se deja vacío, se usa el identificador del componente.',
+  }));
+  const tooltipTextarea = document.createElement('textarea');
+  tooltipTextarea.value = workingComponent.tooltipTexto ?? '';
+  tooltipTextarea.disabled = !tooltipCheckbox.checked;
+  tooltipTextarea.rows = 4;
+
+  tooltipTextarea.addEventListener('input', () => {
+    workingComponent.tooltipTexto = tooltipTextarea.value;
+  });
+
+  tooltipTextoField.appendChild(tooltipTextoLabelRow);
+  tooltipTextoField.appendChild(tooltipTextarea);
+  helpSection.appendChild(tooltipTextoField);
+
   generalContent.appendChild(infoSection);
+  generalContent.appendChild(helpSection);
   generalContent.appendChild(sizeSection);
 
   // Etiquetas: propiedad general de cualquier tipo de componente. Sección informativa con borde (sin
@@ -1555,6 +1594,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
               bloqueado: workingComponent.bloqueado,
               oculto: workingComponent.oculto,
               mostrarTooltip: workingComponent.mostrarTooltip,
+              tooltipTexto: workingComponent.tooltipTexto,
               subirAlMoverInteractuar: workingComponent.subirAlMoverInteractuar,
               etiquetaIds: [...workingComponent.etiquetaIds],
               etiquetaNames: workingComponent.etiquetaIds.map((id) => getTags().find((t) => t.id === id)?.name ?? id),
@@ -1593,11 +1633,14 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
         workingComponent.bloqueado = clip.generales.bloqueado;
         workingComponent.oculto = clip.generales.oculto;
         workingComponent.mostrarTooltip = clip.generales.mostrarTooltip;
+        workingComponent.tooltipTexto = clip.generales.tooltipTexto;
         workingComponent.subirAlMoverInteractuar = clip.generales.subirAlMoverInteractuar;
         workingComponent.etiquetaIds = [...clip.generales.etiquetaIds];
         moveSelect.value = workingComponent.bloqueado;
         hiddenCheckbox.checked = workingComponent.oculto;
         tooltipCheckbox.checked = workingComponent.mostrarTooltip;
+        tooltipTextarea.value = workingComponent.tooltipTexto;
+        tooltipTextarea.disabled = !workingComponent.mostrarTooltip;
         upOnMoveCheckbox.checked = workingComponent.subirAlMoverInteractuar;
         populateTagCheckboxes();
       }

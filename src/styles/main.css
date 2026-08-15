@@ -2011,6 +2011,40 @@ fieldset.modal__section--untitled {
   display: block;
 }
 
+/* Tooltip propio de componente en Modo Juego (ui/componentRenderer.js, `identifyMode === 'tooltip'`),
+   sustituye al `title` nativo del navegador. Mismo aspecto que .help-icon__tooltip, pero disparado en
+   `:hover` sobre TODO el componente (marcado con `.component-tooltip-host`), no solo un icono de 16px —
+   por eso es una clase propia en vez de reutilizar `.help-icon__tooltip`. `pointer-events: none` para no
+   interceptar el propio hover/arrastre del componente que lo contiene. El elemento raíz del componente ya
+   tiene `position: absolute` (colocación x/y en la mesa), que sirve de contexto de posicionamiento sin
+   necesidad de tocarlo — este tooltip se ancla directamente sobre ese `position: absolute` existente. */
+.component-tooltip {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 0.35rem;
+  width: max-content;
+  max-width: 220px;
+  background: var(--bg-toolbar);
+  color: var(--text-light);
+  padding: 0.5rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.3;
+  white-space: pre-wrap;
+  word-break: break-word;
+  box-shadow: var(--shadow-2);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.component-tooltip-host:hover .component-tooltip {
+  display: block;
+}
+
 /* Reusable corner resize-handle (standard resize pattern across the app) */
 .resize-handle {
   position: absolute;

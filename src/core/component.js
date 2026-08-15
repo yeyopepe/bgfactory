@@ -3,7 +3,7 @@
 // clave-valor, imagen opcional. `order` gobierna apilado visual — lo
 // asigna/recalcula core/state.js, aquí solo valor por defecto.
 
-export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = 'ninguno', mostrarTooltip = false, subirAlMoverInteractuar = false, oculto = false, etiquetaIds = [], order = null, copyOf = null, sincronizado = true, groupId = null, interaccionesDesactivadas = [], accionClickDerecho = 'ninguno' } = {}) {
+export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = 'ninguno', mostrarTooltip = false, tooltipTexto = '', subirAlMoverInteractuar = false, oculto = false, etiquetaIds = [], order = null, copyOf = null, sincronizado = true, groupId = null, interaccionesDesactivadas = [], accionClickDerecho = 'ninguno' } = {}) {
   return {
     id: crypto.randomUUID(),
     type,
@@ -16,6 +16,7 @@ export function createComponent({ type = 'generico', name = '', properties = {},
     height,
     bloqueado,
     mostrarTooltip,
+    tooltipTexto,
     subirAlMoverInteractuar,
     oculto,
     etiquetaIds,
@@ -173,6 +174,7 @@ export function syncCopyWithOriginal(copy, original) {
     width: original.width,
     height: original.height,
     mostrarTooltip: original.mostrarTooltip,
+    tooltipTexto: original.tooltipTexto,
     subirAlMoverInteractuar: original.subirAlMoverInteractuar,
     etiquetaIds: [...original.etiquetaIds],
     interaccionesDesactivadas: original.interaccionesDesactivadas,

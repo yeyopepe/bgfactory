@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>00211 — Tooltip recortado por el contenedor</title>
+<style>
+  :root {
+    --bg-table:     #c2c2c2;
+    --bg-toolbar:   #333333;
+    --bg-card:      #f5f5f5;
+    --accent-blue:  #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --accent-blue-light: #eaf3fc;
+    --text-primary: #1a1a1a;
+    --text-light:   #ffffff;
+    --text-muted:   #666666;
+    --error:        #d32f2f;
+    --success:      #2e7d32;
+    --border-neutral: #dcdcdc;
+    --bg-subtle:    #f0f0f0;
+    --bg-hover:     #e8e8e8;
+    --radius-sm:    4px;
+    --radius-lg:    8px;
+    --shadow-1:     0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);
+    --shadow-2:     0 4px 20px rgba(0,0,0,0.15);
+    --transition-fast: 150ms ease;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 2rem;
+    background: var(--bg-table);
+    font-family: system-ui, sans-serif;
+    color: var(--text-primary);
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin: 0 0 0.25rem;
+  }
+
+  p.subtitle {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin: 0 0 2rem;
+  }
+
+  .comparison {
+    display: flex;
+    gap: 3rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .scenario {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .scenario__label {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .scenario__label--before { color: var(--error); }
+  .scenario__label--after { color: var(--success); }
+
+  /* Panel lateral estrecho, simula .edit-mode-panel / .component-panel__body */
+  .panel {
+    width: 340px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-1);
+    padding: 1rem;
+    position: relative;
+  }
+
+  .panel h2 {
+    font-size: 1.125rem;
+    margin: 0 0 1rem;
+  }
+
+  .panel__field {
+    margin-bottom: 0.75rem;
+  }
+
+  .panel__field-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+  }
+
+  .panel__field input,
+  .panel__field textarea {
+    width: 100%;
+    font-family: inherit;
+    font-size: 0.875rem;
+    padding: 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    resize: none;
+  }
+
+  .help-icon {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent-blue);
+    color: var(--text-light);
+    font-size: 0.7rem;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(44, 125, 216, 0.35);
+    flex-shrink: 0;
+  }
+
+  .tooltip {
+    position: absolute;
+    width: max-content;
+    max-width: 220px;
+    background: var(--bg-toolbar);
+    color: var(--text-light);
+    padding: 0.5rem 0.65rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 400;
+    line-height: 1.3;
+    box-shadow: var(--shadow-2);
+    z-index: 10;
+  }
+
+  /* --- Escenario ANTES: panel con overflow:hidden, tooltip recortado --- */
+  .panel--before {
+    overflow: hidden;
+  }
+
+  .panel--before .tooltip {
+    bottom: auto;
+    top: 78px;
+    left: -60px;
+  }
+
+  .clip-note {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    border-radius: var(--radius-lg);
+    outline: 2px dashed var(--error);
+    outline-offset: -1px;
+  }
+
+  /* --- Escenario DESPUÉS: tooltip "escapa" del panel, siempre completo --- */
+  .panel--after {
+    overflow: visible;
+  }
+
+  .panel--after .tooltip {
+    top: 70px;
+    left: 40px;
+    z-index: 1050;
+  }
+
+  .after-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: var(--success);
+    color: var(--text-light);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-1);
+  }
+</style>
+</head>
+<body>
+  <h1>00211 — Tooltip recortado por el contenedor</h1>
+  <p class="subtitle">Comparación del tooltip del icono de ayuda dentro de un panel de propiedades estrecho con scroll propio.</p>
+
+  <div class="comparison">
+    <div class="scenario">
+      <span class="scenario__label scenario__label--before">Antes (recortado)</span>
+      <div class="panel panel--before">
+        <div class="clip-note"></div>
+        <h2>Propiedades</h2>
+        <div class="panel__field">
+          <div class="panel__field-label">
+            <span>Tooltip</span>
+            <span class="help-icon">?
+              <div class="tooltip">Texto que verá el jugador como tooltip. Admite varias líneas y formato básico (negrita, cursiva, listas). Si se deja vacío, se usa el identificador del componente.</div>
+            </span>
+          </div>
+          <textarea rows="2">Bolsa de enemigos</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="scenario">
+      <span class="scenario__label scenario__label--after">Después (siempre visible)</span>
+      <div class="panel panel--after">
+        <span class="after-badge">Completo</span>
+        <h2>Propiedades</h2>
+        <div class="panel__field">
+          <div class="panel__field-label">
+            <span>Tooltip</span>
+            <span class="help-icon">?
+              <div class="tooltip">Texto que verá el jugador como tooltip. Admite varias líneas y formato básico (negrita, cursiva, listas). Si se deja vacío, se usa el identificador del componente.</div>
+            </span>
+          </div>
+          <textarea rows="2">Bolsa de enemigos</textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
