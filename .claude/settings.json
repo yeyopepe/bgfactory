@@ -12,7 +12,8 @@
       "PowerShell($htmlPath = \"d:\\\\repos\\\\errantes-board-game\\\\src\\\\_output\\\\versions\\\\index-v00186.html\"; $content = Get-Content $htmlPath -Raw; $vendorIndex = $content.IndexOf\\('data-vendor-obfuscator'\\); $snippet = $content.Substring\\([Math]::Max\\(0, $vendorIndex - 200\\), [Math]::Min\\(1000, $content.Length - [Math]::Max\\(0, $vendorIndex - 200\\)\\)\\); Write-Host $snippet)",
       "PowerShell($htmlPath = \"d:\\\\repos\\\\errantes-board-game\\\\src\\\\_output\\\\versions\\\\index-v00186.html\"; $content = Get-Content $htmlPath -Raw; $beginning = $content.Substring\\(0, 200\\); Write-Host $beginning)",
       "Read(//d//**)",
-      "Bash(xargs grep -l \"ms-do\\\\|ms-how\")"
+      "Bash(xargs grep -l \"ms-do\\\\|ms-how\")",
+      "Edit(/.claude/skills/ms-todo/**)"
     ],
     "additionalDirectories": [
       "C:\\Users\\yeyop\\AppData\\Local\\Temp"

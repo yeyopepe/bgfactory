@@ -5,7 +5,7 @@ argument-hint: "[código] <idea a anotar o desarrollar>"
 model: claude-haiku-4-5
 effort: medium
 metadata:
-  version: 1.3.1
+  version: 1.4.0
   uses: []
 ---
 
@@ -52,7 +52,7 @@ Sin preguntar dudas de alcance ni proponer respuestas a huecos funcionales (eso 
 {changesDir}/todo/{código}/description.md
 ```
 
-Con estos campos:
+**`description.md`** sigue **exactamente** la plantilla [`description.template.md`](description.template.md) de esta misma carpeta: cuatro cabeceras markdown `## Idea`, `## Código`, `## Fecha creación` y `## Notas`, en ese orden, sin negrita ni `:` al final de la cabecera (ni `## Idea:` ni `**Idea:**`) — `list_todo.py`/`collect_status.py` de `ms-status` parsean estas cabeceras con una expresión regular literal (`^##\s*Idea\s*\n+`) y cualquier variación (cabecera en negrita, dos puntos, título distinto como "Ide") hace que la idea no se pueda leer y aparezca como "(sin idea)" en `/ms-status todo`.
 
 - **Idea** — nombre corto que resuma la idea.
 - **Código** — el código generado en el paso 2.
