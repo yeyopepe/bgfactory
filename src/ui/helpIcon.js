@@ -1,24 +1,14 @@
-// Icono de ayuda contextual reutilizable ("?"): tooltip para texto plano corto,
-// modal para texto largo o con formato.
-
-const MODAL_THRESHOLD = 200;
+// Icono de ayuda contextual reutilizable ("?"): abre una modal con el texto/HTML al pulsar.
 
 export function createHelpIcon({ text, html } = {}) {
   const icon = document.createElement('span');
   icon.className = 'help-icon';
   icon.textContent = '?';
 
-  if (html != null || (text != null && text.length >= MODAL_THRESHOLD)) {
-    icon.addEventListener('click', (e) => {
-      e.stopPropagation();
-      openHelpModal({ text, html });
-    });
-  } else if (text != null) {
-    const tooltip = document.createElement('span');
-    tooltip.className = 'help-icon__tooltip';
-    tooltip.textContent = text;
-    icon.appendChild(tooltip);
-  }
+  icon.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openHelpModal({ text, html });
+  });
 
   return icon;
 }

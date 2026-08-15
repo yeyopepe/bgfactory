@@ -36,7 +36,7 @@ const DICE_ROLL_INTERVAL_MS = 70;
 // core/sanitizeHtml.js (permisivo, solo quita <script>/handlers inline para el Visor de documentos),
 // aquí solo se permite un whitelist fijo de etiquetas de formato básico sin atributos — cualquier otra
 // etiqueta se desenvuelve conservando su texto/hijos, en vez de eliminarla junto con su contenido.
-const TOOLTIP_ALLOWED_TAGS = new Set(['b', 'strong', 'i', 'em', 'br', 'ul', 'ol', 'li']);
+const TOOLTIP_ALLOWED_TAGS = new Set(['b', 'strong', 'i', 'em', 'u', 'br', 'ul', 'ol', 'li']);
 
 export function sanitizeBasicTooltipHtml(text) {
   const template = document.createElement('template');

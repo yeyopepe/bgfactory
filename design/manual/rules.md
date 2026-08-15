@@ -125,7 +125,9 @@ Cuando termina el domingo y, por lo tanto, la semana en curso:
   - Toma la primera carta del mazo de eventos (boca abajo, sin darle la vuelta) y colócalo en el día de la semana que indique el dorso de la que ahora es la primera carta del mazo.
 2. Lanza tantos dados de encuentro como jugadores sigan vivos:
   - Sumad el número de enemigos resultantes.
-  - Colocada vuestra elección los enemigos en localizaciones adyacentes a localizaciones de personajes (nunca dónde estén los personajes) que no tengan requisitos de entrada.
+  - Colocada a vuestra elección los enemigos en localizaciones adyacentes a localizaciones de personajes (nunca dónde estén los personajes) que no tengan requisitos de entrada.
+
+<u>**???**</u> no hay enemigos en la pila?????
 
 
 #### Termina la partida

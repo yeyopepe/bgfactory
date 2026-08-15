@@ -503,54 +503,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   helpLegend.textContent = 'Ayuda jugador';
   helpSection.appendChild(helpLegend);
 
-  const tooltipField = document.createElement('div');
-  tooltipField.className = 'modal__field modal__field--checkbox';
-  const tooltipCheckbox = document.createElement('input');
-  tooltipCheckbox.type = 'checkbox';
-  tooltipCheckbox.checked = workingComponent.mostrarTooltip ?? false;
-  const tooltipLabel = document.createElement('label');
-  tooltipLabel.textContent = 'Mostrar tooltip';
-
-  tooltipCheckbox.addEventListener('change', () => {
-    workingComponent.mostrarTooltip = tooltipCheckbox.checked;
-    tooltipTextarea.disabled = !tooltipCheckbox.checked;
-  });
-
-  tooltipField.appendChild(tooltipCheckbox);
-  tooltipField.appendChild(tooltipLabel);
-  tooltipField.appendChild(createHelpIcon({
-    text: 'Si está marcado, este componente muestra un tooltip al pasar el ratón por encima en Modo Juego: el texto de \'Tooltip\' si tiene contenido, o su identificador si está vacío.',
-  }));
-  helpSection.appendChild(tooltipField);
-
-  const tooltipTextoField = document.createElement('div');
-  tooltipTextoField.className = 'modal__field';
-  const tooltipTextoLabelRow = document.createElement('div');
-  tooltipTextoLabelRow.style.display = 'flex';
-  tooltipTextoLabelRow.style.alignItems = 'center';
-  tooltipTextoLabelRow.style.gap = '0.35rem';
-  const tooltipTextoLabel = document.createElement('label');
-  tooltipTextoLabel.textContent = 'Tooltip';
-  tooltipTextoLabel.style.marginBottom = '0';
-  tooltipTextoLabelRow.appendChild(tooltipTextoLabel);
-  tooltipTextoLabelRow.appendChild(createHelpIcon({
-    text: 'Texto que verá el jugador como tooltip. Admite varias líneas, formato básico (negrita, cursiva, listas) y variables como {cards_current} (nº de cartas actual, solo en "Mazo"). Si se deja vacío, se usa el identificador del componente.',
-  }));
-  const tooltipTextarea = document.createElement('textarea');
-  tooltipTextarea.value = workingComponent.tooltipTexto ?? '';
-  tooltipTextarea.disabled = !tooltipCheckbox.checked;
-  tooltipTextarea.rows = 4;
-
-  tooltipTextarea.addEventListener('input', () => {
-    workingComponent.tooltipTexto = tooltipTextarea.value;
-  });
-
-  tooltipTextoField.appendChild(tooltipTextoLabelRow);
-  tooltipTextoField.appendChild(tooltipTextarea);
-  helpSection.appendChild(tooltipTextoField);
-
   // Título de componente (00212): checkbox + botón que abre una sub-modal con el contenido,
-  // colores y transparencia del título. Mismo bloque "Ayuda jugador" que Tooltip.
+  // colores y transparencia del título. Mismo bloque "Ayuda jugador" que Ayuda (tooltip).
   const titleField = document.createElement('div');
   titleField.className = 'modal__field modal__field--checkbox';
   const titleCheckbox = document.createElement('input');
@@ -595,6 +549,56 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   });
   titleEditField.appendChild(titleEditBtn);
   helpSection.appendChild(titleEditField);
+
+  const helpDivider = document.createElement('hr');
+  helpDivider.className = 'modal__divider';
+  helpSection.appendChild(helpDivider);
+
+  const tooltipField = document.createElement('div');
+  tooltipField.className = 'modal__field modal__field--checkbox';
+  const tooltipCheckbox = document.createElement('input');
+  tooltipCheckbox.type = 'checkbox';
+  tooltipCheckbox.checked = workingComponent.mostrarTooltip ?? false;
+  const tooltipLabel = document.createElement('label');
+  tooltipLabel.textContent = 'Mostrar ayuda';
+
+  tooltipCheckbox.addEventListener('change', () => {
+    workingComponent.mostrarTooltip = tooltipCheckbox.checked;
+    tooltipTextarea.disabled = !tooltipCheckbox.checked;
+  });
+
+  tooltipField.appendChild(tooltipCheckbox);
+  tooltipField.appendChild(tooltipLabel);
+  tooltipField.appendChild(createHelpIcon({
+    text: 'Si está marcado, este componente muestra una ayuda al pasar el ratón por encima en Modo Juego: el texto de \'Ayuda\' si tiene contenido, o su identificador si está vacío.',
+  }));
+  helpSection.appendChild(tooltipField);
+
+  const tooltipTextoField = document.createElement('div');
+  tooltipTextoField.className = 'modal__field';
+  const tooltipTextoLabelRow = document.createElement('div');
+  tooltipTextoLabelRow.style.display = 'flex';
+  tooltipTextoLabelRow.style.alignItems = 'center';
+  tooltipTextoLabelRow.style.gap = '0.35rem';
+  const tooltipTextoLabel = document.createElement('label');
+  tooltipTextoLabel.textContent = 'Ayuda';
+  tooltipTextoLabel.style.marginBottom = '0';
+  tooltipTextoLabelRow.appendChild(tooltipTextoLabel);
+  tooltipTextoLabelRow.appendChild(createHelpIcon({
+    text: 'Texto que verá el jugador como ayuda. Admite varias líneas, etiquetas HTML básicas: <b>/<strong> (negrita), <i>/<em> (cursiva), <u> (subrayado), <br> (salto de línea), <ul>/<ol>/<li> (listas), y variables como {cards_current} (nº de cartas actual, solo en "Mazo"). Si se deja vacío, se usa el identificador del componente.',
+  }));
+  const tooltipTextarea = document.createElement('textarea');
+  tooltipTextarea.value = workingComponent.tooltipTexto ?? '';
+  tooltipTextarea.disabled = !tooltipCheckbox.checked;
+  tooltipTextarea.rows = 4;
+
+  tooltipTextarea.addEventListener('input', () => {
+    workingComponent.tooltipTexto = tooltipTextarea.value;
+  });
+
+  tooltipTextoField.appendChild(tooltipTextoLabelRow);
+  tooltipTextoField.appendChild(tooltipTextarea);
+  helpSection.appendChild(tooltipTextoField);
 
   generalContent.appendChild(infoSection);
   generalContent.appendChild(helpSection);

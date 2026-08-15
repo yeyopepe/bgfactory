@@ -31,6 +31,7 @@ import { openBatchUploadSummaryModal } from '../../ui/batchUploadSummaryModal.js
 import { openResourceReplaceConfirmModal } from '../../ui/resourceReplaceConfirmModal.js';
 import { openContextMenu } from '../../ui/contextMenu.js';
 import { showToast } from '../../ui/toast.js';
+import { runWithProgressModal } from '../../ui/progressModal.js';
 import { sortByName } from '../../core/textSort.js';
 
 // Iconos del menú contextual de elemento. Mismo patrón que playMode.js: SVGs 24x24
@@ -159,19 +160,24 @@ function attemptDeleteComponents(components) {
   });
 }
 
-// Arrastrar cartas seleccionadas sobre un mazo: si el grupo arrastrado (selección
-// múltiple, o solo el componente soltado) son todas cartas y su rectángulo final
-// solapa con un mazo, las añade. Solape de rectángulos, no punto exacto del cursor.
-// Mismo criterio que en modo juego: sin confirmación previa.
-function attemptDropOnMazo(groupIds, draggedRect) {
+// Detecta si el grupo arrastrado (todas cartas) va a caer sobre un mazo al
+// soltarlo, sin aplicar ningún cambio todavía — permite decidir si hace falta
+// la modal de operación en curso antes de lanzar el trabajo bloqueante.
+// Solape de rectángulos, no punto exacto del cursor.
+function findMazoDropTarget(groupIds, draggedRect) {
   const groupComponents = groupIds.map((id) => getComponents().find((c) => c.id === id)).filter(Boolean);
-  if (groupComponents.length === 0 || !groupComponents.every((c) => c.type === 'carta')) return;
+  if (groupComponents.length === 0 || !groupComponents.every((c) => c.type === 'carta')) return null;
 
   const mazo = getComponents()
     .filter((c) => c.type === 'mazo')
     .find((m) => rectsOverlap(draggedRect, { x: m.x ?? 100, y: m.y ?? 100, width: m.width ?? 100, height: m.height ?? 100 }));
-  if (!mazo) return;
+  if (!mazo) return null;
 
+  return { mazo, groupComponents };
+}
+
+// Mismo criterio que en modo juego: sin confirmación previa.
+function insertCardsIntoMazo(mazo, groupComponents) {
   const cartaIds = [...(mazo.properties?.cartaIds || []), ...groupComponents.map((c) => c.id)];
   replaceComponent(mazo.id, updateComponent(mazo, { properties: { cartaIds } }));
 }
@@ -736,21 +742,34 @@ export function renderEditMode(container) {
           ? [...selectedComponentIds]
           : getSelectionUnit(component);
 
-        if (group.length > 1) {
-          const dx = x - (component.x ?? 0);
-          const dy = y - (component.y ?? 0);
-          for (const id of group) {
-            const c = getComponents().find((comp) => comp.id === id);
-            if (!c) continue;
-            const newX = c.id === component.id ? x : (c.x ?? 0) + dx;
-            const newY = c.id === component.id ? y : (c.y ?? 0) + dy;
-            replaceComponent(c.id, updateComponent(c, { x: newX, y: newY }));
-          }
-        } else {
-          replaceComponent(component.id, updateComponent(component, { x, y }));
-        }
+        const dropTarget = findMazoDropTarget(group, { x, y, width: component.width ?? 100, height: component.height ?? 100 });
 
-        attemptDropOnMazo(group, { x, y, width: component.width ?? 100, height: component.height ?? 100 });
+        const applyPositions = () => {
+          if (group.length > 1) {
+            const dx = x - (component.x ?? 0);
+            const dy = y - (component.y ?? 0);
+            for (const id of group) {
+              const c = getComponents().find((comp) => comp.id === id);
+              if (!c) continue;
+              const newX = c.id === component.id ? x : (c.x ?? 0) + dx;
+              const newY = c.id === component.id ? y : (c.y ?? 0) + dy;
+              replaceComponent(c.id, updateComponent(c, { x: newX, y: newY }));
+            }
+          } else {
+            replaceComponent(component.id, updateComponent(component, { x, y }));
+          }
+        };
+
+        if (dropTarget) {
+          const count = dropTarget.groupComponents.length;
+          const text = `Añadiendo ${count} carta${count === 1 ? '' : 's'} al mazo…`;
+          runWithProgressModal(text, () => {
+            applyPositions();
+            insertCardsIntoMazo(dropTarget.mazo, dropTarget.groupComponents);
+          });
+        } else {
+          applyPositions();
+        }
       },
       onResize: (component, width, height, x, y) => {
         const patch = x != null && y != null ? { width, height, x, y } : { width, height };

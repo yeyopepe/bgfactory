@@ -357,6 +357,40 @@ h1 {
   z-index: 1000;
 }
 
+/* Modal de operación en curso: estructura propia (sin header/content/footer),
+   sin botones ni vía de cierre manual. */
+.progress-modal {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+  width: 90%;
+  max-width: 320px;
+  padding: 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+}
+
+.progress-modal__spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--accent-blue-light);
+  border-top-color: var(--accent-blue);
+  border-radius: 50%;
+  animation: progress-modal-spin 0.8s linear infinite;
+}
+
+@keyframes progress-modal-spin {
+  to { transform: rotate(360deg); }
+}
+
+.progress-modal__text {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
 .modal {
   background: white;
   border-radius: var(--radius-lg);
@@ -417,6 +451,12 @@ h1 {
 
 .modal__field {
   margin-bottom: 1rem;
+}
+
+.modal__divider {
+  border: none;
+  border-top: 1px solid var(--border-neutral);
+  margin: 0 0 1rem;
 }
 
 .modal__field label {
@@ -1967,7 +2007,7 @@ fieldset.modal__section--untitled {
   word-break: break-word;
 }
 
-/* Reusable help icon ("?"): tooltip for short plain text, modal for long/formatted text */
+/* Reusable help icon ("?"): opens a modal with the text/HTML on click */
 .help-icon {
   position: relative;
   display: inline-flex;
@@ -1991,36 +2031,14 @@ fieldset.modal__section--untitled {
   box-shadow: 0 2px 5px rgba(44, 125, 216, 0.35);
 }
 
-.help-icon__tooltip {
-  display: none;
-  position: absolute;
-  bottom: 130%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: max-content;
-  max-width: 220px;
-  background: var(--bg-toolbar);
-  color: var(--text-light);
-  padding: 0.5rem 0.65rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 400;
-  line-height: 1.3;
-  box-shadow: var(--shadow-2);
-  z-index: 10;
-}
-
-.help-icon:hover .help-icon__tooltip {
-  display: block;
-}
-
 /* Tooltip propio de componente en Modo Juego (ui/componentRenderer.js, `identifyMode === 'tooltip'`),
-   sustituye al `title` nativo del navegador. Mismo aspecto que .help-icon__tooltip, pero disparado en
-   `:hover` sobre TODO el componente (marcado con `.component-tooltip-host`), no solo un icono de 16px —
-   por eso es una clase propia en vez de reutilizar `.help-icon__tooltip`. `pointer-events: none` para no
-   interceptar el propio hover/arrastre del componente que lo contiene. El elemento raíz del componente ya
-   tiene `position: absolute` (colocación x/y en la mesa), que sirve de contexto de posicionamiento sin
-   necesidad de tocarlo — este tooltip se ancla directamente sobre ese `position: absolute` existente. */
+   sustituye al `title` nativo del navegador. Mismo aspecto que el icono de ayuda (fondo `var(--bg-toolbar)`,
+   texto `var(--text-light)`, `box-shadow: var(--shadow-2)`), pero disparado en `:hover` sobre TODO el
+   componente (marcado con `.component-tooltip-host`), no solo un icono de 16px — por eso es una clase
+   propia en vez de reutilizar una del icono de ayuda. `pointer-events: none` para no interceptar el propio
+   hover/arrastre del componente que lo contiene. El elemento raíz del componente ya tiene
+   `position: absolute` (colocación x/y en la mesa), que sirve de contexto de posicionamiento sin necesidad
+   de tocarlo — este tooltip se ancla directamente sobre ese `position: absolute` existente. */
 .component-tooltip {
   display: none;
   position: absolute;

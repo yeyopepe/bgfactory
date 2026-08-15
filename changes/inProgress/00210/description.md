@@ -11,7 +11,7 @@ El efecto debe leerse como un cuerpo sólido con grosor real (un bloque con un l
 
 ### Dónde se configura — nueva pestaña "Visuales"
 
-La edición de un componente pasa a tener tres pestañas en vez de dos: "Generales", **"Visuales" (nueva)** y "Específicas". La nueva pestaña agrupa todo lo que afecta al aspecto del componente, reorganizando controles que hoy están repartidos entre las otras dos:
+La edición de un componente gana una pestaña nueva, **"Visuales"**, insertada entre "Generales" y "Específicas" (el resto de pestañas ya existentes, incluida "Copias" para componentes con copias vinculadas, no cambian). La nueva pestaña agrupa todo lo que afecta al aspecto del componente, reorganizando controles que hoy están repartidos entre "Generales" y "Específicas":
 
 - **Tamaño** (campos "Alto"/"Ancho" y checkbox "Mantener proporción"): se traslada tal cual desde "Generales" — deja de estar ahí. Se aplica a los 8 tipos por igual, como hoy.
 - **Profundidad y Color de extrusión** (lo nuevo de este cambio): una fila con dos campos — "Profundidad" (número, en píxeles, mínimo `0`) y "Color de extrusión" (selector de color, con el cálculo automático por defecto si no se toca). Se aplica a los 8 tipos por igual (sin efecto visible en "Texto", ver más abajo).
@@ -28,7 +28,8 @@ La edición de un componente pasa a tener tres pestañas en vez de dos: "General
 - **Puramente visual**: no cambia la posición, el tamaño lógico ni el área de arrastre/click del componente. El efecto puede sobresalir visualmente del contorno nominal del componente (igual que ya ocurre hoy con "Dado").
 - **Límite máximo**: pendiente de confirmar un tope razonable (propuesta inicial: 40px) tras validar el aspecto con los mockups, para evitar que un valor desproporcionado rompa la lectura visual del componente.
 - **Color de la parte extruida**: configurable de forma independiente al tamaño. Por defecto se calcula automáticamente como un tono más oscuro del color propio del componente (igual que hoy hace `'dado'`/el bisel), pero el usuario puede elegir un color propio distinto para la extrusión desde la misma pestaña "Visuales", junto al campo de profundidad.
-- **Reorganización de pestañas**: la modal de edición de componente pasa de 2 a 3 pestañas ("Generales", "Visuales", "Específicas"). Ver detalle en "Dónde se configura" más arriba.
+- **Reorganización de pestañas**: la modal de edición de componente gana la pestaña "Visuales" entre "Generales" y "Específicas" (las demás pestañas existentes no cambian). Ver detalle en "Dónde se configura" más arriba.
+- **"Texto" y su color de fondo**: aunque este tipo tiene una propiedad de color de fondo configurable (con opción de transparencia), la extrusión sigue sin tener efecto visible en "Texto" en ningún caso — decisión explícita para mantener el comportamiento simple y predecible, sin una regla condicionada al estado de otra propiedad.
 
 ### Preguntas de alcance resueltas con el usuario
 

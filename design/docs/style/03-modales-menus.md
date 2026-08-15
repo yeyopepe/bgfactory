@@ -2,14 +2,13 @@
 
 Ver `INDEX.md` para el mapa completo de la Style Bible.
 
-## 12. Icono de ayuda (tooltip / modal)
+## 12. Icono de ayuda (modal al pulsar)
 
 Patrón estándar para ayuda contextual en cualquier punto de la app: `.help-icon`, círculo de 16px con "?" (`ui/helpIcon.js`, `createHelpIcon({ text, html })`).
 
 - Aspecto: círculo 16px, fondo `var(--text-muted)` (`var(--accent-blue)` + `box-shadow: 0 2px 5px rgba(44,125,216,.35)` en `:hover`, transición 150ms), texto "?" en `var(--text-light)`, `font-size: 0.7rem`, `cursor: help`, sin borde.
-- **Tooltip** (`.help-icon__tooltip`): texto plano < 200 caracteres. Aparece encima del icono en `:hover`, fondo `var(--bg-toolbar)`, texto `var(--text-light)`, `box-shadow: var(--shadow-2)` (nivel 2).
-- **Modal**: texto ≥ 200 caracteres, o con formato (HTML). Reutiliza `.modal-overlay`/`.modal` (sin patrón nuevo), botón "Cerrar" (`.btn-cancel`), `z-index: 1000` (mismo reservado para overlays de modal).
-- Cualquier ayuda contextual nueva: reutilizar `ui/helpIcon.js` en vez de crear tooltip/modal ad-hoc.
+- **Modal**: al pulsar el icono se abre siempre una modal con el texto/HTML, sin importar su longitud o formato. Reutiliza `.modal-overlay`/`.modal` (sin patrón nuevo), botón "Cerrar" (`.btn-cancel`), `z-index: 1000` (mismo reservado para overlays de modal).
+- Cualquier ayuda contextual nueva: reutilizar `ui/helpIcon.js` en vez de crear una modal ad-hoc.
 
 ## 12.1 Modal de error
 
@@ -26,6 +25,17 @@ Patrón para confirmar de forma bloqueante un resultado positivo que necesita qu
 
 - Ejemplo: `ui/batchUploadSummaryModal.js` (resumen tras subir varios recursos/carpeta a la galería) — icono "✓" sobre `var(--success)`, recuento de añadidos y, si aplica, tabla de omitidos (patrón de tabla de `ui/importReportModal.js`, misma CSS que `.import-report-modal__table`).
 - Cualquier aviso de éxito futuro que deba quedarse visible: reutilizar este patrón en vez de crear variante ad-hoc.
+
+## 12.1.2 Modal de operación en curso
+
+Patrón para informar de una operación potencialmente lenta y bloqueante, devolviendo el control al jugador en cuanto termina (cambio 00214): `ui/progressModal.js`, `runWithProgressModal(text, work)`.
+
+- A diferencia de cualquier otra modal de la app, **no reutiliza `.modal`** — bloque propio `.progress-modal` (fondo blanco, `border-radius: var(--radius-lg)`, `box-shadow: var(--shadow-2)`, mismo `.modal-overlay`/`z-index: 1000`) sin header/content/footer: solo un spinner (`.progress-modal__spinner`, círculo `40px`, borde `4px` en `var(--accent-blue-light)` con el segmento superior en `var(--accent-blue)`, giro continuo) y un texto breve (`.progress-modal__text`) debajo, centrado.
+- **Primer y único uso de `@keyframes` en el proyecto**: `@keyframes progress-modal-spin` (rotación 360° continua, `0.8s linear infinite`).
+- **Sin ningún botón ni vía de cierre manual** (ni click fuera del overlay, ni ESC) — única modal de la app así. Aparece al empezar la operación asociada y se cierra sola en cuanto termina; no es cancelable a medias.
+- `work` se ejecuta dentro de un doble `requestAnimationFrame` anidado tras insertar la modal en el DOM, para garantizar que el navegador ha completado un ciclo de pintado real (con el spinner ya visible) antes de que empiece el bloqueo síncrono del trabajo real — `setTimeout(fn, 0)` no ofrece esa garantía (solo asegura orden en la cola de tareas, no que haya habido un repintado de por medio; bug 00218).
+- Primer uso: arrastrar una selección múltiple de cartas sobre un mazo en modo edición (`023-componente-mazo.md`) — texto "Añadiendo N carta(s) al mazo…", `work` reposiciona las cartas arrastradas y las inserta en el mazo (el reposicionamiento va dentro de `work`, no antes: es la parte más lenta de la operación — bug 00219).
+- Cualquier operación futura potencialmente lenta y bloqueante: reutilizar este patrón en vez de dejar al jugador sin aviso.
 
 ## 12.2 Cursores
 
@@ -50,7 +60,7 @@ Convención general: cualquier elemento clicable muestra `cursor: pointer` al pa
 
 Patrón para mostrar "qué es" un componente de la mesa sin abrirlo — distinto del icono de ayuda (§12): no es ayuda contextual, es identificación del elemento bajo el cursor.
 
-- **Modo juego**: tooltip propio `.component-tooltip` (ya no el `title` nativo del navegador), disparado en `:hover` sobre todo el componente vía la clase marcadora `.component-tooltip-host`. Contenido: texto personalizado de `tooltipTexto` (con formato básico — negrita, cursiva, saltos de línea, listas — saneado por `sanitizeBasicTooltipHtml`, `ui/componentRenderer.js`) si el componente tiene ese campo relleno; si está vacío, cae al mismo `"<Tipo>: <id>"` de siempre (p. ej. "Dado: 3fa8..."). Aspecto reutilizado de `.help-icon__tooltip` (§12): fondo `var(--bg-toolbar)`, texto `var(--text-light)`, `box-shadow: var(--shadow-2)` — clase propia en vez de reutilizar esa, porque el disparador cambia (todo el componente, no un icono fijo de 16px). Anclado sobre el `position: absolute` que el elemento raíz del componente ya tiene fijado para su colocación x/y en la mesa — nunca se sobrescribe ese `position` para "anclar" el tooltip, ya sirve tal cual de contexto de posicionamiento.
+- **Modo juego**: tooltip propio `.component-tooltip` (ya no el `title` nativo del navegador), disparado en `:hover` sobre todo el componente vía la clase marcadora `.component-tooltip-host`. Contenido: texto personalizado de `tooltipTexto` (con formato básico — negrita, cursiva, saltos de línea, listas — saneado por `sanitizeBasicTooltipHtml`, `ui/componentRenderer.js`) si el componente tiene ese campo relleno; si está vacío, cae al mismo `"<Tipo>: <id>"` de siempre (p. ej. "Dado: 3fa8..."). Aspecto compartido con el tooltip flotante genérico: fondo `var(--bg-toolbar)`, texto `var(--text-light)`, `box-shadow: var(--shadow-2)` — clase propia (no reutiliza `.help-icon`, §12, que abre modal al pulsar en vez de mostrar tooltip), porque el disparador cambia (todo el componente, no un icono fijo de 16px). Anclado sobre el `position: absolute` que el elemento raíz del componente ya tiene fijado para su colocación x/y en la mesa — nunca se sobrescribe ese `position` para "anclar" el tooltip, ya sirve tal cual de contexto de posicionamiento.
 - **Modo edición**: etiqueta propia `.component-id-label` superpuesta a la esquina superior izquierda del componente, dentro de su área (no sobresaliendo por encima — evita depender de espacio libre arriba y quedar oculta tras cabecera/elemento fijo cerca del borde de la mesa).
   - Mismo texto/formato que en modo juego.
   - Fondo `var(--accent-blue-dark)`, texto `var(--text-light)`, `font-size: 0.72rem`, `border-radius: var(--radius-sm)`, sombra pequeña (`box-shadow: 0 2px 4px rgba(0,0,0,.25)`) para leerse "pegada" a la pieza.

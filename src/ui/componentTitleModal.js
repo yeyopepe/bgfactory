@@ -43,7 +43,7 @@ export function openComponentTitleModal({ titulo, onAccept }) {
   contentLabel.style.marginBottom = '0';
   contentLabelRow.appendChild(contentLabel);
   contentLabelRow.appendChild(createHelpIcon({
-    text: 'Texto de la etiqueta. Admite varias líneas y formato básico (negrita, cursiva, listas). Admite variables como {cards_current} (nº de cartas actual, solo en "Mazo") — en otros tipos se muestra literal.',
+    text: 'Texto de la etiqueta. Admite varias líneas y etiquetas HTML básicas: <b>/<strong> (negrita), <i>/<em> (cursiva), <u> (subrayado), <br> (salto de línea), <ul>/<ol>/<li> (listas). Admite variables como {cards_current} (nº de cartas actual, solo en "Mazo") — en otros tipos se muestra literal.',
   }));
   const contentTextarea = document.createElement('textarea');
   contentTextarea.value = working.texto;
@@ -53,6 +53,7 @@ export function openComponentTitleModal({ titulo, onAccept }) {
   });
   contentField.appendChild(contentLabelRow);
   contentField.appendChild(contentTextarea);
+
   content.appendChild(contentField);
 
   // Color del texto / Color de fondo, misma fila
@@ -151,7 +152,14 @@ export function openComponentTitleModal({ titulo, onAccept }) {
   acceptBtn.className = 'btn-accept';
   acceptBtn.textContent = 'Aceptar';
   acceptBtn.addEventListener('click', () => {
-    if (onAccept) onAccept({ ...working });
+    if (onAccept) {
+      onAccept({
+        texto: working.texto,
+        colorTexto: working.colorTexto,
+        colorFondo: working.colorFondo,
+        fondoTransparencia: working.fondoTransparencia,
+      });
+    }
     overlay.remove();
   });
   footer.appendChild(acceptBtn);
