@@ -58,6 +58,17 @@ Patrón para mostrar "qué es" un componente de la mesa sin abrirlo — distinto
   - Visible solo en `:hover` y `.<tipo>--selected` (mismos momentos que el contorno azul discontinuo de selección), nunca de forma permanente.
   - No se recorta ni envuelve en varias líneas si el id es más largo que el componente — puede sobresalir de su ancho (ayuda de edición, no arte final).
 
+## 12.3.1 Título de componente (modo juego)
+
+Etiqueta configurable por componente, distinta de la anterior (§12.3): no identifica "qué es" el componente, es un rótulo de contenido libre que el usuario diseña — sustituye (00212) a la antigua etiqueta fija de nº de cartas de `'mazo'`, generalizada a los 8 tipos.
+
+- `.component-title-label`, pintada por `attachComponentTitle` (`ui/componentRenderer.js`) cuando `mostrarTitulo` (override de grupo, como `mostrarTooltip`) está activo y `tituloTexto` no está vacío — vacío no pinta ningún nodo, a diferencia del tooltip (§12.3) que cae al identificador.
+- **Siempre visible** en Modo Juego mientras esté activa (no depende de `:hover`, a diferencia de `.component-tooltip`) — mismo criterio de visibilidad permanente que tenía la antigua `.mazo-count-label`.
+- Mismo anclaje que tenía `.mazo-count-label`: fuera de la caja del componente, pegada a su esquina superior izquierda (`top: -1.6rem; left: 2px`), `pointer-events: none`.
+- Contenido: `tituloTexto` con formato básico saneado (mismo `sanitizeBasicTooltipHtml` que el tooltip) y variables de texto resueltas (`core/textVariables.js`, `01-component-model.md`).
+- Color de texto/fondo/transparencia: `tituloColorTexto`/`tituloColorFondo`/`tituloFondoTransparencia`, aplicados **inline** por `attachComponentTitle` (`element.style.color`/`backgroundColor`), no como token CSS fijo — excepción justificada porque es dato de usuario configurable por componente, no un valor del sistema de diseño (mismo criterio ya aceptado para `colorFondo`/`colorFondoTransparencia` de `TextBox`/`Forma` de carta, vía `hexToRgba`).
+- Editado desde sección "Ayuda jugador" de `ui/componentModal.js`: checkbox "Mostrar título de componente" + botón "Editar título de componente…" que abre `ui/componentTitleModal.js` (sub-modal sin tabs, mismo patrón que `ui/boardPatternModal.js`: contenido, color de texto, color de fondo, transparencia del fondo con slider + campo numérico sincronizado — `.modal__opacity-value`, mismo patrón ya usado en `ui/cardShapeModal.js`).
+
 ### Indicador de bloqueo (`.component-lock-badge`)
 
 Insignia hermana de `.component-id-label` en criterio de superposición (esquina del componente, contenedor exterior, `pointer-events: none`), con diferencias deliberadas:

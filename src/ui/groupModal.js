@@ -167,6 +167,25 @@ export function openGroupModal({ group, onAccept, onCancel }) {
   }));
   infoSection.appendChild(tooltipField);
 
+  const titleField = document.createElement('div');
+  titleField.className = 'modal__field modal__field--checkbox';
+  const titleCheckbox = document.createElement('input');
+  titleCheckbox.type = 'checkbox';
+  titleCheckbox.checked = workingGroup.mostrarTitulo ?? false;
+  const titleLabel = document.createElement('label');
+  titleLabel.textContent = 'Mostrar título de componente';
+
+  titleCheckbox.addEventListener('change', () => {
+    workingGroup.mostrarTitulo = titleCheckbox.checked;
+  });
+
+  titleField.appendChild(titleCheckbox);
+  titleField.appendChild(titleLabel);
+  titleField.appendChild(createHelpIcon({
+    text: 'Si está marcado, los miembros de este grupo muestran su título de componente (configurado individualmente en cada uno) en Modo Juego.',
+  }));
+  infoSection.appendChild(titleField);
+
   const upOnMoveField = document.createElement('div');
   upOnMoveField.className = 'modal__field modal__field--checkbox';
   const upOnMoveCheckbox = document.createElement('input');

@@ -6,7 +6,7 @@ Séptimo tipo de componente (cambio 00106): una pila ordenada de cartas ("Carta/
 
 **Imagen propia del mazo** (cambio 00194): el mazo puede tener, opcionalmente, una imagen propia elegida por el usuario en sus propiedades específicas — mientras la tenga, se muestra siempre esa imagen (con su ajuste de zoom/posición/rotación y su transparencia), tenga o no cartas dentro, dejando de tener ninguna relación con el dorso de la carta de arriba o el icono de "vacío". La sección "Imagen" de la pestaña "Específicas" ofrece tres botones: "Elegir imagen…" (abre la misma galería de imágenes que otros elementos del juego, con buscador), "Ajustar imagen…" (deshabilitado hasta elegir una imagen; abre la misma ventana de ajuste de zoom/transparencia/rotación que otros elementos, recortada a la forma actual del mazo — cuadrada o circular) y "Quitar imagen" (visible/habilitado solo con imagen elegida; la quita junto con su ajuste y transparencia, y el mazo vuelve a comportarse como si nunca hubiera tenido imagen propia). Elegir una imagen nueva, o reemplazar la ya elegida, reinicia el ajuste y la transparencia a sus valores por defecto. Mientras el mazo no tenga imagen propia (todavía no se ha elegido ninguna, o se ha quitado), se comporta exactamente igual que antes de este cambio: dorso de la carta de arriba, o icono de "vacío" si no tiene cartas — incluidos los mazos guardados antes de este cambio, que no tienen imagen propia configurada. La imagen, su ajuste y su transparencia se guardan y exportan como cualquier otra propiedad del mazo, y se copian al duplicarlo.
 
-Sobre la caja del mazo se muestra siempre (en los dos modos) una etiqueta con su identificador y el número de cartas que contiene, con el formato "<id> — <N> cartas" (cambio 00121).
+Hasta el cambio 00212, sobre la caja del mazo se mostraba siempre (en los dos modos) una etiqueta fija con su identificador y el número de cartas que contiene. Ese mecanismo se ha sustituido por [Título de componente](035-titulo-de-componente.md), genérico para los 8 tipos: el mazo ya no muestra ningún contador por defecto, pero puede activarse manualmente (solo en modo juego) con un texto como `"{cards_current} cartas"`.
 
 Mientras una carta está dentro de un mazo, no se dibuja como componente independiente en la mesa **en ningún modo** (ni juego ni edición) — a diferencia de "Oculto", que solo se filtra en modo juego. Sigue apareciendo con normalidad en el panel flotante de Componentes, vía para localizarla y editar su diseño sin sacarla antes del mazo.
 
@@ -35,6 +35,6 @@ La modal de configuración del mazo organiza su pestaña "Específicas" en tres 
 Al eliminar un mazo (solo posible en modo edición, como cualquier componente), las cartas que contuviera dejan de estar asociadas a él y vuelven a mostrarse en la mesa como componentes independientes, en su última posición conocida — no se eliminan.
 
 - **Disponible en**: renderizado sobre la mesa en modo juego y modo edición; alta eligiendo "Mazo" en la modal previa de tipo al pulsar "+ Añadir componente"; sacar la carta de arriba con un click, menú contextual y "Meter en mazo..." solo en modo juego; "Ver contenido del mazo" desde propiedades y arrastrar cartas seleccionadas sobre un mazo solo en modo edición; "Ver contenido..."/"Sacar" disponibles y con el mismo efecto en ambos modos.
-- **Código**: 00106, 00121, 00119, 00181, 00182, 00194, 00207, 00210
+- **Código**: 00106, 00121, 00119, 00181, 00182, 00194, 00207, 00210, 00212
 - **Desde**: 2026-07-31
-- **Última modificación**: 2026-08-14
+- **Última modificación**: 2026-08-15

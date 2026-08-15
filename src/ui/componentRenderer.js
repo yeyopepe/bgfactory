@@ -15,6 +15,7 @@ import { getMazoRevealZoneRect, rectsOverlap } from '../core/deck.js';
 import { hexToRgba, shadeColor } from '../core/colorUtils.js';
 import { isInteractionActive } from '../core/interactions.js';
 import { getEffectiveGeneralProps } from '../core/group.js';
+import { resolveTextVariables } from '../core/textVariables.js';
 
 const MIN_TEXT_BOX_WIDTH = 40;
 const MIN_TEXT_BOX_HEIGHT = 24;
@@ -270,11 +271,28 @@ function attachComponentTooltip(element, component) {
   const tooltip = document.createElement('span');
   tooltip.className = 'component-tooltip';
   if (component.tooltipTexto) {
-    tooltip.innerHTML = sanitizeBasicTooltipHtml(component.tooltipTexto);
+    tooltip.innerHTML = sanitizeBasicTooltipHtml(resolveTextVariables(component.tooltipTexto, component));
   } else {
     tooltip.textContent = formatComponentIdentifier(component);
   }
   element.appendChild(tooltip);
+}
+
+// Título de componente en Modo Juego (identifyMode === 'tooltip', condición effective.mostrarTitulo —
+// ese sí es override de grupo, ver core/group.js), a diferencia del tooltip: SIEMPRE visible mientras
+// activo (no depende de :hover, no lleva la clase .component-tooltip-host), y si tituloTexto está vacío
+// no pinta ningún nodo (sin caja vacía flotando; a diferencia del tooltip, no cae al identificador).
+// Mismo criterio de posicionamiento que attachComponentTooltip: no tocar element.style.position (ya es
+// absolute), añadir como hijo. Color de texto/fondo/transparencia son dato de usuario, aplicados inline.
+function attachComponentTitle(element, component) {
+  const resolvedTexto = resolveTextVariables(component.tituloTexto || '', component);
+  if (!resolvedTexto) return;
+  const label = document.createElement('span');
+  label.className = 'component-title-label';
+  label.innerHTML = sanitizeBasicTooltipHtml(resolvedTexto);
+  label.style.color = component.tituloColorTexto || '#000000';
+  label.style.backgroundColor = hexToRgba(component.tituloColorFondo || '#ffffff', component.tituloFondoTransparencia || 0);
+  element.appendChild(label);
 }
 
 // Indicador de bloqueo: insignia superpuesta en una esquina del componente, solo pintada en modo
@@ -635,6 +653,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       textBox.textContent = component.properties.contenido || '';
 
       if (identifyMode === 'tooltip' && effective.mostrarTooltip) attachComponentTooltip(textBox, component);
+      if (identifyMode === 'tooltip' && effective.mostrarTitulo) attachComponentTitle(textBox, component);
       if (identifyMode === 'label') textBox.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && effective.bloqueado !== 'ninguno') textBox.appendChild(createLockBadge());
       if (showHiddenIndicator && effective.oculto) textBox.appendChild(createHiddenBadge());
@@ -777,6 +796,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       board.style.height = `${height}px`;
 
       if (identifyMode === 'tooltip' && effective.mostrarTooltip) attachComponentTooltip(board, component);
+      if (identifyMode === 'tooltip' && effective.mostrarTitulo) attachComponentTitle(board, component);
       if (identifyMode === 'label') board.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && effective.bloqueado !== 'ninguno') board.appendChild(createLockBadge());
       if (showHiddenIndicator && effective.oculto) board.appendChild(createHiddenBadge());
@@ -1011,6 +1031,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       if (identifyMode === 'tooltip' && effective.mostrarTooltip) attachComponentTooltip(tablero, component);
+      if (identifyMode === 'tooltip' && effective.mostrarTitulo) attachComponentTitle(tablero, component);
       if (identifyMode === 'label') tablero.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && effective.bloqueado !== 'ninguno') tablero.appendChild(createLockBadge());
       if (showHiddenIndicator && effective.oculto) tablero.appendChild(createHiddenBadge());
@@ -1155,6 +1176,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       dice.style.height = `${size}px`;
 
       if (identifyMode === 'tooltip' && effective.mostrarTooltip) attachComponentTooltip(dice, component);
+      if (identifyMode === 'tooltip' && effective.mostrarTitulo) attachComponentTitle(dice, component);
       if (identifyMode === 'label') dice.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && effective.bloqueado !== 'ninguno') dice.appendChild(createLockBadge());
       if (showHiddenIndicator && effective.oculto) dice.appendChild(createHiddenBadge());
@@ -1378,6 +1400,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       documentViewer.style.height = `${height}px`;
 
       if (identifyMode === 'tooltip' && effective.mostrarTooltip) attachComponentTooltip(documentViewer, component);
+      if (identifyMode === 'tooltip' && effective.mostrarTitulo) attachComponentTitle(documentViewer, component);
       if (identifyMode === 'label') documentViewer.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && effective.bloqueado !== 'ninguno') documentViewer.appendChild(createLockBadge());
       if (showHiddenIndicator && effective.oculto) documentViewer.appendChild(createHiddenBadge());
@@ -1599,6 +1622,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       if (identifyMode === 'tooltip' && effective.mostrarTooltip) attachComponentTooltip(carta, component);
+      if (identifyMode === 'tooltip' && effective.mostrarTitulo) attachComponentTitle(carta, component);
       if (identifyMode === 'label') carta.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && effective.bloqueado !== 'ninguno') carta.appendChild(createLockBadge());
       if (showHiddenIndicator && effective.oculto) carta.appendChild(createHiddenBadge());
@@ -1824,6 +1848,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       if (identifyMode === 'tooltip' && effective.mostrarTooltip) attachComponentTooltip(mazo, component);
+      if (identifyMode === 'tooltip' && effective.mostrarTitulo) attachComponentTitle(mazo, component);
       if (identifyMode === 'label') mazo.appendChild(createIdentifierLabel(component));
       if (showLockIndicator && effective.bloqueado !== 'ninguno') mazo.appendChild(createLockBadge());
       if (showHiddenIndicator && effective.oculto) mazo.appendChild(createHiddenBadge());
@@ -1832,11 +1857,6 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         const copyCount = copyCountByOriginalId.get(component.id) ?? 0;
         if (copyCount > 0) mazo.appendChild(createHasCopiesBadge(copyCount));
       }
-
-      const countLabel = document.createElement('span');
-      countLabel.className = 'mazo-count-label';
-      countLabel.textContent = `${component.id} — ${cartaIds.length} cartas`;
-      mazo.appendChild(countLabel);
 
       const revealZone = renderMazoRevealZone(worldEl, component);
 

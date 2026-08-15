@@ -31,6 +31,7 @@
 - [027 — Menú contextual de elemento en modo edición](027-menu-contextual-de-elemento-en-modo-edicion.md)
 - [028 — Atajos de teclado en modo edición](028-atajos-de-teclado-en-modo-edicion.md)
 - [034 — Agrupación de elementos: agrupar y desagrupar](034-agrupacion-de-elementos-agrupar-y-desagrupar.md)
+- [035 — Título de componente](035-titulo-de-componente.md)
 
 ## Notificación de errores
 

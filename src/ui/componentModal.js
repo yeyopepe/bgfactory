@@ -6,6 +6,7 @@ import { createComponent, updateComponent, syncCopyWithOriginal } from '../core/
 import { createTag, isTagNameTaken } from '../core/tag.js';
 import { createHelpIcon } from './helpIcon.js';
 import { openBoardPatternModal } from './boardPatternModal.js';
+import { openComponentTitleModal } from './componentTitleModal.js';
 import { openBoardImageModal } from './boardImageModal.js';
 import { openImageAdjustModal } from './imageAdjustModal.js';
 import { openBoardColorModal } from './boardColorModal.js';
@@ -533,7 +534,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   tooltipTextoLabel.style.marginBottom = '0';
   tooltipTextoLabelRow.appendChild(tooltipTextoLabel);
   tooltipTextoLabelRow.appendChild(createHelpIcon({
-    text: 'Texto que verá el jugador como tooltip. Admite varias líneas y formato básico (negrita, cursiva, listas). Si se deja vacío, se usa el identificador del componente.',
+    text: 'Texto que verá el jugador como tooltip. Admite varias líneas, formato básico (negrita, cursiva, listas) y variables como {cards_current} (nº de cartas actual, solo en "Mazo"). Si se deja vacío, se usa el identificador del componente.',
   }));
   const tooltipTextarea = document.createElement('textarea');
   tooltipTextarea.value = workingComponent.tooltipTexto ?? '';
@@ -547,6 +548,53 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   tooltipTextoField.appendChild(tooltipTextoLabelRow);
   tooltipTextoField.appendChild(tooltipTextarea);
   helpSection.appendChild(tooltipTextoField);
+
+  // Título de componente (00212): checkbox + botón que abre una sub-modal con el contenido,
+  // colores y transparencia del título. Mismo bloque "Ayuda jugador" que Tooltip.
+  const titleField = document.createElement('div');
+  titleField.className = 'modal__field modal__field--checkbox';
+  const titleCheckbox = document.createElement('input');
+  titleCheckbox.type = 'checkbox';
+  titleCheckbox.checked = workingComponent.mostrarTitulo ?? false;
+  const titleLabel = document.createElement('label');
+  titleLabel.textContent = 'Mostrar título de componente';
+
+  titleCheckbox.addEventListener('change', () => {
+    workingComponent.mostrarTitulo = titleCheckbox.checked;
+  });
+
+  titleField.appendChild(titleCheckbox);
+  titleField.appendChild(titleLabel);
+  titleField.appendChild(createHelpIcon({
+    text: 'Si está marcado, este componente muestra una etiqueta en su esquina superior izquierda en Modo Juego, con el contenido y colores configurados en "Editar título de componente…".',
+  }));
+  helpSection.appendChild(titleField);
+
+  const titleEditField = document.createElement('div');
+  titleEditField.className = 'modal__field';
+  titleEditField.style.marginBottom = '0';
+  const titleEditBtn = document.createElement('button');
+  titleEditBtn.type = 'button';
+  titleEditBtn.className = 'btn-cancel';
+  titleEditBtn.textContent = 'Editar título de componente…';
+  titleEditBtn.addEventListener('click', () => {
+    openComponentTitleModal({
+      titulo: {
+        texto: workingComponent.tituloTexto,
+        colorTexto: workingComponent.tituloColorTexto,
+        colorFondo: workingComponent.tituloColorFondo,
+        fondoTransparencia: workingComponent.tituloFondoTransparencia,
+      },
+      onAccept: (result) => {
+        workingComponent.tituloTexto = result.texto;
+        workingComponent.tituloColorTexto = result.colorTexto;
+        workingComponent.tituloColorFondo = result.colorFondo;
+        workingComponent.tituloFondoTransparencia = result.fondoTransparencia;
+      },
+    });
+  });
+  titleEditField.appendChild(titleEditBtn);
+  helpSection.appendChild(titleEditField);
 
   generalContent.appendChild(infoSection);
   generalContent.appendChild(helpSection);
@@ -1595,6 +1643,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
               oculto: workingComponent.oculto,
               mostrarTooltip: workingComponent.mostrarTooltip,
               tooltipTexto: workingComponent.tooltipTexto,
+              mostrarTitulo: workingComponent.mostrarTitulo,
+              tituloTexto: workingComponent.tituloTexto,
+              tituloColorTexto: workingComponent.tituloColorTexto,
+              tituloColorFondo: workingComponent.tituloColorFondo,
+              tituloFondoTransparencia: workingComponent.tituloFondoTransparencia,
               subirAlMoverInteractuar: workingComponent.subirAlMoverInteractuar,
               etiquetaIds: [...workingComponent.etiquetaIds],
               etiquetaNames: workingComponent.etiquetaIds.map((id) => getTags().find((t) => t.id === id)?.name ?? id),
@@ -1634,6 +1687,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
         workingComponent.oculto = clip.generales.oculto;
         workingComponent.mostrarTooltip = clip.generales.mostrarTooltip;
         workingComponent.tooltipTexto = clip.generales.tooltipTexto;
+        workingComponent.mostrarTitulo = clip.generales.mostrarTitulo;
+        workingComponent.tituloTexto = clip.generales.tituloTexto;
+        workingComponent.tituloColorTexto = clip.generales.tituloColorTexto;
+        workingComponent.tituloColorFondo = clip.generales.tituloColorFondo;
+        workingComponent.tituloFondoTransparencia = clip.generales.tituloFondoTransparencia;
         workingComponent.subirAlMoverInteractuar = clip.generales.subirAlMoverInteractuar;
         workingComponent.etiquetaIds = [...clip.generales.etiquetaIds];
         moveSelect.value = workingComponent.bloqueado;
@@ -1641,6 +1699,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
         tooltipCheckbox.checked = workingComponent.mostrarTooltip;
         tooltipTextarea.value = workingComponent.tooltipTexto;
         tooltipTextarea.disabled = !workingComponent.mostrarTooltip;
+        titleCheckbox.checked = workingComponent.mostrarTitulo;
         upOnMoveCheckbox.checked = workingComponent.subirAlMoverInteractuar;
         populateTagCheckboxes();
       }

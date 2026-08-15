@@ -1120,17 +1120,20 @@ fieldset.modal__section--untitled {
   cursor: pointer;
 }
 
-/* Etiqueta con el número de cartas del mazo: a diferencia de .component-id-label
-   (solo en hover/selección), esta es siempre visible, en los dos modos. Mismo
-   aspecto que .component-id-label, anclada encima de la caja en vez de dentro
-   de su esquina. */
-.mazo-count-label {
+/* Título de componente (00212), sustituye a la antigua etiqueta fija de nº de cartas del mazo
+   (.mazo-count-label, retirada): generalizada a los 8 tipos, configurable por componente
+   (checkbox "Mostrar título de componente" + sub-modal "Editar título de componente" en "Ayuda
+   jugador"). Solo Modo Juego (a diferencia de la etiqueta anterior, visible en los dos modos) —
+   a diferencia de .component-tooltip (solo en :hover), esta es siempre visible mientras esté
+   activa. Mismo anclaje que tenía .mazo-count-label: fuera de la caja, esquina superior izquierda.
+   background/color NO fijos aquí: los aplica inline ui/componentRenderer.js
+   (attachComponentTitle) según tituloColorTexto/tituloColorFondo/tituloFondoTransparencia de
+   cada componente — dato de usuario, no token del sistema de diseño. */
+.component-title-label {
   position: absolute;
   top: -1.6rem;
   left: 2px;
   white-space: nowrap;
-  background: var(--accent-blue-dark);
-  color: var(--text-light);
   font-size: 0.72rem;
   line-height: 1.4;
   padding: 0.1rem 0.4rem;

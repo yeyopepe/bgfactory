@@ -4,8 +4,8 @@
 // (nextGroupId() de core/component.js al formar el grupo, o el valor editado
 // desde ui/groupModal.js al renombrarlo).
 
-export function createGroup({ id, bloqueado = 'ninguno', mostrarTooltip = false, subirAlMoverInteractuar = false, oculto = false, etiquetaIds = [] } = {}) {
-  return { id, bloqueado, mostrarTooltip, subirAlMoverInteractuar, oculto, etiquetaIds };
+export function createGroup({ id, bloqueado = 'ninguno', mostrarTooltip = false, mostrarTitulo = false, subirAlMoverInteractuar = false, oculto = false, etiquetaIds = [] } = {}) {
+  return { id, bloqueado, mostrarTooltip, mostrarTitulo, subirAlMoverInteractuar, oculto, etiquetaIds };
 }
 
 export function updateGroup(group, changes) {
@@ -32,6 +32,7 @@ export function getEffectiveGeneralProps(component, groups) {
         bloqueado: group.bloqueado,
         oculto: group.oculto,
         mostrarTooltip: group.mostrarTooltip,
+        mostrarTitulo: group.mostrarTitulo,
         subirAlMoverInteractuar: group.subirAlMoverInteractuar,
         etiquetaIds: group.etiquetaIds,
       };
@@ -41,6 +42,7 @@ export function getEffectiveGeneralProps(component, groups) {
     bloqueado: component.bloqueado,
     oculto: component.oculto,
     mostrarTooltip: component.mostrarTooltip,
+    mostrarTitulo: component.mostrarTitulo,
     subirAlMoverInteractuar: component.subirAlMoverInteractuar,
     etiquetaIds: component.etiquetaIds,
   };
