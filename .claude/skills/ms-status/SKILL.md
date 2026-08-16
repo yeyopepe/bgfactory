@@ -5,7 +5,7 @@ argument-hint: "[todo|<estado>]"
 model: claude-haiku-4-5
 effort: medium
 metadata:
-  version: 1.9.2
+  version: 1.10.0
   uses: []
 ---
 
@@ -32,6 +32,8 @@ Antes de ejecutar ningún script, mira cómo se invocó la skill — cada modo u
 - Sin argumento, o cualquier otro caso (informe general) → ve a **2**.
 
 No ejecutes `collect_status.py` directamente en ningún modo: es un módulo interno que `list_todo.py` y `render_status.py` importan y reutilizan por su cuenta, no un script pensado para invocarse desde la skill — su salida JSON no aporta nada que la skill deba mostrar o reformatear.
+
+Los tres scripts (`list_todo.py`, `filter_status.py`, `render_status.py`) aceptan también un flag `--terminal` que cambia la salida a texto plano sin markdown, ajustado a 70 columnas. Es de uso exclusivo de `ms.py` (el menú de terminal del framework); esta skill, invocada desde el chat, **nunca** debe pasar `--terminal` — el markdown por defecto es siempre el formato correcto para una respuesta de chat.
 
 ## 1.b Modo `todo`: solo listar ideas
 

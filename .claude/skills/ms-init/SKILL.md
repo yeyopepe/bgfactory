@@ -4,7 +4,7 @@ description: Inicializa el framework ms-* (change/fix/workflow) en el proyecto a
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.6.0
+  version: 1.8.0
   uses: []
 ---
 
@@ -105,12 +105,21 @@ Sección `project`: pregunta al usuario qué quiere dejar anotado sobre el proye
 
 Crea `.claude/` si no existe. Escribe (o actualiza con merge, sin pisar campos ya presentes que el usuario no ha pedido cambiar) `.claude/ms-context.json` con la forma de [`schema.json`](schema.json) — mismos nombres de campo, sin propiedades fuera de las que declara el schema (`additionalProperties: false` en cada nivel).
 
-## 5. Verificar y confirmar
+## 5. Copiar/actualizar el lanzador `ms.py`
+
+Copia [`assets/ms.py`](assets/ms.py) a `{raíz del repo}/ms.py`, sobrescribiendo lo que hubiera — es un fichero generado, no de contenido del usuario, cópialo tal cual sin modificar ni una línea de su contenido.
+
+Es un único fichero Python autocontenido pensado para que cualquier persona del equipo consulte o cierre cambios del framework directamente desde terminal (`python3 ms.py`), sin pasar por Claude Code ni tener que acordarse de nombres de scripts, rutas o parámetros: al ejecutarlo muestra un menú interactivo. Hoy expone las consultas de solo lectura de `ms-status` (informe general, listado filtrado por estado, ideas de `todo/`) y el cierre de una entrada implementada (mover su carpeta de `changes/implemented/` a `changes/closed/`, delegando en `move-change.py` de `ms-internal-workflow` — una operación que solo mueve la carpeta, sin tocar el contenido de ningún fichero, y que el menú pide confirmar explícitamente antes de ejecutar). Es el único punto de la skill que se amplía si en el futuro aparece algún otro script apto para exponerse directamente: de solo lectura sin más, o mutaciones igual de simples y ya validadas por su propio script (como mover una carpeta) que además se confirmen explícitamente antes de ejecutarse. Las mutaciones más complejas (borrar, crear versiones, ficheros con contenido a redactar...) siguen sin exponerse aquí, ya que necesitan el contexto que solo aporta la skill correspondiente.
+
+Este fichero se versiona en git como cualquier otro fichero del framework (igual que `.claude/ms-context.json`) — no lo añadas a `.gitignore`.
+
+## 6. Verificar y confirmar
 
 Antes de dar la inicialización por terminada:
 
 1. Vuelve a ejecutar `python .claude/skills/ms-init/scripts/check-context.py` sobre el fichero recién escrito y comprueba que devuelve `"complete": true`. Si no es así, algo se escribió mal (p.ej. la sección `framework` quedó vacía o no se llegó a escribir) — corrígelo antes de continuar, no lo des por bueno sin comprobarlo.
 2. Si `docs.tech.architectureDocDir`/`docs.tech.styleBibleDocDir` se configuraron con generación de contenido mínimo, confirma que la carpeta y sus dos ficheros (`INDEX.md` + `01-overview.md`) existen de verdad en disco.
 3. Si `docs.functional.featuresDocPathDir` se configuró, no hace falta crear nada todavía (se crea vacío la primera vez que `ms-do` lo necesite) — solo confirma que el valor quedó guardado en el JSON.
+4. Confirma que `{raíz del repo}/ms.py` existe y coincide con [`assets/ms.py`](assets/ms.py).
 
-Muestra al usuario un resumen completo de lo que ha quedado configurado: ruta del fichero, cada campo de `framework` resuelto (incluidos los que se dejaron sin configurar y por qué), si se definió algo en `skillModels` (con el recordatorio de ejecutar `sync-skill-models.py` si aplica), y si se ha dejado algo en `project`. Recuerda al usuario que puede volver a invocar esta skill para reconfigurar cualquier campo más adelante.
+Muestra al usuario un resumen completo de lo que ha quedado configurado: ruta del fichero, cada campo de `framework` resuelto (incluidos los que se dejaron sin configurar y por qué), si se definió algo en `skillModels` (con el recordatorio de ejecutar `sync-skill-models.py` si aplica), si se ha dejado algo en `project`, y que ya puede ejecutar `python3 ms.py` desde la raíz del repo para consultar el estado del framework sin pasar por Claude Code. Recuerda al usuario que puede volver a invocar esta skill para reconfigurar cualquier campo más adelante.

@@ -25,6 +25,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from collect_status import load_changes_dir, parse_todo_description, repo_root  # noqa: E402
+import terminal_output as term  # noqa: E402
 
 TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "STATUS.todo.template.md"
 
@@ -79,6 +80,31 @@ def render_report(entries: list[dict]) -> str:
     return body.format(fechaGeneracion=datetime.now().strftime("%Y-%m-%d"), filas=filas)
 
 
+def render_terminal(entries: list[dict]) -> str:
+    from datetime import datetime
+
+    lines = [
+        term.title("IDEAS EN TODO/", f"Generado: {datetime.now().strftime('%Y-%m-%d')}"),
+    ]
+
+    if not entries:
+        lines.append("")
+        lines.append(term.wrap("(No hay ninguna idea apuntada en todo/.)"))
+        lines.append("")
+        lines.append(term.hr())
+        return "\n".join(lines) + "\n"
+
+    for entry in entries:
+        idea = entry["idea"] or "(sin sección '## Idea' en description.md)"
+        lines.append("")
+        lines.append(entry["code"])
+        lines.append(term.wrap(idea, indent="  "))
+
+    lines.append("")
+    lines.append(term.hr())
+    return "\n".join(lines) + "\n"
+
+
 def main() -> None:
     import argparse
 
@@ -88,6 +114,13 @@ def main() -> None:
         help="Ruta a workFolder relativa a la raiz del repo. Si no se indica, "
         "se lee de .claude/ms-context.json (default '/').",
     )
+    parser.add_argument(
+        "--terminal",
+        action="store_true",
+        help="Salida en texto plano sin markdown, ajustada a 70 columnas, para "
+        "pegar en una terminal clasica. Uso exclusivo de ms.py: la skill "
+        "ms-status (invocada desde el chat) no debe pasar este flag.",
+    )
     args = parser.parse_args()
 
     if hasattr(sys.stdout, "reconfigure"):
@@ -96,7 +129,7 @@ def main() -> None:
     root = repo_root()
     changes_dir = load_changes_dir(root, args.work_folder)
     entries = collect_todo(changes_dir)
-    print(render_report(entries))
+    print(render_terminal(entries) if args.terminal else render_report(entries))
 
 
 if __name__ == "__main__":
