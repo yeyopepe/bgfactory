@@ -4,7 +4,7 @@ description: Inicializa el framework ms-* (change/fix/workflow) en el proyecto a
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 1.7.0
+  version: 1.8.0
   uses: []
 ---
 
@@ -109,7 +109,7 @@ Crea `.claude/` si no existe. Escribe (o actualiza con merge, sin pisar campos y
 
 Copia [`assets/ms.py`](assets/ms.py) a `{raíz del repo}/ms.py`, sobrescribiendo lo que hubiera — es un fichero generado, no de contenido del usuario, cópialo tal cual sin modificar ni una línea de su contenido.
 
-Es un único fichero Python autocontenido pensado para que cualquier persona del equipo consulte el estado del framework directamente desde terminal (`python3 ms.py`), sin pasar por Claude Code ni tener que acordarse de nombres de scripts, rutas o parámetros: al ejecutarlo muestra un menú interactivo. Hoy solo expone las consultas de solo lectura de `ms-status` (informe general, listado filtrado por estado, ideas de `todo/`); es el único punto de la skill que se amplía si en el futuro aparece algún otro script de solo lectura en otra skill `ms-*` apto para exponerse directamente (los que mutan `changes/` — mover entradas, borrar, crear versiones... — no deben exponerse aquí sin el contexto que aporta la skill correspondiente).
+Es un único fichero Python autocontenido pensado para que cualquier persona del equipo consulte o cierre cambios del framework directamente desde terminal (`python3 ms.py`), sin pasar por Claude Code ni tener que acordarse de nombres de scripts, rutas o parámetros: al ejecutarlo muestra un menú interactivo. Hoy expone las consultas de solo lectura de `ms-status` (informe general, listado filtrado por estado, ideas de `todo/`) y el cierre de una entrada implementada (mover su carpeta de `changes/implemented/` a `changes/closed/`, delegando en `move-change.py` de `ms-internal-workflow` — una operación que solo mueve la carpeta, sin tocar el contenido de ningún fichero, y que el menú pide confirmar explícitamente antes de ejecutar). Es el único punto de la skill que se amplía si en el futuro aparece algún otro script apto para exponerse directamente: de solo lectura sin más, o mutaciones igual de simples y ya validadas por su propio script (como mover una carpeta) que además se confirmen explícitamente antes de ejecutarse. Las mutaciones más complejas (borrar, crear versiones, ficheros con contenido a redactar...) siguen sin exponerse aquí, ya que necesitan el contexto que solo aporta la skill correspondiente.
 
 Este fichero se versiona en git como cualquier otro fichero del framework (igual que `.claude/ms-context.json`) — no lo añadas a `.gitignore`.
 
