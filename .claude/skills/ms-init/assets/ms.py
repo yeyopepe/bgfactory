@@ -28,6 +28,28 @@ STATUS_SCRIPTS = ROOT / ".claude" / "skills" / "ms-status" / "scripts"
 CHANGES_DIR = ROOT / "changes"
 CONTEXT_PATH = ROOT / ".claude" / "ms-context.json"
 
+RING_ART = r"""
+              _.-'''''''''-._
+           ,-'                '-,
+         ,'                      ',
+        /        .---------.      \
+       /       ,'           ',     \
+      |       /     .---.     \     |
+      |      |     ( ONE )     |    |
+      |       \     `---'     /     |
+       \       '.           ,'     /
+        \        '---------'      /
+         ',                      ,'
+           '-,                ,-'
+              '-._________.-'
+"""
+
+RING_INSCRIPTION = (
+    "Un script para gobernarlos a todos.\n"
+    "Un script para encontrarlos, un script para invocarlos a todos\n"
+    "y ejecutarlos en la terminal."
+)
+
 
 def run_script(script: Path, *args: str) -> None:
     subprocess.run([sys.executable, str(script), *args], cwd=ROOT)
@@ -85,6 +107,9 @@ def main() -> None:
         print("Este proyecto no tiene el framework ms-* inicializado.")
         print("Ejecuta primero /ms-init desde Claude Code.")
         return
+
+    print(RING_ART)
+    print(RING_INSCRIPTION)
 
     while True:
         print("\n=== ms-* — menú ===")
