@@ -5,7 +5,7 @@ argument-hint: "[todo|<estado>]"
 model: claude-haiku-4-5
 effort: medium
 metadata:
-  version: 1.9.2
+  version: 1.10.0
   uses: []
 ---
 

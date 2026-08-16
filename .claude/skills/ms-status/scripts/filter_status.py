@@ -51,6 +51,14 @@ FECHA_RE = re.compile(r"\*\*Fecha\*\*\s*[:—-]\s*(.+)")
 TIPO_RE = re.compile(r"\*\*Tipo\*\*\s*[:—-]\s*([A-Za-z]+)", re.IGNORECASE)
 KNOWN_TYPES = {"change", "fix", "fast"}
 
+TIPO_LABELS = {
+    "change": "🆕 Change",
+    "fix": "👾 Fix",
+    "fast": "⚡ Fast",
+    "todo": "💡 Todo",
+    "unknown": "❓ Unknown",
+}
+
 # description.md tiene dos formatos segun la antiguedad de la entrada:
 #  - antiguo: campo de lista "- **Descripcion completa**:" (contenido indentado)
 #  - actual: cabecera markdown "## Descripcion completa"
@@ -206,7 +214,7 @@ def render_report(result: dict) -> str:
         filas = "\n".join(
             row_template.format(
                 código=entry["code"],
-                tipo=entry["tipo"],
+                tipo=TIPO_LABELS.get(entry["tipo"], entry["tipo"]),
                 descripción=entry["description"] or "—",
                 fecha=entry["fecha"] or "—",
             )

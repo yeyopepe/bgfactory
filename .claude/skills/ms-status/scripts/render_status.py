@@ -51,6 +51,34 @@ FECHA_RE = re.compile(r"\*\*Fecha\*\*\s*[:—-]\s*(.+)")
 ROW_RE_TEMPLATE = r"<!--\s*{name}:\s*(.+?)\s*-->\n?"
 SECTION_RE_TEMPLATE = r"<!--\s*SECTION:{name}\s*-->\n?(.*?)<!--\s*/SECTION:{name}\s*-->\n?"
 
+TYPE_ICONS = {"change": "🆕", "fix": "👾", "fast": "⚡", "unknown": "❓"}
+
+BAR_WIDTH = 20
+STATE_ORDER = ["todo", "inProgress", "implemented", "closed"]
+STATE_LABELS = {
+    "todo": "💡 Todo",
+    "inProgress": "🔧 En progreso",
+    "implemented": "✅ Implementado",
+    "closed": "📦 Cerrado",
+}
+
+
+def render_bars(counts: dict[str, int]) -> str:
+    """Barras de texto proporcionales al estado con mas entradas, deterministas."""
+    values = [counts.get(state, 0) for state in STATE_ORDER]
+    max_count = max(values) or 1
+    label_width = max(len(STATE_LABELS[state]) for state in STATE_ORDER)
+    count_width = max(len(str(v)) for v in values)
+
+    lines = []
+    for state in STATE_ORDER:
+        count = counts.get(state, 0)
+        filled = round(count / max_count * BAR_WIDTH)
+        bar = "█" * filled + "░" * (BAR_WIDTH - filled)
+        label = STATE_LABELS[state].ljust(label_width)
+        lines.append(f"{label}  {bar}  {str(count).rjust(count_width)}")
+    return "\n".join(lines)
+
 
 def extract_fecha(entry_dir: Path) -> str:
     description_path = entry_dir / "description.md"
@@ -89,7 +117,12 @@ def entry_lines(entries: list[dict], row_template: str, empty_template: str) -> 
     if not entries:
         return empty_template
     return "\n".join(
-        row_template.format(xxxx=entry["code"], nombre=entry["name"] or "(sin nombre)", tipo=entry["type"])
+        row_template.format(
+            xxxx=entry["code"],
+            nombre=entry["name"] or "(sin nombre)",
+            tipo=entry["type"],
+            icono=TYPE_ICONS.get(entry["type"], "❓"),
+        )
         for entry in entries
     )
 
@@ -137,6 +170,9 @@ def render(result: dict, changes_dir: Path, show_fast: bool = False) -> str:
 
     body = body.format(
         fechaGeneracion=datetime.now().strftime("%Y-%m-%d"),
+        resumenBarras=render_bars(
+            {state: states.get(state, {}).get("total", 0) for state in STATE_ORDER}
+        ),
         todoTotal=states.get("todo", {}).get("total", 0),
         inProgressChange=state_count("inProgress", "change"),
         inProgressFix=state_count("inProgress", "fix"),
