@@ -45,6 +45,9 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import terminal_output as term  # noqa: E402
+
 TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "STATUS.filtered.template.md"
 
 FECHA_RE = re.compile(r"\*\*Fecha\*\*\s*[:—-]\s*(.+)")
@@ -230,6 +233,32 @@ def render_report(result: dict) -> str:
     )
 
 
+def render_terminal(result: dict) -> str:
+    lines = [
+        term.title(
+            f"ESTADO DEL PROYECTO — {result['state']}",
+            f"Generado: {datetime.now().strftime('%Y-%m-%d')}",
+        ),
+    ]
+
+    if not result["entries"]:
+        lines.append("")
+        lines.append(term.wrap(f'(No hay ninguna entrada en el estado "{result["state"]}".)'))
+        lines.append("")
+        lines.append(term.hr())
+        return "\n".join(lines) + "\n"
+
+    for entry in result["entries"]:
+        tipo = TIPO_LABELS.get(entry["tipo"], entry["tipo"])
+        lines.append("")
+        lines.append(f"{entry['code']}  [{tipo}]  {entry['fecha'] or '—'}")
+        lines.append(term.wrap(entry["description"] or "—", indent="  "))
+
+    lines.append("")
+    lines.append(term.hr())
+    return "\n".join(lines) + "\n"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("state", help="Nombre de la carpeta de estado a listar (p.ej. closed, implemented, inProgress, todo).")
@@ -237,6 +266,13 @@ def main() -> None:
         "--work-folder",
         help="Ruta a workFolder relativa a la raiz del repo. Si no se indica, "
         "se lee de .claude/ms-context.json (default '/').",
+    )
+    parser.add_argument(
+        "--terminal",
+        action="store_true",
+        help="Salida en texto plano sin markdown, ajustada a 70 columnas, para "
+        "pegar en una terminal clasica. Uso exclusivo de ms.py: la skill "
+        "ms-status (invocada desde el chat) no debe pasar este flag.",
     )
     args = parser.parse_args()
 
@@ -246,7 +282,7 @@ def main() -> None:
     root = repo_root()
     changes_dir = load_changes_dir(root, args.work_folder)
     result = collect(changes_dir, args.state)
-    print(render_report(result))
+    print(render_terminal(result) if args.terminal else render_report(result))
 
 
 if __name__ == "__main__":

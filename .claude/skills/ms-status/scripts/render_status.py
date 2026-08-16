@@ -43,6 +43,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from collect_status import collect, load_changes_dir, repo_root  # noqa: E402
+import terminal_output as term  # noqa: E402
 
 TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "STATUS.template.md"
 
@@ -67,7 +68,7 @@ def render_bars(counts: dict[str, int]) -> str:
     """Barras de texto proporcionales al estado con mas entradas, deterministas."""
     values = [counts.get(state, 0) for state in STATE_ORDER]
     max_count = max(values) or 1
-    label_width = max(len(STATE_LABELS[state]) for state in STATE_ORDER)
+    label_width = max(term.display_width(STATE_LABELS[state]) for state in STATE_ORDER)
     count_width = max(len(str(v)) for v in values)
 
     lines = []
@@ -75,7 +76,7 @@ def render_bars(counts: dict[str, int]) -> str:
         count = counts.get(state, 0)
         filled = round(count / max_count * BAR_WIDTH)
         bar = "█" * filled + "░" * (BAR_WIDTH - filled)
-        label = STATE_LABELS[state].ljust(label_width)
+        label = term.pad_display(STATE_LABELS[state], label_width)
         lines.append(f"{label}  {bar}  {str(count).rjust(count_width)}")
     return "\n".join(lines)
 
@@ -127,6 +128,22 @@ def entry_lines(entries: list[dict], row_template: str, empty_template: str) -> 
     )
 
 
+def split_in_progress(states: dict) -> tuple[list[dict], list[dict], list[dict]]:
+    entries = states.get("inProgress", {}).get("entries", [])
+    to_implement = [e for e in entries if e["subStatus"] == "listo_para_implementar"]
+    pending = [e for e in entries if e["subStatus"] == "descrito"]
+    sin_descripcion = [e for e in entries if e["subStatus"] == "sin_descripcion"]
+    return to_implement, pending, sin_descripcion
+
+
+def collect_fast_entries(states: dict) -> list[dict]:
+    implemented_entries = states.get("implemented", {}).get("entries", [])
+    closed_entries = states.get("closed", {}).get("entries", [])
+    return [e for e in implemented_entries if e["type"] == "fast"] + [
+        e for e in closed_entries if e["type"] == "fast"
+    ]
+
+
 def render(result: dict, changes_dir: Path, show_fast: bool = False) -> str:
     states = result["states"]
     totals = result["totalsByType"]
@@ -151,17 +168,9 @@ def render(result: dict, changes_dir: Path, show_fast: bool = False) -> str:
         template_text, "ROW_ENTRY", "EMPTY_ENTRY", "ROW_FAST", "ROW_IDEA", "ROW_AVISO", "EMPTY_IDEAS"
     )
 
-    in_progress_entries = states.get("inProgress", {}).get("entries", [])
-    to_implement = [e for e in in_progress_entries if e["subStatus"] == "listo_para_implementar"]
-    pending = [e for e in in_progress_entries if e["subStatus"] == "descrito"]
-    sin_descripcion = [e for e in in_progress_entries if e["subStatus"] == "sin_descripcion"]
-
+    to_implement, pending, sin_descripcion = split_in_progress(states)
     implemented_entries = states.get("implemented", {}).get("entries", [])
-    closed_entries = states.get("closed", {}).get("entries", [])
-    fast_entries = [e for e in implemented_entries if e["type"] == "fast"] + [
-        e for e in closed_entries if e["type"] == "fast"
-    ]
-
+    fast_entries = collect_fast_entries(states)
     todo_entries = states.get("todo", {}).get("entries", [])
 
     body = apply_section(template_text, "sinDescripcion", keep=bool(sin_descripcion))
@@ -211,6 +220,137 @@ def render(result: dict, changes_dir: Path, show_fast: bool = False) -> str:
     return body.rstrip("\n") + "\n"
 
 
+def render_terminal_table(states: dict, totals: dict, grand_total: int) -> list[str]:
+    def state_count(state: str, type_: str) -> int:
+        return states.get(state, {}).get("byType", {}).get(type_, 0)
+
+    def row(label: str, change, fix, fast, todo, total) -> str:
+        return (
+            term.pad_display(str(label), 16)
+            + str(change).rjust(8)
+            + str(fix).rjust(6)
+            + str(fast).rjust(7)
+            + str(todo).rjust(7)
+            + str(total).rjust(8)
+        )
+
+    todo_total = states.get("todo", {}).get("total", 0)
+    lines = [
+        row("Estado", "Change", "Fix", "Fast", "Todo", "Total"),
+        row(
+            STATE_LABELS["todo"], "—", "—", "—", todo_total, todo_total
+        ),
+        row(
+            STATE_LABELS["inProgress"],
+            state_count("inProgress", "change"),
+            state_count("inProgress", "fix"),
+            "—",
+            "—",
+            states.get("inProgress", {}).get("total", 0),
+        ),
+        row(
+            STATE_LABELS["implemented"],
+            state_count("implemented", "change"),
+            state_count("implemented", "fix"),
+            state_count("implemented", "fast"),
+            "—",
+            states.get("implemented", {}).get("total", 0),
+        ),
+        row(
+            STATE_LABELS["closed"],
+            state_count("closed", "change"),
+            state_count("closed", "fix"),
+            state_count("closed", "fast"),
+            "—",
+            states.get("closed", {}).get("total", 0),
+        ),
+        row(
+            "Total",
+            totals.get("change", 0),
+            totals.get("fix", 0),
+            totals.get("fast", 0),
+            todo_total,
+            grand_total,
+        ),
+    ]
+    return lines
+
+
+def render_terminal_entries(title_text: str, entries: list[dict]) -> list[str]:
+    block = ["", term.colorize(f"{title_text} ({len(entries)})")]
+    if not entries:
+        block.append(term.wrap("(ninguno)", indent="  "))
+    else:
+        for entry in entries:
+            nombre = entry["name"] or "(sin nombre)"
+            block.append(term.wrap(f"- {entry['code']} — {nombre}", indent="  "))
+    return block
+
+
+def render_terminal(result: dict, changes_dir: Path, show_fast: bool = False) -> str:
+    states = result["states"]
+    totals = result["totalsByType"]
+
+    to_implement, pending, sin_descripcion = split_in_progress(states)
+    implemented_entries = states.get("implemented", {}).get("entries", [])
+    fast_entries = collect_fast_entries(states)
+    todo_entries = states.get("todo", {}).get("entries", [])
+
+    lines = [
+        term.title("ESTADO DEL PROYECTO", f"Generado: {datetime.now().strftime('%Y-%m-%d')}"),
+        "",
+        render_bars({state: states.get(state, {}).get("total", 0) for state in STATE_ORDER}),
+        "",
+        term.hr("-"),
+        *render_terminal_table(states, totals, result["grandTotal"]),
+        term.hr("-"),
+        "",
+        term.heading("🔧 EN PROGRESO"),
+    ]
+
+    lines += render_terminal_entries("🟢 Listos para revisar y cerrar", implemented_entries)
+    lines += render_terminal_entries("🟡 Pendientes de analisis tecnico", pending)
+    lines += render_terminal_entries("🟠 Planificados, pendientes de implementar", to_implement)
+
+    if sin_descripcion:
+        lines.append("")
+        lines.append(
+            term.wrap(
+                "Entradas sin description.md (anomalas): "
+                + ", ".join(e["code"] for e in sin_descripcion)
+            )
+        )
+
+    if show_fast and fast_entries:
+        lines.append("")
+        lines.append(term.heading("⚡ CAMBIOS FAST IMPLEMENTADOS"))
+        for entry in fast_entries:
+            state_dir = "implemented" if entry in implemented_entries else "closed"
+            fecha = extract_fecha(changes_dir / state_dir / entry["code"])
+            nombre = entry["name"] or "(sin nombre)"
+            lines.append(term.wrap(f"- {entry['code']} — {nombre} ({fecha})", indent="  "))
+
+    lines.append("")
+    lines.append(term.heading("💡 IDEAS EN TODO/"))
+    if todo_entries:
+        for entry in todo_entries:
+            idea = entry["name"] or "(sin idea)"
+            lines.append(term.wrap(f"- {entry['code']}: {idea}", indent="  "))
+    else:
+        lines.append(term.wrap("(No hay ninguna idea apuntada en todo/.)"))
+
+    if result["warnings"]:
+        lines.append("")
+        lines.append(term.heading("⚠️ AVISOS"))
+        for warning in result["warnings"]:
+            lines.append(term.wrap(f"- {warning}", indent="  "))
+
+    lines.append("")
+    lines.append(term.hr())
+
+    return "\n".join(lines).rstrip("\n") + "\n"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -224,6 +364,13 @@ def main() -> None:
         help="Incluye la seccion 'Cambios fast implementados'. Omitida por defecto: "
         "solo pasar este flag cuando el usuario la pida explicitamente.",
     )
+    parser.add_argument(
+        "--terminal",
+        action="store_true",
+        help="Salida en texto plano sin markdown, ajustada a 70 columnas, para "
+        "pegar en una terminal clasica. Uso exclusivo de ms.py: la skill "
+        "ms-status (invocada desde el chat) no debe pasar este flag.",
+    )
     args = parser.parse_args()
 
     if hasattr(sys.stdout, "reconfigure"):
@@ -232,7 +379,10 @@ def main() -> None:
     root = repo_root()
     changes_dir = load_changes_dir(root, args.work_folder)
     result = collect(changes_dir)
-    print(render(result, changes_dir, show_fast=args.show_fast))
+    if args.terminal:
+        print(render_terminal(result, changes_dir, show_fast=args.show_fast))
+    else:
+        print(render(result, changes_dir, show_fast=args.show_fast))
 
 
 if __name__ == "__main__":

@@ -8,6 +8,8 @@
 
 {resumenBarras}
 
+---
+
 | Estado | 🆕 Change | 👾 Fix | ⚡ Fast | 💡 Todo | Total |
 | --- | --- | --- | --- | --- | --- |
 | 💡 Todo | — | — | — | {todoTotal} | **{todoTotal}** |

@@ -2,3 +2,4 @@ node_modules/
 dist/
 .claude/**/__pycache__/*
 /src/_output/versions/*.*
+/.claude/skills/ms-init/assets/__pycache__
