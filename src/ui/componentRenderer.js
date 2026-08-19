@@ -620,9 +620,16 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
   }
 
   function getBlockDragTargets(component) {
-    if (!(selectedIds.size > 1 && selectedIds.has(component.id))) return [];
+    let ids;
+    if (selectedIds.size > 1 && selectedIds.has(component.id)) {
+      ids = selectedIds;
+    } else if (component.groupId != null) {
+      ids = components.filter((c) => c.groupId === component.groupId).map((c) => c.id);
+    } else {
+      return [];
+    }
     const targets = [];
-    for (const id of selectedIds) {
+    for (const id of ids) {
       if (id === component.id) continue;
       const el = elementsById.get(id);
       const other = components.find((c) => c.id === id);

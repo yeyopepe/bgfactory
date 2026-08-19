@@ -159,6 +159,14 @@ export function renderPlayMode(container) {
           }
         }
         replaceComponent(component.id, updateComponent(component, { x, y }));
+        if (component.groupId != null) {
+          const dx = x - (component.x ?? 0);
+          const dy = y - (component.y ?? 0);
+          for (const sibling of getComponents()) {
+            if (sibling.id === component.id || sibling.groupId !== component.groupId) continue;
+            replaceComponent(sibling.id, updateComponent(sibling, { x: (sibling.x ?? 0) + dx, y: (sibling.y ?? 0) + dy }));
+          }
+        }
         if (getEffectiveGeneralProps(component, groups).subirAlMoverInteractuar) reorderComponent(component.id, 1);
       },
       canMove: (component) => getEffectiveGeneralProps(component, groups).bloqueado === 'ninguno',

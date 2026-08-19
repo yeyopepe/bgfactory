@@ -141,19 +141,31 @@ Cuando termina el domingo y, por lo tanto, la semana en curso:
 
 ### 3.1 Acciones que cuestan 1 punto de acción
 
-### Moverse
+### Moverse (caminar) a una localización adyacente
 
-Tu personaje se mueve de su localización a otra adyacente si cumple las condiciones:
+Tu personaje se mueve a una localización adyacente si:
 
-- Si la localización de destino tiene un requisito solo puedes entrar en ella si tienes el/los objeto/s necesario/s en tu mochila (solo puede entrar el propietario y quién viaje con él) o si alguien antes que tú los ha dejado en la localización; mientras nadie retire esos objetos, cualquiera puede entrar en la localización.
-- Si la localización de destino no indica nada, puedes moverte a ella libremente.
+1. La localización de destino tiene algún requisito, solo puede entrar en ella si alguno de los personajes que están intentando entrar a ella dispone del/los objeto/s necesario/s en su mochila.
+2. La localización de destino tiene algún requisito, pero todos están encima de la carta de la localización (alguien los ha dejado ahí en un momento anterior).
+3. Si la localización de destino no indica nada, tu personaje puede entrar y/o pasar por ella libremente.
 
-Cuando un jugador realiza esta acción puede llevar consigo a cualquier otro personaje que esté en su misma localización y quiera viajar con él. Esto no implica ninguna acción para estos personajes que acompañan al del jugador.
+Nota: cualquier combinación de los puntos 1 y 2 también es válida.
+
+
+Cuando un jugador realiza esta acción puede llevar consigo a cualquier otro personaje que esté en su misma localización y quiera viajar con él. Esto no implica ningún pto. de acción para estos personajes que acompañan al del jugador.
 - <u>**???**</u> acción gratis al entrar en una localización
 - <u>**???**</u> Si hay enemigos en la localización -> combate
 
 - Si la localización tiene el icono 💀, se resuelve automáticamente un encuentro: tira tantos dados de encuentros como indique la carta y coloca en la localización tantos enemigos como indique la tirada.
 
+### Correr a una localización adyacente
+
+Esta es una variante de caminar con alguna diferencia:
+- El personaje se desplaza 2 localizaciones, no 1.
+- No puede llevar a ningún otro personaje con él.
+- Solo se resuelven las situaciones relativas a la localización de destino, no a la intermedia por la que pasa. Es decir: si pasa por una localización que tiene el icono 💀, no resuelve ningún encuentro, simplemente pasa de largo.
+
+Esta acción cuesta 1 pto. de acción y, antes de empezar el movimiento, el personaje debe dejar el objeto que esté más arriba en su mochila en la localización dónde empieza moverse. Si tiene más de un objeto que cumple esa condición, puede elegir cuál dejar.
 
 
 ### Subir el nivel de asentamiento
@@ -165,9 +177,6 @@ Todas las localizaciones empiezan con nivel de asentamiento 0, indicando la cart
 
 ### Acciones con objetos
 Hay combinaciones de objetos que, si los tienes en tu mochila y/o en la localización en la que se encuentre un personaje, le permiten realizar acciones adicionales. Consulta la [Lista de objetos]() para más información.
-
-
-
 
 
 ## 4. Acciones que pueden realizarse si NO hay enemigos en la localización
@@ -213,7 +222,6 @@ Consulta la [Lista de objetos]() para más información.
 <u>**???**</u>
 Si el personaje dispone de una botella de agua, puede consumirla y rellenarla automáticamente, así que puede curarse 1 herida sin sacarla de su mochila.
 Localización con icono de agua
-
 
 
 ## 5. Localizaciones infestadas
