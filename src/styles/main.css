@@ -668,6 +668,16 @@ fieldset.modal__section--untitled {
   margin: 0.5rem 0 0;
 }
 
+/* Mensaje centrado cuando una pestaña de propiedades específicas se queda sin contenido
+   (ui/componentModal.js, renderSpecificTab) — p.ej. 'tableroSimple' tras trasladar sus
+   controles visuales a la pestaña "Visuales". */
+.modal__empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  padding: 1rem 0;
+}
+
 /* Nota auxiliar a la derecha de un ítem de checklist (ui/styleClipboardSelectionModal.js)
    — mismo criterio que .resource-add__hint. */
 .element-selection-group__item-hint {

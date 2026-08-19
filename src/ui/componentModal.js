@@ -3,6 +3,7 @@
 
 import { getComponents, getResources, getTags, addTag, sacarCartaDeMazo, replaceComponent } from '../core/state.js';
 import { createComponent, updateComponent, syncCopyWithOriginal } from '../core/component.js';
+import { shadeColor } from '../core/colorUtils.js';
 import { createTag, isTagNameTaken } from '../core/tag.js';
 import { createHelpIcon } from './helpIcon.js';
 import { openBoardPatternModal } from './boardPatternModal.js';
@@ -205,6 +206,30 @@ function cloneTableroPersonalizadoProperties(properties) {
 // Crea un componente nuevo ya con los valores por defecto de su tipo (tamaño y
 // properties), para el flujo de alta: elegir tipo (ui/componentTypeModal.js) →
 // crear con defaults → abrir esta modal para configurarlo.
+// Color de referencia ("colorBase") para calcular el color automático de la extrusión
+// (mismo criterio y mismos fallbacks que resolveExtrusionColor/colorBase en
+// ui/componentRenderer.js) — usado aquí solo para la previsualización del campo
+// "Color de extrusión" antes de que el usuario elija uno propio.
+function getExtrusionColorBase(component) {
+  const props = component.properties || {};
+  switch (component.type) {
+    case 'dado':
+      return props.colorCuerpo || '#888888';
+    case 'tableroSimple':
+      return props.bordeColor || '#000000';
+    case 'tableroPersonalizado':
+      return props.cara?.bordeColor || '#000000';
+    case 'carta':
+    case 'mazo': {
+      const cara = props.caraActual === 'frontal' ? props.caraFrontal : props.caraTrasera;
+      return cara?.colorFondo || '#ffffff';
+    }
+    case 'documento':
+    default:
+      return '#ffffff';
+  }
+}
+
 export function createDefaultComponent(type) {
   const component = createComponent({ type });
   if (type === 'tableroSimple') {
@@ -219,6 +244,9 @@ export function createDefaultComponent(type) {
     component.width = DEFAULT_DADO_SIZE;
     component.height = DEFAULT_DADO_SIZE;
     component.subirAlMoverInteractuar = true;
+    // Aproxima visualmente el offset del antiguo polígono SVG duplicado
+    // (depthOffset = size * 0.05, ~5px con DEFAULT_DADO_SIZE = 100px).
+    component.profundidad = 4;
     component.properties = { ...DEFAULT_DADO_PROPERTIES };
   } else if (type === 'documento') {
     component.width = DEFAULT_DOCUMENTO_WIDTH;
@@ -301,6 +329,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   // General tab: id field with validation
   createTab('general', 'Generales');
   const generalContent = tabContents.get('general').content;
+
+  // Visual tab: tamaño, profundidad/color de extrusión, y secciones específicas de aspecto
+  // trasladadas desde "Específicas" (ver renderSpecificTab más abajo).
+  createTab('visual', 'Visuales');
+  const visualContent = tabContents.get('visual').content;
 
   const idField = document.createElement('div');
   idField.className = 'modal__field';
@@ -602,7 +635,70 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
   generalContent.appendChild(infoSection);
   generalContent.appendChild(helpSection);
-  generalContent.appendChild(sizeSection);
+  visualContent.appendChild(sizeSection);
+
+  // Extrusión: profundidad (px) + color de extrusión (automático o elegido), transversal a los 8
+  // tipos (igual que "Tamaño"). Mismo patrón de fila color+grosor que borderRow/borderColorField/
+  // borderWidthField (renderBoardSpecificFields) y mismo patrón de toggle que borderLegend
+  // (modal__section-title--toggle) aplicado aquí al campo de color en vez de a la sección entera.
+  const extrusionSection = document.createElement('fieldset');
+  extrusionSection.className = 'modal__section';
+  const extrusionLegend = document.createElement('legend');
+  extrusionLegend.className = 'modal__section-title';
+  if (workingComponent.type === 'texto') {
+    extrusionLegend.style.display = 'flex';
+    extrusionLegend.style.alignItems = 'center';
+    extrusionLegend.style.gap = '0.35rem';
+    extrusionLegend.appendChild(document.createTextNode('Extrusión'));
+    extrusionLegend.appendChild(createHelpIcon({
+      text: 'La extrusión no tiene ningún efecto visual en componentes de tipo \'Texto\', tenga o no tenga color de fondo configurado.',
+    }));
+  } else {
+    extrusionLegend.textContent = 'Extrusión';
+  }
+  extrusionSection.appendChild(extrusionLegend);
+
+  const extrusionRow = document.createElement('div');
+  extrusionRow.className = 'modal__field';
+  const extrusionRowInner = document.createElement('div');
+  extrusionRowInner.style.display = 'flex';
+  extrusionRowInner.style.gap = '0.5rem';
+
+  const profundidadField = document.createElement('div');
+  profundidadField.style.flex = '1';
+  const profundidadLabel = document.createElement('label');
+  profundidadLabel.textContent = 'Profundidad (px)';
+  const profundidadInput = document.createElement('input');
+  profundidadInput.type = 'number';
+  profundidadInput.min = 0;
+  profundidadInput.max = 40;
+  profundidadInput.value = workingComponent.profundidad ?? 0;
+  profundidadInput.addEventListener('input', () => {
+    const parsed = parseInt(profundidadInput.value, 10);
+    workingComponent.profundidad = Number.isNaN(parsed) ? 0 : Math.min(Math.max(parsed, 0), 40);
+    profundidadInput.value = workingComponent.profundidad;
+  });
+  profundidadField.appendChild(profundidadLabel);
+  profundidadField.appendChild(profundidadInput);
+
+  const colorExtrusionField = document.createElement('div');
+  colorExtrusionField.style.flex = '1';
+  const colorExtrusionLabel = document.createElement('label');
+  colorExtrusionLabel.textContent = 'Color de extrusión';
+  const colorExtrusionInput = document.createElement('input');
+  colorExtrusionInput.type = 'color';
+  colorExtrusionInput.value = workingComponent.colorExtrusion || shadeColor(getExtrusionColorBase(workingComponent), -0.25);
+  colorExtrusionInput.addEventListener('input', () => {
+    workingComponent.colorExtrusion = colorExtrusionInput.value;
+  });
+  colorExtrusionField.appendChild(colorExtrusionLabel);
+  colorExtrusionField.appendChild(colorExtrusionInput);
+
+  extrusionRowInner.appendChild(profundidadField);
+  extrusionRowInner.appendChild(colorExtrusionField);
+  extrusionRow.appendChild(extrusionRowInner);
+  extrusionSection.appendChild(extrusionRow);
+  visualContent.appendChild(extrusionSection);
 
   // Etiquetas: propiedad general de cualquier tipo de componente. Sección informativa con borde (sin
   // checkbox de activación entera, ver design/docs/style/03-modales-menus.md), con un checkbox
@@ -939,6 +1035,15 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
         workingComponent.properties.contenido = contentInput.value;
       });
 
+      // Visual: fuente, color de texto y color de fondo — sección nueva en "Visuales" (no tenían
+      // fieldset propio en "Específicas").
+      const textoVisualSection = document.createElement('fieldset');
+      textoVisualSection.className = 'modal__section';
+      const textoVisualLegend = document.createElement('legend');
+      textoVisualLegend.className = 'modal__section-title';
+      textoVisualLegend.textContent = 'Visual';
+      textoVisualSection.appendChild(textoVisualLegend);
+
       // Font size field
       const fontSizeField = document.createElement('div');
       fontSizeField.className = 'modal__field';
@@ -951,7 +1056,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       fontSizeInput.max = 72;
       fontSizeField.appendChild(fontSizeLabel);
       fontSizeField.appendChild(fontSizeInput);
-      specificContent.appendChild(fontSizeField);
+      textoVisualSection.appendChild(fontSizeField);
 
       fontSizeInput.addEventListener('input', () => {
         workingComponent.properties.tamañoFuente = parseInt(fontSizeInput.value) || 16;
@@ -967,7 +1072,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       textColorInput.value = workingComponent.properties.colorTexto || '#000000';
       textColorField.appendChild(textColorLabel);
       textColorField.appendChild(textColorInput);
-      specificContent.appendChild(textColorField);
+      textoVisualSection.appendChild(textColorField);
 
       textColorInput.addEventListener('input', () => {
         workingComponent.properties.colorTexto = textColorInput.value;
@@ -1015,28 +1120,37 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       bgColorContainer.appendChild(bgTransparentLabel);
       bgColorField.appendChild(bgColorLabel);
       bgColorField.appendChild(bgColorContainer);
-      specificContent.appendChild(bgColorField);
+      textoVisualSection.appendChild(bgColorField);
+
+      visualContent.appendChild(textoVisualSection);
     } else if (workingComponent.type === 'tableroSimple') {
-      renderBoardSpecificFields(specificContent);
+      renderBoardSpecificFields(specificContent, visualContent);
     } else if (workingComponent.type === 'tableroPersonalizado') {
-      renderTableroPersonalizadoSpecificFields(specificContent);
+      renderTableroPersonalizadoSpecificFields(specificContent, visualContent);
     } else if (workingComponent.type === 'dado') {
-      renderDadoSpecificFields(specificContent);
+      renderDadoSpecificFields(specificContent, visualContent);
     } else if (workingComponent.type === 'documento') {
       renderDocumentoSpecificFields(specificContent);
     } else if (workingComponent.type === 'carta') {
       renderCartaSpecificFields(specificContent);
     } else if (workingComponent.type === 'mazo') {
-      renderMazoSpecificFields(specificContent);
+      renderMazoSpecificFields(specificContent, visualContent);
     } else {
       const empty = document.createElement('p');
       empty.textContent = 'Sin propiedades específicas';
       empty.style.color = 'var(--text-muted)';
       specificContent.appendChild(empty);
     }
+
+    if (specificContent.children.length === 0) {
+      const emptyState = document.createElement('p');
+      emptyState.className = 'modal__empty-state';
+      emptyState.textContent = 'Este objeto no tiene propiedades';
+      specificContent.appendChild(emptyState);
+    }
   }
 
-  function renderBoardSpecificFields(container) {
+  function renderBoardSpecificFields(container, visualContainer) {
     const props = workingComponent.properties;
 
     // Visual: sección informativa (sin des/activador) con checkbox "Biselado en el borde" — decide si
@@ -1084,7 +1198,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     sombraField.appendChild(sombraLabel);
     visualSection.appendChild(sombraField);
 
-    container.appendChild(visualSection);
+    visualContainer.appendChild(visualSection);
 
     // Borde: color y grosor juntos en la misma fila, con checkbox de
     // activación (mismo patrón que ui/cardShapeModal.js, sección "Borde")
@@ -1138,7 +1252,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     borderRowInner.appendChild(borderWidthField);
     borderRow.appendChild(borderRowInner);
     borderSection.appendChild(borderRow);
-    container.appendChild(borderSection);
+    visualContainer.appendChild(borderSection);
 
     function updateBorderSectionDisabled() {
       const active = borderActiveCheckbox.checked;
@@ -1225,10 +1339,10 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     bgField.appendChild(bgLabel);
     bgField.appendChild(bgRow);
     bgSection.appendChild(bgField);
-    container.appendChild(bgSection);
+    visualContainer.appendChild(bgSection);
   }
 
-  function renderDadoSpecificFields(container) {
+  function renderDadoSpecificFields(container, visualContainer) {
     const props = workingComponent.properties;
 
     function reconcileResultado() {
@@ -1251,7 +1365,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     });
     bodyColorField.appendChild(bodyColorLabel);
     bodyColorField.appendChild(bodyColorInput);
-    container.appendChild(bodyColorField);
+    visualContainer.appendChild(bodyColorField);
 
     // Color de los números
     const numColorField = document.createElement('div');
@@ -1266,7 +1380,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     });
     numColorField.appendChild(numColorLabel);
     numColorField.appendChild(numColorInput);
-    container.appendChild(numColorField);
+    visualContainer.appendChild(numColorField);
 
     // Configuración de caras: modo
     const modeField = document.createElement('div');
@@ -1382,7 +1496,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     fontRow.appendChild(fontCurrentName);
     fontField.appendChild(fontLabel);
     fontField.appendChild(fontRow);
-    container.appendChild(fontField);
+    visualContainer.appendChild(fontField);
   }
 
   function renderDocumentoSpecificFields(container) {
@@ -1487,7 +1601,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   // igual que 'tableroSimple') ni bloque "Estilo" (Copiar/Pegar estilo queda fuera de alcance de esta
   // versión) — un único botón que abre el Editor visual generalizado sobre
   // su única cara.
-  function renderTableroPersonalizadoSpecificFields(container) {
+  function renderTableroPersonalizadoSpecificFields(container, visualContainer) {
     const props = workingComponent.properties;
 
     // Visual: misma sección informativa que 'tableroSimple', primera de la pestaña, antes del
@@ -1532,7 +1646,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     sombraField.appendChild(sombraLabel);
     visualSection.appendChild(sombraField);
 
-    container.appendChild(visualSection);
+    visualContainer.appendChild(visualSection);
 
     const editField = document.createElement('div');
     editField.className = 'modal__field';
@@ -1732,7 +1846,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     container.appendChild(styleSection);
   }
 
-  function renderMazoSpecificFields(container) {
+  function renderMazoSpecificFields(container, visualContainer) {
     const props = workingComponent.properties;
 
     const countHint = document.createElement('p');
@@ -1807,7 +1921,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     orientacionField.appendChild(orientacionSelect);
     formaSection.appendChild(orientacionField);
 
-    container.appendChild(formaSection);
+    visualContainer.appendChild(formaSection);
 
     // "Cartas reveladas": agrupa dónde y cómo aparece la carta al sacarla del mazo
     // (§12.6 Style Bible).

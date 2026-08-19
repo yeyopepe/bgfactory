@@ -79,6 +79,12 @@ Sistema de 3 niveles de elevación, reutilizable en toda la app.
   - Desmarcado: modificador `.board--sin-sombra`/`.tablero-personalizado--sin-sombra` (`box-shadow: none`) — componente queda en nivel 0.
   - Un tablero guardado sin esta propiedad se comporta como si estuviera marcado (con sombra) — sin cambio visual.
 - El estado transitorio `.lifted` al arrastrar un componente en Modo Juego es el estado "en el aire" de este mismo sistema (sombra más pronunciada + desplazamiento fijo durante el arrastre) — no una excepción aislada. Detalle completo en `INDEX.md` §13.
+- **Extrusión configurable** (`profundidad`/`colorExtrusion`, campo general de componente, `core/component.js`): capas sólidas apiladas sin blur, no sombra difusa. Concepto independiente y compatible con los 3 niveles de elevación — no introduce un cuarto nivel. Elevación = sombra de contacto con la mesa; extrusión = grosor/cuerpo del propio componente.
+  - `profundidad`: número, px, `0` por defecto (sin efecto), tope `40`.
+  - `colorExtrusion`: string color o `null` (cálculo automático `shadeColor(colorBase, -0.25)`, `colorBase` según tipo — ver `ui/componentRenderer.js`, `resolveExtrusionColor`).
+  - Técnica: `Array.from({length: profundidad}, (_, i) => i+1)` capas de 1px de offset acumulado — `box-shadow: ${i+1}px ${i+1}px 0 0 ${color}` (tipos sin `clip-path`) o `filter: drop-shadow(${i+1}px ${i+1}px 0 ${color})` (tipos con `clip-path`: `'carta'` hex/triángulo, `'dado'`), unidas junto a la sombra de contacto de nivel 1 existente cuando aplica.
+  - Sin efecto en `'texto'`, cualquiera que sea `properties.colorFondo`.
+  - `'dado'` ya no tiene mecanismo propio de profundidad (polígono SVG duplicado) — usa este mecanismo general como cualquier otro tipo, aplicado sobre `.dice`.
 - **Transiciones**: elementos interactivos (botones, filas de lista, tabs, items seleccionables, icono de ayuda, campos de formulario) llevan `transition: <propiedad> var(--transition-fast)` (150ms) en cambios de `:hover`/`:focus` — color de fondo/borde, `opacity`, `box-shadow`, y en botones de acción primaria/destructiva un ligero `transform: translateY(-1px)`.
   - No usar `:active`.
   - No usar transiciones en el contorno discontinuo de selección (`--selectable`/`--selected`) ni en el temblor/parpadeo del dado — son indicadores funcionales de estado y JS puro, no decoración (ver `INDEX.md` §13).

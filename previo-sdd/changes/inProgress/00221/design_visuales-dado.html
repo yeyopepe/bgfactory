@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Mockup — Visuales del Dado</title>
+<style>
+  :root {
+    --accent-blue: #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --text-muted: #666666;
+    --border-neutral: #dcdcdc;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --section-accent: #5b5f97;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 2rem;
+    background: #e9e9ec;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    justify-content: center;
+  }
+  .modal {
+    width: 420px;
+    background: #fff;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    overflow: hidden;
+  }
+  .modal__header {
+    padding: 1.1rem 1.25rem;
+    border-bottom: 1px solid var(--border-neutral);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  .modal__tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-neutral);
+    padding: 0 1.25rem;
+  }
+  .modal__tab {
+    padding: 0.7rem 0.9rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    border-bottom: 2px solid transparent;
+    cursor: default;
+  }
+  .modal__tab--active {
+    color: var(--accent-blue);
+    border-bottom-color: var(--accent-blue);
+    font-weight: 600;
+  }
+  .modal__body {
+    padding: 1.25rem;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  fieldset.modal__section {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    margin: 0 0 1rem 0;
+    padding: 0.9rem 1rem 1rem;
+  }
+  fieldset.modal__section:last-of-type { margin-bottom: 0; }
+  legend.modal__section-title {
+    padding: 0 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--section-accent);
+  }
+  .modal__section--new {
+    outline: 2px dashed #22a06b;
+    outline-offset: 2px;
+  }
+  .modal__section--new legend {
+    color: #1a7a52;
+  }
+  .modal__field { margin-bottom: 0.9rem; }
+  .modal__field:last-child { margin-bottom: 0; }
+  .modal__field label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
+  }
+  .modal__row { display: flex; gap: 0.5rem; }
+  .modal__row > div { flex: 1; }
+  .modal__field input[type="text"],
+  .modal__field input[type="number"] {
+    width: 100%;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+  }
+  .modal__field input[type="color"] {
+    width: 100%;
+    height: 2.1rem;
+    padding: 2px;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    background: #fff;
+  }
+  .modal__field--checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .modal__field--checkbox label { margin: 0; font-size: 0.85rem; }
+  .font-row { display: flex; align-items: center; gap: 0.6rem; }
+  .btn-cancel {
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    background: #f4f4f5;
+    font-size: 0.85rem;
+    color: #222;
+  }
+  .font-current { color: var(--text-muted); font-size: 0.85rem; }
+  .modal__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--border-neutral);
+  }
+  .btn-eliminar {
+    padding: 0.55rem 1.1rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: #d64545;
+    color: #fff;
+    font-size: 0.9rem;
+  }
+  .modal__footer-right { display: flex; gap: 0.6rem; }
+  .btn-accept {
+    padding: 0.55rem 1.2rem;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: var(--accent-blue);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .caption {
+    max-width: 420px;
+    margin: 0 auto 1rem;
+    font-size: 0.85rem;
+    color: #444;
+    text-align: center;
+  }
+  .wrap { display: flex; flex-direction: column; align-items: center; }
+  .badge {
+    display: inline-block;
+    margin-bottom: 1rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    background: #1a7a52;
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <span class="badge">Nuevo orden de secciones — pestaña "Visuales" del Dado</span>
+    <div class="modal">
+      <div class="modal__header">Editar propiedades del componente</div>
+      <div class="modal__tabs">
+        <div class="modal__tab">Generales</div>
+        <div class="modal__tab modal__tab--active">Visuales</div>
+        <div class="modal__tab">Específicas</div>
+        <div class="modal__tab">Copias</div>
+      </div>
+      <div class="modal__body">
+
+        <fieldset class="modal__section">
+          <legend class="modal__section-title">Tamaño</legend>
+          <div class="modal__row">
+            <div class="modal__field">
+              <label>Alto (px)</label>
+              <input type="text" value="152" readonly>
+            </div>
+            <div class="modal__field">
+              <label>Ancho (px)</label>
+              <input type="text" value="152" readonly>
+            </div>
+          </div>
+          <div class="modal__field modal__field--checkbox">
+            <input type="checkbox" checked disabled>
+            <label>Mantener proporción</label>
+          </div>
+        </fieldset>
+
+        <fieldset class="modal__section modal__section--new">
+          <legend class="modal__section-title">Estilo</legend>
+          <div class="modal__field">
+            <label>Color del cuerpo</label>
+            <input type="color" value="#f5a623">
+          </div>
+          <div class="modal__field">
+            <label>Color de los números</label>
+            <input type="color" value="#ffffff">
+          </div>
+          <div class="modal__field">
+            <label>Tipo de fuente</label>
+            <div class="font-row">
+              <button type="button" class="btn-cancel">Elegir tipografía</button>
+              <span class="font-current">Por defecto</span>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="modal__section">
+          <legend class="modal__section-title">Extrusión</legend>
+          <div class="modal__row">
+            <div class="modal__field">
+              <label>Profundidad (px)</label>
+              <input type="text" value="0" readonly>
+            </div>
+            <div class="modal__field">
+              <label>Color de extrusión</label>
+              <input type="color" value="#b8860b">
+            </div>
+          </div>
+        </fieldset>
+
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn-eliminar">Eliminar</button>
+        <div class="modal__footer-right">
+          <button type="button" class="btn-cancel">Cancelar</button>
+          <button type="button" class="btn-accept">Aceptar</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption">La sección "Estilo" (recuadro verde punteado, solo para señalar el cambio en este mockup) es nueva y agrupa Color del cuerpo, Color de los números y Tipo de fuente, ahora entre Tamaño y Extrusión.</p>
+  </div>
+</body>
+</html>
