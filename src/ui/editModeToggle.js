@@ -17,6 +17,7 @@ import { openImportConfirmModal } from './importConfirmModal.js';
 import { openImportReportModal } from './importReportModal.js';
 import { openImportConversionErrorModal } from './importConversionErrorModal.js';
 import { migrateFichaComponent } from '../core/fichaMigration.js';
+import { runWithProgressModal } from './progressModal.js';
 
 function saveAs(filename) {
   const html = buildExportHtml(getComponents(), getResources(), getPanelState(), getResourcePanelState(), getResourcesSeeded(), getTags(), getTagPanelState(), getGroups(), getAppTitle());
@@ -76,35 +77,37 @@ function importComponentsFromFile(file) {
             }
 
             const proceedWithImport = (components) => {
-              const { components: mergedComponents, resources, tags, report } = mergeImportedGame({
-                mode,
-                conflictMode,
-                existingComponents: getComponents(),
-                existingResources: getResources(),
-                existingTags: getTags(),
-                selectedComponents: components,
-                selectedResources: byIds(result.resources, resourceIds),
-                selectedTags: byIds(result.tags, tagIds),
-                allImportedResources: result.resources,
-                allImportedTags: result.tags,
+              runWithProgressModal('Importando…', () => {
+                const { components: mergedComponents, resources, tags, report } = mergeImportedGame({
+                  mode,
+                  conflictMode,
+                  existingComponents: getComponents(),
+                  existingResources: getResources(),
+                  existingTags: getTags(),
+                  selectedComponents: components,
+                  selectedResources: byIds(result.resources, resourceIds),
+                  selectedTags: byIds(result.tags, tagIds),
+                  allImportedResources: result.resources,
+                  allImportedTags: result.tags,
+                });
+
+                loadComponents(mergedComponents);
+                loadResources(resources);
+                loadTags(tags);
+                // Registro de grupo: se fusiona por id igual que recursos/etiquetas, sin
+                // deduplicación adicional. "Sobrescribir" parte solo de los grupos del
+                // fichero importado; "Añadir" conserva los actuales y suma los importados
+                // que no colisionen por id. deriveMissingGroups cubre además ficheros
+                // exportados antes de este cambio (sin `componentGroups`).
+                const importedGroups = result.componentGroups ?? [];
+                const mergedGroups = mode === 'overwrite'
+                  ? importedGroups
+                  : [...getGroups(), ...importedGroups.filter((g) => !getGroups().some((existing) => existing.id === g.id))];
+                loadGroups(deriveMissingGroups(mergedComponents, mergedGroups));
+                if (mode === 'overwrite' && result.appTitle) setAppTitle(result.appTitle);
+
+                if (report.length > 0) openImportReportModal(report);
               });
-
-              loadComponents(mergedComponents);
-              loadResources(resources);
-              loadTags(tags);
-              // Registro de grupo: se fusiona por id igual que recursos/etiquetas, sin
-              // deduplicación adicional. "Sobrescribir" parte solo de los grupos del
-              // fichero importado; "Añadir" conserva los actuales y suma los importados
-              // que no colisionen por id. deriveMissingGroups cubre además ficheros
-              // exportados antes de este cambio (sin `componentGroups`).
-              const importedGroups = result.componentGroups ?? [];
-              const mergedGroups = mode === 'overwrite'
-                ? importedGroups
-                : [...getGroups(), ...importedGroups.filter((g) => !getGroups().some((existing) => existing.id === g.id))];
-              loadGroups(deriveMissingGroups(mergedComponents, mergedGroups));
-              if (mode === 'overwrite' && result.appTitle) setAppTitle(result.appTitle);
-
-              if (report.length > 0) openImportReportModal(report);
             };
 
             if (conversionErrors.length === 0) {

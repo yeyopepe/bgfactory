@@ -35,6 +35,7 @@ Patrón para informar de una operación potencialmente lenta y bloqueante, devol
 - **Sin ningún botón ni vía de cierre manual** (ni click fuera del overlay, ni ESC) — única modal de la app así. Aparece al empezar la operación asociada y se cierra sola en cuanto termina; no es cancelable a medias.
 - `work` se ejecuta dentro de un doble `requestAnimationFrame` anidado tras insertar la modal en el DOM, para garantizar que el navegador ha completado un ciclo de pintado real (con el spinner ya visible) antes de que empiece el bloqueo síncrono del trabajo real — `setTimeout(fn, 0)` no ofrece esa garantía (solo asegura orden en la cola de tareas, no que haya habido un repintado de por medio; bug 00218).
 - Primer uso: arrastrar una selección múltiple de cartas sobre un mazo en modo edición (`023-componente-mazo.md`) — texto "Añadiendo N carta(s) al mazo…", `work` reposiciona las cartas arrastradas y las inserta en el mazo (el reposicionamiento va dentro de `work`, no antes: es la parte más lenta de la operación — bug 00219).
+- Segundo uso: confirmar importación de fichero (`ui/importConfirmModal.js`, botón "Importar", cambio 00222) — texto "Importando…", `work` ejecuta la migración de fichas, `mergeImportedGame` y las cargas (`loadComponents`/`loadResources`/`loadTags`/`loadGroups`) en `ui/editModeToggle.js`.
 - Cualquier operación futura potencialmente lenta y bloqueante: reutilizar este patrón en vez de dejar al jugador sin aviso.
 
 ## 12.2 Cursores
