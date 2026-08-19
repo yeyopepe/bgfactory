@@ -4,16 +4,12 @@
       "Bash(python src/scripts/build.py --help)",
       "Bash(cd /d d:\\\\repos\\\\errantes-board-game)",
       "Bash(python ./src/scripts/build.py)",
-      "Edit(/.claude/skills/ms-internal-workflow/**)",
       "PowerShell(Get-ChildItem -Path \"d:\\\\repos\\\\errantes-board-game\\\\src\\\\scripts\" -Recurse | Where-Object { $_.PSIsContainer -or $_.Extension -eq '.js' } | Select-Object FullName)",
-      "PowerShell(python \"d:\\\\repos\\\\errantes-board-game\\\\.claude\\\\skills\\\\ms-internal-workflow\\\\scripts\\\\move-change.py\" --xxxx 00080 --from inProgress --to implemented)",
       "Bash(python src\\\\scripts\\\\build.py)",
       "PowerShell($htmlPath = \"d:\\\\repos\\\\errantes-board-game\\\\src\\\\_output\\\\versions\\\\index-v00186.html\"; $content = Get-Content $htmlPath -Raw; $bodyStart = $content.LastIndexOf\\(\"</body>\"\\) - 500; $bodyEnd = $content.Length - $content.LastIndexOf\\(\"</body>\"\\) + 100; Write-Host $content.Substring\\([Math]::Max\\(0, $bodyStart\\), [Math]::Min\\(600, $content.Length - [Math]::Max\\(0, $bodyStart\\)\\)\\))",
       "PowerShell($htmlPath = \"d:\\\\repos\\\\errantes-board-game\\\\src\\\\_output\\\\versions\\\\index-v00186.html\"; $content = Get-Content $htmlPath -Raw; $vendorIndex = $content.IndexOf\\('data-vendor-obfuscator'\\); $snippet = $content.Substring\\([Math]::Max\\(0, $vendorIndex - 200\\), [Math]::Min\\(1000, $content.Length - [Math]::Max\\(0, $vendorIndex - 200\\)\\)\\); Write-Host $snippet)",
       "PowerShell($htmlPath = \"d:\\\\repos\\\\errantes-board-game\\\\src\\\\_output\\\\versions\\\\index-v00186.html\"; $content = Get-Content $htmlPath -Raw; $beginning = $content.Substring\\(0, 200\\); Write-Host $beginning)",
-      "Read(//d//**)",
-      "Bash(xargs grep -l \"ms-do\\\\|ms-how\")",
-      "Edit(/.claude/skills/ms-todo/**)"
+      "Read(//d//**)"
     ],
     "additionalDirectories": [
       "C:\\Users\\yeyop\\AppData\\Local\\Temp"

@@ -133,12 +133,37 @@ function renderHexGrid(svgEl, width, height, filas, columnas, color, grosor, ori
   }
 }
 
+// Construye la cadena de capas sólidas apiladas que forman la extrusión
+// (`profundidad`/`colorExtrusion`, ver core/component.js): un offset de 1px
+// por capa, sin blur, en `color`. `asFilter` decide el formato — `box-shadow`
+// (capas separadas por coma, sin difuminar) o `filter: drop-shadow` (capas
+// separadas por espacio, para contenedores con `clip-path`, ver 'carta'
+// hexagonal/triangular y 'dado'). Devuelve `null` si `profundidad` no es
+// positiva — el llamador no debe tocar `style.boxShadow`/`style.filter` en
+// ese caso (profundidad 0 = comportamiento idéntico a antes del cambio).
+function buildExtrusionLayers(profundidad, color, { asFilter } = {}) {
+  if (!(profundidad > 0)) return null;
+  if (asFilter) {
+    return Array.from({ length: profundidad }, (_, i) => `drop-shadow(${i + 1}px ${i + 1}px 0 ${color})`).join(' ');
+  }
+  return Array.from({ length: profundidad }, (_, i) => `${i + 1}px ${i + 1}px 0 0 ${color}`).join(', ');
+}
+
+// Color de la extrusión de un componente: el elegido explícitamente por el
+// usuario (`component.colorExtrusion`) o, en su defecto, un tono oscurecido
+// automático del color de referencia de su tipo (`colorBase`, calculado por
+// cada rama de renderizado con su propio fallback).
+function resolveExtrusionColor(component, colorBase) {
+  return component.colorExtrusion || shadeColor(colorBase, -0.25);
+}
+
 // Dibuja la silueta 2D plana de un dado según su número de resultados
-// posibles, con un efecto de profundidad leve (copia oscura desplazada
-// detrás) y un contorno fino oscuro — misma familia de recurso que el bisel
-// del tablero simple (excepción de estilo acotada a ambos tipos, ver
+// posibles, con un contorno fino oscuro — misma familia de recurso que el
+// bisel del tablero simple (excepción de estilo acotada a ambos tipos, ver
 // design/docs/style/INDEX.md). `count` es el número de resultados posibles
-// configurados.
+// configurados. La profundidad ya no se dibuja aquí (polígono SVG duplicado):
+// se aplica como `filter: drop-shadow` sobre el contenedor `.dice`, ver punto
+// de creación de `dice` más abajo.
 function renderDiceSilhouette(svgEl, size, count, colorCuerpo) {
   const SVG_NS = 'http://www.w3.org/2000/svg';
   svgEl.innerHTML = '';
@@ -151,8 +176,6 @@ function renderDiceSilhouette(svgEl, size, count, colorCuerpo) {
   const cy = size / 2;
   const outlineColor = shadeColor(colorCuerpo, -0.5);
   const lineColor = shadeColor(colorCuerpo, -0.35);
-  const depthColor = shadeColor(colorCuerpo, -0.25);
-  const depthOffset = size * 0.05;
 
   function polygonPoints(sides, radius, rotationDeg = -90) {
     const points = [];
@@ -185,7 +208,6 @@ function renderDiceSilhouette(svgEl, size, count, colorCuerpo) {
 
   if (count === 4) {
     const points = polygonPoints(3, radius);
-    addPolygon(points, depthColor, { x: depthOffset, y: depthOffset });
     addPolygon(points, colorCuerpo);
     addLine(cx, cy - radius, cx, cy + radius * 0.5);
   } else if (count === 6) {
@@ -196,17 +218,14 @@ function renderDiceSilhouette(svgEl, size, count, colorCuerpo) {
       [cx + half, cy + half],
       [cx - half, cy + half],
     ];
-    addPolygon(points, depthColor, { x: depthOffset, y: depthOffset });
     addPolygon(points, colorCuerpo);
   } else if (count === 8) {
     const points = polygonPoints(4, radius);
-    addPolygon(points, depthColor, { x: depthOffset, y: depthOffset });
     addPolygon(points, colorCuerpo);
     addLine(points[3][0], points[3][1], points[1][0], points[1][1]);
   } else {
     const sides = 10;
     const outer = polygonPoints(sides, radius);
-    addPolygon(outer, depthColor, { x: depthOffset, y: depthOffset });
     const facetColorA = colorCuerpo;
     const facetColorB = shadeColor(colorCuerpo, 0.15);
     for (let i = 0; i < sides; i++) {
@@ -808,6 +827,13 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       const props = component.properties || {};
       board.classList.toggle('board--sin-sombra', props.sombra === false);
+      if (component.profundidad > 0) {
+        const extrusionColor = resolveExtrusionColor(component, props.bordeColor || '#000000');
+        board.style.boxShadow = [
+          buildExtrusionLayers(component.profundidad, extrusionColor, { asFilter: false }),
+          props.sombra === false ? null : 'var(--shadow-1)',
+        ].filter(Boolean).join(', ');
+      }
       const bordeColor = props.bordeColor || '#000000';
       const bordeGrosor = props.bordeGrosor ?? 2;
       const bordeActivo = props.bordeActivo !== false;
@@ -1013,6 +1039,13 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
       const props = component.properties || {};
       tablero.classList.toggle('tablero-personalizado--sin-sombra', props.sombra === false);
+      if (component.profundidad > 0) {
+        const extrusionColor = resolveExtrusionColor(component, props.cara?.bordeColor || '#000000');
+        tablero.style.boxShadow = [
+          buildExtrusionLayers(component.profundidad, extrusionColor, { asFilter: false }),
+          props.sombra === false ? null : 'var(--shadow-1)',
+        ].filter(Boolean).join(', ');
+      }
 
       // Bisel del borde, opcional vía 'properties.biselado' (a diferencia de
       // 'carta', que usa borde simple sin relieve, ver design/docs/style/INDEX.md).
@@ -1190,6 +1223,13 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       const colorCuerpo = props.colorCuerpo || '#888888';
       const colorNumeros = props.colorNumeros || '#000000';
       const posibles = getPosibleValores(props);
+
+      if (component.profundidad > 0) {
+        const extrusionColor = resolveExtrusionColor(component, colorCuerpo);
+        dice.style.filter =
+          buildExtrusionLayers(component.profundidad, extrusionColor, { asFilter: true }) +
+          ' drop-shadow(0 5px 8px rgba(0, 0, 0, 0.28))';
+      }
 
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       svg.style.position = 'absolute';
@@ -1415,6 +1455,13 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       documentViewer.appendChild(content);
 
       const props = component.properties || {};
+      if (component.profundidad > 0) {
+        const extrusionColor = resolveExtrusionColor(component, '#ffffff');
+        documentViewer.style.boxShadow = [
+          buildExtrusionLayers(component.profundidad, extrusionColor, { asFilter: false }),
+          'var(--shadow-1)',
+        ].filter(Boolean).join(', ');
+      }
       if (props.tipoContenido === 'url') {
         const iframe = document.createElement('iframe');
         iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-popups');
@@ -1633,6 +1680,19 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       }
 
       applyFlipFeedbackIfChanged(carta, component.id, caraActual);
+
+      if (component.profundidad > 0 && !isNonRectClippedCarta) {
+        const extrusionColor = resolveExtrusionColor(component, cara?.colorFondo || '#ffffff');
+        carta.style.boxShadow = [
+          buildExtrusionLayers(component.profundidad, extrusionColor, { asFilter: false }),
+          'var(--shadow-1)',
+        ].filter(Boolean).join(', ');
+      } else if (component.profundidad > 0 && isNonRectClippedCarta) {
+        const extrusionColor = resolveExtrusionColor(component, cara?.colorFondo || '#ffffff');
+        carta.style.filter =
+          buildExtrusionLayers(component.profundidad, extrusionColor, { asFilter: true }) +
+          ' drop-shadow(0 2px 6px rgba(0, 0, 0, 0.10)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.08))';
+      }
 
       // Contenido de 'carta' guardado en píxeles reales, fijo con
       // independencia del tamaño actual (mismo criterio que
@@ -1856,6 +1916,14 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       if (showCopyIndicator && !component.copyOf) {
         const copyCount = copyCountByOriginalId.get(component.id) ?? 0;
         if (copyCount > 0) mazo.appendChild(createHasCopiesBadge(copyCount));
+      }
+
+      if (component.profundidad > 0) {
+        const extrusionColor = resolveExtrusionColor(component, '#ffffff');
+        mazo.style.boxShadow = [
+          buildExtrusionLayers(component.profundidad, extrusionColor, { asFilter: false }),
+          'var(--shadow-1)',
+        ].filter(Boolean).join(', ');
       }
 
       const revealZone = renderMazoRevealZone(worldEl, component);

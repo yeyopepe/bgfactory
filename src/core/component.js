@@ -3,7 +3,7 @@
 // clave-valor, imagen opcional. `order` gobierna apilado visual — lo
 // asigna/recalcula core/state.js, aquí solo valor por defecto.
 
-export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = 'ninguno', mostrarTooltip = false, tooltipTexto = '', mostrarTitulo = false, tituloTexto = '', tituloColorTexto = '#000000', tituloColorFondo = '#ffffff', tituloFondoTransparencia = 0, subirAlMoverInteractuar = false, oculto = false, etiquetaIds = [], order = null, copyOf = null, sincronizado = true, groupId = null, interaccionesDesactivadas = [], accionClickDerecho = 'ninguno' } = {}) {
+export function createComponent({ type = 'generico', name = '', properties = {}, image = null, x = 0, y = 0, width = null, height = null, bloqueado = 'ninguno', mostrarTooltip = false, tooltipTexto = '', mostrarTitulo = false, tituloTexto = '', tituloColorTexto = '#000000', tituloColorFondo = '#ffffff', tituloFondoTransparencia = 0, subirAlMoverInteractuar = false, oculto = false, etiquetaIds = [], order = null, copyOf = null, sincronizado = true, groupId = null, interaccionesDesactivadas = [], accionClickDerecho = 'ninguno', profundidad = 0, colorExtrusion = null } = {}) {
   return {
     id: crypto.randomUUID(),
     type,
@@ -14,6 +14,8 @@ export function createComponent({ type = 'generico', name = '', properties = {},
     y,
     width,
     height,
+    profundidad,
+    colorExtrusion,
     bloqueado,
     mostrarTooltip,
     tooltipTexto,
@@ -178,6 +180,8 @@ export function syncCopyWithOriginal(copy, original) {
     image: original.image,
     width: original.width,
     height: original.height,
+    profundidad: original.profundidad,
+    colorExtrusion: original.colorExtrusion,
     mostrarTooltip: original.mostrarTooltip,
     tooltipTexto: original.tooltipTexto,
     mostrarTitulo: original.mostrarTitulo,
