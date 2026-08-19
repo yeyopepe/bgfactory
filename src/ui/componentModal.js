@@ -637,6 +637,16 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   generalContent.appendChild(helpSection);
   visualContent.appendChild(sizeSection);
 
+  const dadoStyleSection = document.createElement('fieldset');
+  dadoStyleSection.className = 'modal__section';
+  const dadoStyleLegend = document.createElement('legend');
+  dadoStyleLegend.className = 'modal__section-title';
+  dadoStyleLegend.textContent = 'Estilo';
+  dadoStyleSection.appendChild(dadoStyleLegend);
+  if (workingComponent.type === 'dado') {
+    visualContent.appendChild(dadoStyleSection);
+  }
+
   // Extrusión: profundidad (px) + color de extrusión (automático o elegido), transversal a los 8
   // tipos (igual que "Tamaño"). Mismo patrón de fila color+grosor que borderRow/borderColorField/
   // borderWidthField (renderBoardSpecificFields) y mismo patrón de toggle que borderLegend
@@ -1365,7 +1375,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     });
     bodyColorField.appendChild(bodyColorLabel);
     bodyColorField.appendChild(bodyColorInput);
-    visualContainer.appendChild(bodyColorField);
+    dadoStyleSection.appendChild(bodyColorField);
 
     // Color de los números
     const numColorField = document.createElement('div');
@@ -1380,7 +1390,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     });
     numColorField.appendChild(numColorLabel);
     numColorField.appendChild(numColorInput);
-    visualContainer.appendChild(numColorField);
+    dadoStyleSection.appendChild(numColorField);
 
     // Configuración de caras: modo
     const modeField = document.createElement('div');
@@ -1496,7 +1506,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     fontRow.appendChild(fontCurrentName);
     fontField.appendChild(fontLabel);
     fontField.appendChild(fontRow);
-    visualContainer.appendChild(fontField);
+    dadoStyleSection.appendChild(fontField);
   }
 
   function renderDocumentoSpecificFields(container) {
