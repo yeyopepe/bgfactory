@@ -27,6 +27,13 @@ The "Implemented fast changes" section is omitted by default even if there
 are fast entries: it's only included if --show-fast is passed (use only
 when the user explicitly asks for it).
 
+In --terminal mode only, after the third (final) page, an id prompt loops
+until empty input: entering an id shows that entry's detail card by
+delegating to filter_status.py --search-id --terminal (the same card
+pv.py's "Search by id" uses, including its own "no match" message), then
+asks again; empty input returns control to the caller (pv.py), same as
+before this prompt existed.
+
 Writes nothing to disk: prints the final markdown to stdout.
 
 Usage:
@@ -37,6 +44,7 @@ Usage:
 
 import argparse
 import re
+import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -44,6 +52,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from collect_status import collect, load_changes_dir, repo_root  # noqa: E402
 import terminal_output as term  # noqa: E402
+
+FILTER_STATUS_PATH = Path(__file__).resolve().parent / "filter_status.py"
 
 TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "STATUS.template.md"
 
@@ -77,6 +87,16 @@ def render_bars(counts: dict[str, int]) -> str:
         label = term.pad_display(STATE_LABELS[state], label_width)
         lines.append(f"{label}  {bar}  {str(count).rjust(count_width)}")
     return "\n".join(lines)
+
+
+def count_versions(changes_dir: Path) -> int:
+    # versions/ is a sibling of changes/ under the same workFolder --
+    # collect_status.py only resolves changes_dir, so versions_dir is
+    # derived from it here rather than duplicating workFolder resolution.
+    versions_dir = changes_dir.parent / "versions"
+    if not versions_dir.is_dir():
+        return 0
+    return sum(1 for p in versions_dir.iterdir() if p.is_dir())
 
 
 def extract_date(entry_dir: Path) -> str:
@@ -183,6 +203,7 @@ def render(result: dict, changes_dir: Path, show_fast: bool = False) -> str:
 
     body = body.format(
         generatedDate=datetime.now().strftime("%Y-%m-%d"),
+        versionsTotal=count_versions(changes_dir),
         summaryBars=render_bars(
             {state: states.get(state, {}).get("total", 0) for state in STATE_ORDER}
         ),
@@ -292,17 +313,16 @@ def render_terminal_entries(title_text: str, entries: list[dict]) -> list[str]:
     return block
 
 
-def render_terminal(result: dict, changes_dir: Path, show_fast: bool = False) -> str:
+def render_terminal_page_summary(result: dict, changes_dir: Path) -> str:
+    """Page 1: title, version count, state bars, and the totals table --
+    the "at a glance" view, with no per-entry detail."""
     states = result["states"]
     totals = result["totalsByType"]
 
-    to_implement, pending, no_description = split_in_progress(states)
-    implemented_entries = states.get("implemented", {}).get("entries", [])
-    fast_entries = collect_fast_entries(states)
-    todo_entries = states.get("todo", {}).get("entries", [])
-
     lines = [
         term.title("PROJECT STATUS", f"Generated: {datetime.now().strftime('%Y-%m-%d')}"),
+        "",
+        f"Versions: {count_versions(changes_dir)}",
         "",
         render_bars({state: states.get(state, {}).get("total", 0) for state in STATE_ORDER}),
         "",
@@ -310,9 +330,18 @@ def render_terminal(result: dict, changes_dir: Path, show_fast: bool = False) ->
         *render_terminal_table(states, totals, result["grandTotal"]),
         term.hr("-"),
         "",
-        term.heading("🔧 IN PROGRESS"),
+        term.hr(),
     ]
+    return "\n".join(lines).rstrip("\n") + "\n"
 
+
+def render_terminal_page_in_progress(result: dict) -> str:
+    """Page 2: the "IN PROGRESS" breakdown (ready/pending/planned)."""
+    states = result["states"]
+    to_implement, pending, no_description = split_in_progress(states)
+    implemented_entries = states.get("implemented", {}).get("entries", [])
+
+    lines = [term.heading("🔧 IN PROGRESS")]
     lines += render_terminal_entries("🟢 Ready to review and close", implemented_entries)
     lines += render_terminal_entries("🟡 Pending technical analysis", pending)
     lines += render_terminal_entries("🟠 Planned, pending implementation", to_implement)
@@ -326,16 +355,30 @@ def render_terminal(result: dict, changes_dir: Path, show_fast: bool = False) ->
             )
         )
 
+    lines.append("")
+    lines.append(term.hr())
+    return "\n".join(lines).rstrip("\n") + "\n"
+
+
+def render_terminal_page_rest(result: dict, changes_dir: Path, show_fast: bool = False) -> str:
+    """Page 3: everything after IN PROGRESS -- fast changes (if
+    --show-fast), todo/ ideas, and warnings."""
+    states = result["states"]
+    implemented_entries = states.get("implemented", {}).get("entries", [])
+    fast_entries = collect_fast_entries(states)
+    todo_entries = states.get("todo", {}).get("entries", [])
+
+    lines = []
+
     if show_fast and fast_entries:
-        lines.append("")
         lines.append(term.heading("⚡ IMPLEMENTED FAST CHANGES"))
         for entry in fast_entries:
             state_dir = "implemented" if entry in implemented_entries else "closed"
             date = extract_date(changes_dir / state_dir / entry["code"])
             name = entry["name"] or "(no name)"
             lines.append(term.wrap(f"- {entry['code']} — {name} ({date})", indent="  "))
+        lines.append("")
 
-    lines.append("")
     lines.append(term.heading("💡 IDEAS IN TODO/"))
     if todo_entries:
         for entry in todo_entries:
@@ -354,6 +397,22 @@ def render_terminal(result: dict, changes_dir: Path, show_fast: bool = False) ->
     lines.append(term.hr())
 
     return "\n".join(lines).rstrip("\n") + "\n"
+
+
+def show_change_detail_loop(work_folder: str | None) -> None:
+    """Final-page prompt: reads an id, shows that change/idea's detail card
+    via filter_status.py --search-id --terminal (same card as pv.py's
+    "Search by id"), then asks again -- repeats until empty input, which
+    is the existing "go back" behavior, unchanged."""
+    while True:
+        query = input("Enter an id for its detail card, or press Enter to go back: ").strip()
+        if not query:
+            return
+
+        args = [sys.executable, str(FILTER_STATUS_PATH), "--search-id", query, "--terminal"]
+        if work_folder:
+            args += ["--work-folder", work_folder]
+        subprocess.run(args)
 
 
 def main() -> None:
@@ -385,7 +444,15 @@ def main() -> None:
     changes_dir = load_changes_dir(root, args.work_folder)
     result = collect(changes_dir)
     if args.terminal:
-        print(render_terminal(result, changes_dir, show_fast=args.show_fast))
+        # Three pages, paced with an Enter prompt between them, so the
+        # summary (glanceable) isn't buried under the full in-progress/
+        # ideas/warnings detail on a small terminal.
+        print(render_terminal_page_summary(result, changes_dir))
+        input("Press Enter to see IN PROGRESS detail...")
+        print(render_terminal_page_in_progress(result))
+        input("Press Enter to continue...")
+        print(render_terminal_page_rest(result, changes_dir, show_fast=args.show_fast))
+        show_change_detail_loop(args.work_folder)
     else:
         print(render(result, changes_dir, show_fast=args.show_fast))
 

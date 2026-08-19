@@ -22,17 +22,38 @@ Two options modify something:
   pv-context.json's skillModels to each 'pv-*' SKILL.md's frontmatter
   (model/effort).
 
+"Changes info" opens a submenu with three ways to look up entries under
+{workFolder}/changes/: "Search by id" (exact id match, cheap -- doesn't
+read description.md except the match's), "Search by content" (text match
+in description.md, reads every entry), and "Search by state" (the former
+top-level "Listing filtered by state" option, now nested here). The first
+two scan every state; kept as separate options rather than one combined
+search so each stays as fast as the kind of lookup it's actually doing.
+
 "Check versions" opens a submenu that lists {workFolder}/versions/{XXXX}/
 folders and prints the chosen one's changelog.md.
 
 Design notes (screen types, colors, how to extend this menu) live in
-.claude/pv-design-onescript.es.md -- read it before adding a new menu,
+.claude/pv-doc/pv-design-onescript/pv-design-onescript.es.md -- read it before adding a new menu,
 submenu, or screen type.
+
+--testconfig is a test-harness-only flag, not for normal end-user use: it
+takes no argument -- it reads pv-config-test.json from this same script's
+own folder ({"repoRoot": "...", "workFolder": "..."}), used instead of the
+repo's real .claude/pv-context.json, letting pv.py be run against
+throwaway fixture data (e.g. test/previo-sdd/) without touching the real
+workFolder. The framework's real scripts are still invoked as-is (never
+copied) -- only the --work-folder value forwarded to the ones that
+support it changes. See test/pv-test.py and test/pv-config-test.json for
+the intended setup (a plain copy of this same file, run with --testconfig
+from inside test/, where its sibling pv-config-test.json lives).
 
 Usage:
   python3 pv.py
+  python3 pv.py --testconfig
 """
 
+import argparse
 import json
 import os
 import re
@@ -47,6 +68,18 @@ WORKFLOW_SCRIPTS = ROOT / ".claude" / "skills" / "pv-internal-workflow" / "scrip
 INIT_SCRIPTS = ROOT / ".claude" / "skills" / "pv-init" / "scripts"
 CONTEXT_PATH = ROOT / ".claude" / "pv-context.json"
 
+# Set by main() when --testconfig is passed: the workFolder value to use
+# instead of reading it from CONTEXT_PATH, and to forward as --work-folder
+# to the external scripts that accept that override.
+TEST_WORK_FOLDER: str | None = None
+
+# The subset of scripts invoked via run_script() that accept --work-folder
+# as an explicit override (filter_status.py, render_status.py,
+# list_todo.py, move-change.py). sync-skill-models.py doesn't touch
+# changes/ or workFolder at all, so it has no such flag and is never
+# forwarded one.
+SCRIPTS_ACCEPTING_WORK_FOLDER = {"filter_status.py", "render_status.py", "list_todo.py", "move-change.py"}
+
 
 # =============================================================================
 # Rendering primitives (color, width, low-level text helpers)
@@ -57,13 +90,29 @@ CONTEXT_PATH = ROOT / ".claude" / "pv-context.json"
 #   - GOLD:      menu screens (print_header/run_menu) -- "you're navigating"
 #   - DARK_GRAY: selection and info screens (show_selection/show_info) --
 #                "you're viewing or picking data"
-# See .claude/pv-design-onescript.es.md > "Estilo por Tipo de Pantalla" for
+# See .claude/pv-doc/pv-design-onescript/pv-design-onescript.es.md > "Estilo por Tipo de Pantalla" for
 # the full rationale and exact mockups.
 
 WIDTH = 70
 COLOR_RESET = "\033[0m"
 GOLD = "\033[38;5;220m"
 DARK_GRAY = "\033[38;5;238m"
+
+# Per-state colors, used only to tint each option's text in "Available
+# states:" (search_by_state()) -- an exception to the "one color per whole
+# screen" rule (see "Estilo por Tipo de Pantalla" in the design doc),
+# scoped to individual list items rather than the screen's own frame/rule,
+# which stays DARK_GRAY like any other show_selection() call.
+STATE_BLUE = "\033[38;5;75m"  # todo: not started yet
+STATE_YELLOW = "\033[38;5;220m"  # inProgress: in progress
+STATE_GREEN = "\033[38;5;114m"  # implemented: ready to close
+STATE_WHITE = "\033[38;5;255m"  # closed: done
+STATE_COLORS = {
+    "todo": STATE_BLUE,
+    "inProgress": STATE_YELLOW,
+    "implemented": STATE_GREEN,
+    "closed": STATE_WHITE,
+}
 
 # Gradient by character density, modeled on the actual One Ring: from the
 # pale golden glow of the loose strokes (".", ":", "-") to the brown/maroon
@@ -132,6 +181,18 @@ def hr(char: str = "=", color: str = DARK_GRAY) -> None:
     print(colorize(char * WIDTH, color))
 
 
+def read_input(prompt: str) -> str:
+    """input() wrapper that lets "exit" quit the whole program from any
+    screen that asks for a real answer (menu choice, selection, y/N
+    confirmation, free-text search) -- case-insensitive, surrounding
+    whitespace ignored. Not used by the "Press Enter to return..." pause,
+    which treats any input (including "exit") as just continuing."""
+    answer = input(prompt)
+    if answer.strip().lower() == "exit":
+        sys.exit(0)
+    return answer
+
+
 def wrap(text: str, indent: str = "") -> str:
     return textwrap.fill(
         text,
@@ -164,7 +225,7 @@ RING_ART = r"""
 #
 # Every interactive screen in this file is one of these building blocks.
 # Adding a new menu, submenu, or list should mean calling one of these --
-# not hand-rolling hr()/print() calls. See .claude/pv-design-onescript.es.md
+# not hand-rolling hr()/print() calls. See .claude/pv-doc/pv-design-onescript/pv-design-onescript.es.md
 # for the full catalogue of screen types and their exact appearance.
 
 
@@ -198,7 +259,7 @@ def show_selection(
         print(wrap(f"{key}. {label}", indent="  "))
     hr("-")
 
-    choice = input(prompt).strip()
+    choice = read_input(prompt).strip()
     if not choice:
         return None
 
@@ -233,7 +294,7 @@ def confirm(question: str) -> bool:
     """Yes/no confirmation, no frame of its own -- nests inside whatever
     screen (usually a Selection) triggered it."""
     print(wrap(question))
-    answer = input("(y/N): ").strip().lower()
+    answer = read_input("(y/N): ").strip().lower()
     return answer in ("y", "yes")
 
 
@@ -243,7 +304,10 @@ def confirm(question: str) -> bool:
 
 
 def run_script(script: Path, *args: str) -> None:
-    subprocess.run([sys.executable, str(script), *args], cwd=ROOT)
+    full_args = list(args)
+    if TEST_WORK_FOLDER is not None and script.name in SCRIPTS_ACCEPTING_WORK_FOLDER:
+        full_args += ["--work-folder", TEST_WORK_FOLDER]
+    subprocess.run([sys.executable, str(script), *full_args], cwd=ROOT)
 
 
 def work_root() -> Path:
@@ -251,8 +315,11 @@ def work_root() -> Path:
     # carries a leading "/" (that's only a convention to make it visually
     # explicit) -- Path("/a") / "/b" would otherwise discard "a" entirely,
     # since pathlib treats a leading-slash operand as its own absolute path.
-    context = json.loads(CONTEXT_PATH.read_text(encoding="utf-8"))
-    work_folder_rel = context.get("framework", {}).get("workFolder", "/")
+    if TEST_WORK_FOLDER is not None:
+        work_folder_rel = TEST_WORK_FOLDER
+    else:
+        context = json.loads(CONTEXT_PATH.read_text(encoding="utf-8"))
+        work_folder_rel = context.get("framework", {}).get("workFolder", "/")
     return ROOT / (work_folder_rel or "").lstrip("/")
 
 
@@ -264,6 +331,33 @@ def versions_dir() -> Path:
     return work_root() / "versions"
 
 
+def load_test_config(path: Path) -> dict[str, str]:
+    """Reads pv-config-test.json ({"repoRoot": "...", "workFolder": "..."}),
+    expected next to this script (--testconfig takes no argument).
+
+    "repoRoot" is resolved by the caller relative to this file's own
+    location, not the process cwd.
+
+    Exits with a clear message (no raw traceback) if the file doesn't
+    exist, isn't valid JSON, or is missing either required field -- this
+    flag is test-harness-only, so a broken/misconfigured pointer should
+    fail loudly rather than silently fall back to the real repo state.
+    """
+    if not path.is_file():
+        sys.exit(f"--testconfig: file not found: {path}")
+
+    try:
+        config = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        sys.exit(f"--testconfig: {path} isn't valid JSON: {exc}")
+
+    missing = [key for key in ("repoRoot", "workFolder") if key not in config]
+    if missing:
+        sys.exit(f"--testconfig: {path} is missing required field(s): {', '.join(missing)}")
+
+    return {"repoRoot": config["repoRoot"], "workFolder": config["workFolder"]}
+
+
 # =============================================================================
 # Actions -- root menu
 # =============================================================================
@@ -273,7 +367,7 @@ def versions_dir() -> Path:
 # "--terminal" output via the sibling module pv-status/scripts/terminal_output.py
 # -- a separate color/hr()/title() implementation, not this file's. If a
 # screen delegated to one of these three scripts looks wrong, the fix is
-# there, not here. See .claude/pv-design-onescript.es.md > "Diagrama de
+# there, not here. See .claude/pv-doc/pv-design-onescript/pv-design-onescript.es.md > "Diagrama de
 # Componentes" / "Info delegada".
 
 
@@ -283,28 +377,6 @@ def show_general_status() -> None:
 
 def show_todo_ideas() -> None:
     run_script(STATUS_SCRIPTS / "list_todo.py", "--terminal")
-
-
-def list_states() -> list[str]:
-    changes = changes_dir()
-    if not changes.is_dir():
-        return []
-    return sorted(p.name for p in changes.iterdir() if p.is_dir())
-
-
-def show_filtered_status() -> None:
-    states = list_states()
-    if not states:
-        show_info([wrap("There are no changes yet in this project.")], framed=False)
-        return
-
-    index = show_selection(
-        "Available states:", states, "Choose a state (number, or empty to cancel): "
-    )
-    if index is None:
-        return
-
-    run_script(STATUS_SCRIPTS / "filter_status.py", states[index], "--terminal")
 
 
 def list_implemented_entries() -> list[tuple[str, str]]:
@@ -457,6 +529,65 @@ show_versions_menu.is_submenu = True
 
 
 # =============================================================================
+# Actions -- Changes info submenu
+# =============================================================================
+
+
+def list_states() -> list[str]:
+    changes = changes_dir()
+    if not changes.is_dir():
+        return []
+    return sorted(p.name for p in changes.iterdir() if p.is_dir())
+
+
+def search_by_id() -> None:
+    query = read_input("Search by id (empty to cancel): ").strip()
+    if not query:
+        return
+
+    run_script(STATUS_SCRIPTS / "filter_status.py", "--search-id", query, "--terminal")
+
+
+def search_by_content() -> None:
+    query = read_input("Search by description content (empty to cancel): ").strip()
+    if not query:
+        return
+
+    run_script(STATUS_SCRIPTS / "filter_status.py", "--search-content", query, "--terminal")
+
+
+def search_by_state() -> None:
+    states = list_states()
+    if not states:
+        show_info([wrap("There are no changes yet in this project.")], framed=False)
+        return
+
+    labels = [colorize(state, STATE_COLORS.get(state, DARK_GRAY)) for state in states]
+    index = show_selection(
+        "Available states:", labels, "Choose a state (number, or empty to cancel): "
+    )
+    if index is None:
+        return
+
+    run_script(STATUS_SCRIPTS / "filter_status.py", states[index], "--terminal")
+
+
+def show_changes_info_menu() -> None:
+    run_menu(
+        "Previo: Changes info",
+        [
+            ("Search by id", search_by_id),
+            ("Search by content", search_by_content),
+            ("Search by state", search_by_state),
+        ],
+        "Back",
+    )
+
+
+show_changes_info_menu.is_submenu = True
+
+
+# =============================================================================
 # Root menu definition
 # =============================================================================
 #
@@ -467,7 +598,7 @@ show_versions_menu.is_submenu = True
 
 MENU: list[tuple[str, "callable"]] = [
     ("General project status", show_general_status),
-    ("Listing filtered by state (todo, inProgress, implemented...)", show_filtered_status),
+    ("Changes info", show_changes_info_menu),
     ("Ideas in todo/", show_todo_ideas),
     ("Close an implemented entry (move to changes/closed/)", close_entry),
     ("Configuration", show_settings_menu),
@@ -493,7 +624,7 @@ def run_menu(
         print(wrap(f"{last_index}. {last_label}", indent="  "))
         hr("=", GOLD)
 
-        choice = input("Choose an option: ").strip()
+        choice = read_input("Choose an option: ").strip()
         if choice == "":
             continue
 
@@ -519,6 +650,32 @@ def run_menu(
 
 
 def main() -> None:
+    global ROOT, STATUS_SCRIPTS, WORKFLOW_SCRIPTS, INIT_SCRIPTS, CONTEXT_PATH, TEST_WORK_FOLDER
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--testconfig",
+        action="store_true",
+        help="Test-harness-only: reads pv-config-test.json from this script's "
+        "own folder ({\"repoRoot\", \"workFolder\"}), used instead of the real "
+        ".claude/pv-context.json so pv.py can run against throwaway fixture "
+        "data. Not for normal end-user use.",
+    )
+    args = parser.parse_args()
+
+    if args.testconfig:
+        testconfig_path = Path(__file__).resolve().parent / "pv-config-test.json"
+        config = load_test_config(testconfig_path)
+        # repoRoot is resolved relative to the config file's own location,
+        # not the process cwd -- so --testconfig works the same regardless
+        # of which directory it's invoked from.
+        ROOT = (testconfig_path.parent / config["repoRoot"]).resolve()
+        STATUS_SCRIPTS = ROOT / ".claude" / "skills" / "pv-status" / "scripts"
+        WORKFLOW_SCRIPTS = ROOT / ".claude" / "skills" / "pv-internal-workflow" / "scripts"
+        INIT_SCRIPTS = ROOT / ".claude" / "skills" / "pv-init" / "scripts"
+        CONTEXT_PATH = ROOT / ".claude" / "pv-context.json"
+        TEST_WORK_FOLDER = config["workFolder"]
+
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
 
@@ -531,7 +688,7 @@ def main() -> None:
 
     print(colorize_ring_art(RING_ART))
 
-    run_menu("Previo Main Menu", MENU, "Exit")
+    run_menu("Previo: MAIN MENU", MENU, "Exit")
 
 
 if __name__ == "__main__":
