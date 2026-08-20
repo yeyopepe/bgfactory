@@ -1,4 +1,4 @@
-# Diseño técnico — Prototipo digital "Errantes"
+# Diseño técnico — Prototipo digital "BF Factory"
 
 Mapa de la documentación de arquitectura. Este fichero cubre objetivo/restricciones, capas, convenciones de código y el checklist a revisar al añadir un tipo/colección nuevo. Para modelo de datos, modos, UI y persistencia, ver la tabla de ficheros hermanos al final.
 

@@ -5,7 +5,7 @@
 import { CURRENT_VERSION } from '../data/version.js';
 import { DEFAULT_APP_TITLE } from './appTitle.js';
 
-const STORAGE_KEY = 'errantes:state';
+const STORAGE_KEY = 'bgfactory:state';
 
 function parseState(raw) {
   let parsed;

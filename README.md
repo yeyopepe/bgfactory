@@ -1,12 +1,12 @@
-# 🎲 Errantes — Editor de juegos de mesa 100% portable
+# 🎲 BG Factory — Un editor de juegos de mesa 100% portable
 
-Errantes es un editor visual para crear y jugar tus propios juegos de mesa digitales, que se distribuye como **un único fichero HTML autocontenido**. Sin instalación, sin cuentas, sin servidor, sin dependencias online: descargas el fichero, lo abres con doble clic en cualquier navegador moderno, y ya tienes tu mesa de juego lista — editor y datos incluidos en el mismo `.html`.
+**BG Factory** es un editor visual para crear y jugar tus propios juegos de mesa digitales, que se distribuye como **un único fichero HTML autocontenido**. Sin instalación, sin cuentas, sin servidor, sin dependencias online: descargas el fichero, lo abres con doble clic en cualquier navegador moderno, y ya tienes tu mesa de juego lista — editor y datos incluidos en el mismo `.html`.
 
 > Está siendo desarrollado 100% usando [Previo](https://github.com/yeyopepe/previo-sdd), un framework de desarrollo rápido basado en IA.
 
 > 🖼️ *Captura: mesa de juego infinita con varios componentes (cartas, tablero, dado) — `docs/screenshots/mesa-general.png`*
 
-## 🚀 ¿Por qué Errantes?
+## 🚀 ¿Por qué BG Factory?
 
 - **📦 100% portable**: todo el editor (HTML + CSS + JS) vive en un solo fichero. Cópialo en un pendrive, mándalo por email o guárdalo en la nube — allá donde lo abras, funciona igual.
 - **⚡ Sin instalación ni cuentas**: no hay que instalar nada, registrarse ni depender de un servicio en la nube. Abres el fichero y empiezas a jugar o a editar.
@@ -74,7 +74,7 @@ Errantes es un editor visual para crear y jugar tus propios juegos de mesa digit
 
 ## ▶️ Empezar a jugar
 
-Si solo quieres usar Errantes, descarga el entregable (`index.html` generado, un único fichero) y ábrelo con doble clic en tu navegador. No necesitas nada más.
+Si solo quieres usar **BG Factory**, descarga el entregable (`index.html` generado, un único fichero) y ábrelo con doble clic en tu navegador. No necesitas nada más.
 
 ## 🛠️ Desarrollo
 

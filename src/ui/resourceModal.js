@@ -279,7 +279,7 @@ function renderFontContent(content, resource) {
   const previewBox = document.createElement('div');
   previewBox.className = 'resource-modal__font-preview';
   previewBox.style.fontFamily = `'${fontFamilyFor(resource.id)}'`;
-  previewBox.textContent = 'Errantes del Bosque — ABCDEFGHIJKLMÑ abcdefghijklmñ 0123456789';
+  previewBox.textContent = 'BG Factory sample — ABCDEFGHIJKLMÑ abcdefghijklmñ 0123456789';
   previewField.appendChild(previewLabel);
   previewField.appendChild(previewBox);
   content.appendChild(previewField);

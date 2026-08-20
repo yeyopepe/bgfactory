@@ -2,7 +2,7 @@
 
 import { CURRENT_VERSION } from '../data/version.js';
 
-export const DEFAULT_APP_TITLE = 'Errantes, un juego de mesa de SJ Martínez';
+export const DEFAULT_APP_TITLE = 'BG Factory';
 
 export function formatVersion() {
   return `v.${CURRENT_VERSION.slice(1)}`;
