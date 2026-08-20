@@ -5,7 +5,7 @@ argument-hint: "[xxxx | todo <code>] <description of the change>"
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 0.9.5b7
+  version: 0.9.5b10
   uses: [pv-internal-workflow, pv-internal-tech-analysis, pv-internal-mockups-html, pv-internal-tech-mermaid, pv-how]
 ---
 
@@ -13,7 +13,7 @@ metadata:
 
 Analyzes and documents an intentional change to the project (new functionality or a deliberate modification to existing behavior — for bugs use the `pv-fix` skill, not this one). Part of the `pv-*` framework.
 
-**Language.** Use `framework.interaction.language` (default English) for everything you say to the user in this conversation. `description.md`, `design_navigation_*.md`, and the sample text inside `design_*.html`/`design_data_*.md` follow `framework.changes.language` (default `interaction.language`, English if neither is configured). If `language` is not configured anywhere, everything is English.
+**Language.** Use `framework.interaction.language` (default English) for everything you say to the user in this conversation. `description.md`, `design_navigation_*.md`, and the sample text inside `design_*.html`/`design_data_*.md` follow `framework.changes.language` (default `interaction.language`, English if neither is configured) — `description.md`'s own `[[[...]]]`-marked field labels are `pv-internal-workflow`'s concern (which actually writes the file): see its "Language." note. If `language` is not configured anywhere, everything is English.
 
 **It implements nothing.** This skill only understands and documents the functional scope of what's being asked; the technical solution is done afterward by the `pv-how` skill, and the implementation by the `pv-do` skill, once it's decided to plan/implement this entry.
 
@@ -39,6 +39,8 @@ initialize/complete the framework in this project, and stop there.
 ```
 This project doesn't have the `pv-*` framework initialized yet (or is missing configuration). Run `/pv-init` first before invoking me again.
 ```
+
+Additionally, before continuing, check that the framework's installed version is verified: read `metadata.version` from `.claude/skills/pv-init/SKILL.md`'s frontmatter (a handful of lines, not the whole file) and compare it against `framework.frameworkStatus.lastVerifiedVersion` in the `pv-context.json` you already loaded. If `frameworkStatus` is missing entirely, or `lastVerifiedVersion` doesn't match `pv-init/SKILL.md`'s real version, don't continue: tell the user the framework was updated (or has never been verified) and that they must run `pv-update` first — a stale `pv-context.json` can mean outdated templates, marker conventions, or other assumptions this skill relies on. Same stop if `framework.frameworkStatus.blocked` is already `true` (show `blockedReason` if present). This is a cheap, live comparison of two version strings already in hand — it doesn't require `pv-update` to have run before for the check itself to work, only for it to pass.
 
 ## 0.1 Check whether the given code is already in progress
 

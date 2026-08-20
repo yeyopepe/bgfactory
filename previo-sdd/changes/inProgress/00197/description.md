@@ -1,6 +1,7 @@
 - **Name**: Script `build_obf.py` (variante completa ofuscada)
 - **Code**: 00197
 - **Type**: change
+- **Creation date**: 2026-08-18
 
 ## Full description
 

@@ -5,7 +5,7 @@ argument-hint: <XXXX of the version to prepare>
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 0.9.5b7
+  version: 0.9.5b10
   uses: [pv-internal-changelog]
 ---
 
@@ -13,7 +13,7 @@ metadata:
 
 Orchestrates preparing a project release: resolves change/fix entries pending closure, generates the deliverable, copies the current technical documentation, and chains `pv-internal-changelog` to draft the functional changelog from `{workFolder}/changes/closed/`.
 
-**Language.** Use `framework.interaction.language` (default English) for everything you say to the user in this conversation, including the fixed messages below. Copying technical documentation and generating the deliverable are copy/build operations, not new prose (`language` doesn't apply); it chains `pv-internal-changelog` for `changelog.md`. If `language` is not configured anywhere, everything is English.
+**Language.** Use `framework.interaction.language` (default English) for everything you say to the user in this conversation, including the fixed messages below. Copying technical documentation and generating the deliverable are copy/build operations, not new prose (`language` doesn't apply); it chains `pv-internal-changelog` for `changelog.md`. `{workFolder}/stuff/how-to-compile-version.md`, which this skill writes/edits directly (see steps 0.2 and 3), also follows `interaction.language` — there's no dedicated language field for `stuff/*` in the schema. If `language` is not configured anywhere, everything is English.
 
 `{workFolder}` is `.claude/pv-context.json`'s `framework.workFolder` value (default `"/previo-sdd"`, never asked/confirmed by `pv-init`). Inside it, `changes/`, `versions/` and `stuff/` are fixed-name subfolders the framework creates by itself — not asked about or configured separately. `{workFolder}/versions/{XXXX}/` is a free-text numbering space, chosen by the user on each invocation, with no relation to change/fix's `xxxx` nor to any other folder called "versions" that might exist in the repo (e.g. a build script's own output): this skill never reads or writes outside `{workFolder}/versions/`.
 
@@ -24,6 +24,8 @@ Read `.claude/pv-context.json` at the repo root. If it doesn't exist, or is miss
 ```
 This project doesn't have the `pv-*` framework initialized yet (or is missing configuration). Run `/pv-init` first before invoking me again.
 ```
+
+Additionally, before continuing, check that the framework's installed version is verified: read `metadata.version` from `.claude/skills/pv-init/SKILL.md`'s frontmatter (a handful of lines, not the whole file) and compare it against `framework.frameworkStatus.lastVerifiedVersion` in the `pv-context.json` you already loaded. If `frameworkStatus` is missing entirely, or `lastVerifiedVersion` doesn't match `pv-init/SKILL.md`'s real version, don't continue: tell the user the framework was updated (or has never been verified) and that they must run `pv-update` first — a stale `pv-context.json` can mean outdated templates, marker conventions, or other assumptions this skill relies on. Same stop if `framework.frameworkStatus.blocked` is already `true` (show `blockedReason` if present). This is a cheap, live comparison of two version strings already in hand — it doesn't require `pv-update` to have run before for the check itself to work, only for it to pass.
 
 ## 0.1. Process diagram, on demand
 

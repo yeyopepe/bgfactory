@@ -1,10 +1,19 @@
 {
   "skillModels": {
     "_instructions": "Tras editar 'default' o 'overrides' de esta seccion, ejecuta desde la raiz del repo: python .claude/skills/pv-init/scripts/sync-skill-models.py -- reescribe el campo 'model'/'effort' en el frontmatter de cada SKILL.md 'pv-*' segun lo que quede configurado aqui. El harness de Claude Code solo lee ese frontmatter, no este JSON, asi que sin ejecutar el script los cambios de aqui no tienen efecto.",
-    "default": { "model": "claude-sonnet-5", "effort": "medium" },
+    "default": {
+      "model": "claude-sonnet-5",
+      "effort": "medium"
+    },
     "overrides": {
-      "pv-status": { "model": "claude-haiku-4-5", "effort": "medium" },
-      "pv-todo": { "model": "claude-haiku-4-5", "effort": "medium" }
+      "pv-status": {
+        "model": "claude-haiku-4-5",
+        "effort": "medium"
+      },
+      "pv-todo": {
+        "model": "claude-haiku-4-5",
+        "effort": "medium"
+      }
     }
   },
   "framework": {
@@ -15,9 +24,15 @@
     "sourcecodeDir": "/src",
     "workFolder": "/previo-sdd",
     "numberWidth": 5,
-    "interaction": { "language": "es" },
-    "changes": { "language": "es" },
-    "versions": { "language": "es" },
+    "interaction": {
+      "language": "es"
+    },
+    "changes": {
+      "language": "es"
+    },
+    "versions": {
+      "language": "es"
+    },
     "docs": {
       "functional": {
         "featuresDocPathDir": "design/docs/features",
@@ -35,6 +50,10 @@
       "versions.language": "Mismo idioma que la interaccion, elegido por el usuario para todo el framework.",
       "docs.functional.language": "Mismo idioma que la interaccion, elegido por el usuario para todo el framework.",
       "docs.tech.language": "Mismo idioma que la interaccion, elegido por el usuario para todo el framework."
+    },
+    "frameworkStatus": {
+      "lastVerifiedVersion": "0.9.5b10",
+      "blocked": false
     }
   }
 }
