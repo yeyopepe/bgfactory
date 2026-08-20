@@ -9,5 +9,5 @@ t5v8n
 ## Creation date
 2026-08-08
 
-## Notas
+## Notes
 Implementar losetas.

@@ -1,5 +1,5 @@
-- **Fecha de creación**: 2026-08-19
-- **Riesgo**: 1/10 — Riesgo mínimo
+- **Creation date**: 2026-08-19
+- **Risk**: 1/10 — Riesgo mínimo
 
 ## (a) Notas funcionales
 

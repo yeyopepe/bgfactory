@@ -1,7 +1,7 @@
-- **Nombre**: Modal de carga al agrupar y desagrupar en modo edición
-- **Código**: 00224
-- **Tipo**: change
-- **Fecha de creación**: 2026-08-19
+- **Name**: Modal de carga al agrupar y desagrupar en modo edición
+- **Code**: 00224
+- **Type**: change
+- **Creation date**: 2026-08-19
 
 ## Descripción completa
 

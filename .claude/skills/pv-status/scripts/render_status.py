@@ -309,7 +309,8 @@ def render_terminal_entries(title_text: str, entries: list[dict]) -> list[str]:
         for entry in entries:
             name = entry["name"] or "(no name)"
             risk = format_risk(entry)
-            block.append(term.wrap(f"- {entry['code']} — {name} (Risk: {risk})", indent="  "))
+            icon = TYPE_ICONS.get(entry["type"], "❓")
+            block.append(term.wrap(f"{entry['code']} [{icon} {entry['type']}] — {name} (Risk: {risk})", indent="  "))
     return block
 
 
@@ -343,8 +344,8 @@ def render_terminal_page_in_progress(result: dict) -> str:
 
     lines = [term.heading("🔧 IN PROGRESS")]
     lines += render_terminal_entries("🟢 Ready to review and close", implemented_entries)
-    lines += render_terminal_entries("🟡 Pending technical analysis", pending)
     lines += render_terminal_entries("🟠 Planned, pending implementation", to_implement)
+    lines += render_terminal_entries("🟡 Pending technical analysis", pending)
 
     if no_description:
         lines.append("")

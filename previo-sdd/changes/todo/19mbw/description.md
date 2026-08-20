@@ -9,7 +9,7 @@ Revisión completa de todas las ayudas, detectar ayudas faltantes y definir form
 ## Creation date
 2026-08-05
 
-## Notas
+## Notes
 - Revisar todas las ayudas existentes en la app
 - Identificar funcionalidades que les falta ayuda
 - Definir un formato específico y consistente para estas ventanas de ayuda

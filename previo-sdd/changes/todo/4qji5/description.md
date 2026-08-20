@@ -9,7 +9,7 @@ Mejoras de rendimiento
 ## Creation date
 2026-08-08
 
-## Notas
+## Notes
 
 Documentar y optimizar casos de rendimiento lento, especialmente:
 - Añadir muchas cartas a un mazo: tiempo de espera hasta la confirmación es demasiado largo

@@ -1,6 +1,7 @@
 - **Name**: Botón "Publicar" (variante de solo mesa ofuscada)
 - **Code**: 00198
 - **Type**: change
+- **Creation date**: 2026-08-18
 
 ## Full description
 
