@@ -35,7 +35,7 @@ El propio `pv-init` comprueba esto por ti la primera vez, pero para referencia:
   - Node/npm si hay `package.json`.
   - Cualquier otro intérprete que necesite el proyecto.
 
-Generar una versión del entregable **sí** forma parte del framework `pv-*`: `/pv-version` la empaqueta (ver [Preparar una entrega: `/pv-version`](#preparar-una-entrega-pv-version)). En este repo, el comando de compilación que usa por debajo es `python ./src/scripts/build.py`, que autoincrementa `CURRENT_VERSION` en `src/data/version.js` y escribe `src/_output/versions/index-v{NNNN}.html` — carpeta y numeración propias del build script, sin relación con la numeración de `/pv-version`.
+Generar una versión del entregable **sí** forma parte del framework `pv-*`: `/pv-version` la empaqueta (ver [Preparar una entrega: `/pv-version`](#preparar-una-entrega-pv-version)). En este repo (Errantes), el comando de compilación que usa por debajo es `python ./src/scripts/build.py`, que autoincrementa `CURRENT_VERSION` en `src/data/version.js` y escribe `src/_output/versions/index-v{NNNN}.html` — carpeta y numeración propias del build script, sin relación con la numeración de `/pv-version`.
 
 ### 2. Inicializar el framework: `/pv-init`
 

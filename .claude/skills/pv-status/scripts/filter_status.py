@@ -27,6 +27,13 @@ For each entry in the state folder, five columns are computed:
     as written); otherwise description.md's modification time (mtime)
     formatted as YYYY-MM-DD; if there's no description.md, the folder's own
     mtime.
+  - extra_files: count of files directly inside the entry folder that
+    aren't the framework's own (description.md, plan.md, history.md) --
+    e.g. design_*.html/design_*.txt mockups, or anything else a change/fix
+    folder may accumulate. Only surfaces in --terminal mode's detail card
+    (see TERMINAL_FRAMEWORK_FILES below); 'todo/' entries never show it,
+    same reasoning as Risk/planned (todo/ folders only ever hold
+    description.md).
 
 Two more fields, name (description.md's '**Name**' field) and planned_date
 (plan.md's '**Creation date**' field, same bold-inline format as
@@ -138,6 +145,12 @@ def load_changes_dir(root: Path, override: str | None) -> Path:
 
 DESCRIPTION_MAX_CHARS = 250
 
+# Files an entry folder always carries as part of the pv-new/pv-fix/pv-how
+# workflow -- everything else directly inside the folder (design_*.html,
+# design_*.txt, or anything else a change/fix accumulates) counts as
+# "extra" for the detail card's file count.
+TERMINAL_FRAMEWORK_FILES = {"description.md", "plan.md", "history.md"}
+
 
 def summarize(text: str) -> str:
     # Collapses repeated line breaks/whitespace before truncating, so the
@@ -186,6 +199,14 @@ def mtime_str(path: Path) -> str:
     return datetime.fromtimestamp(path.stat().st_mtime).strftime("%Y-%m-%d")
 
 
+def count_extra_files(entry_dir: Path) -> int:
+    return sum(
+        1
+        for p in entry_dir.iterdir()
+        if p.is_file() and p.name not in TERMINAL_FRAMEWORK_FILES
+    )
+
+
 def build_entry(state: str, entry_dir: Path) -> dict:
     description_path = entry_dir / "description.md"
     plan_path = entry_dir / "plan.md"
@@ -222,6 +243,7 @@ def build_entry(state: str, entry_dir: Path) -> dict:
     # rather than a second date pattern. None here (no plan.md, or a plan.md
     # missing the field) means "pending" to the caller, not "unknown yet".
     planned_date = extract_date(plan_text) if plan_text else None
+    extra_files = None if state == "todo" else count_extra_files(entry_dir)
 
     return {
         "code": entry_dir.name,
@@ -232,6 +254,7 @@ def build_entry(state: str, entry_dir: Path) -> dict:
         "date": date,
         "planned_date": planned_date,
         "risk": risk,
+        "extra_files": extra_files,
     }
 
 
@@ -350,7 +373,7 @@ def render_report(result: dict) -> str:
                 code=entry["code"],
                 type=TYPE_LABELS.get(entry["type"], entry["type"]),
                 description=entry["description"] or "—",
-                risk=f"{entry['risk']}/10" if entry["risk"] else "—",
+                risk=f"{entry['risk']}/10" if entry["risk"] else "?",
                 date=entry["date"] or "—",
             )
             for entry in result["entries"]
@@ -365,13 +388,13 @@ def render_report(result: dict) -> str:
     )
 
 
-TERMINAL_DESCRIPTION_MAX_CHARS = 200
+TERMINAL_DESCRIPTION_MAX_CHARS = 500
 
 
 SEARCH_KIND_LABELS = {"id": "id", "content": "content"}
 
 
-def render_terminal(result: dict) -> str:
+def render_terminal(result: dict, width: int = term.DEFAULT_WIDTH) -> str:
     is_search = "query" in result
     title = f"PROJECT STATUS — search: {result['query']}" if is_search else f"PROJECT STATUS — {result['state']}"
     empty_message = (
@@ -381,14 +404,14 @@ def render_terminal(result: dict) -> str:
     )
 
     lines = [
-        term.title(title, f"Generated: {datetime.now().strftime('%Y-%m-%d')}"),
+        term.title(title, f"Generated: {datetime.now().strftime('%Y-%m-%d')}", width=width),
     ]
 
     if not result["entries"]:
         lines.append("")
-        lines.append(term.wrap(empty_message))
+        lines.append(term.wrap(empty_message, width=width))
         lines.append("")
-        lines.append(term.hr())
+        lines.append(term.hr(width=width))
         return "\n".join(lines) + "\n"
 
     for entry in result["entries"]:
@@ -402,25 +425,27 @@ def render_terminal(result: dict) -> str:
 
         if entry["state"] == "todo":
             # todo/ ideas never have plan.md, so Risk/planned would always
-            # be "—"/"pending" -- shown as noise, not information. 3 lines
+            # be "?"/"pending" -- shown as noise, not information. 3 lines
             # instead of 4: no separate description line either (line 3's
             # ## Idea text already doubles as both name and content).
             lines.append(f"({entry['state']})  {entry['code']}  [{type_}]")
             lines.append(f"created: {entry['date'] or '—'}")
-            lines.append(term.wrap(entry["name"] or "(no name)", indent="> "))
+            lines.append(term.wrap(entry["name"] or "(no name)", indent="> ", width=width))
             continue
 
-        risk = f"{entry['risk']}/10" if entry["risk"] else "—"
+        risk = f"{entry['risk']}/10" if entry["risk"] else "?"
         description = entry["description"] or "—"
         if len(description) > TERMINAL_DESCRIPTION_MAX_CHARS:
             description = description[:TERMINAL_DESCRIPTION_MAX_CHARS].rstrip() + "..."
+        extra_files = entry["extra_files"] or 0
         lines.append(f"({entry['state']})  {entry['code']}  [{type_}]  Risk: {risk}")
         lines.append(f"created: {entry['date'] or '—'}, planned: {planned}")
-        lines.append(term.wrap(entry["name"] or "(no name)", indent="> "))
-        lines.append(term.wrap(description, indent="  "))
+        lines.append(term.wrap(entry["name"] or "(no name)", indent="> ", width=width))
+        lines.append(term.wrap(description, indent="  ", width=width))
+        lines.append(f"extra files: {extra_files}")
 
     lines.append("")
-    lines.append(term.hr())
+    lines.append(term.hr(width=width))
     return "\n".join(lines) + "\n"
 
 
@@ -455,9 +480,18 @@ def main() -> None:
     parser.add_argument(
         "--terminal",
         action="store_true",
-        help="Plain-text output without markdown, fixed to 70 columns, for "
-        "pasting into a classic terminal. Exclusive use of pv.py: the "
-        "pv-status skill (invoked from chat) must not pass this flag.",
+        help="Plain-text output without markdown, for pasting into a "
+        "classic terminal. Exclusive use of pv.py: the pv-status skill "
+        "(invoked from chat) must not pass this flag.",
+    )
+    parser.add_argument(
+        "--width",
+        type=int,
+        default=term.DEFAULT_WIDTH,
+        help="Column width for --terminal output (also used by "
+        "--search-id/--search-content, which are --terminal-only "
+        "already). The caller decides this -- pv.py passes its own WIDTH "
+        f"so delegated screens match its menu's width. Default {term.DEFAULT_WIDTH}.",
     )
     args = parser.parse_args()
 
@@ -478,16 +512,16 @@ def main() -> None:
 
     if args.search_id:
         result = collect_search_by_id(changes_dir, args.search_id)
-        print(render_terminal(result))
+        print(render_terminal(result, width=args.width))
         return
 
     if args.search_content:
         result = collect_search_by_content(changes_dir, args.search_content)
-        print(render_terminal(result))
+        print(render_terminal(result, width=args.width))
         return
 
     result = collect(changes_dir, args.state)
-    print(render_terminal(result) if args.terminal else render_report(result))
+    print(render_terminal(result, width=args.width) if args.terminal else render_report(result))
 
 
 if __name__ == "__main__":

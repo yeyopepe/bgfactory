@@ -35,7 +35,7 @@ All skills live under `.claude/skills/pv-*` and share a single configuration fil
   - Node/npm if there's a `package.json`.
   - Any other interpreter the project needs.
 
-Generating a deliverable version **is** part of the `pv-*` framework: `/pv-version` packages it (see [Preparing a release: `/pv-version`](#preparing-a-release-pv-version)). In this repo, the underlying build command is `python ./src/scripts/build.py`, which auto-increments `CURRENT_VERSION` in `src/data/version.js` and writes `src/_output/versions/index-v{NNNN}.html` — a folder and numbering scheme of the build script's own, unrelated to `/pv-version`'s numbering.
+Generating a deliverable version **is** part of the `pv-*` framework: `/pv-version` packages it (see [Preparing a release: `/pv-version`](#preparing-a-release-pv-version)). In this repo (Errantes), the underlying build command is `python ./src/scripts/build.py`, which auto-increments `CURRENT_VERSION` in `src/data/version.js` and writes `src/_output/versions/index-v{NNNN}.html` — a folder and numbering scheme of the build script's own, unrelated to `/pv-version`'s numbering.
 
 ### 2. Initialize the framework: `/pv-init`
 
