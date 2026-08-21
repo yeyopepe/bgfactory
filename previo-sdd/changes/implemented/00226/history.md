@@ -1,13 +1,9 @@
-# Prompt history — 00171
+# Prompt history — 00226
 
 Historical information about the analysis process, not current information. Records, verbatim and without rephrasing, the successive prompts with which the user raised and expanded this entry — they can be incomplete or contradictory with each other, since they reflect how the request evolved session by session, not the final result (that lives in `description.md`).
 
 **Exclusive use of `pv-new` and `pv-fix`.** No other skill in the framework (`pv-how`, `pv-do`, `pv-status`, etc.) should read this file or take it into account: the source of truth for what's being asked is always `description.md`.
 
-## 2026-08-06 — migrated from description.md
+## 2026-08-20 — initial session
 
-vamos rediseñar la barra superior del modo edición. Quiero mockup de un nuevo estilo visual para esa barra teniendo en cuenta las funcionalidades actuales y las futuras.
-
-Funcionalidades futuras:
-- Exportar recursos: permite seleccionar un tipo de recursos (o todos) y exportarlos en un zip
-- Exportar hoja de producción: permite exportar en formato csv una lista de todos los elementos con su información necesaria para producir el juego.
+el submenú en "importar" debería verse siempre por encima de cualquier otra cosa

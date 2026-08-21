@@ -82,10 +82,9 @@ export function parseImportedComponents(raw) {
   return { components: parsed.components, resources, tags, componentGroups, appTitle };
 }
 
-// JSON ligero con los componentes, todos los recursos, las etiquetas y los grupos (a
-// diferencia de "Guardar", que exporta la app completa) — pensado para
-// sobrevivir a cambios de versión de la app, sin incluir la configuración
-// del panel flotante.
+// JSON ligero con los componentes, todos los recursos, las etiquetas y los grupos —
+// pensado para sobrevivir a cambios de versión de la app, sin incluir la
+// configuración del panel flotante.
 export function buildComponentsExport(components, resources, tags, componentGroups, appTitle) {
   return { version: CURRENT_VERSION, components, resources, tags, componentGroups, appTitle };
 }

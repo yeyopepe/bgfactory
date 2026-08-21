@@ -9,8 +9,8 @@
 ## 🚀 ¿Por qué BG Factory?
 
 - **📦 100% portable**: todo el editor (HTML + CSS + JS) vive en un solo fichero. Cópialo en un pendrive, mándalo por email o guárdalo en la nube — allá donde lo abras, funciona igual.
-- **⚡ Sin instalación ni cuentas**: no hay que instalar nada, registrarse ni depender de un servicio en la nube. Abres el fichero y empiezas a jugar o a editar.
-- **🎒 Tu partida viaja contigo**: al pulsar "Guardar" se descarga una nueva copia del mismo HTML con tu partida ya embebida dentro. Ese fichero es a la vez el editor y el guardado — compártelo con quien quieras y podrá abrirlo y seguir jugando o editando sin nada más.
+- **⚡ Sin instalación ni cuentas**: no hay que instalar nada, registrarse ni depender de un servicio en la nube. Abres el fichero y empiezas a jugar o a editar. Un solo fichero HTML es todo lo que necesitas.
+- **🎒 Tu partida viaja contigo**: al pulsar "Exportar" se descarga una copia completa de todo el contenido y configuración en formato JSON que puedes compartir con quien quieras y podrá abrirlo y seguir jugando o editando sin nada más.
 - **✈️ Funciona sin conexión**: una vez descargado, no necesita internet para nada.
 - **💾 Autoguardado local**: mientras trabajas, tu partida se guarda automáticamente en el navegador, sin que tengas que preocuparte de perder cambios.
 
