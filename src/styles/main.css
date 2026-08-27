@@ -1800,9 +1800,8 @@ fieldset.modal__section--untitled {
    de `.modal__content` (`overflow-y: auto`), basta con anular el
    `max-height: 80vh` de `.modal`. */
 .card-editor-modal--maximized {
-  width: 97vw;
-  max-width: none;
-  max-height: none;
+  max-width: 90vw;
+  max-height: 90vh;
 }
 
 .card-editor-modal .modal__header {

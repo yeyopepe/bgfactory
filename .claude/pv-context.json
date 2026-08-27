@@ -52,7 +52,7 @@
       "docs.tech.language": "Mismo idioma que la interaccion, elegido por el usuario para todo el framework."
     },
     "frameworkStatus": {
-      "lastVerifiedVersion": "0.9.5b10",
+      "lastVerifiedVersion": "0.9.5",
       "blocked": false
     }
   }
