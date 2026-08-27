@@ -3,7 +3,7 @@
 - **Type**: change
 - **Creation date**: 2026-08-19
 
-## Descripción completa
+## Full description
 
 Al agrupar o desagrupar elementos en modo edición, la aplicación muestra la modal de "operación en curso" (spinner + texto breve, ya usada en otras acciones potencialmente lentas de la app, como al añadir varias cartas a un mazo) mientras dura la operación. Objetivo: dar feedback visual al usuario cuando la selección afectada es grande, en vez de que la pantalla quede momentáneamente sin respuesta sin ninguna explicación.
 

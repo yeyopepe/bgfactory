@@ -3,7 +3,7 @@
 - **Type**: change
 - **Creation date**: 2026-08-20
 
-## Descripción completa
+## Full description
 
 La ventana del editor visual (usada tanto para "Editar diseño de la carta" como para "Editar diseño del tablero", según el tipo de componente) debe poder redimensionarse manualmente arrastrando el ratón, con dos manejadores — uno en su esquina inferior derecha y otro en su esquina superior izquierda — igual que ya funciona en el panel flotante "Componentes" de la mesa: el manejador inferior derecho ajusta ancho y alto manteniendo fija la esquina superior izquierda de la ventana; el manejador superior izquierdo ajusta en la dirección opuesta, manteniendo fija la esquina inferior derecha.
 

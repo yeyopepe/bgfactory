@@ -1,15 +1,19 @@
-- **Creation date**: 2026-08-19
+- **Creation date**: 2026-08-27
 - **Risk**: 1/10 — Riesgo mínimo
 
-## (a) Notas funcionales
+## (a) Functional notes
 
-**Fuera de alcance:** no se toca ningún otro comportamiento de agrupar/desagrupar (reglas de habilitación del menú, edición de propiedades del grupo, disolución automática, etc.) ni el componente `ui/progressModal.js` en sí — se reutiliza tal cual, sin variante nueva. La operación sigue siendo síncrona y bloqueante mientras dura; no se trocea el trabajo en lotes ni se cede el hilo al navegador.
+**Out of scope:** no se toca ninguna otra lógica de agrupar/desagrupar (reglas `canGroup`/`canUngroup` de habilitación del menú, disolución automática al quedar ≤1 miembro, edición de propiedades del grupo vía su modal, `deriveMissingGroups`/backfill). No se modifica `ui/progressModal.js` ni se crea una variante nueva del patrón: se reutiliza `runWithProgressModal` tal cual. La operación sigue siendo **síncrona y bloqueante** mientras dura — no se trocea el trabajo en lotes ni se cede el hilo al navegador; la modal solo añade el aviso visual, exactamente igual que en el precedente "añadir cartas a un mazo" (00219) y "confirmar importación" (00222).
 
-**Dudas resueltas con el usuario:** confirmado en la fase de análisis funcional (`description.md`) que la modal debe reutilizar exactamente el patrón ya existente (`runWithProgressModal`, mismo comportamiento que "añadir cartas a un mazo"), sin mecanismo nuevo de troceado asíncrono real. Confirmado también el alcance de los 3 puntos y el texto del mensaje.
+**Doubts resolved with the user:** confirmado en `description.md` que (1) se aplica en los 3 puntos de entrada (menú contextual "Agrupar", menú contextual "Desagrupar", botón "Desagrupar" de la fila de grupo en el panel "Componentes"); (2) se reutiliza el patrón existente sin mecanismo asíncrono nuevo; (3) no hay casos borde de error/cancelación a mitad porque la operación se ejecuta de un tirón. Sin dudas abiertas nuevas surgidas en el análisis técnico.
 
-## (b) Solución técnica
+**Nota de configuración (no bloquea este cambio):** `.claude/pv-context.json` tiene `docs.tech.architectureDocDir` = `design/docs/architecture` y `styleBibleDocDir` = `design/docs/style`, pero esas carpetas reales viven bajo `previo-sdd/design/docs/…` (dentro de `workFolder`). La ruta correcta del fichero de estilo a actualizar en la sección (d) es **`previo-sdd/design/docs/style/03-modales-menus.md`**. Conviene ejecutar `pv-update` para corregir esas rutas en `pv-context.json`.
 
-- [ ] **`src/modes/edit/editMode.js` — envolver "Agrupar" del menú contextual con `runWithProgressModal`.** En la entrada de menú `label: 'Agrupar'` (dentro de `generalItems`, handler `onClick` actual en torno a las líneas 654-667), mover todo el cuerpo actual del `onClick` dentro de un `work` pasado a `runWithProgressModal(text, work)`, en el mismo punto donde hoy se ejecuta directo:
+## (b) Technical solution
+
+Contexto que gobierna las 3 tareas (idéntico criterio en las tres): `runWithProgressModal(text, work)` (`src/ui/progressModal.js`) es **síncrona**, ejecuta `work()` dentro de un doble `requestAnimationFrame` anidado tras insertar el overlay, y hace `overlay.remove()` en `finally`. Cada `replaceComponent` / `addGroup` / `removeGroup` / `reorderGroupBlock` (`src/core/state.js`) emite síncronamente `components:changed` / `groups:changed`, a los que `main.js` tiene suscrito `renderAll` + `persistState` — ese re-render completo + autoguardado síncrono es la parte lenta y **debe quedar dentro de `work`**. Toda lectura previa (ids, `order`, `count`) se calcula **antes** de `work`. `runWithProgressModal` ya está importado en `editMode.js` (línea 34): no hace falta ningún import nuevo.
+
+- [ ] **`src/modes/edit/editMode.js` — envolver el `onClick` de "Agrupar" del menú contextual con `runWithProgressModal`.** En la entrada `label: 'Agrupar'` de `generalItems` (handler `onClick` actual en las líneas ~658-666), sustituir el cuerpo por: calcular `count` antes y mover el resto dentro de `work`:
   ```js
   onClick: () => {
     const count = affectedComponents.length;
@@ -25,8 +29,8 @@
     });
   },
   ```
-  `count` se calcula con `affectedComponents.length` (variable ya disponible en el closure, es la misma lista que usa el cuerpo actual). Ningún import nuevo: `runWithProgressModal` ya está importado (línea 34).
-- [ ] **`src/modes/edit/editMode.js` — envolver "Desagrupar" del menú contextual con `runWithProgressModal`.** En la entrada de menú `label: 'Desagrupar'` (mismo bloque `generalItems`, handler `onClick` actual en torno a las líneas 668-679), mismo patrón:
+  `affectedComponents` ya está disponible en el closure (línea 589), es la misma lista que usa el cuerpo actual. No cambia `disabled: !canGroup`.
+- [ ] **`src/modes/edit/editMode.js` — envolver el `onClick` de "Desagrupar" del menú contextual con `runWithProgressModal`.** En la entrada `label: 'Desagrupar'` de `generalItems` (handler `onClick` actual en las líneas ~672-678), mismo patrón; `groupId` se lee de `selectedGroup?.id` **antes** de `work` (valor cerrado, no depende de estado que mute durante la operación), igual que el código actual:
   ```js
   onClick: () => {
     const groupId = selectedGroup?.id;
@@ -40,8 +44,8 @@
     });
   },
   ```
-  `groupId` se lee de `selectedGroup?.id` **antes** de entrar en `work` (no depende de ningún estado que cambie durante la operación, solo se usa como valor cerrado), igual que en el código actual.
-- [ ] **`src/modes/edit/editMode.js` — envolver `onUngroup` del panel de Componentes con `runWithProgressModal`.** En el callback `onUngroup` pasado a `renderComponentList` (en torno a las líneas 802-810), mismo patrón, usando `memberIds.length` como `count` (variable ya recibida como parámetro):
+  No cambia `disabled: !canUngroup`.
+- [ ] **`src/modes/edit/editMode.js` — envolver el callback `onUngroup` pasado a `renderComponentList` con `runWithProgressModal`.** En `onUngroup` (dentro de `renderList`, líneas ~802-810), `memberIds` es `component.__members.map((m) => m.id)` (viene de `ui/componentList.js:245`). Calcular `first`/`groupId`/`count` antes de `work` (lecturas, no mutan nada) y meter solo el bucle de mutación + `removeGroup` en `work`:
   ```js
   onUngroup: (memberIds) => {
     const first = getComponents().find((comp) => comp.id === memberIds[0]);
@@ -57,18 +61,25 @@
     });
   },
   ```
-  `first`/`groupId` se calculan antes de `work` (lectura previa, no mutan nada), igual que en el código actual — solo el bucle de mutación y el `removeGroup` final entran en `work`.
 
-En los tres casos, el criterio es el mismo que ya documenta el proyecto para este patrón (bug 00219, `design/docs/style/03-modales-menus.md` §12.1.2): toda mutación de estado que dispare un re-render (`replaceComponent`/`addGroup`/`removeGroup`/`reorderGroupBlock`, todas ellas al final emiten el evento que hace que `main.js` vuelva a renderizar la pantalla activa) debe quedar dentro de `work`, nunca antes — así el doble `requestAnimationFrame` interno de `runWithProgressModal` garantiza que el spinner ya está pintado en pantalla cuando arranca el bloqueo síncrono real.
+## (c) Architecture changes
 
-## (d) Cambios de estilo
+No aplica: el cambio no toca la arquitectura por capas ni ningún contrato descrito en `previo-sdd/design/docs/architecture/`. Reutiliza un patrón de la capa `ui` ya existente y ya documentado desde otro modo, sin nuevas dependencias entre módulos.
 
-`design/docs/style/03-modales-menus.md` §12.1.2 ("Modal de operación en curso") ya documenta el patrón en genérico y enumera sus usos ("Primer uso: arrastrar una selección múltiple de cartas sobre un mazo..."). Añadir ahí una frase indicando que agrupar/desagrupar en modo edición (00224) es un segundo uso del mismo patrón, sin ninguna variante nueva — no se documenta como excepción, solo se amplía la lista de usos existente.
+## (d) Style changes
 
-## (e) Verificación
+**`previo-sdd/design/docs/style/03-modales-menus.md`**, §12.1.2 ("Modal de operación en curso"). Esa sección documenta el patrón en genérico y enumera sus usos ("Primer uso: arrastrar una selección múltiple de cartas sobre un mazo…", "Segundo uso: confirmar importación de fichero…"). Añadir un tercer punto a esa lista de usos:
 
-- [ ] En modo edición, seleccionar 2 o más elementos sueltos (ninguno ya agrupado) y elegir "Agrupar" en el menú contextual: aparece brevemente la modal con spinner y texto "Agrupando N elemento(s)…" (N = número de elementos seleccionados), se cierra sola, y los elementos quedan agrupados igual que antes del cambio (mismo comportamiento funcional, solo con la modal añadida).
-- [ ] Con un grupo ya formado, seleccionar ese grupo y elegir "Desagrupar" en el menú contextual: aparece la modal con texto "Desagrupando N elemento(s)…" (N = número de miembros del grupo), se cierra sola, y los elementos quedan desagrupados igual que antes del cambio.
-- [ ] Con un grupo ya formado, pulsar el botón "Desagrupar" de su fila en el panel flotante "Componentes": mismo comportamiento y mismo texto que el punto anterior, disparado desde este segundo punto de entrada.
-- [ ] Ninguna otra acción del menú contextual ni del panel de Componentes (Ocultar/Mostrar, Clonar, Copiar, Eliminar, Editar) muestra la modal — solo agrupar y desagrupar.
-- [ ] El resto de comportamiento de grupos (habilitación de "Agrupar"/"Desagrupar" según selección, disolución automática al quedar ≤1 miembro, edición de propiedades del grupo) sigue funcionando exactamente igual que antes del cambio.
+> - Tercer uso: agrupar y desagrupar una selección en modo edición (`src/modes/edit/editMode.js`, cambio 00224) — texto `"Agrupando N elemento(s)…"` / `"Desagrupando N elemento(s)…"`, `work` ejecuta la reasignación de `groupId` de los componentes afectados más el alta/baja del registro de grupo (`addGroup`/`removeGroup`) y, al agrupar, la recolocación del bloque (`reorderGroupBlock`). Aplica en los tres puntos de entrada de agrupar/desagrupar (opción "Agrupar" y "Desagrupar" del menú contextual, botón "Desagrupar" de la fila de grupo en el panel "Componentes"), sin variante nueva del patrón.
+
+No se documenta como excepción: solo se amplía la lista de usos existente.
+
+## (e) Verification
+
+- [ ] En modo edición, seleccionar 2 o más unidades sueltas (ninguna ya agrupada) y elegir "Agrupar" en el menú contextual: aparece brevemente la modal `.progress-modal` con spinner y texto "Agrupando N elemento(s)…" (N = nº de elementos afectados), se cierra sola al terminar, y los elementos quedan agrupados exactamente igual que antes del cambio.
+- [ ] Con un único grupo seleccionado, elegir "Desagrupar" en el menú contextual: aparece la modal con texto "Desagrupando N elemento(s)…" (N = nº de miembros del grupo), se cierra sola, y los elementos quedan desagrupados igual que antes del cambio (el registro de grupo desaparece).
+- [ ] Con un grupo formado, pulsar el botón "Desagrupar" de su fila en el panel flotante "Componentes": mismo comportamiento y mismo texto que el punto anterior, disparado desde este segundo punto de entrada.
+- [ ] Con N = 1 (caso límite, p. ej. desagrupar un grupo de un solo miembro si se llega a ese estado): el texto dice "1 elemento…" (singular), no "1 elementos…".
+- [ ] Ninguna otra acción del menú contextual ni del panel "Componentes" (Ocultar/Mostrar, Clonar, Copiar, Eliminar, Editar grupo, Añadir a etiqueta, Voltear carta) muestra la modal — solo agrupar y desagrupar.
+- [ ] Tras agrupar o desagrupar con la modal, el autoguardado sigue ocurriendo (recargar la página y comprobar que el estado agrupado/desagrupado persiste) y la pantalla queda re-renderizada correctamente (selección, contornos, panel "Componentes" actualizados).
+- [ ] El resto del comportamiento de grupos (habilitación de "Agrupar"/"Desagrupar" según la selección, disolución automática al quedar ≤1 miembro, edición de propiedades del grupo) sigue funcionando igual que antes del cambio.
