@@ -15,13 +15,21 @@ Continuación de los cambios 00225 y 00233 (la ventana del editor visual de cart
 
 ### Qué se espera
 
-Tanto al redimensionar con las anclas como al maximizar, el lienzo —o los dos lienzos, en el caso de la carta— debe **escalar para ocupar todo el área interior disponible de la ventana**: tanto el ancho como el alto del contenido, descontando la cabecera, el pie, la barra de herramientas y un pequeño margen, manteniendo su proporción. Un diseño apaisado usará casi todo el ancho disponible; uno vertical, casi todo el alto. Se aplica igual con una cara (tablero personalizado) y con dos (carta): en el caso de la carta, las dos caras siguen mostrándose una al lado de otra y alineadas (sin apilarse, fix 00233), ahora encajando también en alto.
+Tanto al redimensionar con las anclas como al maximizar, el lienzo —o los dos lienzos, en el caso de la carta— debe escalar hasta ser **lo más grande posible dentro del área interior disponible de la ventana** (el hueco de trabajo, descontando cabecera, pie, barra de herramientas, la fila de acciones/borde y un pequeño margen), **manteniendo su proporción**. Es decir: el lienzo crece hasta topar contra la primera de las dos restricciones — el ancho disponible o el alto disponible — y esa es su dimensión limitante. El espacio sobrante en la otra dimensión se reparte para que el lienzo quede **centrado** en el hueco (no todo el hueco pegado a un lado). Nunca se deforma el diseño ni se recorta; no aparece scroll (el diseño está pensado para caber siempre).
+
+- Un diseño **apaisado** normalmente topará primero el **ancho**: llenará casi todo el ancho disponible y quedará centrado verticalmente, con el hueco de alto repartido arriba y abajo.
+- Un diseño **vertical** normalmente topará primero el **alto**: crecerá hasta casi llenar el alto disponible y quedará centrado horizontalmente.
+- En el caso de la **carta** (dos caras), el ancho disponible se reparte entre las dos: las dos caras siguen mostrándose una al lado de otra y alineadas (sin apilarse, fix 00233), y ahora crecen también en alto hasta el límite del hueco, centradas en conjunto.
+
+Los controles del editor (barra de herramientas, "Añadir elemento", borde, botón "Ajustar imagen…") siguen siempre visibles; el botón "Ajustar imagen…" queda alineado al centro vertical del lienzo, como hasta ahora.
 
 El resto del comportamiento del editor no cambia: la ventana sigue sin bajar de su tamaño mínimo ni salirse del área visible del navegador; "Restaurar" sigue devolviendo la ventana a su tamaño por defecto (fix 00233); y ni el tamaño maximizado ni el elegido a mano se recuerdan entre aperturas.
 
 ### Preguntas de alcance resueltas con el usuario
 
-- **¿Hasta dónde debe crecer el lienzo al "aprovechar al máximo" la ventana?** Confirmado: encajar en el ancho **y** el alto disponibles del área interior de la ventana (menos cabecera/pie/toolbar y un pequeño margen), manteniendo la proporción del diseño. Aplica tanto al caso de una cara (tablero personalizado) como al de dos caras (carta), no solo al primero.
+- **¿Hasta dónde debe crecer el lienzo al "aprovechar al máximo" la ventana?** Confirmado en dos pasos:
+  1. Debe encajar tanto en el ancho como en el alto disponibles del área interior de la ventana (no solo topar la dimensión más larga como hoy), y aplica igual con una cara (tablero personalizado) y con dos (carta).
+  2. Precisado: el lienzo crece **lo más grande posible manteniendo su proporción**, topando contra la primera restricción (ancho **o** alto). El hueco sobrante en la otra dimensión **no** se rellena deformando el diseño: se reparte a los dos lados para dejar el lienzo **centrado**. Sin scroll.
 
 ## Technical notes
 
