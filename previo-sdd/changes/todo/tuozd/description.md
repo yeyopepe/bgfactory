@@ -1,9 +1,19 @@
-- **Name**: Nuevo elemento Meeple
-- **Code**: 00162
-- **Type**: change
-- **Creation date**: 2026-08-06
+# Idea: tuozd
 
-## Full description
+## Idea
+Nuevo elemento Meeple
+
+## Code
+tuozd
+
+## Creation date
+2026-09-02
+
+## Notes
+
+(Contenido copiado del antiguo cambio 00162 antes de borrarlo. Vuelve a estar aquí como idea, fuera del workflow: si se retoma, hay que documentarlo de nuevo con `pv-new`/`pv-fix`.)
+
+### Descripción funcional
 
 Se añade un nuevo tipo de elemento, "Meeple", como opción más al crear un componente nuevo. No sustituye ni modifica ningún elemento existente: convive con todos los tipos actuales.
 
@@ -32,9 +42,7 @@ Un Meeple es, en esencia, una pieza que muestra únicamente una imagen recortada
 - **¿Lleva borde?** → Sí, opcional (sin borde por defecto).
 - **¿Qué formas/proporciones admite?** → Un subconjunto reducido: cuadrada, una rectangular estándar y circular (no incluye las variantes de tarot, hexagonal o triangular que sí tienen otros elementos del proyecto).
 
-## Technical notes
-
-Contexto reunido con `pv-internal-tech-analysis` (documentación técnica + `ARCHITECTURE.md` sección 4, sin incongruencias documentación/código detectadas):
+### Notas técnicas (del análisis previo, `pv-internal-tech-analysis`)
 
 - Nuevo `type: 'meeple'`, noveno tipo de componente junto a `'texto'`, `'tableroSimple'`, `'dado'`, `'documento'`, `'carta'`, `'mazo'`, `'tableroPersonalizado'`. Se añade a la lista de `ui/componentTypeModal.js`.
 - Reutiliza infraestructura ya existente, sin necesidad de construir nada nuevo de bajo nivel salvo el propio renderizado "sin caja de fondo":
@@ -44,5 +52,23 @@ Contexto reunido con `pv-internal-tech-analysis` (documentación técnica + `ARC
   - `properties.bordeColor`/`properties.bordeGrosor`: mismo naming y criterio que el borde simple de `'carta'` (línea simple sin bisel, `bordeGrosor: 0` por defecto = sin borde) — no el bisel de dos tonos de `'tableroSimple'`/`'tableroPersonalizado'`/`'dado'`.
   - Tamaño por defecto fijo (p.ej. `120×120px`, proporción `'1:1'` por defecto), mismo criterio que el resto de tipos con tamaño fijo (`width`/`height` nunca `null`).
   - No usa `ui/visualEditorModal.js` (sin `formas`/`textBoxes` apilables) — configuración directa en una pestaña propia de `ui/componentModal.js`.
-- **Pieza genuinamente nueva** (sin precedente ya construido en el proyecto): el renderizado sin ninguna caja/color de fondo detrás de la imagen — hoy todos los tipos con imagen (`'tableroSimple'`, `'carta'`, `'tableroPersonalizado'`) pintan siempre algo detrás (blanco si no hay imagen o color/patrón configurado). `pv-how` deberá decidir cómo aplicar el recorte de forma (`clip-path`/`border-radius` según proporción) directamente sobre la imagen, sin contenedor de fondo pintado.
-- No requiere diagrama de flujo Mermaid: el flujo de alta (`componentTypeModal` → `componentModal` con pestaña específica) es el mismo patrón genérico que ya usan los demás tipos, sin secuencia de pasos/decisiones propia que representar.
+- **Pieza genuinamente nueva** (sin precedente ya construido en el proyecto): el renderizado sin ninguna caja/color de fondo detrás de la imagen — hoy todos los tipos con imagen (`'tableroSimple'`, `'carta'`, `'tableroPersonalizado'`) pintan siempre algo detrás (blanco si no hay imagen o color/patrón configurado). Habrá que decidir cómo aplicar el recorte de forma (`clip-path`/`border-radius` según proporción) directamente sobre la imagen, sin contenedor de fondo pintado.
+- No requiere diagrama de flujo Mermaid: el flujo de alta (`componentTypeModal` → `componentModal` con pestaña específica) es el mismo patrón genérico que ya usan los demás tipos.
+
+### Origen
+
+Idea apuntada previamente en `todo/x7jyb`, convertida en el cambio 00162, refinada en conversación con el usuario, y ahora devuelta a `todo/` (este archivo) al borrar el cambio. Prompt original:
+
+> Crear un nuevo elemento tipo "Meeple" con las siguientes características:
+> - Forma rectangular base
+> - Capacidad de redimensionar
+> - Acepta un recurso de imagen como contenido (zoom y ajuste de posición)
+> - Si la imagen tiene fondo transparente, la forma del meeple también aplica transparencia (respetando los píxeles transparentes de la imagen)
+>
+> Este elemento combina la funcionalidad de forma redimensionable con la capacidad de llevar contenido visual (imagen), similar a cómo funcionarían las figuras geométricas mejoradas y tableros personalizados.
+
+### Mockups
+
+Existían dos mockups HTML autocontenidos en el cambio 00162 (`design_meeple-en-mesa.html` y `design_pestana-configuracion-meeple.html`) que se han perdido al borrar la carpeta. Si se retoma la idea, habrá que rehacerlos:
+- **Meeple en la mesa**: caso principal de transparencia (PNG con fondo transparente visto sobre mesa clara vs. oscura), variantes de forma (cuadrada, rectangular, circular), borde configurado y estado sin imagen.
+- **Pestaña de configuración**: selector de imagen, controles de ajuste (zoom, posición X/Y, rotación), selector de forma y configuración de borde (activar / color / grosor).

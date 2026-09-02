@@ -2,14 +2,69 @@
 // elegir cuál crear, antes de abrir su ventana de configuración
 // (ui/componentModal.js). Abierta desde el botón "+ Añadir componente".
 
+// Iconos ilustrativos por tipo. SVG inline lineal (24×24, stroke currentColor),
+// misma iconografía que ui/editModeToggle.js / ui/componentList.js. Decorativos:
+// el <span> contenedor los marca aria-hidden al pintarlos.
 const COMPONENT_TYPES = [
-  { value: 'texto', label: 'Cuadro de texto' },
-  { value: 'tableroSimple', label: 'Tablero simple' },
-  { value: 'tableroPersonalizado', label: 'Tablero personalizado' },
-  { value: 'dado', label: 'Dado Configurable' },
-  { value: 'documento', label: 'Visor de documentos' },
-  { value: 'carta', label: 'Carta/Ficha' },
-  { value: 'mazo', label: 'Mazo' },
+  {
+    value: 'texto',
+    label: 'Cuadro de texto',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 6h16"/><path d="M4 10h16"/><path d="M4 14h16"/><path d="M4 18h9"/>
+    </svg>`,
+  },
+  {
+    value: 'tableroSimple',
+    label: 'Tablero simple',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="1.5"/>
+      <path d="M9 3v18"/><path d="M15 3v18"/><path d="M3 9h18"/><path d="M3 15h18"/>
+    </svg>`,
+  },
+  {
+    value: 'tableroPersonalizado',
+    label: 'Tablero personalizado',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 3h11v6"/><path d="M3 9h9"/><path d="M3 15h7"/><path d="M3 3v18h9"/><path d="M9 15v6"/>
+      <path d="M18.5 12.5l3 3L16 21l-3 .5.5-3z"/>
+    </svg>`,
+  },
+  {
+    value: 'dado',
+    label: 'Dado Configurable',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="3"/>
+      <circle cx="8" cy="8" r="1.1" fill="currentColor" stroke="none"/>
+      <circle cx="16" cy="8" r="1.1" fill="currentColor" stroke="none"/>
+      <circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/>
+      <circle cx="8" cy="16" r="1.1" fill="currentColor" stroke="none"/>
+      <circle cx="16" cy="16" r="1.1" fill="currentColor" stroke="none"/>
+    </svg>`,
+  },
+  {
+    value: 'documento',
+    label: 'Visor de documentos',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
+      <path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h6"/>
+    </svg>`,
+  },
+  {
+    value: 'carta',
+    label: 'Carta/Ficha',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6" y="2.5" width="12" height="19" rx="2.5"/>
+      <path d="M9 7h6"/><path d="M9 11h4"/>
+    </svg>`,
+  },
+  {
+    value: 'mazo',
+    label: 'Mazo',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="8" y="6" width="11" height="15" rx="2"/>
+      <path d="M5.5 17.5V5.5a2 2 0 0 1 2-2H15"/>
+    </svg>`,
+  },
 ];
 
 export function getComponentTypeLabel(type) {
@@ -42,7 +97,7 @@ export function openComponentTypeModal({ onAccept }) {
   const list = document.createElement('div');
   list.className = 'component-type-modal__list';
 
-  for (const { value, label } of COMPONENT_TYPES) {
+  for (const { value, label, icon } of COMPONENT_TYPES) {
     const item = document.createElement('label');
     item.className = 'component-type-modal__item';
 
@@ -55,10 +110,16 @@ export function openComponentTypeModal({ onAccept }) {
       selectedType = value;
     });
 
+    const iconEl = document.createElement('span');
+    iconEl.className = 'component-type-modal__icon';
+    iconEl.setAttribute('aria-hidden', 'true');
+    iconEl.innerHTML = icon;
+
     const text = document.createElement('span');
     text.textContent = label;
 
     item.appendChild(radio);
+    item.appendChild(iconEl);
     item.appendChild(text);
     list.appendChild(item);
   }

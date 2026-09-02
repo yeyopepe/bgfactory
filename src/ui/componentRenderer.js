@@ -663,20 +663,30 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
       textBox.style.position = 'absolute';
       textBox.style.top = `${component.y ?? 100}px`;
       textBox.style.left = `${component.x ?? 100}px`;
-      textBox.style.padding = '0.5rem';
-      textBox.style.fontSize = `${component.properties.tamañoFuente || 16}px`;
-      textBox.style.color = component.properties.colorTexto || '#000000';
-      textBox.style.whiteSpace = 'pre-wrap';
-      textBox.style.wordBreak = 'break-word';
-      textBox.style.overflow = 'hidden';
+      textBox.style.boxSizing = 'border-box';
       if (component.width != null) textBox.style.width = `${component.width}px`;
       if (component.height != null) textBox.style.height = `${component.height}px`;
 
+      // Recorte del contenido en contenedor interno (regla transversal,
+      // design/docs/architecture/05-ui-layer.md): el exterior queda sin
+      // `overflow` para no recortar la etiqueta identificativa ni las insignias.
+      // En flujo normal (no `position: absolute`) para que el exterior siga
+      // ajustándose al texto cuando el componente no tiene tamaño fijado.
+      const textBoxContent = document.createElement('div');
+      textBoxContent.style.boxSizing = 'border-box';
+      textBoxContent.style.width = '100%';
+      textBoxContent.style.height = '100%';
+      textBoxContent.style.overflow = 'hidden';
+      textBoxContent.style.padding = '0.5rem';
+      textBoxContent.style.fontSize = `${component.properties.tamañoFuente || 16}px`;
+      textBoxContent.style.color = component.properties.colorTexto || '#000000';
+      textBoxContent.style.whiteSpace = 'pre-wrap';
+      textBoxContent.style.wordBreak = 'break-word';
       if (component.properties.colorFondo) {
-        textBox.style.backgroundColor = component.properties.colorFondo;
+        textBoxContent.style.backgroundColor = component.properties.colorFondo;
       }
-
-      textBox.textContent = component.properties.contenido || '';
+      textBoxContent.textContent = component.properties.contenido || '';
+      textBox.appendChild(textBoxContent);
 
       if (identifyMode === 'tooltip' && effective.mostrarTooltip) attachComponentTooltip(textBox, component);
       if (identifyMode === 'tooltip' && effective.mostrarTitulo) attachComponentTitle(textBox, component);

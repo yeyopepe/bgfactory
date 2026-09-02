@@ -13,7 +13,7 @@
 
 Contexto que gobierna las 3 tareas (idéntico criterio en las tres): `runWithProgressModal(text, work)` (`src/ui/progressModal.js`) es **síncrona**, ejecuta `work()` dentro de un doble `requestAnimationFrame` anidado tras insertar el overlay, y hace `overlay.remove()` en `finally`. Cada `replaceComponent` / `addGroup` / `removeGroup` / `reorderGroupBlock` (`src/core/state.js`) emite síncronamente `components:changed` / `groups:changed`, a los que `main.js` tiene suscrito `renderAll` + `persistState` — ese re-render completo + autoguardado síncrono es la parte lenta y **debe quedar dentro de `work`**. Toda lectura previa (ids, `order`, `count`) se calcula **antes** de `work`. `runWithProgressModal` ya está importado en `editMode.js` (línea 34): no hace falta ningún import nuevo.
 
-- [ ] **`src/modes/edit/editMode.js` — envolver el `onClick` de "Agrupar" del menú contextual con `runWithProgressModal`.** En la entrada `label: 'Agrupar'` de `generalItems` (handler `onClick` actual en las líneas ~658-666), sustituir el cuerpo por: calcular `count` antes y mover el resto dentro de `work`:
+- [x] **`src/modes/edit/editMode.js` — envolver el `onClick` de "Agrupar" del menú contextual con `runWithProgressModal`.** En la entrada `label: 'Agrupar'` de `generalItems` (handler `onClick` actual en las líneas ~658-666), sustituir el cuerpo por: calcular `count` antes y mover el resto dentro de `work`:
   ```js
   onClick: () => {
     const count = affectedComponents.length;
@@ -30,7 +30,7 @@ Contexto que gobierna las 3 tareas (idéntico criterio en las tres): `runWithPro
   },
   ```
   `affectedComponents` ya está disponible en el closure (línea 589), es la misma lista que usa el cuerpo actual. No cambia `disabled: !canGroup`.
-- [ ] **`src/modes/edit/editMode.js` — envolver el `onClick` de "Desagrupar" del menú contextual con `runWithProgressModal`.** En la entrada `label: 'Desagrupar'` de `generalItems` (handler `onClick` actual en las líneas ~672-678), mismo patrón; `groupId` se lee de `selectedGroup?.id` **antes** de `work` (valor cerrado, no depende de estado que mute durante la operación), igual que el código actual:
+- [x] **`src/modes/edit/editMode.js` — envolver el `onClick` de "Desagrupar" del menú contextual con `runWithProgressModal`.** En la entrada `label: 'Desagrupar'` de `generalItems` (handler `onClick` actual en las líneas ~672-678), mismo patrón; `groupId` se lee de `selectedGroup?.id` **antes** de `work` (valor cerrado, no depende de estado que mute durante la operación), igual que el código actual:
   ```js
   onClick: () => {
     const groupId = selectedGroup?.id;
@@ -45,7 +45,7 @@ Contexto que gobierna las 3 tareas (idéntico criterio en las tres): `runWithPro
   },
   ```
   No cambia `disabled: !canUngroup`.
-- [ ] **`src/modes/edit/editMode.js` — envolver el callback `onUngroup` pasado a `renderComponentList` con `runWithProgressModal`.** En `onUngroup` (dentro de `renderList`, líneas ~802-810), `memberIds` es `component.__members.map((m) => m.id)` (viene de `ui/componentList.js:245`). Calcular `first`/`groupId`/`count` antes de `work` (lecturas, no mutan nada) y meter solo el bucle de mutación + `removeGroup` en `work`:
+- [x] **`src/modes/edit/editMode.js` — envolver el callback `onUngroup` pasado a `renderComponentList` con `runWithProgressModal`.** En `onUngroup` (dentro de `renderList`, líneas ~802-810), `memberIds` es `component.__members.map((m) => m.id)` (viene de `ui/componentList.js:245`). Calcular `first`/`groupId`/`count` antes de `work` (lecturas, no mutan nada) y meter solo el bucle de mutación + `removeGroup` en `work`:
   ```js
   onUngroup: (memberIds) => {
     const first = getComponents().find((comp) => comp.id === memberIds[0]);
@@ -76,10 +76,10 @@ No se documenta como excepción: solo se amplía la lista de usos existente.
 
 ## (e) Verification
 
-- [ ] En modo edición, seleccionar 2 o más unidades sueltas (ninguna ya agrupada) y elegir "Agrupar" en el menú contextual: aparece brevemente la modal `.progress-modal` con spinner y texto "Agrupando N elemento(s)…" (N = nº de elementos afectados), se cierra sola al terminar, y los elementos quedan agrupados exactamente igual que antes del cambio.
-- [ ] Con un único grupo seleccionado, elegir "Desagrupar" en el menú contextual: aparece la modal con texto "Desagrupando N elemento(s)…" (N = nº de miembros del grupo), se cierra sola, y los elementos quedan desagrupados igual que antes del cambio (el registro de grupo desaparece).
-- [ ] Con un grupo formado, pulsar el botón "Desagrupar" de su fila en el panel flotante "Componentes": mismo comportamiento y mismo texto que el punto anterior, disparado desde este segundo punto de entrada.
-- [ ] Con N = 1 (caso límite, p. ej. desagrupar un grupo de un solo miembro si se llega a ese estado): el texto dice "1 elemento…" (singular), no "1 elementos…".
-- [ ] Ninguna otra acción del menú contextual ni del panel "Componentes" (Ocultar/Mostrar, Clonar, Copiar, Eliminar, Editar grupo, Añadir a etiqueta, Voltear carta) muestra la modal — solo agrupar y desagrupar.
-- [ ] Tras agrupar o desagrupar con la modal, el autoguardado sigue ocurriendo (recargar la página y comprobar que el estado agrupado/desagrupado persiste) y la pantalla queda re-renderizada correctamente (selección, contornos, panel "Componentes" actualizados).
-- [ ] El resto del comportamiento de grupos (habilitación de "Agrupar"/"Desagrupar" según la selección, disolución automática al quedar ≤1 miembro, edición de propiedades del grupo) sigue funcionando igual que antes del cambio.
+- [x] En modo edición, seleccionar 2 o más unidades sueltas (ninguna ya agrupada) y elegir "Agrupar" en el menú contextual: aparece brevemente la modal `.progress-modal` con spinner y texto "Agrupando N elemento(s)…" (N = nº de elementos afectados), se cierra sola al terminar, y los elementos quedan agrupados exactamente igual que antes del cambio.
+- [x] Con un único grupo seleccionado, elegir "Desagrupar" en el menú contextual: aparece la modal con texto "Desagrupando N elemento(s)…" (N = nº de miembros del grupo), se cierra sola, y los elementos quedan desagrupados igual que antes del cambio (el registro de grupo desaparece).
+- [x] Con un grupo formado, pulsar el botón "Desagrupar" de su fila en el panel flotante "Componentes": mismo comportamiento y mismo texto que el punto anterior, disparado desde este segundo punto de entrada.
+- [x] Con N = 1 (caso límite, p. ej. desagrupar un grupo de un solo miembro si se llega a ese estado): el texto dice "1 elemento…" (singular), no "1 elementos…".
+- [x] Ninguna otra acción del menú contextual ni del panel "Componentes" (Ocultar/Mostrar, Clonar, Copiar, Eliminar, Editar grupo, Añadir a etiqueta, Voltear carta) muestra la modal — solo agrupar y desagrupar.
+- [x] Tras agrupar o desagrupar con la modal, el autoguardado sigue ocurriendo (recargar la página y comprobar que el estado agrupado/desagrupado persiste) y la pantalla queda re-renderizada correctamente (selección, contornos, panel "Componentes" actualizados).
+- [x] El resto del comportamiento de grupos (habilitación de "Agrupar"/"Desagrupar" según la selección, disolución automática al quedar ≤1 miembro, edición de propiedades del grupo) sigue funcionando igual que antes del cambio.

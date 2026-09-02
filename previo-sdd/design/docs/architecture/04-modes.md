@@ -2,7 +2,10 @@
 
 Ambos modos **comparten el mismo modelo de datos**: la lista de componentes en `core/state.js`. No hay dos modelos distintos — modo edición crea/modifica componentes con `core/component.js`, modo juego lee esos mismos componentes para mostrarlos/usarlos en la partida.
 
-- `ui/editModeToggle.js` implementa flujo de entrar/salir (no selector de dos opciones) sobre `core/state.js` (`mode: 'play' | 'edit'`): `renderEnterEditButton` (modo juego, botón "Entrar en modo edición") y `renderEditToolbar` (modo edición, franja fija superior con "Salir del modo edición"). Ambas operan sobre `setMode()`/evento `mode:changed` de `core/state.js`, sin cambios en esa capa.
+- `ui/editModeToggle.js` implementa flujo de entrar/salir (no selector de dos opciones) sobre `core/state.js` (`mode: 'play' | 'edit'`): `renderModeSwitcher` (modo juego, botón "Entrar en modo edición") y `renderEditToolbar` (modo edición, franja `.edit-toolbar` bajo la cabecera). Ambas operan sobre `setMode()`/evento `mode:changed` de `core/state.js`, sin cambios en esa capa.
+- `main.js` monta ambas funciones en cada render (`renderModeSwitcher(#mode-switcher)` + `renderEditToolbar(#edit-toolbar)`, contenedores hermanos tras el `<h1>` en `index.html`). Cada función hace `container.innerHTML = ''` y retorna pronto si el modo activo no le corresponde — solo una de las dos pinta contenido a la vez.
+- `.edit-toolbar` (modo edición), orden de grupos izq→der (con `justify-content: flex-end`, orden DOM = visual): `Importar | Exportar | Salir del modo edición`. "Salir del modo edición" (`.edit-toolbar__exit-btn`) usa `setMode('play')`.
+- Botón "Ajustar zoom" (`createFitButton`, acción `fitToBounds(getComponentsBounds(...))`): mismo botón flotante en la esquina superior derecha (clase `.mode-switcher__fit-btn`) en **los dos modos** — en modo juego dentro de `#mode-switcher`, en modo edición como hijo directo de `#edit-toolbar` (fuera de `.edit-toolbar`). Aspecto/posición idénticos entre modos (ver `design/docs/style/02-componentes-layout.md` §9-§10).
 - Cambio de modo emite `mode:changed`; `main.js` vuelve a renderizar la pantalla activa (`modes/play/playMode.js` o `modes/edit/editMode.js`).
 
 ## Modo edición: mesa y paneles

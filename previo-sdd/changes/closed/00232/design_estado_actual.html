@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>00232 — Estado actual (incorrecto)</title>
+<style>
+  :root {
+    --error: #c0392b;
+    --accent-blue-dark: #2c3e6b;
+    --badge-dark: rgba(0, 0, 0, 0.55);
+    --text-light: #fff;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1f2430;
+    background: #eef0f2;
+    padding: 2rem;
+  }
+
+  h1 {
+    font-size: 1.15rem;
+    margin: 0 0 0.35rem;
+  }
+
+  .subtitle {
+    margin: 0 0 1.5rem;
+    color: #5b6270;
+    font-size: 0.9rem;
+  }
+
+  /* ---- Simulación de la mesa infinita ---- */
+  .table {
+    position: relative;
+    height: 420px;
+    border-radius: 8px;
+    background-color: #cfd3d6;
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.18) 1px, transparent 1.6px);
+    background-size: 22px 22px;
+    overflow: hidden;
+    border: 1px solid #b4b9bd;
+  }
+
+  /* ---- Cuadro de texto sobre la mesa ---- */
+  .text-box {
+    position: absolute;
+    top: 150px;
+    left: 90px;
+    padding: 0.5rem;
+    font-size: 52px;
+    font-weight: 400;
+    line-height: 1.25;
+    color: #000;
+    white-space: pre;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    /* copia seleccionada: contorno rojo discontinuo */
+    outline: 3px dashed var(--error);
+    outline-offset: 4px;
+  }
+
+  /* borde tenue del "área real" para explicar el anclaje */
+  .text-box::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 1px dotted rgba(0, 0, 0, 0.28);
+    pointer-events: none;
+  }
+
+  .area-note {
+    position: absolute;
+    top: 118px;
+    left: 300px;
+    font-size: 0.72rem;
+    color: #6b7280;
+    font-style: italic;
+  }
+  .area-note::before {
+    content: "";
+    position: absolute;
+    left: -46px;
+    top: 8px;
+    width: 40px;
+    border-top: 1px dotted rgba(0, 0, 0, 0.45);
+  }
+
+  /* etiqueta identificativa, anclada fuera de la caja (arriba-izq) */
+  .component-id-label {
+    position: absolute;
+    top: -1.6rem;
+    left: 2px;
+    padding: 2px 7px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-light);
+    background: var(--error);
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  /* ---- Insignias: colocación ACTUAL (despegada) ---- */
+  .badge {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+  }
+  .badge svg { width: 12px; height: 12px; }
+
+  .badge--lock   { background: var(--badge-dark); top: 2px;    right: 2px; }
+  .badge--hidden { background: var(--badge-dark); bottom: 2px; right: 2px; }
+  .badge--copy   { background: var(--error);      bottom: 2px; left: 2px; }
+
+  .legend {
+    margin-top: 1.4rem;
+    padding: 0.9rem 1.1rem;
+    background: #fff;
+    border: 1px solid #e0e3e7;
+    border-left: 4px solid var(--error);
+    border-radius: 6px;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    max-width: 760px;
+  }
+  .legend strong { color: var(--error); }
+  .legend ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+</style>
+</head>
+<body>
+  <h1>Fix 00232 — Estado actual (incorrecto)</h1>
+  <p class="subtitle">Cuadro de texto en modo edición. Es una copia (contorno y etiqueta en rojo).</p>
+
+  <div class="table">
+    <div class="area-note">área real del cuadro de texto</div>
+
+    <div class="text-box">CARTAS ORIGINALES<span class="component-id-label">Texto: tit-cartas-originales</span>
+
+      <!-- Candado: bloqueado -->
+      <span class="badge badge--lock" title="Bloqueado">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="5" y="11" width="14" height="9" rx="1.5"/>
+          <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/>
+        </svg>
+      </span>
+
+      <!-- Ojo tachado: oculto -->
+      <span class="badge badge--hidden" title="Oculto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="3"/>
+          <line x1="3" y1="21" x2="21" y2="3" stroke-linecap="round"/>
+        </svg>
+      </span>
+
+      <!-- Dos cuadrados: copia -->
+      <span class="badge badge--copy" title="Copia">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="8" width="11" height="11" rx="1.5"/>
+          <path d="M8 8V5a1.5 1.5 0 0 1 1.5-1.5H19A1.5 1.5 0 0 1 20.5 5v11A1.5 1.5 0 0 1 19 17.5h-3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </div>
+  </div>
+
+  <div class="legend">
+    <strong>Problema.</strong> El cuadro de texto no tiene fondo ni borde: su área real (línea de puntos)
+    es mayor que las letras visibles por el margen interior y el alto de línea. Las insignias se anclan a
+    las esquinas de esa área invisible, así que:
+    <ul>
+      <li>el <strong>candado</strong> queda a la derecha, separado del final del texto;</li>
+      <li>la insignia de <strong>oculto</strong> y el círculo rojo de <strong>copia</strong> caen por
+      debajo de la línea de texto, despegados de los glifos;</li>
+      <li>en algún caso una insignia puede quedar parcialmente recortada.</li>
+    </ul>
+  </div>
+</body>
+</html>

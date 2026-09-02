@@ -21,11 +21,14 @@ transition: background var(--transition-fast), opacity var(--transition-fast);
   - Aplica a `.btn-eliminar` (modales) y al modificador BEM `--danger` (p. ej. `.component-list__action-btn--danger`).
   - Cualquier acción que elimine un elemento usa este color en toda la app, nunca el azul primario.
 - Botón sobre fondo oscuro (toolbar): transparente, borde `1px solid var(--text-light)`. Hover: `rgba(255,255,255,0.1)` con transición de `background`, sin `transform`.
+  - Excepción: `.edit-toolbar__exit-btn` ("Salir del modo edición", `ui/editModeToggle.js`) usa el esquema de **acción primaria** dentro de `.edit-toolbar` (fondo `var(--accent-blue)`, `border-color: var(--accent-blue)`, texto `var(--text-light)`; hover `opacity: 0.9` + `background: var(--accent-blue)` explícito para anular el `rgba(255,255,255,0.1)` heredado de `.edit-toolbar button:hover`). Mismo criterio visual que "Entrar en modo edición" (`#mode-switcher button`) — las dos acciones que cambian de modo comparten aspecto. El resto de botones de `.edit-toolbar` ("Importar", "Exportar") mantienen el estilo transparente/borde.
 - Deshabilitado: `opacity: 0.5; cursor: not-allowed`, sin `transform` en hover.
 - Sin `:active` — feedback de interacción es el cambio de `opacity`/`background`/`box-shadow`/`transform` en `:hover`, con transición de 150ms (`var(--transition-fast)`).
 - **Botón icono-solo** (acción sin texto visible): icono SVG con `stroke="currentColor"` (hereda color de texto/borde del contexto), siempre con `title`/`aria-label` como etiqueta accesible.
   - Dentro de un botón de barra ya existente (p. ej. `.edit-toolbar button`): mismo padding/tamaño que los botones con texto de ese bloque — solo cambia el contenido.
   - Botón flotante cuadrado independiente (p. ej. `.mode-switcher__fit-btn`): `padding: 0`, ancho/alto fijo (`36px`), icono centrado (`display: inline-flex; align-items: center; justify-content: center`), mismo fondo/color de acción primaria del contexto.
+    - `.mode-switcher__fit-btn` (botón "Ajustar zoom", `createFitButton` en `ui/editModeToggle.js`): se muestra **en los dos modos** con el mismo aspecto y la misma posición — flotante en la esquina superior derecha (`position: fixed; top: 0.5rem; right: 1rem; z-index: 101`), `36×36`, fondo `var(--accent-blue)`. En modo juego cuelga de `#mode-switcher` (recibe posición del `#mode-switcher` contenedor y fondo azul de `#mode-switcher button`). En modo edición se monta como hijo directo de `#edit-toolbar` (fuera de `.edit-toolbar`), y la regla `#edit-toolbar > .mode-switcher__fit-btn` le reaplica `position: fixed`/coordenadas/`z-index: 101` y el fondo de acción primaria, porque los selectores de `#mode-switcher` no lo alcanzan ahí. Hover `opacity: 0.9` en ambos casos.
+    - El bloque de reglas de tamaño (`padding: 0; width: 36px; height: 36px; inline-flex; centrado`) usa el selector `#mode-switcher .mode-switcher__fit-btn, #edit-toolbar > .mode-switcher__fit-btn` — enumera explícitamente los dos contenedores para ganar por especificidad a `#mode-switcher button` (que fija `padding: 0.5rem 1rem` a todo botón descendiente de `#mode-switcher`; un `.mode-switcher__fit-btn` a secas pierde frente a él y el icono queda deformado dentro del `36×36`). El dimensionado del icono interior (`.mode-switcher__fit-btn .icon-frame { 18×18 }`) sí es autónomo — no compite con ninguna otra regla.
 - **Botón de texto completo en espacio reducido**: cuando un botón con texto va encajado entre elementos estrechos (no en fila de acciones holgada) — p. ej. `.card-editor-modal__adjust-image`, entre las dos caras de una carta — usa `padding: 0.5rem 0.75rem` como variante intermedia entre el estándar (`0.5rem 1rem`) y el pequeño de item (`0.25rem 0.5rem`). Reutilizar `0.75rem` en vez de introducir un cuarto valor ad-hoc.
 
 ## 10. Layout
@@ -43,7 +46,7 @@ transition: background var(--transition-fast), opacity var(--transition-fast);
 | `10` | Footer de versión |
 | `99` | Toolbar de edición |
 | `100` | Header |
-| `101` | Mode switcher |
+| `101` | Mode switcher (`#mode-switcher`) y botón "Ajustar zoom" flotante (`.mode-switcher__fit-btn`, en ambos modos) |
 | `1000` | Overlay de modal |
 | `1050` | Menú contextual de componente (`.context-menu`, `03-modales-menus.md` §12.8) y menú de cabecera de columna (`.column-header-menu`, `03-modales-menus.md` §12.7) |
 
@@ -66,6 +69,7 @@ Patrón estándar para hacer redimensionable cualquier elemento de la app (no ex
 - Cualquier elemento redimensionable de la app puede tener este segundo manejador.
 - Diferencias respecto a `.resize-handle`: posición `left: 0; top: 0` en vez de `right: 0; bottom: 0`. Mismo tamaño de contenedor/grip, mismo `::after`, mismo aspecto en reposo/`:hover`/`.resize-handle--active`, mismo cursor `nwse-resize` (ambas esquinas sobre la misma diagonal).
 - Al arrastrarlo, la esquina inferior derecha queda fija (el manejador existente ejerce de ancla). Quien llama a `attachResizeHandle` es responsable de aplicar también el desplazamiento de posición (`dx`/`dy` que expone `corner: 'tl'`) sobre el modelo del host, no solo el tamaño.
+- Hosts con doble manejador (`.resize-handle` + `.resize-handle--tl`): panel flotante `.component-panel`/`.resource-panel`; modal `.card-editor-modal` (editor visual — al iniciar el arrastre el JS la saca del centrado flexbox pasándola a `position: fixed` con su geometría actual, para que la esquina opuesta al manejador tenga algo que anclar).
 
 ### Variante para borde de columna de tabla
 

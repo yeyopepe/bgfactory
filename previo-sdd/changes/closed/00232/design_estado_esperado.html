@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>00232 — Estado esperado (corregido)</title>
+<style>
+  :root {
+    --error: #c0392b;
+    --accent-blue-dark: #2c3e6b;
+    --badge-dark: rgba(0, 0, 0, 0.55);
+    --text-light: #fff;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1f2430;
+    background: #eef0f2;
+    padding: 2rem;
+  }
+
+  h1 { font-size: 1.15rem; margin: 0 0 0.35rem; }
+  .subtitle { margin: 0 0 1.5rem; color: #5b6270; font-size: 0.9rem; }
+
+  .table {
+    position: relative;
+    height: 460px;
+    border-radius: 8px;
+    background-color: #cfd3d6;
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.18) 1px, transparent 1.6px);
+    background-size: 22px 22px;
+    overflow: hidden;
+    border: 1px solid #b4b9bd;
+  }
+
+  /* ---- Cuadro de texto ---- */
+  .text-box {
+    position: absolute;
+    padding: 0.5rem;
+    font-size: 44px;
+    font-weight: 400;
+    line-height: 1.2;
+    color: #000;
+    white-space: pre;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+
+  .text-box--copy {
+    top: 90px;
+    left: 70px;
+    outline: 3px dashed var(--error);
+    outline-offset: 4px;
+  }
+
+  .text-box--original {
+    top: 270px;
+    left: 70px;
+  }
+
+  /* etiqueta identificativa: anclada fuera de la caja, arriba-izq */
+  .component-id-label {
+    position: absolute;
+    top: -1.6rem;
+    left: 2px;
+    padding: 2px 7px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-light);
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .text-box--copy .component-id-label { background: var(--error); }
+  .text-box--original .component-id-label { background: var(--accent-blue-dark); }
+
+  /* ---- Insignias: colocación CORREGIDA ----
+     Mismo criterio que la etiqueta identificativa: ancladas justo por fuera
+     del texto visible, en la esquina que le corresponde a cada una, de modo
+     que se leen como parte del elemento y nunca quedan recortadas. */
+  .badge {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+  }
+  .badge svg { width: 12px; height: 12px; }
+
+  /* candado -> arriba-derecha del texto visible */
+  .badge--lock   { background: var(--badge-dark); top: -0.55rem;    right: -0.55rem; }
+  /* oculto -> abajo-derecha */
+  .badge--hidden { background: var(--badge-dark); bottom: -0.55rem; right: -0.55rem; }
+  /* copia -> abajo-izquierda */
+  .badge--copy   { background: var(--error);      bottom: -0.55rem; left: -0.55rem; }
+
+  /* "tiene copias": píldora azul, abajo-izquierda (excluyente con badge--copy) */
+  .badge--has-copies {
+    position: absolute;
+    bottom: -0.55rem;
+    left: -0.55rem;
+    height: 18px;
+    padding: 0 6px 0 3px;
+    border-radius: 9px;
+    background: var(--accent-blue-dark);
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+    pointer-events: none;
+  }
+  .badge--has-copies svg { width: 13px; height: 13px; }
+
+  .caption {
+    position: absolute;
+    left: 70px;
+    font-size: 0.75rem;
+    color: #4b5563;
+    font-weight: 600;
+  }
+  .caption--copy { top: 60px; }
+  .caption--original { top: 240px; }
+
+  .legend {
+    margin-top: 1.4rem;
+    padding: 0.9rem 1.1rem;
+    background: #fff;
+    border: 1px solid #e0e3e7;
+    border-left: 4px solid #2e7d32;
+    border-radius: 6px;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    max-width: 760px;
+  }
+  .legend strong { color: #2e7d32; }
+</style>
+</head>
+<body>
+  <h1>Fix 00232 — Estado esperado (corregido)</h1>
+  <p class="subtitle">Las insignias quedan pegadas al texto visible, con el mismo criterio de anclaje que la etiqueta identificativa.</p>
+
+  <div class="table">
+    <span class="caption caption--copy">Cuadro de texto que es COPIA</span>
+
+    <div class="text-box text-box--copy">CARTAS ORIGINALES<span class="component-id-label">Texto: tit-cartas-originales</span>
+
+      <span class="badge badge--lock" title="Bloqueado">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="5" y="11" width="14" height="9" rx="1.5"/>
+          <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/>
+        </svg>
+      </span>
+
+      <span class="badge badge--hidden" title="Oculto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="12" cy="12" r="3"/>
+          <line x1="3" y1="21" x2="21" y2="3" stroke-linecap="round"/>
+        </svg>
+      </span>
+
+      <span class="badge badge--copy" title="Copia">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="8" width="11" height="11" rx="1.5"/>
+          <path d="M8 8V5a1.5 1.5 0 0 1 1.5-1.5H19A1.5 1.5 0 0 1 20.5 5v11A1.5 1.5 0 0 1 19 17.5h-3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+    </div>
+
+    <span class="caption caption--original">Cuadro de texto ORIGINAL con 1 copia vinculada</span>
+
+    <div class="text-box text-box--original">CARTAS ORIGINALES<span class="component-id-label">Texto: tit-cartas-originales</span>
+
+      <span class="badge badge--lock" title="Bloqueado">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="5" y="11" width="14" height="9" rx="1.5"/>
+          <path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/>
+        </svg>
+      </span>
+
+      <span class="badge--has-copies" title="Tiene 1 copia">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="8" width="11" height="11" rx="1.5"/>
+          <path d="M8 8V5a1.5 1.5 0 0 1 1.5-1.5H19A1.5 1.5 0 0 1 20.5 5v11A1.5 1.5 0 0 1 19 17.5h-3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>(1)</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="legend">
+    <strong>Resultado.</strong> Cada insignia mantiene su icono, color, tamaño y esquina lógica
+    (candado arriba-derecha, oculto abajo-derecha, copia / "tiene copias" abajo-izquierda), pero ahora
+    se ancla pegada al texto visible en lugar de a las esquinas del área invisible. La colocación queda
+    alineada con la del resto de tipos de componente y ninguna insignia se recorta.
+  </div>
+</body>
+</html>

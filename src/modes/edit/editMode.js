@@ -656,13 +656,17 @@ export function renderEditMode(container) {
         label: 'Agrupar',
         disabled: !canGroup,
         onClick: () => {
-          const newGroupId = nextGroupId(getComponents());
-          const minOrder = Math.min(...affectedComponents.map((c) => c.order));
-          for (const c of affectedComponents) {
-            replaceComponent(c.id, updateComponent(c, { groupId: newGroupId }));
-          }
-          addGroup(createGroup({ id: newGroupId }));
-          reorderGroupBlock(affectedComponents.map((c) => c.id), minOrder);
+          const count = affectedComponents.length;
+          const text = `Agrupando ${count} elemento${count === 1 ? '' : 's'}…`;
+          runWithProgressModal(text, () => {
+            const newGroupId = nextGroupId(getComponents());
+            const minOrder = Math.min(...affectedComponents.map((c) => c.order));
+            for (const c of affectedComponents) {
+              replaceComponent(c.id, updateComponent(c, { groupId: newGroupId }));
+            }
+            addGroup(createGroup({ id: newGroupId }));
+            reorderGroupBlock(affectedComponents.map((c) => c.id), minOrder);
+          });
         },
       },
       {
@@ -671,10 +675,14 @@ export function renderEditMode(container) {
         disabled: !canUngroup,
         onClick: () => {
           const groupId = selectedGroup?.id;
-          for (const c of affectedComponents) {
-            replaceComponent(c.id, updateComponent(c, { groupId: null }));
-          }
-          if (groupId != null) removeGroup(groupId);
+          const count = affectedComponents.length;
+          const text = `Desagrupando ${count} elemento${count === 1 ? '' : 's'}…`;
+          runWithProgressModal(text, () => {
+            for (const c of affectedComponents) {
+              replaceComponent(c.id, updateComponent(c, { groupId: null }));
+            }
+            if (groupId != null) removeGroup(groupId);
+          });
         },
       },
     ];
@@ -802,11 +810,15 @@ export function renderEditMode(container) {
       onUngroup: (memberIds) => {
         const first = getComponents().find((comp) => comp.id === memberIds[0]);
         const groupId = first?.groupId;
-        for (const id of memberIds) {
-          const c = getComponents().find((comp) => comp.id === id);
-          if (c) replaceComponent(id, updateComponent(c, { groupId: null }));
-        }
-        if (groupId != null) removeGroup(groupId);
+        const count = memberIds.length;
+        const text = `Desagrupando ${count} elemento${count === 1 ? '' : 's'}…`;
+        runWithProgressModal(text, () => {
+          for (const id of memberIds) {
+            const c = getComponents().find((comp) => comp.id === id);
+            if (c) replaceComponent(id, updateComponent(c, { groupId: null }));
+          }
+          if (groupId != null) removeGroup(groupId);
+        });
       },
       onAdd: openAddModal,
       onReorder: (component, newOrder) => reorderComponent(component.id, newOrder),

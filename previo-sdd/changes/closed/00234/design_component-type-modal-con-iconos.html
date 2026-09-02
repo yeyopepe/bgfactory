@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — "Añadir componente" con icono por tipo</title>
+<style>
+  :root {
+    --accent-blue: #2c7dd8;
+    --accent-blue-dark: #1f5fa8;
+    --text-main: #2b2b2b;
+    --text-muted: #8a8f98;
+    --border-neutral: #d7dbe0;
+    --bg-white: #ffffff;
+    --bg-subtle: #f4f6f8;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 40px 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text-main);
+    background: #e9edf1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  .mockup-note {
+    max-width: 420px;
+    font-size: 0.8rem;
+    color: #55606b;
+    text-align: center;
+    line-height: 1.5;
+  }
+
+  /* ---- Modal ---- */
+  .modal {
+    width: 360px;
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+  }
+
+  .modal__header {
+    padding: 0.9rem 1.1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    background: linear-gradient(180deg, #fbfcfd 0%, var(--bg-subtle) 100%);
+    border-bottom: 1px solid var(--border-neutral);
+  }
+
+  .modal__content { padding: 1.1rem; }
+
+  .modal__footer {
+    padding: 0.85rem 1.1rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    border-top: 1px solid var(--border-neutral);
+    background: var(--bg-subtle);
+  }
+
+  .btn-cancel, .btn-accept {
+    padding: 0.45rem 1rem;
+    font-size: 0.85rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-neutral);
+    cursor: pointer;
+  }
+  .btn-cancel { background: var(--bg-white); color: var(--text-main); }
+  .btn-accept { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+
+  /* ---- Lista de tipos ---- */
+  .component-type-modal__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .component-type-modal__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .component-type-modal__item:hover {
+    border-color: var(--accent-blue);
+    box-shadow: 0 2px 6px rgba(44, 125, 216, 0.15);
+  }
+
+  .component-type-modal__item input[type="radio"] {
+    flex-shrink: 0;
+    margin: 0;
+    accent-color: var(--accent-blue);
+  }
+
+  /* ---- Nueva clase: el icono ---- */
+  .component-type-modal__icon {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    color: var(--text-muted);
+    transition: color 0.15s ease;
+  }
+
+  /* Icono en acento cuando la fila está bajo el cursor o su tipo está seleccionado */
+  .component-type-modal__item:hover .component-type-modal__icon,
+  .component-type-modal__item:has(input:checked) .component-type-modal__icon {
+    color: var(--accent-blue);
+  }
+
+  /* Fallback para navegadores sin :has() — la fila marcada como demo de hover */
+  .component-type-modal__item.is-hover-demo { border-color: var(--accent-blue); box-shadow: 0 2px 6px rgba(44, 125, 216, 0.15); }
+  .component-type-modal__item.is-hover-demo .component-type-modal__icon { color: var(--accent-blue); }
+  .component-type-modal__item.is-checked-demo .component-type-modal__icon { color: var(--accent-blue); }
+</style>
+</head>
+<body>
+
+  <div class="mockup-note">
+    Mockup estático de la ventana <strong>"Añadir componente"</strong> (modo edición).
+    Cada fila incorpora un icono representativo del tipo, situado entre el selector y el nombre.
+    Fila 1 ("Cuadro de texto") aparece seleccionada; fila 4 ("Dado Configurable") se muestra en estado <em>:hover</em>.
+  </div>
+
+  <div class="modal">
+    <div class="modal__header">Añadir componente</div>
+
+    <div class="modal__content">
+      <div class="component-type-modal__list">
+
+        <!-- 1. Cuadro de texto (SELECCIONADA) -->
+        <label class="component-type-modal__item is-checked-demo">
+          <input type="radio" name="component-type" checked>
+          <svg class="component-type-modal__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M4 6h16"/>
+            <path d="M4 10h16"/>
+            <path d="M4 14h16"/>
+            <path d="M4 18h9"/>
+          </svg>
+          <span>Cuadro de texto</span>
+        </label>
+
+        <!-- 2. Tablero simple -->
+        <label class="component-type-modal__item">
+          <input type="radio" name="component-type">
+          <svg class="component-type-modal__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="1.5"/>
+            <path d="M9 3v18"/>
+            <path d="M15 3v18"/>
+            <path d="M3 9h18"/>
+            <path d="M3 15h18"/>
+          </svg>
+          <span>Tablero simple</span>
+        </label>
+
+        <!-- 3. Tablero personalizado -->
+        <label class="component-type-modal__item">
+          <input type="radio" name="component-type">
+          <svg class="component-type-modal__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3h11v6"/>
+            <path d="M3 9h9"/>
+            <path d="M3 15h7"/>
+            <path d="M3 3v18h9"/>
+            <path d="M9 15v6"/>
+            <path d="M18.5 12.5l3 3L16 21l-3 .5.5-3z"/>
+          </svg>
+          <span>Tablero personalizado</span>
+        </label>
+
+        <!-- 4. Dado Configurable (HOVER demo) -->
+        <label class="component-type-modal__item is-hover-demo">
+          <input type="radio" name="component-type">
+          <svg class="component-type-modal__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <circle cx="8" cy="8" r="1.1" fill="currentColor" stroke="none"/>
+            <circle cx="16" cy="8" r="1.1" fill="currentColor" stroke="none"/>
+            <circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/>
+            <circle cx="8" cy="16" r="1.1" fill="currentColor" stroke="none"/>
+            <circle cx="16" cy="16" r="1.1" fill="currentColor" stroke="none"/>
+          </svg>
+          <span>Dado Configurable</span>
+        </label>
+
+        <!-- 5. Visor de documentos -->
+        <label class="component-type-modal__item">
+          <input type="radio" name="component-type">
+          <svg class="component-type-modal__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
+            <path d="M14 3v5h5"/>
+            <path d="M9 13h6"/>
+            <path d="M9 17h6"/>
+          </svg>
+          <span>Visor de documentos</span>
+        </label>
+
+        <!-- 6. Carta/Ficha -->
+        <label class="component-type-modal__item">
+          <input type="radio" name="component-type">
+          <svg class="component-type-modal__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="6" y="2.5" width="12" height="19" rx="2.5"/>
+            <path d="M9 7h6"/>
+            <path d="M9 11h4"/>
+          </svg>
+          <span>Carta/Ficha</span>
+        </label>
+
+        <!-- 7. Mazo -->
+        <label class="component-type-modal__item">
+          <input type="radio" name="component-type">
+          <svg class="component-type-modal__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="8" y="6" width="11" height="15" rx="2"/>
+            <path d="M5.5 17.5V5.5a2 2 0 0 1 2-2H15"/>
+          </svg>
+          <span>Mazo</span>
+        </label>
+
+      </div>
+    </div>
+
+    <div class="modal__footer">
+      <button class="btn-cancel">Cancelar</button>
+      <button class="btn-accept">Aceptar</button>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -36,6 +36,7 @@ Patrón para informar de una operación potencialmente lenta y bloqueante, devol
 - `work` se ejecuta dentro de un doble `requestAnimationFrame` anidado tras insertar la modal en el DOM, para garantizar que el navegador ha completado un ciclo de pintado real (con el spinner ya visible) antes de que empiece el bloqueo síncrono del trabajo real — `setTimeout(fn, 0)` no ofrece esa garantía (solo asegura orden en la cola de tareas, no que haya habido un repintado de por medio; bug 00218).
 - Primer uso: arrastrar una selección múltiple de cartas sobre un mazo en modo edición (`023-componente-mazo.md`) — texto "Añadiendo N carta(s) al mazo…", `work` reposiciona las cartas arrastradas y las inserta en el mazo (el reposicionamiento va dentro de `work`, no antes: es la parte más lenta de la operación — bug 00219).
 - Segundo uso: confirmar importación de fichero (`ui/importConfirmModal.js`, botón "Importar", cambio 00222) — texto "Importando…", `work` ejecuta la migración de fichas, `mergeImportedGame` y las cargas (`loadComponents`/`loadResources`/`loadTags`/`loadGroups`) en `ui/editModeToggle.js`.
+- Tercer uso: agrupar y desagrupar una selección en modo edición (`src/modes/edit/editMode.js`, cambio 00224) — texto `"Agrupando N elemento(s)…"` / `"Desagrupando N elemento(s)…"` (singular `"1 elemento…"` cuando `N === 1`), `work` ejecuta la reasignación de `groupId` de los componentes afectados más el alta/baja del registro de grupo (`addGroup`/`removeGroup`) y, al agrupar, la recolocación del bloque (`reorderGroupBlock`). El `count` y demás lecturas de estado se calculan antes de `work`. Aplica en los tres puntos de entrada de agrupar/desagrupar: opción "Agrupar" y opción "Desagrupar" del menú contextual, y botón "Desagrupar" de la fila de grupo en el panel flotante "Componentes". Sin variante nueva del patrón.
 - Cualquier operación futura potencialmente lenta y bloqueante: reutilizar este patrón en vez de dejar al jugador sin aviso.
 
 ## 12.2 Cursores
@@ -95,6 +96,15 @@ Mismo patrón visual que `.component-lock-badge` (círculo `18px`, fondo `rgba(0
 
 - Anclada en esquina inferior **derecha** (no superior derecha del candado) para convivir sin solaparse cuando un componente está bloqueado y oculto a la vez.
 
+### Anclaje de las insignias sobre el cuadro de texto (`.text-box`)
+
+`.text-box` no tiene caja rellena (ver `design/docs/architecture/05-ui-layer.md`): las cuatro insignias (`.component-lock-badge`, `.component-hidden-badge`, `.component-copy-badge`, `.component-has-copies-badge`) se anclarían a las esquinas de un área invisible mayor que los glifos y quedarían despegadas del texto.
+
+- Overrides propios en `main.css`, sin tocar las reglas base (las usan el resto de tipos): `.text-box > .component-lock-badge` → `top: -0.55rem; right: -0.55rem`; `.text-box > .component-hidden-badge` → `bottom: -0.55rem; right: -0.55rem`; `.text-box > .component-copy-badge`, `.text-box > .component-has-copies-badge` → `bottom: -0.55rem; left: -0.55rem`.
+- Criterio "pegado por fuera de la esquina" del texto visible, el mismo que `.component-title-label` (`top: -1.6rem`), en vez de la esquina de una caja.
+- Se conserva icono, color, tamaño y esquina lógica de cada insignia — solo cambia el offset de anclaje para este tipo.
+- El recorte del propio texto de `.text-box` vive en un `div` interno (`05-ui-layer.md`), así que el contenedor exterior queda libre para etiqueta e insignias igual que el resto de tipos.
+
 ### Indicador de "Copia" (`.component-copy-badge`)
 
 Mismo patrón de superposición que candado/oculto (círculo `18px`, icono `var(--text-light)`, `pointer-events: none`, permanente mientras `component.copyOf` no sea `null`, solo modo edición vía `showCopyIndicator`), icono de dos cuadrados superpuestos.
@@ -133,7 +143,7 @@ Variante *interactiva* del mismo lenguaje visual de esta sección (fondo `rgba(0
 | Clase | Modal / fichero | Ancho |
 |---|---|---|
 | `.component-editor-modal` | Edición de componentes (`ui/componentModal.js`, `openComponentModal`) | `clamp()` con `75vw`, acotado entre `400px` y `min(1000px, 90vw)` — recalculado dinámicamente en redimensionados de ventana sin JS |
-| `.card-editor-modal` | Editor visual (`ui/visualEditorModal.js`), de una o dos caras según tipo (`'carta'` dos caras, `'tableroPersonalizado'` una) | `width: fit-content; max-width: min(1500px, 95vw)` — se ajusta al contenido porque el ancho varía según la proporción de carta activa. Admite modificador `.card-editor-modal--maximized` (botón en cabecera) que sustituye por `width: 97vw; max-width: none` y anula `max-height: 80vh` de `.modal` |
+| `.card-editor-modal` | Editor visual (`ui/visualEditorModal.js`), de una o dos caras según tipo (`'carta'` dos caras, `'tableroPersonalizado'` una) | `width: fit-content; max-width: min(1500px, 95vw)`; `position: relative` (ancla sus dos `.resize-handle`, §11 de `02-componentes-layout.md`). Se ajusta al contenido porque el ancho varía según la proporción de carta activa. Modificador `.card-editor-modal--maximized` (botón de cabecera §12.4.1): `max-width: 90vw; max-height: 90vh`, anula `max-height: 80vh` de `.modal`. Redimensionado manual con doble manejador de esquina (`.resize-handle` + `.resize-handle--tl` sobre la propia modal): el JS la pasa a `position: fixed` con `width`/`height` inline y anula `max-width`/`max-height` mientras dura ese tamaño; `.card-editor-modal > .resize-handle { z-index: 1 }` para que no la tape la toolbar. Las caras del editor nunca se apilan: `.card-editor-modal__faces { flex-wrap: nowrap }` + el lado de lienzo acotado también por el ancho disponible (00233). Ni el maximizado ni el tamaño manual se persisten entre aperturas; además "Restaurar" (§12.4.1) descarta el tamaño manual y vuelve al `fit-content` por defecto |
 | `.image-adjust-modal--large` | Ventana de ajuste de imagen de una o dos caras (`ui/imageAdjustModal.js`) | `width: fit-content; max-width: min(1500px, 95vw)` — mismo criterio que `.card-editor-modal`, ancho combinado de cajas de previsualización varía según caras mostradas |
 | `.element-selection-modal` | Exportar/importar con selección | `max-width: 640px` |
 | `.import-report-modal` | Informe de importación con tabla. Reutilizada tal cual por `ui/importConversionErrorModal.js` (errores al convertir fichas durante importación, cabecera de error §12.1, dos botones de acción como `ui/groupDeleteConfirmModal.js`). Añade clase `.error-cell` (`color: var(--error)`) a celda de motivo de error en `.import-report-modal__table`, reutilizable por cualquier tabla que destaque una celda de error | `max-width: 640px` |
@@ -152,6 +162,7 @@ Primer uso de este patrón: `.card-editor-modal__maximize-btn` — bloque propio
 - Reposo: fondo `var(--bg-subtle)`, hover `var(--bg-hover)`, `border-radius: var(--radius-sm)`, transición `background var(--transition-fast)`.
 - Sin texto: expone `title`/`aria-label` actualizados en cada toggle ("Maximizar"/"Restaurar tamaño").
 - El interruptor añade/quita la clase modificadora de tamaño (§12.4) sobre `.modal` — nunca cierra la modal (depende solo de sus botones de pie "Cancelar"/"Aceptar").
+- Independiente del redimensionado manual con manejadores de esquina (§11 de `02-componentes-layout.md`), cuando la modal lo admite (`.card-editor-modal`): maximizar limpia los estilos inline de geometría del redimensionado manual (sin borrar el tamaño manual guardado) y aplica la clase; **restaurar limpia también esos estilos inline y descarta el tamaño manual — vuelve siempre al tamaño por defecto de la modal (`width: fit-content` centrado), nunca al tamaño manual que se hubiera fijado con los manejadores** (00233). El botón limpia los estilos inline antes de aplicar/quitar la clase, así `.card-editor-modal--maximized` gana sin `!important`.
 - Cualquier modal futura que necesite maximizar/restaurar: reutilizar este patrón (botón, posición, iconos, sin persistencia).
 
 ## 12.5 Lista de selección agrupada (checklist)
@@ -320,3 +331,17 @@ Primer uso de este patrón en el proyecto: no había precedente de `<datalist>` 
 - **Umbral de imán como constante de módulo**, no un valor "mágico" disperso por el código: `ROTATION_SNAP_THRESHOLD_DEG` en `ui/rotationSlider.js`. Al arrastrar el slider, si el valor crudo cae a esa distancia o menos de una marca, se fuerza al valor exacto de la marca antes de propagarlo — no es solo guía visual, ajusta el dato real.
 - Convive deliberadamente con dos acciones rápidas existentes sobre el mismo campo (`rotation`): el menú contextual (§12.8) ofrece "Girar 90° (horario)" (+90°) y "Girar 90° (antihorario)" (-90°), ambas cíclicas (al superar un extremo del rango, dan la vuelta al extremo opuesto: p.ej. de 360° pasa a -270°), sin relación de código con este slider — dos mecanismos de edición del mismo campo, uno rápido y cíclico, otro preciso y de rango completo.
 - Cualquier control futuro que necesite "elegir un valor en un rango continuo, con referencias discretas hacia las que conviene alinearse": reutilizar este patrón en vez de un slider liso o un `<select>` de valores fijos.
+
+## 12.13 Icono ilustrativo por fila en la lista de "Añadir componente"
+
+`.component-type-modal__icon` (`ui/componentTypeModal.js`): icono ilustrativo del tipo de componente en cada fila de la lista de la modal "Añadir componente", entre el `<input type="radio">` y el `<span>` de la etiqueta (orden de la fila: radio, icono, texto).
+
+- SVG inline lineal hardcodeado por tipo: propiedad `icon` de cada entrada de `COMPONENT_TYPES`. `viewBox="0 0 24 24"`, `fill="none"`, `stroke="currentColor"`, `stroke-width="2"`, `stroke-linecap`/`stroke-linejoin` `round` — misma iconografía que `ui/editModeToggle.js` y `ui/componentList.js`. Uno distinto por cada uno de los 7 tipos.
+- Contenedor `<span class="component-type-modal__icon">`, `22×22px`, `flex-shrink: 0`, `innerHTML` = el SVG. Decorativo: `aria-hidden="true"` (el nombre del tipo en el `<span>` de texto contiguo es la etiqueta real de la fila).
+- Color por estado (`color`, heredado por `stroke="currentColor"`):
+  - reposo: `var(--text-muted)`.
+  - `[hover]` de la fila (`.component-type-modal__item:hover`) o fila con su radio marcado (`.component-type-modal__item:has(input:checked)`): `var(--accent-blue)`.
+  - Transición `color var(--transition-fast)`.
+- Estado "seleccionado" resuelto con `:has(input:checked)`, no con clase añadida por JS — mismo criterio que el único otro uso de `:has()` en `main.css` (`.document-viewer__content li:has(> input[type="checkbox"]:first-child)`). El `:hover` refuerza el resaltado de borde de la fila que ya existía (§7, `.component-type-modal__item:hover`), sin patrón visual nuevo.
+- No usa `.icon-frame` (esa clase carece de regla base propia en `main.css`; su tamaño depende del contexto — toolbar, menú de exportar). Este icono fija su propio `22×22px` en la clase de bloque.
+- Distinto del grupo de botones icono-solo (§12.10, `.align-group`): allí cada icono **es** el control pulsable; aquí el icono es puramente ilustrativo dentro de un `<label>` cuyo control real es el radio.

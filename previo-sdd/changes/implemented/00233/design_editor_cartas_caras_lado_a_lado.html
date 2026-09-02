@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>00233 — Editor de cartas: caras lado a lado al redimensionar</title>
+<style>
+  :root {
+    --accent-blue: #2c7dd8;
+    --bg-subtle: #f0f2f5;
+    --bg-hover: #e3e7ec;
+    --text-primary: #1f2733;
+    --text-muted: #6b7480;
+    --border-neutral: #c9d0d8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #333;
+    color: var(--text-primary);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .caption {
+    color: #fff;
+    max-width: 720px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    background: rgba(0,0,0,0.35);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+  }
+  .caption b { color: #8fc4ff; }
+
+  /* ---- Overlay + modal ---- */
+  .modal-overlay {
+    background: rgba(0,0,0,0.5);
+    padding: 2.5rem;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .card-editor-modal {
+    position: relative;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+    /* Tamaño manual fijado con los manejadores: ventana MÁS ALTA que ANCHA */
+    width: 560px;
+    height: 620px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .modal__header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.1rem;
+    border-bottom: 1px solid var(--border-neutral);
+    flex-shrink: 0;
+  }
+  .modal__header .title {
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+  .maximize-btn, .help-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 4px;
+    background: var(--bg-subtle);
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+  }
+  .maximize-btn { margin-left: auto; }
+  .help-icon {
+    border-radius: 50%;
+    background: #5a6472;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .maximize-btn svg { width: 15px; height: 15px; }
+
+  .modal__content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.1rem 1.3rem 1.4rem;
+  }
+
+  /* ---- Faces row: SIEMPRE lado a lado, alineadas arriba ---- */
+  .faces {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    align-items: flex-start;   /* alineadas por el borde superior */
+    flex-wrap: nowrap;         /* nunca se apilan */
+  }
+
+  .face {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .face__label {
+    font-weight: 500;
+    font-size: 0.8rem;
+  }
+  .face__canvas {
+    /* lienzo escalado para caber en el ancho disponible */
+    width: 190px;
+    height: 266px;
+    background: linear-gradient(160deg, #b7c9a8, #8ba888);
+    border: 1px solid var(--border-neutral);
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .face__canvas .mock-title {
+    position: absolute;
+    top: 14px; left: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.4);
+  }
+  .face__canvas .mock-badge {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 26px; height: 26px;
+    background: #d33;
+    color: #fff;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 3px;
+  }
+  .face__canvas--back {
+    background: repeating-linear-gradient(45deg, #dcdcdc, #dcdcdc 6px, #cfcfcf 6px, #cfcfcf 12px);
+  }
+
+  .adjust-image-btn {
+    align-self: flex-start;
+    /* CENTRADO verticalmente respecto al lienzo (calculado en JS en la app real):
+       (alto lienzo - alto botón) / 2 */
+    margin-top: 121px;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-neutral);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+
+  .modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    padding: 0.85rem 1.3rem;
+    border-top: 1px solid var(--border-neutral);
+    flex-shrink: 0;
+  }
+  .btn-cancel, .btn-accept {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .btn-cancel { background: var(--bg-subtle); color: var(--text-primary); }
+  .btn-accept { background: var(--accent-blue); color: #fff; }
+
+  /* ---- Resize handles (decorativos) ---- */
+  .resize-handle {
+    position: absolute;
+    width: 18px; height: 18px;
+    background:
+      linear-gradient(135deg, transparent 45%, var(--text-muted) 45%, var(--text-muted) 55%, transparent 55%),
+      linear-gradient(135deg, transparent 70%, var(--text-muted) 70%, var(--text-muted) 80%, transparent 80%);
+  }
+  .resize-handle--br { right: 0; bottom: 0; }
+  .resize-handle--tl { left: 0; top: 0; transform: rotate(180deg); }
+
+  /* ---- Contraste: estado INCORRECTO actual ---- */
+  .contrast {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+  }
+  .contrast__col { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; }
+  .contrast__tag {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+  }
+  .contrast__tag--bad { background: #f8d7da; color: #842029; }
+  .contrast__tag--good { background: #d1e7dd; color: #0f5132; }
+
+  .mini {
+    background: #fff;
+    border-radius: 6px;
+    width: 230px;
+    height: 300px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    overflow: hidden;
+    position: relative;
+  }
+  .mini__header {
+    padding: 0.5rem 0.7rem;
+    border-bottom: 1px solid var(--border-neutral);
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .mini__body { padding: 0.6rem; }
+
+  /* incorrecto: apiladas y desalineadas */
+  .mini__faces-bad {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .mini__faces-bad .mf { display: flex; flex-direction: column; gap: 0.2rem; }
+  .mini__faces-bad .mf:nth-child(1) { align-items: flex-start; padding-left: 4px; }
+  .mini__faces-bad .mf:nth-child(2) { align-items: flex-end; padding-right: 24px; }
+  .mini__faces-bad .mf__label { font-size: 0.65rem; }
+  .mini__faces-bad .mf__canvas {
+    width: 120px; height: 84px;
+    background: linear-gradient(160deg, #b7c9a8, #8ba888);
+    border: 1px solid var(--border-neutral);
+    border-radius: 5px;
+  }
+  .mini__faces-bad .mf:nth-child(2) .mf__canvas {
+    background: repeating-linear-gradient(45deg, #dcdcdc, #dcdcdc 4px, #cfcfcf 4px, #cfcfcf 8px);
+  }
+
+  /* correcto: lado a lado alineadas */
+  .mini__faces-good {
+    display: flex;
+    gap: 0.4rem;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .mini__faces-good .mf { display: flex; flex-direction: column; gap: 0.2rem; align-items: center; }
+  .mini__faces-good .mf__label { font-size: 0.65rem; }
+  .mini__faces-good .mf__canvas {
+    width: 96px; height: 134px;
+    background: linear-gradient(160deg, #b7c9a8, #8ba888);
+    border: 1px solid var(--border-neutral);
+    border-radius: 5px;
+  }
+  .mini__faces-good .mf:nth-child(2) .mf__canvas {
+    background: repeating-linear-gradient(45deg, #dcdcdc, #dcdcdc 4px, #cfcfcf 4px, #cfcfcf 8px);
+  }
+</style>
+</head>
+<body>
+
+  <div class="caption">
+    <b>Fix 00233 · punto 2</b> — Al redimensionar la ventana del editor de cartas con los
+    manejadores de esquina, las <b>dos caras se mantienen siempre lado a lado y alineadas</b>
+    por su borde superior. Los lienzos escalan para caber en el ancho disponible de la ventana;
+    ninguna cara salta a una fila inferior. El botón «Ajustar imagen…» queda centrado
+    verticalmente entre ambas caras.
+  </div>
+
+  <!-- Estado CORRECTO esperado -->
+  <div class="modal-overlay">
+    <div class="card-editor-modal">
+      <div class="resize-handle resize-handle--tl"></div>
+      <div class="resize-handle resize-handle--br"></div>
+
+      <div class="modal__header">
+        <span class="title">Diseñar carta</span>
+        <button class="maximize-btn" title="Maximizar" aria-label="Maximizar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/>
+          </svg>
+        </button>
+        <span class="help-icon">?</span>
+      </div>
+
+      <div class="modal__content">
+        <div class="faces">
+          <div class="face">
+            <div class="face__label">Cara frontal</div>
+            <div class="face__canvas">
+              <span class="mock-title">Paso de<br>montaña</span>
+              <span class="mock-badge">2</span>
+            </div>
+          </div>
+
+          <button class="adjust-image-btn">Ajustar imagen…</button>
+
+          <div class="face">
+            <div class="face__label">Cara trasera</div>
+            <div class="face__canvas face__canvas--back"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal__footer">
+        <button class="btn-cancel">Cancelar</button>
+        <button class="btn-accept">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contraste antes / después -->
+  <div class="contrast">
+    <div class="contrast__col">
+      <span class="contrast__tag contrast__tag--bad">Antes (incorrecto)</span>
+      <div class="mini">
+        <div class="mini__header">Diseñar carta</div>
+        <div class="mini__body">
+          <div class="mini__faces-bad">
+            <div class="mf">
+              <div class="mf__label">Cara frontal</div>
+              <div class="mf__canvas"></div>
+            </div>
+            <div class="mf">
+              <div class="mf__label">Cara trasera</div>
+              <div class="mf__canvas"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="color:#fff;font-size:0.75rem;max-width:230px;text-align:center;">
+        Las caras se apilan una sobre otra y quedan desalineadas entre sí.
+      </div>
+    </div>
+
+    <div class="contrast__col">
+      <span class="contrast__tag contrast__tag--good">Después (correcto)</span>
+      <div class="mini">
+        <div class="mini__header">Diseñar carta</div>
+        <div class="mini__body">
+          <div class="mini__faces-good">
+            <div class="mf">
+              <div class="mf__label">Cara frontal</div>
+              <div class="mf__canvas"></div>
+            </div>
+            <div class="mf">
+              <div class="mf__label">Cara trasera</div>
+              <div class="mf__canvas"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="color:#fff;font-size:0.75rem;max-width:230px;text-align:center;">
+        Las caras siguen lado a lado y alineadas; los lienzos se han encogido para caber.
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

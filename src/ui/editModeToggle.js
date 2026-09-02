@@ -248,24 +248,6 @@ export function renderEditToolbar(container) {
   const toolbar = document.createElement('div');
   toolbar.className = 'edit-toolbar';
 
-  const sessionGroup = document.createElement('div');
-  sessionGroup.className = 'toolbar-group';
-
-  const exitButton = document.createElement('button');
-  exitButton.innerHTML = `
-    <svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M16 17l5-5-5-5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M21 12H9" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    Salir del modo edición
-  `;
-  exitButton.addEventListener('click', () => setMode(MODES.PLAY));
-  sessionGroup.appendChild(exitButton);
-  toolbar.appendChild(sessionGroup);
-
-  toolbar.appendChild(document.createElement('div')).className = 'toolbar-divider';
-
   const persistenceGroup = document.createElement('div');
   persistenceGroup.className = 'toolbar-group';
 
@@ -301,10 +283,28 @@ export function renderEditToolbar(container) {
   exportGroup.appendChild(createExportMenu());
   toolbar.appendChild(exportGroup);
 
-  const viewGroup = document.createElement('div');
-  viewGroup.className = 'toolbar-group toolbar-group--view';
-  viewGroup.appendChild(createFitButton());
-  toolbar.appendChild(viewGroup);
+  toolbar.appendChild(document.createElement('div')).className = 'toolbar-divider';
+
+  const sessionGroup = document.createElement('div');
+  sessionGroup.className = 'toolbar-group';
+
+  const exitButton = document.createElement('button');
+  exitButton.className = 'edit-toolbar__exit-btn';
+  exitButton.innerHTML = `
+    <svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M16 17l5-5-5-5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M21 12H9" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Salir del modo edición
+  `;
+  exitButton.addEventListener('click', () => setMode(MODES.PLAY));
+  sessionGroup.appendChild(exitButton);
+  toolbar.appendChild(sessionGroup);
 
   container.appendChild(toolbar);
+
+  // Botón "Ajustar zoom" fijo en la esquina superior derecha, igual que en modo
+  // juego (misma clase); fuera de .edit-toolbar para no heredar su estilo de barra.
+  container.appendChild(createFitButton('mode-switcher__fit-btn'));
 }

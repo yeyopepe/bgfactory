@@ -124,13 +124,33 @@ h1 {
   opacity: 0.9;
 }
 
-#mode-switcher .mode-switcher__fit-btn {
+#mode-switcher .mode-switcher__fit-btn,
+#edit-toolbar > .mode-switcher__fit-btn {
   padding: 0;
   width: 36px;
   height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Mismo botón "Ajustar zoom" en modo edición: fijo en la esquina superior
+   derecha (igual que en modo juego), con color de acción primaria — montado
+   fuera de #mode-switcher, cuyos selectores no lo alcanzan. */
+#edit-toolbar > .mode-switcher__fit-btn {
+  position: fixed;
+  top: 0.5rem;
+  right: 1rem;
+  z-index: 101;
+  background: var(--accent-blue);
+  color: var(--text-light);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+#edit-toolbar > .mode-switcher__fit-btn:hover {
+  opacity: 0.9;
 }
 
 .mode-switcher__fit-btn .icon-frame {
@@ -176,6 +196,19 @@ h1 {
   background: rgba(255,255,255,0.1);
 }
 
+/* "Salir del modo edición": acción primaria (mismo esquema que "Entrar en modo
+   edición"), a diferencia del resto de botones de la barra. */
+.edit-toolbar button.edit-toolbar__exit-btn {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: var(--text-light);
+}
+
+.edit-toolbar button.edit-toolbar__exit-btn:hover {
+  background: var(--accent-blue);
+  opacity: 0.9;
+}
+
 .edit-toolbar button .icon-frame {
   width: 16px;
   height: 16px;
@@ -186,10 +219,6 @@ h1 {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.toolbar-group--view {
-  margin-left: 0.75rem;
 }
 
 .toolbar-divider {
@@ -833,11 +862,33 @@ fieldset.modal__section--untitled {
 /* Text box component: texto suelto directamente sobre la mesa, sin caja ni
    fondo — la sombra de contacto del resto de piezas no aplica aquí (no hay
    caja que elevar); en su lugar lleva una sombra de texto muy sutil para
-   mantener la legibilidad sobre cualquier color de mesa. */
+   mantener la legibilidad sobre cualquier color de mesa. El recorte del
+   contenido vive en un div interno (ui/componentRenderer.js), no aquí. */
 .text-box {
   word-wrap: break-word;
   white-space: pre-wrap;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* Al no tener caja rellena, las insignias de estado se anclarían a las
+   esquinas de un área invisible mayor que los glifos. Se pegan al texto
+   visible con offsets propios (criterio de anclaje "por fuera de la esquina",
+   como .component-title-label), sin tocar las reglas base que usan el resto
+   de tipos. */
+.text-box > .component-lock-badge {
+  top: -0.55rem;
+  right: -0.55rem;
+}
+
+.text-box > .component-hidden-badge {
+  bottom: -0.55rem;
+  right: -0.55rem;
+}
+
+.text-box > .component-copy-badge,
+.text-box > .component-has-copies-badge {
+  bottom: -0.55rem;
+  left: -0.55rem;
 }
 
 .text-box--selectable {
@@ -1518,6 +1569,27 @@ fieldset.modal__section--untitled {
   box-shadow: 0 2px 6px rgba(44, 125, 216, 0.15);
 }
 
+/* Icono ilustrativo por tipo (SVG inline en ui/componentTypeModal.js), entre el
+   radio y la etiqueta. Acento en :hover del item o con su radio marcado. */
+.component-type-modal__icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.component-type-modal__icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.component-type-modal__item:hover .component-type-modal__icon,
+.component-type-modal__item:has(input:checked) .component-type-modal__icon {
+  color: var(--accent-blue);
+}
+
 /* Board background modal — sub-modal "Imagen" (gallery grid of image resources) */
 .board-image-modal__search {
   margin-bottom: 1rem;
@@ -1793,12 +1865,26 @@ fieldset.modal__section--untitled {
 .card-editor-modal {
   width: fit-content;
   max-width: min(1500px, 95vw);
+  /* Contexto de posicionamiento para sus dos .resize-handle de esquina (cambio
+     00225). Al redimensionarla a mano, el JS la pasa a `position: fixed` en
+     estilo inline, que también es contexto válido para los handles. */
+  position: relative;
+}
+
+/* Manejadores de redimensionado de la propia modal (cambio 00225): en las
+   esquinas del recuadro blanco completo, por encima del contenido para que no
+   los tapen la toolbar o los lienzos. Los grips de los elementos internos
+   (textos/figuras) viven dentro de `.modal__content` y no colisionan. */
+.card-editor-modal > .resize-handle {
+  z-index: 1;
 }
 
 /* Maximizar/restaurar: sustituye el ancho/alto por defecto por casi toda la
    ventana. No fija `height`: el modal crece con su contenido hasta el límite
    de `.modal__content` (`overflow-y: auto`), basta con anular el
-   `max-height: 80vh` de `.modal`. */
+   `max-height: 80vh` de `.modal`. El handler de "Maximizar" limpia antes los
+   estilos inline de geometría del redimensionado manual (cambio 00225), así
+   que esta clase no necesita `!important` para ganarles. */
 .card-editor-modal--maximized {
   max-width: 90vw;
   max-height: 90vh;
@@ -1866,10 +1952,15 @@ fieldset.modal__section--untitled {
   max-width: 16rem;
 }
 
+/* Las caras nunca se apilan: `getEffectiveCanvasMaxSide()` acota el lado de
+   lienzo por el ancho disponible (rama `manualSize`, cambio 00233) y por
+   `window.innerWidth * 0.42` (maximizado/por defecto), así que las dos caras de
+   'carta' siempre caben en una fila. `nowrap` lo garantiza y evita que una
+   salte a otra fila y quede desalineada durante el redimensionado manual. */
 .card-editor-modal__faces {
   display: flex;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
 }
 

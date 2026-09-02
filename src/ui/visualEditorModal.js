@@ -23,6 +23,27 @@ import { openContextMenu } from './contextMenu.js';
 import { getOrderedFaceElements, bringElementToFront, sendElementToBack } from '../core/cardFaceElements.js';
 
 const CANVAS_MAX_SIDE = 380;
+// Suelo del lado de lienzo cuando la modal se encoge al mínimo con los
+// manejadores de esquina (cambio 00225): getEffectiveCanvasMaxSide() nunca
+// devuelve menos que esto en la rama de tamaño manual.
+const CANVAS_MIN_SIDE = 140;
+// Tamaño mínimo de la modal del editor al redimensionarla a mano (cambio
+// 00225): el necesario para seguir mostrando cabecera, toolbar y al menos un
+// lienzo a un tamaño utilizable, sin ocultar el pie con "Aceptar/Cancelar".
+const MIN_EDITOR_MODAL_WIDTH = 420;
+const MIN_EDITOR_MODAL_HEIGHT = 360;
+// Alto aproximado del "cromo" vertical de la modal (cabecera + toolbar + fila
+// de acciones + pie + gaps) que no es lienzo, para derivar el lado de lienzo
+// disponible a partir del alto manual sin depender de medidas de layout
+// frágiles durante el arrastre.
+const EDITOR_CHROME_V = 210;
+// Ancho aproximado del "cromo" horizontal de la modal manual que no es lienzo
+// (cambio 00233): padding lateral de `.modal__content` + gaps entre caras + el
+// botón "Ajustar imagen…" intercalado. Se descuenta del ancho manual y se
+// reparte entre las caras para acotar el lado de lienzo por el ancho
+// disponible, de modo que las dos caras de 'carta' quepan siempre lado a lado
+// (la toolbar, `max-width: 16rem`, no cuenta: va en su propia fila).
+const EDITOR_CHROME_H = 200;
 // Fallback defensivo si el componente no tuviera aún `width`/`height`
 // (no debería ocurrir: 'carta'/'tableroPersonalizado' siempre nacen con
 // tamaño fijo) para no dividir por 0 al calcular el lienzo de diseño.
@@ -53,6 +74,7 @@ function buildHelpHtml(showProporcionSelector) {
       <li><b>Redimensionar</b> un cuadro de texto o figura arrastrando su esquina (con Shift, una figura circular/elíptica mantiene proporción 1:1).</li>
       <li><b>Editar</b> el contenido y el estilo de un cuadro de texto o figura (haciendo doble clic sobre él).</li>
       <li><b>Seleccionar</b> un cuadro de texto o figura con un clic y moverlo con precisión usando las flechas del teclado (1px, o 10px con Shift).</li>
+      <li><b>Redimensionar</b> la ventana del editor arrastrando el manejador de su esquina inferior derecha o superior izquierda.</li>
       <li><b>Maximizar</b> o restaurar el tamaño del editor con el botón de la cabecera.</li>
       <li><b>Aceptar</b> o <b>cancelar</b> los cambios hechos en el editor.</li>
     </ul>
@@ -256,13 +278,70 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
   // cabecera porque el botón de maximizar la usa de inmediato.
   let maximized = false;
 
-  // Tamaño efectivo del lienzo de cada cara: en estado normal, la constante
-  // fija de siempre (CANVAS_MAX_SIDE); maximizado, el hueco real disponible
-  // en la ventana — dos lienzos + toolbar caben en el ancho, así que el alto
-  // es el límite real.
+  // Tamaño "normal" fijado a mano con los manejadores de esquina de la modal
+  // (cambio 00225). `null` = tamaño normal por defecto (comportamiento de
+  // siempre, `width: fit-content` centrado por flexbox); `{ width, height }`
+  // en px = tamaño elegido por el usuario arrastrando un manejador. `maximizar`
+  // lo ignora temporalmente y "Restaurar" lo descarta (vuelve siempre al tamaño
+  // por defecto, cambio 00233). No se persiste entre aperturas, igual que
+  // `maximized`.
+  let manualSize = null;
+
+  // Tamaño efectivo del lienzo de cada cara:
+  // - maximizado: el hueco real disponible en la ventana — dos lienzos +
+  //   toolbar caben en el ancho, así que el alto es el límite real.
+  // - con tamaño manual (cambio 00225): se deriva del alto manual descontando
+  //   el "cromo" vertical de la modal, para que el lienzo escale de forma
+  //   continua mientras se arrastra un manejador. Se permite crecer por encima
+  //   de CANVAS_MAX_SIDE (con un tope prudente) para aprovechar el espacio al
+  //   agrandar, y se topa a CANVAS_MIN_SIDE por abajo. Además se acota por el
+  //   ancho manual repartido entre las caras (cambio 00233), para que las dos
+  //   caras de 'carta' quepan siempre lado a lado y no salte una a otra fila.
+  // - estado normal por defecto: la constante fija de siempre.
   function getEffectiveCanvasMaxSide() {
-    if (!maximized) return CANVAS_MAX_SIDE;
-    return Math.min(window.innerHeight * 0.7, window.innerWidth * 0.42);
+    if (maximized) return Math.min(window.innerHeight * 0.7, window.innerWidth * 0.42);
+    if (manualSize) {
+      const available = manualSize.height - EDITOR_CHROME_V;
+      const availableByWidth = (manualSize.width - EDITOR_CHROME_H) / faces.length;
+      return Math.max(
+        CANVAS_MIN_SIDE,
+        Math.min(available, availableByWidth, window.innerWidth * 0.42, CANVAS_MAX_SIDE * 3),
+      );
+    }
+    return CANVAS_MAX_SIDE;
+  }
+
+  // Congela la modal a posición absoluta con su geometría actual, sacándola del
+  // centrado flexbox de `.modal-overlay` sin moverla (cambio 00225). Necesario
+  // para que el manejador de esquina superior izquierda tenga una esquina
+  // inferior derecha estable que anclar — mismo ajuste que hace
+  // ui/componentList.js al iniciar el arrastre de su cabecera.
+  function freezeModalGeometry() {
+    if (modal.style.position === 'fixed') return;
+    const rect = modal.getBoundingClientRect();
+    modal.style.position = 'fixed';
+    modal.style.margin = '0';
+    modal.style.left = `${rect.left}px`;
+    modal.style.top = `${rect.top}px`;
+    modal.style.width = `${rect.width}px`;
+    modal.style.height = `${rect.height}px`;
+    // Anular el `max-height: 80vh` de `.modal` y el `max-width` de la clase:
+    // el tamaño manual ya se acota contra el viewport en clampModalSize, y si
+    // no se anulan aquí la modal no crecería más allá de esos topes aunque el
+    // manejador lo pida, desajustando el escalado del lienzo.
+    modal.style.maxWidth = 'none';
+    modal.style.maxHeight = 'none';
+  }
+
+  // Acota un tamaño propuesto para la modal (cambio 00225): mínimo utilizable
+  // por constante, máximo el que cabe en el área visible del navegador desde la
+  // esquina fija del manejador que arrastra (cada caller pasa sus dos topes,
+  // que dependen de qué esquina quede anclada).
+  function clampModalSize({ width, height }, { maxWidth, maxHeight }) {
+    return {
+      width: Math.min(Math.max(width, MIN_EDITOR_MODAL_WIDTH), maxWidth),
+      height: Math.min(Math.max(height, MIN_EDITOR_MODAL_HEIGHT), maxHeight),
+    };
   }
 
   const header = document.createElement('div');
@@ -287,10 +366,33 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
   }
   updateMaximizeButton();
 
+  // Limpia los estilos inline de geometría que fija el redimensionado manual
+  // (cambio 00225), para que vuelva a mandar el CSS de la clase correspondiente.
+  function clearModalInlineGeometry() {
+    modal.style.position = '';
+    modal.style.margin = '';
+    modal.style.left = '';
+    modal.style.top = '';
+    modal.style.width = '';
+    modal.style.height = '';
+    modal.style.maxWidth = '';
+    modal.style.maxHeight = '';
+  }
+
   maximizeBtn.addEventListener('click', () => {
     maximized = !maximized;
     modal.classList.toggle('card-editor-modal--maximized', maximized);
     updateMaximizeButton();
+    // Maximizar y Restaurar limpian ambos los estilos inline de geometría del
+    // redimensionado manual (cambio 00225) para que mande el CSS de la clase
+    // (`.card-editor-modal--maximized` centrado por flexbox al maximizar,
+    // `fit-content` centrado al restaurar). Al restaurar además se descarta el
+    // tamaño manual (`manualSize = null`): "Restaurar" vuelve siempre al tamaño
+    // por defecto, no al tamaño manual que se hubiera fijado con los
+    // manejadores. getEffectiveCanvasMaxSide() cae entonces a su rama por
+    // defecto (`CANVAS_MAX_SIDE`).
+    clearModalInlineGeometry();
+    if (!maximized) manualSize = null;
     renderFaces();
   });
   header.appendChild(maximizeBtn);
@@ -393,10 +495,25 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
   document.addEventListener('keydown', handleKeyDown);
 
   // Recalcula el tamaño del lienzo si la ventana cambia de tamaño estando
-  // maximizado.
+  // maximizado; y, con un tamaño manual fijado (cambio 00225), reajusta la
+  // modal para que no quede fuera del área visible si la ventana se encoge,
+  // anclando su esquina superior izquierda actual.
   function handleWindowResize() {
-    if (!maximized) return;
-    renderFaces();
+    if (maximized) {
+      renderFaces();
+      return;
+    }
+    if (manualSize) {
+      const r = modal.getBoundingClientRect();
+      const clamped = clampModalSize(manualSize, {
+        maxWidth: window.innerWidth - r.left,
+        maxHeight: window.innerHeight - r.top,
+      });
+      modal.style.width = `${clamped.width}px`;
+      modal.style.height = `${clamped.height}px`;
+      manualSize = clamped;
+      renderFaces();
+    }
   }
   window.addEventListener('resize', handleWindowResize);
 
@@ -491,11 +608,12 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
 
     // El margen fijo de la hoja de estilos (8.75rem) asume el alto de
     // lienzo del tamaño normal, para quedar centrado junto a las caras.
-    // Maximizado, el lienzo crece y ese valor fijo ya no centra el botón —
-    // se calcula en JS (excepción ya documentada en design/docs/style/index.md
-    // para valores que dependen de un cálculo numérico en tiempo de
-    // ejecución, no expresables como clase).
-    if (maximized) {
+    // Maximizado o con tamaño manual (cambio 00233), el lienzo cambia de
+    // tamaño y ese valor fijo ya no centra el botón — se calcula en JS
+    // (excepción ya documentada en design/docs/style/index.md para valores
+    // que dependen de un cálculo numérico en tiempo de ejecución, no
+    // expresables como clase).
+    if (maximized || manualSize) {
       const { width: designWidth, height: designHeight } = getFaceDesignSize();
       const canvasHeight = designHeight * (getEffectiveCanvasMaxSide() / Math.max(designWidth, designHeight));
       adjustImageBtn.style.marginTop = `${canvasHeight / 2 - adjustImageBtn.offsetHeight / 2}px`;
@@ -1255,6 +1373,84 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
 
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
+
+  // Redimensionado manual de la ventana del editor (cambio 00225): doble
+  // manejador de esquina sobre la propia modal, mismo patrón que el panel
+  // flotante "Componentes" (ui/componentList.js). Al empezar a arrastrar se
+  // "congela" la modal a posición absoluta (freezeModalGeometry) para que la
+  // esquina opuesta quede fija; cada movimiento fija width/height (y left/top
+  // en el manejador tl), guarda `manualSize` y re-renderiza las caras para que
+  // los lienzos escalen de forma continua.
+
+  // Esquina inferior derecha: ancla la esquina superior izquierda.
+  attachResizeHandle(modal, {
+    axis: 'both',
+    getScale: () => 1,
+    getSize: () => {
+      freezeModalGeometry();
+      const r = modal.getBoundingClientRect();
+      return { width: r.width, height: r.height };
+    },
+    clamp: (proposed) => {
+      const r = modal.getBoundingClientRect();
+      return clampModalSize(proposed, {
+        maxWidth: window.innerWidth - r.left,
+        maxHeight: window.innerHeight - r.top,
+      });
+    },
+    onResize: ({ width, height }) => {
+      modal.style.width = `${width}px`;
+      modal.style.height = `${height}px`;
+      manualSize = { width, height };
+      renderFaces();
+    },
+    onResizeEnd: ({ width, height }) => {
+      modal.style.width = `${width}px`;
+      modal.style.height = `${height}px`;
+      manualSize = { width, height };
+      renderFaces();
+    },
+  });
+
+  // Esquina superior izquierda: ancla la esquina inferior derecha, así que
+  // además de tamaño hay que desplazar left/top con el dx/dy que devuelve el
+  // propio resizeHandle.js para `corner: 'tl'`. tlStart captura la geometría
+  // de partida en getSize (una vez por arrastre).
+  const modalTlStart = { left: 0, top: 0, width: 0, height: 0 };
+  attachResizeHandle(modal, {
+    axis: 'both',
+    corner: 'tl',
+    getScale: () => 1,
+    getSize: () => {
+      freezeModalGeometry();
+      const r = modal.getBoundingClientRect();
+      modalTlStart.left = r.left;
+      modalTlStart.top = r.top;
+      modalTlStart.width = r.width;
+      modalTlStart.height = r.height;
+      return { width: r.width, height: r.height };
+    },
+    clamp: (proposed) => clampModalSize(proposed, {
+      maxWidth: modalTlStart.left + modalTlStart.width,
+      maxHeight: modalTlStart.top + modalTlStart.height,
+    }),
+    onResize: ({ width, height, dx, dy }) => {
+      modal.style.left = `${modalTlStart.left + dx}px`;
+      modal.style.top = `${modalTlStart.top + dy}px`;
+      modal.style.width = `${width}px`;
+      modal.style.height = `${height}px`;
+      manualSize = { width, height };
+      renderFaces();
+    },
+    onResizeEnd: ({ width, height, dx, dy }) => {
+      modal.style.left = `${modalTlStart.left + dx}px`;
+      modal.style.top = `${modalTlStart.top + dy}px`;
+      modal.style.width = `${width}px`;
+      modal.style.height = `${height}px`;
+      manualSize = { width, height };
+      renderFaces();
+    },
+  });
 
   let mousedownOnOverlay = false;
   overlay.addEventListener('mousedown', (e) => {
