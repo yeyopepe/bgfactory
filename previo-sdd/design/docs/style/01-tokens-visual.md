@@ -1,90 +1,90 @@
-# Tokens visuales, tipografía, espaciado, bordes, elevación
+# Visual tokens, typography, spacing, borders, elevation
 
-Ver `INDEX.md` para el mapa completo de la Style Bible.
+See `INDEX.md` for the full map of the Style Bible.
 
 ## 2. Design tokens (`:root`)
 
-Todos los colores viven como custom properties en `:root`. Nunca hardcodear un color que ya tenga token — reutilizar el existente o añadir uno nuevo al `:root` si hace falta un tono nuevo y reutilizable.
+All colors live as custom properties in `:root`. Never hardcode a color that already has a token — reuse the existing one or add a new one to `:root` if a new reusable tone is needed.
 
 ```css
---bg-table:     #c2c2c2;  /* fondo de la mesa infinita */
---bg-toolbar:   #333333;  /* header y toolbars */
---bg-card:      #f5f5f5;  /* paneles/tarjetas (listas, panel de edición) */
---accent-blue:  #2c7dd8;  /* color de acción primario (botones, foco, tabs activas) */
---accent-blue-dark: #123a66;  /* fondo de la etiqueta identificativa de componente en modo edición (03-modales-menus.md §12.3) */
---accent-blue-light: #eaf3fc;  /* fondo claro para paneles que destacan como interactivos sin usar el azul sólido */
---text-primary: #1a1a1a;  /* texto sobre fondos claros */
---text-light:   #ffffff;  /* texto sobre fondos oscuros/de acento */
---text-muted:   #666666;  /* texto secundario */
---error:        #d32f2f;  /* estados de error y acciones destructivas */
---success:      #2e7d32;  /* estados de éxito/confirmación positiva */
---border-neutral: #dcdcdc;  /* todos los bordes finos neutros */
---bg-subtle:    #f0f0f0;  /* fondos neutros en reposo: cabecera de tabla, botón secundario */
---bg-hover:     #e8e8e8;  /* cualquier hover neutro: fila, botón secundario, tab */
---radius-sm:    4px;   /* radio de controles, ver §5 */
---radius-lg:    8px;   /* radio de contenedores destacados, ver §5 */
---shadow-1:     0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);  /* elevación nivel 1, ver §6 */
---shadow-2:     0 4px 20px rgba(0,0,0,0.15);  /* elevación nivel 2, ver §6 */
---transition-fast: 150ms ease;  /* transición estándar de hover/foco, ver §6 */
---section-accent: #5b5f97;  /* título de .modal__section (03-modales-menus.md §12.6), distinto de --accent-blue/--accent-blue-dark (interactivo/seleccionado) */
+--bg-table:     #c2c2c2;  /* infinite-table background */
+--bg-toolbar:   #333333;  /* header and toolbars */
+--bg-card:      #f5f5f5;  /* panels/cards (lists, edit panel) */
+--accent-blue:  #2c7dd8;  /* primary action color (buttons, focus, active tabs) */
+--accent-blue-dark: #123a66;  /* background of the component identifier label in edit mode (03-modales-menus.md §12.3) */
+--accent-blue-light: #eaf3fc;  /* light background for panels that stand out as interactive without the solid blue */
+--text-primary: #1a1a1a;  /* text on light backgrounds */
+--text-light:   #ffffff;  /* text on dark/accent backgrounds */
+--text-muted:   #666666;  /* secondary text */
+--error:        #d32f2f;  /* error states and destructive actions */
+--success:      #2e7d32;  /* success / positive-confirmation states */
+--border-neutral: #dcdcdc;  /* all thin neutral borders */
+--bg-subtle:    #f0f0f0;  /* neutral backgrounds at rest: table header, secondary button */
+--bg-hover:     #e8e8e8;  /* any neutral hover: row, secondary button, tab */
+--radius-sm:    4px;   /* control radius, see §5 */
+--radius-lg:    8px;   /* highlighted-container radius, see §5 */
+--shadow-1:     0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);  /* elevation level 1, see §6 */
+--shadow-2:     0 4px 20px rgba(0,0,0,0.15);  /* elevation level 2, see §6 */
+--transition-fast: 150ms ease;  /* standard hover/focus transition, see §6 */
+--section-accent: #5b5f97;  /* .modal__section title (03-modales-menus.md §12.6), distinct from --accent-blue/--accent-blue-dark (interactive/selected) */
 ```
 
-- Todos los grises neutros y las sombras/radios reutilizables ya son tokens — no quedan colores "puntuales" sin promover.
-- Overlays que siguen siendo valores puntuales (no se repiten lo bastante para merecer token): `rgba(0,0,0,0.5)` (fondo de `.modal-overlay`), `rgba(255,255,255,0.1)` (hover en toolbar oscura).
+- All neutral grays and reusable shadows/radii are already tokens — no "one-off" colors remain unpromoted.
+- Overlays that are still one-off values (not repeated enough to deserve a token): `rgba(0,0,0,0.5)` (`.modal-overlay` background), `rgba(255,255,255,0.1)` (hover on the dark toolbar).
 
-## 3. Tipografía
+## 3. Typography
 
-- Fuente global: `system-ui, sans-serif`. Sin webfonts externas.
-- Tamaños usados, de mayor a menor — reutilizar estos, no inventar tamaños intermedios:
+- Global font: `system-ui, sans-serif`. No external webfonts.
+- Sizes used, largest to smallest — reuse these, do not invent intermediate sizes:
 
-| Tamaño | Uso |
+| Size | Use |
 |---|---|
-| `4rem` | Resultado a tamaño grande del componente "Dado" (`ui/diceResultModal.js`) — excepción puntual para legibilidad desde lejos, único uso previsto |
-| `1.5rem` | Título principal (`h1`) |
-| `1.125rem` | Títulos de panel (`.edit-mode-panel h2`) |
-| `0.875rem` | Texto de UI por defecto (botones, tabs, labels, inputs, items de lista) |
-| `0.75rem` | Texto auxiliar (botones pequeños, error de validación, footer de versión) |
+| `4rem` | Large result of the "Dado" component (`ui/diceResultModal.js`) — one-off exception for readability from a distance, only intended use |
+| `1.5rem` | Main title (`h1`) |
+| `1.125rem` | Panel titles (`.edit-mode-panel h2`) |
+| `0.875rem` | Default UI text (buttons, tabs, labels, inputs, list items) |
+| `0.75rem` | Auxiliary text (small buttons, validation error, version footer) |
 
-- `font-weight: 500` para labels de formulario. Resto: peso normal del navegador.
+- `font-weight: 500` for form labels. Rest: the browser's normal weight.
 
-## 4. Espaciado
+## 4. Spacing
 
-Escala basada en `rem`, pasos de `0.25rem`: `0.25rem`, `0.5rem`, `0.75rem`, `1rem`, `1.5rem`. No usar píxeles para padding/margin salvo casos ya existentes (bordes `1px`/`2px`).
+Scale based on `rem`, steps of `0.25rem`: `0.25rem`, `0.5rem`, `0.75rem`, `1rem`, `1.5rem`. Do not use pixels for padding/margin except already-existing cases (`1px`/`2px` borders).
 
-- Padding de contenedor estándar: `1rem`.
-- Padding de controles (botones, tabs): `0.5rem 1rem`.
-- Gap entre elementos en flex: `0.5rem` (ajustado) o `1rem` (holgado).
+- Standard container padding: `1rem`.
+- Control padding (buttons, tabs): `0.5rem 1rem`.
+- Gap between flex elements: `0.5rem` (tight) or `1rem` (loose).
 
-## 5. Bordes y esquinas
+## 5. Borders and corners
 
-Escala de dos radios:
+Two-radius scale:
 
-- `var(--radius-sm)` (4px) — controles: botones (incl. pequeños dentro de items de lista), inputs, items pequeños de lista/galería.
-- `var(--radius-lg)` (8px) — contenedores destacados: modal, paneles flotantes (`.component-panel`, `.resource-panel`), componente "Carta".
-- Bordes: `1px solid var(--border-neutral)`, o `1px solid var(--text-light)` sobre fondo oscuro (toolbar).
+- `var(--radius-sm)` (4px) — controls: buttons (incl. small ones inside list items), inputs, small list/gallery items.
+- `var(--radius-lg)` (8px) — highlighted containers: modal, floating panels (`.component-panel`, `.resource-panel`), "Carta" component.
+- Borders: `1px solid var(--border-neutral)`, or `1px solid var(--text-light)` on a dark background (toolbar).
 
-## 6. Elevación, sombra y transición
+## 6. Elevation, shadow and transition
 
-Sistema de 3 niveles de elevación, reutilizable en toda la app.
+A 3-level elevation system, reusable across the app.
 
-- **Nivel 0 — plano**: mesa infinita y cualquier contenido embebido dentro de otro elemento (p. ej. `.document-viewer__content`). Sin sombra.
-- **Nivel 1 — flotante sutil** (`box-shadow: var(--shadow-1)`): paneles de trabajo (`.component-panel`, `.resource-panel`), cabecera/toolbar (`h1`, `.edit-toolbar`), `.toast`, piezas de juego sobre la mesa (`.board`, `.tablero-personalizado`, `.carta`, `.document-viewer`).
-  - `.dice`: usa `filter: drop-shadow(...)` en vez de `box-shadow`, para que la sombra siga la silueta real (triángulo/cuadrado/rombo/decágono) en vez de la caja cuadrada del contenedor.
-  - `.carta--hex` (carta con proporción hexagonal): mismo criterio que `.dice` — silueta no rectangular, usa `filter: drop-shadow(...)`.
-  - `.text-box` (texto suelto sobre la mesa, sin caja/fondo): usa `text-shadow` en vez de `box-shadow`, solo para legibilidad sobre cualquier color de mesa.
-- **Nivel 2 — overlay** (`box-shadow: var(--shadow-2)`): modales (`.modal`) y `.help-icon__tooltip` — nivel más alto.
-- **Sombra opcional de `'tableroSimple'`/`'tableroPersonalizado'`**: a diferencia del resto de piezas del nivel 1, su sombra de contacto puede desactivarse por componente.
-  - Checkbox "Sombra" en sección "Visual" (`.modal__field--checkbox`, ver `03-modales-menus.md` §12.6).
-  - `properties.sombra` (boolean, `true` por defecto).
-  - Desmarcado: modificador `.board--sin-sombra`/`.tablero-personalizado--sin-sombra` (`box-shadow: none`) — componente queda en nivel 0.
-  - Un tablero guardado sin esta propiedad se comporta como si estuviera marcado (con sombra) — sin cambio visual.
-- El estado transitorio `.lifted` al arrastrar un componente en Modo Juego es el estado "en el aire" de este mismo sistema (sombra más pronunciada + desplazamiento fijo durante el arrastre) — no una excepción aislada. Detalle completo en `INDEX.md` §13.
-- **Extrusión configurable** (`profundidad`/`colorExtrusion`, campo general de componente, `core/component.js`): capas sólidas apiladas sin blur, no sombra difusa. Concepto independiente y compatible con los 3 niveles de elevación — no introduce un cuarto nivel. Elevación = sombra de contacto con la mesa; extrusión = grosor/cuerpo del propio componente.
-  - `profundidad`: número, px, `0` por defecto (sin efecto), tope `40`.
-  - `colorExtrusion`: string color o `null` (cálculo automático `shadeColor(colorBase, -0.25)`, `colorBase` según tipo — ver `ui/componentRenderer.js`, `resolveExtrusionColor`).
-  - Técnica: `Array.from({length: profundidad}, (_, i) => i+1)` capas de 1px de offset acumulado — `box-shadow: ${i+1}px ${i+1}px 0 0 ${color}` (tipos sin `clip-path`) o `filter: drop-shadow(${i+1}px ${i+1}px 0 ${color})` (tipos con `clip-path`: `'carta'` hex/triángulo, `'dado'`), unidas junto a la sombra de contacto de nivel 1 existente cuando aplica.
-  - Sin efecto en `'texto'`, cualquiera que sea `properties.colorFondo`.
-  - `'dado'` ya no tiene mecanismo propio de profundidad (polígono SVG duplicado) — usa este mecanismo general como cualquier otro tipo, aplicado sobre `.dice`.
-- **Transiciones**: elementos interactivos (botones, filas de lista, tabs, items seleccionables, icono de ayuda, campos de formulario) llevan `transition: <propiedad> var(--transition-fast)` (150ms) en cambios de `:hover`/`:focus` — color de fondo/borde, `opacity`, `box-shadow`, y en botones de acción primaria/destructiva un ligero `transform: translateY(-1px)`.
-  - No usar `:active`.
-  - No usar transiciones en el contorno discontinuo de selección (`--selectable`/`--selected`) ni en el temblor/parpadeo del dado — son indicadores funcionales de estado y JS puro, no decoración (ver `INDEX.md` §13).
+- **Level 0 — flat**: infinite table and any content embedded inside another element (e.g. `.document-viewer__content`). No shadow.
+- **Level 1 — subtle float** (`box-shadow: var(--shadow-1)`): work panels (`.component-panel`, `.resource-panel`), header/toolbar (`h1`, `.edit-toolbar`), `.toast`, game pieces on the table (`.board`, `.tablero-personalizado`, `.carta`, `.document-viewer`).
+  - `.dice`: uses `filter: drop-shadow(...)` instead of `box-shadow`, so the shadow follows the real silhouette (triangle/square/rhombus/decagon) instead of the container's square box.
+  - `.carta--hex` (hexagonal-proportion card): same criterion as `.dice` — non-rectangular silhouette, uses `filter: drop-shadow(...)`.
+  - `.text-box` (loose text on the table, no box/background): uses `text-shadow` instead of `box-shadow`, only for readability over any table color.
+- **Level 2 — overlay** (`box-shadow: var(--shadow-2)`): modals (`.modal`) and `.help-icon__tooltip` — the highest level.
+- **Optional shadow of `'tableroSimple'`/`'tableroPersonalizado'`**: unlike the rest of the level-1 pieces, their contact shadow can be disabled per component.
+  - "Sombra" checkbox in the "Visual" section (`.modal__field--checkbox`, see `03-modales-menus.md` §12.6).
+  - `properties.sombra` (boolean, `true` by default).
+  - Unchecked: modifier `.board--sin-sombra`/`.tablero-personalizado--sin-sombra` (`box-shadow: none`) — the component drops to level 0.
+  - A board saved without this property behaves as if checked (with shadow) — no visual change.
+- The transient state `.lifted` on dragging a component in play mode is the "in the air" state of this same system (a more pronounced shadow + fixed offset during the drag) — not an isolated exception. Full detail in `INDEX.md` §13.
+- **Configurable extrusion** (`profundidad`/`colorExtrusion`, general component field, `core/component.js`): stacked solid layers with no blur, not a diffuse shadow. A concept independent of and compatible with the 3 elevation levels — it does not introduce a fourth level. Elevation = contact shadow with the table; extrusion = thickness/body of the component itself.
+  - `profundidad`: number, px, `0` by default (no effect), cap `40`.
+  - `colorExtrusion`: color string or `null` (automatic computation `shadeColor(colorBase, -0.25)`, `colorBase` by type — see `ui/componentRenderer.js`, `resolveExtrusionColor`).
+  - Technique: `Array.from({length: profundidad}, (_, i) => i+1)` layers of 1px accumulated offset — `box-shadow: ${i+1}px ${i+1}px 0 0 ${color}` (types with no `clip-path`) or `filter: drop-shadow(${i+1}px ${i+1}px 0 ${color})` (types with `clip-path`: `'carta'` hex/triangle, `'dado'`), joined with the existing level-1 contact shadow where applicable.
+  - No effect on `'texto'`, whatever `properties.colorFondo` is.
+  - `'dado'` no longer has its own depth mechanism (duplicated SVG polygon) — it uses this general mechanism like any other type, applied over `.dice`.
+- **Transitions**: interactive elements (buttons, list rows, tabs, selectable items, help icon, form fields) carry `transition: <property> var(--transition-fast)` (150ms) on `:hover`/`:focus` changes — background/border color, `opacity`, `box-shadow`, and on primary/destructive action buttons a slight `transform: translateY(-1px)`.
+  - Do not use `:active`.
+  - Do not use transitions on the dashed selection outline (`--selectable`/`--selected`) nor on the die's shake/flicker — they are functional state indicators and pure JS, not decoration (see `INDEX.md` §13).

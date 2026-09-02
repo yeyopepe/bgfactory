@@ -1,100 +1,100 @@
-# Etiquetas, recursos, migración de `'ficha'`, portapapeles de estilo
+# Tags, resources, `'ficha'` migration, style clipboard
 
-## Modelo de datos de etiqueta
+## Tag data model
 
-Entidad ligera e independiente para agrupar/organizar elementos por nombre, en colección propia de `core/state.js` (no texto libre suelto en cada componente). Puramente organizativo, sin funcionalidad de juego asociada.
+Lightweight, independent entity to group/organize elements by name, in its own collection in `core/state.js` (not loose free text in each component). Purely organizational, no associated game functionality.
 
-| Campo | Tipo | Descripción |
+| Field | Type | Description |
 |---|---|---|
-| `id` | string | Identificador único (`crypto.randomUUID()`) |
-| `name` | string | Nombre visible en la sección "Etiquetas" (lista de checkboxes) de la pestaña "Generales" |
+| `id` | string | Unique identifier (`crypto.randomUUID()`) |
+| `name` | string | Name shown in the "Etiquetas" section (checkbox list) of the "Generales" tab |
 
-`core/tag.js` expone:
-- `createTag({ id, name })` / `updateTag(tag, changes)` — mismo patrón que `core/resource.js`/`core/component.js`.
-- `getComponentsUsingTag(tagId, components)` — filtra `component.etiquetaIds.includes(tagId)`; `etiquetaIds` es siempre propiedad plana de primer nivel (sin recorrido profundo, a diferencia de `isResourceInUse`). Usada para saber qué elementos quedan afectados al borrar una etiqueta.
-- `isTagNameTaken(name, tags, excludeId)` — único punto de validación de unicidad de nombre: `true` si alguna etiqueta (con `id !== excludeId`) tiene el mismo nombre tras normalizar (recortado, sin distinguir mayúsculas). Reutilizado por `ui/tagModal.js`, `ui/componentModal.js` (creación de etiqueta desde sección "Etiquetas" de "Generales", disponible para todos los tipos) y `core/importMerge.js` (deduplica nombres tras merge por `id`; para etiqueta referenciada ausente, reutiliza una existente con el mismo nombre en vez de duplicarla — reportado con `tipoError: 'etiquetaDuplicada'`).
+`core/tag.js` exposes:
+- `createTag({ id, name })` / `updateTag(tag, changes)` — same pattern as `core/resource.js`/`core/component.js`.
+- `getComponentsUsingTag(tagId, components)` — filters `component.etiquetaIds.includes(tagId)`; `etiquetaIds` is always a flat top-level property (no deep traversal, unlike `isResourceInUse`). Used to know which elements are affected when a tag is deleted.
+- `isTagNameTaken(name, tags, excludeId)` — single point for name-uniqueness validation: `true` if any tag (with `id !== excludeId`) has the same name after normalization (trimmed, case-insensitive). Reused by `ui/tagModal.js`, `ui/componentModal.js` (tag creation from the "Etiquetas" section of "Generales", available for all types) and `core/importMerge.js` (deduplicates names after merge by `id`; for an absent referenced tag, reuses an existing one with the same name instead of duplicating it — reported with `tipoError: 'etiquetaDuplicada'`).
 
-`core/state.js` mantiene colección independiente `tags` (`getTags`/`addTag`/`replaceTag`/`removeTag`/`loadTags`, evento `tags:changed`) y `panelState` propio para la ventana "Etiquetas" (`tagPanelState`, shape `{ collapsed, position, width }`, sin `columnWidths`, evento `tagPanelState:changed`). Alta de etiqueta posible al vuelo desde pestaña "Generales" de cualquier componente, o desde panel dedicado "Etiquetas" (`ui/tagList.js`/`ui/tagModal.js`, ver `04-modes.md`), que también permite editar nombre y eliminar.
+`core/state.js` keeps an independent `tags` collection (`getTags`/`addTag`/`replaceTag`/`removeTag`/`loadTags`, event `tags:changed`) and its own `panelState` for the "Etiquetas" window (`tagPanelState`, shape `{ collapsed, position, width }`, no `columnWidths`, event `tagPanelState:changed`). Tag creation is possible on the fly from the "Generales" tab of any component, or from the dedicated "Etiquetas" panel (`ui/tagList.js`/`ui/tagModal.js`, see `04-modes.md`), which also allows editing the name and deleting.
 
-**Compatibilidad hacia atrás**: cadena de 3 niveles. Guardado hecho con la app anterior a la introducción de "Grupos" tiene esta colección y su `panelState` bajo las claves más antiguas `decks`/`deckPanelState`; guardado hecho tras "Grupos" pero antes de este renombrado a "Etiquetas" las tiene bajo `groups`/`groupPanelState`. `core/persistence.js` (`parseState`/`parseImportedComponents`) encadena la lectura: usa `tags`/`tagPanelState` si están presentes, si no `groups`/`groupPanelState`, si no `decks`/`deckPanelState` — para no perder etiquetas ya creadas en ningún guardado anterior.
+**Backward compatibility**: 3-level chain. A save made with the app before "Grupos" was introduced has this collection and its `panelState` under the oldest keys `decks`/`deckPanelState`; a save made after "Grupos" but before this rename to "Etiquetas" has them under `groups`/`groupPanelState`. `core/persistence.js` (`parseState`/`parseImportedComponents`) chains the read: uses `tags`/`tagPanelState` if present, otherwise `groups`/`groupPanelState`, otherwise `decks`/`deckPanelState` — so no tags already created in any previous save are lost.
 
-## Modelo de datos de grupo
+## Group data model
 
-Registro de propiedades propio de un grupo de componentes (unidad de agrupación en modo edición, ver `04-modes.md`, "Grupos en modo edición"). Desde 00202, independiente del `groupId` compartido por sus miembros — antes de ese cambio un grupo no tenía ningún estado propio.
+A group of components' own property record (grouping unit in edit mode, see `04-modes.md`, "Groups in edit mode"). Since 00202, independent of the `groupId` shared by its members — before that change a group had no state of its own.
 
-| Campo | Tipo | Descripción |
+| Field | Type | Description |
 |---|---|---|
-| `id` | string | Mismo valor que el `groupId` de sus miembros — `grupo-N` autogenerado (`core/component.js#nextGroupId`) al formar el grupo, o libre si se renombra desde su modal de propiedades |
-| `bloqueado` | `'ninguno' \| 'juego' \| 'todos'` | Igual semántica que el campo homónimo de componente |
-| `oculto` | boolean | Igual semántica que el campo homónimo de componente |
-| `mostrarTooltip` | boolean | Igual semántica que el campo homónimo de componente |
-| `subirAlMoverInteractuar` | boolean | Igual semántica que el campo homónimo de componente |
-| `etiquetaIds` | string[] | Etiquetas propias del grupo — lista independiente de las de cada miembro, sin relación entre ambas |
+| `id` | string | Same value as its members' `groupId` — `grupo-N` autogenerated (`core/component.js#nextGroupId`) when the group is formed, or free if renamed from its properties modal |
+| `bloqueado` | `'ninguno' \| 'juego' \| 'todos'` | Same semantics as the component field of the same name |
+| `oculto` | boolean | Same semantics as the component field of the same name |
+| `mostrarTooltip` | boolean | Same semantics as the component field of the same name |
+| `subirAlMoverInteractuar` | boolean | Same semantics as the component field of the same name |
+| `etiquetaIds` | string[] | The group's own tags — independent list from each member's, unrelated to them |
 
-`core/group.js` expone:
-- `createGroup({ id, ... })` / `updateGroup(group, changes)` — mismo patrón que `core/tag.js`/`core/resource.js`. A diferencia de esas dos, `id` no se autogenera aquí: siempre lo fija quien llama.
-- `isGroupIdTaken(id, groups, excludeId)` — comparación exacta (no normalizada, a diferencia de `isTagNameTaken`): `id` es un identificador literal, no un nombre libre.
-- `getEffectiveGeneralProps(component, groups)` — ver `04-modes.md`. Resuelve qué valores de `bloqueado`/`oculto`/`mostrarTooltip`/`subirAlMoverInteractuar`/`etiquetaIds` gobiernan de verdad a un componente: los de su grupo si pertenece a uno, los suyos propios si no.
-- `getGroupsUsingTag(tagId, groups)` — mismo criterio que `getComponentsUsingTag` (`core/tag.js`), aplicado a `groups`.
-- `deriveMissingGroups(components, existingGroups)` — backfill: añade una entrada con valores por defecto por cada `groupId` (2+ miembros) sin registro ya en `existingGroups`. Cubre tanto guardados de antes de 00202 (sin la colección) como una importación cuyo fichero no incluye algún grupo referenciado por sus componentes.
+`core/group.js` exposes:
+- `createGroup({ id, ... })` / `updateGroup(group, changes)` — same pattern as `core/tag.js`/`core/resource.js`. Unlike those two, `id` is not autogenerated here: it is always set by the caller.
+- `isGroupIdTaken(id, groups, excludeId)` — exact comparison (not normalized, unlike `isTagNameTaken`): `id` is a literal identifier, not a free name.
+- `getEffectiveGeneralProps(component, groups)` — see `04-modes.md`. Resolves which values of `bloqueado`/`oculto`/`mostrarTooltip`/`subirAlMoverInteractuar`/`etiquetaIds` actually govern a component: its group's if it belongs to one, its own otherwise.
+- `getGroupsUsingTag(tagId, groups)` — same criterion as `getComponentsUsingTag` (`core/tag.js`), applied to `groups`.
+- `deriveMissingGroups(components, existingGroups)` — backfill: adds a default-valued entry for each `groupId` (2+ members) without a record in `existingGroups`. Covers both pre-00202 saves (without the collection) and an import whose file does not include some group referenced by its components.
 
-`core/state.js` mantiene colección `groups` (`getGroups`/`addGroup`/`replaceGroup`/`removeGroup`/`loadGroups`, evento `groups:changed`) — sin `panelState` propio (no tiene panel flotante dedicado, a diferencia de "Etiquetas"/"Recursos"; se edita desde el modal abierto por el botón "Editar" de su fila en el panel "Componentes"). Persistida bajo la clave `componentGroups` (`core/persistence.js`, `core/fileExport.js`) — deliberadamente **no** `groups`, porque esa clave ya está reservada como alias de compatibilidad hacia atrás de `tags` (ver más abajo, "Compatibilidad hacia atrás"). Sin alias propio: es una colección nueva, no existía con otro nombre antes.
+`core/state.js` keeps a `groups` collection (`getGroups`/`addGroup`/`replaceGroup`/`removeGroup`/`loadGroups`, event `groups:changed`) — with no own `panelState` (no dedicated floating panel, unlike "Etiquetas"/"Recursos"; it is edited from the modal opened by the "Editar" button of its row in the "Componentes" panel). Persisted under the key `componentGroups` (`core/persistence.js`, `core/fileExport.js`) — deliberately **not** `groups`, because that key is already reserved as a backward-compatibility alias of `tags` (see "Backward compatibility" below). No own alias: it is a new collection, it did not exist under another name before.
 
-Alta automática (valores por defecto) al formar el grupo, baja automática (sin dejar rastro) al desagruparse — manual o por disolución automática al quedar ≤1 miembro (ver `04-modes.md`). Importación (`core/importMerge.js`): se fusiona por `id` igual que recursos/etiquetas, sin la deduplicación adicional que sí tienen las etiquetas (renombrado por nombre duplicado) — colisión de `id` de grupo entre partida actual e importada no se resuelve especialmente, fuera de alcance de 00202.
+Automatic creation (default values) when the group is formed, automatic removal (no trace) when ungrouped — manually or by automatic dissolution when ≤1 member remains (see `04-modes.md`). Import (`core/importMerge.js`): merged by `id` like resources/tags, without the extra deduplication tags have (rename on duplicate name) — a group `id` collision between the current game and the imported one is not specially resolved, out of scope of 00202.
 
-## Modelo de datos de recurso (galería)
+## Resource data model (gallery)
 
-"Recurso de galería" (imagen o tipografía usada por la partida), independiente del modelo de componente:
+"Gallery resource" (image or typeface used by the game), independent of the component model:
 
-| Campo | Tipo | Descripción |
+| Field | Type | Description |
 |---|---|---|
-| `id` | string | Identificador único (`crypto.randomUUID()`); `DEFAULT_RESOURCES` es la única excepción — id fijo, ver más abajo |
-| `name` | string | Nombre visible en la lista, editable |
-| `type` | `'imagen' \| 'tipografia'` | Tipo de recurso |
-| `dataUrl` | string | Contenido del fichero embebido como data URI |
-| `fileName` | string | Nombre original del fichero |
-| `mimeType` | string | Tipo MIME del fichero original |
+| `id` | string | Unique identifier (`crypto.randomUUID()`); `DEFAULT_RESOURCES` is the only exception — fixed id, see below |
+| `name` | string | Name shown in the list, editable |
+| `type` | `'imagen' \| 'tipografia'` | Resource type |
+| `dataUrl` | string | File content embedded as a data URI |
+| `fileName` | string | Original file name |
+| `mimeType` | string | MIME type of the original file |
 
-`core/resource.js` expone:
-- `createResource()` / `updateResource()` — mismo patrón que `core/component.js`. `createResource()` acepta `id` opcional (solo usado por `DEFAULT_RESOURCES`) que sustituye al UUID generado por defecto.
-- `resourceTypeForFileName(fileName)` — deduce tipo por extensión, `null` si no soportada: `png/jpg/jpeg/gif/svg/webp` → imagen, `ttf/otf/woff/woff2` → tipografía.
-- `isResourceInUse(resourceId, components)` / `getComponentsUsingResource(resourceId, components)` — comparten helper local `collectDeepValues(value)` que recorre `component.properties` en profundidad (no solo primer nivel — necesario porque `'carta'` referencia recursos dentro de `properties.caraFrontal`/`caraTrasera` y de cada `textBox`). `isResourceInUse` devuelve booleano; `getComponentsUsingResource` devuelve lista de ids que lo usan (usada por `modes/edit/editMode.js` para identificar en el mensaje de error qué componente(s) bloquean el borrado).
+`core/resource.js` exposes:
+- `createResource()` / `updateResource()` — same pattern as `core/component.js`. `createResource()` accepts an optional `id` (only used by `DEFAULT_RESOURCES`) that replaces the default generated UUID.
+- `resourceTypeForFileName(fileName)` — infers type by extension, `null` if unsupported: `png/jpg/jpeg/gif/svg/webp` → image, `ttf/otf/woff/woff2` → typeface.
+- `isResourceInUse(resourceId, components)` / `getComponentsUsingResource(resourceId, components)` — share a local helper `collectDeepValues(value)` that traverses `component.properties` deeply (not just top level — needed because `'carta'` references resources inside `properties.caraFrontal`/`caraTrasera` and each `textBox`). `isResourceInUse` returns a boolean; `getComponentsUsingResource` returns the list of ids that use it (used by `modes/edit/editMode.js` to identify in the error message which component(s) block deletion).
 
-`core/state.js` mantiene colección `resources` (`getResources`/`addResource`/`replaceResource`/`removeResource`/`loadResources`, evento `resources:changed`) y `panelState` propio (`resourcePanelState`, shape `{ collapsed, position, width, columnWidths }` — `columnWidths`: objeto `{ [columna]: pxNumber }` o `null`, evento `resourcePanelState:changed`). También mantiene flag `resourcesSeeded` (`getResourcesSeeded`/`markResourcesSeeded`/`loadResourcesSeeded`, sin evento propio, persistido junto al resto) que recuerda si los recursos por defecto ya se sembraron, para no reponerlos si el usuario los borra.
+`core/state.js` keeps a `resources` collection (`getResources`/`addResource`/`replaceResource`/`removeResource`/`loadResources`, event `resources:changed`) and its own `panelState` (`resourcePanelState`, shape `{ collapsed, position, width, columnWidths }` — `columnWidths`: object `{ [column]: pxNumber }` or `null`, event `resourcePanelState:changed`). It also keeps a `resourcesSeeded` flag (`getResourcesSeeded`/`markResourcesSeeded`/`loadResourcesSeeded`, no own event, persisted alongside the rest) that remembers whether the default resources were already seeded, so they are not restored if the user deletes them.
 
-`data/defaultResources.js` exporta `DEFAULT_RESOURCES`: 2 recursos de ejemplo con los que arranca cualquier sesión totalmente nueva (sin guardado ni semilla) — uno por tipo de recurso soportado, sin contenido específico del juego. `id: "example-image"`, tipo `'imagen'`, cuadrado 512×512 con fondo/borde/texto de tokens de `01-tokens-visual.md` (`--accent-blue-light`/`--accent-blue`), formato WebP embebido igual que cualquier imagen subida por la app. `id: "example-font"`, tipo `'tipografia'`, tipografía Actor (Google Fonts, OFL) embebida en TTF. Sembrados en `main.js` (`seedDefaultResources()`) junto al componente de texto de ejemplo. Llevan `id` fijo y legible en vez de UUID. Guardado o semilla previa a esta funcionalidad (`resourcesSeeded` ausente o `false`) también los recibe una vez, vía `backfillDefaultResourcesIfNeeded()` (ver `06-persistence-build.md`).
+`data/defaultResources.js` exports `DEFAULT_RESOURCES`: 2 example resources any fully new session (no save, no seed) starts with — one per supported resource type, no game-specific content. `id: "example-image"`, type `'imagen'`, 512×512 square with background/border/text from `01-tokens-visual.md` tokens (`--accent-blue-light`/`--accent-blue`), WebP format embedded like any image uploaded by the app. `id: "example-font"`, type `'tipografia'`, Actor typeface (Google Fonts, OFL) embedded in TTF. Seeded in `main.js` (`seedDefaultResources()`) alongside the example text component. They carry a fixed, readable `id` instead of a UUID. A save or seed predating this feature (`resourcesSeeded` absent or `false`) also receives them once, via `backfillDefaultResourcesIfNeeded()` (see `06-persistence-build.md`).
 
-Al subir imagen nueva (PNG/JPG/JPEG) desde panel "Recursos" o `ui/resourceModal.js` (reemplazo), `core/imageConversion.js` (`convertImageToWebP(file, dataUrl)`) la convierte automáticamente a WebP con pérdida y calidad alta (`<canvas>` + `toDataURL('image/webp', 0.92)`) antes de guardar, actualizando `dataUrl`/`fileName`/`mimeType`. WebP, SVG y GIF ya subidos se guardan tal cual sin reconversión; si la conversión falla o no está disponible, se guarda el original sin bloquear ni avisar.
+On uploading a new image (PNG/JPG/JPEG) from the "Recursos" panel or `ui/resourceModal.js` (replacement), `core/imageConversion.js` (`convertImageToWebP(file, dataUrl)`) automatically converts it to lossy WebP at high quality (`<canvas>` + `toDataURL('image/webp', 0.92)`) before saving, updating `dataUrl`/`fileName`/`mimeType`. WebP, SVG and GIF already uploaded are saved as-is with no reconversion; if conversion fails or is unavailable, the original is saved without blocking or notifying.
 
-## Migración de componentes `'ficha'`
+## `'ficha'` component migration
 
-Tipo `'ficha'` (cuadrado o círculo con borde/fondo configurables) retirado: ya no se puede dar de alta. Su etiqueta visible ("Carta/Ficha") pasó a `'carta'`, que absorbe su caso de uso (proporción `'1:1'` o `'circular'`). `core/fichaMigration.js` (módulo puro) expone el mapeo `'ficha'` → `'carta'`:
+The `'ficha'` type (square or circle with configurable border/background) has been retired: it can no longer be created. Its visible label ("Carta/Ficha") moved to `'carta'`, which absorbs its use case (`'1:1'` or `'circular'` proportion). `core/fichaMigration.js` (pure module) exposes the `'ficha'` → `'carta'` mapping:
 
-- `migrateFichaProperties(fichaProperties, componentSize)` → `{ properties, errors }` (`componentSize`: `{ width, height }` del componente `'ficha'` a convertir). Nunca lanza excepción; siempre devuelve `properties` de carta válido (best-effort) más lista de errores (vacía si ninguno).
-  - `forma`: `'circular'`/`'cuadrada'` → `proporcion` `'circular'`/`'1:1'` (cualquier otro valor es error, fallback `'1:1'`).
-  - `bordeColor`/`bordeGrosor`: se copian tal cual a ambas caras.
-  - Según `fondoTipo`: `'imagen'` copia `imagenResourceId`/`ajusteImagen` a ambas caras (un `ajusteImagen` con forma inválida es error); `'texto'` traslada `texto` como un único `TextBox` que ocupa toda la carta en píxeles reales (`x:0, y:0, width: componentSize.width, height: componentSize.height`) con `colorFondo` igual al de la ficha; `'color'` (o ausente) no tiene equivalente — `colorFondo` se pierde sin contar como error.
-  - `caraFrontal`/`caraTrasera` resultantes son siempre idénticas (la ficha no distinguía caras). `properties` resultante nace con `medidasReales: true` (no necesita pasar por `migrateCartaMedidasReales`).
-- `migrateFichaComponent(component)` → `{ component, errors }`: envuelve la función anterior, fija `type: 'carta'`, `etiquetaIds: []` y `properties.caraActual: 'frontal'` (no `'trasera'`, para que la migración se note) en el resultado; el resto de campos generales no se tocan.
+- `migrateFichaProperties(fichaProperties, componentSize)` → `{ properties, errors }` (`componentSize`: `{ width, height }` of the `'ficha'` component being converted). Never throws; always returns valid card `properties` (best-effort) plus a list of errors (empty if none).
+  - `forma`: `'circular'`/`'cuadrada'` → `proporcion` `'circular'`/`'1:1'` (any other value is an error, fallback `'1:1'`).
+  - `bordeColor`/`bordeGrosor`: copied as-is to both faces.
+  - By `fondoTipo`: `'imagen'` copies `imagenResourceId`/`ajusteImagen` to both faces (an `ajusteImagen` with an invalid shape is an error); `'texto'` moves `texto` as a single `TextBox` filling the whole card in real pixels (`x:0, y:0, width: componentSize.width, height: componentSize.height`) with `colorFondo` equal to the ficha's; `'color'` (or absent) has no equivalent — `colorFondo` is lost without counting as an error.
+  - Resulting `caraFrontal`/`caraTrasera` are always identical (the ficha did not distinguish faces). Resulting `properties` starts with `medidasReales: true` (does not need to go through `migrateCartaMedidasReales`).
+- `migrateFichaComponent(component)` → `{ component, errors }`: wraps the previous function, sets `type: 'carta'`, `etiquetaIds: []` and `properties.caraActual: 'frontal'` (not `'trasera'`, so the migration is noticeable) in the result; the rest of the general fields are not touched.
 
-Dos puntos de uso, distinto criterio ante `errors`:
+Two use points, different criteria for `errors`:
 
-- **Migración silenciosa al cargar** (`core/state.js`, `loadComponents`): función interna `migrateFichas(components)` sustituye en el sitio cualquier `type === 'ficha'` por el resultado de `migrateFichaComponent`, ignorando siempre `errors` (best-effort, nunca bloquea el arranque). Cubre automáticamente los dos puntos de entrada de arranque (`localStorage` y semilla del HTML embebido).
-- **Importación explícita** (`ui/editModeToggle.js`, `importComponentsFromFile`, ver `06-persistence-build.md`): único punto de conversión que puede interrumpirse. Cada ficha seleccionada para importar pasa por `migrateFichaComponent` antes de `mergeImportedGame`; si alguna devuelve `errors` no vacíos, se abre `ui/importConversionErrorModal.js` (ver `05-ui-layer.md`) con la lista antes de aplicar ningún cambio. El usuario elige "Continuar sin esas fichas" (se excluyen del `selectedComponents`, resto sigue con normalidad) o "Abortar importación" (no se llama a `mergeImportedGame` ni a `loadComponents`/`loadResources`/`loadTags`, partida actual queda intacta).
+- **Silent migration on load** (`core/state.js`, `loadComponents`): internal function `migrateFichas(components)` replaces in place any `type === 'ficha'` with the result of `migrateFichaComponent`, always ignoring `errors` (best-effort, never blocks startup). Automatically covers the two startup entry points (`localStorage` and the embedded HTML seed).
+- **Explicit import** (`ui/editModeToggle.js`, `importComponentsFromFile`, see `06-persistence-build.md`): the only conversion point that can be interrupted. Each ficha selected for import goes through `migrateFichaComponent` before `mergeImportedGame`; if any returns non-empty `errors`, `ui/importConversionErrorModal.js` (see `05-ui-layer.md`) opens with the list before applying any change. The user chooses "Continuar sin esas fichas" (they are excluded from `selectedComponents`, the rest proceeds normally) or "Abortar importación" (`mergeImportedGame`, `loadComponents`/`loadResources`/`loadTags` are not called, the current game is left intact).
 
-## Portapapeles de estilo
+## Style clipboard
 
-`core/styleClipboard.js` (módulo puro): portapapeles de "Copiar/Pegar estilo" de una carta, exclusivo del tipo `'carta'` (estructuralmente ampliable a otros tipos en el futuro). Vive **solo en memoria de módulo** durante la sesión del navegador — nunca se persiste en `localStorage` ni se incluye en guardado/exportado (no forma parte de los campos serializados por `core/persistence.js`). Solo un estilo copiado a la vez: cada `setStyleClipboard(data)` sustituye por completo el anterior, sin historial.
+`core/styleClipboard.js` (pure module): "Copiar/Pegar estilo" clipboard of a card, exclusive to the `'carta'` type (structurally extensible to other types in the future). Lives **only in module memory** during the browser session — never persisted to `localStorage` nor included in save/export (not part of the fields serialized by `core/persistence.js`). Only one copied style at a time: each `setStyleClipboard(data)` fully replaces the previous, no history.
 
-Forma del dato: `{ generales?, proporcion?, caraFrontal?, caraTrasera? }` — solo los bloques marcados al copiar llevan valor.
+Data shape: `{ generales?, proporcion?, caraFrontal?, caraTrasera? }` — only the blocks checked on copy carry a value.
 
-- `generales` es `{ bloqueado, mostrarTooltip, subirAlMoverInteractuar, oculto, etiquetaIds, etiquetaNames }` — campos generales de primer nivel del componente (no de `properties`), editables en pestaña "Generales" de `ui/componentModal.js`.
-- `caraFrontal`/`caraTrasera` tienen el mismo shape que `properties.caraFrontal`/`caraTrasera` de una carta, clonados en profundidad al copiar (`cloneFace`, interno) para que ediciones posteriores de la carta origen no muten el portapapeles.
-- `etiquetaNames` es de solo lectura (mismo índice que `etiquetaIds`), guardado solo para mostrar el nombre de cada etiqueta en el mensaje de error si deja de existir al pegar — no se usa para restaurar etiquetas.
+- `generales` is `{ bloqueado, mostrarTooltip, subirAlMoverInteractuar, oculto, etiquetaIds, etiquetaNames }` — the component's top-level general fields (not `properties`), editable in the "Generales" tab of `ui/componentModal.js`.
+- `caraFrontal`/`caraTrasera` have the same shape as a card's `properties.caraFrontal`/`caraTrasera`, deep-cloned on copy (`cloneFace`, internal) so later edits to the source card do not mutate the clipboard.
+- `etiquetaNames` is read-only (same index as `etiquetaIds`), stored only to show each tag's name in the error message if it no longer exists on paste — not used to restore tags.
 
-Expone `setStyleClipboard(data)`, `getStyleClipboard()` (`null` si nada copiado), `hasStyleClipboard()` (booleano, usado por `ui/componentModal.js` para habilitar/deshabilitar "Pegar estilo"). También `validateStyleClipboardForPaste(clip, { tags, resources })`, función pura que recorre solo los bloques presentes en `clip` y devuelve lista de incidencias `{ elemento, referencia, detalle }` (vacía si todo válido): comprueba que cada id de `clip.generales.etiquetaIds` (si presente) siga existiendo en `tags`, y que `imagenResourceId`/`fuenteResourceId` de cada cara presente (y sus `textBoxes`) sigan existiendo en `resources`. No toca estado ni portapapeles.
+Exposes `setStyleClipboard(data)`, `getStyleClipboard()` (`null` if nothing copied), `hasStyleClipboard()` (boolean, used by `ui/componentModal.js` to enable/disable "Pegar estilo"). Also `validateStyleClipboardForPaste(clip, { tags, resources })`, a pure function that traverses only the blocks present in `clip` and returns a list of issues `{ elemento, referencia, detalle }` (empty if all valid): checks that each id in `clip.generales.etiquetaIds` (if present) still exists in `tags`, and that `imagenResourceId`/`fuenteResourceId` of each present face (and their `textBoxes`) still exist in `resources`. Touches neither state nor clipboard.
 
-Flujo de uso, ambos en `ui/componentModal.js` (`renderCartaSpecificFields`, sección "Estilo de la carta"):
+Usage flow, both in `ui/componentModal.js` (`renderCartaSpecificFields`, "Estilo de la carta" section):
 
-- **Copiar**: botón "Copiar estilo" abre `ui/styleClipboardSelectionModal.js` con checklist de 4 bloques (Generales, Proporción, Cara frontal, Cara trasera), todos marcados por defecto; al confirmar, construye el objeto a guardar a partir de la selección y valores actuales del componente, llama a `setStyleClipboard`, muestra `showToast('Estilo copiado')`.
-- **Pegar**: botón "Pegar estilo" (deshabilitado si `!hasStyleClipboard()`) valida primero con `validateStyleClipboardForPaste`; si hay incidencias, abre `ui/styleClipboardErrorModal.js` sin tocar el componente (pegado todo o nada); si no hay incidencias, aplica sobre `workingComponent`/`workingComponent.properties` solo los bloques presentes (clonados de nuevo, sin compartir referencia con el portapapeles), sustituyendo por completo cada bloque de destino, y refresca en pantalla los campos afectados (checkboxes de "Generales" incluida lista de Etiquetas, desplegable de Proporción, tamaño del componente).
+- **Copy**: the "Copiar estilo" button opens `ui/styleClipboardSelectionModal.js` with a checklist of 4 blocks (Generales, Proporción, Cara frontal, Cara trasera), all checked by default; on confirm, it builds the object to store from the selection and the component's current values, calls `setStyleClipboard`, shows `showToast('Estilo copiado')`.
+- **Paste**: the "Pegar estilo" button (disabled if `!hasStyleClipboard()`) first validates with `validateStyleClipboardForPaste`; if there are issues, it opens `ui/styleClipboardErrorModal.js` without touching the component (all-or-nothing paste); if there are none, it applies over `workingComponent`/`workingComponent.properties` only the blocks present (cloned again, not sharing a reference with the clipboard), fully replacing each destination block, and refreshes the affected fields on screen ("Generales" checkboxes including the tag list, Proporción dropdown, component size).

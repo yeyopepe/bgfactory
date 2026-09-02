@@ -1,27 +1,27 @@
-# Diseño técnico — Prototipo digital "BF Factory"
+# Technical design — "BF Factory" digital prototype
 
-Mapa de la documentación de arquitectura. Este fichero cubre objetivo/restricciones, capas, convenciones de código y el checklist a revisar al añadir un tipo/colección nuevo. Para modelo de datos, modos, UI y persistencia, ver la tabla de ficheros hermanos al final.
+Map of the architecture documentation. This file covers goal/constraints, layers, code conventions and the checklist to review when adding a new type/collection. For data model, modes, UI and persistence, see the sibling-file table at the end.
 
-## 1. Objetivo y restricciones
+## 1. Goal and constraints
 
-- Prototipo digital funciona en cualquier navegador moderno.
-- Entregable: único fichero HTML autocontenido (JS y CSS incrustados, cualquier librería externa embebida en el propio fichero).
-- Se abre con doble clic (`file://`), sin servidor ni instalación.
-- Build no depende de Node.js ni de herramientas de build complejas: usa Python.
-- Código fuente organizado en ficheros/capas separadas dentro de `/src`.
-- `src/scripts/build.py` transforma el código fuente en un fichero único versionado bajo `src/_output/versions/`.
+- Digital prototype runs in any modern browser.
+- Deliverable: a single self-contained HTML file (JS and CSS embedded, any external library embedded in the file itself).
+- Opens with a double click (`file://`), no server or installation.
+- Build does not depend on Node.js or complex build tools: uses Python.
+- Source code organized in separate files/layers inside `/src`.
+- `src/scripts/build.py` transforms the source code into a single versioned file under `src/_output/versions/`.
 
-## 2. Arquitectura por capas
+## 2. Layered architecture
 
 ```
-core/    → estado de la aplicación, modelo de datos (componentes y recursos), bus de eventos, persistencia y exportación a fichero
-modes/   → modo juego (play) y modo edición (edit), cada uno con su propia carpeta
-ui/      → elementos de interfaz reutilizables entre modos
-data/    → datos de versión de la app y recursos por defecto de la galería
-main.js  → bootstrap: conecta las capas anteriores
+core/    → application state, data model (components and resources), event bus, persistence and file export
+modes/   → play mode and edit mode, each in its own folder
+ui/      → interface elements reused across modes
+data/    → app version data and default gallery resources
+main.js  → bootstrap: wires the previous layers
 ```
 
-Dependencias entre capas (flecha = "depende de"):
+Dependencies between layers (arrow = "depends on"):
 
 ```
 modes/* ──▶ ui/* ──▶ core/*
@@ -29,47 +29,47 @@ modes/* ──────────▶ core/*
 main.js ──▶ data/*, ui/*, modes/*, core/*
 ```
 
-- `core` no depende de ninguna otra capa.
-- `ui` solo depende de `core` (lee/escribe estado).
-- `modes` compone `ui` y `core` para construir cada pantalla.
-- `main.js` es el único punto que conoce y conecta todas las capas.
-- Estado (`core/state.js`) es la única fuente de verdad.
-- Cambios se notifican vía bus de eventos simple (`core/eventBus.js`, `emit`/`on`) para que la UI se vuelva a renderizar sin acoplar módulos entre sí.
+- `core` depends on no other layer.
+- `ui` depends only on `core` (reads/writes state).
+- `modes` composes `ui` and `core` to build each screen.
+- `main.js` is the only point that knows and wires all layers.
+- State (`core/state.js`) is the single source of truth.
+- Changes are notified via a simple event bus (`core/eventBus.js`, `emit`/`on`) so the UI re-renders without coupling modules to each other.
 
-## 7. Convenciones de código
+## 7. Code conventions
 
-- Módulos ES (`import`/`export`) organizados por capa/responsabilidad, un fichero por módulo funcional.
-- Sin dependencias externas por defecto.
-- Librería nueva solo se incorpora si su bundle puede embeberse íntegramente en el HTML final (sin CDN en runtime ni instalación adicional).
-- Recursos gráficos van en `/src/img`, organizados por tipo de componente.
-- Convenciones visuales (tokens de color, tipografía, espaciado, nomenclatura BEM, patrones de componente) documentadas en `design/docs/style/`.
-- `src/test/` contiene ficheros `.json` de ejemplo con el formato exportado por "Guardar a fichero" (`core/fileExport.js`: `{ version, components, resources }`), para importar manualmente (pegando en `#initial-state`, o vía `localStorage`) y probar tipos de componente ya configurados.
-- Comentarios en código: solo los necesarios. Explican el porqué no evidente (restricción oculta, invariante, workaround puntual), nunca el qué (ya lo dice el propio código). Sin comentario si borrarlo no confundiría a quien lea después.
-- Estilo del comentario, cuando hace falta: igual que la documentación técnica — telegráfico. Sin artículos superfluos, sin adverbios de relleno, verbos en presente, sujeto implícito. Referencias (nombre de campo, tipo, fichero) siempre explícitas, sin ambigüedad.
-- Excepción: `src/vendor/` y `src/scripts/vendor/` son código de terceros tal cual (§2) — sus comentarios no se tocan.
+- ES modules (`import`/`export`) organized by layer/responsibility, one file per functional module.
+- No external dependencies by default.
+- A new library is only incorporated if its bundle can be embedded whole in the final HTML (no CDN at runtime, no additional installation).
+- Graphic resources go in `/src/img`, organized by component type.
+- Visual conventions (color tokens, typography, spacing, BEM naming, component patterns) documented in `design/docs/style/`.
+- `src/test/` contains `.json` example files in the format exported by "Guardar a fichero" (`core/fileExport.js`: `{ version, components, resources }`), to import manually (pasting into `#initial-state`, or via `localStorage`) and test already-configured component types.
+- Code comments: only the necessary ones. They explain the non-obvious why (hidden constraint, invariant, one-off workaround), never the what (the code already says it). No comment if removing it would not confuse a later reader.
+- Comment style, when needed: same as the technical documentation — telegraphic. No superfluous articles, no filler adverbs, verbs in present, implicit subject. References (field name, type, file) always explicit, unambiguous.
+- Exception: `src/vendor/` and `src/scripts/vendor/` are third-party code as-is (§2) — their comments are not touched.
 
-## 8. Checklist al añadir un tipo/colección nuevo
+## 8. Checklist when adding a new type/collection
 
-Funcionalidades transversales, no ligadas a un único tipo — recorren "todos los que haya". Revisar cada una al añadir un tipo de componente o una colección nueva a nivel de `core/state.js`:
+Cross-cutting features, not tied to a single type — they iterate "all there are". Review each when adding a component type or a new collection at the `core/state.js` level:
 
-- **Persistencia y guardado a fichero** (`core/persistence.js`, `core/fileExport.js`): ambos serializan una lista fija de campos (`components`, `panelState`, `resources`, `resourcePanelState`, `resourcesSeeded`, `tags`, `tagPanelState`, `appTitle`). Colección/campo nuevo a nivel de `state.js` debe añadirse explícitamente en los dos sitios, y a la suscripción de eventos del autoguardado — si no, no se guarda ni se exporta.
-- **Detección de uso de un recurso** (`core/resource.js`, `isResourceInUse`/`getComponentsUsingResource` + helper `collectDeepValues`): recorre `component.properties` en profundidad para encontrar cualquier referencia a un `resourceId`. Si un tipo nuevo guarda referencias fuera de objetos/arrays planos (p. ej. claves de un `Map`), el borrado de ese recurso no se bloquea aunque esté en uso.
-- **Alta de un tipo de componente nuevo** (`ui/componentTypeModal.js` + `createDefaultComponent`/`DEFAULT_*_PROPERTIES` de `ui/componentModal.js`): lista de tipos disponibles y valores por defecto (tamaño inicial, `bloqueado`, `properties` de partida) están hardcodeados ahí. Tipo nuevo no aparece en el selector de alta ni tiene valores por defecto si no se añade en ambos sitios.
-- **Renderizado en la mesa** (`ui/componentRenderer.js`): cada tipo necesita su propia rama de dibujo dentro de `renderComponentsOnTable`. Debe respetar reglas transversales: overflow del contenido recortado en contenedor interno (nunca en el exterior, por la etiqueta `identifyMode: 'label'` y las insignias de estado — ver `05-ui-layer.md`), orden de dibujo según `order` (z-index visual), soporte de `onSelect`/`onToggleSelect`/`onMove`/`onResize` si aplica.
-- **Redimensionado con restricción de proporción** (`ui/resizeHandle.js`, parámetro `clamp`): tipos que fuerzan proporción fija (`'dado'` con 1:1, `'carta'` con `getProporcionRatio`) pasan su propio `clamp`. Tipo nuevo con esa necesidad replica el patrón — `resizeHandle.js` no lo hace por sí solo.
-- **`getComponentsBounds`** (`ui/componentRenderer.js`): usa los mismos valores por defecto que el renderizado (`x`/`y`/`width`/`height` mínimos) para la caja envolvente de "Ajustar zoom". Si un tipo nuevo cambia esos criterios de tamaño por defecto, la función puede desalinearse del renderizado real.
-- **Recursos por defecto y su siembra** (`data/defaultResources.js`, `main.js`): tipo de recurso nuevo (además de `'imagen'`/`'tipografia'`) o extensión de fichero nueva requiere revisar `resourceTypeForFileName` (`core/resource.js`).
-- **Guía de estilo** (`design/docs/style/03-modales-menus.md` y demás): revisar excepciones ya catalogadas (bisel de `'tableroSimple'`/`'dado'`, `border-radius` de "contenedores destacados" reutilizado por `'carta'`) antes de introducir una excepción nueva.
-- **Menú contextual, candado de bloqueo, indicador de oculto** (`ui/componentRenderer.js`): tipo nuevo que use `renderComponentsOnTable` obtiene automáticamente listener `contextmenu` (`onContextMenu`), insignia de candado (`showLockIndicator`) e insignia de "Oculto" (`showHiddenIndicator`) sin nada específico por tipo. "Sin nada específico" aplica a la **lógica** de cuándo se pinta cada insignia; un tipo sin caja rellena propia (como `'texto'`, `.text-box`) necesita además respetar el patrón de contenedor interno (`05-ui-layer.md`) para que las insignias del exterior no se recorten ni queden despegadas del contenido, y ancla sus insignias con offsets propios (`.text-box > .component-*-badge`). Revisar solo si el tipo nuevo necesita acción **específica** en el menú contextual — se pasa vía `specificItems` de `openContextMenu` desde el modo que lo invoque, no desde `componentRenderer.js`.
-- **Ficheros de prueba** (`src/test/*.json`): no se actualizan automáticamente. Añadir un ejemplo del tipo nuevo ya configurado.
+- **Persistence and file save** (`core/persistence.js`, `core/fileExport.js`): both serialize a fixed list of fields (`components`, `panelState`, `resources`, `resourcePanelState`, `resourcesSeeded`, `tags`, `tagPanelState`, `appTitle`). A new collection/field at the `state.js` level must be added explicitly in both places, and in the autosave event subscription — otherwise it is neither saved nor exported.
+- **Resource-usage detection** (`core/resource.js`, `isResourceInUse`/`getComponentsUsingResource` + helper `collectDeepValues`): traverses `component.properties` deeply to find any reference to a `resourceId`. If a new type stores references outside plain objects/arrays (e.g. `Map` keys), deleting that resource is not blocked even if it is in use.
+- **Creation of a new component type** (`ui/componentTypeModal.js` + `createDefaultComponent`/`DEFAULT_*_PROPERTIES` of `ui/componentModal.js`): the list of available types and default values (initial size, `bloqueado`, starting `properties`) are hardcoded there. A new type does not appear in the creation selector nor has default values if not added in both places.
+- **Rendering on the table** (`ui/componentRenderer.js`): each type needs its own drawing branch inside `renderComponentsOnTable`. It must respect cross-cutting rules: overflow of clipped content in an inner container (never the outer one, because of the `identifyMode: 'label'` label and the state badges — see `05-ui-layer.md`), drawing order by `order` (visual z-index), support for `onSelect`/`onToggleSelect`/`onMove`/`onResize` if applicable.
+- **Resize with proportion constraint** (`ui/resizeHandle.js`, `clamp` parameter): types that force a fixed proportion (`'dado'` with 1:1, `'carta'` with `getProporcionRatio`) pass their own `clamp`. A new type with that need replicates the pattern — `resizeHandle.js` does not do it on its own.
+- **`getComponentsBounds`** (`ui/componentRenderer.js`): uses the same defaults as rendering (`x`/`y`/`width`/`height` minimums) for the "Ajustar zoom" bounding box. If a new type changes those default-size criteria, the function may fall out of sync with the real rendering.
+- **Default resources and their seeding** (`data/defaultResources.js`, `main.js`): a new resource type (beyond `'imagen'`/`'tipografia'`) or a new file extension requires reviewing `resourceTypeForFileName` (`core/resource.js`).
+- **Style guide** (`design/docs/style/03-modales-menus.md` and others): review already-catalogued exceptions (bevel of `'tableroSimple'`/`'dado'`, `border-radius` of "highlighted containers" reused by `'carta'`) before introducing a new exception.
+- **Context menu, lock badge, hidden indicator** (`ui/componentRenderer.js`): a new type using `renderComponentsOnTable` automatically gets a `contextmenu` listener (`onContextMenu`), lock badge (`showLockIndicator`) and "Oculto" badge (`showHiddenIndicator`) with nothing type-specific. "Nothing type-specific" applies to the **logic** of when each badge is painted; a type with no fill box of its own (like `'texto'`, `.text-box`) also needs to respect the inner-container pattern (`05-ui-layer.md`) so the outer badges are neither clipped nor detached from the content, and it anchors its badges with its own offsets (`.text-box > .component-*-badge`). Review only if the new type needs a **specific** context-menu action — it is passed via `specificItems` of `openContextMenu` from the mode that invokes it, not from `componentRenderer.js`.
+- **Test files** (`src/test/*.json`): not updated automatically. Add an example of the new type already configured.
 
-## Ficheros hermanos
+## Sibling files
 
-| Fichero | Cubre |
+| File | Covers |
 |---|---|
-| `01-component-model.md` | Modelo genérico de componente (campos, tabla), lógica de `order`, copias vinculadas (`copyOf`) |
-| `02-component-types.md` | Los ocho tipos de componente implementados y sus propiedades específicas |
-| `03-groups-resources.md` | Modelo de etiqueta, modelo de recurso/galería, migración de `'ficha'`, portapapeles de estilo |
-| `04-modes.md` | Modo juego vs modo edición: paneles, selección, menús contextuales, indicadores, z-index, título editable |
-| `05-ui-layer.md` | Módulos de la capa UI reutilizables entre modos |
-| `06-persistence-build.md` | Flujo de desarrollo/build y persistencia/guardado a fichero |
+| `01-component-model.md` | Generic component model (fields, table), `order` logic, linked copies (`copyOf`) |
+| `02-component-types.md` | The eight implemented component types and their type-specific properties |
+| `03-groups-resources.md` | Tag model, resource/gallery model, `'ficha'` migration, style clipboard |
+| `04-modes.md` | Play mode vs edit mode: panels, selection, context menus, indicators, z-index, editable title |
+| `05-ui-layer.md` | UI-layer modules reused across modes |
+| `06-persistence-build.md` | Development/build flow and persistence/file save |

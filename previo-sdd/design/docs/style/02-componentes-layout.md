@@ -1,99 +1,99 @@
-# Botones, layout, redimensionado, cabecera de tabla fija
+# Buttons, layout, resize, sticky table header
 
-Ver `INDEX.md` para el mapa completo de la Style Bible.
+See `INDEX.md` for the full map of the Style Bible.
 
-## 9. Botones
+## 9. Buttons
 
-Todos los botones comparten esta base (adaptar fondo/borde según contexto):
+All buttons share this base (adapt background/border by context):
 
 ```css
-padding: 0.5rem 1rem;   /* o 0.25rem 0.5rem si es un botón pequeño dentro de un item */
-border: none;           /* o 1px solid var(--text-light) sobre fondo oscuro */
+padding: 0.5rem 1rem;   /* or 0.25rem 0.5rem if a small button inside an item */
+border: none;           /* or 1px solid var(--text-light) on a dark background */
 border-radius: var(--radius-sm);
 cursor: pointer;
-font-size: 0.875rem;    /* o 0.75rem si es pequeño */
+font-size: 0.875rem;    /* or 0.75rem if small */
 transition: background var(--transition-fast), opacity var(--transition-fast);
 ```
 
-- Acción primaria: fondo `var(--accent-blue)`, texto `var(--text-light)`. Hover: `opacity: 0.9` + `transform: translateY(-1px)` + `box-shadow: 0 3px 8px rgba(44,125,216,.35)`.
-- Acción secundaria/cancelar: fondo `var(--bg-subtle)`, texto `var(--text-primary)`. Hover: `var(--bg-hover)` — solo transición de `background`, sin `transform`.
-- Acción destructiva (eliminar/borrar): fondo `var(--error)`, texto `var(--text-light)`. Hover: `opacity: 0.9` + `transform: translateY(-1px)` + `box-shadow: 0 3px 8px rgba(211,47,47,.3)` — mismo tratamiento que primaria, cambia solo color de fondo/sombra.
-  - Aplica a `.btn-eliminar` (modales) y al modificador BEM `--danger` (p. ej. `.component-list__action-btn--danger`).
-  - Cualquier acción que elimine un elemento usa este color en toda la app, nunca el azul primario.
-- Botón sobre fondo oscuro (toolbar): transparente, borde `1px solid var(--text-light)`. Hover: `rgba(255,255,255,0.1)` con transición de `background`, sin `transform`.
-  - Excepción: `.edit-toolbar__exit-btn` ("Salir del modo edición", `ui/editModeToggle.js`) usa el esquema de **acción primaria** dentro de `.edit-toolbar` (fondo `var(--accent-blue)`, `border-color: var(--accent-blue)`, texto `var(--text-light)`; hover `opacity: 0.9` + `background: var(--accent-blue)` explícito para anular el `rgba(255,255,255,0.1)` heredado de `.edit-toolbar button:hover`). Mismo criterio visual que "Entrar en modo edición" (`#mode-switcher button`) — las dos acciones que cambian de modo comparten aspecto. El resto de botones de `.edit-toolbar` ("Importar", "Exportar") mantienen el estilo transparente/borde.
-- Deshabilitado: `opacity: 0.5; cursor: not-allowed`, sin `transform` en hover.
-- Sin `:active` — feedback de interacción es el cambio de `opacity`/`background`/`box-shadow`/`transform` en `:hover`, con transición de 150ms (`var(--transition-fast)`).
-- **Botón icono-solo** (acción sin texto visible): icono SVG con `stroke="currentColor"` (hereda color de texto/borde del contexto), siempre con `title`/`aria-label` como etiqueta accesible.
-  - Dentro de un botón de barra ya existente (p. ej. `.edit-toolbar button`): mismo padding/tamaño que los botones con texto de ese bloque — solo cambia el contenido.
-  - Botón flotante cuadrado independiente (p. ej. `.mode-switcher__fit-btn`): `padding: 0`, ancho/alto fijo (`36px`), icono centrado (`display: inline-flex; align-items: center; justify-content: center`), mismo fondo/color de acción primaria del contexto.
-    - `.mode-switcher__fit-btn` (botón "Ajustar zoom", `createFitButton` en `ui/editModeToggle.js`): se muestra **en los dos modos** con el mismo aspecto y la misma posición — flotante en la esquina superior derecha (`position: fixed; top: 0.5rem; right: 1rem; z-index: 101`), `36×36`, fondo `var(--accent-blue)`. En modo juego cuelga de `#mode-switcher` (recibe posición del `#mode-switcher` contenedor y fondo azul de `#mode-switcher button`). En modo edición se monta como hijo directo de `#edit-toolbar` (fuera de `.edit-toolbar`), y la regla `#edit-toolbar > .mode-switcher__fit-btn` le reaplica `position: fixed`/coordenadas/`z-index: 101` y el fondo de acción primaria, porque los selectores de `#mode-switcher` no lo alcanzan ahí. Hover `opacity: 0.9` en ambos casos.
-    - El bloque de reglas de tamaño (`padding: 0; width: 36px; height: 36px; inline-flex; centrado`) usa el selector `#mode-switcher .mode-switcher__fit-btn, #edit-toolbar > .mode-switcher__fit-btn` — enumera explícitamente los dos contenedores para ganar por especificidad a `#mode-switcher button` (que fija `padding: 0.5rem 1rem` a todo botón descendiente de `#mode-switcher`; un `.mode-switcher__fit-btn` a secas pierde frente a él y el icono queda deformado dentro del `36×36`). El dimensionado del icono interior (`.mode-switcher__fit-btn .icon-frame { 18×18 }`) sí es autónomo — no compite con ninguna otra regla.
-- **Botón de texto completo en espacio reducido**: cuando un botón con texto va encajado entre elementos estrechos (no en fila de acciones holgada) — p. ej. `.card-editor-modal__adjust-image`, entre las dos caras de una carta — usa `padding: 0.5rem 0.75rem` como variante intermedia entre el estándar (`0.5rem 1rem`) y el pequeño de item (`0.25rem 0.5rem`). Reutilizar `0.75rem` en vez de introducir un cuarto valor ad-hoc.
+- Primary action: background `var(--accent-blue)`, text `var(--text-light)`. Hover: `opacity: 0.9` + `transform: translateY(-1px)` + `box-shadow: 0 3px 8px rgba(44,125,216,.35)`.
+- Secondary/cancel action: background `var(--bg-subtle)`, text `var(--text-primary)`. Hover: `var(--bg-hover)` — only `background` transition, no `transform`.
+- Destructive action (delete/remove): background `var(--error)`, text `var(--text-light)`. Hover: `opacity: 0.9` + `transform: translateY(-1px)` + `box-shadow: 0 3px 8px rgba(211,47,47,.3)` — same treatment as primary, only background/shadow color changes.
+  - Applies to `.btn-eliminar` (modals) and the BEM modifier `--danger` (e.g. `.component-list__action-btn--danger`).
+  - Any action that deletes an element uses this color across the whole app, never the primary blue.
+- Button on a dark background (toolbar): transparent, border `1px solid var(--text-light)`. Hover: `rgba(255,255,255,0.1)` with a `background` transition, no `transform`.
+  - Exception: `.edit-toolbar__exit-btn` ("Salir del modo edición", `ui/editModeToggle.js`) uses the **primary action** scheme inside `.edit-toolbar` (background `var(--accent-blue)`, `border-color: var(--accent-blue)`, text `var(--text-light)`; hover `opacity: 0.9` + explicit `background: var(--accent-blue)` to cancel the `rgba(255,255,255,0.1)` inherited from `.edit-toolbar button:hover`). Same visual criterion as "Entrar en modo edición" (`#mode-switcher button`) — the two mode-change actions share a look. The rest of `.edit-toolbar`'s buttons ("Importar", "Exportar") keep the transparent/border style.
+- Disabled: `opacity: 0.5; cursor: not-allowed`, no `transform` on hover.
+- No `:active` — interaction feedback is the `opacity`/`background`/`box-shadow`/`transform` change on `:hover`, with a 150ms transition (`var(--transition-fast)`).
+- **Icon-only button** (action with no visible text): SVG icon with `stroke="currentColor"` (inherits the context's text/border color), always with `title`/`aria-label` as an accessible label.
+  - Inside an existing bar button (e.g. `.edit-toolbar button`): same padding/size as that block's text buttons — only the content changes.
+  - Standalone square floating button (e.g. `.mode-switcher__fit-btn`): `padding: 0`, fixed width/height (`36px`), centered icon (`display: inline-flex; align-items: center; justify-content: center`), same background/color as the context's primary action.
+    - `.mode-switcher__fit-btn` ("Ajustar zoom" button, `createFitButton` in `ui/editModeToggle.js`): shown **in both modes** with the same look and the same position — floating in the top-right corner (`position: fixed; top: 0.5rem; right: 1rem; z-index: 101`), `36×36`, background `var(--accent-blue)`. In play mode it hangs off `#mode-switcher` (receives the `#mode-switcher` container's position and the blue background of `#mode-switcher button`). In edit mode it is mounted as a direct child of `#edit-toolbar` (outside `.edit-toolbar`), and the rule `#edit-toolbar > .mode-switcher__fit-btn` reapplies `position: fixed`/coordinates/`z-index: 101` and the primary-action background, because the `#mode-switcher` selectors do not reach it there. Hover `opacity: 0.9` in both cases.
+    - The size rule block (`padding: 0; width: 36px; height: 36px; inline-flex; centered`) uses the selector `#mode-switcher .mode-switcher__fit-btn, #edit-toolbar > .mode-switcher__fit-btn` — it explicitly lists the two containers to win by specificity over `#mode-switcher button` (which sets `padding: 0.5rem 1rem` on every button descending from `#mode-switcher`; a bare `.mode-switcher__fit-btn` loses against it and the icon ends up distorted inside the `36×36`). The inner icon sizing (`.mode-switcher__fit-btn .icon-frame { 18×18 }`) is autonomous — it competes with no other rule.
+- **Full-text button in a tight space**: when a text button is wedged between narrow elements (not in a loose action row) — e.g. `.card-editor-modal__adjust-image`, between the two faces of a card — it uses `padding: 0.5rem 0.75rem` as an intermediate variant between the standard (`0.5rem 1rem`) and the small item one (`0.25rem 0.5rem`). Reuse `0.75rem` instead of introducing a fourth ad-hoc value.
 
 ## 10. Layout
 
-- App = columna flex de altura completa: `html, body { height: 100% }`, `body { display:flex; flex-direction:column; height:100vh }`. Header fijo (`h1`, `3.5rem`) + `#content` flexible (`flex: 1 1 auto; min-height: 0`).
-- Paneles laterales de ancho fijo: `400px` (`.component-list`, `.edit-mode-panel`).
-- Posición inicial por defecto de paneles flotantes del modo edición: ambos anclados al lado derecho, apilados verticalmente (`.component-panel-container` arriba, `.resource-panel-container` debajo) — solo posición de partida, el usuario puede arrastrar cada panel libremente después.
-- `z-index` de `.component-panel-container`/`.resource-panel-container`/`.tag-panel-container`: no es valor CSS fijo — se calcula en `modes/edit/editMode.js` (`applyPanelStackOrder`, base `15`, uno por posición en `panelStackOrder`) para reflejar cuál de los tres está en primer plano tras la última interacción del usuario.
-  - Al ser `position: absolute` dentro de `tableContainer` (no `fixed`), quedan fuera de la tabla de capas siguiente, pero siempre muy por debajo de su primera capa (`99`, toolbar de edición).
+- App = full-height flex column: `html, body { height: 100% }`, `body { display:flex; flex-direction:column; height:100vh }`. Fixed header (`h1`, `3.5rem`) + flexible `#content` (`flex: 1 1 auto; min-height: 0`).
+- Fixed-width side panels: `400px` (`.component-list`, `.edit-mode-panel`).
+- Default initial position of edit-mode floating panels: both anchored to the right side, stacked vertically (`.component-panel-container` on top, `.resource-panel-container` below) — only a starting position, the user can drag each panel freely afterward.
+- `z-index` of `.component-panel-container`/`.resource-panel-container`/`.tag-panel-container`: not a fixed CSS value — computed in `modes/edit/editMode.js` (`applyPanelStackOrder`, base `15`, one per position in `panelStackOrder`) to reflect which of the three is in front after the user's last interaction.
+  - Being `position: absolute` inside `tableContainer` (not `fixed`), they fall outside the next layer table, but always well below its first layer (`99`, edit toolbar).
 
-### Z-index de overlays (`position: fixed`)
+### Z-index of overlays (`position: fixed`)
 
-| z-index | Capa |
+| z-index | Layer |
 |---|---|
-| `10` | Footer de versión |
-| `99` | Toolbar de edición |
+| `10` | Version footer |
+| `99` | Edit toolbar |
 | `100` | Header |
-| `101` | Mode switcher (`#mode-switcher`) y botón "Ajustar zoom" flotante (`.mode-switcher__fit-btn`, en ambos modos) |
-| `1000` | Overlay de modal |
-| `1050` | Menú contextual de componente (`.context-menu`, `03-modales-menus.md` §12.8) y menú de cabecera de columna (`.column-header-menu`, `03-modales-menus.md` §12.7) |
+| `101` | Mode switcher (`#mode-switcher`) and the floating "Ajustar zoom" button (`.mode-switcher__fit-btn`, in both modes) |
+| `1000` | Modal overlay |
+| `1050` | Component context menu (`.context-menu`, `03-modales-menus.md` §12.8) and column-header menu (`.column-header-menu`, `03-modales-menus.md` §12.7) |
 
-- `1050` es el nivel más alto de la app, no el overlay de modal — ambos menús pueden abrirse con una modal ya visible detrás (p. ej. el editor de cartas) y deben quedar por delante de ella.
-- Al añadir un elemento fijo/absoluto nuevo: elegir su `z-index` respetando este orden (por debajo del modal, por encima del contenido normal).
+- `1050` is the app's highest level, not the modal overlay — both menus can open with a modal already visible behind (e.g. the card editor) and must be in front of it.
+- When adding a new fixed/absolute element: choose its `z-index` respecting this order (below the modal, above normal content).
 
-## 11. Redimensionado (manejador de esquina)
+## 11. Resize (corner handle)
 
-Patrón estándar para hacer redimensionable cualquier elemento de la app (no exclusivo de un componente): `.resize-handle`, bloque standalone (no sigue BEM de ningún otro bloque, excepción similar a `.btn-*`), implementado en `ui/resizeHandle.js` (`attachResizeHandle`).
+Standard pattern to make any element in the app resizable (not exclusive to a component): `.resize-handle`, a standalone block (does not follow any other block's BEM, an exception similar to `.btn-*`), implemented in `ui/resizeHandle.js` (`attachResizeHandle`).
 
-- Posición: esquina inferior derecha del elemento (`position: absolute; right: 0; bottom: 0`) — el host debe ser contenedor posicionado (`position: relative/absolute`).
-- Aspecto: contenedor `18px` con grip diagonal `9px` (`::after` con gradientes). Gris neutro por defecto, `var(--accent-blue)` + `transform: scale(1.15)` con transición de 150ms en `:hover`/`.resize-handle--active`. Sin sombras ni bordes redondeados propios.
-- Cursor: `nwse-resize`, igual en todos los usos aunque el elemento solo redimensione un eje (mismo punto de arrastre visual reconocible en toda la app).
-- No introducir un segundo patrón de redimensionado (bordes laterales, esquinas múltiples, etc.) sin decidirlo explícitamente — reutilizar `ui/resizeHandle.js`.
+- Position: bottom-right corner of the element (`position: absolute; right: 0; bottom: 0`) — the host must be a positioned container (`position: relative/absolute`).
+- Look: `18px` container with a `9px` diagonal grip (`::after` with gradients). Neutral gray by default, `var(--accent-blue)` + `transform: scale(1.15)` with a 150ms transition on `:hover`/`.resize-handle--active`. No own shadows or rounded corners.
+- Cursor: `nwse-resize`, the same in all uses even if the element only resizes one axis (the same recognizable visual drag point across the app).
+- Do not introduce a second resize pattern (side borders, multiple corners, etc.) without deciding it explicitly — reuse `ui/resizeHandle.js`.
 
-### Segundo manejador, esquina superior izquierda
+### Second handle, top-left corner
 
-`.resize-handle--tl`, aplicada además de `.resize-handle` sobre el mismo host (mismo mecanismo de `ui/resizeHandle.js`, parámetro `corner: 'tl'` — mismo manejador anclado a la esquina opuesta, no un segundo patrón).
+`.resize-handle--tl`, applied alongside `.resize-handle` on the same host (same `ui/resizeHandle.js` mechanism, parameter `corner: 'tl'` — the same handle anchored to the opposite corner, not a second pattern).
 
-- Cualquier elemento redimensionable de la app puede tener este segundo manejador.
-- Diferencias respecto a `.resize-handle`: posición `left: 0; top: 0` en vez de `right: 0; bottom: 0`. Mismo tamaño de contenedor/grip, mismo `::after`, mismo aspecto en reposo/`:hover`/`.resize-handle--active`, mismo cursor `nwse-resize` (ambas esquinas sobre la misma diagonal).
-- Al arrastrarlo, la esquina inferior derecha queda fija (el manejador existente ejerce de ancla). Quien llama a `attachResizeHandle` es responsable de aplicar también el desplazamiento de posición (`dx`/`dy` que expone `corner: 'tl'`) sobre el modelo del host, no solo el tamaño.
-- Hosts con doble manejador (`.resize-handle` + `.resize-handle--tl`): panel flotante `.component-panel`/`.resource-panel`; modal `.card-editor-modal` (editor visual — al iniciar el arrastre el JS la saca del centrado flexbox pasándola a `position: fixed` con su geometría actual, para que la esquina opuesta al manejador tenga algo que anclar).
+- Any resizable element in the app can have this second handle.
+- Differences from `.resize-handle`: position `left: 0; top: 0` instead of `right: 0; bottom: 0`. Same container/grip size, same `::after`, same look at rest/`:hover`/`.resize-handle--active`, same `nwse-resize` cursor (both corners on the same diagonal).
+- When dragging it, the bottom-right corner stays fixed (the existing handle acts as an anchor). Whoever calls `attachResizeHandle` is responsible for also applying the position offset (`dx`/`dy` that `corner: 'tl'` exposes) to the host's model, not only the size.
+- Hosts with a double handle (`.resize-handle` + `.resize-handle--tl`): floating panel `.component-panel`/`.resource-panel`; modal `.card-editor-modal` (visual editor — on starting the drag the JS pulls it out of the flexbox centering by switching it to `position: fixed` with its current geometry, so the corner opposite the handle has something to anchor to).
 
-### Variante para borde de columna de tabla
+### Variant for a table column border
 
-`.column-resize-handle`, aplicada además de `.resize-handle` (mismo mecanismo de `ui/resizeHandle.js`, reutilizado vía `ui/tableColumnResize.js` — misma interacción orientada a otro borde, no un segundo sistema).
+`.column-resize-handle`, applied alongside `.resize-handle` (same `ui/resizeHandle.js` mechanism, reused via `ui/tableColumnResize.js` — the same interaction oriented to a different border, not a second system).
 
-- Diferencias respecto a `.resize-handle`: ocupa el borde derecho completo de la celda de cabecera (`top/bottom: 0`, no solo la esquina). Cursor `col-resize` en vez de `nwse-resize`. Grafismo: línea vertical fina (no grip diagonal `::after`).
-- Mismo gris neutro en reposo y `var(--accent-blue)` en `:hover`/`.resize-handle--active`, misma transición de 150ms.
+- Differences from `.resize-handle`: occupies the full right border of the header cell (`top/bottom: 0`, not just the corner). Cursor `col-resize` instead of `nwse-resize`. Graphic: a thin vertical line (not a `::after` diagonal grip).
+- Same neutral gray at rest and `var(--accent-blue)` on `:hover`/`.resize-handle--active`, same 150ms transition.
 
-## 11.1 Cabecera de tabla fija al hacer scroll (`position: sticky`)
+## 11.1 Table header sticky on scroll (`position: sticky`)
 
-Primer uso de `position: sticky` en el proyecto: `.component-list th`/`.resource-list th`/`.tag-list th` — `position: sticky; top: 0; z-index: 2;`, dentro de su contenedor con scroll propio (`.component-panel__body`/`.resource-panel__body`/`.tag-panel__body`, `overflow-y: auto`).
+First use of `position: sticky` in the project: `.component-list th`/`.resource-list th`/`.tag-list th` — `position: sticky; top: 0; z-index: 2;`, inside their own scrolling container (`.component-panel__body`/`.resource-panel__body`/`.tag-panel__body`, `overflow-y: auto`).
 
-- Objetivo: cabecera de columna siempre visible al bajar por una lista larga, en vez de desplazarse con las filas.
-- Condición para que funcione: la cabecera necesita fondo opaco (`background: var(--bg-subtle)`, ya lo tenían las tres) — sin él, el contenido de las filas se transparentaría al pasar por debajo.
-- `z-index: 2` es local a la propia tabla (por encima de las filas, que no tienen `z-index` propio) — sin relación con los niveles fijos de `position: fixed` de la sección Layout (paneles, modal, menús).
-- `position: sticky` sigue siendo elemento posicionado a efectos de contener descendientes `position: absolute` — `.column-resize-handle` sigue funcionando sin cambios sobre una cabecera `sticky`, igual que sobre una `relative`.
-- Cualquier tabla futura con scroll interno propio: reutilizar este mismo patrón (cabecera `sticky` + fondo opaco + `z-index` local) en vez de crear uno ad-hoc.
+- Goal: the column header always visible when scrolling down a long list, instead of scrolling away with the rows.
+- Condition for it to work: the header needs an opaque background (`background: var(--bg-subtle)`, all three already had it) — without it, row content would show through as it passes underneath.
+- `z-index: 2` is local to the table itself (above the rows, which have no own `z-index`) — unrelated to the fixed `position: fixed` levels of the Layout section (panels, modal, menus).
+- `position: sticky` is still a positioned element for the purpose of containing `position: absolute` descendants — `.column-resize-handle` keeps working with no changes over a `sticky` header, just like over a `relative` one.
+- Any future table with its own internal scroll: reuse this same pattern (`sticky` header + opaque background + local `z-index`) instead of creating an ad-hoc one.
 
-## 11.2 Fila anidada bajo un bloque padre (`.component-list__row--member`, 00204)
+## 11.2 Nested row under a parent block (`.component-list__row--member`, 00204)
 
-Primer uso de anidación visual dentro de una fila de tabla: los miembros de un grupo se muestran siempre justo debajo de la fila de su grupo en `.component-list`, indentados y con fondo distinto — como el contenido desplegado de una carpeta.
+First use of visual nesting inside a table row: a group's members are always shown right below their group's row in `.component-list`, indented and with a different background — like a folder's expanded content.
 
-- **Fondo**: `var(--accent-blue-light)` en reposo (mismo token que "fondo claro para paneles interactivos" de `01-tokens-visual.md` §2 — no un valor ad-hoc nuevo), `#ddebf9` en `:hover` (un tono más oscuro de la misma familia), y el azul de selección estándar (`rgba(44,125,216,.15)`) si además está seleccionada — mismo criterio de prioridad que cualquier fila de `.component-list__row--selected`.
-- **Indentación**: `padding-left` adicional en `.component-list__id-cell` (no en toda la fila) — solo la celda Id se desplaza, el resto de columnas (Orden, Tipo, Copia, Acciones) mantiene su alineación normal de tabla.
-- **Sin línea conectora ni icono**: a diferencia de un árbol de ficheros con guías visuales, aquí basta la indentación + el fondo distinto para leerse como "contenido del bloque de encima" — decisión explícita (confirmada sobre maqueta) para no añadir ruido visual.
-- **Campo deshabilitado dentro de una fila anidada**: `.component-list__order-input:disabled` — fondo `var(--bg-subtle)`, texto `var(--text-muted)`, `cursor: not-allowed` — mismo criterio que cualquier control deshabilitado de la app (§9, "Deshabilitado").
-- Patrón acotado a este caso por ahora — cualquier otra tabla que necesite anidar filas bajo un padre puede reutilizarlo (fondo del token `--accent-blue-light`, indentación solo en la celda "identificadora", sin línea conectora) en vez de crear uno nuevo.
+- **Background**: `var(--accent-blue-light)` at rest (same token as "light background for interactive panels" of `01-tokens-visual.md` §2 — not a new ad-hoc value), `#ddebf9` on `:hover` (a darker tone of the same family), and the standard selection blue (`rgba(44,125,216,.15)`) if it is also selected — same priority criterion as any `.component-list__row--selected` row.
+- **Indentation**: additional `padding-left` on `.component-list__id-cell` (not the whole row) — only the Id cell shifts, the rest of the columns (Orden, Tipo, Copia, Acciones) keep their normal table alignment.
+- **No connector line or icon**: unlike a file tree with visual guides, here the indentation + the different background are enough to read as "content of the block above" — an explicit decision (confirmed on a mockup) to avoid adding visual noise.
+- **Disabled field inside a nested row**: `.component-list__order-input:disabled` — background `var(--bg-subtle)`, text `var(--text-muted)`, `cursor: not-allowed` — same criterion as any disabled control in the app (§9, "Disabled").
+- Pattern scoped to this case for now — any other table that needs to nest rows under a parent can reuse it (background from the `--accent-blue-light` token, indentation only on the "identifying" cell, no connector line) instead of creating a new one.

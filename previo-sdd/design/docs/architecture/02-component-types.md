@@ -1,206 +1,206 @@
-# Tipos de componente implementados
+# Implemented component types
 
-Ocho tipos. Alta siempre pasa por `ui/componentTypeModal.js` (lista de tipos disponibles, no desplegable) — al aceptar, se crea con `createDefaultComponent(type)` (`ui/componentModal.js`) con valores por defecto, se añade al estado, y se abre `ui/componentModal.js` sobre ese componente para configurarlo.
+Eight types. Creation always goes through `ui/componentTypeModal.js` (list of available types, not a dropdown) — on accept, the component is created with `createDefaultComponent(type)` (`ui/componentModal.js`) with default values, added to state, and `ui/componentModal.js` opens over that component to configure it.
 
 ## `'texto'`
 
-Primer tipo concreto. Sin fondo de imagen, tamaño automático por defecto.
+First concrete type. No image background, automatic size by default.
 
-| Propiedad | Tipo | Default | Descripción |
+| Property | Type | Default | Description |
 |---|---|---|---|
-| `contenido` | string | — | Texto que se muestra |
-| `tamañoFuente` | number | — | Tamaño en píxeles |
-| `colorTexto` | string (hex) | negro | Color del texto |
-| `colorFondo` | string (hex o vacío) | vacío (transparente) | Color de fondo |
+| `contenido` | string | — | Text shown |
+| `tamañoFuente` | number | — | Size in pixels |
+| `colorTexto` | string (hex) | black | Text color |
+| `colorFondo` | string (hex or empty) | empty (transparent) | Background color |
 
 ## `'tableroSimple'`
 
-Elemento cuadrado redimensionable a cualquier proporción, borde y fondo configurables. `width`/`height` fijados a `200px` por defecto (nunca tamaño automático). Nombre de tipo actual; guardados con el nombre anterior (`'tablero'`) se migran silenciosamente al cargar (`core/state.js`, `migrateTableroSimple`).
+Square element resizable to any proportion, configurable border and background. `width`/`height` set to `200px` by default (never automatic size). Current type name; saves with the previous name (`'tablero'`) are silently migrated on load (`core/state.js`, `migrateTableroSimple`).
 
-| Propiedad | Tipo | Default | Descripción |
+| Property | Type | Default | Description |
 |---|---|---|---|
-| `bordeColor` | string (hex) | negro | Color del borde, `box-sizing: border-box` |
-| `bordeGrosor` | number, px 1–20 | `2` | Grosor del borde |
-| `biselado` | boolean | `true` | `true`: borde en dos tonos derivados de `bordeColor` (bisel/relieve, excepción de estilo — ver `design/docs/style/`). `false`: borde plano de un color |
-| `sombra` | boolean | `true` | `true`: sombra de contacto nivel 1. `false`: plano sin sombra (clase `.board--sin-sombra`) |
-| `fondoTipo` | `'colorPatron' \| 'imagen'` | — | Qué configuración de fondo está activa. Cambiar de una a otra no borra la configuración de la anterior — ambos bloques conviven en `properties` |
-| `patronColor` | string (hex) | — | Color del patrón de cuadrícula |
-| `patronGrosor` | number, px 1–20 | `1` | C |
-| `patronForma` | `'cuadrada' \| 'hex-vertical' \| 'hex-horizontal'` | — | Forma de celda. `'hexagonal'` (valor legacy) se interpreta como alias de `'hex-horizontal'` al renderizar y se normaliza al guardar de nuevo |
-| `patronFilas`, `patronColumnas` | number, 1–50 | — | Dimensiones de la cuadrícula |
-| `imagenResourceId` | string \| null | `null` | Id de recurso tipo `'imagen'` como fondo (`background-size: cover`). No usa `component.image` |
+| `bordeColor` | string (hex) | black | Border color, `box-sizing: border-box` |
+| `bordeGrosor` | number, px 1–20 | `2` | Border thickness |
+| `biselado` | boolean | `true` | `true`: border in two tones derived from `bordeColor` (bevel/relief, style exception — see `design/docs/style/`). `false`: flat single-color border |
+| `sombra` | boolean | `true` | `true`: contact shadow level 1. `false`: flat, no shadow (class `.board--sin-sombra`) |
+| `fondoTipo` | `'colorPatron' \| 'imagen'` | — | Which background configuration is active. Switching between them does not clear the other's configuration — both blocks coexist in `properties` |
+| `patronColor` | string (hex) | — | Grid pattern color |
+| `patronGrosor` | number, px 1–20 | `1` | Pattern line thickness |
+| `patronForma` | `'cuadrada' \| 'hex-vertical' \| 'hex-horizontal'` | — | Cell shape. `'hexagonal'` (legacy value) is interpreted as an alias of `'hex-horizontal'` on render and normalized on re-save |
+| `patronFilas`, `patronColumnas` | number, 1–50 | — | Grid dimensions |
+| `imagenResourceId` | string \| null | `null` | Id of a `'imagen'` resource as background (`background-size: cover`). Does not use `component.image` |
 
-Renderizado del patrón: cuadrículas cuadradas/rectangulares usan doble `linear-gradient` CSS (`background-size` = tamaño de celda, grosor = `patronGrosor`). Hexagonales dibujan un `<svg>` con un polígono por hexágono (`renderHexGrid` de `ui/componentRenderer.js`, parametrizada por orientación): `'hex-vertical'` = pointy-top (vértices arriba/abajo), `'hex-horizontal'` = flat-top (vértices izquierda/derecha).
+Pattern rendering: square/rectangular grids use a double CSS `linear-gradient` (`background-size` = cell size, thickness = `patronGrosor`). Hexagonal grids draw an `<svg>` with one polygon per hexagon (`renderHexGrid` of `ui/componentRenderer.js`, parameterized by orientation): `'hex-vertical'` = pointy-top (vertices up/down), `'hex-horizontal'` = flat-top (vertices left/right).
 
-Configuración de fondo se edita en sub-modales `ui/boardPatternModal.js` (color y patrón) y `ui/boardImageModal.js` (imagen).
+Background configuration is edited in sub-modals `ui/boardPatternModal.js` (color and pattern) and `ui/boardImageModal.js` (image).
 
 ## `'dado'`
 
-Elemento siempre cuadrado (ancho = alto también al redimensionar), nunca tamaño automático. `width`/`height` fijados a `100px` por defecto. Lógica de sorteo/validación vive en `core/dice.js` (sin dependencias de otras capas: `getPosibleValores`, `getResultadoInicial`, `esResultadoValido`, `tirarDado`, `isListaValoresValida`).
+Always-square element (width = height on resize too), never automatic size. `width`/`height` set to `100px` by default. Roll/validation logic lives in `core/dice.js` (no dependencies on other layers: `getPosibleValores`, `getResultadoInicial`, `esResultadoValido`, `tirarDado`, `isListaValoresValida`).
 
-| Propiedad | Tipo | Default | Descripción |
+| Property | Type | Default | Description |
 |---|---|---|---|
-| `colorCuerpo` | string (hex) | gris neutro | Color del cuerpo |
-| `colorNumeros` | string (hex) | negro | Color del resultado impreso |
-| `modoCaras` | `'numeroMaximo' \| 'lista'` | — | Configuración activa. Cambiar de modo no borra el otro — ambos conviven |
-| `numeroMaximoCaras` | number, 2–100 | `6` | En modo `'numeroMaximo'`: resultado entre 1 y este máximo |
-| `listaValores` | string (valores separados por comas) | — | En modo `'lista'`: resultado es uno de estos valores literales. Requiere ≥2 valores no vacíos tras recortar espacios |
-| `fuenteResourceId` | string \| null | `null` | Id de recurso tipo `'tipografia'` para el texto del resultado (elegido en `ui/diceFontModal.js`). `null` o recurso inexistente usa tipografía por defecto |
-| `resultadoActual` | string | calculado | Resultado mostrado. Se recalcula cuando cambia la configuración de caras y deja de ser válido |
+| `colorCuerpo` | string (hex) | neutral gray | Body color |
+| `colorNumeros` | string (hex) | black | Printed result color |
+| `modoCaras` | `'numeroMaximo' \| 'lista'` | — | Active configuration. Switching mode does not clear the other — both coexist |
+| `numeroMaximoCaras` | number, 2–100 | `6` | In `'numeroMaximo'` mode: result between 1 and this maximum |
+| `listaValores` | string (comma-separated values) | — | In `'lista'` mode: result is one of these literal values. Requires ≥2 non-empty values after trimming |
+| `fuenteResourceId` | string \| null | `null` | Id of a `'tipografia'` resource for the result text (chosen in `ui/diceFontModal.js`). `null` or a nonexistent resource uses the default typeface |
+| `resultadoActual` | string | computed | Result shown. Recomputed when the face configuration changes and it stops being valid |
 
-Renderizado (`ui/componentRenderer.js`): silueta 2D plana que varía según nº de resultados posibles (triángulo/cuadrado/rombo/decágono faceteado, helper `renderDiceSilhouette`). Profundidad no es parte del dibujo SVG: usa la propiedad general de componente `profundidad`/`colorExtrusion` (ver `01-component-model.md` "Campos generales"), aplicada como `filter: drop-shadow` apilado sobre el contenedor `.dice` — mismo mecanismo que el resto de tipos, `'dado'` nace con `profundidad: 4` por defecto para aproximar la sensación de grosor que antes daba el polígono duplicado. En modo juego: click lanza el dado (parpadeo ~1s entre resultados, gestionado dentro de `componentRenderer.js`, fija resultado vía `onDiceResult`); doble click abre `ui/diceResultModal.js` a tamaño grande (`onDiceOpenResult`). En modo edición: sin lanzamiento, se comporta como cualquier componente (redimensionado siempre fuerza cuadrado).
+Rendering (`ui/componentRenderer.js`): flat 2D silhouette that varies by number of possible results (triangle/square/rhombus/faceted decagon, `renderDiceSilhouette` helper). Depth is not part of the SVG drawing: it uses the general component property `profundidad`/`colorExtrusion` (see `01-component-model.md` "General fields"), applied as stacked `filter: drop-shadow` over the `.dice` container — same mechanism as the rest of the types; `'dado'` starts with `profundidad: 4` by default to approximate the thickness feel the duplicated polygon used to give. In play mode: click rolls the die (~1s flicker between results, handled inside `componentRenderer.js`, sets result via `onDiceResult`); double click opens `ui/diceResultModal.js` at large size (`onDiceOpenResult`). In edit mode: no rolling, behaves like any component (resize always forces square).
 
 ## `'documento'`
 
-"Visor de documentos": hoja fondo blanco, borde fino, sin bisel ni sombra. `width`/`height` fijados a `240×320px` por defecto (nunca automático).
+"Document viewer": white-background sheet, thin border, no bevel or shadow. `width`/`height` set to `240×320px` by default (never automatic).
 
-| Propiedad | Tipo | Default | Descripción |
+| Property | Type | Default | Description |
 |---|---|---|---|
-| `tipoContenido` | `'texto' \| 'url'` | — | Configuración activa. Cambiar no borra la otra |
-| `contenido` | string | — | Texto/HTML pegado por el usuario (usado si `tipoContenido === 'texto'`) |
-| `formato` | `'markdown' \| 'html'` | `'markdown'` | Cómo interpretar `contenido` |
-| `url` | string | — | Página externa a embeber (usado si `tipoContenido === 'url'`) |
+| `tipoContenido` | `'texto' \| 'url'` | — | Active configuration. Switching does not clear the other |
+| `contenido` | string | — | Text/HTML pasted by the user (used if `tipoContenido === 'texto'`) |
+| `formato` | `'markdown' \| 'html'` | `'markdown'` | How to interpret `contenido` |
+| `url` | string | — | External page to embed (used if `tipoContenido === 'url'`) |
 
-Soporte: `core/markdown.js` (`markdownToHtml(text)`) envuelve la librería vendorizada `vendor/marked.js` (marked v18.0.6, MIT — CommonMark + GFM completo). `core/sanitizeHtml.js` (`sanitizeHtml(html)`, basada en DOM) elimina `<script>`, atributos `on...`, y `href`/`src` con `javascript:` — imprescindible porque `marked` no sanitiza su salida y el estado se guarda como HTML autocontenido.
+Support: `core/markdown.js` (`markdownToHtml(text)`) wraps the vendored library `vendor/marked.js` (marked v18.0.6, MIT — full CommonMark + GFM). `core/sanitizeHtml.js` (`sanitizeHtml(html)`, DOM-based) strips `<script>`, `on...` attributes, and `href`/`src` with `javascript:` — essential because `marked` does not sanitize its output and state is saved as self-contained HTML.
 
-`vendor/` es la única excepción a las capas de `INDEX.md` §2: código de terceros tal cual, sin modificación funcional — necesario porque el build no admite paquetes npm/CDN.
+`vendor/` is the only exception to the layers of `INDEX.md` §2: third-party code as-is, no functional modification — needed because the build does not accept npm/CDN packages.
 
-Render: con `tipoContenido === 'texto'`, se inserta `sanitizeHtml(formato === 'html' ? contenido : markdownToHtml(contenido))`. Con `tipoContenido === 'url'`, se embebe en `<iframe sandbox="allow-scripts allow-same-origin allow-popups">` con aviso superpuesto si no dispara `load` en 3s o dispara `error` (heurística best-effort). Contenido siempre ajustado al ancho del componente (scroll solo vertical).
+Render: with `tipoContenido === 'texto'`, `sanitizeHtml(formato === 'html' ? contenido : markdownToHtml(contenido))` is inserted. With `tipoContenido === 'url'`, it is embedded in `<iframe sandbox="allow-scripts allow-same-origin allow-popups">` with an overlay notice if it does not fire `load` within 3s or fires `error` (best-effort heuristic). Content always fitted to the component width (vertical scroll only).
 
 ## `'carta'`
 
-Rectángulo de proporción configurable, diseñado con el "Editor visual" (`ui/visualEditorModal.js`, ver `05-ui-layer.md`) — mismo editor que `'tableroPersonalizado'`. Etiqueta visible "Carta/Ficha" (absorbe el caso de uso del tipo `'ficha'` retirado, ver `03-groups-resources.md`); identificador de datos sigue siendo `'carta'`. Creado con `width`/`height` = `180 × (180 / ratio(proporción por defecto))` px, `bloqueado: false` por defecto.
+Rectangle of configurable proportion, designed with the "Visual editor" (`ui/visualEditorModal.js`, see `05-ui-layer.md`) — same editor as `'tableroPersonalizado'`. Visible label "Carta/Ficha" (absorbs the use case of the retired `'ficha'` type, see `03-groups-resources.md`); data identifier remains `'carta'`. Created with `width`/`height` = `180 × (180 / ratio(default proportion))` px, `bloqueado: false` by default.
 
-Redimensionado: mantiene proporción configurada para las cinco proporciones rectangulares (`ui/resizeHandle.js` usa `getProporcionRatio(props.proporcion)` de `core/cardProportions.js`) — único modo de cambiar proporción es editar esa propiedad, no arrastrar el manejador. Excepción: `proporcion === 'circular'` tiene redimensionado libre en ambos ejes, Shift fuerza 1:1; nace con ancho = alto al crearse o cambiar a esta proporción. Redimensionar en la mesa cambia solo el tamaño del marco: el contenido (imagen, formas, textos) no se reescala, puede quedar recortado por `overflow: hidden` si no cabe (mismo criterio que `'tableroPersonalizado'`).
+Resize: keeps the configured proportion for the five rectangular proportions (`ui/resizeHandle.js` uses `getProporcionRatio(props.proporcion)` from `core/cardProportions.js`) — the only way to change proportion is to edit that property, not drag the handle. Exception: `proporcion === 'circular'` has free resize on both axes, Shift forces 1:1; starts with width = height on creation or on switching to this proportion. Resizing on the table changes only the frame size: the content (image, shapes, texts) is not rescaled, may be clipped by `overflow: hidden` if it does not fit (same criterion as `'tableroPersonalizado'`).
 
-Esquinas: `border-radius: 8px` para las cinco proporciones rectangulares/cuadrada, condicionado a `esquinasRedondeadas` (`border-radius: 0` si desmarcada) — salvo `proporcion === 'circular'` (`border-radius: 50%` fijo, sin condicionar a `esquinasRedondeadas`). Mismo condicional aplicado al lienzo de cada cara en `ui/visualEditorModal.js` y a la máscara de `ui/imageAdjustModal.js`.
+Corners: `border-radius: 8px` for the five rectangular/square proportions, gated by `esquinasRedondeadas` (`border-radius: 0` if unchecked) — except `proporcion === 'circular'` (`border-radius: 50%` fixed, not gated by `esquinasRedondeadas`). The same condition applies to each face's canvas in `ui/visualEditorModal.js` and to the `ui/imageAdjustModal.js` mask.
 
-| Propiedad | Tipo | Default | Descripción |
+| Property | Type | Default | Description |
 |---|---|---|---|
-| `proporcion` | ver `CARD_PROPORTIONS` abajo | `'5:7'` | Proporción/forma de la carta |
-| `medidasReales` | boolean | `true` (nuevas/migradas) | Interno, no editable: marca si `caraFrontal`/`caraTrasera` están en píxeles reales. Solo lo consulta la migración de `core/state.js` para no reprocesar |
-| `esquinasRedondeadas` | boolean | `true` | Esquinas redondeadas (`8px`) o cuadradas (`0`). Solo se muestra su control (checkbox en `ui/visualEditorModal.js`) cuando la proporción es rectangular/cuadrada (`isRectShape`) — circular y hexagonal no la usan. "Copiar/Pegar estilo" la incluye junto con `proporcion` |
-| `caraActual` | `'frontal' \| 'trasera'` | `'trasera'` | Cara mostrada. En modo juego, click la alterna (`onCartaFlip`), independiente de `bloqueado`. Cada volteo dispara feedback visual breve (`.carta--flip-feedback`), detectado por diferencia de datos vía `Map` de módulo `lastCaraById`, no por evento de click |
-| `caraFrontal`, `caraTrasera` | objeto, mismo shape | — | Diseño de cada cara, propio de esa carta. Ver shape abajo |
+| `proporcion` | see `CARD_PROPORTIONS` below | `'5:7'` | Proportion/shape of the card |
+| `medidasReales` | boolean | `true` (new/migrated) | Internal, not editable: marks whether `caraFrontal`/`caraTrasera` are in real pixels. Only the `core/state.js` migration reads it, to avoid reprocessing |
+| `esquinasRedondeadas` | boolean | `true` | Rounded corners (`8px`) or square (`0`). Its control (checkbox in `ui/visualEditorModal.js`) is shown only when the proportion is rectangular/square (`isRectShape`) — circular and hexagonal do not use it. "Copiar/Pegar estilo" includes it alongside `proporcion` |
+| `caraActual` | `'frontal' \| 'trasera'` | `'trasera'` | Face shown. In play mode, click toggles it (`onCartaFlip`), independent of `bloqueado`. Each flip triggers a brief visual feedback (`.carta--flip-feedback`), detected by data diff via a module `Map` `lastCaraById`, not by a click event |
+| `caraFrontal`, `caraTrasera` | object, same shape | — | Design of each face, specific to that card. See shape below |
 
-`CARD_PROPORTIONS` (`core/cardProportions.js`): `'5:7'` (Poker vertical), `'7:5'` (Poker horizontal), `'tarot-h'` (Tarot vertical 70×120mm), `'tarot-v'` (Tarot horizontal 120×70mm), `'1:1'` (Cuadrada), `'circular'` (resize libre), `'hex-vertical'`/`'hex-horizontal'` (Hexagonal, resize ratio fijo), `'triangulo'`/`'triangulo-invertido'` (vértice arriba/abajo, caja 1:1, resize ratio fijo). Cada entrada lleva campo `shape`; `getCartaShapeCss(value, esquinasRedondeadas = true)` traduce a `borderRadius`/`clipPath`: rectangular/cuadrada → `border-radius: 8px` o `0`; circular → `50%`; hexagonales/triangulares → `clip-path` con polígono exacto (no afectadas por `esquinasRedondeadas`). Aplicado en `ui/componentRenderer.js`, `ui/visualEditorModal.js` y `ui/imageAdjustModal.js` (este último con su propio vocabulario de `shape`, polígonos duplicados a propósito). `core/cardProportions.js` expone también `isRectShape(value)`. Sombra de carta hexagonal/triangular usa `filter: drop-shadow` (clase `.carta--hex, .carta--triangle`), igual que `'dado'` para siluetas no rectangulares. Borde de grosor uniforme en triangulares usa `getTriangleInnerClipPath` (hermana de `getHexInnerClipPath`): escala desde el incentro real de cada variante (`TRIANGLE_GEOMETRY`, constante precalculada), a diferencia del hexágono regular cuyo incentro coincide con el centro de la caja.
+`CARD_PROPORTIONS` (`core/cardProportions.js`): `'5:7'` (Poker vertical), `'7:5'` (Poker horizontal), `'tarot-h'` (Tarot vertical 70×120mm), `'tarot-v'` (Tarot horizontal 120×70mm), `'1:1'` (Square), `'circular'` (free resize), `'hex-vertical'`/`'hex-horizontal'` (Hexagonal, fixed-ratio resize), `'triangulo'`/`'triangulo-invertido'` (vertex up/down, 1:1 box, fixed-ratio resize). Each entry carries a `shape` field; `getCartaShapeCss(value, esquinasRedondeadas = true)` translates to `borderRadius`/`clipPath`: rectangular/square → `border-radius: 8px` or `0`; circular → `50%`; hexagonal/triangular → `clip-path` with an exact polygon (not affected by `esquinasRedondeadas`). Applied in `ui/componentRenderer.js`, `ui/visualEditorModal.js` and `ui/imageAdjustModal.js` (the latter with its own `shape` vocabulary, polygons deliberately duplicated). `core/cardProportions.js` also exposes `isRectShape(value)`. Hexagonal/triangular card shadow uses `filter: drop-shadow` (class `.carta--hex, .carta--triangle`), like `'dado'` for non-rectangular silhouettes. Uniform-thickness border on triangular shapes uses `getTriangleInnerClipPath` (sibling of `getHexInnerClipPath`): it scales from the real incenter of each variant (`TRIANGLE_GEOMETRY`, precomputed constant), unlike the regular hexagon whose incenter coincides with the box center.
 
-### Shape de `caraFrontal`/`caraTrasera`
+### Shape of `caraFrontal`/`caraTrasera`
 
 `{ imagenResourceId, ajusteImagen, formas: Forma[], textBoxes: TextBox[], bordeColor, bordeGrosor, transparenciaImagen, fondoTipo, colorFondo }`
 
-| Campo | Tipo | Default | Descripción |
+| Field | Type | Default | Description |
 |---|---|---|---|
-| `imagenResourceId` | string \| null | `null` | Recurso de imagen de fondo de la cara |
-| `ajusteImagen` | `{ zoom, posX, posY, rotation }` | — | Mismo shape que usa `ui/imageAdjustModal.js` en general |
-| `formas` | `Forma[]` | `[]` | Ver shape `Forma` abajo |
-| `textBoxes` | `TextBox[]` | `[]` | Ver shape `TextBox` abajo |
-| `bordeColor` | string (hex) | negro | Borde de la carta completa para esa cara |
-| `bordeGrosor` | number, px **0**–20 | `0` | `0` es válido = "sin borde" (a diferencia de `'tableroSimple'`). Línea simple sin bisel |
-| `transparenciaImagen` | number, 0–100 | `0` (opaca) | Transparencia de la imagen de fondo (`opacity = 1 - transparenciaImagen/100`), independiente del color de fondo/textBoxes/borde. Solo con efecto si hay `imagenResourceId`; se reinicia a `0` al cambiar de imagen |
-| `fondoTipo` | `'imagen' \| 'color' \| undefined` | — | Ausente y `'imagen'` se tratan igual (pinta `imagenResourceId` si existe, blanco si no) — a diferencia de `Forma`, donde `undefined` se trata como `'color'`. Cambiar de uno a otro no borra el que queda inactivo |
-| `colorFondo` | string (hex o vacío) | — | Color liso de fondo si `fondoTipo === 'color'` |
+| `imagenResourceId` | string \| null | `null` | Background image resource of the face |
+| `ajusteImagen` | `{ zoom, posX, posY, rotation }` | — | Same shape `ui/imageAdjustModal.js` uses in general |
+| `formas` | `Forma[]` | `[]` | See `Forma` shape below |
+| `textBoxes` | `TextBox[]` | `[]` | See `TextBox` shape below |
+| `bordeColor` | string (hex) | black | Border of the whole card for that face |
+| `bordeGrosor` | number, px **0**–20 | `0` | `0` is valid = "no border" (unlike `'tableroSimple'`). Simple line, no bevel |
+| `transparenciaImagen` | number, 0–100 | `0` (opaque) | Transparency of the background image (`opacity = 1 - transparenciaImagen/100`), independent of background color/textBoxes/border. Only has effect if there is `imagenResourceId`; resets to `0` on image change |
+| `fondoTipo` | `'imagen' \| 'color' \| undefined` | — | Absent and `'imagen'` are treated the same (paints `imagenResourceId` if it exists, white otherwise) — unlike `Forma`, where `undefined` is treated as `'color'`. Switching does not clear the inactive one |
+| `colorFondo` | string (hex or empty) | — | Solid background color if `fondoTipo === 'color'` |
 
-Coordenadas (`x`/`y`/`width`/`height` de cada `Forma`/`TextBox`, `tamañoFuente` de cada `TextBox`) se guardan en píxeles reales, fijos con independencia del tamaño de la carta — mismo criterio que `'tableroPersonalizado'`. Cartas guardadas con el sistema anterior (lienzo abstracto de 300px reescalado por un factor uniforme) se migran una vez al cargar (`core/state.js`, `migrateCartaMedidasReales`, ver `06-persistence-build.md`).
+Coordinates (`x`/`y`/`width`/`height` of each `Forma`/`TextBox`, `tamañoFuente` of each `TextBox`) are stored in real pixels, fixed regardless of card size — same criterion as `'tableroPersonalizado'`. Cards saved with the previous system (abstract 300px canvas rescaled by a uniform factor) are migrated once on load (`core/state.js`, `migrateCartaMedidasReales`, see `06-persistence-build.md`).
 
-**Orden de apilado dentro de una cara**: imagen de fondo siempre en el extremo inferior, fuera de cualquier orden. `formas` y `textBoxes` comparten un único orden de apilado mezclado (campo `orden` de cada elemento) — cualquier figura puede quedar por encima o debajo de cualquier cuadro de texto. `core/cardFaceElements.js` (módulo de datos puro) combina ambos arrays: `getOrderedFaceElements(cara)` devuelve la lista de fondo a frente (fallback en memoria para elementos sin `orden`, sin migrar datos); `bringElementToFront`/`sendElementToBack` fijan el `orden` de un elemento por encima/debajo de todos los demás de su cara. Reutilizado por `ui/visualEditorModal.js` y `ui/componentRenderer.js` → `paintCartaFace`.
+**Stacking order within a face**: the background image is always at the bottom, outside any order. `formas` and `textBoxes` share a single mixed stacking order (each element's `orden` field) — any shape can be above or below any text box. `core/cardFaceElements.js` (pure data module) combines both arrays: `getOrderedFaceElements(cara)` returns the list from back to front (in-memory fallback for elements without `orden`, no data migration); `bringElementToFront`/`sendElementToBack` set an element's `orden` above/below all others of its face. Reused by `ui/visualEditorModal.js` and `ui/componentRenderer.js` → `paintCartaFace`.
 
-**Menú contextual del lienzo** (`ui/visualEditorModal.js`, click derecho, reutiliza `ui/contextMenu.js`): sobre un elemento — "Copiar", "Pegar", "Eliminar" (sin confirmación), "Colocar arriba"/"Colocar abajo". En zona vacía — solo "Pegar". `generalItems`/`specificItems` admiten `disabled: boolean`.
+**Canvas context menu** (`ui/visualEditorModal.js`, right-click, reuses `ui/contextMenu.js`): over an element — "Copiar", "Pegar", "Eliminar" (no confirmation), "Colocar arriba"/"Colocar abajo". In an empty area — only "Pegar". `generalItems`/`specificItems` accept `disabled: boolean`.
 
-- **Copiar/Pegar**: `copiedElement`, variable de módulo (`{ kind, data } | null`, sobrevive a cerrar/reabrir el editor, no persiste). "Copiar" guarda copia superficial (`{ ...element }`) sin `id`; copiar uno nuevo sustituye al anterior. "Pegar" siempre visible, `disabled: !copiedElement`; crea elemento con `id` nuevo en el punto de click (`screenToDesignPoint`), lo añade a `cara.formas`/`cara.textBoxes`, lo sube al frente, lo selecciona.
-- Elementos nuevos ("Añadir elemento") y duplicados desde la modal de edición se colocan por encima de todos los demás de su cara.
-- **Borrado con SUPR**: `handleKeyDown` de `visualEditorModal.js` gestiona `e.key === 'Delete'` (mismo valor que `ui/globalShortcuts.js`) — con elemento seleccionado y foco fuera de campo editable, lo elimina vía `removeElement` (misma función que "Eliminar" del menú).
+- **Copy/Paste**: `copiedElement`, module variable (`{ kind, data } | null`, survives closing/reopening the editor, does not persist). "Copiar" stores a shallow copy (`{ ...element }`) without `id`; copying a new one replaces the previous. "Pegar" always visible, `disabled: !copiedElement`; creates an element with a new `id` at the click point (`screenToDesignPoint`), adds it to `cara.formas`/`cara.textBoxes`, brings it to front, selects it.
+- New elements ("Añadir elemento") and duplicates from the edit modal are placed above all others of their face.
+- **Deletion with DEL**: `handleKeyDown` of `visualEditorModal.js` handles `e.key === 'Delete'` (same value as `ui/globalShortcuts.js`) — with an element selected and focus outside an editable field, deletes it via `removeElement` (same function as the menu's "Eliminar").
 
-### Shape `Forma`
+### `Forma` shape
 
 `{ id, tipo: 'circular' | 'cuadrada' | 'redondeada', x, y, width, height, colorFondo, colorFondoTransparencia, fondoTipo: 'color' | 'imagen' | undefined, imagenResourceId, ajusteImagen, imagenTransparencia, bordeActivo, bordeColor, bordeGrosor, orden, rotation: number (-360-360) | undefined }`
 
-Tercer tipo de elemento repetible dentro de una cara (junto a imagen de fondo única y `textBoxes`). Mismo comportamiento de interacción que `TextBox`: seleccionable, editable con doble click (`ui/cardShapeModal.js`), arrastrable, redimensionable, duplicable, eliminable, con el mismo menú contextual.
+Third kind of repeatable element within a face (alongside the single background image and `textBoxes`). Same interaction behavior as `TextBox`: selectable, editable with double click (`ui/cardShapeModal.js`), draggable, resizable, duplicable, deletable, with the same context menu.
 
-| Campo | Tipo | Default | Descripción |
+| Field | Type | Default | Description |
 |---|---|---|---|
-| `x`, `y`, `width`, `height` | number | — | Mismas unidades que `TextBox` (píxeles reales) |
-| `orden` | number \| undefined | fallback si ausente | Menor = más adelante en el apilado. Ver "Orden de apilado" arriba |
-| `rotation` | número entero, `-360`-`360` \| `undefined` | equivalente a `0` | Gira la figura completa (borde+relleno) sobre su centro (`transform: rotate`) — a diferencia de `ajusteImagen.rotation`, que solo rota la imagen de relleno. `x`/`y`/`width`/`height` no cambian al girar, el contenido puede recortarse. El signo indica el sentido: negativo antihorario, positivo horario. Conviven dos vías de edición: "Girar 90° (horario)"/"Girar 90° (antihorario)" del menú contextual (ciclan ±90° dando la vuelta al extremo opuesto del rango al superarlo) y el slider de rotación (`ui/rotationSlider.js`) dentro de `ui/cardShapeModal.js`, con marcas imantadas cada 90º (simétricas a ambos lados de 0) pero libre para cualquier ángulo intermedio |
-| `tipo` | `'circular'\|'cuadrada'\|'redondeada'` | — | `'redondeada'`: esquinas curvas `border-radius: 8px` (`SHAPE_BORDER_RADIUS`) |
-| `fondoTipo` | `'color'\|'imagen'\|undefined` | `undefined` ≈ `'color'` | Cambiar de uno a otro no borra el otro |
-| `colorFondo` | string (hex o vacío) | vacío | Con `fondoTipo === 'color'` |
-| `colorFondoTransparencia` | number, 0–100 | `0` (opaco) | Transparencia sobre `colorFondo` (`core/colorUtils.js` → `hexToRgba`). Solo con efecto y control habilitado si `colorFondo` no vacío |
-| `imagenResourceId` | string \| null | `null` | Con `fondoTipo === 'imagen'`. Sustituye por completo a `colorFondo` al pintar (no se combinan) |
-| `ajusteImagen` | `{ zoom, posX, posY, rotation }` | reinicia a `{ zoom:100, posX:50, posY:50 }` al elegir/cambiar imagen | Mismo shape que `cara.ajusteImagen` |
-| `imagenTransparencia` | number, 0–100 | `0` (opaco) | Transparencia sobre la imagen de fondo (`fondoTipo === 'imagen'`), independiente de `colorFondoTransparencia` y del borde. Se reinicia a `0` al elegir/cambiar imagen; se conserva al cambiar `fondoTipo` a `'color'` y volver a `'imagen'`. Se ajusta desde el slider "Transparencia" dentro de "Ajustar imagen…" (`ui/imageAdjustModal.js`), no en el panel de edición de la figura |
-| `bordeColor`, `bordeGrosor`, `bordeActivo` | hex / px 1–20 / boolean | negro / `2` / `true` | Borde simple (`border` CSS), sin bisel especial. Sección "Borde" en `ui/cardShapeModal.js` usa patrón toggle en el `<legend>` |
+| `x`, `y`, `width`, `height` | number | — | Same units as `TextBox` (real pixels) |
+| `orden` | number \| undefined | fallback if absent | Lower = further forward in the stack. See "Stacking order" above |
+| `rotation` | integer, `-360`-`360` \| `undefined` | equivalent to `0` | Rotates the whole shape (border+fill) about its center (`transform: rotate`) — unlike `ajusteImagen.rotation`, which rotates only the fill image. `x`/`y`/`width`/`height` do not change on rotation, content may be clipped. The sign indicates direction: negative counterclockwise, positive clockwise. Two editing paths coexist: "Girar 90° (horario)"/"Girar 90° (antihorario)" of the context menu (cycle ±90°, wrapping to the opposite end of the range on overflow) and the rotation slider (`ui/rotationSlider.js`) inside `ui/cardShapeModal.js`, with magnetic marks every 90° (symmetric on both sides of 0) but free for any intermediate angle |
+| `tipo` | `'circular'\|'cuadrada'\|'redondeada'` | — | `'redondeada'`: curved corners `border-radius: 8px` (`SHAPE_BORDER_RADIUS`) |
+| `fondoTipo` | `'color'\|'imagen'\|undefined` | `undefined` ≈ `'color'` | Switching does not clear the other |
+| `colorFondo` | string (hex or empty) | empty | With `fondoTipo === 'color'` |
+| `colorFondoTransparencia` | number, 0–100 | `0` (opaque) | Transparency over `colorFondo` (`core/colorUtils.js` → `hexToRgba`). Only has effect and an enabled control if `colorFondo` is non-empty |
+| `imagenResourceId` | string \| null | `null` | With `fondoTipo === 'imagen'`. Fully replaces `colorFondo` on paint (not combined) |
+| `ajusteImagen` | `{ zoom, posX, posY, rotation }` | resets to `{ zoom:100, posX:50, posY:50 }` on choosing/changing image | Same shape as `cara.ajusteImagen` |
+| `imagenTransparencia` | number, 0–100 | `0` (opaque) | Transparency over the background image (`fondoTipo === 'imagen'`), independent of `colorFondoTransparencia` and the border. Resets to `0` on choosing/changing image; kept on switching `fondoTipo` to `'color'` and back to `'imagen'`. Adjusted from the "Transparencia" slider inside "Ajustar imagen…" (`ui/imageAdjustModal.js`), not in the shape's edit panel |
+| `bordeColor`, `bordeGrosor`, `bordeActivo` | hex / px 1–20 / boolean | black / `2` / `true` | Simple border (CSS `border`), no special bevel. "Borde" section in `ui/cardShapeModal.js` uses a toggle pattern in the `<legend>` |
 
-Al pintar, imagen se recorta al `tipo` de la figura (mismo `border-radius`) en contenedor interno `overflow: hidden`, borde por encima sobre el contenedor exterior. Cambiar `tipo` conserva `imagenResourceId`/`ajusteImagen` (independientes de `tipo`); duplicar/copiar-pegar los lleva también. Redimensión: `tipo === 'circular'` libre en ambos ejes, Shift fuerza 1:1; `'cuadrada'`/`'redondeada'` libre sin restricción. Cambiar a `'circular'` con `width !== height` iguala ambos al mayor (círculo perfecto). Se pinta en `ui/visualEditorModal.js` y `ui/componentRenderer.js` → `paintCartaFace`, sin `pointer-events` fuera del editor.
+On paint, the image is clipped to the shape's `tipo` (same `border-radius`) in an inner `overflow: hidden` container, border above on the outer container. Changing `tipo` keeps `imagenResourceId`/`ajusteImagen` (independent of `tipo`); duplicating/copy-pasting carries them too. Resize: `tipo === 'circular'` free on both axes, Shift forces 1:1; `'cuadrada'`/`'redondeada'` free with no restriction. Switching to `'circular'` with `width !== height` equalizes both to the larger (perfect circle). Painted in `ui/visualEditorModal.js` and `ui/componentRenderer.js` → `paintCartaFace`, with no `pointer-events` outside the editor.
 
-Botón "Añadir elemento" de cada cara (menú desplegable): "Elegir imagen…", "+ Texto", "Figura geométrica" (crea figura circular por defecto, centrada, lado `designWidth * 0.3`), "Color de fondo…" (abre `ui/cardBackgroundColorModal.js`, activa `fondoTipo = 'color'` en la cara). Las dos últimas opciones no añaden elemento repetible: son configuración única de la cara, mutuamente excluyente entre sí.
+Each face's "Añadir elemento" button (dropdown menu): "Elegir imagen…", "+ Texto", "Figura geométrica" (creates a circular shape by default, centered, side `designWidth * 0.3`), "Color de fondo…" (opens `ui/cardBackgroundColorModal.js`, sets `fondoTipo = 'color'` on the face). The last two options do not add a repeatable element: they are single per-face configuration, mutually exclusive with each other.
 
-### Shape `TextBox`
+### `TextBox` shape
 
 `{ id, contenido, fuenteResourceId, tamañoFuente, color, x, y, width, height, bordeActivo, bordeColor, bordeGrosor, bordeTipo: 'continua'|'punteada', colorFondo, colorFondoTransparencia, alineacionHorizontal: 'izquierda'|'centro'|'derecha', alineacionVertical: 'arriba'|'centro'|'abajo', margenSuperior, margenDerecha, margenInferior, margenIzquierda, negrita, cursiva, subrayado, orden, rotation: number (-360-360) | undefined }`
 
-| Campo | Tipo | Default | Descripción |
+| Field | Type | Default | Description |
 |---|---|---|---|
-| `bordeActivo`, `bordeColor`, `bordeGrosor`, `bordeTipo` | boolean/hex/px 1–20/enum | `false`/negro/`2`/`'continua'` | Borde propio del cuadro. Si `bordeActivo` es `false`, no se dibuja pero color/grosor/tipo se conservan |
-| `colorFondo`, `colorFondoTransparencia` | hex o vacío / 0–100 | vacío / `0` | Fondo propio, detrás del texto. Transparencia vía `hexToRgba`, solo con efecto si `colorFondo` no vacío |
-| `alineacionHorizontal`, `alineacionVertical` | enum | `'izquierda'` / `'arriba'` | Posición del texto en la zona interior del cuadro (tras descontar márgenes) |
-| `margenSuperior/Derecha/Inferior/Izquierda` | number, px | `0` | Reducen la zona interior sin cambiar tamaño del cuadro. Sin negativos ni tope propio |
-| `negrita`, `cursiva`, `subrayado` | boolean | `false` | Interruptores independientes y combinables, aplicados al contenido completo (no a rangos) |
-| `orden`, `rotation` | igual que `Forma` | — | Misma semántica y disparadores (menú contextual "Girar 90° (horario)"/"Girar 90° (antihorario)" + slider de rotación en `ui/cardTextBoxModal.js`) que en `Forma` |
+| `bordeActivo`, `bordeColor`, `bordeGrosor`, `bordeTipo` | boolean/hex/px 1–20/enum | `false`/black/`2`/`'continua'` | The box's own border. If `bordeActivo` is `false`, it is not drawn but color/thickness/type are kept |
+| `colorFondo`, `colorFondoTransparencia` | hex or empty / 0–100 | empty / `0` | Own background, behind the text. Transparency via `hexToRgba`, only has effect if `colorFondo` is non-empty |
+| `alineacionHorizontal`, `alineacionVertical` | enum | `'izquierda'` / `'arriba'` | Text position within the box's inner area (after margins) |
+| `margenSuperior/Derecha/Inferior/Izquierda` | number, px | `0` | Reduce the inner area without changing the box size. No negatives, no own cap |
+| `negrita`, `cursiva`, `subrayado` | boolean | `false` | Independent, combinable switches, applied to the whole content (not ranges) |
+| `orden`, `rotation` | same as `Forma` | — | Same semantics and triggers (context menu "Girar 90° (horario)"/"Girar 90° (antihorario)" + rotation slider in `ui/cardTextBoxModal.js`) as in `Forma` |
 
-`core/textBoxLayout.js` (módulo puro) expone `getTextBoxLayoutStyle(textBox, scale)`: traduce alineación+márgenes a `{ justifyContent, textAlign, paddingTop/Right/Bottom/Left }` (últimos 4 ya escalados en `px`) — punto único reutilizado por `ui/componentRenderer.js` y `ui/visualEditorModal.js`, ambos aplicando el resultado sobre contenedor `display:flex; flex-direction:column; box-sizing:border-box`.
+`core/textBoxLayout.js` (pure module) exposes `getTextBoxLayoutStyle(textBox, scale)`: translates alignment+margins to `{ justifyContent, textAlign, paddingTop/Right/Bottom/Left }` (last 4 already scaled in `px`) — single point reused by `ui/componentRenderer.js` and `ui/visualEditorModal.js`, both applying the result over a `display:flex; flex-direction:column; box-sizing:border-box` container.
 
-Todos los campos de `TextBox` son opcionales y sin migración: ausencia se comporta como el default de la tabla (sin cambio visual).
+All `TextBox` fields are optional and unmigrated: absence behaves as the table's default (no visual change).
 
-Cara sin `imagenResourceId` ni `textBoxes`: carta se muestra en blanco con la proporción configurada, sin aviso.
+A face with no `imagenResourceId` and no `textBoxes`: the card is shown blank with the configured proportion, no notice.
 
-`core/cardProportions.js` expone `CARD_PROPORTIONS`, `getProporcionRatio(value)` (fallback `'2:3'`), `CARD_DESIGN_WIDTH = 300` (constante histórica, solo usada por la migración `migrateCartaMedidasReales` para conocer el ancho de referencia de cartas guardadas con el sistema de "unidades de diseño" anterior).
+`core/cardProportions.js` also exposes `CARD_PROPORTIONS`, `getProporcionRatio(value)` (fallback `'2:3'`), `CARD_DESIGN_WIDTH = 300` (historical constant, used only by the `migrateCartaMedidasReales` migration to know the reference width of cards saved with the previous "design units" system).
 
 ## `'mazo'`
 
-Pila ordenada de cartas boca abajo. Concepto independiente de "Etiqueta" (puramente organizativo) — ambos conviven sin relación entre sí. Creado con `width`/`height` = `180 × 180/getProporcionRatio('5:7')` px (mismo tamaño de partida que "Carta/Ficha"), `bloqueado: true` y `subirAlMoverInteractuar: true` por defecto. No admite proporciones especiales: solo orientación "Vertical"/"Horizontal", que al cambiarse transpone `width`/`height` (no resetea a tamaño por defecto).
+Ordered face-down stack of cards. Concept independent of "Etiqueta" (purely organizational) — both coexist unrelated. Created with `width`/`height` = `180 × 180/getProporcionRatio('5:7')` px (same starting size as "Carta/Ficha"), `bloqueado: true` and `subirAlMoverInteractuar: true` by default. Does not accept special proportions: only "Vertical"/"Horizontal" orientation, which on change transposes `width`/`height` (does not reset to default size).
 
-| Propiedad | Tipo | Default | Descripción |
+| Property | Type | Default | Description |
 |---|---|---|---|
-| `cartaIds` | string[] | `[]` | Lista ordenada de ids de componentes `'carta'` en el mazo — índice `0` es la de arriba. Referencia en sentido mazo→carta |
-| `orientacion` | `'vertical'\|'horizontal'` | `'vertical'` | Solo determina forma de la caja al crearse/transponer. Solo se muestra su control cuando `forma === 'rectangular'` |
-| `forma` | `'rectangular'\|'circular'` | `'rectangular'` | Silueta de la caja, independiente de `orientacion`. `'circular'` recorta caja/contenido/zona de revelado en redondo (`border-radius: 50%`). Cambiar a `'circular'` iguala `width`/`height` al mayor de los dos |
-| `disposicion` | `'arriba'\|'abajo'\|'derecha'\|'izquierda'` | `'derecha'` | Lado del mazo donde se pinta la "zona de revelado" y aparece la carta al sacarla (`getMazoRevealZoneRect`). Se muestra también con `forma === 'circular'` (a diferencia de `orientacion`) |
-| `textoCartaRevelada` | string | `'Carta revelada'` | Texto pintado dentro de la zona de revelado. Cadena vacía es un valor válido: la zona se pinta sin texto |
-| `caraCartaRevelada` | `'frontal'\|'trasera'` | `'frontal'` | Cara con la que queda mostrada la carta al sacarla del mazo (`computeSacarCartaDeMazo` fija `caraActual` a este valor) — `'frontal'` es boca arriba, `'trasera'` boca abajo |
-| `imagenResourceId` | `string\|null` | `null` | Imagen propia del mazo, independiente del contenido de la pila. `null`: sin imagen propia, ver comportamiento de fallback abajo |
-| `ajusteImagen` | `{ zoom, posX, posY, rotation }\|undefined` | — | Solo presente si hay `imagenResourceId`. Mismo shape que usa `ui/imageAdjustModal.js` en general |
-| `transparenciaImagen` | `number, 0–100\|undefined` | `0` cuando está presente | Solo presente si hay `imagenResourceId`; se reinicia a `0` al elegir/cambiar imagen |
+| `cartaIds` | string[] | `[]` | Ordered list of `'carta'` component ids in the deck — index `0` is the top one. Reference in deck→card direction |
+| `orientacion` | `'vertical'\|'horizontal'` | `'vertical'` | Only determines the box shape on creation/transpose. Its control is shown only when `forma === 'rectangular'` |
+| `forma` | `'rectangular'\|'circular'` | `'rectangular'` | Box silhouette, independent of `orientacion`. `'circular'` clips box/content/reveal zone to a round (`border-radius: 50%`). Switching to `'circular'` equalizes `width`/`height` to the larger of the two |
+| `disposicion` | `'arriba'\|'abajo'\|'derecha'\|'izquierda'` | `'derecha'` | Side of the deck where the "reveal zone" is painted and the card appears when drawn (`getMazoRevealZoneRect`). Also shown with `forma === 'circular'` (unlike `orientacion`) |
+| `textoCartaRevelada` | string | `'Carta revelada'` | Text painted inside the reveal zone. An empty string is a valid value: the zone is painted with no text |
+| `caraCartaRevelada` | `'frontal'\|'trasera'` | `'frontal'` | Face the card ends up showing when drawn from the deck (`computeSacarCartaDeMazo` sets `caraActual` to this value) — `'frontal'` is face up, `'trasera'` face down |
+| `imagenResourceId` | `string\|null` | `null` | The deck's own image, independent of the stack contents. `null`: no own image, see fallback behavior below |
+| `ajusteImagen` | `{ zoom, posX, posY, rotation }\|undefined` | — | Present only if there is `imagenResourceId`. Same shape `ui/imageAdjustModal.js` uses in general |
+| `transparenciaImagen` | `number, 0–100\|undefined` | `0` when present | Present only if there is `imagenResourceId`; resets to `0` on choosing/changing image |
 
-`core/deck.js` (módulo de datos puro) expone:
-- `getCartaIdsEnAlgunMazo(components)`: `Set` con todos los ids referenciados por cualquier mazo.
-- `shuffleCartaIds(cartaIds)`: Fisher-Yates + `Math.random()`, mismo generador que `core/dice.js`.
-- `computeSacarCartaDeMazo(mazo, carta)`: función pura, calcula cambios de sacar una carta cualquiera de la pila (esté donde esté); la carta queda con `caraActual` igual a `properties.caraCartaRevelada` del mazo (fallback `'frontal'`).
-- `getMazoRevealZoneRect(mazo)`: rectángulo de la "zona de revelado", pegada al lado indicado por `properties.disposicion` (fallback `'derecha'`).
-- `rectsOverlap`: test de solape de rectángulos.
+`core/deck.js` (pure data module) exposes:
+- `getCartaIdsEnAlgunMazo(components)`: `Set` of all ids referenced by any deck.
+- `shuffleCartaIds(cartaIds)`: Fisher-Yates + `Math.random()`, same generator as `core/dice.js`.
+- `computeSacarCartaDeMazo(mazo, carta)`: pure function, computes the changes of drawing any card from the stack (wherever it is); the card ends up with `caraActual` equal to the deck's `properties.caraCartaRevelada` (fallback `'frontal'`).
+- `getMazoRevealZoneRect(mazo)`: rectangle of the "reveal zone", flush to the side indicated by `properties.disposicion` (fallback `'derecha'`).
+- `rectsOverlap`: rectangle-overlap test.
 
-Mientras el id de una carta esté en `cartaIds` de cualquier mazo, esa carta **no se dibuja como componente independiente en la mesa, en ningún modo** (a diferencia de `oculto`, solo filtrado en modo juego) — `modes/play/playMode.js` y `modes/edit/editMode.js` excluyen esos ids con `getCartaIdsEnAlgunMazo`. Sigue apareciendo en el panel de Componentes sin filtrar.
+While a card's id is in `cartaIds` of any deck, that card **is not drawn as an independent component on the table, in any mode** (unlike `oculto`, filtered only in play mode) — `modes/play/playMode.js` and `modes/edit/editMode.js` exclude those ids with `getCartaIdsEnAlgunMazo`. It still appears in the Components panel unfiltered.
 
-`core/state.js` expone `sacarCartaDeMazo(mazoId, cartaId)` (usa `computeSacarCartaDeMazo`, aplica cambios con `replaceComponent`/`reorderComponent`, sube la carta extraída al frente) — vive en esta capa porque `ui/componentModal.js` también la necesita y `ui/*` no puede importar de `modes/*`.
+`core/state.js` exposes `sacarCartaDeMazo(mazoId, cartaId)` (uses `computeSacarCartaDeMazo`, applies changes with `replaceComponent`/`reorderComponent`, brings the drawn card to front) — it lives in this layer because `ui/componentModal.js` also needs it and `ui/*` cannot import from `modes/*`.
 
-**Renderizado**: reutiliza clase `.carta` para la caja (mismo radio/sombra), `border-radius` inline a `50%` si `forma === 'circular'`. Con `imagenResourceId` propio, se pinta siempre esa imagen (con su `ajusteImagen`/`transparenciaImagen`) vía `paintCartaFace(contentParent, { imagenResourceId, ajusteImagen, transparenciaImagen, fondoTipo: 'imagen' }, 1, width, height)`, sin relación con `cartaIds` — el mazo la muestra tenga o no cartas dentro. Sin `imagenResourceId` propio, se mantiene el comportamiento previo (fallback): pinta `caraTrasera` de la carta de arriba (`cartaIds[0]`) vía `paintCartaFace(contentParent, cara, renderScale, faceWidth, faceHeight)` — `renderScale = width / (cartaArriba.width || MIN_CARTA_WIDTH)` encaja el diseño real de la carta en la caja del mazo. Sin carta: placeholder neutro (`renderMazoEmptyPlaceholder`, icono SVG). Junto al mazo siempre se pinta la "zona de revelado" (`renderMazoRevealZone`, en ambos modos): recuadro decorativo pegado al lado indicado por `properties.disposicion` (`MAZO_REVEAL_GAP = 20px` de separación en los 4 casos), misma `forma` que el mazo, con el texto de `properties.textoCartaRevelada` (fallback `'Carta revelada'`). Sigue al mazo en vivo durante el arrastre (`handleMouseMove` recalcula `getMazoRevealZoneRect` con las coordenadas en curso, pasando también `properties` para respetar la disposición). Parámetro `onMazoDraw` de `renderComponentsOnTable`: click sobre el mazo lo invoca (exclusivo de `modes/play/playMode.js`). Pestaña "Específicas" (modo edición) organiza sus campos en tres secciones (`fieldset.modal__section`, ver `design/docs/style/03-modales-menus.md` §12.6): "Forma" (Forma, Orientación), "Cartas reveladas" (Disposición carta revelada, Texto carta revelada, Revelar carta) e "Imagen" (preview + "Elegir imagen…"/"Ajustar imagen…"/"Quitar imagen", mismos patrones de `ui/boardImageModal.js`/`ui/imageAdjustModal.js` que otros elementos del juego); "Ver contenido del mazo" queda fuera de cualquier sección. Desde 00212, ya no muestra ningún contador de cartas fijo/automático — quien quiera ver el número de cartas en Modo Juego debe activar "Mostrar título de componente" (`01-component-model.md`) con un texto que use la variable `{cards_current}` (p. ej. `"{cards_current} cartas"`), mecanismo genérico de los 8 tipos, no exclusivo de `'mazo'`.
+**Rendering**: reuses the `.carta` class for the box (same radius/shadow), inline `border-radius: 50%` if `forma === 'circular'`. With an own `imagenResourceId`, that image is always painted (with its `ajusteImagen`/`transparenciaImagen`) via `paintCartaFace(contentParent, { imagenResourceId, ajusteImagen, transparenciaImagen, fondoTipo: 'imagen' }, 1, width, height)`, unrelated to `cartaIds` — the deck shows it whether or not it has cards inside. Without an own `imagenResourceId`, the previous behavior (fallback) is kept: paints the top card's (`cartaIds[0]`) `caraTrasera` via `paintCartaFace(contentParent, cara, renderScale, faceWidth, faceHeight)` — `renderScale = width / (cartaArriba.width || MIN_CARTA_WIDTH)` fits the card's real design into the deck box. No card: neutral placeholder (`renderMazoEmptyPlaceholder`, SVG icon). Next to the deck the "reveal zone" is always painted (`renderMazoRevealZone`, in both modes): decorative box flush to the side indicated by `properties.disposicion` (`MAZO_REVEAL_GAP = 20px` separation in all 4 cases), same `forma` as the deck, with the text of `properties.textoCartaRevelada` (fallback `'Carta revelada'`). It follows the deck live during drag (`handleMouseMove` recomputes `getMazoRevealZoneRect` with the in-progress coordinates, passing `properties` too to respect the layout). `onMazoDraw` parameter of `renderComponentsOnTable`: click on the deck invokes it (exclusive to `modes/play/playMode.js`). The "Específicas" tab (edit mode) organizes its fields in three sections (`fieldset.modal__section`, see `design/docs/style/03-modales-menus.md` §12.6): "Forma" (Forma, Orientación), "Cartas reveladas" (Disposición carta revelada, Texto carta revelada, Revelar carta) and "Imagen" (preview + "Elegir imagen…"/"Ajustar imagen…"/"Quitar imagen", same patterns as `ui/boardImageModal.js`/`ui/imageAdjustModal.js` used by other game elements); "Ver contenido del mazo" is outside any section. Since 00212, it no longer shows any fixed/automatic card counter — anyone who wants to see the card count in play mode must enable "Mostrar título de componente" (`01-component-model.md`) with a text using the `{cards_current}` variable (e.g. `"{cards_current} cartas"`), a generic mechanism of the 8 types, not exclusive to `'mazo'`.
 
-**Menú contextual** (modo juego): mazo añade "Barajar" (`shuffleCartaIds`) y "Ver contenido..." (`ui/mazoContentModal.js`); carta añade "Meter en mazo..." (`ui/insertIntoMazoModal.js`) solo si existe al menos un mazo. Nº de cartas se muestra en `description.extra` del menú.
+**Context menu** (play mode): a deck adds "Barajar" (`shuffleCartaIds`) and "Ver contenido..." (`ui/mazoContentModal.js`); a card adds "Meter en mazo..." (`ui/insertIntoMazoModal.js`) only if at least one deck exists. Card count is shown in the menu's `description.extra`.
 
-**`ui/mazoContentModal.js`**: lista todas las cartas del mazo (miniatura de cara frontal + id + botón "Sacar" por fila, orden de `cartaIds`), reutilizada desde menú contextual (modo juego) y desde pestaña específica del mazo (modo edición). Lee siempre el estado actual de `core/state.js` para refrescarse tras cada "Sacar" — mutación la hace quien abre, vía `onSacar(cartaId)`.
+**`ui/mazoContentModal.js`**: lists all cards of the deck (front-face thumbnail + id + "Sacar" button per row, `cartaIds` order), reused from the context menu (play mode) and from the deck's specific tab (edit mode). Always reads the current state of `core/state.js` to refresh after each "Sacar" — mutation is done by whoever opens it, via `onSacar(cartaId)`.
 
-**`ui/insertIntoMazoModal.js`**: desplegable de mazos + desplegable de posición ("Arriba del todo"/"Abajo del todo"); `onAccept({ mazoId, posicion })` añade el id de la carta al principio o final de `cartaIds`.
+**`ui/insertIntoMazoModal.js`**: deck dropdown + position dropdown ("Arriba del todo"/"Abajo del todo"); `onAccept({ mazoId, posicion })` adds the card's id to the start or end of `cartaIds`.
 
-**Arrastrar cartas sobre un mazo** (modo juego y modo edición): `onMove` de `renderComponentsOnTable` (compartido por ambos modos) detecta solape entre la carta/selección bajo arrastre y un mazo. En modo juego (una sola carta, sin `confirm()`): inserción directa al final de `cartaIds` al soltar. En modo edición (puede ser selección múltiple de solo cartas): `attemptDropOnMazo(groupIds, draggedRect)` pide `confirm()` nativo antes de añadir al final; acción reversible. Detección de solape utiliza `rectsOverlap` en ambos modos. Resaltado visual (contorno azul + halo) se aplica mientras se arrastra sobre el mazo, en ambos modos, mientras la selección sea compuesta solo por cartas (no se resalta si hay mezcla de tipos de componente).
+**Dragging cards onto a deck** (play mode and edit mode): `onMove` of `renderComponentsOnTable` (shared by both modes) detects overlap between the dragged card/selection and a deck. In play mode (single card, no `confirm()`): direct insertion at the end of `cartaIds` on drop. In edit mode (may be a multi-selection of only cards): `attemptDropOnMazo(groupIds, draggedRect)` asks for a native `confirm()` before adding at the end; reversible action. Overlap detection uses `rectsOverlap` in both modes. Visual highlight (blue outline + halo) is applied while dragging over the deck, in both modes, while the selection consists only of cards (no highlight if there is a mix of component types).
 
 ## `'tableroPersonalizado'`
 
-Tablero avanzado, convive con `'tableroSimple'` (ninguno sustituye al otro) para cuando hace falta más que color/patrón/imagen única. Se diseña con el mismo "Editor visual" (`ui/visualEditorModal.js`) que `'carta'`, pero con una única cara (no se voltea) bajo `properties.cara` (mismo shape que `caraFrontal`/`caraTrasera` de `'carta'`: `imagenResourceId`, `ajusteImagen`, `formas`, `textBoxes`, `bordeColor`, `bordeGrosor`, `transparenciaImagen`). Creado con `width`/`height` = `300 × 200px` por defecto (nunca automático); a diferencia de `'carta'`, redimensionado libre en cualquier proporción (como `'tableroSimple'`).
+Advanced board, coexists with `'tableroSimple'` (neither replaces the other) for when more than color/pattern/single image is needed. Designed with the same "Visual editor" (`ui/visualEditorModal.js`) as `'carta'`, but with a single face (does not flip) under `properties.cara` (same shape as `caraFrontal`/`caraTrasera` of `'carta'`: `imagenResourceId`, `ajusteImagen`, `formas`, `textBoxes`, `bordeColor`, `bordeGrosor`, `transparenciaImagen`). Created with `width`/`height` = `300 × 200px` by default (never automatic); unlike `'carta'`, free resize at any proportion (like `'tableroSimple'`).
 
-| Propiedad | Tipo | Default | Descripción |
+| Property | Type | Default | Description |
 |---|---|---|---|
-| `cara` | objeto (mismo shape que cara de `'carta'`) | — | Diseño único |
-| `biselado` | boolean | `true` | Nivel superior (no dentro de `cara`). Decide si el borde tiene bisel de dos tonos o color plano |
-| `sombra` | boolean | `true` | Nivel superior. Sombra de contacto nivel 1 o plano (`.tablero-personalizado--sin-sombra`) |
+| `cara` | object (same shape as a `'carta'` face) | — | Single design |
+| `biselado` | boolean | `true` | Top level (not inside `cara`). Decides whether the border has a two-tone bevel or flat color |
+| `sombra` | boolean | `true` | Top level. Contact shadow level 1 or flat (`.tablero-personalizado--sin-sombra`) |
 
-Diseño de la cara se guarda directamente en píxeles reales, fijo con independencia del tamaño del componente: pintado (`ui/componentRenderer.js` → `paintCartaFace(tableroContent, cara, 1, width, height, 1)`) usa siempre escala `1`, `overflow: hidden` recorta lo que no quepa — redimensionar cambia solo el marco visible. El lienzo del Editor visual representa el tamaño real del componente al abrirlo (no un lienzo lógico fijo). Borde usa el mismo bisel de dos tonos que `'tableroSimple'`/`'dado'` (`core/colorUtils.js` → `shadeColor`) en vez del borde simple de `'carta'`. Sin bloque "Estilo" (Copiar/Pegar estilo) en esta versión.
+The face design is stored directly in real pixels, fixed regardless of component size: painting (`ui/componentRenderer.js` → `paintCartaFace(tableroContent, cara, 1, width, height, 1)`) always uses scale `1`, `overflow: hidden` clips what does not fit — resizing changes only the visible frame. The Visual editor canvas represents the component's real size on open (not a fixed logical canvas). Border uses the same two-tone bevel as `'tableroSimple'`/`'dado'` (`core/colorUtils.js` → `shadeColor`) instead of the simple border of `'carta'`. No "Estilo" block (Copy/Paste style) in this version.
