@@ -1,51 +1,32 @@
-# Changelog de Previo v0.9.5 (desde v0.9.21)
+# Changelog de Previo v0.9.6b7 (desde v0.9.5)
+
+Nota: dentro de una sección, las entradas pueden agruparse bajo un tema cuando al menos dos entradas comparten asunto. En la sección de detalle, un tema es `- 📂**{Tema}**:` con sus entradas anidadas como subpuntos indentados debajo (sin encabezado, sin enlace). En el Índice, ese mismo tema se colapsa en una sola línea simple `📂{Tema} (N cambios)` sin listar sus entradas. Las entradas no agrupadas se listan como puntos de primer nivel normales en ambos sitios (solo el título en el Índice, punto completo con título en negrita y resumen en el detalle).
 
 ## Índice
 
 - ⭐[Novedades](#novedades)
-  - Auditoría de salud del framework y autorreparación
-  - 📂Documentación del framework (3 cambios)
-  - Análisis del código base en la primera inicialización
-  - Soporte multilingüe
-  - Verificación de versión del framework
-  - Eliminación de entradas de la lista de ideas
-  - Preparación aislada del changelog
+  - 📂La documentación del proyecto ahora es obligatoria (2 cambios)
+  - Nueva skill interna para la gestión de ficheros de documentación
+  - Cada skill de flujo tiene ahora un diagrama de workflow
 - ✏️[Cambios](#cambios)
-  - 📂Estructura y rutas de `workFolder` (4 cambios)
-  - 📂Informes de `pv-status` (2 cambios)
-  - Tolerancia al riesgo relajada en fixes triviales
-  - La documentación técnica/de estilo ahora se redacta con reglas compartidas
-  - Aumento del relleno de ceros por defecto en los códigos secuenciales
-  - La base de modelo/esfuerzo por skill ahora se registra siempre
-  - La configuración rota o desincronizada ahora se delega en `pv-update`
-  - Traducción de la prosa del framework al inglés
+  - 📂Disposición y índice de las carpetas de documentación (2 cambios)
+  - La comprobación de salud del framework abarca más del historial de cambios
+  - La plantilla de planificación ya no se bifurca según si la documentación está configurada
+  - Cerrar entradas implementadas ya no te expulsa tras cada una
 
 ## ⭐Novedades
 
-- **Auditoría de salud del framework y autorreparación** — `pv-update`: se ha añadido una nueva skill que audita `.claude/pv-context.json` y los ficheros instalados del framework en busca de desincronizaciones — configuración rota, carpetas faltantes, códigos de cambio duplicados, versiones de skill que no coinciden, `pv.py` desactualizado, etiquetas de documento corruptas — y corrige automáticamente todo lo que puede determinar con seguridad, preguntando al usuario solo cuando la corrección implicaría adivinar (JSON inválido, o una posible regresión de versión).
-- 📂**Documentación del framework**:
-  - **Documentación de guía de usuario** — `pv-doc`: se ha añadido una guía de usuario bilingüe (inglés/español) que explica cómo usar el framework `pv-*`, algo que antes no estaba documentado fuera de las propias skills.
-  - **Guía de redacción de la biblia de estilo** — `pv-internal-doc-style`: se ha añadido una nueva skill compartida que indica a `pv-do` qué categorías de estilo (redacción, diseño visual, interacción, accesibilidad, componentes reutilizables) aplican a un cambio concreto y qué debe registrar cada una, usada para mantener sincronizada la biblia de estilo del proyecto.
-  - **Reglas compartidas de redacción de documentación técnica** — `pv-internal-doc-technical`: se ha añadido una nueva skill compartida que define las convenciones de redacción densas y orientadas a IA (etiquetas fijas, tablas, bloques de código) que debe seguir la documentación de arquitectura y de biblia de estilo, invocada por `pv-do` y `pv-init` antes de redactar ese contenido.
-- **Análisis del código base en la primera inicialización** — `pv-init`: al inicializar sobre un proyecto que ya tiene código fuente, la skill ahora ofrece elegir entre un análisis mínimo o completo, y genera documentación real de arquitectura, estilo y funcionalidades a partir del código existente, en lugar de limitarse a crear plantillas vacías.
-- **Soporte multilingüe** — `pv-init` y el framework en general: se ha añadido configuración para el idioma en que el framework se comunica con el usuario en el chat, además de idiomas opcionales independientes para los documentos de cambios en curso, el changelog de versión, la documentación de funcionalidades y la documentación técnica, cada uno con el idioma del chat como valor por defecto si no se especifica.
-- **Verificación de versión del framework** — `pv-do`, `pv-fix`, `pv-how`, `pv-new`, `pv-status`, `pv-todo`, `pv-version`: todas las skills invocables por el usuario ahora comprueban, antes de hacer cualquier otra cosa, que la versión instalada del framework coincide con la última verificada por `pv-update`, y se niegan a continuar (remitiendo al usuario a `pv-update`) si la configuración parece desactualizada o bloqueada.
-- **Eliminación de entradas de la lista de ideas** — `pv-internal-workflow`: se ha añadido la capacidad de eliminar una entrada de la lista de ideas, expuesta internamente para la limpieza posterior a su conversión.
-- **Preparación aislada del changelog** — `pv-internal-changelog`: las entradas pendientes de incluir en una versión ahora se preparan en una copia aislada en `closed/temp/` antes de redactar el changelog, de forma que las entradas de cambio/fix que se cierran mientras se redacta ya no interfieren con esa ejecución; la eliminación posterior de las entradas incorporadas ya no requiere confirmación del usuario, puesto que la copia aislada es demostrablemente segura de borrar.
+- 📂**La documentación del proyecto ahora es obligatoria**:
+  - **La documentación técnica, de estilo y de funcionalidades siempre se crea** — `pv-init` ahora siempre crea y prepara la carpeta de documentación de arquitectura, la del style bible y la de funcionalidades en todos los proyectos. Nunca pregunta si las quieres ni permite eliminarlas; un proyecto que no tenga interés en mantener alguna conserva la carpeta vacía en lugar de borrarla. Los proyectos anteriores a este cambio se consideran necesitados de reparación y se derivan a `pv-update`.
+  - **Todas las skills se niegan a ejecutarse en un proyecto al que le falte cualquiera de las tres carpetas de documentación** — `pv-new`, `pv-fix`, `pv-how`, `pv-do` y `pv-version` ahora se detienen y te indican que ejecutes `/pv-update` si la carpeta de documentación de arquitectura, de estilo o de funcionalidades falta en la configuración o no está en disco, en vez de omitir esa parte de su trabajo en silencio. Una carpeta vacía que solo contenga su placeholder es correcta y no dispara esto.
+- **Nueva skill interna para la gestión de ficheros de documentación** — una nueva skill `pv-internal-doc-files` centraliza cómo cada carpeta de documentación almacena sus ficheros (un fichero numerado por tema, un índice autogenerado, localizar una entrada existente antes de escribir una nueva). `pv-internal-doc-features` ahora se centra únicamente en decidir qué dice una entrada de funcionalidad, y delega la gestión de ficheros en la nueva skill. Es fontanería interna, sin cambios en cómo invocas nada.
+- **Cada skill de flujo tiene ahora un diagrama de workflow** — `pv-new`, `pv-fix`, `pv-how` y `pv-version` incluyen cada una un diagrama de su propia secuencia de pasos y bifurcaciones, que la skill trata ahora como la descripción autoritativa de su flujo (igual que ya hacía `pv-update`). El comportamiento no cambia; los flujos solo quedan fijados de forma explícita.
 
 ## ✏️Cambios
 
-- 📂**Estructura y rutas de `workFolder`**:
-  - **Cambios en el comportamiento y valor por defecto de `workFolder`** — `pv-init`: la carpeta de trabajo del framework ahora usa por defecto una ruta fija `/previo-sdd` en lugar de la raíz del repositorio, y se escribe de forma silenciosa sin pedir confirmación al usuario (antes siempre se preguntaba/confirmaba); se ha añadido una nueva subcarpeta fija `stuff/` junto a `changes/`/`versions/`. Los proyectos inicializados previamente en la raíz del repositorio deberían volver a ejecutar `pv-init`/`pv-update` para revisar la nueva estructura.
-  - **Rutas de documentación técnica/funcional ahora relativas a `workFolder`** — `pv-init`: las carpetas de documentación de arquitectura, biblia de estilo y funcionalidades ahora se ubican en relación con `workFolder` en lugar de la raíz del repositorio, alineándolas con `changes/`/`versions/`. Las configuraciones existentes que apunten fuera de `workFolder` necesitan revisión mediante `pv-update`.
-  - **Reubicación del fichero de procedimiento de compilación** — `pv-version`: el documento de procedimiento de build/compilación del proyecto se ha movido de `{workFolder}/framework/how-to-compile-version.md` a `{workFolder}/stuff/how-to-compile-version.md`. Los proyectos existentes deben volver a ejecutar `pv-update` (o reubicar el fichero manualmente) tras actualizar.
-  - **Resolución de rutas uniforme independientemente de la barra inicial** — `pv-internal-workflow`, `pv-how`: los valores de `workFolder` ahora se resuelven de la misma forma tengan o no una barra inicial, evitando comprobaciones inconsistentes de colisión de códigos de cambio (corrección interna sin cambio de comportamiento visible en proyectos correctamente configurados).
-- 📂**Informes de `pv-status`**:
-  - **El informe de estado incorpora datos de riesgo y versión** — `pv-status`: los informes de estado general y filtrado ahora muestran el nivel de riesgo evaluado de cada entrada y un recuento de versiones preparadas; el informe general también separa las entradas "en curso" en un grupo distinto de "listas para cerrar", junto a "planificadas, pendientes de implementación" y "pendientes de análisis técnico". El texto del propio informe (encabezados, etiquetas) ahora se muestra siempre en inglés, independientemente del idioma de chat configurado por el usuario, ya que lo generan scripts deterministas y no prosa redactada.
-  - **Ancho configurable del informe de terminal** — `pv-status`: la salida de texto plano en terminal que usa `pv.py` ahora acepta un ancho de columna indicado por quien la invoca, en lugar de un valor fijo.
-- **Tolerancia al riesgo relajada en fixes triviales** — `pv-fix`: la clasificación "rápida" (trivial) ahora tolera un pequeño riesgo para el resto de la aplicación en lugar de exigir riesgo exactamente nulo.
-- **La documentación técnica/de estilo ahora se redacta con reglas compartidas** — `pv-do`: al actualizar la documentación de arquitectura o de biblia de estilo tras implementar un cambio, ahora carga las convenciones de redacción compartidas de `pv-internal-doc-technical` y, específicamente para la biblia de estilo, consulta a `pv-internal-doc-style` qué categorías aplican, en lugar de redactar ese contenido sin una base común.
-- **Aumento del relleno de ceros por defecto en los códigos secuenciales** — `pv-init`: se ha aumentado el ancho de relleno de ceros por defecto para los códigos de cambio/fix, y el campo ahora siempre se escribe explícitamente en la configuración en lugar de dejarse como valor por defecto implícito.
-- **La base de modelo/esfuerzo por skill ahora se registra siempre** — `pv-init`: el mapeo de qué modelo/esfuerzo de Claude usa cada skill `pv-*` ahora siempre se escribe en `pv-context.json` (reflejando el frontmatter real de cada skill), incluso cuando el usuario no personaliza nada, en lugar de omitirse cuando no se usa.
-- **La configuración rota o desincronizada ahora se delega en `pv-update`** — `pv-init`: cuando detecta un problema más allá de un campo opcional sin configurar (JSON inválido, una referencia colgante, un `pv.py` desactualizado), ahora delega el diagnóstico y la reparación a la nueva skill `pv-update` en lugar de intentar corregirlo directamente.
-- **Traducción de la prosa del framework al inglés** — casi todas las skills `pv-*`: todas las instrucciones de las skills, plantillas de mensajes y plantillas de documentos (antes escritas en español) se han traducido al inglés como idioma base del framework, usando en las etiquetas de campo de los documentos una nueva convención de marcador fijo para que sigan siendo interpretables independientemente del idioma de contenido configurado.
+- 📂**Disposición y índice de las carpetas de documentación**:
+  - **Los ficheros de documentación se numeran con tres dígitos y se agrupan por área** — los ficheros de cada carpeta de documentación usan ahora un prefijo de 3 dígitos (`001-`, `002-`…) en vez de dos, y cada fichero lleva una etiqueta de área que se usa para agruparlo en el índice de la carpeta. Las carpetas existentes siguen funcionando; los ficheros nuevos siguen la nueva convención.
+  - **El índice de la documentación siempre se regenera, nunca se escribe a mano** — el `INDEX.md` de cada carpeta de documentación se produce ahora de forma determinista a partir de los ficheros de la carpeta (la documentación de funcionalidades ya funcionaba así; las carpetas de arquitectura y de estilo lo hacen ahora también).
+- **La comprobación de salud del framework abarca más del historial de cambios** — la auditoría de `pv-update` comprueba ahora también los planes de las entradas ya implementadas, y señala los encabezados de sección traducidos (no solo las etiquetas de campo) en los documentos de cambio/fix, restaurándolos a su forma canónica. Los documentos creados por una versión anterior del framework cuyas plantillas aún estaban traducidas son el caso habitual que esto repara.
+- **La plantilla de planificación ya no se bifurca según si la documentación está configurada** — las secciones "Cambios de arquitectura" y "Cambios de estilo" del plan se incluyen ahora simplemente cuando el cambio afecta de verdad a arquitectura o estilo, sin la anterior condición de "solo si esa documentación está configurada" (ya que ahora siempre lo está). Varios encabezados de sección del plan y de la descripción del cambio quedan además fijados en inglés con independencia del idioma configurado, para que los informes de estado sigan funcionando.
+- **Cerrar entradas implementadas ya no te expulsa tras cada una** — cerrar entradas desde el ayudante `pv.py` vuelve ahora a listar las entradas pendientes restantes tras cada cierre, de modo que puedes cerrar varias seguidas sin volver a lanzarlo.

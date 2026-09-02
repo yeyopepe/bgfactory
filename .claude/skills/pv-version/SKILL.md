@@ -5,7 +5,7 @@ argument-hint: <XXXX of the version to prepare>
 model: claude-sonnet-5
 effort: medium
 metadata:
-  version: 0.9.5
+  version: 0.9.6b9
   uses: [pv-internal-changelog]
 ---
 
@@ -16,6 +16,8 @@ Orchestrates preparing a project release: resolves change/fix entries pending cl
 **Language.** Use `framework.interaction.language` (default English) for everything you say to the user in this conversation, including the fixed messages below. Copying technical documentation and generating the deliverable are copy/build operations, not new prose (`language` doesn't apply); it chains `pv-internal-changelog` for `changelog.md`. `{workFolder}/stuff/how-to-compile-version.md`, which this skill writes/edits directly (see steps 0.2 and 3), also follows `interaction.language` — there's no dedicated language field for `stuff/*` in the schema. If `language` is not configured anywhere, everything is English.
 
 `{workFolder}` is `.claude/pv-context.json`'s `framework.workFolder` value (default `"/previo-sdd"`, never asked/confirmed by `pv-init`). Inside it, `changes/`, `versions/` and `stuff/` are fixed-name subfolders the framework creates by itself — not asked about or configured separately. `{workFolder}/versions/{XXXX}/` is a free-text numbering space, chosen by the user on each invocation, with no relation to change/fix's `xxxx` nor to any other folder called "versions" that might exist in the repo (e.g. a build script's own output): this skill never reads or writes outside `{workFolder}/versions/`.
+
+**Before any other step**, read [`workflow.version.md`](workflow.version.md) — it's the source of truth for this flow's sequence and branches (see `pv-design.en.md`'s "Workflow diagrams" section for the notation). If it doesn't exist or can't be followed, stop and report that instead of improvising the flow from the prose below. The numbered steps that follow are each node's detail (which script to run, what exact text to use) — the diagram governs sequence and branching; if the two ever disagree, the diagram wins and this prose gets corrected to match. Don't confuse it with [`version-flow-diagram.template.md`](version-flow-diagram.template.md): that one is a simplified, user-facing diagram shown as-is when the user asks how the process works (step 0.1) — it doesn't drive this skill's own execution.
 
 ## 0. Framework initialized
 
@@ -92,7 +94,7 @@ Only if step 4 generated the deliverable correctly. Run from the repo root:
 python .claude/skills/pv-version/scripts/copy-docs.py --xxxx <XXXX>
 ```
 
-Reads `.claude/pv-context.json`'s `framework.docs.tech.architectureDocDir`, `framework.docs.tech.styleBibleDocDir` and `framework.docs.functional.featuresDocPathDir` (whichever are configured; if none are, it's skipped without asking, same as `pv-do` does), zips each one (the whole folder with all its files, including its `INDEX.md`; or the single `.md` file, if that path isn't a folder) and saves it at `{workFolder}/versions/{XXXX}/docs/`. Note what was copied and what was skipped (the script returns this in its JSON output) for step 7's summary.
+Reads `.claude/pv-context.json`'s `framework.docs.tech.architectureDocDir`, `framework.docs.tech.styleBibleDocDir` and `framework.docs.functional.featuresDocPathDir` (all three required and always configured), zips each one (the whole folder with all its files, including its `INDEX.md`; or the single `.md` file, if that path isn't a folder) and saves it at `{workFolder}/versions/{XXXX}/docs/`. If the script exits non-zero because a doc dir is missing from the config or points at a non-existent path, stop and tell the user to run `/pv-update` first — don't work around it. Note what was copied (the script returns this in its JSON `copied` list) for step 7's summary.
 
 ## 6. Generate the changelog
 
@@ -100,4 +102,4 @@ Invoke the `pv-internal-changelog` skill (Skill tool) passing it the destination
 
 ## 7. Confirm to the user
 
-Summarize what was generated: the deliverable in `files/`, zipped docs in `docs/` (or which ones were skipped for not being configured), and that the changelog ended up in `changelog.md` — use the summary `pv-internal-changelog` returns to you (number of entries per section, including Fixes, and whether `{workFolder}/changes/closed/`'s folders were deleted or not).
+Summarize what was generated: the deliverable in `files/`, the three zipped docs in `docs/`, and that the changelog ended up in `changelog.md` — use the summary `pv-internal-changelog` returns to you (number of entries per section, including Fixes, and whether `{workFolder}/changes/closed/`'s folders were deleted or not).

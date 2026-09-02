@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """Audits .claude/pv-context.json and everything it configures against the
-real state of the repo: schema shape, referenced skills, on-disk paths,
+real state of the repo: schema shape, obsolete keys left over from a
+framework upgrade (obsolete-field:*), referenced skills, on-disk paths,
+the architectureDocDir namespace seed (namespace-missing /
+namespace-section-missing / namespace-anchor-broken:*),
 skillModels vs each SKILL.md's real frontmatter, the [[[...]]]-marked
-structural labels (see pv-design.en.md's "Marker convention in templates")
-in every template-derived document under workFolder's changes/ subtree, and
+structural labels AND section headings (see pv-design.en.md's "Marker
+convention in templates") in every template-derived document under
+workFolder's changes/ subtree -- catching ones left translated by a
+document written under an older, still-localized framework version, and
 version consistency -- every pv-* skill's metadata.version should share the
 same major.minor (skill-version-mismatch:*), and pv-context.json's
 frameworkStatus.lastVerifiedVersion should match pv-init/SKILL.md's real
@@ -56,6 +61,15 @@ KNOWN_FRAMEWORK_FIELDS = {
     "docs",
     "frameworkStatus",
 }
+
+# Keys removed from the framework by a version upgrade. The unknown-field
+# checks (unknown-top-level-field / unknown-framework-field) only walk two
+# levels deep, so a key nested under framework.docs.tech would slip past
+# silently -- this list catches those explicitly. Each entry is a dotted path
+# rooted at the JSON top level.
+OBSOLETE_KEYS = (
+    "framework.docs.tech.language",
+)
 WORKFOLDER_SUBFOLDERS = (
     "changes/inProgress",
     "changes/implemented",
@@ -167,7 +181,7 @@ MARKED_TEMPLATES = (
     (".claude/skills/pv-internal-workflow/description.template.md",
      ("changes/inProgress/*/description.md", "changes/implemented/*/description.md")),
     (".claude/skills/pv-how/PLAN.template.md",
-     ("changes/inProgress/*/plan.md",)),
+     ("changes/inProgress/*/plan.md", "changes/implemented/*/plan.md")),
     (".claude/skills/pv-todo/description.template.md",
      ("changes/todo/*/description.md",)),
 )
@@ -210,9 +224,86 @@ def check_marked_documents(root: Path, work_folder: str, problems: list) -> None
                     rel = doc_path.relative_to(root).as_posix()
                     add(problems, f"marker-missing:{rel}", "optional", rel,
                         f"'{rel}' is missing the structural marker(s) {', '.join(missing)} "
-                        f"expected from '{template_rel}' -- likely translated or otherwise altered by hand, "
-                        f"which breaks pv-status's literal parsing of them.",
+                        f"expected from '{template_rel}' -- these are field labels AND section headings "
+                        f"(e.g. '## Full description', '## (a) Functional notes') that pv-* scripts/skills "
+                        f"match literally in English; a document written by an older framework version whose "
+                        f"templates were still localized, or hand-edited since, has them translated. Every "
+                        f"marker checked here is one the template guarantees is always present, so a miss is "
+                        f"never a legitimately-omitted optional section. Restore the English label in place "
+                        f"without touching the section body.",
                         expected=", ".join(labels), actual=", ".join(l for l in labels if l not in missing) or "(none found)")
+
+
+# The three docs.* dirs are resolved relative to workFolder (NOT the repo
+# root) -- only sourcecodeDir is repo-root-relative. This resolution rule is
+# also implemented in .claude/skills/pv-init/scripts/resolve-path.py; keep the
+# two in sync if either changes.
+DOCS_DIR_FIELDS = (
+    ("framework.docs.functional.featuresDocPathDir", ("functional", "featuresDocPathDir"), "docs/features"),
+    ("framework.docs.tech.architectureDocDir", ("tech", "architectureDocDir"), "docs/architecture"),
+    ("framework.docs.tech.styleBibleDocDir", ("tech", "styleBibleDocDir"), "docs/style"),
+)
+
+
+NAMESPACE_SECTIONS = ("## Notation", "## Tree")
+ANCHOR_RE = re.compile(r"anchor:\s*([^\s#]+)#", re.IGNORECASE)
+
+
+def dotted_get(obj: dict, dotted: str):
+    """Walks a dotted path (rooted at the JSON top level, so it starts with
+    'framework.'). Returns (True, value) if every segment exists, else
+    (False, None)."""
+    cur = obj
+    for seg in dotted.split("."):
+        if not isinstance(cur, dict) or seg not in cur:
+            return False, None
+        cur = cur[seg]
+    return True, cur
+
+
+def check_obsolete_keys(context: dict, problems: list) -> None:
+    for dotted in OBSOLETE_KEYS:
+        present, _ = dotted_get(context, dotted)
+        if present:
+            add(problems, f"obsolete-field:{dotted}", "required", dotted,
+                f"'{dotted}' is a key removed from the framework by an upgrade. No skill "
+                f"reads it any more. Delete it from pv-context.json (and its matching "
+                f"entry from framework._comments if one exists).",
+                expected="key absent", actual="present")
+
+
+def check_namespace(root: Path, work_folder: str, relative_dir: str, problems: list) -> None:
+    """Only for framework.docs.tech.architectureDocDir (§ single tree). Checks the
+    00-namespace.md seed is present, has its normative headings, and its anchors
+    resolve to real files."""
+    folder = resolve_under(root, f"{work_folder.rstrip('/')}/{relative_dir}")
+    if not folder.is_dir():
+        return  # the *-missing-dir check already fired
+    ns_file = folder / "00-namespace.md"
+    if not ns_file.is_file():
+        add(problems, "namespace-missing", "optional", "framework.docs.tech.architectureDocDir",
+            f"'{folder.relative_to(root).as_posix()}' exists but has no 00-namespace.md "
+            f"(the single per-project namespace tree).",
+            expected=f"{folder.relative_to(root).as_posix()}/00-namespace.md", actual="missing")
+        return
+    text = ns_file.read_text(encoding="utf-8")
+    heading_lines = {line.strip() for line in text.splitlines()}
+    missing = [h for h in NAMESPACE_SECTIONS if h not in heading_lines]
+    if missing:
+        add(problems, "namespace-section-missing", "optional", "framework.docs.tech.architectureDocDir",
+            f"'00-namespace.md' is missing the normative heading(s) {', '.join(missing)} "
+            f"-- other skills locate these literally.",
+            expected=", ".join(NAMESPACE_SECTIONS),
+            actual=", ".join(h for h in NAMESPACE_SECTIONS if h not in missing) or "(none found)")
+    for anchor_file in ANCHOR_RE.findall(text):
+        # anchors resolve from the repo root, same as sourcecodeDir
+        if not (root / strip_leading_slash(anchor_file)).exists():
+            add(problems, f"namespace-anchor-broken:{anchor_file}", "optional",
+                "framework.docs.tech.architectureDocDir",
+                f"'00-namespace.md' has an anchor to '{anchor_file}', but that file "
+                f"doesn't exist (renamed, moved, or deleted). Only the file is checked, "
+                f"not the symbol.",
+                expected=f"file at {anchor_file}", actual="missing")
 
 
 def check_docs_dir(root: Path, work_folder: str, relative_dir: str, field: str,
@@ -229,6 +320,8 @@ def check_docs_dir(root: Path, work_folder: str, relative_dir: str, field: str,
             f"'{field}' folder exists but has no INDEX.md.",
             expected=f"{folder.relative_to(root).as_posix()}/INDEX.md",
             actual="missing")
+    if field == "framework.docs.tech.architectureDocDir":
+        check_namespace(root, work_folder, relative_dir, problems)
 
 
 def main() -> None:
@@ -285,6 +378,9 @@ def main() -> None:
     for key in unknown_fw:
         add(problems, "unknown-framework-field", "required", f"framework.{key}",
             f"'framework.{key}' isn't a field declared in schema.json (additionalProperties: false).")
+
+    # --- obsolete keys left over from a framework upgrade (required) ---
+    check_obsolete_keys(context, problems)
 
     # --- workFolder + fixed subfolders (required) ---
     work_folder = framework.get("workFolder", "/previo-sdd")
@@ -348,20 +444,25 @@ def main() -> None:
                 f"'{key}' points to skill '{name}', but '.claude/skills/{name}/SKILL.md' doesn't exist.",
                 expected=f".claude/skills/{name}/SKILL.md", actual="missing")
 
-    # --- docs.* (optional: only checked if configured) ---
+    # --- docs.* (required: all three doc dirs are always configured by
+    # pv-init; a missing one is a broken state, not a legitimately-skipped
+    # optional -- see schema.json's 'required' on framework.docs). ---
     docs = framework.get("docs") or {}
     functional = docs.get("functional") or {}
     tech = docs.get("tech") or {}
+    sub_objects = {"functional": functional, "tech": tech}
     if isinstance(work_folder, str) and work_folder.strip():
-        if functional.get("featuresDocPathDir"):
-            check_docs_dir(root, work_folder, functional["featuresDocPathDir"],
-                            "framework.docs.functional.featuresDocPathDir", problems)
-        if tech.get("architectureDocDir"):
-            check_docs_dir(root, work_folder, tech["architectureDocDir"],
-                            "framework.docs.tech.architectureDocDir", problems)
-        if tech.get("styleBibleDocDir"):
-            check_docs_dir(root, work_folder, tech["styleBibleDocDir"],
-                            "framework.docs.tech.styleBibleDocDir", problems)
+        for field, (sub_key, dir_key), default_rel in DOCS_DIR_FIELDS:
+            configured = sub_objects[sub_key].get(dir_key)
+            if configured:
+                check_docs_dir(root, work_folder, configured, field, problems)
+            else:
+                add(problems, f"docs-dir-unconfigured:{field}", "required", field,
+                    f"'{field}' isn't set in pv-context.json. pv-init always configures all "
+                    f"three doc dirs (functional.featuresDocPathDir, tech.architectureDocDir, "
+                    f"tech.styleBibleDocDir); every pv-* skill now requires them. Write it with "
+                    f"the schema default and scaffold the empty dir.",
+                    expected=f"{default_rel} (relative to workFolder)", actual="unconfigured")
 
     # --- pv.py must match assets/pv.py exactly (required) ---
     pv_py = root / "pv.py"
@@ -460,7 +561,7 @@ def main() -> None:
                     "understand what happened before deciding how to fix it.",
                     expected=f">= {last_verified}", actual=real_raw)
 
-    result["schemaOk"] = not any(p["id"].startswith(("unknown-", "framework-missing")) for p in problems)
+    result["schemaOk"] = not any(p["id"].startswith(("unknown-", "framework-missing", "obsolete-")) for p in problems)
     json.dump(result, sys.stdout, ensure_ascii=False, indent=2)
     print()
 
