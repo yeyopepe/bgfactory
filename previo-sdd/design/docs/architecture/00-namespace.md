@@ -34,16 +34,4 @@ Segment order: aggregate to part, module to detail. `<area>.<aggregate>.<entity>
 
 Domain terms with no standard English translation: if the concept has a code symbol, the path uses the symbol name; if it has none, the slug may stay in the project's language for that one node (e.g. `billing.recargo-equivalencia`), noted here as an explicit exception with a one-line approximate-English gloss.
 
-Commented example (delete once real nodes exist):
-
-```
-# auth.token.session                       concept.   anchor: src/auth/token.ts#SessionToken
-# auth.token.session.ttl.value = 3600      assertion (scalar)
-# auth.token.session.refresh.rule:         assertion (non-scalar -> notation block)
-#     pre:  state in {AUTHENTICATED, EXPIRED} and now - token.exp < 7d
-#     post: token'.exp = now + auth.token.session.ttl.value
-# auth.decision.circuit-breaker-over-retry decision.  no code anchor
-# ui.grid.columns = 16                     style assertion (same tree)
-```
-
 <Empty. pv-do populates this over time.>

@@ -1,5 +1,5 @@
 - **Creation date**: 2026-09-02
-- **Riesgo**: 3/10 — Riesgo bajo
+- **Risk**: 3/10 — Riesgo bajo
 
 ## (a) Functional notes
 

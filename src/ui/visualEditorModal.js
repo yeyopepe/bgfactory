@@ -44,6 +44,11 @@ const EDITOR_CHROME_V = 210;
 // disponible, de modo que las dos caras de 'carta' quepan siempre lado a lado
 // (la toolbar, `max-width: 16rem`, no cuenta: va en su propia fila).
 const EDITOR_CHROME_H = 200;
+// Holgura (px) para que el lienzo no toque los bordes del hueco interior de
+// trabajo de `.modal__content` ni fuerce scroll por redondeos de medida
+// (cambio 00235). Se resta del alto y del ancho disponibles calculados en
+// runtime por getEditorWorkArea().
+const EDITOR_WORK_MARGIN = 24;
 // Fallback defensivo si el componente no tuviera aún `width`/`height`
 // (no debería ocurrir: 'carta'/'tableroPersonalizado' siempre nacen con
 // tamaño fijo) para no dividir por 0 al calcular el lienzo de diseño.
@@ -287,28 +292,88 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
   // `maximized`.
   let manualSize = null;
 
-  // Tamaño efectivo del lienzo de cada cara:
-  // - maximizado: el hueco real disponible en la ventana — dos lienzos +
-  //   toolbar caben en el ancho, así que el alto es el límite real.
-  // - con tamaño manual (cambio 00225): se deriva del alto manual descontando
-  //   el "cromo" vertical de la modal, para que el lienzo escale de forma
-  //   continua mientras se arrastra un manejador. Se permite crecer por encima
-  //   de CANVAS_MAX_SIDE (con un tope prudente) para aprovechar el espacio al
-  //   agrandar, y se topa a CANVAS_MIN_SIDE por abajo. Además se acota por el
-  //   ancho manual repartido entre las caras (cambio 00233), para que las dos
-  //   caras de 'carta' quepan siempre lado a lado y no salte una a otra fila.
+  // Tamaño efectivo del lienzo de cada cara (escalar: "lado máximo"; sus dos
+  // llamadores lo dividen por Math.max(designWidth, designHeight) para sacar
+  // `previewScale`):
+  // - maximizado o con tamaño manual (cambios 00225/00233/00235): el lienzo
+  //   escala para ser lo más grande posible dentro del hueco interior REAL de
+  //   `.modal__content` (ancho por cara Y alto), medido en runtime por
+  //   getEditorWorkArea(), manteniendo la proporción del diseño — topa contra
+  //   la primera de las dos restricciones (ancho o alto). Ya no se topa contra
+  //   fracciones fijas del viewport (window.innerWidth * 0.42, etc.). El hueco
+  //   sobrante en la otra dimensión no se rellena deformando el lienzo: el CSS
+  //   scoped a `.card-editor-modal` (`.modal__content` flex column,
+  //   `.card-editor-modal__faces` flex:1 align-items:center) lo deja centrado,
+  //   sin scroll. Se conserva el suelo CANVAS_MIN_SIDE y un techo prudente
+  //   CANVAS_MAX_SIDE * 3.
   // - estado normal por defecto: la constante fija de siempre.
   function getEffectiveCanvasMaxSide() {
-    if (maximized) return Math.min(window.innerHeight * 0.7, window.innerWidth * 0.42);
-    if (manualSize) {
-      const available = manualSize.height - EDITOR_CHROME_V;
-      const availableByWidth = (manualSize.width - EDITOR_CHROME_H) / faces.length;
+    if (maximized || manualSize) {
+      const { width: dW, height: dH } = getFaceDesignSize();
+      const longSide = Math.max(dW, dH);
+      const { availWidthPerFace, availHeight } = getEditorWorkArea();
+      // "lado" tal que canvasWidth = dW * (lado / longSide) <= availWidthPerFace
+      const sideFromWidth = availWidthPerFace * longSide / dW;
+      // "lado" tal que canvasHeight = dH * (lado / longSide) <= availHeight
+      const sideFromHeight = availHeight * longSide / dH;
       return Math.max(
         CANVAS_MIN_SIDE,
-        Math.min(available, availableByWidth, window.innerWidth * 0.42, CANVAS_MAX_SIDE * 3),
+        Math.min(sideFromWidth, sideFromHeight, CANVAS_MAX_SIDE * 3),
       );
     }
     return CANVAS_MAX_SIDE;
+  }
+
+  // Mide en runtime el hueco interior de trabajo real de `.modal__content`
+  // (cambio 00235). Devuelve `{ availWidthPerFace, availHeight }` en px: el
+  // ancho que le toca a cada cara y el alto disponibles para el/los lienzo(s)
+  // una vez descontado el "cromo" (toolbar, etiqueta y fila de acciones por
+  // cara, gaps, padding) y un margen de respiro EDITOR_WORK_MARGIN.
+  // [gotcha] Sólo se invoca desde las ramas `maximized`/`manualSize` de
+  // getEffectiveCanvasMaxSide(), que siempre corren tras un gesto del usuario
+  // con `overlay` ya en el DOM; nunca desde el primer render (la rama por
+  // defecto no mide). Mide la etiqueta y la fila de acciones del render
+  // anterior aún montado; si no hay ninguna cara montada todavía, cae a la
+  // estimación constante EDITOR_CHROME_V para todo el cromo vertical junto.
+  function getEditorWorkArea() {
+    const cs = getComputedStyle(content);
+    const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+    const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+
+    // `clientHeight`/`clientWidth` excluyen scrollbar pero incluyen padding:
+    // se resta explícitamente.
+    const inner = content.clientHeight - padY;
+    const rowW = content.clientWidth - padX;
+
+    const toolbarH = toolbar.offsetHeight; // 0 si showProporcionSelector es false
+    const facesGap = 16; // gap 0.5rem × 2 dentro de `.card-editor-modal__face`
+
+    const sampleFace = facesRow.querySelector('.card-editor-modal__face');
+    let availHeight;
+    if (sampleFace) {
+      const faceLabelH = sampleFace.querySelector('.card-editor-modal__face-label')?.offsetHeight ?? 0;
+      const actionsH = sampleFace.querySelector('.card-editor-modal__face-actions')?.offsetHeight ?? 0;
+      availHeight = Math.max(
+        CANVAS_MIN_SIDE,
+        inner - toolbarH - faceLabelH - actionsH - facesGap - EDITOR_WORK_MARGIN,
+      );
+    } else {
+      // Sin cara del render anterior que medir: estimación constante conjunta.
+      availHeight = Math.max(CANVAS_MIN_SIDE, inner - EDITOR_CHROME_V - EDITOR_WORK_MARGIN);
+    }
+
+    // El botón "Ajustar imagen…" va intercalado sólo con 2 caras; con 1 cara
+    // va debajo y no roba ancho a la fila. Los gaps de `.card-editor-modal__faces`
+    // son 0.5rem entre cada par de hijos (caras + botón intercalado).
+    const GAP = 8; // 0.5rem
+    const adjustBtnSpace = faces.length === 2 ? adjustImageBtn.offsetWidth + GAP : 0;
+    const facesRowGaps = GAP * (faces.length - 1 + (faces.length === 2 ? 1 : 0));
+    const availWidthPerFace = Math.max(
+      CANVAS_MIN_SIDE,
+      (rowW - adjustBtnSpace - facesRowGaps) / faces.length,
+    );
+
+    return { availWidthPerFace, availHeight };
   }
 
   // Congela la modal a posición absoluta con su geometría actual, sacándola del
@@ -595,7 +660,20 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
   adjustImageBtn.textContent = 'Ajustar imagen…';
   adjustImageBtn.addEventListener('click', () => openAdjustSession());
 
+  // "Lado" de lienzo efectivo del render en curso. Se calcula UNA vez por
+  // renderFaces() — antes de vaciar `facesRow` — y todas las caras y el margen
+  // del botón "Ajustar imagen…" leen este valor (cambio 00235). Calcularlo por
+  // cara no valdría: getEditorWorkArea() mide la etiqueta y la fila de acciones
+  // de una cara ya montada, y la primera cara del render se calcularía con
+  // `facesRow` recién vaciado (sin cara que medir → rama de fallback), dando un
+  // tamaño distinto al de la segunda cara.
+  let currentCanvasMaxSide = CANVAS_MAX_SIDE;
+
   function renderFaces() {
+    // Medir el hueco real ANTES de desmontar el render anterior: getEditorWorkArea()
+    // necesita una cara montada para medir su cromo vertical.
+    currentCanvasMaxSide = getEffectiveCanvasMaxSide();
+
     facesRow.innerHTML = '';
     faces.forEach(({ key, label }, index) => {
       facesRow.appendChild(renderFace(key, label));
@@ -608,14 +686,16 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
 
     // El margen fijo de la hoja de estilos (8.75rem) asume el alto de
     // lienzo del tamaño normal, para quedar centrado junto a las caras.
-    // Maximizado o con tamaño manual (cambio 00233), el lienzo cambia de
-    // tamaño y ese valor fijo ya no centra el botón — se calcula en JS
-    // (excepción ya documentada en design/docs/style/index.md para valores
-    // que dependen de un cálculo numérico en tiempo de ejecución, no
-    // expresables como clase).
+    // Maximizado o con tamaño manual (cambios 00233/00235), el lienzo escala
+    // según el hueco interior real y ese valor fijo ya no centra el botón —
+    // se calcula en JS a partir del alto real resultante del lienzo
+    // (`currentCanvasMaxSide` ya es el "lado" derivado del hueco, así que
+    // `designHeight * previewScale` es el alto real). Excepción ya documentada
+    // en design/docs/style para valores que dependen de un cálculo numérico en
+    // tiempo de ejecución, no expresables como clase.
     if (maximized || manualSize) {
       const { width: designWidth, height: designHeight } = getFaceDesignSize();
-      const canvasHeight = designHeight * (getEffectiveCanvasMaxSide() / Math.max(designWidth, designHeight));
+      const canvasHeight = designHeight * (currentCanvasMaxSide / Math.max(designWidth, designHeight));
       adjustImageBtn.style.marginTop = `${canvasHeight / 2 - adjustImageBtn.offsetHeight / 2}px`;
     } else {
       adjustImageBtn.style.marginTop = '';
@@ -777,7 +857,10 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
   function renderFace(caraKey, label) {
     const cara = working[caraKey];
     const { width: designWidth, height: designHeight } = getFaceDesignSize();
-    const previewScale = getEffectiveCanvasMaxSide() / Math.max(designWidth, designHeight);
+    // `currentCanvasMaxSide`, no getEffectiveCanvasMaxSide() directo: se fija una
+    // sola vez por renderFaces() para que las dos caras de 'carta' salgan iguales
+    // (cambio 00235).
+    const previewScale = currentCanvasMaxSide / Math.max(designWidth, designHeight);
     const canvasWidth = designWidth * previewScale;
     const canvasHeight = designHeight * previewScale;
 

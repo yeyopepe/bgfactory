@@ -1880,13 +1880,18 @@ fieldset.modal__section--untitled {
 }
 
 /* Maximizar/restaurar: sustituye el ancho/alto por defecto por casi toda la
-   ventana. No fija `height`: el modal crece con su contenido hasta el límite
-   de `.modal__content` (`overflow-y: auto`), basta con anular el
-   `max-height: 80vh` de `.modal`. El handler de "Maximizar" limpia antes los
-   estilos inline de geometría del redimensionado manual (cambio 00225), así
-   que esta clase no necesita `!important` para ganarles. */
+   ventana. `height: 90vh` fijo (cambio 00235): el lienzo se escala a partir
+   del hueco interior real de `.modal__content` medido en runtime
+   (getEditorWorkArea()), así que la modal necesita una altura determinada que
+   ese hueco pueda rellenar — con sólo `max-height` la modal quedaría
+   content-sized (`.modal-overlay` la centra, no la estira) y el lienzo no
+   crecería. `overflow-y: auto` de `.modal__content` sigue de válvula si el
+   contenido no cupiera. El handler de "Maximizar" limpia antes los estilos
+   inline de geometría del redimensionado manual (cambio 00225), así que esta
+   clase no necesita `!important` para ganarles. */
 .card-editor-modal--maximized {
   max-width: 90vw;
+  height: 90vh;
   max-height: 90vh;
 }
 
@@ -1952,16 +1957,34 @@ fieldset.modal__section--untitled {
   max-width: 16rem;
 }
 
+/* Columna flex para que `.card-editor-modal__faces` pueda estirarse y ocupar
+   el hueco vertical sobrante de `.modal__content`, dejando el lienzo centrado
+   en él (cambio 00235). Hereda `flex: 1; overflow-y: auto; padding: 1.5rem`
+   de `.modal__content`. Acotado a `.card-editor-modal`: no afecta a otras
+   modales. */
+.card-editor-modal .modal__content {
+  display: flex;
+  flex-direction: column;
+}
+
 /* Las caras nunca se apilan: `getEffectiveCanvasMaxSide()` acota el lado de
-   lienzo por el ancho disponible (rama `manualSize`, cambio 00233) y por
-   `window.innerWidth * 0.42` (maximizado/por defecto), así que las dos caras de
-   'carta' siempre caben en una fila. `nowrap` lo garantiza y evita que una
-   salte a otra fila y quede desalineada durante el redimensionado manual. */
+   lienzo por el ancho por cara disponible del hueco interior real
+   (cambios 00233/00235), así que las dos caras de 'carta' siempre caben en
+   una fila. `nowrap` lo garantiza y evita que una salte a otra fila y quede
+   desalineada durante el redimensionado manual.
+   `flex: 1 1 auto` + `align-items: center` (cambio 00235): la fila se estira
+   para llenar el alto de `.modal__content` y el lienzo — más bajo que el
+   hueco por su proporción — queda centrado verticalmente; `justify-content:
+   center` ya lo centra en horizontal cuando sobra ancho. `overflow-y: auto`
+   de `.modal__content` queda como válvula si la ventana se encoge por debajo
+   del lienzo mínimo (`CANVAS_MIN_SIDE`). */
 .card-editor-modal__faces {
   display: flex;
+  flex: 1 1 auto;
   gap: 0.5rem;
   flex-wrap: nowrap;
   justify-content: center;
+  align-items: center;
 }
 
 .card-editor-modal__face {
