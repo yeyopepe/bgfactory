@@ -157,7 +157,7 @@ An *interactive* variant of this section's same visual language (background `rgb
 First use of this pattern: `.card-editor-modal__maximize-btn` — an own block of that modal (not a standalone `.btn-*` exception, since it hangs off `.card-editor-modal`).
 
 - Placed in `.modal__header`, between the title and the `.help-icon` if there is one.
-- Toggles between two local SVG icons (`createMaximizeIcon`/`createRestoreIcon` in `ui/cardEditorModal.js`) by a boolean state local to that opening of the modal, with no persistence between uses.
+- Toggles between two local SVG icons (`createMaximizeIcon`/`createRestoreIcon` in `ui/visualEditorModal.js`) by a boolean state local to that opening of the modal, with no persistence between uses.
 - `margin-left: auto` — it ends up, together with the `.help-icon` that follows it, stuck to the right edge of the header (title only on the left, available gap between the two).
 - At rest: background `var(--bg-subtle)`, hover `var(--bg-hover)`, `border-radius: var(--radius-sm)`, transition `background var(--transition-fast)`.
 - No text: exposes `title`/`aria-label` updated on each toggle ("Maximizar"/"Restaurar tamaño").
@@ -232,14 +232,14 @@ Pattern to offer several variants of the same action from a single button, when 
 
 ### Other uses of the pattern
 
-- `ui/cardEditorModal.js`: the same classes (`resource-add`/`resource-add__button`/`resource-add__menu`/`resource-add__item`/`resource-add__item-label`) for the "Añadir elemento" button of each face of the card editor (Background image / Text box / Geometric shape) — confirms the pattern is domain-agnostic.
+- `ui/visualEditorModal.js`: the same classes (`resource-add`/`resource-add__button`/`resource-add__menu`/`resource-add__item`/`resource-add__item-label`) for the "Añadir elemento" button of each face of the card editor (Background image / Text box / Geometric shape) — confirms the pattern is domain-agnostic.
 - `ui/columnHeaderMenu.js` (`openColumnHeaderMenu`): the same visual language (background `var(--accent-blue-light)`, border `rgba(44, 125, 216, 0.25)`, `border-radius: var(--radius-sm)`, `box-shadow: var(--shadow-2)`, hover `var(--accent-blue)`/text `var(--text-light)`) for the sort/filter menu on clicking a column name in the Componentes/Recursos/Etiquetas panels (see `../architecture/005-modes.md`), with its own classes (`.column-header-menu`/`.column-header-menu__item`/`.column-header-menu__separator`/`.column-header-menu__filter`).
   - Different content: two toggle-style sort rows (`.column-header-menu__item--active` on the active one, same "active option" convention as "Group of icon-only buttons" — background `var(--accent-blue)`, text `var(--text-light)`) and, if the column is filterable, a block with a native `<select>`.
   - **Positioning variant**: `position: fixed` inserted in `document.body`, computing the position from the clicked `<th>`'s `getBoundingClientRect()` and readjusting so it does not leave the window — the same mechanism as `.context-menu` ("Component context menu"), because its anchor point lives inside containers with `overflow: auto`/`overflow: hidden` that would clip a `position: absolute`.
   - Same `z-index` as `.context-menu` (`1050`) for the same reason: it can open with a modal already visible behind.
   - Any interactive column always shows an indicator next to its name (`.column-header-menu__indicator`, SVG icon `currentColor`), even with the menu closed and nothing applied yet.
   - Two color states: `var(--text-muted)` by default ("available but not active"), `var(--accent-blue)` (modifier `.column-header-menu__indicator--active`) when the column has a sort and/or filter applied.
-- `.card-editor-modal__shape` (`ui/cardEditorModal.js`, card-editor geometric shape): a block sibling of `.card-editor-modal__textbox` — same `move` cursor, same blue dashed outline on `:hover`, same continuous `--selected` outline on selection, same `.resize-handle` in its bottom-right corner.
+- `.card-editor-modal__shape` (`ui/visualEditorModal.js`, card-editor geometric shape): a block sibling of `.card-editor-modal__textbox` — same `move` cursor, same blue dashed outline on `:hover`, same continuous `--selected` outline on selection, same `.resize-handle` in its bottom-right corner.
   - No own typeface/text content: only `border-radius` (`50%` if circular/elliptical, `0` if square), `background-color`, `border` (simple line, without the bevel reserved for `'tableroSimple'`/`'dado'` — visible only if `bordeActivo` is active).
   - Free resize on both axes with Shift forcing 1:1 (circular/elliptical type) reuses the generic behavior of `ui/resizeHandle.js` for `axis: 'both'` (the same as the "Circular" proportion of `'carta'`), with no own proportion `clamp`.
 
