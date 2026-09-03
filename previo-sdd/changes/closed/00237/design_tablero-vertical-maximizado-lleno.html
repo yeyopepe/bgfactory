@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>00237 — Tablero vertical, ventana maximizada (estado esperado)</title>
+<style>
+  :root {
+    --border-neutral: #d9dee3;
+    --text-primary: #1f2933;
+    --text-muted: #6b7785;
+    --accent-blue: #2c7dd8;
+    --bg-subtle: #eef1f4;
+    --guide: #b23c6e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #7b8794;
+    color: var(--text-primary);
+    padding: 24px;
+  }
+  .caption {
+    max-width: 1100px;
+    margin: 0 auto 16px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+  .caption b { color: var(--text-primary); }
+
+  .overlay {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: rgba(0,0,0,0.28);
+    border-radius: 10px;
+    padding: 3vh 5vw;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+  }
+  .modal {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+    width: 100%;
+    height: 78vh;
+    min-height: 620px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .modal__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: linear-gradient(180deg, #2f3944, #262f38);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .modal__header .spacer { flex: 1; }
+  .hdr-btn {
+    width: 26px; height: 26px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.12);
+    color: #cfd6dd;
+    font-size: 13px;
+  }
+
+  .modal__content {
+    flex: 1;
+    min-height: 0;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .faces {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .face {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    /* con diseño vertical el alto manda: la columna casi llena el hueco */
+    height: 100%;
+    justify-content: center;
+  }
+  .canvas {
+    /* el alto lo fija el hueco disponible; el ancho sale de la proporción */
+    height: calc(100% - 46px);   /* deja sitio a la fila de acciones + gap */
+    aspect-ratio: 5 / 7;         /* diseño vertical */
+    background: #fff;
+    border: 1px solid #333;
+    background-image:
+      linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+    background-size: 12% 8%;
+    position: relative;
+  }
+  .canvas__tag {
+    position: absolute;
+    top: 8px; left: 8px;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: rgba(255,255,255,0.85);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 10px 14px;
+  }
+  .btn {
+    font-size: 12.5px;
+    padding: 7px 12px;
+    border-radius: 5px;
+    border: 1px solid var(--border-neutral);
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+  }
+  .btn--primary-add { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+  .border-box { display: flex; align-items: flex-end; gap: 10px; }
+  .border-box .lbl { font-size: 10px; letter-spacing: 0.06em; color: var(--text-muted); text-transform: uppercase; align-self: center; }
+  .field { display: flex; flex-direction: column; gap: 3px; }
+  .field span { font-size: 11px; color: var(--text-muted); }
+  .swatch { width: 80px; height: 24px; background: #000; border-radius: 3px; border: 1px solid var(--border-neutral); }
+  .num { width: 64px; height: 24px; border: 1px solid var(--border-neutral); border-radius: 3px; font-size: 12px; padding: 0 6px; display: flex; align-items: center; }
+
+  .modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-neutral);
+  }
+  .modal__footer .btn--accept { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; padding: 8px 18px; }
+  .modal__footer .btn--cancel { padding: 8px 18px; }
+
+  /* guías: hueco de ancho repartido a los lados + alto ≈ alto disponible */
+  .side {
+    position: absolute;
+    top: 24px; bottom: 24px;
+    width: 0;
+    border-left: 1px dashed var(--guide);
+    pointer-events: none;
+  }
+  .side--l { left: calc(50% - 165px); }
+  .side--r { right: calc(50% - 165px); }
+  .side-tag {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: var(--guide);
+    background: rgba(255,255,255,0.9);
+    padding: 1px 5px;
+    border-radius: 3px;
+    pointer-events: none;
+  }
+  .side-tag--l { left: 40px; }
+  .side-tag--r { right: 40px; }
+  .height-guide {
+    position: absolute;
+    left: 24px;
+    top: 24px; bottom: 24px;
+    border-left: 1px dashed var(--guide);
+    pointer-events: none;
+  }
+  .height-guide::before, .height-guide::after {
+    content: "";
+    position: absolute;
+    left: -4px;
+    width: 9px; height: 0;
+    border-top: 1px dashed var(--guide);
+  }
+  .height-guide::before { top: 0; }
+  .height-guide::after { bottom: 0; }
+  .height-tag {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+    transform-origin: left center;
+    font-size: 11px;
+    color: var(--guide);
+    background: rgba(255,255,255,0.9);
+    padding: 1px 5px;
+    border-radius: 3px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="caption">
+  <b>Estado esperado — Tablero personalizado vertical, ventana maximizada.</b>
+  El lienzo (diseño vertical ~5:7) crece hasta <b>topar el alto interior disponible</b>
+  (el alto libre de <code>.modal__content</code> una vez descontada la fila de acciones y el margen), manteniendo su proporción.
+  Como sobra ancho, el lienzo queda <b>centrado horizontalmente</b>: el hueco de ancho se reparte a izquierda y derecha por igual. Sin scroll.
+</div>
+
+<div class="overlay">
+  <div class="modal">
+    <div class="modal__header">
+      <span>Diseñar tablero personalizado</span>
+      <span class="spacer"></span>
+      <span class="hdr-btn" title="Restaurar tamaño">▣</span>
+      <span class="hdr-btn" title="Ayuda">?</span>
+    </div>
+
+    <div class="modal__content">
+      <div class="height-guide"></div>
+      <div class="height-tag">alto del lienzo ≈ alto interior disponible</div>
+
+      <div class="side side--l"></div>
+      <div class="side side--r"></div>
+      <div class="side-tag side-tag--l">hueco ← (igual que →)</div>
+      <div class="side-tag side-tag--r">hueco →</div>
+
+      <div class="faces">
+        <div class="face">
+          <div class="canvas">
+            <span class="canvas__tag">Lienzo (vertical 5:7)</span>
+          </div>
+          <div class="actions">
+            <span class="btn btn--primary-add">Añadir elemento ▾</span>
+            <div class="border-box">
+              <span class="lbl">Borde</span>
+              <div class="field"><span>Color</span><div class="swatch"></div></div>
+              <div class="field"><span>Grosor (px)</span><div class="num">2</div></div>
+            </div>
+            <span class="btn">Ajustar imagen…</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal__footer">
+      <span class="btn btn--cancel">Cancelar</span>
+      <span class="btn btn--accept">Aceptar</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

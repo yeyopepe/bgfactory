@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>00237 — Tablero apaisado, ventana maximizada (estado esperado)</title>
+<style>
+  :root {
+    --border-neutral: #d9dee3;
+    --text-primary: #1f2933;
+    --text-muted: #6b7785;
+    --accent-blue: #2c7dd8;
+    --bg-subtle: #eef1f4;
+    --bg-hover: #e2e7ec;
+    --guide: #b23c6e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #7b8794;
+    color: var(--text-primary);
+    padding: 24px;
+  }
+  .caption {
+    max-width: 1100px;
+    margin: 0 auto 16px;
+    background: #fff;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-muted);
+  }
+  .caption b { color: var(--text-primary); }
+
+  /* ===== Modal maximizada ===== */
+  .overlay {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: rgba(0,0,0,0.28);
+    border-radius: 10px;
+    padding: 3vh 5vw;         /* simula el 90vw x 90vh: hueco alrededor */
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+  }
+  .modal {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+    width: 100%;
+    height: 78vh;
+    min-height: 620px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .modal__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: linear-gradient(180deg, #2f3944, #262f38);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .modal__header .spacer { flex: 1; }
+  .hdr-btn {
+    width: 26px; height: 26px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.12);
+    color: #cfd6dd;
+    font-size: 13px;
+  }
+
+  .modal__content {
+    flex: 1;
+    min-height: 0;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* fila de caras: llena el hueco vertical y centra el bloque de la cara */
+  .faces {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .face {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    /* el ancho lo fija el lienzo (topa el ancho disponible) */
+    width: 100%;
+  }
+  .canvas {
+    width: 100%;
+    aspect-ratio: 16 / 10;         /* diseño apaisado */
+    background: #fff;
+    border: 1px solid #333;
+    background-image:
+      linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px),
+      linear-gradient(0deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+    background-size: 7% 12%;
+    position: relative;
+  }
+  .canvas__tag {
+    position: absolute;
+    top: 8px; left: 8px;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: rgba(255,255,255,0.85);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 12px 16px;
+    width: 100%;
+  }
+  .btn {
+    font-size: 12.5px;
+    padding: 7px 12px;
+    border-radius: 5px;
+    border: 1px solid var(--border-neutral);
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+  }
+  .btn--primary-add {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: #fff;
+  }
+  .border-box {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+  }
+  .border-box .lbl {
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    align-self: center;
+  }
+  .field { display: flex; flex-direction: column; gap: 3px; }
+  .field span { font-size: 11px; color: var(--text-muted); }
+  .swatch { width: 90px; height: 26px; background: #000; border-radius: 3px; border: 1px solid var(--border-neutral); }
+  .num { width: 70px; height: 26px; border: 1px solid var(--border-neutral); border-radius: 3px; font-size: 12px; padding: 0 6px; display: flex; align-items: center; }
+
+  .modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-neutral);
+  }
+  .modal__footer .btn--accept { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; padding: 8px 18px; }
+  .modal__footer .btn--cancel { padding: 8px 18px; }
+
+  /* ===== guías de acotación ===== */
+  .guide-h {
+    position: absolute;
+    left: 24px; right: 24px;
+    border-top: 1px dashed var(--guide);
+    pointer-events: none;
+  }
+  .guide-label {
+    position: absolute;
+    font-size: 11px;
+    color: var(--guide);
+    background: rgba(255,255,255,0.9);
+    padding: 1px 5px;
+    border-radius: 3px;
+    pointer-events: none;
+  }
+  .brace-top, .brace-bottom {
+    position: absolute;
+    left: 50%;
+    width: 0;
+    border-left: 1px dashed var(--guide);
+    pointer-events: none;
+  }
+  .brace-top { top: 24px; height: calc(50% - 24px - 165px); }
+  .brace-bottom { bottom: 24px; height: calc(50% - 24px - 165px); }
+  .gap-tag {
+    position: absolute;
+    left: calc(50% + 8px);
+    font-size: 11px;
+    color: var(--guide);
+    background: rgba(255,255,255,0.9);
+    padding: 1px 5px;
+    border-radius: 3px;
+    pointer-events: none;
+  }
+  .gap-tag--top { top: 34px; }
+  .gap-tag--bottom { bottom: 34px; }
+  .width-guide {
+    position: absolute;
+    top: 30px;
+    left: 24px; right: 24px;
+    height: 0;
+    border-top: 1px dashed var(--guide);
+    pointer-events: none;
+  }
+  .width-guide::before, .width-guide::after {
+    content: "";
+    position: absolute;
+    top: -4px;
+    width: 0; height: 9px;
+    border-left: 1px dashed var(--guide);
+  }
+  .width-guide::before { left: 0; }
+  .width-guide::after { right: 0; }
+  .width-tag {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: var(--guide);
+    background: rgba(255,255,255,0.9);
+    padding: 1px 5px;
+    border-radius: 3px;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="caption">
+  <b>Estado esperado — Tablero personalizado apaisado, ventana maximizada.</b>
+  El lienzo (diseño apaisado ~16:10) crece hasta <b>topar el ancho interior disponible</b> de la ventana
+  (todo el ancho de <code>.modal__content</code> menos su padding y el pequeño margen de respiro), manteniendo su proporción.
+  Como sobra alto, el bloque <b>lienzo + fila de acciones</b> queda <b>centrado verticalmente</b>: el hueco sobrante se reparte
+  arriba y abajo por igual — <b>no</b> pegado arriba con todo el blanco debajo. Sin scroll.
+</div>
+
+<div class="overlay">
+  <div class="modal">
+    <div class="modal__header">
+      <span>Diseñar tablero personalizado</span>
+      <span class="spacer"></span>
+      <span class="hdr-btn" title="Restaurar tamaño">▣</span>
+      <span class="hdr-btn" title="Ayuda">?</span>
+    </div>
+
+    <div class="modal__content">
+      <!-- guía de ancho -->
+      <div class="width-guide"></div>
+      <div class="width-tag">ancho del lienzo ≈ ancho interior disponible</div>
+
+      <!-- guías de hueco vertical repartido -->
+      <div class="brace-top"></div>
+      <div class="gap-tag gap-tag--top">hueco ↑</div>
+      <div class="brace-bottom"></div>
+      <div class="gap-tag gap-tag--bottom">hueco ↓ (igual que ↑)</div>
+
+      <div class="faces">
+        <div class="face">
+          <div class="canvas">
+            <span class="canvas__tag">Lienzo de diseño (apaisado 16:10)</span>
+          </div>
+          <div class="actions">
+            <span class="btn btn--primary-add">Añadir elemento ▾</span>
+            <div class="border-box">
+              <span class="lbl">Borde</span>
+              <div class="field"><span>Color</span><div class="swatch"></div></div>
+              <div class="field"><span>Grosor (px)</span><div class="num">2</div></div>
+            </div>
+            <span class="btn">Ajustar imagen…</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal__footer">
+      <span class="btn btn--cancel">Cancelar</span>
+      <span class="btn btn--accept">Aceptar</span>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -2,10 +2,10 @@
 
 **Area**: Persistencia y guardado
 
-Junto a "Guardar", dos botones "Exportar" e "Importar" permiten guardar y recuperar un subconjunto elegible de los elementos del juego (componentes, recursos y etiquetas) en un fichero JSON ligero pensado para sobrevivir a cambios de versión de la aplicación — a diferencia de "Guardar", que fija una copia completa a la versión en la que se generó.
+Los botones "Exportar" e "Importar" permiten guardar y recuperar un subconjunto elegible de los elementos del juego (componentes, recursos y etiquetas) en un fichero JSON ligero pensado para sobrevivir a cambios de versión de la aplicación.
 
 - **Exportar**: abre una modal con el nombre de fichero (precargado con el título completo de la cabecera, cambio 00147; antes un nombre fijo genérico) y una lista de todos los componentes/recursos/etiquetas actuales, agrupados en tres bloques (Componentes, Recursos, Etiquetas). Cada bloque tiene su propio checkbox "seleccionar todo el bloque" y un check individual por elemento (todos marcados por defecto); el botón "Exportar" queda deshabilitado si no queda ningún elemento marcado en ningún bloque. El fichero descargado solo contiene los elementos marcados (junto con la versión de la aplicación con la que se generó); no valida ni avisa si algún componente exportado queda referenciando un recurso o etiqueta que no viaja en la selección. No incluye la configuración del panel flotante de edición. Desde el cambio 00150, el fichero incluye también el texto libre del título de cabecera actual (no forma parte de la selección de elementos: siempre se incluye).
-- **Importar**: abre un selector de fichero limitado a `.json`. A diferencia del guardado automático del navegador, un fichero de una versión distinta a la actual se acepta igualmente — es el caso de uso principal. Si el fichero no es válido (vacío, JSON corrupto, o sin listado de componentes reconocible), se muestra el error con el [modal de error común](INDEX.md#notificación-de-errores). Si es válido, el flujo continúa en dos modales:
+- **Importar**: abre un selector de fichero limitado a `.json`. A diferencia del guardado automático del navegador, un fichero de una versión distinta a la actual se acepta igualmente — es el caso de uso principal. Si el fichero no es válido (vacío, JSON corrupto, o sin listado de componentes reconocible), se muestra el error con el [modal de error común](033-modal-de-error-comun-a-toda-la-app.md). Si es válido, el flujo continúa en dos modales:
   1. **Selección de elementos**: misma lista agrupada en tres bloques que en "Exportar", mostrando esta vez los elementos que trae el fichero, todos marcados por defecto (botón "Continuar" deshabilitado si no queda ninguno marcado).
   2. **Confirmación final**: dos desplegables — "Modo de importación" (`Añadir a lo existente`, por defecto, que conserva el contenido actual y le suma lo seleccionado; o `Sobrescribir todo el juego`, que borra primero todo el contenido actual y deja el juego solo con lo seleccionado) y "Comportamiento ante id duplicado" (solo aplica en modo "Añadir", ya que en "Sobrescribir" no puede haber duplicados al partir de vacío): `Sobrescribir el existente` (por defecto, el elemento nuevo reemplaza al que ya tenía ese id) o `Mantener ambos` (el elemento importado se conserva con un id nuevo, el original con el sufijo `-imported`, o `-imported(2)`, `-imported(3)`... si ese id renombrado también choca). Este comportamiento se aplica de forma independiente a cada elemento y cada tipo (componentes, recursos y etiquetas tienen cada uno su propio espacio de ids). Al pulsar "Importar" en esta modal se muestra una ventana de espera con spinner y el texto "Importando…" mientras dura el procesamiento (migración de fichas, fusión con lo existente y recarga de los distintos elementos del juego, ver más abajo); no es cancelable y se cierra sola al terminar, dando paso al resultado (cambio 00222).
 
@@ -15,7 +15,48 @@ Junto a "Guardar", dos botones "Exportar" e "Importar" permiten guardar y recupe
 
   Si el fichero importado trae título de cabecera (cambio 00150) y el modo de importación elegido es "Sobrescribir todo el juego", el título de la partida actual se reemplaza por el importado; en modo "Añadir a lo existente" el título actual se conserva siempre, aunque el fichero traiga uno. Un fichero exportado antes del cambio 00150 (sin título) nunca modifica el título actual, en ningún modo.
 
-- **Available in**: modo edición.
-- **Code**: 00024, 00059, 00065, 00081, 00087, 00105, 00147, 00150, 00190, 00222.
+**Dónde está el botón "Importar" y en qué modo se queda la app** (cambio 00238): el botón "Importar" está disponible tanto en la barra de herramientas del modo edición como en la barra superior del modo juego, donde aparece a la izquierda del botón "Entrar en modo edición" y con el mismo aspecto que este. El flujo de importación (los modales, avisos y ventana de espera descritos arriba) es idéntico se lance desde donde se lance. El único cambio de comportamiento según el punto de partida es el modo en el que queda la app al terminar: importando desde el modo juego se permanece en el modo juego, con el tablero actualizado con el resultado; importando desde el modo edición se permanece en el modo edición. Cancelar o abortar la importación en cualquier paso (selector de fichero, selección de elementos, confirmación final, aviso de conversión de fichas) no modifica el juego y mantiene el modo en el que se estaba. Tras importar, la vista del tablero no se reencuadra automáticamente.
+
+```mermaid
+stateDiagram-v2
+    [*] --> ModoJuego
+
+    ModoJuego: Modo juego (tablero visible, barra con «Importar»)
+    SelectorFichero: Selector de fichero del sistema (.json)
+    AvisoError: Aviso de fichero no válido
+    ModalSeleccion: Modal · elegir qué importar (componentes / recursos / etiquetas)
+    ModalConfirmacion: Modal · modo (Añadir / Sobrescribir) + ids duplicados (Sobrescribir / Conservar ambos)
+    ModalErroresConversion: Modal · errores de conversión de fichas
+    Progreso: Indicador de progreso «Importando…»
+    ModalReporte: Modal · reporte de importación (incidencias)
+    ModoJuegoActualizado: Modo juego (tablero actualizado con el resultado)
+
+    ModoJuego --> SelectorFichero : pulsa «Importar»
+    SelectorFichero --> ModoJuego : cancela
+    SelectorFichero --> AvisoError : fichero no válido
+    AvisoError --> ModoJuego : cerrar
+    SelectorFichero --> ModalSeleccion : fichero válido
+
+    ModalSeleccion --> ModoJuego : cancela
+    ModalSeleccion --> ModalConfirmacion : confirma
+
+    ModalConfirmacion --> ModoJuego : cancela
+    ModalConfirmacion --> ModalErroresConversion : confirma y hay fichas con error
+    ModalConfirmacion --> Progreso : confirma y no hay errores de conversión
+
+    ModalErroresConversion --> ModoJuego : «Abortar importación»
+    ModalErroresConversion --> Progreso : «Continuar sin esas fichas»
+
+    Progreso --> ModalReporte : terminó con incidencias
+    Progreso --> ModoJuegoActualizado : terminó sin incidencias
+    ModalReporte --> ModoJuegoActualizado : cerrar
+
+    ModoJuegoActualizado --> [*]
+```
+
+Importar desde el modo edición sigue el mismo encadenamiento de modales; la única diferencia es que el punto de partida y el estado final son "modo edición" en lugar de "modo juego".
+
+- **Available in**: "Importar", en modo edición y en modo juego. "Exportar", solo en modo edición.
+- **Code**: 00024, 00059, 00065, 00081, 00087, 00105, 00147, 00150, 00190, 00222, 00238.
 - **Since**: 2026-07-18
-- **Last modified**: 2026-08-19
+- **Last modified**: 2026-09-03
