@@ -18,7 +18,7 @@ const state = {
   groups: [],
 };
 
-let panelState = { collapsed: false, position: null, width: null, height: null };
+let panelState = { collapsed: false, position: null, width: null, height: null, expandedGroupIds: [] };
 let resourcePanelState = { collapsed: false, position: null, width: null, height: null };
 let tagPanelState = { collapsed: false, position: null, width: null, height: null };
 let appTitle = DEFAULT_APP_TITLE;
@@ -326,7 +326,8 @@ export function setPanelState(partial) {
 }
 
 export function loadPanelState(newPanelState) {
-  panelState = newPanelState;
+  panelState = { expandedGroupIds: [], ...newPanelState };
+  if (!Array.isArray(panelState.expandedGroupIds)) panelState.expandedGroupIds = [];
 }
 
 export function getAppTitle() {

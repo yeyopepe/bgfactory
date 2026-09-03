@@ -112,10 +112,35 @@ First use of `position: sticky` in the project: `.component-list th`/`.resource-
 
 ## Nested row under a parent block (`.component-list__row--member`, 00204)
 
-First use of visual nesting inside a table row: a group's members are always shown right below their group's row in `.component-list`, indented and with a different background — like a folder's expanded content.
+First use of visual nesting inside a table row: a group's members are shown right below their group's row in `.component-list`, indented and with a different background — like a folder's expanded content. Since 00239 the group is collapsible (see "Collapsible group row" below): member rows render only while the group is expanded (or force-expanded by an active filter), collapsed by default.
 
 - **Background**: `var(--accent-blue-light)` at rest (same token as "light background for interactive panels" of `001-tokens-visual.md` (Design tokens) — not a new ad-hoc value), `#ddebf9` on `:hover` (a darker tone of the same family), and the standard selection blue (`rgba(44,125,216,.15)`) if it is also selected — same priority criterion as any `.component-list__row--selected` row.
 - **Indentation**: additional `padding-left` on `.component-list__id-cell` (not the whole row) — only the Id cell shifts, the rest of the columns (Orden, Tipo, Copia, Acciones) keep their normal table alignment.
 - **No connector line or icon**: unlike a file tree with visual guides, here the indentation + the different background are enough to read as "content of the block above" — an explicit decision (confirmed on a mockup) to avoid adding visual noise.
 - **Disabled field inside a nested row**: `.component-list__order-input:disabled` — background `var(--bg-subtle)`, text `var(--text-muted)`, `cursor: not-allowed` — same criterion as any disabled control in the app ("Buttons" above, "Disabled").
 - Pattern scoped to this case for now — any other table that needs to nest rows under a parent can reuse it (background from the `--accent-blue-light` token, indentation only on the "identifying" cell, no connector line) instead of creating a new one.
+
+## Collapsible group row (`.component-list__row--group`, 00239)
+
+The `.component-list__row--group` row (a `groupId` with 2+ members) carries a collapse control at the start of its Id cell, before the group name. Members render only while expanded — see "Nested row under a parent block" above for the member-row look, unchanged.
+
+- **Group name**: `.component-list__group-name` — `font-weight: 700`. Distinguishes the group row at a glance from a loose component row and from a member row (both normal weight).
+- **Collapse triangle**: `.component-list__group-toggle` — a `<span>` holding a text glyph, `▸` collapsed / `▾` expanded. Same visual language as the `▾`/`▸` glyph in the three floating panels' headers (text character, gray, no background), one size up because it is a row-level control meant to be clicked.
+
+  | Property | Value | Note |
+  |---|---|---|
+  | `display` | `inline-block` | — |
+  | `width` | `16px` | fixed, so the name column starts aligned collapsed vs expanded |
+  | `margin-right` | `5px` | gap to the group name |
+  | `color` | `var(--text-muted)` (`#666666`) | at rest |
+  | `font-size` | `0.9375rem` (15px) | vs ~13px for the panel-header triangle |
+  | `line-height` | `1` | — |
+  | `cursor` | `pointer` | — |
+  | `user-select` | `none` | glyph not selectable as text |
+  | `text-align` | `center` | glyph centered in the 16px box |
+
+- `[hover]` on `.component-list__group-toggle` → `color: var(--accent-blue)` (`#2c7dd8`).
+- `[gotcha]` click on the triangle carries `stopPropagation` — it toggles collapse and does NOT select the group; click anywhere else on the row still selects it and leaves collapse unchanged.
+- Force-expanded state: with a text/column filter active, a matching group renders expanded regardless of its remembered state; the triangle shows `▾` and its click is inert while the filter is active.
+- Mockups: [`design_componentes_grupo-plegado.html`](../../../changes/implemented/00239/design_componentes_grupo-plegado.html) / [`design_componentes_grupo-desplegado.html`](../../../changes/implemented/00239/design_componentes_grupo-desplegado.html).
+- Reusable: any future collapsible/nested table row reuses this (bold identifier + `.component-list__group-toggle`-style text-glyph toggle, one size up from the panel-header triangle, `stopPropagation` on the toggle click) instead of a new pattern.

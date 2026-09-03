@@ -824,6 +824,23 @@ export function renderEditMode(container) {
       onAdd: openAddModal,
       onReorder: (component, newOrder) => reorderComponent(component.id, newOrder),
       onReorderGroup: (groupId, memberIds, newOrder) => reorderGroupBlock(memberIds, newOrder),
+      expandedGroupIds: getPanelState().expandedGroupIds ?? [],
+      onToggleGroupExpand: (groupId) => {
+        const current = getPanelState().expandedGroupIds ?? [];
+        const next = current.includes(groupId)
+          ? current.filter((id) => id !== groupId)
+          : [...current, groupId];
+        setPanelState({ expandedGroupIds: next });
+        renderList();
+      },
+      onPruneExpandedGroups: (prunedList) => {
+        // La poda se detecta durante el render en curso y la lista ya se pinta
+        // con la versión depurada; este `setPanelState` solo persiste esa
+        // versión. No se re-renderiza aquí (sería reentrante):
+        // `panelState:changed` está suscrito solo al autoguardado, no a
+        // `renderAll` (ver src/main.js).
+        setPanelState({ expandedGroupIds: prunedList });
+      },
       selectedIds: selectedComponentIds,
       collapsed,
       onSelectRow: toggleSelect,

@@ -527,6 +527,8 @@ export const CATALOG_ES = {
   'componentList.col.tipo': 'Tipo',
   'componentList.col.copia': 'Copia',
   'componentList.groupRowType': 'Grupo',
+  'componentList.expandGroup': 'Desplegar grupo',
+  'componentList.collapseGroup': 'Plegar grupo',
   'resourceList.col.usos': 'Usos',
   'resourceList.col.tipo': 'Tipo',
   'tagList.col.elementos': 'Elementos',

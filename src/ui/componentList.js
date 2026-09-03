@@ -50,6 +50,12 @@ function matchesColumnFilters(component) {
   });
 }
 
+// ¿Hay un filtro de texto o de columna activo? Con filtro activo los grupos se
+// muestran desplegados de forma forzada (sin tocar el estado recordado).
+function isFilterActive() {
+  return filterText.trim() !== '' || Object.keys(columnFilters).length > 0;
+}
+
 // Filas sintéticas de grupo: una por cada `groupId` con 2+ miembros, derivadas
 // en tiempo de render a partir de `component.groupId` — no son una colección
 // persistida aparte (a diferencia de "Etiquetas"). Participan en filtro/orden
@@ -97,7 +103,13 @@ function groupOrAnyMemberMatches(groupRow) {
 // ascendente (nunca por el criterio de columna activo). Con un filtro activo,
 // el grupo se muestra si él o algún miembro coincide, pero debajo solo
 // aparecen los miembros que coinciden individualmente.
-function computeDisplayedList(components) {
+//
+// `expandedGroups` (Set de `groupId`) decide qué grupos muestran sus miembros:
+// un grupo aparece plegado (sin filas de miembro) salvo que esté en el Set o
+// que un filtro activo lo fuerce a desplegarse. Cada fila de grupo emitida
+// lleva `__expanded` / `__forcedOpen` para que `renderBody` pinte el triángulo
+// en el estado correcto.
+function computeDisplayedList(components, expandedGroups = new Set()) {
   const groupRows = buildGroupRows(components);
   const looseComponents = components.filter((c) => c.groupId == null);
   let topLevel = [...looseComponents, ...groupRows];
@@ -110,13 +122,20 @@ function computeDisplayedList(components) {
     topLevel = [...topLevel].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   }
 
+  const filterActive = isFilterActive();
   const list = [];
   for (const row of topLevel) {
     if (row.__isGroupRow) {
       if (!groupOrAnyMemberMatches(row)) continue;
+      const forcedOpen = filterActive;
+      const isExpanded = forcedOpen || expandedGroups.has(row.id);
+      row.__expanded = isExpanded;
+      row.__forcedOpen = forcedOpen;
       list.push(row);
-      for (const member of row.__members) {
-        if (matchesFilter(member, filterText) && matchesColumnFilters(member)) list.push(member);
+      if (isExpanded) {
+        for (const member of row.__members) {
+          if (matchesFilter(member, filterText) && matchesColumnFilters(member)) list.push(member);
+        }
       }
     } else if (matchesFilter(row, filterText) && matchesColumnFilters(row)) {
       list.push(row);
@@ -141,7 +160,7 @@ function matchesFilter(component, query) {
   );
 }
 
-function renderBody(body, displayedComponents, total, { onEdit, onEditGroup, onClone, onCopy, onRemove, onUngroup, onSelectRow, onReorder, onReorderGroup, selectedIds = new Set(), columnWidths, onColumnResize, allComponents = [], onColumnSortChange, onColumnFilterChange } = {}) {
+function renderBody(body, displayedComponents, total, { onEdit, onEditGroup, onClone, onCopy, onRemove, onUngroup, onSelectRow, onReorder, onReorderGroup, onToggleGroupExpand, selectedIds = new Set(), columnWidths, onColumnResize, allComponents = [], onColumnSortChange, onColumnFilterChange } = {}) {
   body.innerHTML = '';
 
   const hasActiveFilter = filterText.trim() !== '' || Object.keys(columnFilters).length > 0;
@@ -224,7 +243,26 @@ function renderBody(body, displayedComponents, total, { onEdit, onEditGroup, onC
 
       const idCell = document.createElement('td');
       idCell.className = 'component-list__id-cell';
-      idCell.textContent = component.id;
+
+      const toggle = document.createElement('span');
+      toggle.className = 'component-list__group-toggle';
+      toggle.textContent = component.__expanded ? '▾' : '▸';
+      toggle.title = component.__expanded ? t('componentList.collapseGroup') : t('componentList.expandGroup');
+      toggle.addEventListener('click', (event) => {
+        // El clic en el triángulo alterna plegado/desplegado y NO selecciona el
+        // grupo. Con un filtro activo el grupo se muestra desplegado de forma
+        // forzada y el triángulo no altera el estado recordado.
+        event.stopPropagation();
+        if (component.__forcedOpen) return;
+        if (onToggleGroupExpand) onToggleGroupExpand(component.id);
+      });
+      idCell.appendChild(toggle);
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'component-list__group-name';
+      nameSpan.textContent = component.id;
+      idCell.appendChild(nameSpan);
+
       row.appendChild(idCell);
 
       const typeCell = document.createElement('td');
@@ -420,6 +458,9 @@ export function renderComponentList(
     onAdd,
     onReorder,
     onReorderGroup,
+    expandedGroupIds = [],
+    onToggleGroupExpand,
+    onPruneExpandedGroups,
     selectedIds = new Set(),
     collapsed = false,
     onToggleCollapse,
@@ -433,6 +474,18 @@ export function renderComponentList(
   const previousBody = container.querySelector('.component-panel__body');
   const previousScrollTop = previousBody ? previousBody.scrollTop : 0;
   const newlySelectedId = [...selectedIds].find((id) => !lastSelectedIds.has(id));
+
+  // Grupos realmente existentes (2+ miembros) y grupos desplegados recordados.
+  // La lista recordada se depura de `groupId` huérfanos (grupos desagrupados,
+  // borrados o reducidos a ≤1 miembro) en cada render: si sobra alguno, se
+  // notifica para que se persista depurada.
+  const groupRows = buildGroupRows(components);
+  const realGroupIds = new Set(groupRows.map((g) => g.id));
+  const prunedExpanded = expandedGroupIds.filter((id) => realGroupIds.has(id));
+  if (prunedExpanded.length !== expandedGroupIds.length && onPruneExpandedGroups) {
+    onPruneExpandedGroups(prunedExpanded);
+  }
+  const expandedGroups = new Set(prunedExpanded);
 
   container.innerHTML = '';
 
@@ -496,8 +549,8 @@ export function renderComponentList(
 
   if (!collapsed) {
     const rowHandlers = {
-      onEdit, onEditGroup, onClone, onCopy, onRemove, onUngroup, onSelectRow, onReorder, onReorderGroup, selectedIds, columnWidths, onColumnResize,
-      allComponents: [...components, ...buildGroupRows(components)],
+      onEdit, onEditGroup, onClone, onCopy, onRemove, onUngroup, onSelectRow, onReorder, onReorderGroup, onToggleGroupExpand, selectedIds, columnWidths, onColumnResize,
+      allComponents: [...components, ...groupRows],
       onColumnSortChange: (column, direction) => {
         columnSort = columnSort?.column === column && columnSort.direction === direction ? null : { column, direction };
         rerenderBody();
@@ -511,8 +564,15 @@ export function renderComponentList(
     };
 
     function rerenderBody() {
-      const displayed = computeDisplayedList(components);
-      title.textContent = t('componentList.title', { count: displayed.filter((r) => !r.__isGroupRow).length });
+      const displayed = computeDisplayedList(components, expandedGroups);
+      // El conteo del título no depende del estado plegado/desplegado, solo
+      // del filtro: sin filtro es el total real de componentes; con filtro es
+      // el número de componentes reales que casan, calculado sobre la lista
+      // "todos los grupos desplegados" (no la realmente pintada).
+      const count = isFilterActive()
+        ? computeDisplayedList(components, realGroupIds).filter((r) => !r.__isGroupRow).length
+        : components.length;
+      title.textContent = t('componentList.title', { count });
       renderBody(body, displayed, components.length, rowHandlers);
     }
 

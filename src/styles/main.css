@@ -474,6 +474,32 @@ h1 {
   padding-left: 1.75rem;
 }
 
+/* Fila de grupo plegable (00239): el identificador del grupo va en negrita
+   para distinguir la fila de grupo de un componente suelto o de un miembro. */
+.component-list__group-name {
+  font-weight: 700;
+}
+
+/* Triángulo de plegado al principio de la celda Id de la fila de grupo. Mismo
+   lenguaje visual que el ▾/▸ de la cabecera del panel flotante (carácter de
+   texto, gris, sin fondo) pero algo más grande, para leerse y pulsarse mejor
+   como control de fila. El clic lleva stopPropagation y no selecciona. */
+.component-list__group-toggle {
+  display: inline-block;
+  width: 16px;
+  margin-right: 5px;
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+}
+
+.component-list__group-toggle:hover {
+  color: var(--accent-blue);
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;

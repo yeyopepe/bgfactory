@@ -54,6 +54,8 @@ A group of components' own property record (grouping unit in edit mode, see `005
 
 `core/state.js` keeps a `groups` collection (`getGroups`/`addGroup`/`replaceGroup`/`removeGroup`/`loadGroups`, event `groups:changed`) — with no own `panelState` (no dedicated floating panel, unlike "Etiquetas"/"Recursos"; it is edited from the modal opened by the "Editar" button of its row in the "Componentes" panel).
 
+[gotcha] the collapsed/expanded state of each group row in the "Componentes" panel (00239) is NOT part of the `componentGroups` record — it is a local display preference stored in `panelState.expandedGroupIds` (`007-persistence-build.md`), by `groupId`, and never exported/imported.
+
 [motivación] persisted under the key `componentGroups` (`core/persistence.js`), not `groups`, because `groups` is already reserved as the backward-compatibility alias of `tags` (see "Backward compatibility" above). No own alias: it is a new collection, it did not exist under another name before. See `group.persist.decision.key-componentGroups` in `00-namespace.md`.
 
 Automatic creation (default values) when the group is formed, automatic removal (no trace) when ungrouped — manually or by automatic dissolution when ≤1 member remains (see `005-modes.md`). Import (`core/importMerge.js`): merged by `id` like resources/tags, without the extra deduplication tags have (rename on duplicate name) — a group `id` collision between the current game and the imported one is not specially resolved, out of scope of 00202.

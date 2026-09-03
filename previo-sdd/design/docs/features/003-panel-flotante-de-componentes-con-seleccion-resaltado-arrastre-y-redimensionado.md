@@ -12,9 +12,11 @@ El panel puede arrastrarse por la pantalla agarrando su cabecera (restringido al
 
 La tabla incluye además una primera columna "Orden" con un cuadro de texto numérico por fila (ver [Orden de apilado en la mesa](012-orden-de-apilado-en-la-mesa.md)).
 
+Cuando la lista contiene [grupos](034-agrupacion-de-elementos-agrupar-y-desagrupar.md), cada grupo tiene su propia fila y se puede plegar o desplegar individualmente con un triángulo al principio de su celda de identificador, para ver la lista más compacta; los grupos aparecen plegados por defecto y qué grupos ha desplegado el usuario se recuerda junto con las demás preferencias del panel (ver el enlace de "Grupo" para el detalle).
+
 **Traer al frente automáticamente** (cambio 00101): este panel, el de Recursos y el de Etiquetas (ver más abajo) se solapan a menudo al moverlos libremente por la pantalla. En cuanto el usuario interactúa de cualquier forma con uno de ellos — click en cualquier parte (cabecera, listado, una fila, un botón, un campo) o al empezar a arrastrarlo — ese panel pasa automáticamente a mostrarse por encima de los demás; si ya estaba delante, no hay ningún cambio visible. Una ventana colapsada (solo con su cabecera visible) también puede traerse al frente haciendo click en esa cabecera. Este orden de apilado entre paneles es transitorio: no se guarda en el autoguardado ni se recuerda entre sesiones, y vuelve siempre al orden por defecto (Componentes, Recursos, Etiquetas) al recargar la página. Es un mecanismo general de los paneles flotantes del modo edición, no específico de ninguno de los tres: cualquier panel flotante que se añada más adelante a este modo se comporta igual automáticamente. No tiene relación con el [orden de apilado en la mesa](012-orden-de-apilado-en-la-mesa.md) de los componentes del juego, ni con las modales de edición (que ya se muestran siempre por encima de todos los paneles y no se ven afectadas por este mecanismo).
 
 - **Available in**: modo edición.
-- **Code**: 00005, 00007, 00009, 00014, 00027, 00043, 00064, 00066, 00083, 00097, 00101, 00108, 00128, 00193, 00201.
+- **Code**: 00005, 00007, 00009, 00014, 00027, 00043, 00064, 00066, 00083, 00097, 00101, 00108, 00128, 00193, 00201, 00239.
 - **Since**: 2026-07-17
-- **Last modified**: 2026-08-13
+- **Last modified**: 2026-09-03

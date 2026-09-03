@@ -103,6 +103,11 @@ i18n.compare.locale.rule:                 anchor: src/core/textSort.js, src/core
 
 persistence.serializedFields = [components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, componentGroups, appTitle]
                                           afirmación.  anchor: src/core/persistence.js
+panelState.expandedGroupIds: string[]     concepto.  anchor: src/core/state.js (panelState)
+    groupId[] de las filas de grupo del panel "Componentes" desplegadas explícitamente; ausencia = plegado (estado por defecto)
+    se poda de groupId sin grupo real (2+ miembros) en cada renderComponentList; filtro activo fuerza desplegado sin mutar la lista
+    NO en persistence.buildComponentsExport ni parseImportedComponents (como todo panelState) — preferencia local de visualización
+    [gotcha] loadPanelState normaliza a [] si falta o no es array — guardados pre-00239 no traen la clave, sin migración
 persistence.serializedFields.rule:        anchor: src/core/persistence.js (saveState/parseState)
     autosave serializa exactamente esa lista a localStorage; una colección/campo nuevo debe añadirse ahí y en la suscripción de autosave (007-persistence-build.md)
     [gotcha] core/fileExport.js NO participa en esta lista (solo expone downloadJson, un helper genérico) — corrección S2, el borrador original citaba fileExport.js como coautor de la serialización
@@ -133,6 +138,12 @@ ui.elevation.level0                       concepto de estilo (plano, sin sombra)
 ui.elevation.level1                       concepto de estilo (flotación sutil, box-shadow shadow-1)
 ui.elevation.level2                       concepto de estilo (overlay, box-shadow shadow-2)
 ui.class.is-copy                          concepto de estilo.  anchor: src/ui/componentRenderer.js
+ui.class.component-list__group-name       concepto de estilo (00239).  anchor: src/styles/main.css
+    identificador de la fila de grupo en font-weight: 700; distingue la fila de grupo de una fila de componente suelto o de miembro
+ui.class.component-list__group-toggle     concepto de estilo (00239).  anchor: src/styles/main.css
+    triángulo de plegado en la celda de id de la fila de grupo; glifo de texto ▸ (plegado) / ▾ (desplegado), color ui.token.text-muted, hover ui.token.accent-blue
+    mismo lenguaje visual que el triángulo de cabecera de panel flotante, font-size 0.9375rem (una talla mayor por ser control de fila)
+    [gotcha] clic con stopPropagation: alterna plegado, NO selecciona el grupo; inerte mientras hay filtro activo (grupo desplegado forzado)
 ui.class.is-group-passenger              concepto de estilo.  anchor: src/ui/componentRenderer.js
 ui.class.decision.is-group-passenger-wins-over-is-copy   decisión.  sin ancla
     [motivación] .is-group-passenger se declara después en la cascada CSS, gana a .is-copy sobre el mismo elemento
