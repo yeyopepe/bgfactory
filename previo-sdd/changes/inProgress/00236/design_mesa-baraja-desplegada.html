@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup 00236 — Mesa con baraja desplegada</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #0e1a10;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 20px;
+}
+
+/* Label above */
+.caption {
+  color: #809070;
+  font-size: 11px;
+  margin-bottom: 14px;
+  letter-spacing: 0.5px;
+}
+
+/* Table surface */
+.table {
+  background: radial-gradient(ellipse at center, #2a5a2a 0%, #1a3e1a 60%, #142e14 100%);
+  border-radius: 16px;
+  padding: 20px 22px 22px;
+  box-shadow: 0 0 0 3px #0f280f, 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+  position: relative;
+}
+
+/* Group selection indicator */
+.group-selection {
+  position: absolute; inset: 14px;
+  border: 1.5px dashed rgba(80, 180, 255, 0.55);
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px rgba(80,180,255,0.12), inset 0 0 16px rgba(80,180,255,0.05);
+  pointer-events: none;
+}
+.group-label {
+  position: absolute; top: -10px; left: 16px;
+  background: rgba(40,120,200,0.85);
+  color: white; font-size: 9px; font-weight: 600;
+  padding: 2px 8px; border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* Table inner layout */
+.table-inner {
+  display: flex; align-items: flex-start; gap: 24px;
+  position: relative;
+}
+
+/* Card grid */
+.card-grid {
+  display: flex; flex-direction: column; gap: 5px;
+}
+
+/* Row label + cards */
+.row-container {
+  display: flex; align-items: center; gap: 8px;
+}
+.row-suit-label {
+  font-size: 14px;
+  width: 18px; text-align: center;
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+.card-row {
+  display: flex; gap: 3px;
+}
+
+/* Mini card */
+.card {
+  width: 27px; height: 38px;
+  background: white;
+  border-radius: 2.5px;
+  border: 0.5px solid #c8c8c8;
+  display: flex; flex-direction: column;
+  padding: 1px 2px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+  flex-shrink: 0;
+}
+.card .cv {
+  font-size: 7px; font-weight: 700;
+  line-height: 1.1;
+  font-family: Georgia, serif;
+}
+.card .cs {
+  font-size: 6px; line-height: 1;
+  font-family: Georgia, serif;
+}
+.card.red .cv, .card.red .cs { color: #c0392b; }
+.card.blk .cv, .card.blk .cs { color: #111; }
+
+/* Joker card */
+.card.joker {
+  background: white;
+  border-color: #d0d0d0;
+}
+.card.joker .cv { font-size: 5.5px; color: #555; font-style: italic; }
+.card.joker .cs { font-size: 9px; text-align: center; line-height: 1.4; }
+
+/* Deck component (outside grid) */
+.deck-area {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding-top: 4px;
+}
+.deck-stack {
+  position: relative; width: 36px; height: 52px;
+}
+.deck-stack .dc {
+  position: absolute;
+  width: 34px; height: 48px;
+  background: #1e4a8a;
+  border-radius: 3px;
+  border: 1px solid #3060b8;
+}
+.deck-stack .dc:nth-child(1) { top: 4px; left: 4px; }
+.deck-stack .dc:nth-child(2) { top: 2px; left: 2px; }
+.deck-stack .dc:nth-child(3) { top: 0; left: 0; }
+.deck-stack .dc:nth-child(3) {
+  background: #1e4a8a;
+  /* Diamond pattern via box-shadow trick */
+}
+.deck-label {
+  color: #809070; font-size: 9px; text-align: center; line-height: 1.3;
+}
+.deck-badge {
+  background: rgba(30,100,60,0.5);
+  color: #a0d890; font-size: 8px;
+  border-radius: 3px; padding: 1px 5px;
+  border: 1px solid rgba(80,180,80,0.2);
+}
+</style>
+</head>
+<body>
+
+<div class="caption">Resultado tras crear la "Baraja francesa estándar (54 cartas)" — grupo seleccionado</div>
+
+<div class="table">
+  <div class="group-selection">
+    <div class="group-label">Grupo: Baraja francesa (54 cartas)</div>
+  </div>
+
+  <div class="table-inner">
+    <div class="card-grid">
+
+      <!-- Row 1: Spades ♠ -->
+      <div class="row-container">
+        <span class="row-suit-label" style="color:#ddd;">♠</span>
+        <div class="card-row">
+          <div class="card blk"><span class="cv">A</span><span class="cs">♠</span></div>
+          <div class="card blk"><span class="cv">2</span><span class="cs">♠</span></div>
+          <div class="card blk"><span class="cv">3</span><span class="cs">♠</span></div>
+          <div class="card blk"><span class="cv">4</span><span class="cs">♠</span></div>
+          <div class="card blk"><span class="cv">5</span><span class="cs">♠</span></div>
+          <div class="card blk"><span class="cv">6</span><span class="cs">♠</span></div>
+          <div class="card blk"><span class="cv">7</span><span class="cs">♠</span></div>
+          <div class="card blk"><span class="cv">8</span><span class="cs">♠</span></div>
+          <div class="card blk"><span class="cv">9</span><span class="cs">♠</span></div>
+          <div class="card blk"><span class="cv">10</span><span class="cs">♠</span></div>
+          <div class="card blk"><span class="cv">J</span><span class="cs">♠</span></div>
+          <div class="card blk"><span class="cv">Q</span><span class="cs">♠</span></div>
+          <div class="card blk"><span class="cv">K</span><span class="cs">♠</span></div>
+        </div>
+      </div>
+
+      <!-- Row 2: Hearts ♥ -->
+      <div class="row-container">
+        <span class="row-suit-label" style="color:#e74c3c;">♥</span>
+        <div class="card-row">
+          <div class="card red"><span class="cv">A</span><span class="cs">♥</span></div>
+          <div class="card red"><span class="cv">2</span><span class="cs">♥</span></div>
+          <div class="card red"><span class="cv">3</span><span class="cs">♥</span></div>
+          <div class="card red"><span class="cv">4</span><span class="cs">♥</span></div>
+          <div class="card red"><span class="cv">5</span><span class="cs">♥</span></div>
+          <div class="card red"><span class="cv">6</span><span class="cs">♥</span></div>
+          <div class="card red"><span class="cv">7</span><span class="cs">♥</span></div>
+          <div class="card red"><span class="cv">8</span><span class="cs">♥</span></div>
+          <div class="card red"><span class="cv">9</span><span class="cs">♥</span></div>
+          <div class="card red"><span class="cv">10</span><span class="cs">♥</span></div>
+          <div class="card red"><span class="cv">J</span><span class="cs">♥</span></div>
+          <div class="card red"><span class="cv">Q</span><span class="cs">♥</span></div>
+          <div class="card red"><span class="cv">K</span><span class="cs">♥</span></div>
+        </div>
+      </div>
+
+      <!-- Row 3: Diamonds ♦ -->
+      <div class="row-container">
+        <span class="row-suit-label" style="color:#e74c3c;">♦</span>
+        <div class="card-row">
+          <div class="card red"><span class="cv">A</span><span class="cs">♦</span></div>
+          <div class="card red"><span class="cv">2</span><span class="cs">♦</span></div>
+          <div class="card red"><span class="cv">3</span><span class="cs">♦</span></div>
+          <div class="card red"><span class="cv">4</span><span class="cs">♦</span></div>
+          <div class="card red"><span class="cv">5</span><span class="cs">♦</span></div>
+          <div class="card red"><span class="cv">6</span><span class="cs">♦</span></div>
+          <div class="card red"><span class="cv">7</span><span class="cs">♦</span></div>
+          <div class="card red"><span class="cv">8</span><span class="cs">♦</span></div>
+          <div class="card red"><span class="cv">9</span><span class="cs">♦</span></div>
+          <div class="card red"><span class="cv">10</span><span class="cs">♦</span></div>
+          <div class="card red"><span class="cv">J</span><span class="cs">♦</span></div>
+          <div class="card red"><span class="cv">Q</span><span class="cs">♦</span></div>
+          <div class="card red"><span class="cv">K</span><span class="cs">♦</span></div>
+        </div>
+      </div>
+
+      <!-- Row 4: Clubs ♣ -->
+      <div class="row-container">
+        <span class="row-suit-label" style="color:#ddd;">♣</span>
+        <div class="card-row">
+          <div class="card blk"><span class="cv">A</span><span class="cs">♣</span></div>
+          <div class="card blk"><span class="cv">2</span><span class="cs">♣</span></div>
+          <div class="card blk"><span class="cv">3</span><span class="cs">♣</span></div>
+          <div class="card blk"><span class="cv">4</span><span class="cs">♣</span></div>
+          <div class="card blk"><span class="cv">5</span><span class="cs">♣</span></div>
+          <div class="card blk"><span class="cv">6</span><span class="cs">♣</span></div>
+          <div class="card blk"><span class="cv">7</span><span class="cs">♣</span></div>
+          <div class="card blk"><span class="cv">8</span><span class="cs">♣</span></div>
+          <div class="card blk"><span class="cv">9</span><span class="cs">♣</span></div>
+          <div class="card blk"><span class="cv">10</span><span class="cs">♣</span></div>
+          <div class="card blk"><span class="cv">J</span><span class="cs">♣</span></div>
+          <div class="card blk"><span class="cv">Q</span><span class="cs">♣</span></div>
+          <div class="card blk"><span class="cv">K</span><span class="cs">♣</span></div>
+        </div>
+      </div>
+
+      <!-- Row 5: Jokers -->
+      <div class="row-container">
+        <span class="row-suit-label" style="color:#aaa; font-size:10px;">JK</span>
+        <div class="card-row">
+          <div class="card joker"><span class="cv">JKR</span><span class="cs">★</span></div>
+          <div class="card joker"><span class="cv">JKR</span><span class="cs">★</span></div>
+        </div>
+      </div>
+
+    </div><!-- /.card-grid -->
+
+    <!-- Deck component (outside the grid) -->
+    <div class="deck-area">
+      <div class="deck-stack">
+        <div class="dc"></div>
+        <div class="dc"></div>
+        <div class="dc" style="background:#1e4a8a;">
+          <svg width="34" height="48" viewBox="0 0 34 48" style="position:absolute;top:0;left:0;">
+            <defs>
+              <pattern id="dp" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+                <polygon points="5,0 10,5 5,10 0,5" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="0.7"/>
+              </pattern>
+            </defs>
+            <rect width="34" height="48" rx="3" fill="url(#dp)"/>
+            <rect x="3" y="3" width="28" height="42" rx="2" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8"/>
+          </svg>
+        </div>
+      </div>
+      <div class="deck-label">Mazo<br>(54 cartas)</div>
+      <div class="deck-badge">componente mazo</div>
+    </div>
+
+  </div><!-- /.table-inner -->
+</div><!-- /.table -->
+
+</body>
+</html>
