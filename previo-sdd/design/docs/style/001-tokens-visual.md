@@ -1,8 +1,8 @@
-# Visual tokens, typography, spacing, borders, elevation
+# 001 — Visual tokens, typography, spacing, borders, elevation
 
-See `INDEX.md` for the full map of the Style Bible.
+**Area**: Tokens
 
-## 2. Design tokens (`:root`)
+## Design tokens (`:root`)
 
 All colors live as custom properties in `:root`. Never hardcode a color that already has a token — reuse the existing one or add a new one to `:root` if a new reusable tone is needed.
 
@@ -11,7 +11,7 @@ All colors live as custom properties in `:root`. Never hardcode a color that alr
 --bg-toolbar:   #333333;  /* header and toolbars */
 --bg-card:      #f5f5f5;  /* panels/cards (lists, edit panel) */
 --accent-blue:  #2c7dd8;  /* primary action color (buttons, focus, active tabs) */
---accent-blue-dark: #123a66;  /* background of the component identifier label in edit mode (03-modales-menus.md §12.3) */
+--accent-blue-dark: #123a66;  /* background of the component identifier label in edit mode (003-modales-menus.md, Component identifier label) */
 --accent-blue-light: #eaf3fc;  /* light background for panels that stand out as interactive without the solid blue */
 --text-primary: #1a1a1a;  /* text on light backgrounds */
 --text-light:   #ffffff;  /* text on dark/accent backgrounds */
@@ -21,18 +21,25 @@ All colors live as custom properties in `:root`. Never hardcode a color that alr
 --border-neutral: #dcdcdc;  /* all thin neutral borders */
 --bg-subtle:    #f0f0f0;  /* neutral backgrounds at rest: table header, secondary button */
 --bg-hover:     #e8e8e8;  /* any neutral hover: row, secondary button, tab */
---radius-sm:    4px;   /* control radius, see §5 */
---radius-lg:    8px;   /* highlighted-container radius, see §5 */
---shadow-1:     0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);  /* elevation level 1, see §6 */
---shadow-2:     0 4px 20px rgba(0,0,0,0.15);  /* elevation level 2, see §6 */
---transition-fast: 150ms ease;  /* standard hover/focus transition, see §6 */
---section-accent: #5b5f97;  /* .modal__section title (03-modales-menus.md §12.6), distinct from --accent-blue/--accent-blue-dark (interactive/selected) */
+--radius-sm:    4px;   /* control radius, see Borders and corners */
+--radius-lg:    8px;   /* highlighted-container radius, see Borders and corners */
+--shadow-1:     0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);  /* elevation level 1, see Elevation */
+--shadow-2:     0 4px 20px rgba(0,0,0,0.15);  /* elevation level 2, see Elevation */
+--transition-fast: 150ms ease;  /* standard hover/focus transition, see Elevation */
+--section-accent: #5b5f97;  /* .modal__section title (003-modales-menus.md §12.6), distinct from --accent-blue/--accent-blue-dark (interactive/selected) */
 ```
 
 - All neutral grays and reusable shadows/radii are already tokens — no "one-off" colors remain unpromoted.
 - Overlays that are still one-off values (not repeated enough to deserve a token): `rgba(0,0,0,0.5)` (`.modal-overlay` background), `rgba(255,255,255,0.1)` (hover on the dark toolbar).
 
-## 3. Typography
+### Color dedicated to the `.modal__section` title
+
+- Token `--section-accent` (`#5b5f97`): exclusive use in the text of a framed section's `<legend class="modal__section-title">` (see `003-modales-menus.md` §12.6).
+  - Not on any other element, nor on the `fieldset` frame (which uses the standard `--border-neutral`).
+- Does not reuse `--accent-blue`/`--accent-blue-dark` (in the rest of the app they mean "interactive/selected": "Aceptar" button, selection outline, active tab) — a section title is not interactive.
+- Exception scoped to this single use — do not reuse `--section-accent` for another purpose without an explicit decision.
+
+## Typography
 
 - Global font: `system-ui, sans-serif`. No external webfonts.
 - Sizes used, largest to smallest — reuse these, do not invent intermediate sizes:
@@ -47,7 +54,7 @@ All colors live as custom properties in `:root`. Never hardcode a color that alr
 
 - `font-weight: 500` for form labels. Rest: the browser's normal weight.
 
-## 4. Spacing
+## Spacing
 
 Scale based on `rem`, steps of `0.25rem`: `0.25rem`, `0.5rem`, `0.75rem`, `1rem`, `1.5rem`. Do not use pixels for padding/margin except already-existing cases (`1px`/`2px` borders).
 
@@ -55,7 +62,7 @@ Scale based on `rem`, steps of `0.25rem`: `0.25rem`, `0.5rem`, `0.75rem`, `1rem`
 - Control padding (buttons, tabs): `0.5rem 1rem`.
 - Gap between flex elements: `0.5rem` (tight) or `1rem` (loose).
 
-## 5. Borders and corners
+## Borders and corners
 
 Two-radius scale:
 
@@ -63,7 +70,7 @@ Two-radius scale:
 - `var(--radius-lg)` (8px) — highlighted containers: modal, floating panels (`.component-panel`, `.resource-panel`), "Carta" component.
 - Borders: `1px solid var(--border-neutral)`, or `1px solid var(--text-light)` on a dark background (toolbar).
 
-## 6. Elevation, shadow and transition
+## Elevation, shadow and transition
 
 A 3-level elevation system, reusable across the app.
 
@@ -74,11 +81,11 @@ A 3-level elevation system, reusable across the app.
   - `.text-box` (loose text on the table, no box/background): uses `text-shadow` instead of `box-shadow`, only for readability over any table color.
 - **Level 2 — overlay** (`box-shadow: var(--shadow-2)`): modals (`.modal`) and `.help-icon__tooltip` — the highest level.
 - **Optional shadow of `'tableroSimple'`/`'tableroPersonalizado'`**: unlike the rest of the level-1 pieces, their contact shadow can be disabled per component.
-  - "Sombra" checkbox in the "Visual" section (`.modal__field--checkbox`, see `03-modales-menus.md` §12.6).
+  - "Sombra" checkbox in the "Visual" section (`.modal__field--checkbox`, see `003-modales-menus.md` §12.6).
   - `properties.sombra` (boolean, `true` by default).
   - Unchecked: modifier `.board--sin-sombra`/`.tablero-personalizado--sin-sombra` (`box-shadow: none`) — the component drops to level 0.
   - A board saved without this property behaves as if checked (with shadow) — no visual change.
-- The transient state `.lifted` on dragging a component in play mode is the "in the air" state of this same system (a more pronounced shadow + fixed offset during the drag) — not an isolated exception. Full detail in `INDEX.md` §13.
+- The transient state `.lifted` on dragging a component in play mode is the "in the air" state of this same system (a more pronounced shadow + fixed offset during the drag) — not an isolated exception. See "'Lift' effect on dragging in play mode" below.
 - **Configurable extrusion** (`profundidad`/`colorExtrusion`, general component field, `core/component.js`): stacked solid layers with no blur, not a diffuse shadow. A concept independent of and compatible with the 3 elevation levels — it does not introduce a fourth level. Elevation = contact shadow with the table; extrusion = thickness/body of the component itself.
   - `profundidad`: number, px, `0` by default (no effect), cap `40`.
   - `colorExtrusion`: color string or `null` (automatic computation `shadeColor(colorBase, -0.25)`, `colorBase` by type — see `ui/componentRenderer.js`, `resolveExtrusionColor`).
@@ -87,4 +94,21 @@ A 3-level elevation system, reusable across the app.
   - `'dado'` no longer has its own depth mechanism (duplicated SVG polygon) — it uses this general mechanism like any other type, applied over `.dice`.
 - **Transitions**: interactive elements (buttons, list rows, tabs, selectable items, help icon, form fields) carry `transition: <property> var(--transition-fast)` (150ms) on `:hover`/`:focus` changes — background/border color, `opacity`, `box-shadow`, and on primary/destructive action buttons a slight `transform: translateY(-1px)`.
   - Do not use `:active`.
-  - Do not use transitions on the dashed selection outline (`--selectable`/`--selected`) nor on the die's shake/flicker — they are functional state indicators and pure JS, not decoration (see `INDEX.md` §13).
+  - Do not use transitions on the dashed selection outline (`--selectable`/`--selected`) nor on the die's shake/flicker — they are functional state indicators and pure JS, not decoration (see "The die roll's flicker and shake — not a CSS animation" below).
+
+### "Lift" effect on dragging in play mode
+
+Integrated into the elevation system above.
+
+- Transient state `.lifted` (`src/styles/main.css`), added/removed by `ui/componentRenderer.js` (`beginDragLift`/`endDragLift`).
+- Only when `renderComponentsOnTable` receives `liftOnDrag: true` (exclusive to `modes/play/playMode.js`, never `modes/edit/editMode.js`).
+- Applies a fixed offset (`transform: translate(-2px, -4px)`) and a shadow (`box-shadow: 6px 7px 9px 2px rgba(0,0,0,0.35)`) while dragging — simulates the component lifting and settling back on release.
+- Transitions with `var(--transition-fast)`, symmetric on lift and release — not instant.
+- Does not reopen the general ban on complex animations (`@keyframes`, narrative): it keeps applying unchanged to the rest of the cases (die shake/flicker, `--selectable`/`--selected` outline).
+- It is the "in the air" state of the same elevation system the rest of the pieces use at rest — scoped only to this transient state and this gesture (drag in play mode).
+
+### The die roll's flicker and shake — not a CSS animation
+
+- The `'dado'` "roll" effect (~1s of random results changing fast before fixing the final result, `ui/componentRenderer.js`): repeated `textContent` change via a JS timer (`setInterval`/`setTimeout`), with no `transition` or `@keyframes`.
+- Shake (a small random displacement of the die during that same second): same timer, recomputes `transform: translate()` on each tick — a purely numeric value in JS, the same exception documented in `004-naming-and-patterns.md` (Component patterns) for dynamic transforms (table pan/zoom), not a CSS animation/transition.
+- Neither falls under the general ban on complex animations (`004-naming-and-patterns.md`, "What NOT to do") nor requires its own exception.
