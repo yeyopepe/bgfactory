@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup 00236 — Todos los diseños</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #1a1a2e;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  padding: 28px 24px 40px;
+}
+h1 {
+  color: #8888b8; font-size: 13px; font-weight: 500;
+  letter-spacing: 0.5px; margin-bottom: 24px;
+  text-align: center;
+}
+.suit-section { margin-bottom: 20px; }
+.suit-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 8px;
+}
+.suit-name { color: #7070a0; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+.suit-sym { font-size: 16px; }
+.suit-sym.red { color: #e74c3c; }
+.suit-sym.blk { color: #d0d0d0; }
+.cards-row { display: flex; gap: 5px; flex-wrap: wrap; }
+
+/* ── Card shell ── */
+.card {
+  width: 58px; height: 82px;
+  background: white;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+  font-family: Georgia, 'Times New Roman', serif;
+  flex-shrink: 0;
+}
+.card.red { color: #c0392b; }
+.card.blk { color: #1a1a1a; }
+
+/* Corners */
+.cn {
+  position: absolute;
+  display: flex; flex-direction: column; align-items: center;
+  line-height: 1.1;
+}
+.cn.tl { top: 3px; left: 4px; }
+.cn.br { bottom: 3px; right: 4px; transform: rotate(180deg); }
+.cn .v { font-size: 11px; font-weight: bold; display: block; }
+.cn .s { font-size: 9.5px; display: block; }
+
+/* Center area */
+.ctr {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -48%);
+  display: flex; flex-direction: column; align-items: center;
+  gap: 1px;
+}
+/* Normal: medium suit */
+.ctr .ms { font-size: 30px; line-height: 1; display: block; }
+/* Ace override */
+.card.ace .ctr .ms { font-size: 50px; }
+/* Figure: smaller suit + ornament above */
+.card.fig .ctr .ms { font-size: 24px; }
+
+/* Ornament (figure cards) */
+.orn { display: block; line-height: 1; }
+
+/* ── Joker card ── */
+.card.joker .jctr {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -52%);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.joker-text {
+  font-size: 8px; letter-spacing: 1.5px; color: #555;
+  font-weight: 600; font-family: Georgia, serif;
+}
+.joker-stars {
+  position: absolute; top: 3px; left: 4px;
+  display: flex; flex-direction: column; gap: 1px;
+}
+.joker-stars span { font-size: 7px; line-height: 1; }
+.joker-stars-br {
+  position: absolute; bottom: 3px; right: 4px;
+  display: flex; flex-direction: column; gap: 1px;
+  transform: rotate(180deg);
+}
+.joker-stars-br span { font-size: 7px; line-height: 1; }
+
+/* ── Back card ── */
+.card.back { background: #1e4a8a; border-color: #2a5aaa; overflow: hidden; }
+
+/* ── Labels under each card ── */
+.card-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.card-id { color: #50508a; font-size: 8px; font-weight: 500; text-align: center; }
+
+/* ── Section dividers ── */
+.section-sep {
+  border: none; border-top: 1px solid #2a2a48;
+  margin: 20px 0 16px;
+}
+.section-title {
+  color: #6060a0; font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  margin-bottom: 10px;
+}
+
+/* ── Legend ── */
+.legend {
+  display: flex; gap: 20px; flex-wrap: wrap;
+  margin-top: 20px; padding-top: 16px;
+  border-top: 1px solid #2a2a48;
+}
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+}
+.legend-label { color: #60608a; font-size: 10px; }
+</style>
+</head>
+<body>
+
+<h1>Todos los diseños — Baraja francesa estándar (54 cartas + reverso) · Cambio 00236</h1>
+
+<!-- ═══════════════════════════════════════════════════════
+     PICAS ♠  (negro)
+═══════════════════════════════════════════════════════ -->
+<div class="suit-section">
+  <div class="suit-header">
+    <span class="suit-sym blk">♠</span>
+    <span class="suit-name">Picas — negro</span>
+  </div>
+  <div class="cards-row">
+
+    <!-- A♠ — ace -->
+    <div class="card-wrap">
+      <div class="card blk ace">
+        <div class="cn tl"><span class="v">A</span><span class="s">♠</span></div>
+        <div class="ctr"><span class="ms">♠</span></div>
+        <div class="cn br"><span class="v">A</span><span class="s">♠</span></div>
+      </div><div class="card-id">A♠</div>
+    </div>
+
+    <!-- 2♠ -->
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v">2</span><span class="s">♠</span></div><div class="ctr"><span class="ms">♠</span></div><div class="cn br"><span class="v">2</span><span class="s">♠</span></div></div><div class="card-id">2♠</div></div>
+    <!-- 3♠ -->
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v">3</span><span class="s">♠</span></div><div class="ctr"><span class="ms">♠</span></div><div class="cn br"><span class="v">3</span><span class="s">♠</span></div></div><div class="card-id">3♠</div></div>
+    <!-- 4♠ -->
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v">4</span><span class="s">♠</span></div><div class="ctr"><span class="ms">♠</span></div><div class="cn br"><span class="v">4</span><span class="s">♠</span></div></div><div class="card-id">4♠</div></div>
+    <!-- 5♠ -->
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v">5</span><span class="s">♠</span></div><div class="ctr"><span class="ms">♠</span></div><div class="cn br"><span class="v">5</span><span class="s">♠</span></div></div><div class="card-id">5♠</div></div>
+    <!-- 6♠ -->
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v">6</span><span class="s">♠</span></div><div class="ctr"><span class="ms">♠</span></div><div class="cn br"><span class="v">6</span><span class="s">♠</span></div></div><div class="card-id">6♠</div></div>
+    <!-- 7♠ -->
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v">7</span><span class="s">♠</span></div><div class="ctr"><span class="ms">♠</span></div><div class="cn br"><span class="v">7</span><span class="s">♠</span></div></div><div class="card-id">7♠</div></div>
+    <!-- 8♠ -->
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v">8</span><span class="s">♠</span></div><div class="ctr"><span class="ms">♠</span></div><div class="cn br"><span class="v">8</span><span class="s">♠</span></div></div><div class="card-id">8♠</div></div>
+    <!-- 9♠ -->
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v">9</span><span class="s">♠</span></div><div class="ctr"><span class="ms">♠</span></div><div class="cn br"><span class="v">9</span><span class="s">♠</span></div></div><div class="card-id">9♠</div></div>
+    <!-- 10♠ -->
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v" style="font-size:9px">10</span><span class="s">♠</span></div><div class="ctr"><span class="ms">♠</span></div><div class="cn br"><span class="v" style="font-size:9px">10</span><span class="s">♠</span></div></div><div class="card-id">10♠</div></div>
+
+    <!-- J♠ — figure -->
+    <div class="card-wrap">
+      <div class="card blk fig">
+        <div class="cn tl"><span class="v">J</span><span class="s">♠</span></div>
+        <div class="ctr">
+          <svg class="orn" width="14" height="14" viewBox="0 0 14 14">
+            <polygon points="7,0 4,5 10,5" fill="#1a1a1a"/>
+            <rect x="6" y="5" width="2" height="5" fill="#1a1a1a"/>
+            <line x1="2" y1="8" x2="12" y2="8" stroke="#1a1a1a" stroke-width="1.5"/>
+          </svg>
+          <span class="ms">♠</span>
+        </div>
+        <div class="cn br"><span class="v">J</span><span class="s">♠</span></div>
+      </div><div class="card-id">J♠</div>
+    </div>
+
+    <!-- Q♠ — figure -->
+    <div class="card-wrap">
+      <div class="card blk fig">
+        <div class="cn tl"><span class="v">Q</span><span class="s">♠</span></div>
+        <div class="ctr">
+          <svg class="orn" width="14" height="12" viewBox="0 0 14 12">
+            <circle cx="7" cy="6" r="3" fill="#1a1a1a"/>
+            <circle cx="7" cy="1.5" r="1.5" fill="#1a1a1a" opacity="0.7"/>
+            <circle cx="7" cy="10.5" r="1.5" fill="#1a1a1a" opacity="0.7"/>
+            <circle cx="1.5" cy="6" r="1.5" fill="#1a1a1a" opacity="0.7"/>
+            <circle cx="12.5" cy="6" r="1.5" fill="#1a1a1a" opacity="0.7"/>
+          </svg>
+          <span class="ms">♠</span>
+        </div>
+        <div class="cn br"><span class="v">Q</span><span class="s">♠</span></div>
+      </div><div class="card-id">Q♠</div>
+    </div>
+
+    <!-- K♠ — figure -->
+    <div class="card-wrap">
+      <div class="card blk fig">
+        <div class="cn tl"><span class="v">K</span><span class="s">♠</span></div>
+        <div class="ctr">
+          <svg class="orn" width="20" height="11" viewBox="0 0 20 11">
+            <polygon points="0,11 0,5 5,8 10,0 15,8 20,5 20,11" fill="#1a1a1a"/>
+            <circle cx="0" cy="5" r="2" fill="#1a1a1a"/>
+            <circle cx="10" cy="0" r="2" fill="#1a1a1a"/>
+            <circle cx="20" cy="5" r="2" fill="#1a1a1a"/>
+          </svg>
+          <span class="ms">♠</span>
+        </div>
+        <div class="cn br"><span class="v">K</span><span class="s">♠</span></div>
+      </div><div class="card-id">K♠</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     CORAZONES ♥  (rojo)
+═══════════════════════════════════════════════════════ -->
+<div class="suit-section">
+  <div class="suit-header">
+    <span class="suit-sym red">♥</span>
+    <span class="suit-name">Corazones — rojo</span>
+  </div>
+  <div class="cards-row">
+    <div class="card-wrap"><div class="card red ace"><div class="cn tl"><span class="v">A</span><span class="s">♥</span></div><div class="ctr"><span class="ms">♥</span></div><div class="cn br"><span class="v">A</span><span class="s">♥</span></div></div><div class="card-id">A♥</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v">2</span><span class="s">♥</span></div><div class="ctr"><span class="ms">♥</span></div><div class="cn br"><span class="v">2</span><span class="s">♥</span></div></div><div class="card-id">2♥</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v">3</span><span class="s">♥</span></div><div class="ctr"><span class="ms">♥</span></div><div class="cn br"><span class="v">3</span><span class="s">♥</span></div></div><div class="card-id">3♥</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v">4</span><span class="s">♥</span></div><div class="ctr"><span class="ms">♥</span></div><div class="cn br"><span class="v">4</span><span class="s">♥</span></div></div><div class="card-id">4♥</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v">5</span><span class="s">♥</span></div><div class="ctr"><span class="ms">♥</span></div><div class="cn br"><span class="v">5</span><span class="s">♥</span></div></div><div class="card-id">5♥</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v">6</span><span class="s">♥</span></div><div class="ctr"><span class="ms">♥</span></div><div class="cn br"><span class="v">6</span><span class="s">♥</span></div></div><div class="card-id">6♥</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v">7</span><span class="s">♥</span></div><div class="ctr"><span class="ms">♥</span></div><div class="cn br"><span class="v">7</span><span class="s">♥</span></div></div><div class="card-id">7♥</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v">8</span><span class="s">♥</span></div><div class="ctr"><span class="ms">♥</span></div><div class="cn br"><span class="v">8</span><span class="s">♥</span></div></div><div class="card-id">8♥</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v">9</span><span class="s">♥</span></div><div class="ctr"><span class="ms">♥</span></div><div class="cn br"><span class="v">9</span><span class="s">♥</span></div></div><div class="card-id">9♥</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v" style="font-size:9px">10</span><span class="s">♥</span></div><div class="ctr"><span class="ms">♥</span></div><div class="cn br"><span class="v" style="font-size:9px">10</span><span class="s">♥</span></div></div><div class="card-id">10♥</div></div>
+    <!-- J♥ -->
+    <div class="card-wrap"><div class="card red fig"><div class="cn tl"><span class="v">J</span><span class="s">♥</span></div><div class="ctr"><svg class="orn" width="14" height="14" viewBox="0 0 14 14"><polygon points="7,0 4,5 10,5" fill="#c0392b"/><rect x="6" y="5" width="2" height="5" fill="#c0392b"/><line x1="2" y1="8" x2="12" y2="8" stroke="#c0392b" stroke-width="1.5"/></svg><span class="ms">♥</span></div><div class="cn br"><span class="v">J</span><span class="s">♥</span></div></div><div class="card-id">J♥</div></div>
+    <!-- Q♥ -->
+    <div class="card-wrap"><div class="card red fig"><div class="cn tl"><span class="v">Q</span><span class="s">♥</span></div><div class="ctr"><svg class="orn" width="14" height="12" viewBox="0 0 14 12"><circle cx="7" cy="6" r="3" fill="#c0392b"/><circle cx="7" cy="1.5" r="1.5" fill="#c0392b" opacity="0.7"/><circle cx="7" cy="10.5" r="1.5" fill="#c0392b" opacity="0.7"/><circle cx="1.5" cy="6" r="1.5" fill="#c0392b" opacity="0.7"/><circle cx="12.5" cy="6" r="1.5" fill="#c0392b" opacity="0.7"/></svg><span class="ms">♥</span></div><div class="cn br"><span class="v">Q</span><span class="s">♥</span></div></div><div class="card-id">Q♥</div></div>
+    <!-- K♥ -->
+    <div class="card-wrap"><div class="card red fig"><div class="cn tl"><span class="v">K</span><span class="s">♥</span></div><div class="ctr"><svg class="orn" width="20" height="11" viewBox="0 0 20 11"><polygon points="0,11 0,5 5,8 10,0 15,8 20,5 20,11" fill="#c0392b"/><circle cx="0" cy="5" r="2" fill="#c0392b"/><circle cx="10" cy="0" r="2" fill="#c0392b"/><circle cx="20" cy="5" r="2" fill="#c0392b"/></svg><span class="ms">♥</span></div><div class="cn br"><span class="v">K</span><span class="s">♥</span></div></div><div class="card-id">K♥</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     DIAMANTES ♦  (rojo)
+═══════════════════════════════════════════════════════ -->
+<div class="suit-section">
+  <div class="suit-header">
+    <span class="suit-sym red">♦</span>
+    <span class="suit-name">Diamantes — rojo</span>
+  </div>
+  <div class="cards-row">
+    <div class="card-wrap"><div class="card red ace"><div class="cn tl"><span class="v">A</span><span class="s">♦</span></div><div class="ctr"><span class="ms">♦</span></div><div class="cn br"><span class="v">A</span><span class="s">♦</span></div></div><div class="card-id">A♦</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v">2</span><span class="s">♦</span></div><div class="ctr"><span class="ms">♦</span></div><div class="cn br"><span class="v">2</span><span class="s">♦</span></div></div><div class="card-id">2♦</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v">3</span><span class="s">♦</span></div><div class="ctr"><span class="ms">♦</span></div><div class="cn br"><span class="v">3</span><span class="s">♦</span></div></div><div class="card-id">3♦</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v">4</span><span class="s">♦</span></div><div class="ctr"><span class="ms">♦</span></div><div class="cn br"><span class="v">4</span><span class="s">♦</span></div></div><div class="card-id">4♦</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v">5</span><span class="s">♦</span></div><div class="ctr"><span class="ms">♦</span></div><div class="cn br"><span class="v">5</span><span class="s">♦</span></div></div><div class="card-id">5♦</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v">6</span><span class="s">♦</span></div><div class="ctr"><span class="ms">♦</span></div><div class="cn br"><span class="v">6</span><span class="s">♦</span></div></div><div class="card-id">6♦</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v">7</span><span class="s">♦</span></div><div class="ctr"><span class="ms">♦</span></div><div class="cn br"><span class="v">7</span><span class="s">♦</span></div></div><div class="card-id">7♦</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v">8</span><span class="s">♦</span></div><div class="ctr"><span class="ms">♦</span></div><div class="cn br"><span class="v">8</span><span class="s">♦</span></div></div><div class="card-id">8♦</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v">9</span><span class="s">♦</span></div><div class="ctr"><span class="ms">♦</span></div><div class="cn br"><span class="v">9</span><span class="s">♦</span></div></div><div class="card-id">9♦</div></div>
+    <div class="card-wrap"><div class="card red"><div class="cn tl"><span class="v" style="font-size:9px">10</span><span class="s">♦</span></div><div class="ctr"><span class="ms">♦</span></div><div class="cn br"><span class="v" style="font-size:9px">10</span><span class="s">♦</span></div></div><div class="card-id">10♦</div></div>
+    <div class="card-wrap"><div class="card red fig"><div class="cn tl"><span class="v">J</span><span class="s">♦</span></div><div class="ctr"><svg class="orn" width="14" height="14" viewBox="0 0 14 14"><polygon points="7,0 4,5 10,5" fill="#c0392b"/><rect x="6" y="5" width="2" height="5" fill="#c0392b"/><line x1="2" y1="8" x2="12" y2="8" stroke="#c0392b" stroke-width="1.5"/></svg><span class="ms">♦</span></div><div class="cn br"><span class="v">J</span><span class="s">♦</span></div></div><div class="card-id">J♦</div></div>
+    <div class="card-wrap"><div class="card red fig"><div class="cn tl"><span class="v">Q</span><span class="s">♦</span></div><div class="ctr"><svg class="orn" width="14" height="12" viewBox="0 0 14 12"><circle cx="7" cy="6" r="3" fill="#c0392b"/><circle cx="7" cy="1.5" r="1.5" fill="#c0392b" opacity="0.7"/><circle cx="7" cy="10.5" r="1.5" fill="#c0392b" opacity="0.7"/><circle cx="1.5" cy="6" r="1.5" fill="#c0392b" opacity="0.7"/><circle cx="12.5" cy="6" r="1.5" fill="#c0392b" opacity="0.7"/></svg><span class="ms">♦</span></div><div class="cn br"><span class="v">Q</span><span class="s">♦</span></div></div><div class="card-id">Q♦</div></div>
+    <div class="card-wrap"><div class="card red fig"><div class="cn tl"><span class="v">K</span><span class="s">♦</span></div><div class="ctr"><svg class="orn" width="20" height="11" viewBox="0 0 20 11"><polygon points="0,11 0,5 5,8 10,0 15,8 20,5 20,11" fill="#c0392b"/><circle cx="0" cy="5" r="2" fill="#c0392b"/><circle cx="10" cy="0" r="2" fill="#c0392b"/><circle cx="20" cy="5" r="2" fill="#c0392b"/></svg><span class="ms">♦</span></div><div class="cn br"><span class="v">K</span><span class="s">♦</span></div></div><div class="card-id">K♦</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     TRÉBOLES ♣  (negro)
+═══════════════════════════════════════════════════════ -->
+<div class="suit-section">
+  <div class="suit-header">
+    <span class="suit-sym blk">♣</span>
+    <span class="suit-name">Tréboles — negro</span>
+  </div>
+  <div class="cards-row">
+    <div class="card-wrap"><div class="card blk ace"><div class="cn tl"><span class="v">A</span><span class="s">♣</span></div><div class="ctr"><span class="ms">♣</span></div><div class="cn br"><span class="v">A</span><span class="s">♣</span></div></div><div class="card-id">A♣</div></div>
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v">2</span><span class="s">♣</span></div><div class="ctr"><span class="ms">♣</span></div><div class="cn br"><span class="v">2</span><span class="s">♣</span></div></div><div class="card-id">2♣</div></div>
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v">3</span><span class="s">♣</span></div><div class="ctr"><span class="ms">♣</span></div><div class="cn br"><span class="v">3</span><span class="s">♣</span></div></div><div class="card-id">3♣</div></div>
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v">4</span><span class="s">♣</span></div><div class="ctr"><span class="ms">♣</span></div><div class="cn br"><span class="v">4</span><span class="s">♣</span></div></div><div class="card-id">4♣</div></div>
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v">5</span><span class="s">♣</span></div><div class="ctr"><span class="ms">♣</span></div><div class="cn br"><span class="v">5</span><span class="s">♣</span></div></div><div class="card-id">5♣</div></div>
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v">6</span><span class="s">♣</span></div><div class="ctr"><span class="ms">♣</span></div><div class="cn br"><span class="v">6</span><span class="s">♣</span></div></div><div class="card-id">6♣</div></div>
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v">7</span><span class="s">♣</span></div><div class="ctr"><span class="ms">♣</span></div><div class="cn br"><span class="v">7</span><span class="s">♣</span></div></div><div class="card-id">7♣</div></div>
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v">8</span><span class="s">♣</span></div><div class="ctr"><span class="ms">♣</span></div><div class="cn br"><span class="v">8</span><span class="s">♣</span></div></div><div class="card-id">8♣</div></div>
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v">9</span><span class="s">♣</span></div><div class="ctr"><span class="ms">♣</span></div><div class="cn br"><span class="v">9</span><span class="s">♣</span></div></div><div class="card-id">9♣</div></div>
+    <div class="card-wrap"><div class="card blk"><div class="cn tl"><span class="v" style="font-size:9px">10</span><span class="s">♣</span></div><div class="ctr"><span class="ms">♣</span></div><div class="cn br"><span class="v" style="font-size:9px">10</span><span class="s">♣</span></div></div><div class="card-id">10♣</div></div>
+    <div class="card-wrap"><div class="card blk fig"><div class="cn tl"><span class="v">J</span><span class="s">♣</span></div><div class="ctr"><svg class="orn" width="14" height="14" viewBox="0 0 14 14"><polygon points="7,0 4,5 10,5" fill="#1a1a1a"/><rect x="6" y="5" width="2" height="5" fill="#1a1a1a"/><line x1="2" y1="8" x2="12" y2="8" stroke="#1a1a1a" stroke-width="1.5"/></svg><span class="ms">♣</span></div><div class="cn br"><span class="v">J</span><span class="s">♣</span></div></div><div class="card-id">J♣</div></div>
+    <div class="card-wrap"><div class="card blk fig"><div class="cn tl"><span class="v">Q</span><span class="s">♣</span></div><div class="ctr"><svg class="orn" width="14" height="12" viewBox="0 0 14 12"><circle cx="7" cy="6" r="3" fill="#1a1a1a"/><circle cx="7" cy="1.5" r="1.5" fill="#1a1a1a" opacity="0.7"/><circle cx="7" cy="10.5" r="1.5" fill="#1a1a1a" opacity="0.7"/><circle cx="1.5" cy="6" r="1.5" fill="#1a1a1a" opacity="0.7"/><circle cx="12.5" cy="6" r="1.5" fill="#1a1a1a" opacity="0.7"/></svg><span class="ms">♣</span></div><div class="cn br"><span class="v">Q</span><span class="s">♣</span></div></div><div class="card-id">Q♣</div></div>
+    <div class="card-wrap"><div class="card blk fig"><div class="cn tl"><span class="v">K</span><span class="s">♣</span></div><div class="ctr"><svg class="orn" width="20" height="11" viewBox="0 0 20 11"><polygon points="0,11 0,5 5,8 10,0 15,8 20,5 20,11" fill="#1a1a1a"/><circle cx="0" cy="5" r="2" fill="#1a1a1a"/><circle cx="10" cy="0" r="2" fill="#1a1a1a"/><circle cx="20" cy="5" r="2" fill="#1a1a1a"/></svg><span class="ms">♣</span></div><div class="cn br"><span class="v">K</span><span class="s">♣</span></div></div><div class="card-id">K♣</div></div>
+  </div>
+</div>
+
+<hr class="section-sep"/>
+
+<!-- ═══════════════════════════════════════════════════════
+     JOKERS  (×2)
+═══════════════════════════════════════════════════════ -->
+<div class="suit-section">
+  <div class="suit-header">
+    <span class="suit-name">Jokers — diseño idéntico (×2)</span>
+  </div>
+  <div class="cards-row">
+    <!-- Joker 1 -->
+    <div class="card-wrap">
+      <div class="card joker" style="color:#555;">
+        <div class="joker-stars"><span style="color:#9b59b6;">★</span><span style="color:#e74c3c;">★</span></div>
+        <div class="joker-stars-br"><span style="color:#9b59b6;">★</span><span style="color:#e74c3c;">★</span></div>
+        <div class="jctr">
+          <svg width="30" height="30" viewBox="0 0 30 30">
+            <line x1="15" y1="6" x2="6" y2="20" stroke="#e74c3c" stroke-width="4" stroke-linecap="round"/>
+            <line x1="15" y1="6" x2="15" y2="22" stroke="#3498db" stroke-width="4" stroke-linecap="round"/>
+            <line x1="15" y1="6" x2="24" y2="20" stroke="#f39c12" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="6" cy="20" r="5" fill="#e74c3c"/>
+            <circle cx="15" cy="22" r="5" fill="#3498db"/>
+            <circle cx="24" cy="20" r="5" fill="#f39c12"/>
+            <circle cx="15" cy="6" r="6" fill="#9b59b6"/>
+          </svg>
+          <span class="joker-text">JOKER</span>
+        </div>
+      </div>
+      <div class="card-id">Joker</div>
+    </div>
+    <!-- Joker 2 (same) -->
+    <div class="card-wrap">
+      <div class="card joker" style="color:#555;">
+        <div class="joker-stars"><span style="color:#9b59b6;">★</span><span style="color:#e74c3c;">★</span></div>
+        <div class="joker-stars-br"><span style="color:#9b59b6;">★</span><span style="color:#e74c3c;">★</span></div>
+        <div class="jctr">
+          <svg width="30" height="30" viewBox="0 0 30 30">
+            <line x1="15" y1="6" x2="6" y2="20" stroke="#e74c3c" stroke-width="4" stroke-linecap="round"/>
+            <line x1="15" y1="6" x2="15" y2="22" stroke="#3498db" stroke-width="4" stroke-linecap="round"/>
+            <line x1="15" y1="6" x2="24" y2="20" stroke="#f39c12" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="6" cy="20" r="5" fill="#e74c3c"/>
+            <circle cx="15" cy="22" r="5" fill="#3498db"/>
+            <circle cx="24" cy="20" r="5" fill="#f39c12"/>
+            <circle cx="15" cy="6" r="6" fill="#9b59b6"/>
+          </svg>
+          <span class="joker-text">JOKER</span>
+        </div>
+      </div>
+      <div class="card-id">Joker</div>
+    </div>
+  </div>
+</div>
+
+<hr class="section-sep"/>
+
+<!-- ═══════════════════════════════════════════════════════
+     REVERSO (×1 diseño compartido por las 54 cartas)
+═══════════════════════════════════════════════════════ -->
+<div class="suit-section">
+  <div class="suit-header">
+    <span class="suit-name">Reverso — compartido por las 54 cartas</span>
+  </div>
+  <div class="cards-row">
+    <div class="card-wrap">
+      <div class="card back">
+        <svg width="58" height="82" viewBox="0 0 58 82" style="position:absolute;top:0;left:0;">
+          <defs>
+            <pattern id="dp2" x="0" y="0" width="12" height="12" patternUnits="userSpaceOnUse">
+              <polygon points="6,0 12,6 6,12 0,6" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.8"/>
+              <polygon points="6,2.5 9.5,6 6,9.5 2.5,6" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.10)" stroke-width="0.5"/>
+            </pattern>
+            <clipPath id="back-clip2"><rect x="4" y="4" width="50" height="74" rx="3"/></clipPath>
+          </defs>
+          <rect width="58" height="82" rx="5" fill="#1e4a8a"/>
+          <rect x="4" y="4" width="50" height="74" rx="3" fill="url(#dp2)" clip-path="url(#back-clip2)"/>
+          <rect x="4" y="4" width="50" height="74" rx="3" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="1"/>
+          <rect width="58" height="82" rx="5" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        </svg>
+      </div>
+      <div class="card-id">Reverso</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Leyenda ── -->
+<div class="legend">
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#888; border: 2px solid #aaa;"></div>
+    <span class="legend-label">Carta normal (2–10): símbolo central medio</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#666; border: 2px solid #999; transform: scale(1.4);"></div>
+    <span class="legend-label">As: símbolo central XL</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#888; border: 2px dashed #bbb;"></div>
+    <span class="legend-label">Figuras J/Q/K: ornamento + símbolo central</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:linear-gradient(135deg,#e74c3c,#3498db,#f39c12);"></div>
+    <span class="legend-label">Joker: jester multicolor (mismo SVG ×2)</span>
+  </div>
+</div>
+
+</body>
+</html>
