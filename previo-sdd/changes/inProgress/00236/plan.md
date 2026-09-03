@@ -76,7 +76,7 @@ El riesgo real de este cambio no es romper código (no se toca `/src`), sino **a
   - "'ficha' component migration": los sub-puntos de `migrateFichaProperties` (mapeo `forma`→`proporcion`, `bordeColor`/`bordeGrosor`, por `fondoTipo`) → tabla `campo ficha | destino carta | caso de error`. "Two use points, different criteria for errors" → tabla `punto de uso | fichero | trata errors`.
   - "Style clipboard": "Data shape: `{ generales?, proporcion?, caraFrontal?, caraTrasera? }`" ya es notación; el "Usage flow" (Copy / Paste) → secuencia numerada.
   - Anáforas ("that key", "the former") → repetir el identificador/ruta.
-- [ ] **`005-modes.md` — cabecera + reescritura notation-first.** Primera línea `# Play mode vs edit mode` → `# 005 — Play mode vs edit mode` + `**Area**: Modes`. Reescritura:
+- [x] **`005-modes.md` — cabecera + reescritura notation-first.** Primera línea `# Play mode vs edit mode` → `# 005 — Play mode vs edit mode` + `**Area**: Modes`. Reescritura:
   - Los bloques `- **Nombre**: prosa` de "Edit mode: table and panels", "Multi-selection with Ctrl", "Visual indicators in edit mode", "Restricted drag in edit mode" → tablas o listas `condición → efecto`.
   - "Groups in edit mode": ya tiene una tabla (`Active selection | Context menu | Agrupar | Desagrupar`). El resto (Atomic selection, Automatic dissolution, Block movement, "Componentes" panel) → listas `- regla` con la ruta namespace `group.effectiveProps.rule` citada en vez de re-explicar `getEffectiveGeneralProps`.
   - Anti-expectativas → `[gotcha]`:
