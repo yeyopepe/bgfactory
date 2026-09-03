@@ -28,6 +28,7 @@ Convention: `block__element--modifier`.
   - `.btn-sacar` (`ui/mazoContentModal.js`): a small per-row button of `.mazo-contenido__item`. Background `var(--bg-subtle)`, hover `var(--accent-blue)`/light text — the same criterion as `.context-menu__item:hover`.
 - A button that belongs to an already-existing block (e.g. a `.component-list` row): does not use the `.btn-*` exception. Normal BEM with a modifier: `.component-list__action-btn--danger`.
 - IDs (`#mode-switcher`, `#content`, `#app-version`, `#edit-toolbar`): reserved for unique layout containers in `index.html`. Never for reusable components.
+  - A unique layout container may still hold internal BEM structure under a block named after it: `#app-version` contains `.app-version__name` + `.app-version__repo` (00243). The block name (`app-version`) matches the ID; the ID stays the styling/JS hook for the container, the `__element` classes for its parts.
 
 ## Component patterns (JS)
 

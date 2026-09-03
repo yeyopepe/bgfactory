@@ -12,10 +12,16 @@ function parseState(raw) {
   try {
     parsed = JSON.parse(raw);
   } catch {
-    return { error: true };
+    return { error: 'corrupt' };
   }
-  if (!parsed || parsed.version !== CURRENT_VERSION || !Array.isArray(parsed.components)) {
-    return { error: true };
+  // Objeto legible pero de otra versión de la app: no es un fallo, es lo
+  // esperable al estrenar versión. Se distingue de "corrupto" para que el
+  // arranque avise con un texto distinto (o silencie el modal por completo).
+  if (parsed && parsed.version !== CURRENT_VERSION) {
+    return { error: 'version-mismatch' };
+  }
+  if (!parsed || !Array.isArray(parsed.components)) {
+    return { error: 'corrupt' };
   }
   const panelState = (parsed.panelState && typeof parsed.panelState === 'object') ? parsed.panelState : null;
   const resourcePanelState = (parsed.resourcePanelState && typeof parsed.resourcePanelState === 'object') ? parsed.resourcePanelState : null;

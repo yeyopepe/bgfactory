@@ -17,7 +17,12 @@ Standard pattern to communicate any error in the app: `showErrorModal(title, mes
 - Reuses `.modal-overlay`/`.modal` (no new pattern), "Cerrar" button (`.btn-cancel`), `z-index: 1000`.
 - Difference from the generic informational modal: the header (`.modal__header--error`) includes a circular alert icon (`.modal__error-icon`, "!" over `var(--error)`) next to the title.
 - Additional technical message (e.g. a `JSON.parse` error): a monospace block (`.modal__error-detail`) below the main message.
-- The app's single point for communicating errors: any new error uses `ui/errorModal.js`, never `ui/toast.js` or another ad-hoc notice — the toast is reserved for success confirmations/notices.
+- The app's single point for communicating errors: any new error uses `ui/errorModal.js`, never `ui/toast.js` or another ad-hoc notice — the toast is reserved for success confirmations/notices and the one documented exception below.
+- [gotcha] one deliberate exception (change 00230): app **startup** communicates an unrecoverable `localStorage` saved state — from another app version, or genuinely corrupt — with `showToast(...)`, **not** `showErrorModal`. The condition is expected (a wrong-version save is normal right after shipping a new version) and fully recoverable (the app boots with the embedded seed or default content regardless); a blocking modal to dismiss before working would be disproportionate. `showErrorModal` remains the standard for every other error (import failures, resource-in-use, unsupported file format).
+  - `[version-mismatch]` toast text: `No se ha podido recuperar el estado de una versión anterior; se ha empezado con el contenido por defecto.`
+  - `[corrupt]` toast text: `No se ha podido recuperar el estado guardado.`
+  - No CSS/visual change — reuses the existing `.toast` component (see `006-ui-layer.md` → `ui/toast.js`, and `007-persistence-build.md` for the startup flow).
+  - Any future error condition that is both expected and fully self-recoverable at startup follows this exception; a genuine in-session failure still uses `showErrorModal`.
 
 ## Success modal
 

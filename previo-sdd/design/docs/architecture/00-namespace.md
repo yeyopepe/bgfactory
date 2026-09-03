@@ -87,6 +87,18 @@ persistence.serializedFields = [components, panelState, resources, resourcePanel
 persistence.serializedFields.rule:        anchor: src/core/persistence.js (saveState/parseState)
     autosave serializa exactamente esa lista a localStorage; una colección/campo nuevo debe añadirse ahí y en la suscripción de autosave (007-persistence-build.md)
     [gotcha] core/fileExport.js NO participa en esta lista (solo expone downloadJson, un helper genérico) — corrección S2, el borrador original citaba fileExport.js como coautor de la serialización
+persistence.parseState.result: enum ∈ {success-object, {error: 'corrupt'}, {error: 'version-mismatch'}}   afirmación.  anchor: src/core/persistence.js#parseState
+persistence.parseState.result.rule:       anchor: src/core/persistence.js (parseState)
+    JSON.parse lanza -> {error: 'corrupt'}
+    parsed objeto ∧ parsed.version != CURRENT_VERSION -> {error: 'version-mismatch'} (antes del chequeo de components)
+    parsed falsy ∨ !Array.isArray(parsed.components), con version correcta -> {error: 'corrupt'}
+    resto -> objeto de éxito sin campo error
+persistence.startup.rule:                  anchor: src/main.js (bootFromSeedOrDefaults + bloque de arranque)
+    loadState() null -> bootFromSeedOrDefaults(), sin aviso
+    {error: 'version-mismatch'} -> bootFromSeedOrDefaults() + showToast('...estado de una versión anterior...')
+    {error: 'corrupt'} -> bootFromSeedOrDefaults() + showToast('No se ha podido recuperar el estado guardado.')
+    objeto de éxito -> restaurar estado, sin aviso
+    [gotcha] el arranque ya no usa showErrorModal; version-mismatch es toast no bloqueante, no modal
 
 ui.token.accent-blue = #2c7dd8            afirmación de estilo.  anchor: src/styles/main.css
 ui.token.accent-blue-dark = #123a66       afirmación de estilo.
@@ -108,4 +120,13 @@ ui.class.decision.is-group-passenger-wins-over-is-copy   decisión.  sin ancla
 ui.class.lifted                           concepto de estilo (estado transitorio, drag en modo juego)
 ui.class.drop-target                      concepto de estilo (mazo resaltado durante drag de carta)
 ui.class.carta--flip-feedback            concepto de estilo (feedback de cambio de cara)
+ui.feedback.error.decision.modal-except-startup   decisión.  sin ancla
+    [motivación] todo error de la app usa showErrorModal (ui/errorModal.js); única excepción (cambio 00230): el arranque comunica un estado guardado irrecuperable (otra versión, o corrupto) con showToast no bloqueante — condición esperada y autorrecuperable, un modal sería desproporcionado
+ui.link                                   concepto de estilo (enlace de texto).  anchor: src/styles/main.css (#app-version a)
+    color: inherit ∧ text-decoration: underline ∧ sin :visited/:hover/:active
+    [gotcha] un enlace de texto NO es --accent-blue; se distingue solo por el subrayado, en el color de su contexto
+ui.link.external                          concepto de estilo (enlace a destino fuera de la app)
+    target="_blank" ∧ rel="noopener" ∧ texto = etiqueta legible, nunca la URL cruda
+ui.class.app-version                      concepto de estilo (footer de versión de dos líneas).  anchor: src/main.js
+    #app-version contiene .app-version__name + .app-version__repo (00243)
 ```

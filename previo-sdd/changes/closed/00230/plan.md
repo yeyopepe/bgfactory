@@ -47,7 +47,7 @@ Notas:
 - En **ningún** caso del arranque se usa ya `showErrorModal`.
 - Las ramas "version-mismatch" y "corrupt" ejecutan exactamente el mismo camino de reserva que hoy usa la rama "no hay nada guardado" (`readSeedState()` → semilla, o `seedDefaultResources()` si no hay semilla), y solo se diferencian entre sí por el texto del toast.
 
-- [ ] **`src/core/persistence.js` — `parseState()` devuelve un resultado discriminado en vez de `{ error: true }` genérico.** En `parseState(raw)` (líneas ~10-36):
+- [x] **`src/core/persistence.js` — `parseState()` devuelve un resultado discriminado en vez de `{ error: true }` genérico.** En `parseState(raw)` (líneas ~10-36):
   - Sustituir `catch { return { error: true }; }` (línea ~14) por `catch { return { error: 'corrupt' }; }`.
   - Sustituir la comprobación combinada `if (!parsed || parsed.version !== CURRENT_VERSION || !Array.isArray(parsed.components)) { return { error: true }; }` (líneas ~17-19) por dos ramas separadas, en este orden:
     ```js
@@ -61,9 +61,9 @@ Notas:
     Un `parsed` que es objeto pero con `version` distinta se clasifica como `'version-mismatch'` aunque además le falten `components`; un `parsed` con la versión correcta pero sin `components` array (o `null`/no-objeto) es `'corrupt'`.
   - El camino de éxito no cambia: sigue devolviendo `{ components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, componentGroups, appTitle }` (sin campo `error`).
 
-- [ ] **`src/core/persistence.js` — `readSeedState()` sigue tratando cualquier `error` como "sin semilla".** En `readSeedState()` (líneas ~53-59), la línea `return result.error ? null : result;` ya funciona con el nuevo formato (cualquier valor truthy en `result.error` —`'corrupt'` o `'version-mismatch'`— es falsy-check correcto). **No requiere cambio**, pero verificar que queda así: la semilla embebida de otra versión se sigue descartando en silencio y se cae al flujo por defecto, que es el comportamiento actual y deseado.
+- [x] **`src/core/persistence.js` — `readSeedState()` sigue tratando cualquier `error` como "sin semilla".** En `readSeedState()` (líneas ~53-59), la línea `return result.error ? null : result;` ya funciona con el nuevo formato (cualquier valor truthy en `result.error` —`'corrupt'` o `'version-mismatch'`— es falsy-check correcto). **No requiere cambio**, pero verificar que queda así: la semilla embebida de otra versión se sigue descartando en silencio y se cae al flujo por defecto, que es el comportamiento actual y deseado.
 
-- [ ] **`src/main.js` — el arranque distingue los tres resultados de `loadState()` y no usa `showErrorModal`.** En el bloque de arranque (líneas ~89-130):
+- [x] **`src/main.js` — el arranque distingue los tres resultados de `loadState()` y no usa `showErrorModal`.** En el bloque de arranque (líneas ~89-130):
   - Importaciones (líneas ~20-21): quitar `showErrorModal` del `import` de `./ui/errorModal.js` (eliminar la línea `import { showErrorModal } from './ui/errorModal.js';` entera si no queda ningún otro uso en el fichero —hoy es el único—). Añadir `import { showToast } from './ui/toast.js';`.
   - Extraer el camino de reserva a una función local reutilizable, justo después de `seedDefaultResources()` (línea ~81), p. ej.:
     ```js
@@ -121,9 +121,9 @@ Añadir también, en ese mismo documento (o en la sección "Recursos por defecto
 
 ## (e) Verification
 
-- [ ] **Estreno de versión nueva no muestra modal.** Trabajar con una versión de la app (deja estado en `localStorage`), luego abrir en el mismo navegador/perfil una versión con `CURRENT_VERSION` distinto: en el primer arranque **no** aparece el modal "No se ha podido recuperar el estado guardado." con botón "Cerrar"; la app arranca sola con el contenido por defecto (o la semilla embebida) y, como mucho, aparece brevemente un toast no bloqueante con el texto "...estado de una versión anterior; se ha empezado con el contenido por defecto.".
-- [ ] **Estado corrupto muestra toast, no modal.** Con la app cerrada, poner en `localStorage` la clave `bgfactory:state` con un valor que no sea JSON válido (p. ej. `"{"` ) o un JSON cuyo `version` sea el actual pero sin `components` array; abrir la app: arranca con el contenido por defecto y aparece un toast no bloqueante "No se ha podido recuperar el estado guardado.", sin ningún modal que haya que cerrar.
-- [ ] **Perfil nuevo sigue silencioso.** En un navegador/perfil sin la clave `bgfactory:state` (o tras borrarla), abrir la app: arranca limpio con la semilla embebida o los recursos por defecto, **sin ningún aviso** (ni toast ni modal).
-- [ ] **Estado válido de la misma versión se restaura sin aviso.** Trabajar con la app (crear algún componente), recargar la página: se restauran los componentes, paneles, recursos y etiquetas tal cual estaban, sin ningún toast ni modal.
-- [ ] **No queda ningún `showErrorModal` en el arranque.** Revisar `src/main.js`: no importa ni invoca `showErrorModal`; el único aviso posible durante el arranque es vía `showToast`.
-- [ ] **La semilla embebida de otra versión no rompe el arranque.** Un fichero entregable (HTML autocontenido) cuyo `#initial-state` tenga un estado de otra versión: al abrirlo con doble clic arranca con los recursos por defecto sin modal (comportamiento de `readSeedState()` intacto).
+- [x] **Estreno de versión nueva no muestra modal.** Trabajar con una versión de la app (deja estado en `localStorage`), luego abrir en el mismo navegador/perfil una versión con `CURRENT_VERSION` distinto: en el primer arranque **no** aparece el modal "No se ha podido recuperar el estado guardado." con botón "Cerrar"; la app arranca sola con el contenido por defecto (o la semilla embebida) y, como mucho, aparece brevemente un toast no bloqueante con el texto "...estado de una versión anterior; se ha empezado con el contenido por defecto.".
+- [x] **Estado corrupto muestra toast, no modal.** Con la app cerrada, poner en `localStorage` la clave `bgfactory:state` con un valor que no sea JSON válido (p. ej. `"{"` ) o un JSON cuyo `version` sea el actual pero sin `components` array; abrir la app: arranca con el contenido por defecto y aparece un toast no bloqueante "No se ha podido recuperar el estado guardado.", sin ningún modal que haya que cerrar.
+- [x] **Perfil nuevo sigue silencioso.** En un navegador/perfil sin la clave `bgfactory:state` (o tras borrarla), abrir la app: arranca limpio con la semilla embebida o los recursos por defecto, **sin ningún aviso** (ni toast ni modal).
+- [x] **Estado válido de la misma versión se restaura sin aviso.** Trabajar con la app (crear algún componente), recargar la página: se restauran los componentes, paneles, recursos y etiquetas tal cual estaban, sin ningún toast ni modal.
+- [x] **No queda ningún `showErrorModal` en el arranque.** Revisar `src/main.js`: no importa ni invoca `showErrorModal`; el único aviso posible durante el arranque es vía `showToast`.
+- [x] **La semilla embebida de otra versión no rompe el arranque.** Un fichero entregable (HTML autocontenido) cuyo `#initial-state` tenga un estado de otra versión: al abrirlo con doble clic arranca con los recursos por defecto sin modal (comportamiento de `readSeedState()` intacto).
