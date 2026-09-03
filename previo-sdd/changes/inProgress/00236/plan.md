@@ -135,7 +135,7 @@ El riesgo real de este cambio no es romper código (no se toca `/src`), sino **a
 
 > Aplica S3 (leer cada símbolo, no solo `grep`) y S4 (decisión solo si hay frase original que la respalde) a cada nodo. El árbol de abajo es un **borrador**: cada nodo se confirma contra `/src` antes de escribirlo, y cualquiera cuyo `anchor:` no se pueda verificar baja a `concepto` sin ancla o se omite, anotándolo en el reporte (S8).
 
-- [ ] **`previo-sdd/design/docs/architecture/00-namespace.md` — sustituir el cuerpo semilla.** Reemplazar `<Empty. pv-do populates this over time.>` (y el ejemplo `auth.token.session` si sigue en `## Tree`; las cabeceras `## Notation` y `## Tree` y su texto normativo se **conservan** tal cual). Poblar el árbol respetando el orden de segmentos `<área>.<agregado>.<entidad>.<campo>`:
+- [x] **`previo-sdd/design/docs/architecture/00-namespace.md` — sustituir el cuerpo semilla.** Reemplazar `<Empty. pv-do populates this over time.>` (y el ejemplo `auth.token.session` si sigue en `## Tree`; las cabeceras `## Notation` y `## Tree` y su texto normativo se **conservan** tal cual). Poblar el árbol respetando el orden de segmentos `<área>.<agregado>.<entidad>.<campo>`:
 
   ```
   component                                concepto.  anchor: src/core/component.js#createComponent
@@ -210,7 +210,7 @@ El riesgo real de este cambio no es romper código (no se toca `/src`), sino **a
   ui.class.carta--flip-feedback            concepto de estilo (feedback de cambio de cara)
   ```
 
-- [ ] **Verificar cada `anchor:` contra `/src`** antes de dar la fase por buena: para cada `anchor: src/…#símbolo`, comprobar que el fichero existe y contiene ese símbolo (`grep`/`Grep`). Anclas ya verificadas en el análisis: `core/group.js#getEffectiveGeneralProps`, `core/resource.js#isResourceInUse`, `core/resource.js` `collectDeepValues`, `core/component.js#nextGroupId`. Falta verificar: `createComponent`, `createCopy`, `buildExtrusionLayers`, `resolveExtrusionColor`, `createGroup`, `createTag`, `isTagNameTaken`, `createResource`, `resourceTypeForFileName`. Si algún símbolo no existe con ese nombre exacto, ajustar el `anchor:` al nombre real o degradar el nodo a `concepto` sin ancla y anotarlo.
+- [x] **Verificar cada `anchor:` contra `/src`** antes de dar la fase por buena: para cada `anchor: src/…#símbolo`, comprobar que el fichero existe y contiene ese símbolo (`grep`/`Grep`). Anclas ya verificadas en el análisis: `core/group.js#getEffectiveGeneralProps`, `core/resource.js#isResourceInUse`, `core/resource.js` `collectDeepValues`, `core/component.js#nextGroupId`. Falta verificar: `createComponent`, `createCopy`, `buildExtrusionLayers`, `resolveExtrusionColor`, `createGroup`, `createTag`, `isTagNameTaken`, `createResource`, `resourceTypeForFileName`. Si algún símbolo no existe con ese nombre exacto, ajustar el `anchor:` al nombre real o degradar el nodo a `concepto` sin ancla y anotarlo.
 
 ### Fase 4 — Regenerar índices
 
