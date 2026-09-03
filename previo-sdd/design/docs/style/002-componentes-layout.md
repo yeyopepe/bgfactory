@@ -1,8 +1,8 @@
-# Buttons, layout, resize, sticky table header
+# 002 — Buttons, layout, resize, sticky table header
 
-See `INDEX.md` for the full map of the Style Bible.
+**Area**: Layout & components
 
-## 9. Buttons
+## Buttons
 
 All buttons share this base (adapt background/border by context):
 
@@ -31,7 +31,7 @@ transition: background var(--transition-fast), opacity var(--transition-fast);
     - The size rule block (`padding: 0; width: 36px; height: 36px; inline-flex; centered`) uses the selector `#mode-switcher .mode-switcher__fit-btn, #edit-toolbar > .mode-switcher__fit-btn` — it explicitly lists the two containers to win by specificity over `#mode-switcher button` (which sets `padding: 0.5rem 1rem` on every button descending from `#mode-switcher`; a bare `.mode-switcher__fit-btn` loses against it and the icon ends up distorted inside the `36×36`). The inner icon sizing (`.mode-switcher__fit-btn .icon-frame { 18×18 }`) is autonomous — it competes with no other rule.
 - **Full-text button in a tight space**: when a text button is wedged between narrow elements (not in a loose action row) — e.g. `.card-editor-modal__adjust-image`, between the two faces of a card — it uses `padding: 0.5rem 0.75rem` as an intermediate variant between the standard (`0.5rem 1rem`) and the small item one (`0.25rem 0.5rem`). Reuse `0.75rem` instead of introducing a fourth ad-hoc value.
 
-## 10. Layout
+## Layout
 
 - App = full-height flex column: `html, body { height: 100% }`, `body { display:flex; flex-direction:column; height:100vh }`. Fixed header (`h1`, `3.5rem`) + flexible `#content` (`flex: 1 1 auto; min-height: 0`).
 - Fixed-width side panels: `400px` (`.component-list`, `.edit-mode-panel`).
@@ -48,12 +48,12 @@ transition: background var(--transition-fast), opacity var(--transition-fast);
 | `100` | Header |
 | `101` | Mode switcher (`#mode-switcher`) and the floating "Ajustar zoom" button (`.mode-switcher__fit-btn`, in both modes) |
 | `1000` | Modal overlay |
-| `1050` | Component context menu (`.context-menu`, `03-modales-menus.md` §12.8) and column-header menu (`.column-header-menu`, `03-modales-menus.md` §12.7) |
+| `1050` | Component context menu (`.context-menu`, `003-modales-menus.md`, "Component context menu") and column-header menu (`.column-header-menu`, `003-modales-menus.md`, "Actions dropdown menu") |
 
 - `1050` is the app's highest level, not the modal overlay — both menus can open with a modal already visible behind (e.g. the card editor) and must be in front of it.
 - When adding a new fixed/absolute element: choose its `z-index` respecting this order (below the modal, above normal content).
 
-## 11. Resize (corner handle)
+## Resize (corner handle)
 
 Standard pattern to make any element in the app resizable (not exclusive to a component): `.resize-handle`, a standalone block (does not follow any other block's BEM, an exception similar to `.btn-*`), implemented in `ui/resizeHandle.js` (`attachResizeHandle`).
 
@@ -78,7 +78,7 @@ Standard pattern to make any element in the app resizable (not exclusive to a co
 - Differences from `.resize-handle`: occupies the full right border of the header cell (`top/bottom: 0`, not just the corner). Cursor `col-resize` instead of `nwse-resize`. Graphic: a thin vertical line (not a `::after` diagonal grip).
 - Same neutral gray at rest and `var(--accent-blue)` on `:hover`/`.resize-handle--active`, same 150ms transition.
 
-## 11.1 Table header sticky on scroll (`position: sticky`)
+## Table header sticky on scroll (`position: sticky`)
 
 First use of `position: sticky` in the project: `.component-list th`/`.resource-list th`/`.tag-list th` — `position: sticky; top: 0; z-index: 2;`, inside their own scrolling container (`.component-panel__body`/`.resource-panel__body`/`.tag-panel__body`, `overflow-y: auto`).
 
@@ -88,12 +88,12 @@ First use of `position: sticky` in the project: `.component-list th`/`.resource-
 - `position: sticky` is still a positioned element for the purpose of containing `position: absolute` descendants — `.column-resize-handle` keeps working with no changes over a `sticky` header, just like over a `relative` one.
 - Any future table with its own internal scroll: reuse this same pattern (`sticky` header + opaque background + local `z-index`) instead of creating an ad-hoc one.
 
-## 11.2 Nested row under a parent block (`.component-list__row--member`, 00204)
+## Nested row under a parent block (`.component-list__row--member`, 00204)
 
 First use of visual nesting inside a table row: a group's members are always shown right below their group's row in `.component-list`, indented and with a different background — like a folder's expanded content.
 
-- **Background**: `var(--accent-blue-light)` at rest (same token as "light background for interactive panels" of `01-tokens-visual.md` §2 — not a new ad-hoc value), `#ddebf9` on `:hover` (a darker tone of the same family), and the standard selection blue (`rgba(44,125,216,.15)`) if it is also selected — same priority criterion as any `.component-list__row--selected` row.
+- **Background**: `var(--accent-blue-light)` at rest (same token as "light background for interactive panels" of `001-tokens-visual.md` (Design tokens) — not a new ad-hoc value), `#ddebf9` on `:hover` (a darker tone of the same family), and the standard selection blue (`rgba(44,125,216,.15)`) if it is also selected — same priority criterion as any `.component-list__row--selected` row.
 - **Indentation**: additional `padding-left` on `.component-list__id-cell` (not the whole row) — only the Id cell shifts, the rest of the columns (Orden, Tipo, Copia, Acciones) keep their normal table alignment.
 - **No connector line or icon**: unlike a file tree with visual guides, here the indentation + the different background are enough to read as "content of the block above" — an explicit decision (confirmed on a mockup) to avoid adding visual noise.
-- **Disabled field inside a nested row**: `.component-list__order-input:disabled` — background `var(--bg-subtle)`, text `var(--text-muted)`, `cursor: not-allowed` — same criterion as any disabled control in the app (§9, "Disabled").
+- **Disabled field inside a nested row**: `.component-list__order-input:disabled` — background `var(--bg-subtle)`, text `var(--text-muted)`, `cursor: not-allowed` — same criterion as any disabled control in the app ("Buttons" above, "Disabled").
 - Pattern scoped to this case for now — any other table that needs to nest rows under a parent can reuse it (background from the `--accent-blue-light` token, indentation only on the "identifying" cell, no connector line) instead of creating a new one.

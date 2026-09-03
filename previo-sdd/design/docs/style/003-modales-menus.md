@@ -1,8 +1,8 @@
-# Modals, menus, tooltips, identification patterns
+# 003 — Modals, menus, tooltips, identification patterns
 
-See `INDEX.md` for the full map of the Style Bible.
+**Area**: Modals & menus
 
-## 12. Help icon (modal on click)
+## Help icon (modal on click)
 
 Standard pattern for contextual help anywhere in the app: `.help-icon`, a 16px circle with "?" (`ui/helpIcon.js`, `createHelpIcon({ text, html })`).
 
@@ -10,7 +10,7 @@ Standard pattern for contextual help anywhere in the app: `.help-icon`, a 16px c
 - **Modal**: clicking the icon always opens a modal with the text/HTML, regardless of its length or format. Reuses `.modal-overlay`/`.modal` (no new pattern), "Cerrar" button (`.btn-cancel`), `z-index: 1000` (the same reserved for modal overlays).
 - Any new contextual help: reuse `ui/helpIcon.js` instead of creating an ad-hoc modal.
 
-## 12.1 Error modal
+## Error modal
 
 Standard pattern to communicate any error in the app: `showErrorModal(title, message, detail)` (`ui/errorModal.js`).
 
@@ -19,14 +19,14 @@ Standard pattern to communicate any error in the app: `showErrorModal(title, mes
 - Additional technical message (e.g. a `JSON.parse` error): a monospace block (`.modal__error-detail`) below the main message.
 - The app's single point for communicating errors: any new error uses `ui/errorModal.js`, never `ui/toast.js` or another ad-hoc notice — the toast is reserved for success confirmations/notices.
 
-## 12.1.1 Success modal
+## Success modal
 
 Pattern to confirm, in a blocking way, a positive result that needs to stay visible until the user closes it (unlike `ui/toast.js`, for brief confirmations with no detail to review): `.modal__header--success` / `.modal__success-icon`, the green equivalent (`var(--success)`) of the error modal — same header layout, same `.modal-overlay`/`.modal`, same `z-index: 1000`.
 
 - Example: `ui/batchUploadSummaryModal.js` (summary after uploading several resources/a folder to the gallery) — "✓" icon over `var(--success)`, a count of additions and, if applicable, a table of skipped items (table pattern of `ui/importReportModal.js`, same CSS as `.import-report-modal__table`).
 - Any future success notice that must stay visible: reuse this pattern instead of creating an ad-hoc variant.
 
-## 12.1.2 In-progress operation modal
+## In-progress operation modal
 
 Pattern to inform of a potentially slow, blocking operation, returning control to the player as soon as it finishes (change 00214): `ui/progressModal.js`, `runWithProgressModal(text, work)`.
 
@@ -39,7 +39,7 @@ Pattern to inform of a potentially slow, blocking operation, returning control t
 - Third use: grouping and ungrouping a selection in edit mode (`src/modes/edit/editMode.js`, change 00224) — text `"Agrupando N elemento(s)…"` / `"Desagrupando N elemento(s)…"` (singular `"1 elemento…"` when `N === 1`), `work` runs the `groupId` reassignment of the affected components plus the group-record create/remove (`addGroup`/`removeGroup`) and, on grouping, the block repositioning (`reorderGroupBlock`). The `count` and other state reads are computed before `work`. Applies at the three grouping/ungrouping entry points: context-menu "Agrupar" and "Desagrupar", and the "Desagrupar" button of the group row in the floating "Componentes" panel. No new variant of the pattern.
 - Any future potentially slow, blocking operation: reuse this pattern instead of leaving the player with no notice.
 
-## 12.2 Cursors
+## Cursors
 
 General convention: any clickable element shows `cursor: pointer` on hover, unless it already has one of these more specific cursors (priority over the generic one):
 
@@ -47,7 +47,7 @@ General convention: any clickable element shows `cursor: pointer` on hover, unle
 |---|---|
 | `grab` / `grabbing` | Dragging the infinite table (`.infinite-table`) or a floating panel by its header (`.component-panel__header`, `.resource-panel__header`) |
 | `move` | Moving a component on the table (`.text-box--movable`, `.board--movable`, `.dice--movable`) |
-| `nwse-resize` | Resize handle (`.resize-handle`, `02-componentes-layout.md` §11) |
+| `nwse-resize` | Resize handle (`.resize-handle`, `002-componentes-layout.md` §11) |
 | `not-allowed` | Disabled button (`.btn-accept:disabled`) |
 | `help` | Contextual help icon (`.help-icon`) |
 
@@ -58,11 +58,11 @@ General convention: any clickable element shows `cursor: pointer` on hover, unle
   - `grab`/`grabbing`: when dragging the table itself.
   - When a component supports both interactions at once (an unlocked die: draggable and click-rollable; an unlocked card: draggable and click-flippable), `move` prevails.
 
-## 12.3 Component identifier label (edit mode)
+## Component identifier label (edit mode)
 
-Pattern to show "what" a component on the table is without opening it — distinct from the help icon (§12): it is not contextual help, it is identification of the element under the cursor.
+Pattern to show "what" a component on the table is without opening it — distinct from the "Help icon" above: it is not contextual help, it is identification of the element under the cursor.
 
-- **Play mode**: an own tooltip `.component-tooltip` (no longer the browser's native `title`), triggered on `:hover` over the whole component via the marker class `.component-tooltip-host`. Content: the custom text of `tooltipTexto` (with basic formatting — bold, italic, line breaks, lists — sanitized by `sanitizeBasicTooltipHtml`, `ui/componentRenderer.js`) if the component has that field filled; if empty, it falls back to the same `"<Type>: <id>"` as always (e.g. "Dado: 3fa8..."). Look shared with the generic floating tooltip: background `var(--bg-toolbar)`, text `var(--text-light)`, `box-shadow: var(--shadow-2)` — its own class (does not reuse `.help-icon`, §12, which opens a modal on click instead of showing a tooltip), because the trigger changes (the whole component, not a fixed 16px icon). Anchored on the `position: absolute` the component's root element already has set for its x/y placement on the table — that `position` is never overwritten to "anchor" the tooltip, it already serves as a positioning context.
+- **Play mode**: an own tooltip `.component-tooltip` (no longer the browser's native `title`), triggered on `:hover` over the whole component via the marker class `.component-tooltip-host`. Content: the custom text of `tooltipTexto` (with basic formatting — bold, italic, line breaks, lists — sanitized by `sanitizeBasicTooltipHtml`, `ui/componentRenderer.js`) if the component has that field filled; if empty, it falls back to the same `"<Type>: <id>"` as always (e.g. "Dado: 3fa8..."). Look shared with the generic floating tooltip: background `var(--bg-toolbar)`, text `var(--text-light)`, `box-shadow: var(--shadow-2)` — its own class (does not reuse `.help-icon`, see "Help icon" above, which opens a modal on click instead of showing a tooltip), because the trigger changes (the whole component, not a fixed 16px icon). Anchored on the `position: absolute` the component's root element already has set for its x/y placement on the table — that `position` is never overwritten to "anchor" the tooltip, it already serves as a positioning context.
 - **Edit mode**: an own label `.component-id-label` overlaid on the component's top-left corner, within its area (not protruding above — avoids depending on free space above and getting hidden behind a header/fixed element near the table edge).
   - Same text/format as in play mode.
   - Background `var(--accent-blue-dark)`, text `var(--text-light)`, `font-size: 0.72rem`, `border-radius: var(--radius-sm)`, small shadow (`box-shadow: 0 2px 4px rgba(0,0,0,.25)`) to read "stuck" to the piece.
@@ -70,14 +70,14 @@ Pattern to show "what" a component on the table is without opening it — distin
   - Visible only on `:hover` and `.<type>--selected` (the same moments as the blue dashed selection outline), never permanently.
   - Not clipped or wrapped over several lines if the id is longer than the component — it may protrude past its width (an editing aid, not final art).
 
-## 12.3.1 Component title (play mode)
+## Component title (play mode)
 
-A per-component configurable label, distinct from the previous one (§12.3): it does not identify "what" the component is, it is a free-content caption the user designs — it replaces (00212) the old fixed card-count label of `'mazo'`, generalized to the 8 types.
+A per-component configurable label, distinct from the previous one ("Component identifier label"): it does not identify "what" the component is, it is a free-content caption the user designs — it replaces (00212) the old fixed card-count label of `'mazo'`, generalized to the 8 types.
 
-- `.component-title-label`, painted by `attachComponentTitle` (`ui/componentRenderer.js`) when `mostrarTitulo` (group override, like `mostrarTooltip`) is active and `tituloTexto` is non-empty — empty paints no node, unlike the tooltip (§12.3) which falls back to the identifier.
+- `.component-title-label`, painted by `attachComponentTitle` (`ui/componentRenderer.js`) when `mostrarTitulo` (group override, like `mostrarTooltip`) is active and `tituloTexto` is non-empty — empty paints no node, unlike the tooltip ("Component identifier label") which falls back to the identifier.
 - **Always visible** in play mode while active (does not depend on `:hover`, unlike `.component-tooltip`) — the same permanent-visibility criterion the old `.mazo-count-label` had.
 - Same anchoring as `.mazo-count-label` had: outside the component's box, flush to its top-left corner (`top: -1.6rem; left: 2px`), `pointer-events: none`.
-- Content: `tituloTexto` with basic sanitized formatting (the same `sanitizeBasicTooltipHtml` as the tooltip) and text variables resolved (`core/textVariables.js`, `01-component-model.md`).
+- Content: `tituloTexto` with basic sanitized formatting (the same `sanitizeBasicTooltipHtml` as the tooltip) and text variables resolved (`core/textVariables.js`, `../architecture/002-component-model.md`).
 - Text/background/transparency color: `tituloColorTexto`/`tituloColorFondo`/`tituloFondoTransparencia`, applied **inline** by `attachComponentTitle` (`element.style.color`/`backgroundColor`), not as a fixed CSS token — a justified exception because it is per-component user-configurable data, not a design-system value (the same criterion already accepted for `colorFondo`/`colorFondoTransparencia` of a card's `TextBox`/`Forma`, via `hexToRgba`).
 - Edited from the "Ayuda jugador" section of `ui/componentModal.js`: "Mostrar título de componente" checkbox + "Editar título de componente…" button that opens `ui/componentTitleModal.js` (sub-modal with no tabs, same pattern as `ui/boardPatternModal.js`: content, text color, background color, background transparency with a slider + synced numeric field — `.modal__opacity-value`, the same pattern already used in `ui/cardShapeModal.js`).
 
@@ -88,7 +88,7 @@ A badge sibling of `.component-id-label` in overlay criterion (component corner,
 - Top-**right** corner (not left, to not overlap the identifier label).
 - `18px` circle, background `rgba(0,0,0,.55)`, lock stroke in `var(--text-light)` (contrast over any component background/image) instead of a rectangular label with text.
 - Visible **permanently** while `component.bloqueado` is active (not only `:hover`/selection).
-- Edit mode only (`showLockIndicator`, `ui/componentRenderer.js`). In play mode the lock is not shown over the component, only via the context menu (§12.8).
+- Edit mode only (`showLockIndicator`, `ui/componentRenderer.js`). In play mode the lock is not shown over the component, only via the context menu ("Component context menu").
 
 ### "Oculto" indicator (`.component-hidden-badge`)
 
@@ -98,12 +98,12 @@ Same visual pattern as `.component-lock-badge` (`18px` circle, background `rgba(
 
 ### Anchoring of the badges over the text box (`.text-box`)
 
-`.text-box` has no fill box (see `design/docs/architecture/05-ui-layer.md`): the four badges (`.component-lock-badge`, `.component-hidden-badge`, `.component-copy-badge`, `.component-has-copies-badge`) would anchor to the corners of an invisible area larger than the glyphs and end up detached from the text.
+`.text-box` has no fill box (see `../architecture/006-ui-layer.md`): the four badges (`.component-lock-badge`, `.component-hidden-badge`, `.component-copy-badge`, `.component-has-copies-badge`) would anchor to the corners of an invisible area larger than the glyphs and end up detached from the text.
 
 - Own overrides in `main.css`, without touching the base rules (the rest of the types use them): `.text-box > .component-lock-badge` → `top: -0.55rem; right: -0.55rem`; `.text-box > .component-hidden-badge` → `bottom: -0.55rem; right: -0.55rem`; `.text-box > .component-copy-badge`, `.text-box > .component-has-copies-badge` → `bottom: -0.55rem; left: -0.55rem`.
 - "Stuck outside the corner" criterion of the visible text, the same as `.component-title-label` (`top: -1.6rem`), instead of the corner of a box.
 - Each badge's icon, color, size and logical corner are kept — only the anchoring offset changes for this type.
-- The clipping of `.text-box`'s own text lives in an inner `div` (`05-ui-layer.md`), so the outer container is free for label and badges like the rest of the types.
+- The clipping of `.text-box`'s own text lives in an inner `div` (`../architecture/006-ui-layer.md`), so the outer container is free for label and badges like the rest of the types.
 
 ### "Copia" indicator (`.component-copy-badge`)
 
@@ -115,7 +115,7 @@ Same overlay pattern as lock/hidden (`18px` circle, icon `var(--text-light)`, `p
 
 ### "Tiene copias" indicator (`.component-has-copies-badge`)
 
-Same icon and bottom-left corner as `.component-copy-badge`, but with background `var(--accent-blue-dark)` — the same blue `.component-id-label` already uses (§12.3, "Component identifier label") — precisely to differ at a glance from the copy indicator (which stays red), instead of sharing its visual family. `pointer-events: none`, permanent while the component has linked copies, edit mode only via `showCopyIndicator`, in a pill shape to incorporate the copy count (e.g. "(2)") next to the icon.
+Same icon and bottom-left corner as `.component-copy-badge`, but with background `var(--accent-blue-dark)` — the same blue `.component-id-label` already uses (see "Component identifier label" above) — precisely to differ at a glance from the copy indicator (which stays red), instead of sharing its visual family. `pointer-events: none`, permanent while the component has linked copies, edit mode only via `showCopyIndicator`, in a pill shape to incorporate the copy count (e.g. "(2)") next to the icon.
 
 - Anchored in the bottom-**left** corner, exactly like `.component-copy-badge` — mutually exclusive (an original component never has its own `copyOf`, so it never shows both badges at once).
 - Fixed height `18px` (matching the other badges), variable width by the number's digit count (padding and `border-radius: 9px` for the rounded shape).
@@ -125,34 +125,34 @@ Same icon and bottom-left corner as `.component-copy-badge`, but with background
 
 Besides the previous badge: when a component with `copyOf` non-null is on `:hover`/`.<type>--selected`, the dashed selection outline and the `.component-id-label` background (normally `var(--accent-blue)`/`var(--accent-blue-dark)`) are painted `var(--error)` — the same tone as the copy indicator, reinforcing at a glance that the element is a copy.
 
-- Activated with the class `is-copy` (`ui/componentRenderer.js`, alongside the type's own `--selectable` class, when `showCopyIndicator` is active and `component.copyOf` is not `null`) — a simple class with no block prefix, same criterion as `.grabbing`/`.active`/`.lifted` (`INDEX.md` §7), a cross-cutting state over the 7 component types.
+- Activated with the class `is-copy` (`ui/componentRenderer.js`, alongside the type's own `--selectable` class, when `showCopyIndicator` is active and `component.copyOf` is not `null`) — a simple class with no block prefix, same criterion as `.grabbing`/`.active`/`.lifted` (`004-naming-and-patterns.md`, Class naming), a cross-cutting state over the 7 component types.
 - The 6 per-type `--selectable`/`--selected` blocks (`.text-box`, `.board`, `.tablero-personalizado`, `.dice`, `.document-viewer`, `.carta` — also covers `mazo`, which reuses its classes) each include the `.is-copy`-qualified variant.
 
 ### Action buttons overlaid on an image (`.resource-modal__zoom-btn`)
 
 An *interactive* variant of this section's same visual language (background `rgba(0,0,0,.55)`, icon `stroke="currentColor"` in `var(--text-light)`) for when what is overlaid is a real action button, not a passive indicator — zoom controls over the preview of an Image resource (`ui/resourceModal.js`).
 
-- Deliberately does **not** use `.align-group`/`.align-group__btn` (§12.10, meant for selectable options with an `active` state over a form background): these buttons are momentary actions with no "active" state and need guaranteed contrast over an arbitrary content image, not a neutral modal background.
-- `32px` square, `border-radius: var(--radius-sm)`, hover `rgba(0,0,0,.72)`, `title`/`aria-label` as the only accessible label (icon-only button, §9 in `02-componentes-layout.md`).
+- Deliberately does **not** use `.align-group`/`.align-group__btn` ("Group of icon-only buttons", meant for selectable options with an `active` state over a form background): these buttons are momentary actions with no "active" state and need guaranteed contrast over an arbitrary content image, not a neutral modal background.
+- `32px` square, `border-radius: var(--radius-sm)`, hover `rgba(0,0,0,.72)`, `title`/`aria-label` as the only accessible label (icon-only button, §9 in `002-componentes-layout.md`).
 - Any future action control overlaid on an arbitrary image/visual content: reuse this criterion instead of `.align-group` or an ad-hoc overlay.
 
-## 12.4 Wide modals (exception to `max-width: 500px`)
+## Wide modals (exception to `max-width: 500px`)
 
 `.modal` uses `max-width: 500px` by default. When the content needs more space (several columns, long lists), the modal adds a second own block class with its own `max-width`, instead of overriding the default value ad-hoc.
 
 | Class | Modal / file | Width |
 |---|---|---|
 | `.component-editor-modal` | Component editing (`ui/componentModal.js`, `openComponentModal`) | `clamp()` with `75vw`, bounded between `400px` and `min(1000px, 90vw)` — recomputed dynamically on window resize with no JS |
-| `.card-editor-modal` | Visual editor (`ui/visualEditorModal.js`), of one or two faces by type (`'carta'` two faces, `'tableroPersonalizado'` one) | `width: fit-content; max-width: min(1500px, 95vw)`; `position: relative` (anchors its two `.resize-handle`, §11 of `02-componentes-layout.md`). Fits the content because the width varies by the active card proportion. Modifier `.card-editor-modal--maximized` (header button §12.4.1): `max-width: 90vw; height: 90vh; max-height: 90vh` (00235). [gotcha] `height: 90vh` is fixed, not just `max-height` — with `max-height` alone the modal stays content-sized (`.modal-overlay` centers, does not stretch) and the canvas has no vertical slack to grow into. Manual resize with a double corner handle (`.resize-handle` + `.resize-handle--tl` over the modal itself): the JS switches it to `position: fixed` with inline `width`/`height` and cancels `max-width`/`max-height` while that size lasts; `.card-editor-modal > .resize-handle { z-index: 1 }` so the toolbar does not cover it. Canvas sizing when maximized or manually resized (00235): `.card-editor-modal .modal__content { display: flex; flex-direction: column }` + `.card-editor-modal__faces { flex: 1 1 auto; align-items: center; justify-content: center }` — the faces row fills the leftover vertical space of `.modal__content`; JS (`getEffectiveCanvasMaxSide` / `getEditorWorkArea`, see `05-ui-layer.md`) scales each face's canvas to the largest size fitting BOTH the per-face width and the height of the real interior work area, keeping the design aspect ratio, so `align-items`/`justify-content: center` leave it centered in the slack. `overflow-y: auto` (from `.modal__content`) is the fallback when the window shrinks below the `CANVAS_MIN_SIDE`-floored canvas. The editor faces never stack: `.card-editor-modal__faces { flex-wrap: nowrap }` + the per-face canvas bounded by the available width (00233/00235). Neither the maximized nor the manual size persists between openings; also "Restaurar" (§12.4.1) discards the manual size and returns to the default `fit-content` |
+| `.card-editor-modal` | Visual editor (`ui/visualEditorModal.js`), of one or two faces by type (`'carta'` two faces, `'tableroPersonalizado'` one) | `width: fit-content; max-width: min(1500px, 95vw)`; `position: relative` (anchors its two `.resize-handle`, §11 of `002-componentes-layout.md`). Fits the content because the width varies by the active card proportion. Modifier `.card-editor-modal--maximized` (header button "Modal maximize/restore button"): `max-width: 90vw; height: 90vh; max-height: 90vh` (00235). [gotcha] `height: 90vh` is fixed, not just `max-height` — with `max-height` alone the modal stays content-sized (`.modal-overlay` centers, does not stretch) and the canvas has no vertical slack to grow into. Manual resize with a double corner handle (`.resize-handle` + `.resize-handle--tl` over the modal itself): the JS switches it to `position: fixed` with inline `width`/`height` and cancels `max-width`/`max-height` while that size lasts; `.card-editor-modal > .resize-handle { z-index: 1 }` so the toolbar does not cover it. Canvas sizing when maximized or manually resized (00235): `.card-editor-modal .modal__content { display: flex; flex-direction: column }` + `.card-editor-modal__faces { flex: 1 1 auto; align-items: center; justify-content: center }` — the faces row fills the leftover vertical space of `.modal__content`; JS (`getEffectiveCanvasMaxSide` / `getEditorWorkArea`, see `../architecture/006-ui-layer.md`) scales each face's canvas to the largest size fitting BOTH the per-face width and the height of the real interior work area, keeping the design aspect ratio, so `align-items`/`justify-content: center` leave it centered in the slack. `overflow-y: auto` (from `.modal__content`) is the fallback when the window shrinks below the `CANVAS_MIN_SIDE`-floored canvas. The editor faces never stack: `.card-editor-modal__faces { flex-wrap: nowrap }` + the per-face canvas bounded by the available width (00233/00235). Neither the maximized nor the manual size persists between openings; also "Restaurar" ("Modal maximize/restore button") discards the manual size and returns to the default `fit-content` |
 | `.image-adjust-modal--large` | Image-adjust window of one or two faces (`ui/imageAdjustModal.js`) | `width: fit-content; max-width: min(1500px, 95vw)` — same criterion as `.card-editor-modal`, the combined width of preview boxes varies by faces shown |
 | `.element-selection-modal` | Export/import with selection | `max-width: 640px` |
-| `.import-report-modal` | Import report with a table. Reused as-is by `ui/importConversionErrorModal.js` (errors converting fichas during import, error header §12.1, two action buttons like `ui/groupDeleteConfirmModal.js`). Adds the class `.error-cell` (`color: var(--error)`) to the error-reason cell in `.import-report-modal__table`, reusable by any table that highlights an error cell | `max-width: 640px` |
+| `.import-report-modal` | Import report with a table. Reused as-is by `ui/importConversionErrorModal.js` (errors converting fichas during import, error header "Error modal", two action buttons like `ui/groupDeleteConfirmModal.js`). Adds the class `.error-cell` (`color: var(--error)`) to the error-reason cell in `.import-report-modal__table`, reusable by any table that highlights an error cell | `max-width: 640px` |
 | `.resource-modal--image` | Editing an Image resource (`ui/resourceModal.js`) — more space for the enlarged preview with zoom/pan. Only if the resource is an Image; the Typeface modal uses the generic `.modal` | `width: fit-content; max-width: min(800px, 95vw)` |
 | `.board-image-modal` | Background image gallery for a simple board/card/custom board (`ui/boardImageModal.js`). Thumbnail `.board-image-modal__thumb` `140px`, grid `.board-image-modal__gallery` `minmax(160px, 1fr)` | `max-width: min(900px, 90vw)` — fixed, the content is a grid of thumbnails that reflows on its own |
 
 - Any new modal that needs more width: an own block class added to `modal.className` (e.g. `'modal my-modal'`), with its `max-width` (or `width: fit-content` + a cap if the content is of variable width) in `main.css` — never inline `style="max-width:…"`.
 
-## 12.4.1 Modal maximize/restore button
+## Modal maximize/restore button
 
 First use of this pattern: `.card-editor-modal__maximize-btn` — an own block of that modal (not a standalone `.btn-*` exception, since it hangs off `.card-editor-modal`).
 
@@ -161,11 +161,11 @@ First use of this pattern: `.card-editor-modal__maximize-btn` — an own block o
 - `margin-left: auto` — it ends up, together with the `.help-icon` that follows it, stuck to the right edge of the header (title only on the left, available gap between the two).
 - At rest: background `var(--bg-subtle)`, hover `var(--bg-hover)`, `border-radius: var(--radius-sm)`, transition `background var(--transition-fast)`.
 - No text: exposes `title`/`aria-label` updated on each toggle ("Maximizar"/"Restaurar tamaño").
-- The switch adds/removes the size modifier class (§12.4) on `.modal` — it never closes the modal (that depends only on its footer "Cancelar"/"Aceptar" buttons).
-- Independent of the manual resize with corner handles (§11 of `02-componentes-layout.md`), when the modal supports it (`.card-editor-modal`): maximizing clears the manual-resize inline geometry styles (without deleting the stored manual size) and applies the class; **restoring also clears those inline styles and discards the manual size — it always returns to the modal's default size (`width: fit-content` centered), never to the manual size that might have been set with the handles** (00233). The button clears the inline styles before applying/removing the class, so `.card-editor-modal--maximized` wins without `!important`.
+- The switch adds/removes the size modifier class ("Wide modals") on `.modal` — it never closes the modal (that depends only on its footer "Cancelar"/"Aceptar" buttons).
+- Independent of the manual resize with corner handles (§11 of `002-componentes-layout.md`), when the modal supports it (`.card-editor-modal`): maximizing clears the manual-resize inline geometry styles (without deleting the stored manual size) and applies the class; **restoring also clears those inline styles and discards the manual size — it always returns to the modal's default size (`width: fit-content` centered), never to the manual size that might have been set with the handles** (00233). The button clears the inline styles before applying/removing the class, so `.card-editor-modal--maximized` wins without `!important`.
 - Any future modal that needs maximize/restore: reuse this pattern (button, position, icons, no persistence).
 
-## 12.5 Grouped selection list (checklist)
+## Grouped selection list (checklist)
 
 Pattern to choose a subset of a collection organized by categories (`ui/elementSelectionModal.js`, used by the export/import-with-selection modals):
 
@@ -174,26 +174,26 @@ Pattern to choose a subset of a collection organized by categories (`ui/elementS
 - A block with no elements is not painted (an empty category is not shown).
 - Any future multi-selection organized in categories: reuse this pattern — same criterion as `.resize-handle` or `.help-icon`.
 
-## 12.6 Sections inside property tabs
+## Sections inside property tabs
 
 Pattern to visually group several related fields inside a `ui/componentModal.js` tab (or an edit sub-modal) when the group grows enough to need separation, without justifying its own tab/sub-modal.
 
 - A `.modal__section` block, implemented with `<fieldset class="modal__section">`.
   - Framed: `border: 1px solid var(--border-neutral)` (the same neutral gray as any thin border, no new color), `border-radius: var(--radius-sm)`.
-  - `margin-top: 1rem` from the previous field (same spacing criterion as `01-tokens-visual.md` §4), `padding: 1rem` inside.
+  - `margin-top: 1rem` from the previous field (same spacing criterion as `001-tokens-visual.md`, Spacing), `padding: 1rem` inside.
   - Static visual grouping, always visible inside the already-active tab — it introduces no tabs, accordion or collapse.
-- Title in `<legend class="modal__section-title">` (the `<legend>` itself cuts the `fieldset`'s top border, with no separate line/pseudo-element), color `var(--section-accent)`, uppercase — the only use of that tone in the app (see the color exception in `INDEX.md` §13).
+- Title in `<legend class="modal__section-title">` (the `<legend>` itself cuts the `fieldset`'s top border, with no separate line/pseudo-element), color `var(--section-accent)`, uppercase — the only use of that tone in the app (see `001-tokens-visual.md`, Color dedicated to the `.modal__section` title).
 - Two title kinds, by whether the group represents an entire enable/disable configuration:
   - **Merely informational** (`.modal__section-title`): text only, no control. The fields inside are always active.
   - **En/disabler** (`.modal__section-title--toggle`): same `<legend>`, preceded by a checkbox forming a row (`display:flex; align-items:center; gap:0.5rem`, like `.modal__field--checkbox` but acting as a section title). Controls whether the whole section is active: unchecked, the rest of the fields (`.modal__section--disabled`) are shown disabled (`opacity: 0.5; pointer-events: none`, plus `disabled` on each input from JS) without losing already-entered values; checked, they are enabled again as they were.
 - `.modal__section--untitled`: same `<fieldset>`/CSS with no `<legend>`, for a group that needs the same frame but has no name of its own.
 
-### 12.6.1 Number + button that opens a separate modal
+### Number + button that opens a separate modal
 
 Pattern for potentially long read-only lists inside a section of the properties modal: a numeric counter (e.g. "5") followed by a button that opens an independent modal with the full list, avoiding letting the section's height get out of hand if there are many elements.
 
-- A `.{block}-summary` block (e.g. `.component-copies-summary`) with a read row inside (`.{block}-summary__row` with `.{block}-summary__label` on the left and `.{block}-summary__value` on the right, same visual criterion as `.context-menu__info-label`/`__info-value` of §12.8 without literally reusing those classes if the block lives outside `.context-menu`), followed by a full-width button (`.{block}-summary__button` with `width: 100%`).
-- The button reuses `.btn-cancel` — the same visual exception as the "Ver contenido del mazo" button of the deck edit modal (§12.4).
+- A `.{block}-summary` block (e.g. `.component-copies-summary`) with a read row inside (`.{block}-summary__row` with `.{block}-summary__label` on the left and `.{block}-summary__value` on the right, same visual criterion as `.context-menu__info-label`/`__info-value` of "Component context menu" without literally reusing those classes if the block lives outside `.context-menu`), followed by a full-width button (`.{block}-summary__button` with `width: 100%`).
+- The button reuses `.btn-cancel` — the same visual exception as the "Ver contenido del mazo" button of the deck edit modal ("Wide modals").
 - The modal the button opens (`.{block}-modal`, e.g. `.component-copies-modal`) follows the standard `.modal` skeleton with a header, hint and content, with no special `max-width` needed (the default width `500px` is enough for id lists).
 - First use: `.component-copies-summary` → `.component-copies-modal` (`ui/componentModal.js`, "Copias" tab + `ui/componentCopiesModal.js`) for the list of copies linked to an Original. That block now lives in its own "Copias" tab of the properties modal (no longer inside the "Generales" tab). The listing modal adds a status column (`.component-copies-modal__sync--yes/--no`) to differentiate synced from unsynced copies in a row (same status pattern for future read-only lists with per-element status).
 - Any potentially long read-only list inside a section: reuse this pattern instead of unrolling it inline.
@@ -201,25 +201,25 @@ Pattern for potentially long read-only lists inside a section of the properties 
 ### Uses of the pattern
 
 - `ui/cardTextBoxModal.js` (card text box): "Borde" (en/disabler: "Activar borde" checkbox + color/thickness/line type), "Fondo" (informational: background color + a "Transparente" field checkbox — a field control, not a section one).
-- `ui/componentModal.js`, type `'tableroSimple'`: "Visual" (informational, first section of the tab: "Biselado en el borde" checkbox field checked by default, see `INDEX.md` §13; "Sombra" checkbox field checked by default, see `01-tokens-visual.md` §6), "Borde" (en/disabler: "Activar borde" checkbox + color/thickness 1–20, same pattern as `TextBox`/`Shape` — a new or old board starts with the checkbox checked), and untitled (`.modal__section--untitled`) the "Fondo" field (a selector with three options: "Color y patrón"/"Imagen"/"Color").
+- `ui/componentModal.js`, type `'tableroSimple'`: "Visual" (informational, first section of the tab: "Biselado en el borde" checkbox field checked by default, see `004-naming-and-patterns.md` (What NOT to do) and "Bevel/depth" below; "Sombra" checkbox field checked by default, see `001-tokens-visual.md` (Elevation)), "Borde" (en/disabler: "Activar borde" checkbox + color/thickness 1–20, same pattern as `TextBox`/`Shape` — a new or old board starts with the checkbox checked), and untitled (`.modal__section--untitled`) the "Fondo" field (a selector with three options: "Color y patrón"/"Imagen"/"Color").
 - `ui/componentModal.js`, type `'tableroPersonalizado'`: "Visual" (informational, same "Biselado en el borde" and "Sombra" fields as `'tableroSimple'`), followed by the "Editar diseño del tablero" button (no own `.modal__section`, a loose field).
-- `ui/boardPatternModal.js` ("Configurar fondo — Color y patrón"): two informational sections — "Configuración" (cell shape; Rows and Columns in the same row, row pattern of `INDEX.md` §8) and "Color" (background color with a "Transparente" checkbox, pattern color/thickness in the same row).
+- `ui/boardPatternModal.js` ("Configurar fondo — Color y patrón"): two informational sections — "Configuración" (cell shape; Rows and Columns in the same row, row pattern of `004-naming-and-patterns.md`, Component patterns) and "Color" (background color with a "Transparente" checkbox, pattern color/thickness in the same row).
 - `ui/boardColorModal.js` ("Configurar fondo — Color"): a third background type for `tableroSimple` alongside "Imagen"/"Color y patrón" — a single color field + a "Transparente" checkbox, no `.modal__section` (a single field).
 - `ui/cardShapeModal.js` (card geometric shape): "Borde" (en/disabler: "Activar borde" checkbox + color/thickness 1–20, no difference from `TextBox` — a new shape starts with the checkbox checked), "Fondo" (informational, same criterion as `TextBox`).
 - `ui/componentModal.js`, type `'mazo'`: "Forma" (informational: Forma, Orientación), "Cartas reveladas" (informational: Disposición carta revelada, Texto carta revelada, Revelar carta) and "Imagen" (informational: preview + Elegir/Ajustar/Quitar image).
 
 Any future group of fields with this need: reuse `.modal__section`/`.modal__section--untitled` with the corresponding title kind, instead of creating an ad-hoc frame or activation checkbox.
 
-### 12.6.1 Internal scroll zone inside a section
+### Internal scroll zone inside a section
 
 When a `.modal__section`'s content is a potentially long list (one per element of a collection that can grow, unlike a fixed group of fields like "Borde"/"Fondo"):
 
-- The list is wrapped in its own container with `max-height` + `overflow-y: auto` — an approximate cap by number of visible rows, not an exact dynamic computation (same criterion as `.element-selection-group__list`, §12.5, cap `12rem`).
+- The list is wrapped in its own container with `max-height` + `overflow-y: auto` — an approximate cap by number of visible rows, not an exact dynamic computation (same criterion as `.element-selection-group__list`, "Grouped selection list", cap `12rem`).
 - The rest of the section (title, action rows like "+ Crear...") stays **outside** that container, so it does not scroll with the list.
 - First use: `.tag-checkbox-list__scroll` in the "Etiquetas" section of `ui/componentModal.js` — cap `6.5rem` (~3 checkbox rows), the "+ Crear nueva etiqueta…" row outside the scroll zone, as a direct child of `.modal__section`, always visible.
 - Any future section with this need: reuse this pattern (a scroll container separated from a fixed action row) instead of applying `max-height`/`overflow-y` to the whole section.
 
-## 12.7 Actions dropdown menu
+## Actions dropdown menu
 
 Pattern to offer several variants of the same action from a single button, when they fit neither as modal options nor as separate buttons (`ui/resourceList.js`, `createAddMenu`):
 
@@ -233,9 +233,9 @@ Pattern to offer several variants of the same action from a single button, when 
 ### Other uses of the pattern
 
 - `ui/cardEditorModal.js`: the same classes (`resource-add`/`resource-add__button`/`resource-add__menu`/`resource-add__item`/`resource-add__item-label`) for the "Añadir elemento" button of each face of the card editor (Background image / Text box / Geometric shape) — confirms the pattern is domain-agnostic.
-- `ui/columnHeaderMenu.js` (`openColumnHeaderMenu`): the same visual language (background `var(--accent-blue-light)`, border `rgba(44, 125, 216, 0.25)`, `border-radius: var(--radius-sm)`, `box-shadow: var(--shadow-2)`, hover `var(--accent-blue)`/text `var(--text-light)`) for the sort/filter menu on clicking a column name in the Componentes/Recursos/Etiquetas panels (see `design/docs/architecture/04-modes.md`), with its own classes (`.column-header-menu`/`.column-header-menu__item`/`.column-header-menu__separator`/`.column-header-menu__filter`).
-  - Different content: two toggle-style sort rows (`.column-header-menu__item--active` on the active one, same "active option" convention as §12.10 — background `var(--accent-blue)`, text `var(--text-light)`) and, if the column is filterable, a block with a native `<select>`.
-  - **Positioning variant**: `position: fixed` inserted in `document.body`, computing the position from the clicked `<th>`'s `getBoundingClientRect()` and readjusting so it does not leave the window — the same mechanism as `.context-menu` (§12.8), because its anchor point lives inside containers with `overflow: auto`/`overflow: hidden` that would clip a `position: absolute`.
+- `ui/columnHeaderMenu.js` (`openColumnHeaderMenu`): the same visual language (background `var(--accent-blue-light)`, border `rgba(44, 125, 216, 0.25)`, `border-radius: var(--radius-sm)`, `box-shadow: var(--shadow-2)`, hover `var(--accent-blue)`/text `var(--text-light)`) for the sort/filter menu on clicking a column name in the Componentes/Recursos/Etiquetas panels (see `../architecture/005-modes.md`), with its own classes (`.column-header-menu`/`.column-header-menu__item`/`.column-header-menu__separator`/`.column-header-menu__filter`).
+  - Different content: two toggle-style sort rows (`.column-header-menu__item--active` on the active one, same "active option" convention as "Group of icon-only buttons" — background `var(--accent-blue)`, text `var(--text-light)`) and, if the column is filterable, a block with a native `<select>`.
+  - **Positioning variant**: `position: fixed` inserted in `document.body`, computing the position from the clicked `<th>`'s `getBoundingClientRect()` and readjusting so it does not leave the window — the same mechanism as `.context-menu` ("Component context menu"), because its anchor point lives inside containers with `overflow: auto`/`overflow: hidden` that would clip a `position: absolute`.
   - Same `z-index` as `.context-menu` (`1050`) for the same reason: it can open with a modal already visible behind.
   - Any interactive column always shows an indicator next to its name (`.column-header-menu__indicator`, SVG icon `currentColor`), even with the menu closed and nothing applied yet.
   - Two color states: `var(--text-muted)` by default ("available but not active"), `var(--accent-blue)` (modifier `.column-header-menu__indicator--active`) when the column has a sort and/or filter applied.
@@ -243,9 +243,9 @@ Pattern to offer several variants of the same action from a single button, when 
   - No own typeface/text content: only `border-radius` (`50%` if circular/elliptical, `0` if square), `background-color`, `border` (simple line, without the bevel reserved for `'tableroSimple'`/`'dado'` — visible only if `bordeActivo` is active).
   - Free resize on both axes with Shift forcing 1:1 (circular/elliptical type) reuses the generic behavior of `ui/resizeHandle.js` for `axis: 'both'` (the same as the "Circular" proportion of `'carta'`), with no own proportion `clamp`.
 
-## 12.8 Component context menu
+## Component context menu
 
-Pattern for the right-click menu over a component on the table (`ui/contextMenu.js`, `openContextMenu`): reuses §12.7's visual language for `.resource-add__menu` — background `var(--accent-blue-light)`, border `rgba(44, 125, 216, 0.25)`, `border-radius: var(--radius-sm)`, `box-shadow: var(--shadow-2)`, hover `var(--accent-blue)`/text `var(--text-light)` — with its own classes (`.context-menu`/`.context-menu__item`/`.context-menu__separator`) instead of `.resource-add__*`, since it does not hang off a button but is positioned next to the cursor (`position: fixed`, readjusted after insertion so it does not leave the window).
+Pattern for the right-click menu over a component on the table (`ui/contextMenu.js`, `openContextMenu`): reuses "Actions dropdown menu"'s visual language for `.resource-add__menu` — background `var(--accent-blue-light)`, border `rgba(44, 125, 216, 0.25)`, `border-radius: var(--radius-sm)`, `box-shadow: var(--shadow-2)`, hover `var(--accent-blue)`/text `var(--text-light)` — with its own classes (`.context-menu`/`.context-menu__item`/`.context-menu__separator`) instead of `.resource-add__*`, since it does not hang off a button but is positioned next to the cursor (`position: fixed`, readjusted after insertion so it does not leave the window).
 
 - Each row: icon (`.context-menu__item-icon`, 18×18px) + text (`.context-menu__item-label`), separated by `border-bottom` as in `.resource-add__item`.
 - Separator between the general and specific sections (`.context-menu__separator`, only if there is any specific action): a simple `border-top` of the same tone.
@@ -272,7 +272,7 @@ The informational section (3) does not follow the interactive pattern (icon + bl
 
 `ui/contextMenu.js` is reused in edit mode (right click on a table element), with a general Clonar/Copiar/Eliminar section (same rows with an icon) and a specific section with a single "Añadir a etiqueta" row.
 
-- That row introduces a fourth content kind, distinct from a direct-click action: a `.context-menu__select-row` block (`cursor: default`, no hover, separated by `border-bottom` like `.context-menu__item`) with a label on top (`.context-menu__select-row-label`) and a full-width native `<select>` below — same visual criterion as `.column-header-menu__filter`/`.column-header-menu__filter-label`/`.column-header-menu__filter select` (§12.7).
+- That row introduces a fourth content kind, distinct from a direct-click action: a `.context-menu__select-row` block (`cursor: default`, no hover, separated by `border-bottom` like `.context-menu__item`) with a label on top (`.context-menu__select-row-label`) and a full-width native `<select>` below — same visual criterion as `.column-header-menu__filter`/`.column-header-menu__filter-label`/`.column-header-menu__filter select` ("Actions dropdown menu").
 - Choosing a real option (not the "Elegir etiqueta…" placeholder) runs the action and closes the menu, like clicking any action row.
 - With no options available (e.g. "Añadir a etiqueta" with no tags created): the `<select>` is disabled (same `:disabled` as the rest of the controls — background `var(--border-neutral)`, `cursor: not-allowed`), shows "Sin etiquetas" instead of the usual placeholder.
 
@@ -281,27 +281,27 @@ The informational section (3) does not follow the interactive pattern (icon + bl
 `description` identifies the component the menu was opened over, computed at open time from its current state: the very first row, with its own `.context-menu__separator` always present between it and the rest of the menu (unlike the separator between the general/specific sections, this one does not depend on there being content after it).
 
 - A `.context-menu__description` block (`cursor: default`, no hover or action, column layout) with two stacked lines, distinct from the label/value row pattern of `.context-menu__info-row`:
-  - `.context-menu__description-main`: text "Type: id" (same `"<Type>: <id>"` format as §12.3), `font-weight: 600`, `color: var(--text-primary)`.
+  - `.context-menu__description-main`: text "Type: id" (same `"<Type>: <id>"` format as "Component identifier label"), `font-weight: 600`, `color: var(--text-primary)`.
   - `.context-menu__description-extra` (only if applicable): a differentiating property by component type (e.g. a die's number of faces, a board's "AAxBB" size, a deck's number of cards), `font-size: 0.75rem`, `color: var(--text-muted)`.
 - Does not reuse `.context-menu__info-*` because that family is meant for label/value pairs in a row, not this block of two stacked lines.
 
 Any future context menu: reuse this pattern instead of creating an ad-hoc one — the same criterion as `.resize-handle`, `.help-icon` or `.resource-add__menu`.
 
-## 12.9 Copy/Paste a component's style
+## Copy/Paste a component's style
 
 Pattern to copy a component's visual style and paste it onto another of the same type (`ui/componentModal.js` + `core/styleClipboard.js`, implemented today only for `'carta'`): a general app convention — if extended to other types, it must look and behave the same, changing only the checklist's element list.
 
-- **An own section in the configuration modal**: inside the type's specific tab, `fieldset.modal__section` "Estilo de \<type\>" (merely informational variant, §12.6) with a two-button row `.style-actions-row` (`display: flex; gap: 0.5rem`, each button `.btn-cancel` with `flex: 1`) — "Copiar estilo" and "Pegar estilo" — and a `p.modal__hint` below (`font-size: 0.75rem`, `color: var(--text-muted)`) explaining what is copied/pasted.
+- **An own section in the configuration modal**: inside the type's specific tab, `fieldset.modal__section` "Estilo de \<type\>" (merely informational variant, "Sections inside property tabs") with a two-button row `.style-actions-row` (`display: flex; gap: 0.5rem`, each button `.btn-cancel` with `flex: 1`) — "Copiar estilo" and "Pegar estilo" — and a `p.modal__hint` below (`font-size: 0.75rem`, `color: var(--text-muted)`) explaining what is copied/pasted.
   - "Pegar estilo" is shown `disabled` (with a `title` indicating the reason) while nothing has been copied in the session — `.btn-cancel:disabled` the same generic disabled criterion (`opacity: 0.5; cursor: not-allowed`, no `transform` on hover).
-- **Selection modal on copy**: a single fixed group (not a dynamic collection) with the BEM classes of §12.5 (`element-selection-group`/`__select-all`/`__list`/`__item`), all items checked by default, each with an optional auxiliary note on the right (`.element-selection-group__item-hint`, `font-size: 0.75rem`, `color: var(--text-muted)`, `margin-left: auto` — same criterion as `.resource-add__hint`) with that element's current value. The confirm button is disabled if no item remains checked.
-- **Copy confirmation**: `ui/toast.js` (§12.1.1 — not a modal, a brief confirmation with no detail to review) with the text "Estilo copiado".
-- **Paste error**: if something copied is no longer valid in the project (a reference to a deleted tag/resource), an error modal with a standard header (`modal__header--error`/`modal__error-icon`, §12.1) and detail in a table — reusing **as-is, with no own CSS**, `.import-report-modal`/`.import-report-modal__table` (§12.4), columns by domain (for "Copiar/Pegar estilo": Elemento/Referencia/Detalle).
+- **Selection modal on copy**: a single fixed group (not a dynamic collection) with the BEM classes of "Grouped selection list" (`element-selection-group`/`__select-all`/`__list`/`__item`), all items checked by default, each with an optional auxiliary note on the right (`.element-selection-group__item-hint`, `font-size: 0.75rem`, `color: var(--text-muted)`, `margin-left: auto` — same criterion as `.resource-add__hint`) with that element's current value. The confirm button is disabled if no item remains checked.
+- **Copy confirmation**: `ui/toast.js` ("Success modal" — not a modal, a brief confirmation with no detail to review) with the text "Estilo copiado".
+- **Paste error**: if something copied is no longer valid in the project (a reference to a deleted tag/resource), an error modal with a standard header (`modal__header--error`/`modal__error-icon`, "Error modal") and detail in a table — reusing **as-is, with no own CSS**, `.import-report-modal`/`.import-report-modal__table` ("Wide modals"), columns by domain (for "Copiar/Pegar estilo": Elemento/Referencia/Detalle).
   - All-or-nothing paste: any issue, and no change is applied to the destination.
   - Only a "Cerrar" button (no alternative "continue without that" action, unlike `ui/importConversionErrorModal.js`).
 
 Any future component type that incorporates "Copiar/Pegar estilo": reuse this same pattern (section, checklist, toast, error modal), changing only which elements appear in the checklist.
 
-## 12.10 Group of icon-only buttons: single option or combinable switches
+## Group of icon-only buttons: single option or combinable switches
 
 A shared pattern (`.align-group`/`.align-group__btn`, `ui/cardTextBoxModal.js`) to represent several icon options instead of text, in two variants with the same markup and the same visual states.
 
@@ -309,30 +309,30 @@ A shared pattern (`.align-group`/`.align-group__btn`, `ui/cardTextBoxModal.js`) 
 - At rest: background `var(--bg-subtle)`. Hover: `var(--bg-hover)`. Active option (`.align-group__btn.active`): background `var(--accent-blue)`, text/icon `var(--text-light)` — same visual language as `.modal__tab.active`, adapted to an icon-only square button.
 - **Single option** (horizontal/vertical alignment of the text within a card's `TextBox`): clicking a button updates the associated data and recomputes `active` on all buttons of the group — never more than one option active at a time.
 - **Independent, combinable switches** ("Text style": Bold/Italic/Underline of a card's `TextBox`): each button represents its own boolean and toggles only its own `active` class, without affecting the others — any number can be active at once, including none.
-- Distinct from a native `<select>` (the active option highlighted without unfolding anything) and from a checklist (§12.5, meant for longer dynamic lists, not 2-3 fixed icons).
+- Distinct from a native `<select>` (the active option highlighted without unfolding anything) and from a checklist ("Grouped selection list", meant for longer dynamic lists, not 2-3 fixed icons).
 - Any future icon-only group: reuse this pattern — the same criterion as `.resize-handle`, `.help-icon` or `.resource-add__menu`.
 
-## 12.11 Editable header title
+## Editable header title
 
 Pattern for the only in-place editable text outside a modal/form (`ui/appTitle.js`): the header `<h1>`, whose free text (everything but the version, never editable) can be edited at any time in edit mode.
 
-- **`.app-title--hoverable`** (edit mode, not editing): a modifier on the `h1` — `cursor: pointer` (convention of §12.2, no own specific cursor), a pencil icon (`.app-title__pencil`, inline SVG `stroke="currentColor"`) hidden by default (`opacity: 0`), shown only on `:hover` (`opacity: 0.85`, transition `var(--transition-fast)`) — never permanently visible (unlike the lock/hidden badges of §12.3).
+- **`.app-title--hoverable`** (edit mode, not editing): a modifier on the `h1` — `cursor: pointer` (convention of "Cursors", no own specific cursor), a pencil icon (`.app-title__pencil`, inline SVG `stroke="currentColor"`) hidden by default (`opacity: 0`), shown only on `:hover` (`opacity: 0.85`, transition `var(--transition-fast)`) — never permanently visible (unlike the lock/hidden badges of "Component identifier label").
 - **`.app-title--editing`** (edit mode, editing): replaces the text with `.app-title__input` — an `<input type="text">` with custom styling (not the generic form-field one, to keep the `h1`'s own size/typography: `font: inherit`, background `rgba(255,255,255,0.08)` over the header's dark gradient, border `2px solid var(--accent-blue)`, text `var(--text-light)`) — followed by `.app-title__version`, the version in `var(--text-muted)`, no interaction, outside the `<input>` itself.
-- In play mode, or edit mode with no active hover/editing: the `h1` carries neither class — it behaves as the generic `h1` (`01-tokens-visual.md` §3), with no special cursor or icon.
+- In play mode, or edit mode with no active hover/editing: the `h1` carries neither class — it behaves as the generic `h1` (`001-tokens-visual.md`, Typography), with no special cursor or icon.
 
 Any future title/label that needs in-place editing directly over the visible element (instead of opening a modal): reuse this criterion (discreet hover with an icon, replacement with a context-tailored `<input>`, confirmation with blur/Enter).
 
-## 12.12 Slider with magnetic marks
+## Slider with magnetic marks
 
-First use of this pattern in the project: there was no precedent of `<datalist>` or reference marks over an `<input type="range">` before `ui/rotationSlider.js` (-360° to 360° rotation control of `ui/imageAdjustModal.js`, `ui/cardShapeModal.js`, `ui/cardTextBoxModal.js` — see `design/docs/architecture/05-ui-layer.md`). The value's sign indicates the rotation direction (negative counterclockwise, positive clockwise); the track center (0°) is not at the end but roughly in the middle.
+First use of this pattern in the project: there was no precedent of `<datalist>` or reference marks over an `<input type="range">` before `ui/rotationSlider.js` (-360° to 360° rotation control of `ui/imageAdjustModal.js`, `ui/cardShapeModal.js`, `ui/cardTextBoxModal.js` — see `../architecture/006-ui-layer.md`). The value's sign indicates the rotation direction (negative counterclockwise, positive clockwise); the track center (0°) is not at the end but roughly in the middle.
 
 - A `.rotation-field` block (`div.modal__field.rotation-field`) with: `<label>`, a track (`.rotation-slider__track`) overlaying the `<input type="range">` and the visual marks (`.rotation-slider__marks` > `.rotation-slider__mark`, one per reference value), numeric labels below (`.rotation-slider__labels`) and, to the right of the track, a synced numeric field (`.rotation-slider__value` > `<input type="text">` + `<span>`) — the same slider↔text pattern as "Zoom"/"Transparencia" of `ui/imageAdjustModal.js`.
 - Active mark: `.rotation-slider__mark--active` over the mark closest to the current value, within the magnet threshold.
 - **The magnet threshold as a module constant**, not a "magic" value scattered through the code: `ROTATION_SNAP_THRESHOLD_DEG` in `ui/rotationSlider.js`. When dragging the slider, if the raw value falls within that distance of a mark, it is forced to the mark's exact value before propagating — it is not just a visual guide, it adjusts the real data.
-- It deliberately coexists with two existing quick actions on the same field (`rotation`): the context menu (§12.8) offers "Girar 90° (horario)" (+90°) and "Girar 90° (antihorario)" (-90°), both cyclic (on passing an end of the range, they wrap to the opposite end: e.g. from 360° they go to -270°), with no code relation to this slider — two editing mechanisms for the same field, one quick and cyclic, the other precise and full-range.
+- It deliberately coexists with two existing quick actions on the same field (`rotation`): the context menu ("Component context menu") offers "Girar 90° (horario)" (+90°) and "Girar 90° (antihorario)" (-90°), both cyclic (on passing an end of the range, they wrap to the opposite end: e.g. from 360° they go to -270°), with no code relation to this slider — two editing mechanisms for the same field, one quick and cyclic, the other precise and full-range.
 - Any future control that needs to "choose a value in a continuous range, with discrete references it is worth aligning to": reuse this pattern instead of a plain slider or a `<select>` of fixed values.
 
-## 12.13 Illustrative per-row icon in the "Add component" list
+## Illustrative per-row icon in the "Add component" list
 
 `.component-type-modal__icon` (`ui/componentTypeModal.js`): an illustrative icon of the component type in each row of the "Add component" modal's list, between the `<input type="radio">` and the label's `<span>` (row order: radio, icon, text).
 
@@ -342,6 +342,97 @@ First use of this pattern in the project: there was no precedent of `<datalist>`
   - at rest: `var(--text-muted)`.
   - row `[hover]` (`.component-type-modal__item:hover`) or a row with its radio checked (`.component-type-modal__item:has(input:checked)`): `var(--accent-blue)`.
   - Transition `color var(--transition-fast)`.
-- "Selected" state resolved with `:has(input:checked)`, not with a class added by JS — the same criterion as the only other use of `:has()` in `main.css` (`.document-viewer__content li:has(> input[type="checkbox"]:first-child)`). The `:hover` reinforces the row's already-existing border highlight (§7, `.component-type-modal__item:hover`), with no new visual pattern.
+- "Selected" state resolved with `:has(input:checked)`, not with a class added by JS — the same criterion as the only other use of `:has()` in `main.css` (`.document-viewer__content li:has(> input[type="checkbox"]:first-child)`). The `:hover` reinforces the row's already-existing border highlight (`.component-type-modal__item:hover`), with no new visual pattern.
 - Does not use `.icon-frame` (that class has no own base rule in `main.css`; its size depends on the context — toolbar, export menu). This icon sets its own `22×22px` in the block class.
-- Distinct from the icon-only button group (§12.10, `.align-group`): there each icon **is** the clickable control; here the icon is purely illustrative inside a `<label>` whose real control is the radio.
+- Distinct from the icon-only button group ("Group of icon-only buttons", `.align-group`): there each icon **is** the clickable control; here the icon is purely illustrative inside a `<label>` whose real control is the radio.
+
+## Bevel/depth — "Tablero simple", "Tablero personalizado", "Dado"
+
+Complementary to their contact shadow.
+
+- `'tableroSimple'` (`ui/componentRenderer.js`): simulates relief on the border by splitting the chosen color into two tones (lighter top/left, darker bottom/right), computed with `shadeColor` (`core/colorUtils.js`). No shadow or gradient — the contact shadow (`.board`, level 1) is a separate CSS `box-shadow`, not computed by this helper.
+- `'dado'` (`ui/componentRenderer.js`, `renderDiceSilhouette`): draws only the main silhouette, a thin outline and internal faceting lines (4/8/9+ results), all with `shadeColor` — it no longer draws depth as a duplicated SVG polygon. `'dado'`'s depth/extrusion becomes "one more type" of the general property `profundidad`/`colorExtrusion` (see "Configurable extrusion", `001-tokens-visual.md`, Elevation), applied as stacked `filter: drop-shadow` over the `.dice` container. Its contact shadow (`.dice`) still uses `filter: drop-shadow` (non-rectangular silhouette), independent of the extrusion.
+- `'tableroPersonalizado'`: same two-tone criterion as `'tableroSimple'` (`.tablero-personalizado`, same level-1 shadow).
+  - Difference from "Carta" (they share the same visual editor `ui/visualEditorModal.js` but not this treatment): parameter `borderStyle: 'bisel'` reuses `shadeColor` for the design canvas border, instead of the simple border of `'carta'` (`borderStyle: 'simple'`).
+- Technique scoped to these three types — not applied to any other type without an explicit decision.
+- In `'tableroSimple'` and `'tableroPersonalizado'` (not in `'dado'`, always beveled) the bevel is optional: property `biselado` (boolean, `true` by default), "Biselado en el borde" checkbox in the "Visual" section (informational, first of the specific-properties tab, see "Sections inside property tabs" above).
+  - Unchecked: paints the same `bordeColor` on all four sides without splitting into two tones (does not omit the property).
+  - Points where it is applied: the table (`ui/componentRenderer.js`, both types) and, for `'tableroPersonalizado'`, the canvas preview in the Visual editor (`ui/visualEditorModal.js`, parameter `bevelEnabled` of `openVisualEditorModal`, read once on opening the editor).
+
+## Rounded corners of "Carta"
+
+- `'carta'` (`ui/componentRenderer.js`, `.carta` in `main.css`) uses `var(--radius-lg)` as the base in the CSS class — the same radius as "highlighted containers" (`.modal`, floating panels). Not a special value.
+- For the five rectangular/square proportions: `8px` (`var(--radius-lg)`) is the default result of the `esquinasRedondeadas` property (boolean; see `../architecture/003-component-types.md`, type `'carta'`), applied as an inline style (`getCartaShapeCss`, `core/cardProportions.js`) — priority over the class.
+- "Esquinas redondeadas" checkbox (`ui/visualEditorModal.js`, toolbar next to the Proporción selector, visible only if `showProporcionSelector` is `true`, i.e. only for `'carta'`) unchecked → `border-radius: 0`.
+- Circular and Hexagonal are unaffected: they keep a fixed clip (`50%`/`clip-path`).
+- Reuses `.modal__field--checkbox` as-is (the same pattern as "Bloqueado"/"Oculto" in `ui/componentModal.js`) — no new visual pattern.
+- A card also carries a level-1 contact shadow (like the rest of the game pieces), unaffected by this property.
+
+## "Mazo" reuses the `.carta` class
+
+- `'mazo'` (`ui/componentRenderer.js`): no new BEM block for its box — being visually "a face-down card", it reuses `.carta` as-is (same `--radius-lg`, same level-1 shadow, same `--selectable`/`--selected`/`--movable` modifiers).
+  - It only adds `.mazo--clickable` ("draw a card" cursor, equivalent to `.carta--clickable`/`.dice--clickable`).
+- `.mazo-reveal-zone` ("reveal zone"): an own block, does not share a look with `.carta` — a box with a dashed border `var(--border-neutral)`, text `var(--text-muted)`, `pointer-events: none`. The same neutral tone as a read-only informational row (`.context-menu__info-row`, see "Component context menu" above).
+- `.btn-sacar` (`ui/mazoContentModal.js`): a standalone button that does not hang off any existing BEM block (historical exception, see `004-naming-and-patterns.md`, Class naming).
+
+## Circular shape of "Mazo"
+
+- The `forma` property of `'mazo'` sets `border-radius: 50%` inline when it is `'circular'` — priority over the class `.carta`'s `var(--radius-lg)`. The same mechanism as the `'circular'` proportion of "Carta", not a new exception.
+- Applied to the deck box and to its inner clipped content (back of the top card, or "empty deck" icon).
+- Contact shadow: no special treatment (unlike "Carta"'s hexagonal silhouettes) — `box-shadow` already follows the element's `border-radius`, projects a circular shadow automatically.
+- `.mazo-reveal-zone` adopts the same criterion: `border-radius: 50%` inline if the deck is circular, instead of the default `var(--radius-sm)`.
+
+## Card thumbnail in the "Deck content" modal
+
+- `.mazo-contenido__thumb` (`ui/mazoContentModal.js`, block `.mazo-contenido__item`): an adjustable thumbnail of each card's front face in the "Ver contenido del mazo" modal's list (source: the deck's context menu in play mode or the deck's tab in edit mode).
+  - Dimensions: the card's real width and height, scaled proportionally to fit within a maximum `THUMB_MAX_WIDTH` × `THUMB_MAX_HEIGHT` (42 × 58 pixels).
+  - Shape: reuses `getCartaShapeCss` (`core/cardProportions.js`) to apply the same `border-radius` and `clip-path` as the real card by its `proporcion` (rectangular with rounded corners by default, circular, hexagonal, triangular).
+  - Border: a neutral decorative "slot" border (`1px solid var(--border-neutral)`) only in rectangular/square proportions (where `clip-path: 'none'`). In hexagonal and triangular proportions (`clip-path` active) it is omitted, because CSS `border` does not follow the clipped silhouette — consistent with the real card on the table also not simulating a uniform-thickness border in those proportions (that two-nested-layer mechanism belongs to the card's choosable-color border, not applicable here).
+
+## Hexagonal clip of "Carta"
+
+- Proportions `'hex-vertical'`/`'hex-horizontal'`: do not use `var(--radius-lg)` or `border-radius: 50%` — clip with `clip-path` (exact regular-hexagon polygon, sharp vertices with no bevel or rounding). The only way to achieve a straight-edged silhouette.
+- Applied at three points: card on the table (play/edit), each face's canvas in the card editor, image-adjust mask.
+- Contact shadow: cannot be `box-shadow` (it would follow the rectangular box, not the hexagon) — uses `filter: drop-shadow` (class `.carta--hex`), the same criterion as `.dice`.
+
+**Border in hexagonal proportions.**
+
+- The border also cannot be painted with the CSS `border` property (always parallel to the rectangular box; clipping with `clip-path` cuts through the border at an angle instead of following the edges).
+- Fix (`ui/componentRenderer.js`, `ui/visualEditorModal.js`): two nested, concentric `clip-path` layers.
+  - Outer layer: filled with the border color, clipped with the full hexagon.
+  - Inner layer: content (image, text boxes), clipped with a smaller hexagon.
+  - The gap between the two = border, uniform thickness.
+- The inner hexagon is computed with `getHexInnerClipPath` (`core/cardProportions.js`): these proportions' `ratio` always forces a regular hexagon, so shifting the six edges inward by a constant distance is equivalent to scaling the vertices from the center by a factor obtained from the apothem (`width/2` in `'hex-vertical'`, `height/2` in `'hex-horizontal'`).
+- Technique scoped to these two proportions — the rest keep using normal CSS `border` (box and visible silhouette coincide).
+
+## Triangular clip and border of "Carta"
+
+- Proportions `'triangulo'`/`'triangulo-invertido'`: same mechanism as the hexagonal ones.
+  - Clip with `clip-path` (straight-edged silhouette, not a strictly equilateral triangle — it occupies the full width and height of the square box, see `../architecture/003-component-types.md`).
+  - Contact shadow with `filter: drop-shadow` (shared class `.carta--hex, .carta--triangle` in `main.css` — same reason: a non-rectangular silhouette cannot project a `box-shadow`).
+  - Border via two nested `clip-path` layers.
+- Technical difference: computing the inner clip.
+  - Regular hexagon: the incenter coincides with the box center (`50%, 50%`), inradius = half the side.
+  - This triangle: the incenter is **not** at the box center. `getTriangleInnerClipPath` (`core/cardProportions.js`, sibling of `getHexInnerClipPath`, not a generalization) scales from the real incenter of each variant (`TRIANGLE_GEOMETRY`, standard incenter/inradius formulas from the vertices).
+
+## Drop-zone highlight on a deck — "Mazo" during a card drag
+
+Transient state while a card (or a cards-only selection, in edit mode) is dragged over a deck.
+
+- Transient state `.drop-target` (`src/styles/main.css`), added/removed by `ui/componentRenderer.js` (`updateMazoDropHighlight`/`clearMazoDropHighlight`) on the `'mazo'` element.
+- Applies in both modes (play and edit) equally — it lives in the shared render point (`renderComponentsOnTable`).
+- Trigger: when the dragged card's rectangle overlaps a deck (same overlap criterion as the insertion drag&drop). Highlighted only if the dragged selection contains cards only (in play mode it is always a single card, in edit mode it can be a multi-selection if all are cards; if the selection mixes component types, nothing is highlighted).
+- Solid blue outline + halo (`outline: 3px solid var(--accent-blue)` + `box-shadow` with `var(--accent-blue-light)`) — visually distinct from the dashed selection outline (`.carta--selected`, `dashed`), so as not to confuse the "drop zone" semantics with "selected element".
+- Always removed on mouse release, whether or not the card is inserted into the deck — the table is fully redrawn if the insertion runs anyway.
+
+## "Carta" flip feedback
+
+A second transient state distinct from `.lifted` (see `001-tokens-visual.md`, "'Lift' effect on dragging in play mode").
+
+- State `.carta--flip-feedback` (`src/styles/main.css`): visually confirms a card changed face (click on `'carta'` in play mode, `onCartaFlip`).
+- Unlike `.lifted`, it is not added/removed from the drag code (`mousedown`/`mousemove`/`mouseup`).
+  - `ui/componentRenderer.js` detects the flip by data diff: it compares each card's current `caraActual` against the last seen, in an own module `Map` (`lastCaraById`), unrelated to any drag state.
+  - It is applied/removed on creating the node in each render, with its own `setTimeout` (`flipFeedbackTimeouts`) — needed because `onCartaFlip` triggers a synchronous re-render that already destroyed the original node before any added class could be seen.
+- Applies a vertical offset + a slight scale (`transform: translate(0, -6px) scale(1.03)`) alongside `box-shadow: var(--shadow-2)`, transitioning with `var(--transition-fast)` like `.lifted`.
+- Does not replace or reuse `.lifted`: independent states, no shared variables or code paths, do not coexist in practice (a click without a drag never activates the lift).
+- Does not reopen the general ban on complex animations: no `@keyframes` or narrative animations.
