@@ -6,6 +6,7 @@ import { getResources } from '../core/state.js';
 import { openBoardImageModal } from './boardImageModal.js';
 import { openImageAdjustModal } from './imageAdjustModal.js';
 import { createRotationSliderField } from './rotationSlider.js';
+import { t } from '../core/i18n.js';
 
 export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   const overlay = document.createElement('div');
@@ -16,7 +17,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Editar figura';
+  header.textContent = t('cardShape.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -45,17 +46,17 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   const SHAPE_TYPE_OPTIONS = [
     {
       value: 'circular',
-      label: 'Círculo / elipse',
+      label: t('option.cardShapeType.circulo'),
       icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="7"/></svg>',
     },
     {
       value: 'cuadrada',
-      label: 'Cuadrado',
+      label: t('option.cardShapeType.cuadrado'),
       icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="13" height="13"/></svg>',
     },
     {
       value: 'redondeada',
-      label: 'Rectángulo redondeado',
+      label: t('option.cardShapeType.redondeado'),
       icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="13" height="13" rx="4"/></svg>',
     },
   ];
@@ -63,7 +64,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   const typeField = document.createElement('div');
   typeField.className = 'modal__field';
   const typeLabel = document.createElement('label');
-  typeLabel.textContent = 'Tipo de figura';
+  typeLabel.textContent = t('cardShape.typeLabel');
   typeField.appendChild(typeLabel);
 
   const typeGroup = document.createElement('div');
@@ -98,13 +99,13 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   bgSection.className = 'modal__section';
   const bgLegend = document.createElement('legend');
   bgLegend.className = 'modal__section-title';
-  bgLegend.textContent = 'Fondo';
+  bgLegend.textContent = t('cardShape.bgLegend');
   bgSection.appendChild(bgLegend);
 
   const bgTypeField = document.createElement('div');
   bgTypeField.className = 'modal__field';
   const bgTypeLabel = document.createElement('label');
-  bgTypeLabel.textContent = 'Tipo de fondo';
+  bgTypeLabel.textContent = t('cardShape.bgTypeLabel');
   const bgTypeRow = document.createElement('div');
   bgTypeRow.style.display = 'flex';
   bgTypeRow.style.gap = '0.5rem';
@@ -114,8 +115,8 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   bgTypeSelect.style.flex = '0 1 auto';
   bgTypeSelect.style.width = '9rem';
   const bgTypeOptions = [
-    { value: 'color', label: 'Color' },
-    { value: 'imagen', label: 'Imagen' },
+    { value: 'color', label: t('option.cardShape.color') },
+    { value: 'imagen', label: t('option.cardShape.imagen') },
   ];
   for (const { value, label } of bgTypeOptions) {
     const option = document.createElement('option');
@@ -138,7 +139,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   const bgColorField = document.createElement('div');
   bgColorField.className = 'modal__field';
   const bgColorLabel = document.createElement('label');
-  bgColorLabel.textContent = 'Color de fondo';
+  bgColorLabel.textContent = t('cardShape.bgColorLabel');
   const bgColorContainer = document.createElement('div');
   bgColorContainer.style.display = 'flex';
   bgColorContainer.style.gap = '0.5rem';
@@ -153,13 +154,13 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   bgTransparentCheckbox.checked = !working.colorFondo;
 
   const bgTransparentLabel = document.createElement('label');
-  bgTransparentLabel.textContent = 'Transparente';
+  bgTransparentLabel.textContent = t('common.transparent');
   bgTransparentLabel.style.margin = 0;
 
   const bgOpacityField = document.createElement('div');
   bgOpacityField.className = 'modal__field';
   const bgOpacityLabel = document.createElement('label');
-  bgOpacityLabel.textContent = 'Nivel de transparencia';
+  bgOpacityLabel.textContent = t('cardShape.bgOpacityLabel');
 
   const bgOpacitySlider = document.createElement('input');
   bgOpacitySlider.type = 'range';
@@ -267,12 +268,12 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   const chooseImageBtn = document.createElement('button');
   chooseImageBtn.type = 'button';
   chooseImageBtn.className = 'btn-cancel';
-  chooseImageBtn.textContent = 'Elegir imagen…';
+  chooseImageBtn.textContent = t('cardShape.chooseImage');
   chooseImageBtn.addEventListener('click', () => {
     openBoardImageModal({
       properties: working,
       resources: getResources(),
-      title: 'Elegir imagen',
+      title: t('common.chooseImage'),
       onAccept: (resourceId) => {
         working.imagenResourceId = resourceId;
         working.ajusteImagen = { zoom: 100, posX: 50, posY: 50 };
@@ -285,7 +286,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   const adjustImageBtn = document.createElement('button');
   adjustImageBtn.type = 'button';
   adjustImageBtn.className = 'btn-cancel';
-  adjustImageBtn.textContent = 'Ajustar imagen…';
+  adjustImageBtn.textContent = t('cardShape.adjustImage');
   adjustImageBtn.addEventListener('click', () => {
     const resource = working.imagenResourceId ? getResources().find((r) => r.id === working.imagenResourceId) : null;
     if (!resource) return;
@@ -337,7 +338,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   borderActiveCheckbox.type = 'checkbox';
   borderActiveCheckbox.checked = working.bordeActivo;
   borderLegend.appendChild(borderActiveCheckbox);
-  borderLegend.appendChild(document.createTextNode('Borde'));
+  borderLegend.appendChild(document.createTextNode(t('common.border')));
   borderSection.appendChild(borderLegend);
 
   const borderRow = document.createElement('div');
@@ -349,7 +350,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   const borderColorField = document.createElement('div');
   borderColorField.style.flex = '1';
   const borderColorLabel = document.createElement('label');
-  borderColorLabel.textContent = 'Color del borde';
+  borderColorLabel.textContent = t('cardShape.borderColorLabel');
   const borderColorInput = document.createElement('input');
   borderColorInput.type = 'color';
   borderColorInput.value = working.bordeColor;
@@ -362,7 +363,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   const borderWidthField = document.createElement('div');
   borderWidthField.style.flex = '1';
   const borderWidthLabel = document.createElement('label');
-  borderWidthLabel.textContent = 'Grosor (px)';
+  borderWidthLabel.textContent = t('cardShape.borderWidthLabel');
   const borderWidthInput = document.createElement('input');
   borderWidthInput.type = 'number';
   borderWidthInput.min = 1;
@@ -396,7 +397,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
 
   const deleteBtn = document.createElement('button');
   deleteBtn.className = 'btn-eliminar';
-  deleteBtn.textContent = 'Eliminar';
+  deleteBtn.textContent = t('common.delete');
   deleteBtn.addEventListener('click', () => {
     if (onDelete) onDelete();
     overlay.remove();
@@ -405,7 +406,7 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
 
   const duplicateBtn = document.createElement('button');
   duplicateBtn.className = 'btn-duplicate';
-  duplicateBtn.textContent = 'Duplicar';
+  duplicateBtn.textContent = t('common.duplicate');
   duplicateBtn.addEventListener('click', () => {
     if (onDuplicate) onDuplicate(working);
     overlay.remove();
@@ -414,13 +415,13 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(cancelBtn);
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
   acceptBtn.addEventListener('click', () => {
     if (onAccept) onAccept(working);
     overlay.remove();

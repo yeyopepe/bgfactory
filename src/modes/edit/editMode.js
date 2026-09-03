@@ -33,6 +33,7 @@ import { openContextMenu } from '../../ui/contextMenu.js';
 import { showToast } from '../../ui/toast.js';
 import { runWithProgressModal } from '../../ui/progressModal.js';
 import { sortByName } from '../../core/textSort.js';
+import { t } from '../../core/i18n.js';
 
 // Iconos del menú contextual de elemento. Mismo patrón que playMode.js: SVGs 24x24
 // locales, sin fichero de iconos compartido en el proyecto.
@@ -143,7 +144,7 @@ function attemptDeleteComponents(components) {
   if (components.length === 0) return;
   if (components.length === 1) {
     const component = components[0];
-    if (confirm(`¿Eliminar el componente "${component.id}"?`)) {
+    if (confirm(t('confirm.deleteComponent', { id: component.id }))) {
       removeComponent(component.id);
       selectedComponentIds.delete(component.id);
       primarySelectedIds.delete(component.id);
@@ -295,7 +296,7 @@ export function renderEditMode(container) {
     if (!file) return;
     const type = resourceTypeForFileName(file.name);
     if (!type) {
-      showErrorModal('Error', 'Formato de fichero no soportado.');
+      showErrorModal(t('error.generic.title'), t('error.unsupportedFileFormat'));
       return;
     }
     const name = file.name.replace(/\.[^.]+$/, '');
@@ -324,7 +325,7 @@ export function renderEditMode(container) {
     }
 
     if (validFiles.length === 0 && warnIfNoneValid) {
-      showErrorModal('Aviso', 'No se ha encontrado ningún recurso válido en la carpeta seleccionada.');
+      showErrorModal(t('error.notice.title'), t('error.noValidResourceInFolder'));
       return;
     }
 
@@ -397,10 +398,10 @@ export function renderEditMode(container) {
   function attemptDeleteResource(resource) {
     const usedByIds = getComponentsUsingResource(resource.id, getComponents());
     if (usedByIds.length > 0) {
-      showErrorModal('Error', `El recurso "${resource.name}" está en uso por: ${usedByIds.join(', ')} y no se puede eliminar.`);
+      showErrorModal(t('error.generic.title'), t('error.resourceInUse', { name: resource.name, ids: usedByIds.join(', ') }));
       return false;
     }
-    if (!confirm(`¿Eliminar el recurso "${resource.name}"?`)) return false;
+    if (!confirm(t('confirm.deleteResource', { name: resource.name }))) return false;
     removeResource(resource.id);
     return true;
   }
@@ -414,7 +415,7 @@ export function renderEditMode(container) {
           .map((id) => getComponents().find((c) => c.id === id))
           .filter(Boolean)
           .map((c) => ({ id: c.id, type: c.type })),
-        ...affectedGroupIds.map((id) => ({ id, type: 'Grupo' })),
+        ...affectedGroupIds.map((id) => ({ id, type: t('componentList.groupRowType') })),
       ];
       openTagDeleteConfirmModal({
         tagName: tag.name,
@@ -434,7 +435,7 @@ export function renderEditMode(container) {
       });
       return false;
     }
-    if (!confirm(`¿Eliminar la etiqueta "${tag.name}"?`)) return false;
+    if (!confirm(t('confirm.deleteTag', { name: tag.name }))) return false;
     removeTag(tag.id);
     return true;
   }
@@ -612,7 +613,7 @@ export function renderEditMode(container) {
     const generalItems = [
       {
         icon: createHiddenIcon(),
-        label: (selectedGroup ? selectedGroup.oculto : affectedComponents.every((c) => c.oculto)) ? 'Mostrar' : 'Ocultar',
+        label: (selectedGroup ? selectedGroup.oculto : affectedComponents.every((c) => c.oculto)) ? t('menu.show') : t('menu.hide'),
         onClick: () => {
           if (selectedGroup) {
             replaceGroup(selectedGroup.id, updateGroup(selectedGroup, { oculto: !selectedGroup.oculto }));
@@ -628,7 +629,7 @@ export function renderEditMode(container) {
       },
       {
         icon: createCloneIcon(),
-        label: 'Clonar',
+        label: t('contextMenu.clone'),
         disabled: cloneables.length === 0,
         onClick: () => {
           for (const c of cloneables) {
@@ -638,7 +639,7 @@ export function renderEditMode(container) {
       },
       {
         icon: createCopyIcon(),
-        label: 'Copiar',
+        label: t('contextMenu.copy'),
         disabled: cloneables.length === 0,
         onClick: () => {
           for (const c of cloneables) {
@@ -648,16 +649,16 @@ export function renderEditMode(container) {
       },
       {
         icon: createRemoveIcon(),
-        label: 'Eliminar',
+        label: t('contextMenu.delete'),
         onClick: () => attemptDeleteComponents(affectedComponents),
       },
       {
         icon: createGroupIcon(),
-        label: 'Agrupar',
+        label: t('contextMenu.group'),
         disabled: !canGroup,
         onClick: () => {
           const count = affectedComponents.length;
-          const text = `Agrupando ${count} elemento${count === 1 ? '' : 's'}…`;
+          const text = t('progress.grouping', { count });
           runWithProgressModal(text, () => {
             const newGroupId = nextGroupId(getComponents());
             const minOrder = Math.min(...affectedComponents.map((c) => c.order));
@@ -671,12 +672,12 @@ export function renderEditMode(container) {
       },
       {
         icon: createUngroupIcon(),
-        label: 'Desagrupar',
+        label: t('contextMenu.ungroup'),
         disabled: !canUngroup,
         onClick: () => {
           const groupId = selectedGroup?.id;
           const count = affectedComponents.length;
-          const text = `Desagrupando ${count} elemento${count === 1 ? '' : 's'}…`;
+          const text = t('progress.ungrouping', { count });
           runWithProgressModal(text, () => {
             for (const c of affectedComponents) {
               replaceComponent(c.id, updateComponent(c, { groupId: null }));
@@ -692,7 +693,7 @@ export function renderEditMode(container) {
     const specificItems = [
       ...(allCartas ? [{
         icon: createFlipIcon(),
-        label: 'Voltear carta',
+        label: t('menu.flipCard'),
         onClick: () => {
           for (const c of affectedComponents) {
             const caraActual = c.properties?.caraActual === 'frontal' ? 'frontal' : 'trasera';
@@ -702,22 +703,22 @@ export function renderEditMode(container) {
         },
       }] : []),
       {
-        label: 'Añadir a etiqueta',
+        label: t('contextMenu.addToTag'),
         select: {
-          options: sortByName(getTags()).map((t) => ({ value: t.id, label: t.name })),
+          options: sortByName(getTags()).map((tag) => ({ value: tag.id, label: tag.name })),
           onChange: (tagId) => {
             if (selectedGroup) {
               if (!selectedGroup.etiquetaIds.includes(tagId)) {
                 replaceGroup(selectedGroup.id, updateGroup(selectedGroup, { etiquetaIds: [...selectedGroup.etiquetaIds, tagId] }));
               }
-              showToast('Etiqueta añadida');
+              showToast(t('toast.tagAdded'));
               return;
             }
             for (const c of affectedComponents) {
               if (c.etiquetaIds.includes(tagId)) continue;
               replaceComponent(c.id, updateComponent(c, { etiquetaIds: [...c.etiquetaIds, tagId] }));
             }
-            showToast('Etiqueta añadida');
+            showToast(t('toast.tagAdded'));
           },
         },
       },
@@ -770,7 +771,7 @@ export function renderEditMode(container) {
 
         if (dropTarget) {
           const count = dropTarget.groupComponents.length;
-          const text = `Añadiendo ${count} carta${count === 1 ? '' : 's'} al mazo…`;
+          const text = t('progress.addingToMazo', { count });
           runWithProgressModal(text, () => {
             applyPositions();
             insertCardsIntoMazo(dropTarget.mazo, dropTarget.groupComponents);
@@ -811,7 +812,7 @@ export function renderEditMode(container) {
         const first = getComponents().find((comp) => comp.id === memberIds[0]);
         const groupId = first?.groupId;
         const count = memberIds.length;
-        const text = `Desagrupando ${count} elemento${count === 1 ? '' : 's'}…`;
+        const text = t('progress.ungrouping', { count });
         runWithProgressModal(text, () => {
           for (const id of memberIds) {
             const c = getComponents().find((comp) => comp.id === id);

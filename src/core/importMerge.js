@@ -7,6 +7,7 @@
 
 import { createTag, isTagNameTaken } from './tag.js';
 import { normalizeComponentEtiquetaIds } from './component.js';
+import { t } from './i18n.js';
 
 const RESOURCE_REF_KEYS = new Set(['imagenResourceId', 'fuenteResourceId']);
 
@@ -219,7 +220,7 @@ export function mergeImportedGame({
   for (const rename of tagRenames) {
     report.push({
       tipoError: 'etiquetaDuplicada',
-      solucion: 'Se renombró la etiqueta importada para evitar un nombre duplicado',
+      solucion: t('importReport.solution.tagRenamed'),
       elemento: rename.newName,
     });
   }
@@ -236,7 +237,7 @@ export function mergeImportedGame({
         report.push({
           componentId: component.id,
           tipoError: 'recurso',
-          solucion: 'Se añadió el componente sin ese recurso',
+          solucion: t('importReport.solution.componentWithoutResource'),
           elemento: findNameById(ref.value, allImportedResources),
         });
       }
@@ -258,7 +259,7 @@ export function mergeImportedGame({
         changed = true;
         report.push({
           tipoError: 'etiquetaDuplicada',
-          solucion: 'Se vinculó a una etiqueta ya existente con el mismo nombre en vez de crear una duplicada',
+          solucion: t('importReport.solution.tagLinkedToExisting'),
           elemento: candidateName,
         });
       } else {
@@ -269,7 +270,7 @@ export function mergeImportedGame({
         report.push({
           componentId: component.id,
           tipoError: 'etiqueta',
-          solucion: 'Se creó la etiqueta automáticamente',
+          solucion: t('importReport.solution.tagAutoCreated'),
           elemento: candidateName,
         });
       }

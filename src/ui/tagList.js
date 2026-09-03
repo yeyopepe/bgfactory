@@ -9,6 +9,7 @@ import { attachColumnMenu } from './tableColumnMenu.js';
 import { getComponentsUsingTag } from '../core/tag.js';
 import { getGroupsUsingTag } from '../core/group.js';
 import { sortByName, compareValues } from '../core/textSort.js';
+import { t } from '../core/i18n.js';
 
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
@@ -60,7 +61,7 @@ function renderBody(body, tags, components, groups, { onEdit, onRemove, onSelect
 
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
-  const headLabels = { nombre: 'Nombre', elementos: 'Elementos', acciones: 'Acciones' };
+  const headLabels = { nombre: t('common.name'), elementos: t('tagList.col.elementos'), acciones: t('common.actions') };
   for (const key of TAG_LIST_COLUMNS) {
     const th = document.createElement('th');
     th.dataset.col = key;
@@ -80,10 +81,10 @@ function renderBody(body, tags, components, groups, { onEdit, onRemove, onSelect
     emptyCell.colSpan = TAG_LIST_COLUMNS.length;
     if (!hasActiveFilter) {
       emptyCell.className = 'tag-list__empty';
-      emptyCell.textContent = 'No hay etiquetas todavía.';
+      emptyCell.textContent = t('tagList.empty');
     } else {
       emptyCell.className = 'tag-list__empty-filter';
-      emptyCell.textContent = `No hay etiquetas que coincidan con «${filterText}».`;
+      emptyCell.textContent = t('tagList.emptyFilter', { filter: filterText });
     }
     emptyRow.appendChild(emptyCell);
     tbody.appendChild(emptyRow);
@@ -113,7 +114,7 @@ function renderBody(body, tags, components, groups, { onEdit, onRemove, onSelect
       const editButton = document.createElement('button');
       editButton.type = 'button';
       editButton.className = 'tag-list__action-btn';
-      editButton.textContent = 'Editar';
+      editButton.textContent = t('common.edit');
       editButton.addEventListener('click', (event) => {
         event.stopPropagation();
         onEdit(tag);
@@ -125,7 +126,7 @@ function renderBody(body, tags, components, groups, { onEdit, onRemove, onSelect
       const removeButton = document.createElement('button');
       removeButton.type = 'button';
       removeButton.className = 'tag-list__action-btn tag-list__action-btn--danger';
-      removeButton.textContent = 'Eliminar';
+      removeButton.textContent = t('common.delete');
       removeButton.addEventListener('click', (event) => {
         event.stopPropagation();
         onRemove(tag);
@@ -183,7 +184,7 @@ export function renderTagList(
   header.className = 'tag-panel__header';
 
   const title = document.createElement('strong');
-  title.textContent = `Etiquetas (${tags.length})`;
+  title.textContent = t('tagList.title', { count: tags.length });
   header.appendChild(title);
 
   const toggleButton = document.createElement('button');
@@ -264,7 +265,7 @@ export function renderTagList(
 
     function rerenderBody() {
       const displayed = computeDisplayedTags();
-      title.textContent = `Etiquetas (${displayed.length})`;
+      title.textContent = t('tagList.title', { count: displayed.length });
       renderBody(body, displayed, components, groups, bodyOptions);
     }
 
@@ -274,7 +275,7 @@ export function renderTagList(
 
       const filterInput = document.createElement('input');
       filterInput.type = 'text';
-      filterInput.placeholder = 'Filtrar etiquetas…';
+      filterInput.placeholder = t('tagList.filterPlaceholder');
       filterInput.value = filterText;
       filterInput.addEventListener('input', () => {
         filterText = filterInput.value;
@@ -286,8 +287,8 @@ export function renderTagList(
       const clearBtn = document.createElement('button');
       clearBtn.type = 'button';
       clearBtn.className = 'tag-panel__filter-clear';
-      clearBtn.title = 'Limpiar búsqueda';
-      clearBtn.setAttribute('aria-label', 'Limpiar búsqueda');
+      clearBtn.title = t('common.clearSearch');
+      clearBtn.setAttribute('aria-label', t('common.clearSearch'));
       clearBtn.innerHTML = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 6l12 12" stroke-linecap="round"/>
@@ -327,7 +328,7 @@ export function renderTagList(
 
     const addButton = document.createElement('button');
     addButton.type = 'button';
-    addButton.textContent = '+ Añadir etiqueta';
+    addButton.textContent = t('tagList.add');
     addButton.addEventListener('click', () => {
       if (onAdd) onAdd();
     });

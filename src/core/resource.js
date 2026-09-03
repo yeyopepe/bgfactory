@@ -2,6 +2,8 @@
 // Análogo a component.js: entidad con id, tipo y los datos del fichero
 // embebidos como data URI (autocontenido, igual que el resto del estado).
 
+import { getLocale } from './i18n.js';
+
 export const RESOURCE_TYPES = { IMAGE: 'imagen', FONT: 'tipografia' };
 
 const EXTENSION_TYPE_MAP = {
@@ -38,8 +40,9 @@ export function updateResource(resource, changes) {
 }
 
 // Insensible a mayúsculas/tildes (mismo criterio que textSort.js#sortByName).
+// El locale sigue al idioma activo.
 export function findResourceByName(name, resources) {
-  return resources.find((r) => r.name.localeCompare(name, 'es', { sensitivity: 'base' }) === 0) ?? null;
+  return resources.find((r) => r.name.localeCompare(name, getLocale(), { sensitivity: 'base' }) === 0) ?? null;
 }
 
 // Recorre objetos/arrays anidados (p.ej. caras de carta, cuadros de texto)

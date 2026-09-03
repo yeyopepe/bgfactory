@@ -2,6 +2,7 @@
 // Mismo patrón que ui/tagDeleteConfirmModal.js: enumera elementos afectados (id + tipo) antes de confirmar.
 
 import { getComponentTypeLabel } from './componentTypeModal.js';
+import { t } from '../core/i18n.js';
 
 export function openBulkDeleteConfirmModal({ components, onConfirm }) {
   const overlay = document.createElement('div');
@@ -12,14 +13,14 @@ export function openBulkDeleteConfirmModal({ components, onConfirm }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = `Eliminar ${components.length} componentes`;
+  header.textContent = t('bulkDelete.title', { count: components.length });
   modal.appendChild(header);
 
   const content = document.createElement('div');
   content.className = 'modal__content';
 
   const message = document.createElement('p');
-  message.textContent = 'Se van a eliminar los siguientes elementos:';
+  message.textContent = t('bulkDelete.message');
   content.appendChild(message);
 
   const list = document.createElement('ul');
@@ -38,13 +39,13 @@ export function openBulkDeleteConfirmModal({ components, onConfirm }) {
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(cancelBtn);
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
   acceptBtn.addEventListener('click', () => {
     onConfirm();
     overlay.remove();

@@ -23,6 +23,7 @@ import { openMazoContentModal } from './mazoContentModal.js';
 import { openComponentCopiesModal } from './componentCopiesModal.js';
 import { getInteractionsForType, isInteractionActive } from '../core/interactions.js';
 import { sortByName } from '../core/textSort.js';
+import { t } from '../core/i18n.js';
 
 const DEFAULT_BOARD_SIZE = 200;
 const DEFAULT_TABLERO_PERSONALIZADO_WIDTH = 300;
@@ -72,26 +73,28 @@ function getEffectiveSize(component) {
   return { width: Math.round(width), height: Math.round(height) };
 }
 
+// `label` como getter: se resuelve con t() en cada lectura (cada apertura de
+// modal), de modo que sigue el idioma activo sin recrear el array.
 export const MAZO_ORIENTACIONES = [
-  { value: 'vertical', label: 'Vertical' },
-  { value: 'horizontal', label: 'Horizontal' },
+  { value: 'vertical', get label() { return t('option.orientacion.vertical'); } },
+  { value: 'horizontal', get label() { return t('option.orientacion.horizontal'); } },
 ];
 
 export const MAZO_FORMAS = [
-  { value: 'rectangular', label: 'Rectangular' },
-  { value: 'circular', label: 'Circular' },
+  { value: 'rectangular', get label() { return t('option.forma.rectangular'); } },
+  { value: 'circular', get label() { return t('option.forma.circular'); } },
 ];
 
 export const MAZO_DISPOSICIONES = [
-  { value: 'arriba', label: 'Arriba' },
-  { value: 'abajo', label: 'Abajo' },
-  { value: 'derecha', label: 'Derecha' },
-  { value: 'izquierda', label: 'Izquierda' },
+  { value: 'arriba', get label() { return t('option.disposicion.arriba'); } },
+  { value: 'abajo', get label() { return t('option.disposicion.abajo'); } },
+  { value: 'derecha', get label() { return t('option.disposicion.derecha'); } },
+  { value: 'izquierda', get label() { return t('option.disposicion.izquierda'); } },
 ];
 
 export const MAZO_REVELAR_CARA = [
-  { value: 'frontal', label: 'Boca arriba' },
-  { value: 'trasera', label: 'Boca abajo' },
+  { value: 'frontal', get label() { return t('option.revelarCara.frontal'); } },
+  { value: 'trasera', get label() { return t('option.revelarCara.trasera'); } },
 ];
 
 export const DEFAULT_BOARD_PROPERTIES = {
@@ -157,7 +160,9 @@ export const DEFAULT_MAZO_PROPERTIES = {
   orientacion: 'vertical',
   forma: 'rectangular',
   disposicion: 'derecha',
-  textoCartaRevelada: 'Carta revelada',
+  // Getter: al spread ({ ...DEFAULT_MAZO_PROPERTIES }) se resuelve con el idioma
+  // activo en ese momento y queda como cadena concreta en el componente nuevo.
+  get textoCartaRevelada() { return t('mazo.revealZone.default'); },
   caraCartaRevelada: 'frontal',
   imagenResourceId: null,
 };
@@ -277,7 +282,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = component ? 'Editar propiedades del componente' : 'Crear componente';
+  header.textContent = component ? t('componentModal.propsTitle') : t('componentModal.createTitle');
   modal.appendChild(header);
 
   const tabs = document.createElement('div');
@@ -327,18 +332,18 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   }
 
   // General tab: id field with validation
-  createTab('general', 'Generales');
+  createTab('general', t('componentModal.tab.general'));
   const generalContent = tabContents.get('general').content;
 
   // Visual tab: tamaño, profundidad/color de extrusión, y secciones específicas de aspecto
   // trasladadas desde "Específicas" (ver renderSpecificTab más abajo).
-  createTab('visual', 'Visuales');
+  createTab('visual', t('componentModal.tab.visual'));
   const visualContent = tabContents.get('visual').content;
 
   const idField = document.createElement('div');
   idField.className = 'modal__field';
   const idLabel = document.createElement('label');
-  idLabel.textContent = 'ID del componente';
+  idLabel.textContent = t('componentModal.idLabel');
   const idInput = document.createElement('input');
   idInput.type = 'text';
   idInput.value = workingComponent.id;
@@ -357,7 +362,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   infoSection.className = 'modal__section';
   const infoLegend = document.createElement('legend');
   infoLegend.className = 'modal__section-title';
-  infoLegend.textContent = 'General';
+  infoLegend.textContent = t('common.general');
   infoSection.appendChild(infoLegend);
 
   // Tamaño: alto/ancho editables directamente, con checkbox "Mantener proporción". No se escribe en
@@ -370,7 +375,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   sizeSection.className = 'modal__section';
   const sizeLegend = document.createElement('legend');
   sizeLegend.className = 'modal__section-title';
-  sizeLegend.textContent = 'Tamaño';
+  sizeLegend.textContent = t('componentModal.sizeLegend');
   sizeSection.appendChild(sizeLegend);
 
   const sizeRow = document.createElement('div');
@@ -381,7 +386,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   heightField.className = 'modal__field';
   heightField.style.flex = '1';
   const heightLabel = document.createElement('label');
-  heightLabel.textContent = 'Alto (px)';
+  heightLabel.textContent = t('componentModal.heightLabel');
   const heightInput = document.createElement('input');
   heightInput.type = 'number';
   heightInput.min = '1';
@@ -393,7 +398,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   widthField.className = 'modal__field';
   widthField.style.flex = '1';
   const widthLabel = document.createElement('label');
-  widthLabel.textContent = 'Ancho (px)';
+  widthLabel.textContent = t('componentModal.widthLabel');
   const widthInput = document.createElement('input');
   widthInput.type = 'number';
   widthInput.min = '1';
@@ -415,7 +420,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   keepRatioCheckbox.type = 'checkbox';
   keepRatioCheckbox.checked = true;
   const keepRatioLabel = document.createElement('label');
-  keepRatioLabel.textContent = 'Mantener proporción';
+  keepRatioLabel.textContent = t('componentModal.keepRatio');
   keepRatioField.appendChild(keepRatioCheckbox);
   keepRatioField.appendChild(keepRatioLabel);
   sizeSection.appendChild(keepRatioField);
@@ -460,14 +465,14 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   moveLabelRow.style.gap = '0.35rem';
   moveLabelRow.style.marginBottom = '0.25rem';
   const moveLabel = document.createElement('label');
-  moveLabel.textContent = 'Bloqueado';
+  moveLabel.textContent = t('componentModal.locked');
   moveLabel.style.marginBottom = '0';
   const moveSelect = document.createElement('select');
 
   const BLOQUEADO_OPTIONS = [
-    { value: 'ninguno', label: 'Ninguno' },
-    { value: 'juego', label: 'Solo modo juego' },
-    { value: 'todos', label: 'Todos los modos' },
+    { value: 'ninguno', label: t('option.bloqueado.ninguno') },
+    { value: 'juego', label: t('option.bloqueado.juego') },
+    { value: 'todos', label: t('option.bloqueado.todos') },
   ];
   for (const { value, label } of BLOQUEADO_OPTIONS) {
     const option = document.createElement('option');
@@ -483,8 +488,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
   moveLabelRow.appendChild(moveLabel);
   moveLabelRow.appendChild(createHelpIcon({
-    text: 'Indica en qué modo(s) este componente no se puede mover. \'Todos los modos\' lo fija también en Modo Edición; \'Solo modo juego\' lo fija únicamente durante la partida (comportamiento por defecto anterior); \'Ninguno\' permite arrastrarlo libremente en ambos.',
-  }));
+    text: t('help.lockedField'),  }));
   moveField.appendChild(moveLabelRow);
   moveField.appendChild(moveSelect);
   infoSection.appendChild(moveField);
@@ -495,7 +499,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   hiddenCheckbox.type = 'checkbox';
   hiddenCheckbox.checked = workingComponent.oculto ?? false;
   const hiddenLabel = document.createElement('label');
-  hiddenLabel.textContent = 'Oculto';
+  hiddenLabel.textContent = t('componentModal.hidden');
 
   hiddenCheckbox.addEventListener('change', () => {
     workingComponent.oculto = hiddenCheckbox.checked;
@@ -504,8 +508,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   hiddenField.appendChild(hiddenCheckbox);
   hiddenField.appendChild(hiddenLabel);
   hiddenField.appendChild(createHelpIcon({
-    text: 'Si está marcado, este componente deja de aparecer por completo en Modo Juego (no se ve, no ocupa espacio, no es interactuable). En Modo Edición se sigue mostrando con normalidad, con una insignia que indica que no aparecerá en la partida.',
-  }));
+    text: t('help.hiddenField'),  }));
   infoSection.appendChild(hiddenField);
 
   const upOnMoveField = document.createElement('div');
@@ -514,7 +517,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   upOnMoveCheckbox.type = 'checkbox';
   upOnMoveCheckbox.checked = workingComponent.subirAlMoverInteractuar ?? false;
   const upOnMoveLabel = document.createElement('label');
-  upOnMoveLabel.textContent = 'Subir al mover/interactuar';
+  upOnMoveLabel.textContent = t('componentModal.raiseOnMove');
 
   upOnMoveCheckbox.addEventListener('change', () => {
     workingComponent.subirAlMoverInteractuar = upOnMoveCheckbox.checked;
@@ -523,8 +526,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   upOnMoveField.appendChild(upOnMoveCheckbox);
   upOnMoveField.appendChild(upOnMoveLabel);
   upOnMoveField.appendChild(createHelpIcon({
-    text: 'Si está marcado, este componente se coloca automáticamente encima de todos los demás cada vez que se mueve o se interactúa con él (voltear, lanzar) en Modo Juego.',
-  }));
+    text: t('help.raiseOnMove'),  }));
   infoSection.appendChild(upOnMoveField);
 
   // Ayuda jugador: sección propia (antes el checkbox "Mostrar tooltip" vivía en "General") con el
@@ -533,7 +535,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   helpSection.className = 'modal__section';
   const helpLegend = document.createElement('legend');
   helpLegend.className = 'modal__section-title';
-  helpLegend.textContent = 'Ayuda jugador';
+  helpLegend.textContent = t('componentModal.playerHelp');
   helpSection.appendChild(helpLegend);
 
   // Título de componente (00212): checkbox + botón que abre una sub-modal con el contenido,
@@ -544,7 +546,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   titleCheckbox.type = 'checkbox';
   titleCheckbox.checked = workingComponent.mostrarTitulo ?? false;
   const titleLabel = document.createElement('label');
-  titleLabel.textContent = 'Mostrar título de componente';
+  titleLabel.textContent = t('componentModal.showTitle');
 
   titleCheckbox.addEventListener('change', () => {
     workingComponent.mostrarTitulo = titleCheckbox.checked;
@@ -553,8 +555,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   titleField.appendChild(titleCheckbox);
   titleField.appendChild(titleLabel);
   titleField.appendChild(createHelpIcon({
-    text: 'Si está marcado, este componente muestra una etiqueta en su esquina superior izquierda en Modo Juego, con el contenido y colores configurados en "Editar título de componente…".',
-  }));
+    text: t('help.showTitle'),  }));
   helpSection.appendChild(titleField);
 
   const titleEditField = document.createElement('div');
@@ -563,7 +564,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   const titleEditBtn = document.createElement('button');
   titleEditBtn.type = 'button';
   titleEditBtn.className = 'btn-cancel';
-  titleEditBtn.textContent = 'Editar título de componente…';
+  titleEditBtn.textContent = t('componentModal.editTitle');
   titleEditBtn.addEventListener('click', () => {
     openComponentTitleModal({
       titulo: {
@@ -593,7 +594,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   tooltipCheckbox.type = 'checkbox';
   tooltipCheckbox.checked = workingComponent.mostrarTooltip ?? false;
   const tooltipLabel = document.createElement('label');
-  tooltipLabel.textContent = 'Mostrar ayuda';
+  tooltipLabel.textContent = t('componentModal.showTooltip');
 
   tooltipCheckbox.addEventListener('change', () => {
     workingComponent.mostrarTooltip = tooltipCheckbox.checked;
@@ -603,8 +604,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   tooltipField.appendChild(tooltipCheckbox);
   tooltipField.appendChild(tooltipLabel);
   tooltipField.appendChild(createHelpIcon({
-    text: 'Si está marcado, este componente muestra una ayuda al pasar el ratón por encima en Modo Juego: el texto de \'Ayuda\' si tiene contenido, o su identificador si está vacío.',
-  }));
+    text: t('help.showTooltip'),  }));
   helpSection.appendChild(tooltipField);
 
   const tooltipTextoField = document.createElement('div');
@@ -614,12 +614,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   tooltipTextoLabelRow.style.alignItems = 'center';
   tooltipTextoLabelRow.style.gap = '0.35rem';
   const tooltipTextoLabel = document.createElement('label');
-  tooltipTextoLabel.textContent = 'Ayuda';
+  tooltipTextoLabel.textContent = t('componentModal.tooltipText');
   tooltipTextoLabel.style.marginBottom = '0';
   tooltipTextoLabelRow.appendChild(tooltipTextoLabel);
   tooltipTextoLabelRow.appendChild(createHelpIcon({
-    text: 'Texto que verá el jugador como ayuda. Admite varias líneas, etiquetas HTML básicas: <b>/<strong> (negrita), <i>/<em> (cursiva), <u> (subrayado), <br> (salto de línea), <ul>/<ol>/<li> (listas), y variables como {cards_current} (nº de cartas actual, solo en "Mazo"). Si se deja vacío, se usa el identificador del componente.',
-  }));
+    text: t('help.playerHelpText'),  }));
   const tooltipTextarea = document.createElement('textarea');
   tooltipTextarea.value = workingComponent.tooltipTexto ?? '';
   tooltipTextarea.disabled = !tooltipCheckbox.checked;
@@ -641,7 +640,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   dadoStyleSection.className = 'modal__section';
   const dadoStyleLegend = document.createElement('legend');
   dadoStyleLegend.className = 'modal__section-title';
-  dadoStyleLegend.textContent = 'Estilo';
+  dadoStyleLegend.textContent = t('componentModal.styleLegend');
   dadoStyleSection.appendChild(dadoStyleLegend);
   if (workingComponent.type === 'dado') {
     visualContent.appendChild(dadoStyleSection);
@@ -659,12 +658,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     extrusionLegend.style.display = 'flex';
     extrusionLegend.style.alignItems = 'center';
     extrusionLegend.style.gap = '0.35rem';
-    extrusionLegend.appendChild(document.createTextNode('Extrusión'));
+    extrusionLegend.appendChild(document.createTextNode(t('componentModal.borderLegend.extrusion')));
     extrusionLegend.appendChild(createHelpIcon({
-      text: 'La extrusión no tiene ningún efecto visual en componentes de tipo \'Texto\', tenga o no tenga color de fondo configurado.',
-    }));
+      text: t('help.extrusionNoEffectOnText'),    }));
   } else {
-    extrusionLegend.textContent = 'Extrusión';
+    extrusionLegend.textContent = t('componentModal.extrusionLegend');
   }
   extrusionSection.appendChild(extrusionLegend);
 
@@ -677,7 +675,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   const profundidadField = document.createElement('div');
   profundidadField.style.flex = '1';
   const profundidadLabel = document.createElement('label');
-  profundidadLabel.textContent = 'Profundidad (px)';
+  profundidadLabel.textContent = t('componentModal.depthLabel');
   const profundidadInput = document.createElement('input');
   profundidadInput.type = 'number';
   profundidadInput.min = 0;
@@ -694,7 +692,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   const colorExtrusionField = document.createElement('div');
   colorExtrusionField.style.flex = '1';
   const colorExtrusionLabel = document.createElement('label');
-  colorExtrusionLabel.textContent = 'Color de extrusión';
+  colorExtrusionLabel.textContent = t('componentModal.extrusionColor');
   const colorExtrusionInput = document.createElement('input');
   colorExtrusionInput.type = 'color';
   colorExtrusionInput.value = workingComponent.colorExtrusion || shadeColor(getExtrusionColorBase(workingComponent), -0.25);
@@ -717,7 +715,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   tagSection.className = 'modal__section';
   const tagLegend = document.createElement('legend');
   tagLegend.className = 'modal__section-title';
-  tagLegend.textContent = 'Etiquetas';
+  tagLegend.textContent = t('componentModal.tagsLegend');
   tagSection.appendChild(tagLegend);
 
   // Zona con scroll propio: tope de 3 checkboxes visibles a la vez, para que la sección no crezca sin
@@ -730,7 +728,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   const createTagItem = document.createElement('div');
   createTagItem.className = 'modal__field modal__field--checkbox';
   createTagItem.style.cursor = 'pointer';
-  createTagItem.textContent = '+ Crear nueva etiqueta…';
+  createTagItem.textContent = t('componentModal.createNewTag');
   createTagItem.addEventListener('click', () => {
     newTagRow.style.display = 'block';
     newTagInput.focus();
@@ -745,11 +743,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   newTagInputRow.style.gap = '0.5rem';
   const newTagInput = document.createElement('input');
   newTagInput.type = 'text';
-  newTagInput.placeholder = 'Nombre de la etiqueta nueva';
+  newTagInput.placeholder = t('componentModal.tagNamePlaceholder');
   const newTagCreateBtn = document.createElement('button');
   newTagCreateBtn.type = 'button';
   newTagCreateBtn.className = 'btn-cancel';
-  newTagCreateBtn.textContent = 'Crear';
+  newTagCreateBtn.textContent = t('common.create');
   newTagInputRow.appendChild(newTagInput);
   newTagInputRow.appendChild(newTagCreateBtn);
   const newTagError = document.createElement('div');
@@ -788,12 +786,12 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   function validateNewTagName() {
     const name = newTagInput.value.trim();
     if (!name) {
-      newTagError.textContent = 'El nombre no puede estar vacío';
+      newTagError.textContent = t('componentModal.tagNameEmpty');
       newTagError.style.display = 'block';
       return false;
     }
     if (isTagNameTaken(name, getTags())) {
-      newTagError.textContent = 'Ya existe una etiqueta con este nombre';
+      newTagError.textContent = t('componentModal.tagNameTaken');
       newTagError.style.display = 'block';
       return false;
     }
@@ -827,14 +825,19 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     interactionsSection.className = 'modal__section';
     const interactionsTitle = document.createElement('legend');
     interactionsTitle.className = 'modal__section-title';
-    interactionsTitle.textContent = 'Interacciones programadas';
+    interactionsTitle.textContent = t('componentModal.programmedInteractions');
     interactionsSection.appendChild(interactionsTitle);
 
     for (const interaction of typeInteractions) {
       const interactionField = document.createElement('div');
       interactionField.className = 'modal__field';
+      const interactionLabelRow = document.createElement('div');
+      interactionLabelRow.style.display = 'flex';
+      interactionLabelRow.style.alignItems = 'center';
+      interactionLabelRow.style.gap = '0.35rem';
       const interactionLabel = document.createElement('label');
-      interactionLabel.textContent = typeInteractions.length > 1 ? interaction.label : 'Al hacer click';
+      interactionLabel.textContent = typeInteractions.length > 1 ? interaction.label : t('componentModal.onClickLabel');
+      interactionLabel.style.marginBottom = '0';
       const interactionSelect = document.createElement('select');
 
       const activeOption = document.createElement('option');
@@ -842,7 +845,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       activeOption.textContent = interaction.label;
       const noneOption = document.createElement('option');
       noneOption.value = 'ninguna';
-      noneOption.textContent = 'Ninguna';
+      noneOption.textContent = t('common.none.f');
       interactionSelect.appendChild(activeOption);
       interactionSelect.appendChild(noneOption);
       interactionSelect.value = isInteractionActive(workingComponent, interaction.key) ? 'activa' : 'ninguna';
@@ -857,11 +860,12 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
         workingComponent.interaccionesDesactivadas = [...disabled];
       });
 
-      interactionField.appendChild(interactionLabel);
-      interactionField.appendChild(interactionSelect);
-      interactionField.appendChild(createHelpIcon({
-        text: `Si eliges "Ninguna", el click sobre este componente deja de "${interaction.label.toLowerCase()}" en Modo Juego. El resto de su comportamiento (arrastre, menú contextual...) no se ve afectado.`,
+      interactionLabelRow.appendChild(interactionLabel);
+      interactionLabelRow.appendChild(createHelpIcon({
+        text: t('componentModal.interactionHelp', { action: interaction.label.toLowerCase() }),
       }));
+      interactionField.appendChild(interactionLabelRow);
+      interactionField.appendChild(interactionSelect);
       interactionsSection.appendChild(interactionField);
     }
 
@@ -869,16 +873,21 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     // (bloquear/desbloquear + acciones específicas del tipo) existe para los 6 tipos por igual.
     const rightClickField = document.createElement('div');
     rightClickField.className = 'modal__field';
+    const rightClickLabelRow = document.createElement('div');
+    rightClickLabelRow.style.display = 'flex';
+    rightClickLabelRow.style.alignItems = 'center';
+    rightClickLabelRow.style.gap = '0.35rem';
     const rightClickLabel = document.createElement('label');
-    rightClickLabel.textContent = 'Click derecho';
+    rightClickLabel.textContent = t('componentModal.rightClickLabel');
+    rightClickLabel.style.marginBottom = '0';
     const rightClickSelect = document.createElement('select');
 
     const noneRightClickOption = document.createElement('option');
     noneRightClickOption.value = 'ninguno';
-    noneRightClickOption.textContent = 'Ninguno';
+    noneRightClickOption.textContent = t('common.none.m');
     const contextMenuOption = document.createElement('option');
     contextMenuOption.value = 'menuContextual';
-    contextMenuOption.textContent = 'Abrir menú contextual';
+    contextMenuOption.textContent = t('componentModal.rightClick.openContextMenu');
     rightClickSelect.appendChild(noneRightClickOption);
     rightClickSelect.appendChild(contextMenuOption);
     rightClickSelect.value = workingComponent.accionClickDerecho;
@@ -887,11 +896,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       workingComponent.accionClickDerecho = rightClickSelect.value;
     });
 
-    rightClickField.appendChild(rightClickLabel);
+    rightClickLabelRow.appendChild(rightClickLabel);
+    rightClickLabelRow.appendChild(createHelpIcon({
+      text: t('help.rightClickNone'),    }));
+    rightClickField.appendChild(rightClickLabelRow);
     rightClickField.appendChild(rightClickSelect);
-    rightClickField.appendChild(createHelpIcon({
-      text: 'Si eliges "Ninguno", el click derecho sobre este componente no hace nada en Modo Juego (no se puede bloquear/desbloquear ni acceder a sus acciones específicas desde ahí). El resto de interacciones no se ven afectadas.',
-    }));
     interactionsSection.appendChild(rightClickField);
 
     generalContent.appendChild(interactionsSection);
@@ -900,7 +909,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   function validateId() {
     const newId = idInput.value.trim();
     if (!newId) {
-      idError.textContent = 'El ID no puede estar vacío';
+      idError.textContent = t('componentModal.idEmpty');
       idError.style.display = 'block';
       return false;
     }
@@ -908,7 +917,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       (c) => c.id === newId && c.id !== (component?.id ?? '')
     );
     if (isDuplicate) {
-      idError.textContent = 'Ya existe otro componente con este ID';
+      idError.textContent = t('componentModal.idTaken');
       idError.style.display = 'block';
       return false;
     }
@@ -933,11 +942,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   });
 
   // Specific tab: type-specific fields
-  createTab('specific', 'Específicas');
+  createTab('specific', t('componentModal.tab.specific'));
   const specificContent = tabContents.get('specific').content;
 
   // Copias tab: linked copies and sync actions
-  createTab('copias', 'Copias');
+  createTab('copias', t('componentModal.tab.copias'));
   const copiasContent = tabContents.get('copias').content;
 
   // Populate copias tab
@@ -947,7 +956,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     if (linkedCopies.length === 0) {
       const emptyMsg = document.createElement('div');
       emptyMsg.className = 'component-copies-tab__empty';
-      emptyMsg.textContent = 'Este objeto no tiene copias.';
+      emptyMsg.textContent = t('componentModal.noCopies');
       copiasContent.appendChild(emptyMsg);
     } else {
       const copiesSummary = document.createElement('div');
@@ -958,7 +967,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
       const label = document.createElement('span');
       label.className = 'component-copies-summary__label';
-      label.textContent = `Copias: ${linkedCopies.length}`;
+      label.textContent = t('componentModal.copiesCount', { count: linkedCopies.length });
       row.appendChild(label);
 
       copiesSummary.appendChild(row);
@@ -966,7 +975,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       const button = document.createElement('button');
       button.className = 'btn-cancel component-copies-summary__button';
       button.type = 'button';
-      button.textContent = 'Ver copias vinculadas...';
+      button.textContent = t('componentModal.viewLinkedCopies');
       button.addEventListener('click', () => {
         openComponentCopiesModal({ originalId: workingComponent.id });
       });
@@ -977,15 +986,15 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       const syncAllBtn = document.createElement('button');
       syncAllBtn.className = 'btn-accept';
       syncAllBtn.type = 'button';
-      syncAllBtn.textContent = 'Sincronizar todas las copias';
+      syncAllBtn.textContent = t('componentModal.syncAllCopies');
       syncAllBtn.style.width = '100%';
       syncAllBtn.addEventListener('click', () => {
-        if (confirm(`¿Sincronizar las ${linkedCopies.length} copias de "${workingComponent.id}"?`)) {
+        if (confirm(t('confirm.syncCopies', { count: linkedCopies.length, id: workingComponent.id }))) {
           const original = getComponents().find((c) => c.id === workingComponent.id);
           for (const copy of getComponents().filter((c) => c.copyOf === workingComponent.id)) {
             replaceComponent(copy.id, syncCopyWithOriginal({ ...copy, sincronizado: true }, original));
           }
-          showToast('Copias sincronizadas');
+          showToast(t('toast.copiesSynced'));
         }
       });
       copiasContent.appendChild(syncAllBtn);
@@ -994,7 +1003,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       desyncSection.className = 'modal__section';
       const desyncLegend = document.createElement('legend');
       desyncLegend.className = 'modal__section-title';
-      desyncLegend.textContent = 'Desincronizar todas las copias';
+      desyncLegend.textContent = t('componentModal.desyncAllCopies');
       desyncSection.appendChild(desyncLegend);
 
       const ocultoField = document.createElement('div');
@@ -1004,13 +1013,12 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       const original = getComponents().find((c) => c.id === workingComponent.id);
       ocultoCheckbox.checked = original?.oculto ?? false;
       const ocultoLabel = document.createElement('label');
-      ocultoLabel.textContent = 'Oculto';
+      ocultoLabel.textContent = t('componentModal.hidden');
 
       ocultoField.appendChild(ocultoCheckbox);
       ocultoField.appendChild(ocultoLabel);
       ocultoField.appendChild(createHelpIcon({
-        text: 'Al marcar o desmarcar, todas las copias de este objeto se desincronizan y su \'Oculto\' pasa a este valor de inmediato.',
-      }));
+        text: t('help.desyncOculto'),      }));
       desyncSection.appendChild(ocultoField);
 
       ocultoCheckbox.addEventListener('change', () => {
@@ -1018,7 +1026,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
         for (const copy of getComponents().filter((c) => c.copyOf === workingComponent.id)) {
           replaceComponent(copy.id, updateComponent(copy, { sincronizado: false, oculto: ocultoCheckbox.checked }));
         }
-        showToast('Copias desincronizadas');
+        showToast(t('toast.copiesDesynced'));
       });
 
       copiasContent.appendChild(desyncSection);
@@ -1033,7 +1041,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       const contentField = document.createElement('div');
       contentField.className = 'modal__field';
       const contentLabel = document.createElement('label');
-      contentLabel.textContent = 'Contenido';
+      contentLabel.textContent = t('common.content');
       const contentInput = document.createElement('textarea');
       contentInput.value = workingComponent.properties.contenido || '';
       contentInput.rows = 3;
@@ -1051,14 +1059,14 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       textoVisualSection.className = 'modal__section';
       const textoVisualLegend = document.createElement('legend');
       textoVisualLegend.className = 'modal__section-title';
-      textoVisualLegend.textContent = 'Visual';
+      textoVisualLegend.textContent = t('common.visual');
       textoVisualSection.appendChild(textoVisualLegend);
 
       // Font size field
       const fontSizeField = document.createElement('div');
       fontSizeField.className = 'modal__field';
       const fontSizeLabel = document.createElement('label');
-      fontSizeLabel.textContent = 'Tamaño de fuente (px)';
+      fontSizeLabel.textContent = t('componentModal.fontSizeLabel');
       const fontSizeInput = document.createElement('input');
       fontSizeInput.type = 'number';
       fontSizeInput.value = workingComponent.properties.tamañoFuente || 16;
@@ -1076,7 +1084,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       const textColorField = document.createElement('div');
       textColorField.className = 'modal__field';
       const textColorLabel = document.createElement('label');
-      textColorLabel.textContent = 'Color de texto';
+      textColorLabel.textContent = t('componentModal.textColor');
       const textColorInput = document.createElement('input');
       textColorInput.type = 'color';
       textColorInput.value = workingComponent.properties.colorTexto || '#000000';
@@ -1092,7 +1100,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       const bgColorField = document.createElement('div');
       bgColorField.className = 'modal__field';
       const bgColorLabel = document.createElement('label');
-      bgColorLabel.textContent = 'Color de fondo';
+      bgColorLabel.textContent = t('componentModal.bgColor');
       const bgColorContainer = document.createElement('div');
       bgColorContainer.style.display = 'flex';
       bgColorContainer.style.gap = '0.5rem';
@@ -1107,7 +1115,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       bgTransparentCheckbox.checked = !workingComponent.properties.colorFondo;
 
       const bgTransparentLabel = document.createElement('label');
-      bgTransparentLabel.textContent = 'Transparente';
+      bgTransparentLabel.textContent = t('common.transparent');
       bgTransparentLabel.style.margin = 0;
 
       bgColorInput.disabled = bgTransparentCheckbox.checked;
@@ -1147,7 +1155,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       renderMazoSpecificFields(specificContent, visualContent);
     } else {
       const empty = document.createElement('p');
-      empty.textContent = 'Sin propiedades específicas';
+      empty.textContent = t('componentModal.noSpecificProps');
       empty.style.color = 'var(--text-muted)';
       specificContent.appendChild(empty);
     }
@@ -1155,7 +1163,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     if (specificContent.children.length === 0) {
       const emptyState = document.createElement('p');
       emptyState.className = 'modal__empty-state';
-      emptyState.textContent = 'Este objeto no tiene propiedades';
+      emptyState.textContent = t('componentModal.noProps');
       specificContent.appendChild(emptyState);
     }
   }
@@ -1171,7 +1179,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     visualSection.className = 'modal__section';
     const visualLegend = document.createElement('legend');
     visualLegend.className = 'modal__section-title';
-    visualLegend.textContent = 'Visual';
+    visualLegend.textContent = t('common.visual');
     visualSection.appendChild(visualLegend);
 
     const biseladoField = document.createElement('div');
@@ -1185,7 +1193,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     });
     const biseladoLabel = document.createElement('label');
     biseladoLabel.htmlFor = 'board-biselado';
-    biseladoLabel.textContent = 'Biselado en el borde';
+    biseladoLabel.textContent = t('componentModal.bevel');
     biseladoField.appendChild(biseladoCheckbox);
     biseladoField.appendChild(biseladoLabel);
     visualSection.appendChild(biseladoField);
@@ -1203,7 +1211,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     });
     const sombraLabel = document.createElement('label');
     sombraLabel.htmlFor = 'board-sombra';
-    sombraLabel.textContent = 'Sombra';
+    sombraLabel.textContent = t('componentModal.shadow');
     sombraField.appendChild(sombraCheckbox);
     sombraField.appendChild(sombraLabel);
     visualSection.appendChild(sombraField);
@@ -1220,7 +1228,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     borderActiveCheckbox.type = 'checkbox';
     borderActiveCheckbox.checked = props.bordeActivo !== false;
     borderLegend.appendChild(borderActiveCheckbox);
-    borderLegend.appendChild(document.createTextNode('Borde'));
+    borderLegend.appendChild(document.createTextNode(t('common.border')));
     borderSection.appendChild(borderLegend);
 
     const borderRow = document.createElement('div');
@@ -1232,7 +1240,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const borderColorField = document.createElement('div');
     borderColorField.style.flex = '1';
     const borderColorLabel = document.createElement('label');
-    borderColorLabel.textContent = 'Color del borde';
+    borderColorLabel.textContent = t('componentModal.borderColor');
     const borderColorInput = document.createElement('input');
     borderColorInput.type = 'color';
     borderColorInput.value = props.bordeColor || DEFAULT_BOARD_PROPERTIES.bordeColor;
@@ -1245,7 +1253,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const borderWidthField = document.createElement('div');
     borderWidthField.style.flex = '1';
     const borderWidthLabel = document.createElement('label');
-    borderWidthLabel.textContent = 'Grosor';
+    borderWidthLabel.textContent = t('componentModal.borderWidth');
     const borderWidthInput = document.createElement('input');
     borderWidthInput.type = 'number';
     borderWidthInput.min = 1;
@@ -1283,7 +1291,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const bgField = document.createElement('div');
     bgField.className = 'modal__field';
     const bgLabel = document.createElement('label');
-    bgLabel.textContent = 'Fondo';
+    bgLabel.textContent = t('common.background');
     const bgRow = document.createElement('div');
     bgRow.style.display = 'flex';
     bgRow.style.gap = '0.5rem';
@@ -1293,9 +1301,9 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     bgTypeSelect.style.flex = '0 1 auto';
     bgTypeSelect.style.width = '9rem';
     const bgTypeOptions = [
-      { value: 'colorPatron', label: 'Color y patrón' },
-      { value: 'imagen', label: 'Imagen' },
-      { value: 'color', label: 'Color' },
+      { value: 'colorPatron', label: t('option.fondo.colorPatron') },
+      { value: 'imagen', label: t('option.fondo.imagen') },
+      { value: 'color', label: t('option.fondo.color') },
     ];
     for (const { value, label } of bgTypeOptions) {
       const option = document.createElement('option');
@@ -1311,7 +1319,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const configureBtn = document.createElement('button');
     configureBtn.type = 'button';
     configureBtn.className = 'btn-cancel';
-    configureBtn.textContent = 'Configurar fondo';
+    configureBtn.textContent = t('componentModal.configureBackground');
     configureBtn.addEventListener('click', () => {
       const fondoTipo = props.fondoTipo || DEFAULT_BOARD_PROPERTIES.fondoTipo;
       if (fondoTipo === 'imagen') {
@@ -1366,7 +1374,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const bodyColorField = document.createElement('div');
     bodyColorField.className = 'modal__field';
     const bodyColorLabel = document.createElement('label');
-    bodyColorLabel.textContent = 'Color del cuerpo';
+    bodyColorLabel.textContent = t('componentModal.bodyColor');
     const bodyColorInput = document.createElement('input');
     bodyColorInput.type = 'color';
     bodyColorInput.value = props.colorCuerpo || DEFAULT_DADO_PROPERTIES.colorCuerpo;
@@ -1381,7 +1389,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const numColorField = document.createElement('div');
     numColorField.className = 'modal__field';
     const numColorLabel = document.createElement('label');
-    numColorLabel.textContent = 'Color de los números';
+    numColorLabel.textContent = t('componentModal.numbersColor');
     const numColorInput = document.createElement('input');
     numColorInput.type = 'color';
     numColorInput.value = props.colorNumeros || DEFAULT_DADO_PROPERTIES.colorNumeros;
@@ -1396,11 +1404,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const modeField = document.createElement('div');
     modeField.className = 'modal__field';
     const modeLabel = document.createElement('label');
-    modeLabel.textContent = 'Configuración de caras';
+    modeLabel.textContent = t('componentModal.facesConfig');
     const modeSelect = document.createElement('select');
     const modeOptions = [
-      { value: 'numeroMaximo', label: 'Número máximo de caras' },
-      { value: 'lista', label: 'Lista de valores' },
+      { value: 'numeroMaximo', label: t('option.caras.numeroMaximo') },
+      { value: 'lista', label: t('option.caras.lista') },
     ];
     for (const { value, label } of modeOptions) {
       const option = document.createElement('option');
@@ -1417,7 +1425,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const maxField = document.createElement('div');
     maxField.className = 'modal__field';
     const maxLabel = document.createElement('label');
-    maxLabel.textContent = 'Número máximo';
+    maxLabel.textContent = t('componentModal.maxNumber');
     const maxInput = document.createElement('input');
     maxInput.type = 'number';
     maxInput.min = 2;
@@ -1438,7 +1446,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const listField = document.createElement('div');
     listField.className = 'modal__field';
     const listLabel = document.createElement('label');
-    listLabel.textContent = 'Lista de valores (separados por comas)';
+    listLabel.textContent = t('componentModal.valueList');
     const listInput = document.createElement('input');
     listInput.type = 'text';
     listInput.value = props.listaValores || '';
@@ -1449,7 +1457,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       listError.style.display = isListaValoresValida(props.listaValores) ? 'none' : 'block';
       reconcileResultado();
     });
-    listError.textContent = 'La lista necesita al menos 2 valores, y al menos uno no puede estar vacío';
+    listError.textContent = t('componentModal.valueListError');
     listError.style.display = isListaValoresValida(props.listaValores) ? 'none' : 'block';
     listField.appendChild(listLabel);
     listField.appendChild(listInput);
@@ -1473,7 +1481,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const fontField = document.createElement('div');
     fontField.className = 'modal__field';
     const fontLabel = document.createElement('label');
-    fontLabel.textContent = 'Tipo de fuente';
+    fontLabel.textContent = t('componentModal.fontTypeLabel');
     const fontRow = document.createElement('div');
     fontRow.style.display = 'flex';
     fontRow.style.gap = '0.5rem';
@@ -1483,14 +1491,14 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     fontCurrentName.style.color = 'var(--text-muted)';
     function updateFontCurrentName() {
       const resource = getResources().find((r) => r.id === props.fuenteResourceId);
-      fontCurrentName.textContent = resource ? resource.name : 'Por defecto';
+      fontCurrentName.textContent = resource ? resource.name : t('common.fontDefault');
     }
     updateFontCurrentName();
 
     const fontBtn = document.createElement('button');
     fontBtn.type = 'button';
     fontBtn.className = 'btn-cancel';
-    fontBtn.textContent = 'Elegir tipografía';
+    fontBtn.textContent = t('componentModal.chooseFont');
     fontBtn.addEventListener('click', () => {
       openDiceFontModal({
         resources: getResources(),
@@ -1516,11 +1524,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const tipoField = document.createElement('div');
     tipoField.className = 'modal__field';
     const tipoLabel = document.createElement('label');
-    tipoLabel.textContent = 'Tipo de contenido';
+    tipoLabel.textContent = t('componentModal.contentTypeLabel');
     const tipoSelect = document.createElement('select');
     const tipoOptions = [
-      { value: 'texto', label: 'Texto' },
-      { value: 'url', label: 'URL' },
+      { value: 'texto', label: t('option.tipoContenido.texto') },
+      { value: 'url', label: t('option.tipoContenido.url') },
     ];
     for (const { value, label } of tipoOptions) {
       const option = document.createElement('option');
@@ -1539,7 +1547,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const contentField = document.createElement('div');
     contentField.className = 'modal__field';
     const contentLabel = document.createElement('label');
-    contentLabel.textContent = 'Contenido';
+    contentLabel.textContent = t('common.content');
     const contentInput = document.createElement('textarea');
     contentInput.value = props.contenido || '';
     contentInput.rows = 6;
@@ -1553,11 +1561,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const formatField = document.createElement('div');
     formatField.className = 'modal__field';
     const formatLabel = document.createElement('label');
-    formatLabel.textContent = 'Formato';
+    formatLabel.textContent = t('componentModal.formatLabel');
     const formatSelect = document.createElement('select');
     const formatOptions = [
-      { value: 'markdown', label: 'Markdown' },
-      { value: 'html', label: 'HTML' },
+      { value: 'markdown', label: t('option.formato.markdown') },
+      { value: 'html', label: t('option.formato.html') },
     ];
     for (const { value, label } of formatOptions) {
       const option = document.createElement('option');
@@ -1581,7 +1589,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const urlField = document.createElement('div');
     urlField.className = 'modal__field';
     const urlLabel = document.createElement('label');
-    urlLabel.textContent = 'URL de la página';
+    urlLabel.textContent = t('componentModal.pageUrlLabel');
     const urlInput = document.createElement('input');
     urlInput.type = 'text';
     urlInput.value = props.url || '';
@@ -1620,7 +1628,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     visualSection.className = 'modal__section';
     const visualLegend = document.createElement('legend');
     visualLegend.className = 'modal__section-title';
-    visualLegend.textContent = 'Visual';
+    visualLegend.textContent = t('common.visual');
     visualSection.appendChild(visualLegend);
 
     const biseladoField = document.createElement('div');
@@ -1634,7 +1642,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     });
     const biseladoLabel = document.createElement('label');
     biseladoLabel.htmlFor = 'tablero-personalizado-biselado';
-    biseladoLabel.textContent = 'Biselado en el borde';
+    biseladoLabel.textContent = t('componentModal.bevel');
     biseladoField.appendChild(biseladoCheckbox);
     biseladoField.appendChild(biseladoLabel);
     visualSection.appendChild(biseladoField);
@@ -1651,7 +1659,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     });
     const sombraLabel = document.createElement('label');
     sombraLabel.htmlFor = 'tablero-personalizado-sombra';
-    sombraLabel.textContent = 'Sombra';
+    sombraLabel.textContent = t('componentModal.shadow');
     sombraField.appendChild(sombraCheckbox);
     sombraField.appendChild(sombraLabel);
     visualSection.appendChild(sombraField);
@@ -1663,12 +1671,12 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const editBtn = document.createElement('button');
     editBtn.type = 'button';
     editBtn.className = 'btn-cancel';
-    editBtn.textContent = 'Editar diseño del tablero';
+    editBtn.textContent = t('componentModal.editBoardDesign');
     editBtn.style.width = '100%';
     editBtn.addEventListener('click', () => {
       openVisualEditorModal({
         component: workingComponent,
-        title: 'Diseñar tablero personalizado',
+        title: t('componentModal.designBoardTitle'),
         faces: [{ key: 'cara', label: null }],
         showProporcionSelector: false,
         borderStyle: 'bisel',
@@ -1689,7 +1697,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const proporcionField = document.createElement('div');
     proporcionField.className = 'modal__field';
     const proporcionLabel = document.createElement('label');
-    proporcionLabel.textContent = 'Proporción';
+    proporcionLabel.textContent = t('componentModal.proportionLabel');
     const proporcionSelect = document.createElement('select');
     cartaProporcionSelect = proporcionSelect;
     for (const { value, label } of CARD_PROPORTIONS) {
@@ -1717,14 +1725,14 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const editBtn = document.createElement('button');
     editBtn.type = 'button';
     editBtn.className = 'btn-cancel';
-    editBtn.textContent = 'Editar diseño de la carta';
+    editBtn.textContent = t('componentModal.editCardDesign');
     editBtn.addEventListener('click', () => {
       openVisualEditorModal({
         component: workingComponent,
-        title: 'Diseñar carta',
+        title: t('componentModal.designCardTitle'),
         faces: [
-          { key: 'caraFrontal', label: 'Cara frontal' },
-          { key: 'caraTrasera', label: 'Cara trasera' },
+          { key: 'caraFrontal', label: t('option.cara.frontal') },
+          { key: 'caraTrasera', label: t('option.cara.trasera') },
         ],
         showProporcionSelector: true,
         borderStyle: 'simple',
@@ -1750,7 +1758,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     styleSection.className = 'modal__section';
     const styleLegend = document.createElement('legend');
     styleLegend.className = 'modal__section-title';
-    styleLegend.textContent = 'Estilo de la carta';
+    styleLegend.textContent = t('componentModal.cardStyleLegend');
     styleSection.appendChild(styleLegend);
 
     const styleActionsRow = document.createElement('div');
@@ -1759,7 +1767,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const copyStyleBtn = document.createElement('button');
     copyStyleBtn.type = 'button';
     copyStyleBtn.className = 'btn-cancel';
-    copyStyleBtn.textContent = 'Copiar estilo';
+    copyStyleBtn.textContent = t('componentModal.copyStyle');
     copyStyleBtn.addEventListener('click', () => {
       openStyleClipboardSelectionModal({
         component: workingComponent,
@@ -1788,7 +1796,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
           if (selection.caraFrontal) data.caraFrontal = props.caraFrontal;
           if (selection.caraTrasera) data.caraTrasera = props.caraTrasera;
           setStyleClipboard(data);
-          showToast('Estilo copiado');
+          showToast(t('toast.styleCopied'));
           pasteStyleBtn.disabled = false;
           pasteStyleBtn.title = '';
         },
@@ -1799,9 +1807,9 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const pasteStyleBtn = document.createElement('button');
     pasteStyleBtn.type = 'button';
     pasteStyleBtn.className = 'btn-cancel';
-    pasteStyleBtn.textContent = 'Pegar estilo';
+    pasteStyleBtn.textContent = t('componentModal.pasteStyle');
     pasteStyleBtn.disabled = !hasStyleClipboard();
-    pasteStyleBtn.title = hasStyleClipboard() ? '' : 'Pegar estilo (nada copiado)';
+    pasteStyleBtn.title = hasStyleClipboard() ? '' : t('componentModal.pasteStyleDisabledTitle');
     pasteStyleBtn.addEventListener('click', () => {
       const clip = getStyleClipboard();
       const incidencias = validateStyleClipboardForPaste(clip, { tags: getTags(), resources: getResources() });
@@ -1850,7 +1858,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
     const styleHint = document.createElement('p');
     styleHint.className = 'modal__hint';
-    styleHint.textContent = 'Copia/pega solo los elementos que elijas: generales (incluye la etiqueta), proporción, cara frontal y/o cara trasera.';
+    styleHint.textContent = t('componentModal.styleHint');
     styleSection.appendChild(styleHint);
 
     container.appendChild(styleSection);
@@ -1861,7 +1869,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
     const countHint = document.createElement('p');
     countHint.className = 'modal__hint';
-    countHint.textContent = `${(props.cartaIds || []).length} cartas`;
+    countHint.textContent = t('componentModal.cardsCount', { count: (props.cartaIds || []).length });
     container.appendChild(countHint);
 
     // "Forma": agrupa Forma y Orientación (§12.6 Style Bible).
@@ -1869,7 +1877,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     formaSection.className = 'modal__section';
     const formaSectionLegend = document.createElement('legend');
     formaSectionLegend.className = 'modal__section-title';
-    formaSectionLegend.textContent = 'Forma';
+    formaSectionLegend.textContent = t('componentModal.shapeLegend');
     formaSection.appendChild(formaSectionLegend);
 
     // Forma: rectangular (por defecto) o circular. Al cambiar a circular se
@@ -1880,7 +1888,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const formaField = document.createElement('div');
     formaField.className = 'modal__field';
     const formaLabel = document.createElement('label');
-    formaLabel.textContent = 'Forma';
+    formaLabel.textContent = t('componentModal.shapeLabel');
     const formaSelect = document.createElement('select');
     for (const { value, label } of MAZO_FORMAS) {
       const option = document.createElement('option');
@@ -1909,7 +1917,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     orientacionField.className = 'modal__field';
     orientacionField.style.display = (props.forma || DEFAULT_MAZO_PROPERTIES.forma) === 'circular' ? 'none' : '';
     const orientacionLabel = document.createElement('label');
-    orientacionLabel.textContent = 'Orientación';
+    orientacionLabel.textContent = t('componentModal.orientationLabel');
     const orientacionSelect = document.createElement('select');
     for (const { value, label } of MAZO_ORIENTACIONES) {
       const option = document.createElement('option');
@@ -1939,7 +1947,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     revealSection.className = 'modal__section';
     const revealLegend = document.createElement('legend');
     revealLegend.className = 'modal__section-title';
-    revealLegend.textContent = 'Cartas reveladas';
+    revealLegend.textContent = t('componentModal.revealedCardsLegend');
     revealSection.appendChild(revealLegend);
 
     // Disposición carta revelada: lado del mazo donde se pinta la zona de revelado
@@ -1949,7 +1957,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const disposicionField = document.createElement('div');
     disposicionField.className = 'modal__field';
     const disposicionLabel = document.createElement('label');
-    disposicionLabel.textContent = 'Disposición carta revelada';
+    disposicionLabel.textContent = t('componentModal.revealDisposition');
     const disposicionSelect = document.createElement('select');
     for (const { value, label } of MAZO_DISPOSICIONES) {
       const option = document.createElement('option');
@@ -1965,7 +1973,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     disposicionField.appendChild(disposicionSelect);
     const disposicionNote = document.createElement('p');
     disposicionNote.className = 'modal__hint';
-    disposicionNote.textContent = 'Lado del mazo donde aparecen las cartas al sacarlas';
+    disposicionNote.textContent = t('componentModal.revealDispositionNote');
     disposicionField.appendChild(disposicionNote);
     revealSection.appendChild(disposicionField);
 
@@ -1974,7 +1982,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const textoRevelaField = document.createElement('div');
     textoRevelaField.className = 'modal__field';
     const textoRevelaLabel = document.createElement('label');
-    textoRevelaLabel.textContent = 'Texto carta revelada';
+    textoRevelaLabel.textContent = t('componentModal.revealedCardText');
     const textoRevelaInput = document.createElement('input');
     textoRevelaInput.type = 'text';
     textoRevelaInput.value = props.textoCartaRevelada ?? DEFAULT_MAZO_PROPERTIES.textoCartaRevelada;
@@ -1991,7 +1999,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const revelarCaraField = document.createElement('div');
     revelarCaraField.className = 'modal__field';
     const revelarCaraLabel = document.createElement('label');
-    revelarCaraLabel.textContent = 'Revelar carta';
+    revelarCaraLabel.textContent = t('componentModal.revealCard');
     const revelarCaraSelect = document.createElement('select');
     for (const { value, label } of MAZO_REVELAR_CARA) {
       const option = document.createElement('option');
@@ -2016,7 +2024,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     imagenSection.className = 'modal__section';
     const imagenLegend = document.createElement('legend');
     imagenLegend.className = 'modal__section-title';
-    imagenLegend.textContent = 'Imagen';
+    imagenLegend.textContent = t('componentModal.imageLegend');
     imagenSection.appendChild(imagenLegend);
 
     const imagenField = document.createElement('div');
@@ -2047,17 +2055,17 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const chooseImageBtn = document.createElement('button');
     chooseImageBtn.type = 'button';
     chooseImageBtn.className = 'btn-cancel';
-    chooseImageBtn.textContent = 'Elegir imagen…';
+    chooseImageBtn.textContent = t('componentModal.chooseImage');
 
     const adjustImageBtn = document.createElement('button');
     adjustImageBtn.type = 'button';
     adjustImageBtn.className = 'btn-cancel';
-    adjustImageBtn.textContent = 'Ajustar imagen…';
+    adjustImageBtn.textContent = t('componentModal.adjustImage');
 
     const removeImageBtn = document.createElement('button');
     removeImageBtn.type = 'button';
     removeImageBtn.className = 'btn-cancel';
-    removeImageBtn.textContent = 'Quitar imagen';
+    removeImageBtn.textContent = t('componentModal.removeImage');
 
     function refreshImageField() {
       const resource = props.imagenResourceId ? getResources().find((r) => r.id === props.imagenResourceId) : null;
@@ -2074,7 +2082,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       openBoardImageModal({
         properties: props,
         resources: getResources(),
-        title: 'Elegir imagen',
+        title: t('common.chooseImage'),
         onAccept: (resourceId) => {
           props.imagenResourceId = resourceId;
           props.ajusteImagen = { zoom: 100, posX: 50, posY: 50 };
@@ -2126,7 +2134,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     const contentBtn = document.createElement('button');
     contentBtn.type = 'button';
     contentBtn.className = 'btn-cancel';
-    contentBtn.textContent = 'Ver contenido del mazo';
+    contentBtn.textContent = t('componentModal.viewMazoContent');
     contentBtn.style.width = '100%';
     contentBtn.addEventListener('click', () => {
       openMazoContentModal({
@@ -2148,9 +2156,9 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   if (!isNew && onDelete) {
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn-eliminar';
-    deleteBtn.textContent = 'Eliminar';
+    deleteBtn.textContent = t('common.delete');
     deleteBtn.addEventListener('click', () => {
-      if (confirm(`¿Eliminar el componente "${workingComponent.id}"?`)) {
+      if (confirm(t('confirm.deleteComponent', { id: workingComponent.id }))) {
         onDelete(component);
         overlay.remove();
       }
@@ -2160,7 +2168,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => {
     overlay.remove();
   });
@@ -2168,7 +2176,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
   acceptBtn.addEventListener('click', () => {
     if (validateId() && isDadoConfigValid()) {
       if (onAccept) {

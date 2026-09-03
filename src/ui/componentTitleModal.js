@@ -3,6 +3,7 @@
 // sobre copia de trabajo, aplica solo al Aceptar.
 
 import { createHelpIcon } from './helpIcon.js';
+import { t } from '../core/i18n.js';
 
 export function openComponentTitleModal({ titulo, onAccept }) {
   const overlay = document.createElement('div');
@@ -13,7 +14,7 @@ export function openComponentTitleModal({ titulo, onAccept }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Editar título de componente';
+  header.textContent = t('componentTitleModal.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -39,12 +40,11 @@ export function openComponentTitleModal({ titulo, onAccept }) {
   contentLabelRow.style.alignItems = 'center';
   contentLabelRow.style.gap = '0.35rem';
   const contentLabel = document.createElement('label');
-  contentLabel.textContent = 'Contenido';
+  contentLabel.textContent = t('common.content');
   contentLabel.style.marginBottom = '0';
   contentLabelRow.appendChild(contentLabel);
   contentLabelRow.appendChild(createHelpIcon({
-    text: 'Texto de la etiqueta. Admite varias líneas y etiquetas HTML básicas: <b>/<strong> (negrita), <i>/<em> (cursiva), <u> (subrayado), <br> (salto de línea), <ul>/<ol>/<li> (listas). Admite variables como {cards_current} (nº de cartas actual, solo en "Mazo") — en otros tipos se muestra literal.',
-  }));
+    text: t('help.componentTitleText'),  }));
   const contentTextarea = document.createElement('textarea');
   contentTextarea.value = working.texto;
   contentTextarea.rows = 4;
@@ -66,7 +66,7 @@ export function openComponentTitleModal({ titulo, onAccept }) {
   const textColorField = document.createElement('div');
   textColorField.style.flex = '1';
   const textColorLabel = document.createElement('label');
-  textColorLabel.textContent = 'Color del texto';
+  textColorLabel.textContent = t('componentTitleModal.textColor');
   const textColorInput = document.createElement('input');
   textColorInput.type = 'color';
   textColorInput.value = working.colorTexto;
@@ -79,7 +79,7 @@ export function openComponentTitleModal({ titulo, onAccept }) {
   const bgColorField = document.createElement('div');
   bgColorField.style.flex = '1';
   const bgColorLabel = document.createElement('label');
-  bgColorLabel.textContent = 'Color de fondo';
+  bgColorLabel.textContent = t('componentTitleModal.bgColor');
   const bgColorInput = document.createElement('input');
   bgColorInput.type = 'color';
   bgColorInput.value = working.colorFondo;
@@ -99,7 +99,7 @@ export function openComponentTitleModal({ titulo, onAccept }) {
   const opacityField = document.createElement('div');
   opacityField.className = 'modal__field';
   const opacityLabel = document.createElement('label');
-  opacityLabel.textContent = 'Transparencia del fondo';
+  opacityLabel.textContent = t('componentTitleModal.bgOpacity');
 
   const opacitySlider = document.createElement('input');
   opacitySlider.type = 'range';
@@ -144,13 +144,13 @@ export function openComponentTitleModal({ titulo, onAccept }) {
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(cancelBtn);
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
   acceptBtn.addEventListener('click', () => {
     if (onAccept) {
       onAccept({

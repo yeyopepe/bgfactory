@@ -1,5 +1,7 @@
 // Icono de ayuda contextual reutilizable ("?"): abre una modal con el texto/HTML al pulsar.
 
+import { t } from '../core/i18n.js';
+
 export function createHelpIcon({ text, html } = {}) {
   const icon = document.createElement('span');
   icon.className = 'help-icon';
@@ -33,7 +35,7 @@ function openHelpModal({ text, html }) {
   footer.className = 'modal__footer';
   const closeBtn = document.createElement('button');
   closeBtn.className = 'btn-cancel';
-  closeBtn.textContent = 'Cerrar';
+  closeBtn.textContent = t('common.close');
   closeBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(closeBtn);
   modal.appendChild(footer);

@@ -17,6 +17,27 @@ import { openImportReportModal } from './importReportModal.js';
 import { openImportConversionErrorModal } from './importConversionErrorModal.js';
 import { migrateFichaComponent } from '../core/fichaMigration.js';
 import { runWithProgressModal } from './progressModal.js';
+import { t } from '../core/i18n.js';
+import { openSettingsModal } from './settingsModal.js';
+
+// SVG (24x24) para cada botón icono-solo de la barra. Solo markup estático.
+const ICON_FIT = '<svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V5a1 1 0 0 1 1-1h4" stroke-linecap="round"/><path d="M20 9V5a1 1 0 0 0-1-1h-4" stroke-linecap="round"/><path d="M4 15v4a1 1 0 0 0 1 1h4" stroke-linecap="round"/><path d="M20 15v4a1 1 0 0 1-1 1h-4" stroke-linecap="round"/></svg>';
+const ICON_SETTINGS = '<svg class="icon-frame" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.32 2.5a1 1 0 0 0-.98.8l-.33 1.66a7.5 7.5 0 0 0-1.6.93l-1.6-.55a1 1 0 0 0-1.19.45l-1.68 2.9a1 1 0 0 0 .2 1.25l1.28 1.1a7.6 7.6 0 0 0 0 1.86l-1.27 1.1a1 1 0 0 0-.21 1.25l1.68 2.9a1 1 0 0 0 1.19.45l1.6-.55c.5.38 1.03.7 1.6.93l.33 1.66a1 1 0 0 0 .98.8h3.36a1 1 0 0 0 .98-.8l.33-1.66c.57-.24 1.1-.55 1.6-.93l1.6.55a1 1 0 0 0 1.19-.45l1.68-2.9a1 1 0 0 0-.21-1.25l-1.27-1.1c.06-.62.06-1.24 0-1.86l1.28-1.1a1 1 0 0 0 .2-1.25l-1.68-2.9a1 1 0 0 0-1.19-.45l-1.6.55a7.5 7.5 0 0 0-1.6-.93l-.33-1.66a1 1 0 0 0-.98-.8h-3.36ZM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z"/></svg>';
+const ICON_IMPORT = '<svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 15V3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_EXPORT = '<svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 15V3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_EXPORT_CHEVRON = '<svg class="icon-frame export-menu__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON_MODE_PLAY = '<svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 17l5-5-5-5" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12H9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+// Botón con un SVG + un texto (separados: el SVG en innerHTML, el texto en un span).
+function iconTextButton(svg, text) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.innerHTML = svg;
+  const span = document.createElement('span');
+  span.textContent = text;
+  button.appendChild(span);
+  return button;
+}
 
 function byIds(items, ids) {
   const idSet = new Set(ids);
@@ -44,7 +65,7 @@ function importComponentsFromFile(file) {
   reader.onload = () => {
     const result = parseImportedComponents(reader.result);
     if (result.error) {
-      showErrorModal('No se ha podido importar el fichero', 'El fichero seleccionado no contiene un listado de componentes válido.', result.detail);
+      showErrorModal(t('import.error.title'), t('import.error.body'), result.detail);
       return;
     }
 
@@ -70,7 +91,7 @@ function importComponentsFromFile(file) {
             }
 
             const proceedWithImport = (components) => {
-              runWithProgressModal('Importando…', () => {
+              runWithProgressModal(t('import.progress'), () => {
                 const { components: mergedComponents, resources, tags, report } = mergeImportedGame({
                   mode,
                   conflictMode,
@@ -128,19 +149,8 @@ function createExportMenu() {
   const wrap = document.createElement('div');
   wrap.className = 'export-menu-wrap';
 
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.innerHTML = `
-    <svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M7 10l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M12 15V3" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    Exportar
-    <svg class="icon-frame export-menu__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-      <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  `;
+  const button = iconTextButton(ICON_EXPORT, t('toolbar.export'));
+  button.insertAdjacentHTML('beforeend', ICON_EXPORT_CHEVRON);
   wrap.appendChild(button);
 
   const menu = document.createElement('div');
@@ -160,7 +170,7 @@ function createExportMenu() {
     if (soon) {
       const tag = document.createElement('span');
       tag.className = 'export-menu__soon-tag';
-      tag.textContent = 'Próximamente';
+      tag.textContent = t('common.comingSoon');
       item.appendChild(tag);
     } else {
       item.addEventListener('click', () => {
@@ -172,14 +182,14 @@ function createExportMenu() {
     menu.appendChild(item);
   }
 
-  addItem({ label: 'Exportar juego (.json)' });
+  addItem({ label: t('export.menu.gameJson') });
 
   const separator = document.createElement('div');
   separator.className = 'export-menu__separator';
   menu.appendChild(separator);
 
-  addItem({ label: 'Exportar recursos (.zip)', soon: true });
-  addItem({ label: 'Exportar hoja de producción (.csv)', soon: true });
+  addItem({ label: t('export.menu.resourcesZip'), soon: true });
+  addItem({ label: t('export.menu.productionCsv'), soon: true });
 
   wrap.appendChild(menu);
 
@@ -210,12 +220,10 @@ function createExportMenu() {
   return wrap;
 }
 
-// Controles de "Importar" (input de fichero oculto + botón) reutilizados tanto por
-// la barra del modo edición como por la barra del modo juego (#mode-switcher).
-// `buttonClassName`, si se pasa, se añade al botón para poder darle estilo propio
-// según la barra que lo aloje (en #mode-switcher hereda el azul de esa zona; en
-// .edit-toolbar mantiene el estilo transparente sin clase extra).
-function createImportControls({ buttonClassName } = {}) {
+// Controles de "Importar" (input de fichero oculto + botón). Mismo aspecto en
+// ambos modos (blanco sobre fondo oscuro): la clase .toolbar-btn--ghost la aplica
+// tanto la barra .edit-toolbar como la fila de controles de la cabecera.
+function createImportControls() {
   const fragment = document.createDocumentFragment();
 
   const importInput = document.createElement('input');
@@ -230,16 +238,7 @@ function createImportControls({ buttonClassName } = {}) {
   });
   fragment.appendChild(importInput);
 
-  const importButton = document.createElement('button');
-  if (buttonClassName) importButton.className = buttonClassName;
-  importButton.innerHTML = `
-    <svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M7 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M12 15V3" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    Importar
-  `;
+  const importButton = iconTextButton(ICON_IMPORT, t('toolbar.import'));
   importButton.addEventListener('click', () => importInput.click());
   fragment.appendChild(importButton);
 
@@ -249,37 +248,58 @@ function createImportControls({ buttonClassName } = {}) {
 function createFitButton(className) {
   const button = document.createElement('button');
   if (className) button.className = className;
-  button.title = 'Ajustar zoom para ver todos los elementos';
-  button.setAttribute('aria-label', 'Ajustar zoom');
-  button.innerHTML = `
-    <svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M4 9V5a1 1 0 0 1 1-1h4" stroke-linecap="round"/>
-      <path d="M20 9V5a1 1 0 0 0-1-1h-4" stroke-linecap="round"/>
-      <path d="M4 15v4a1 1 0 0 0 1 1h4" stroke-linecap="round"/>
-      <path d="M20 15v4a1 1 0 0 1-1 1h-4" stroke-linecap="round"/>
-    </svg>
-  `;
+  button.title = t('toolbar.fitZoom');
+  button.setAttribute('aria-label', t('toolbar.fitZoom.aria'));
+  button.innerHTML = ICON_FIT;
   button.addEventListener('click', () => fitToBounds(getComponentsBounds(getComponents())));
   return button;
 }
 
+// Botón de configuración: icono-solo 36x36, estilo blanco/negro (sin fondo azul),
+// abre el panel de configuración.
+function createSettingsButton(className) {
+  const button = document.createElement('button');
+  if (className) button.className = className;
+  button.title = t('toolbar.settings');
+  button.setAttribute('aria-label', t('toolbar.settings'));
+  button.innerHTML = ICON_SETTINGS;
+  button.addEventListener('click', () => openSettingsModal());
+  return button;
+}
+
+// Botón de cambio de modo ("Modo Edición" / "Modo Juego"), acción primaria (azul),
+// siempre en la fila de controles de la cabecera en ambos modos.
+function createModeButton() {
+  const isPlay = getState().mode === MODES.PLAY;
+  const button = isPlay
+    ? (() => { const b = document.createElement('button'); b.textContent = t('toolbar.modeEdit'); return b; })()
+    : iconTextButton(ICON_MODE_PLAY, t('toolbar.modePlay'));
+  button.className = 'mode-switcher__mode-btn';
+  button.addEventListener('click', () => setMode(isPlay ? MODES.EDIT : MODES.PLAY));
+  return button;
+}
+
+// Fila de controles de la esquina superior derecha, común a ambos modos:
+// [Importar] [Exportar] | (separador, solo en modo juego) [Modo] [Ajustar zoom] [Configuración].
+// Montada dentro de #mode-switcher (position: fixed).
 export function renderModeSwitcher(container) {
   container.innerHTML = '';
 
-  if (getState().mode !== MODES.PLAY) return;
+  const isPlay = getState().mode === MODES.PLAY;
 
-  // "Importar" a la izquierda de "Entrar en modo edición". Reutiliza el mismo
-  // flujo de importación que el modo edición; al importar desde modo juego no se
-  // llama a setMode, así que la app permanece en modo juego (loadComponents/etc.
-  // emiten sus eventos y main.js repinta renderPlayMode).
-  container.appendChild(createImportControls({ buttonClassName: 'mode-switcher__import-btn' }));
+  // En modo juego el bloque de fichero (Importar/Exportar) vive aquí; en modo
+  // edición vive en la franja .edit-toolbar, así que aquí no aparece ni el separador.
+  if (isPlay) {
+    container.appendChild(createImportControls());
+    container.appendChild(createExportMenu());
+    const divider = document.createElement('div');
+    divider.className = 'toolbar-divider';
+    container.appendChild(divider);
+  }
 
-  const button = document.createElement('button');
-  button.textContent = 'Entrar en modo edición';
-  button.addEventListener('click', () => setMode(MODES.EDIT));
-  container.appendChild(button);
-
+  container.appendChild(createModeButton());
   container.appendChild(createFitButton('mode-switcher__fit-btn'));
+  container.appendChild(createSettingsButton('mode-switcher__settings-btn'));
 }
 
 export function renderEditToolbar(container) {
@@ -302,28 +322,5 @@ export function renderEditToolbar(container) {
   exportGroup.appendChild(createExportMenu());
   toolbar.appendChild(exportGroup);
 
-  toolbar.appendChild(document.createElement('div')).className = 'toolbar-divider';
-
-  const sessionGroup = document.createElement('div');
-  sessionGroup.className = 'toolbar-group';
-
-  const exitButton = document.createElement('button');
-  exitButton.className = 'edit-toolbar__exit-btn';
-  exitButton.innerHTML = `
-    <svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M16 17l5-5-5-5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M21 12H9" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    Salir del modo edición
-  `;
-  exitButton.addEventListener('click', () => setMode(MODES.PLAY));
-  sessionGroup.appendChild(exitButton);
-  toolbar.appendChild(sessionGroup);
-
   container.appendChild(toolbar);
-
-  // Botón "Ajustar zoom" fijo en la esquina superior derecha, igual que en modo
-  // juego (misma clase); fuera de .edit-toolbar para no heredar su estilo de barra.
-  container.appendChild(createFitButton('mode-switcher__fit-btn'));
 }

@@ -8,6 +8,8 @@
 // llama decide qué hacer con esos errores — la migración silenciosa los
 // ignora, la importación los usa para poder abortar antes de aplicar nada.
 
+import { t } from './i18n.js';
+
 function defaultCaraProperties() {
   return {
     imagenResourceId: null,
@@ -32,7 +34,7 @@ function isValidAjusteImagen(value) {
 export function migrateFichaProperties(fichaProperties, componentSize) {
   const errors = [];
   const properties = fichaProperties && typeof fichaProperties === 'object' ? fichaProperties : null;
-  if (!properties) errors.push('Falta la configuración de diseño (properties)');
+  if (!properties) errors.push(t('fichaMigration.error.missingDesign'));
 
   const forma = properties?.forma;
   let proporcion;
@@ -43,7 +45,7 @@ export function migrateFichaProperties(fichaProperties, componentSize) {
   } else {
     proporcion = '1:1';
     if (properties) {
-      errors.push(forma === undefined ? 'Falta la forma de la ficha' : `Forma no reconocida ("${forma}")`);
+      errors.push(forma === undefined ? t('fichaMigration.error.missingShape') : `${t('fichaMigration.error.unknownShape')} ("${forma}")`);
     }
   }
 
@@ -62,7 +64,7 @@ export function migrateFichaProperties(fichaProperties, componentSize) {
       cara.ajusteImagen = { ...properties.ajusteImagen };
       if (typeof properties.imagenResourceId === 'string') cara.imagenResourceId = properties.imagenResourceId;
     } else {
-      errors.push('Ajuste de imagen con datos incompletos');
+      errors.push(t('fichaMigration.error.incompleteImageAdjust'));
     }
   } else if (fondoTipo === 'texto') {
     cara.textBoxes = [{

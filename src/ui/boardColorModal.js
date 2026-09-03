@@ -2,6 +2,7 @@
 // Misma estructura visual que boardImageModal.js/boardPatternModal.js (overlay/modal/header/content/footer,
 // sin tabs). A diferencia de boardPatternModal.js, sin fieldset.modal__section: un único campo, sin agrupación.
 
+import { t } from '../core/i18n.js';
 export function openBoardColorModal({ properties, onAccept }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -11,7 +12,7 @@ export function openBoardColorModal({ properties, onAccept }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Configurar fondo — Color';
+  header.textContent = t('boardColor.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -31,7 +32,7 @@ export function openBoardColorModal({ properties, onAccept }) {
   const colorField = document.createElement('div');
   colorField.className = 'modal__field';
   const colorLabel = document.createElement('label');
-  colorLabel.textContent = 'Color';
+  colorLabel.textContent = t('boardColor.colorLabel');
   const colorContainer = document.createElement('div');
   colorContainer.style.display = 'flex';
   colorContainer.style.gap = '0.5rem';
@@ -46,7 +47,7 @@ export function openBoardColorModal({ properties, onAccept }) {
   transparentCheckbox.checked = !working.colorSolido;
 
   const transparentLabel = document.createElement('label');
-  transparentLabel.textContent = 'Transparente';
+  transparentLabel.textContent = t('common.transparent');
   transparentLabel.style.margin = 0;
 
   colorInput.disabled = transparentCheckbox.checked;
@@ -69,13 +70,13 @@ export function openBoardColorModal({ properties, onAccept }) {
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(cancelBtn);
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
   acceptBtn.addEventListener('click', () => {
     if (onAccept) onAccept({ ...working });
     overlay.remove();

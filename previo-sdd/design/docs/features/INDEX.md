@@ -34,6 +34,8 @@
 - [035 — Título de componente](035-titulo-de-componente.md)
 - [036 — Contenido de ejemplo al arrancar una partida nueva](036-contenido-de-ejemplo-al-arrancar-una-partida-nueva.md)
 - [037 — Indicador de versión y enlace al repositorio](037-indicador-de-version-y-enlace-al-repositorio.md)
+- [038 — Aplicación multi-idioma y panel de configuración](038-aplicacion-multi-idioma-y-panel-de-configuracion.md)
+- [039 — Barra de controles superior: modos, importar y exportar](039-barra-de-controles-superior-modos-importar-y-exportar.md)
 
 ## Notificación de errores
 

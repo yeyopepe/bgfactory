@@ -3,6 +3,7 @@
 // vean y se comporten igual. Reutiliza el mismo patrón modal-overlay/modal
 // que ui/helpIcon.js, con un acento visual de error en la cabecera.
 
+import { t } from '../core/i18n.js';
 export function showErrorModal(title, message, detail) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -39,7 +40,7 @@ export function showErrorModal(title, message, detail) {
   footer.className = 'modal__footer';
   const closeBtn = document.createElement('button');
   closeBtn.className = 'btn-cancel';
-  closeBtn.textContent = 'Cerrar';
+  closeBtn.textContent = t('common.close');
   closeBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(closeBtn);
   modal.appendChild(footer);

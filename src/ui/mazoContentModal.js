@@ -12,6 +12,7 @@
 import { getComponents } from '../core/state.js';
 import { paintCartaFace, formatComponentIdentifier } from './componentRenderer.js';
 import { getCartaShapeCss } from '../core/cardProportions.js';
+import { t } from '../core/i18n.js';
 
 const THUMB_MAX_WIDTH = 42;
 const THUMB_MAX_HEIGHT = 58; // máximo tamaño de la miniatura de carta
@@ -25,7 +26,7 @@ export function openMazoContentModal({ mazoId, onSacar }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Contenido del mazo';
+  header.textContent = t('mazoContent.title');
   modal.appendChild(header);
 
   const hint = document.createElement('p');
@@ -49,12 +50,12 @@ export function openMazoContentModal({ mazoId, onSacar }) {
     }
 
     const cartaIds = mazo.properties?.cartaIds || [];
-    hint.textContent = `${formatComponentIdentifier(mazo)} — ${cartaIds.length} cartas`;
+    hint.textContent = t('mazoContent.hint', { id: formatComponentIdentifier(mazo), count: cartaIds.length });
 
     if (cartaIds.length === 0) {
       const empty = document.createElement('div');
       empty.className = 'mazo-contenido__empty';
-      empty.textContent = 'Este mazo no tiene cartas.';
+      empty.textContent = t('mazoContent.empty');
       content.appendChild(empty);
       return;
     }
@@ -95,7 +96,7 @@ export function openMazoContentModal({ mazoId, onSacar }) {
       const sacarBtn = document.createElement('button');
       sacarBtn.type = 'button';
       sacarBtn.className = 'btn-sacar';
-      sacarBtn.textContent = 'Sacar';
+      sacarBtn.textContent = t('mazoContent.draw');
       sacarBtn.addEventListener('click', () => {
         onSacar(cartaId);
         renderBody();
@@ -112,7 +113,7 @@ export function openMazoContentModal({ mazoId, onSacar }) {
 
   const closeBtn = document.createElement('button');
   closeBtn.className = 'btn-cancel';
-  closeBtn.textContent = 'Cerrar';
+  closeBtn.textContent = t('common.close');
   closeBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(closeBtn);
 

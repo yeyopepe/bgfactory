@@ -3,6 +3,8 @@
 // y/o por subcarpeta (recuento agregado, sin listar ficheros). Mismo esqueleto modal-overlay/modal
 // que ui/errorModal.js, variante de cabecera de éxito.
 
+import { t } from '../core/i18n.js';
+
 export function openBatchUploadSummaryModal({ added, skippedFormat = [], skippedSubfolderCount = 0 }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -18,20 +20,21 @@ export function openBatchUploadSummaryModal({ added, skippedFormat = [], skipped
   header.appendChild(icon);
   const heading = document.createElement('h2');
   heading.className = 'modal__header-title';
-  heading.textContent = 'Recursos añadidos';
+  heading.textContent = t('batchUpload.heading');
   header.appendChild(heading);
   modal.appendChild(header);
 
   const content = document.createElement('div');
   content.className = 'modal__content';
 
+  // El catálogo aporta el marcado <strong> estático; solo se interpola {count}.
   const addedLine = document.createElement('p');
-  addedLine.innerHTML = `<strong>${added}</strong> recursos añadidos correctamente`;
+  addedLine.innerHTML = t('batchUpload.added', { count: added });
   content.appendChild(addedLine);
 
   if (skippedFormat.length > 0) {
     const skippedLine = document.createElement('p');
-    skippedLine.innerHTML = `<strong>${skippedFormat.length}</strong> omitidos por formato no soportado`;
+    skippedLine.innerHTML = t('batchUpload.skippedFormat', { count: skippedFormat.length });
     content.appendChild(skippedLine);
 
     const table = document.createElement('table');
@@ -39,7 +42,7 @@ export function openBatchUploadSummaryModal({ added, skippedFormat = [], skipped
 
     const thead = document.createElement('thead');
     const headRow = document.createElement('tr');
-    for (const label of ['Fichero', 'Motivo']) {
+    for (const label of [t('batchUpload.colFichero'), t('batchUpload.colMotivo')]) {
       const th = document.createElement('th');
       th.textContent = label;
       headRow.appendChild(th);
@@ -53,7 +56,7 @@ export function openBatchUploadSummaryModal({ added, skippedFormat = [], skipped
       const nameCell = document.createElement('td');
       nameCell.textContent = name;
       const reasonCell = document.createElement('td');
-      reasonCell.textContent = 'Formato no soportado';
+      reasonCell.textContent = t('batchUpload.unsupportedFormat');
       tr.appendChild(nameCell);
       tr.appendChild(reasonCell);
       tbody.appendChild(tr);
@@ -64,7 +67,7 @@ export function openBatchUploadSummaryModal({ added, skippedFormat = [], skipped
 
   if (skippedSubfolderCount > 0) {
     const subfolderLine = document.createElement('p');
-    subfolderLine.innerHTML = `<strong>${skippedSubfolderCount}</strong> omitidos por estar dentro de una subcarpeta`;
+    subfolderLine.innerHTML = t('batchUpload.skippedSubfolder', { count: skippedSubfolderCount });
     content.appendChild(subfolderLine);
   }
 
@@ -74,7 +77,7 @@ export function openBatchUploadSummaryModal({ added, skippedFormat = [], skipped
   footer.className = 'modal__footer';
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
   acceptBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(acceptBtn);
   modal.appendChild(footer);

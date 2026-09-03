@@ -21,6 +21,7 @@ import { fontFamilyFor } from './fontFaceRegistry.js';
 import { createHelpIcon } from './helpIcon.js';
 import { openContextMenu } from './contextMenu.js';
 import { getOrderedFaceElements, bringElementToFront, sendElementToBack } from '../core/cardFaceElements.js';
+import { t } from '../core/i18n.js';
 
 const CANVAS_MAX_SIDE = 380;
 // Suelo del lado de lienzo cuando la modal se encoge al mínimo con los
@@ -183,7 +184,7 @@ function createAddElementMenu({ onAddImage, onAddColor, onAddTextBox, onAddShape
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'resource-add__button';
-  button.textContent = 'Añadir elemento ▾';
+  button.textContent = t('visualEditor.addElement');
   wrap.appendChild(button);
 
   const menu = document.createElement('div');
@@ -206,10 +207,10 @@ function createAddElementMenu({ onAddImage, onAddColor, onAddTextBox, onAddShape
     menu.appendChild(item);
   }
 
-  addItem('Imagen de fondo…', onAddImage);
-  addItem('Color de fondo…', onAddColor);
-  addItem('Cuadro de texto', onAddTextBox);
-  addItem('Figura geométrica', onAddShape);
+  addItem(t('visualEditor.addMenu.bgImage'), onAddImage);
+  addItem(t('visualEditor.addMenu.bgColor'), onAddColor);
+  addItem(t('visualEditor.addMenu.textBox'), onAddTextBox);
+  addItem(t('visualEditor.addMenu.shape'), onAddShape);
 
   wrap.appendChild(menu);
 
@@ -415,7 +416,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
   function updateMaximizeButton() {
     maximizeBtn.innerHTML = '';
     maximizeBtn.appendChild(maximized ? createRestoreIcon() : createMaximizeIcon());
-    const label = maximized ? 'Restaurar tamaño' : 'Maximizar';
+    const label = maximized ? t('visualEditor.restore') : t('visualEditor.maximize');
     maximizeBtn.title = label;
     maximizeBtn.setAttribute('aria-label', label);
   }
@@ -592,7 +593,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     const proporcionField = document.createElement('div');
     proporcionField.className = 'modal__field';
     const proporcionLabel = document.createElement('label');
-    proporcionLabel.textContent = 'Proporción';
+    proporcionLabel.textContent = t('visualEditor.proportionLabel');
     const proporcionSelect = document.createElement('select');
     for (const { value, label } of CARD_PROPORTIONS) {
       const option = document.createElement('option');
@@ -614,7 +615,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     redondeoCheckbox.id = 'card-editor-esquinas-redondeadas';
     redondeoCheckbox.checked = working.esquinasRedondeadas;
     const redondeoLabel = document.createElement('label');
-    redondeoLabel.textContent = 'Esquinas redondeadas';
+    redondeoLabel.textContent = t('visualEditor.roundedCornersLabel');
     redondeoLabel.setAttribute('for', redondeoCheckbox.id);
     redondeoCheckbox.addEventListener('change', () => {
       working.esquinasRedondeadas = redondeoCheckbox.checked;
@@ -650,7 +651,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
   const adjustImageBtn = document.createElement('button');
   adjustImageBtn.type = 'button';
   adjustImageBtn.className = 'btn-cancel card-editor-modal__adjust-image';
-  adjustImageBtn.textContent = 'Ajustar imagen…';
+  adjustImageBtn.textContent = t('visualEditor.adjustImage');
   adjustImageBtn.addEventListener('click', () => openAdjustSession());
 
   // "Lado" de lienzo efectivo del render en curso. Se calcula UNA vez por
@@ -741,7 +742,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
         const resource = cara.imagenResourceId ? getResources().find((r) => r.id === cara.imagenResourceId) : null;
         return {
           key,
-          label: label || 'Diseño',
+          label: label || t('visualEditor.faceDefault'),
           shape: faceShape,
           width: designWidth,
           height: designHeight,
@@ -809,7 +810,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     if (kind && id) {
       generalItems.push({
         icon: createCopyIcon(),
-        label: 'Copiar',
+        label: t('visualEditor.menu.copy'),
         onClick: () => {
           const collection = kind === 'forma' ? cara.formas : cara.textBoxes;
           const element = collection.find((item) => item.id === id);
@@ -822,7 +823,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
 
     generalItems.push({
       icon: createPasteIcon(),
-      label: 'Pegar',
+      label: t('visualEditor.menu.paste'),
       disabled: !copiedElement,
       onClick: () => pasteElementAt(caraKey, pastePoint),
     });
@@ -831,12 +832,12 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
       generalItems.push(
         {
           icon: createDeleteIcon(),
-          label: 'Eliminar',
+          label: t('visualEditor.menu.delete'),
           onClick: () => removeElement(caraKey, kind, id),
         },
         {
           icon: createRotateIcon(),
-          label: 'Girar 90° (horario)',
+          label: t('visualEditor.menu.rotateCW'),
           onClick: () => {
             const collection = kind === 'forma' ? cara.formas : cara.textBoxes;
             const element = collection.find((item) => item.id === id);
@@ -847,7 +848,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
         },
         {
           icon: createRotateIcon(),
-          label: 'Girar 90° (antihorario)',
+          label: t('visualEditor.menu.rotateCCW'),
           onClick: () => {
             const collection = kind === 'forma' ? cara.formas : cara.textBoxes;
             const element = collection.find((item) => item.id === id);
@@ -858,7 +859,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
         },
         {
           icon: createBringToFrontIcon(),
-          label: 'Colocar arriba',
+          label: t('visualEditor.menu.bringForward'),
           onClick: () => {
             bringElementToFront(cara, kind, id);
             renderFaces();
@@ -866,7 +867,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
         },
         {
           icon: createSendToBackIcon(),
-          label: 'Colocar abajo',
+          label: t('visualEditor.menu.sendBackward'),
           onClick: () => {
             sendElementToBack(cara, kind, id);
             renderFaces();
@@ -1020,7 +1021,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
           openBoardImageModal({
             properties: cara,
             resources: getResources(),
-            title: 'Elegir imagen',
+            title: t('common.chooseImage'),
             onAccept: (resourceId) => {
               cara.imagenResourceId = resourceId;
               cara.ajusteImagen = { zoom: 100, posX: 50, posY: 50 };
@@ -1083,7 +1084,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     // excepción de estilo inline que ya usa componentModal.js (design/docs/style/index.md).
     const borderTitle = document.createElement('p');
     borderTitle.className = 'card-editor-modal__border-title';
-    borderTitle.textContent = 'Borde';
+    borderTitle.textContent = t('visualEditor.borderTitle');
     actionsRow.appendChild(borderTitle);
 
     const borderField = document.createElement('div');
@@ -1096,7 +1097,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     const borderColorField = document.createElement('div');
     borderColorField.style.flex = '1';
     const borderColorLabel = document.createElement('label');
-    borderColorLabel.textContent = 'Color';
+    borderColorLabel.textContent = t('visualEditor.borderColorLabel');
     const borderColorInput = document.createElement('input');
     borderColorInput.type = 'color';
     borderColorInput.value = cara.bordeColor || '#000000';
@@ -1110,7 +1111,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     const borderWidthField = document.createElement('div');
     borderWidthField.style.flex = '1';
     const borderWidthLabel = document.createElement('label');
-    borderWidthLabel.textContent = 'Grosor (px)';
+    borderWidthLabel.textContent = t('visualEditor.borderWidthLabel');
     const borderWidthInput = document.createElement('input');
     borderWidthInput.type = 'number';
     borderWidthInput.min = 0;
@@ -1455,13 +1456,13 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => cleanup());
   footer.appendChild(cancelBtn);
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
   acceptBtn.addEventListener('click', () => {
     if (onAccept) {
       const result = {};

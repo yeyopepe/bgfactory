@@ -17,6 +17,10 @@
 
 - [004 — Tags, resources, ficha migration, style clipboard](004-groups-resources.md)
 
+## Internationalization
+
+- [010 — Internationalization (i18n)](010-internationalization-i18n.md)
+
 ## Modes
 
 - [005 — Play mode vs edit mode](005-modes.md)

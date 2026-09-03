@@ -3,6 +3,7 @@
 // defecto, para elegir cuáles se importan de verdad.
 
 import { createElementSelectionGroups } from './elementSelectionModal.js';
+import { t } from '../core/i18n.js';
 
 export function openImportSelectionModal({ components, resources, tags, onAccept, onCancel }) {
   const overlay = document.createElement('div');
@@ -13,7 +14,7 @@ export function openImportSelectionModal({ components, resources, tags, onAccept
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Importar — elegir elementos';
+  header.textContent = t('import.selection.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -34,7 +35,7 @@ export function openImportSelectionModal({ components, resources, tags, onAccept
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => {
     close();
     if (onCancel) onCancel();
@@ -43,7 +44,7 @@ export function openImportSelectionModal({ components, resources, tags, onAccept
 
   const continueBtn = document.createElement('button');
   continueBtn.className = 'btn-accept';
-  continueBtn.textContent = 'Continuar';
+  continueBtn.textContent = t('import.selection.continue');
   footer.appendChild(continueBtn);
 
   const { getSelection } = createElementSelectionGroups(tagsContainer, { components, resources, tags }, {

@@ -7,12 +7,13 @@
 // para heredar el mismo lenguaje visual sin duplicar CSS.
 
 import { CARD_PROPORTIONS } from '../core/cardProportions.js';
+import { t } from '../core/i18n.js';
 
 const ITEMS = [
-  { key: 'generales', label: 'Generales', hint: 'Bloqueado, tooltip, subir al interactuar, etiqueta' },
-  { key: 'proporcion', label: 'Proporción' },
-  { key: 'caraFrontal', label: 'Cara frontal' },
-  { key: 'caraTrasera', label: 'Cara trasera' },
+  { key: 'generales', get label() { return t('styleClipboardSelection.item.generales'); }, get hint() { return t('styleClipboardSelection.item.generalesHint'); } },
+  { key: 'proporcion', get label() { return t('componentModal.proportionLabel'); } },
+  { key: 'caraFrontal', get label() { return t('option.cara.frontal'); } },
+  { key: 'caraTrasera', get label() { return t('option.cara.trasera'); } },
 ];
 
 function hintFor(key, component) {
@@ -33,7 +34,7 @@ export function openStyleClipboardSelectionModal({ component, onAccept }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Copiar estilo';
+  header.textContent = t('styleClipboardSelection.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -41,7 +42,7 @@ export function openStyleClipboardSelectionModal({ component, onAccept }) {
 
   const hint = document.createElement('p');
   hint.className = 'modal__hint';
-  hint.textContent = 'Elige qué copiar. "Cara frontal" y "Cara trasera" incluyen todo su diseño (imagen, borde, transparencia y cuadros de texto).';
+  hint.textContent = t('styleClipboardSelection.hint');
   content.appendChild(hint);
 
   const group = document.createElement('div');
@@ -54,7 +55,7 @@ export function openStyleClipboardSelectionModal({ component, onAccept }) {
   selectAllCheckbox.checked = true;
   const selectAllTitle = document.createElement('span');
   selectAllTitle.className = 'element-selection-group__title';
-  selectAllTitle.textContent = 'Elementos de la carta';
+  selectAllTitle.textContent = t('styleClipboardSelection.selectAllTitle');
   selectAllRow.appendChild(selectAllCheckbox);
   selectAllRow.appendChild(selectAllTitle);
   group.appendChild(selectAllRow);
@@ -103,13 +104,13 @@ export function openStyleClipboardSelectionModal({ component, onAccept }) {
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(cancelBtn);
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Copiar';
+  acceptBtn.textContent = t('styleClipboardSelection.copy');
   acceptBtn.addEventListener('click', () => {
     const selection = {};
     for (const checkbox of itemCheckboxes) {

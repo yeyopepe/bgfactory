@@ -99,6 +99,9 @@ h1 {
   white-space: nowrap;
 }
 
+/* Fila de controles de la esquina superior derecha, común a ambos modos:
+   [Importar] [Exportar] | [Modo] [Ajustar zoom] [Configuración] (el separador y
+   el bloque de fichero solo aparecen en modo juego). */
 #mode-switcher {
   position: fixed;
   top: 0.5rem;
@@ -111,64 +114,79 @@ h1 {
 
 #mode-switcher button {
   padding: 0.5rem 1rem;
-  background: var(--accent-blue);
-  color: var(--text-light);
-  border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 0.875rem;
-  transition: background var(--transition-fast), opacity var(--transition-fast);
-}
-
-#mode-switcher button:hover {
-  opacity: 0.9;
-}
-
-/* Botón "Importar" del modo juego: hereda el fondo azul de #mode-switcher button;
-   solo necesita alinear icono + texto (#mode-switcher button no trae inline-flex
-   ni regla de .icon-frame, a diferencia de .edit-toolbar button). */
-#mode-switcher .mode-switcher__import-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
+  transition: background var(--transition-fast), opacity var(--transition-fast);
 }
 
-#mode-switcher .mode-switcher__import-btn .icon-frame {
+#mode-switcher button .icon-frame {
   width: 16px;
   height: 16px;
   display: block;
 }
 
-#mode-switcher .mode-switcher__fit-btn,
-#edit-toolbar > .mode-switcher__fit-btn {
-  padding: 0;
-  width: 36px;
-  height: 36px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+/* Bloque de fichero (Importar/Exportar): mismo esquema "sobre fondo oscuro" que
+   .edit-toolbar button — blanco, contorno claro, sin fondo azul, en ambos modos. */
+#mode-switcher .export-menu-wrap > button,
+#mode-switcher > button:not(.mode-switcher__mode-btn):not(.mode-switcher__fit-btn):not(.mode-switcher__settings-btn) {
+  color: var(--text-light);
+  background: none;
+  border: 1px solid var(--text-light);
 }
 
-/* Mismo botón "Ajustar zoom" en modo edición: fijo en la esquina superior
-   derecha (igual que en modo juego), con color de acción primaria — montado
-   fuera de #mode-switcher, cuyos selectores no lo alcanzan. */
-#edit-toolbar > .mode-switcher__fit-btn {
-  position: fixed;
-  top: 0.5rem;
-  right: 1rem;
-  z-index: 101;
+#mode-switcher .export-menu-wrap > button:hover,
+#mode-switcher > button:not(.mode-switcher__mode-btn):not(.mode-switcher__fit-btn):not(.mode-switcher__settings-btn):hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Botón de cambio de modo ("Modo Edición" / "Modo Juego"): acción primaria (azul). */
+#mode-switcher .mode-switcher__mode-btn {
   background: var(--accent-blue);
   color: var(--text-light);
   border: none;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
 }
 
-#edit-toolbar > .mode-switcher__fit-btn:hover {
+#mode-switcher .mode-switcher__mode-btn:hover {
   opacity: 0.9;
 }
 
-.mode-switcher__fit-btn .icon-frame {
+/* "Ajustar zoom": icono-solo 36x36, acción primaria (azul). */
+#mode-switcher .mode-switcher__fit-btn {
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  justify-content: center;
+  background: var(--accent-blue);
+  color: var(--text-light);
+  border: none;
+}
+
+#mode-switcher .mode-switcher__fit-btn:hover {
+  opacity: 0.9;
+}
+
+/* "Configuración": icono-solo 36x36, esquema "sobre fondo oscuro" (contorno
+   claro, sin fondo azul) — se distingue de las acciones azules. */
+#mode-switcher .mode-switcher__settings-btn {
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  justify-content: center;
+  background: none;
+  color: var(--text-light);
+  border: 1px solid var(--text-light);
+}
+
+#mode-switcher .mode-switcher__settings-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mode-switcher__fit-btn .icon-frame,
+.mode-switcher__settings-btn .icon-frame {
   width: 18px;
   height: 18px;
   display: block;
@@ -209,19 +227,6 @@ h1 {
 
 .edit-toolbar button:hover {
   background: rgba(255,255,255,0.1);
-}
-
-/* "Salir del modo edición": acción primaria (mismo esquema que "Entrar en modo
-   edición"), a diferencia del resto de botones de la barra. */
-.edit-toolbar button.edit-toolbar__exit-btn {
-  background: var(--accent-blue);
-  border-color: var(--accent-blue);
-  color: var(--text-light);
-}
-
-.edit-toolbar button.edit-toolbar__exit-btn:hover {
-  background: var(--accent-blue);
-  opacity: 0.9;
 }
 
 .edit-toolbar button .icon-frame {
@@ -791,6 +796,19 @@ fieldset.modal__section--untitled {
   font-size: 0.75rem;
   color: var(--text-muted);
   margin: 0.5rem 0 0;
+}
+
+/* Separador fino entre bloques del cuerpo de un modal (ui/settingsModal.js). */
+.modal__separator {
+  border: none;
+  border-top: 1px solid var(--border-neutral);
+  margin: 0;
+}
+
+/* Valor de solo lectura de la versión en el panel de configuración. */
+.settings-modal__version {
+  font-size: 0.875rem;
+  color: var(--text-muted);
 }
 
 /* Mensaje centrado cuando una pestaña de propiedades específicas se queda sin contenido

@@ -6,6 +6,7 @@ import { createTag, updateTag, isTagNameTaken, getComponentsUsingTag } from '../
 import { getTags, getComponents, getGroups } from '../core/state.js';
 import { getGroupsUsingTag } from '../core/group.js';
 import { getComponentTypeLabel } from './componentTypeModal.js';
+import { t } from '../core/i18n.js';
 
 export function openTagModal({ tag = null, onAccept, onDelete, onRemoveFromTag, onRemoveGroupFromTag }) {
   const overlay = document.createElement('div');
@@ -16,7 +17,7 @@ export function openTagModal({ tag = null, onAccept, onDelete, onRemoveFromTag, 
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = tag ? `Etiqueta: ${tag.name}` : 'Nueva etiqueta';
+  header.textContent = tag ? t('tagModal.editTitle', { name: tag.name }) : t('tagModal.newTitle');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -26,7 +27,7 @@ export function openTagModal({ tag = null, onAccept, onDelete, onRemoveFromTag, 
   const nameField = document.createElement('div');
   nameField.className = 'modal__field';
   const nameLabel = document.createElement('label');
-  nameLabel.textContent = 'Nombre';
+  nameLabel.textContent = t('tagModal.nameLabel');
   const nameInput = document.createElement('input');
   nameInput.type = 'text';
   nameInput.value = tag?.name ?? '';
@@ -61,13 +62,13 @@ export function openTagModal({ tag = null, onAccept, onDelete, onRemoveFromTag, 
         .filter(Boolean)
         .sort((a, b) => a.id.localeCompare(b.id));
 
-      elementsLabel.textContent = `Elementos de la etiqueta (${components.length + groups.length})`;
+      elementsLabel.textContent = t('tagModal.elementsLabel', { count: components.length + groups.length });
       elementsBody.innerHTML = '';
 
       if (components.length === 0 && groups.length === 0) {
         const empty = document.createElement('div');
         empty.className = 'tag-modal__elements-empty';
-        empty.textContent = 'No hay elementos en esta etiqueta.';
+        empty.textContent = t('tagModal.empty');
         elementsBody.appendChild(empty);
         return;
       }
@@ -91,7 +92,7 @@ export function openTagModal({ tag = null, onAccept, onDelete, onRemoveFromTag, 
         const sacarBtn = document.createElement('button');
         sacarBtn.type = 'button';
         sacarBtn.className = 'btn-sacar';
-        sacarBtn.textContent = 'Sacar';
+        sacarBtn.textContent = t('tagModal.remove');
         sacarBtn.addEventListener('click', () => {
           onRemoveFromTag(tag, component.id);
           renderElements();
@@ -109,7 +110,7 @@ export function openTagModal({ tag = null, onAccept, onDelete, onRemoveFromTag, 
         idEl.className = 'tag-modal__element-id';
         const typeEl = document.createElement('span');
         typeEl.className = 'type';
-        typeEl.textContent = 'Grupo:';
+        typeEl.textContent = t('tagModal.groupLabel');
         idEl.appendChild(typeEl);
         idEl.appendChild(document.createTextNode(` ${group.id}`));
         item.appendChild(idEl);
@@ -117,7 +118,7 @@ export function openTagModal({ tag = null, onAccept, onDelete, onRemoveFromTag, 
         const sacarBtn = document.createElement('button');
         sacarBtn.type = 'button';
         sacarBtn.className = 'btn-sacar';
-        sacarBtn.textContent = 'Sacar';
+        sacarBtn.textContent = t('tagModal.remove');
         sacarBtn.addEventListener('click', () => {
           onRemoveGroupFromTag(tag, group.id);
           renderElements();
@@ -140,7 +141,7 @@ export function openTagModal({ tag = null, onAccept, onDelete, onRemoveFromTag, 
   if (tag) {
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn-eliminar';
-    deleteBtn.textContent = 'Eliminar';
+    deleteBtn.textContent = t('common.delete');
     deleteBtn.addEventListener('click', () => {
       onDelete(tag, () => overlay.remove());
     });
@@ -149,24 +150,24 @@ export function openTagModal({ tag = null, onAccept, onDelete, onRemoveFromTag, 
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(cancelBtn);
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
   footer.appendChild(acceptBtn);
 
   function validateName() {
     const name = nameInput.value.trim();
     if (!name) {
-      nameError.textContent = 'El nombre no puede estar vacío';
+      nameError.textContent = t('tagModal.nameEmpty');
       nameError.style.display = 'block';
       return false;
     }
     if (isTagNameTaken(name, getTags(), tag?.id ?? null)) {
-      nameError.textContent = 'Ya existe una etiqueta con este nombre';
+      nameError.textContent = t('tagModal.nameTaken');
       nameError.style.display = 'block';
       return false;
     }

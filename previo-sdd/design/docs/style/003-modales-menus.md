@@ -31,6 +31,21 @@ Pattern to confirm, in a blocking way, a positive result that needs to stay visi
 - Example: `ui/batchUploadSummaryModal.js` (summary after uploading several resources/a folder to the gallery) — "✓" icon over `var(--success)`, a count of additions and, if applicable, a table of skipped items (table pattern of `ui/importReportModal.js`, same CSS as `.import-report-modal__table`).
 - Any future success notice that must stay visible: reuse this pattern instead of creating an ad-hoc variant.
 
+## Settings panel (`ui/settingsModal.js`, 00244)
+
+`openSettingsModal()` — opened by `.mode-switcher__settings-btn` in the header control row (`002-componentes-layout.md`, "Header control row"). Standard modal skeleton, no special width: `.modal-overlay`/`.modal` (default `max-width: 500px`), `.modal__header` (title "Configuración"), `.modal__content`, `.modal__footer` with a single `.btn-cancel` "Cerrar". `z-index: 1000`. Close by "Cerrar" / click outside overlay / ESC (via `ui/globalShortcuts.js`, `.modal__footer .btn-cancel`) — same as every other modal.
+
+`.modal__content` layout:
+
+| Element | Class | Notes |
+|---|---|---|
+| Language field | `.modal__field` (`<label>` + `<select>`) | `<select>` options are fixed literals `Español` / `English` (not translated). Below it a `.modal__hint` note. |
+| Separator | `.modal__separator` (new) | `border: none; border-top: 1px solid var(--border-neutral); margin: 0`. Thin divider between body blocks of a modal. |
+| Version field | `.modal__field` (`<label>` + read-only value) | Read-only value `.settings-modal__version` (new): `font-size: 0.875rem; color: var(--text-muted)`. Shows `getFullAppTitle(getAppTitle())`. |
+
+- Re-renders its own `.modal__header`/`.modal__content`/`.modal__footer` on `language:changed` (`../architecture/010-internationalization-i18n.md`) — the modal stays open, its text switches language in place.
+- Reserved (unpainted) slot at the end of `.modal__content` for change 00231's changelog section.
+
 ## In-progress operation modal
 
 Pattern to inform of a potentially slow, blocking operation, returning control to the player as soon as it finishes (change 00214): `ui/progressModal.js`, `runWithProgressModal(text, work)`.

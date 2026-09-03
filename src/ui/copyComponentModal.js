@@ -5,11 +5,12 @@
 
 import { getComponents } from '../core/state.js';
 import { createHelpIcon } from './helpIcon.js';
+import { t } from '../core/i18n.js';
 
 const BLOQUEADO_OPTIONS = [
-  { value: 'ninguno', label: 'Ninguno' },
-  { value: 'juego', label: 'Solo modo juego' },
-  { value: 'todos', label: 'Todos los modos' },
+  { value: 'ninguno', label: t('option.bloqueado.ninguno') },
+  { value: 'juego', label: t('option.bloqueado.juego') },
+  { value: 'todos', label: t('option.bloqueado.todos') },
 ];
 
 export function openCopyComponentModal({ component, onAccept, onDelete }) {
@@ -24,7 +25,7 @@ export function openCopyComponentModal({ component, onAccept, onDelete }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Propiedades del componente';
+  header.textContent = t('copyComponent.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -34,7 +35,7 @@ export function openCopyComponentModal({ component, onAccept, onDelete }) {
   const idField = document.createElement('div');
   idField.className = 'modal__field';
   const idLabel = document.createElement('label');
-  idLabel.textContent = 'ID del componente';
+  idLabel.textContent = t('copyComponent.idLabel');
   const idValue = document.createElement('div');
   idValue.textContent = component.id;
   idField.appendChild(idLabel);
@@ -43,7 +44,7 @@ export function openCopyComponentModal({ component, onAccept, onDelete }) {
 
   const notice = document.createElement('p');
   notice.className = 'modal__hint';
-  notice.textContent = 'Este componente es una copia de otro elemento. Sus propiedades no se pueden editar aquí: se sincronizan automáticamente con el original.';
+  notice.textContent = t('copyComponent.notice');
   content.appendChild(notice);
 
   const syncField = document.createElement('div');
@@ -52,19 +53,18 @@ export function openCopyComponentModal({ component, onAccept, onDelete }) {
   syncCheckbox.type = 'checkbox';
   syncCheckbox.checked = workingComponent.sincronizado !== false;
   const syncLabel = document.createElement('label');
-  syncLabel.textContent = 'Sincronizado';
+  syncLabel.textContent = t('copyComponent.synced');
   syncField.appendChild(syncCheckbox);
   syncField.appendChild(syncLabel);
   syncField.appendChild(createHelpIcon({
-    text: 'Si está marcado, "Bloqueado" y "Oculto" de esta copia siguen siempre el valor del original. Si lo desmarcas, puedes fijar un valor propio para esta copia, independiente del original.',
-  }));
+    text: t('help.copySync'),  }));
   content.appendChild(syncField);
 
   const bloqueadoOcultoSection = document.createElement('fieldset');
   bloqueadoOcultoSection.className = 'modal__section';
   const bloqueadoOcultoLegend = document.createElement('legend');
   bloqueadoOcultoLegend.className = 'modal__section-title';
-  bloqueadoOcultoLegend.textContent = 'Bloqueado / Oculto';
+  bloqueadoOcultoLegend.textContent = t('copyComponent.lockedHiddenLegend');
   bloqueadoOcultoSection.appendChild(bloqueadoOcultoLegend);
 
   const moveField = document.createElement('div');
@@ -75,7 +75,7 @@ export function openCopyComponentModal({ component, onAccept, onDelete }) {
   moveLabelRow.style.gap = '0.35rem';
   moveLabelRow.style.marginBottom = '0.25rem';
   const moveLabel = document.createElement('label');
-  moveLabel.textContent = 'Bloqueado';
+  moveLabel.textContent = t('componentModal.locked');
   moveLabel.style.marginBottom = '0';
   const moveSelect = document.createElement('select');
   for (const { value, label } of BLOQUEADO_OPTIONS) {
@@ -90,8 +90,7 @@ export function openCopyComponentModal({ component, onAccept, onDelete }) {
   });
   moveLabelRow.appendChild(moveLabel);
   moveLabelRow.appendChild(createHelpIcon({
-    text: 'Indica en qué modo(s) este componente no se puede mover. \'Todos los modos\' lo fija también en Modo Edición; \'Solo modo juego\' lo fija únicamente durante la partida (comportamiento por defecto anterior); \'Ninguno\' permite arrastrarlo libremente en ambos.',
-  }));
+    text: t('help.lockedField'),  }));
   moveField.appendChild(moveLabelRow);
   moveField.appendChild(moveSelect);
   bloqueadoOcultoSection.appendChild(moveField);
@@ -102,15 +101,14 @@ export function openCopyComponentModal({ component, onAccept, onDelete }) {
   hiddenCheckbox.type = 'checkbox';
   hiddenCheckbox.checked = workingComponent.oculto ?? false;
   const hiddenLabel = document.createElement('label');
-  hiddenLabel.textContent = 'Oculto';
+  hiddenLabel.textContent = t('componentModal.hidden');
   hiddenCheckbox.addEventListener('change', () => {
     workingComponent.oculto = hiddenCheckbox.checked;
   });
   hiddenField.appendChild(hiddenCheckbox);
   hiddenField.appendChild(hiddenLabel);
   hiddenField.appendChild(createHelpIcon({
-    text: 'Si está marcado, este componente deja de aparecer por completo en Modo Juego (no se ve, no ocupa espacio, no es interactuable). En Modo Edición se sigue mostrando con normalidad, con una insignia que indica que no aparecerá en la partida.',
-  }));
+    text: t('help.hiddenField'),  }));
   bloqueadoOcultoSection.appendChild(hiddenField);
 
   content.appendChild(bloqueadoOcultoSection);
@@ -133,7 +131,7 @@ export function openCopyComponentModal({ component, onAccept, onDelete }) {
   const originalField = document.createElement('div');
   originalField.className = 'modal__field';
   const originalLabel = document.createElement('label');
-  originalLabel.textContent = 'Elemento original';
+  originalLabel.textContent = t('copyComponent.originalLabel');
   const originalValue = document.createElement('div');
   originalValue.textContent = component.copyOf;
   originalField.appendChild(originalLabel);
@@ -147,9 +145,9 @@ export function openCopyComponentModal({ component, onAccept, onDelete }) {
   if (onDelete) {
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn-eliminar';
-    deleteBtn.textContent = 'Eliminar';
+    deleteBtn.textContent = t('common.delete');
     deleteBtn.addEventListener('click', () => {
-      if (confirm(`¿Eliminar el componente "${component.id}"?`)) {
+      if (confirm(t('confirm.deleteComponent', { id: component.id }))) {
         onDelete(component);
         overlay.remove();
       }
@@ -159,7 +157,7 @@ export function openCopyComponentModal({ component, onAccept, onDelete }) {
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => {
     overlay.remove();
   });
@@ -167,7 +165,7 @@ export function openCopyComponentModal({ component, onAccept, onDelete }) {
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
   acceptBtn.addEventListener('click', () => {
     workingComponent.sincronizado = syncCheckbox.checked;
     if (syncCheckbox.checked && original) {

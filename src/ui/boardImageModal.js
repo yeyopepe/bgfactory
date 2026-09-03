@@ -3,6 +3,7 @@
 // galería lista recursos tipo 'imagen' ya subidos, sin mecanismo nuevo de carpeta estática ni build.
 
 import { RESOURCE_TYPES } from '../core/resource.js';
+import { t } from '../core/i18n.js';
 
 function normalize(str) {
   return str.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -37,7 +38,7 @@ export function openBoardImageModal({ properties, resources, onAccept, title = '
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
 
   function updateAcceptButton() {
     acceptBtn.disabled = !selectedId;
@@ -52,7 +53,7 @@ export function openBoardImageModal({ properties, resources, onAccept, title = '
     if (list.length === 0) {
       const emptyFilter = document.createElement('p');
       emptyFilter.className = 'board-image-modal__empty-filter';
-      emptyFilter.textContent = `No hay imágenes que coincidan con «${filterText}».`;
+      emptyFilter.textContent = t('boardImage.emptyFilter', { filter: filterText });
       resultsContainer.appendChild(emptyFilter);
       return;
     }
@@ -99,7 +100,7 @@ export function openBoardImageModal({ properties, resources, onAccept, title = '
   if (images.length === 0) {
     const empty = document.createElement('p');
     empty.className = 'board-image-modal__empty';
-    empty.textContent = 'No hay imágenes disponibles';
+    empty.textContent = t('boardImage.empty');
     content.appendChild(empty);
   } else {
     const searchBar = document.createElement('div');
@@ -107,7 +108,7 @@ export function openBoardImageModal({ properties, resources, onAccept, title = '
 
     const searchInput = document.createElement('input');
     searchInput.type = 'text';
-    searchInput.placeholder = 'Buscar imagen…';
+    searchInput.placeholder = t('boardImage.searchPlaceholder');
     searchInput.addEventListener('input', () => {
       filterText = searchInput.value;
       renderGallery(images.filter((r) => matchesFilter(r, filterText)));
@@ -121,7 +122,7 @@ export function openBoardImageModal({ properties, resources, onAccept, title = '
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(cancelBtn);
 

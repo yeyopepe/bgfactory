@@ -18,7 +18,8 @@ First user-facing hyperlink (`<a>`) in `/src`: change 00243, the repository link
 ## Markup
 
 - Built with `document.createElement('a')` + property assignment (`href`, `textContent`, `target`, `rel`), never interpolated `innerHTML` — same DOM convention as the rest of the app (`004-naming-and-patterns.md`, Component patterns).
-- Visible text is a readable label (`Ver en Github`), never the raw URL.
+- Visible text is a readable label, never the raw URL. The label follows the active language (`t('appVersion.repoLink')` → `Ver en Github` / `View on GitHub`, 00244; see `../architecture/010-internationalization-i18n.md`). The `href` never changes.
+- `#app-version` is (re)built by `renderAppVersion()` on every `renderAll()` (00244, was one-shot at module load) so the label updates on language change.
 
 ## External links
 

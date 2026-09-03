@@ -1,19 +1,21 @@
 // Catálogo de proporciones de carta (editor de cartas, modal de
-// configuración de 'carta'). Datos puros, sin dependencias, análogo a
-// data/defaultResources.js.
+// configuración de 'carta'). Los `label` se resuelven con i18n (getter) en
+// cada lectura, siguiendo el idioma activo; el resto son datos puros.
+
+import { t } from './i18n.js';
 
 export const CARD_PROPORTIONS = [
-  { value: '5:7', label: 'Poker estándar vertical (5:7)', ratio: 5 / 7, shape: 'rect' },
-  { value: '7:5', label: 'Poker estándar horizontal (7:5)', ratio: 7 / 5, shape: 'rect' },
-  { value: 'tarot-h', label: 'Tarot estándar vertical (70 × 120 mm)', ratio: 70 / 120, shape: 'rect' },
-  { value: 'tarot-v', label: 'Tarot estándar horizontal (120 × 70 mm)', ratio: 120 / 70, shape: 'rect' },
-  { value: '1:1', label: 'Cuadrada (1:1)', ratio: 1, shape: 'rect' },
-  { value: 'circular', label: 'Circular', ratio: 1, shape: 'circular' },
-  { value: 'hex-vertical', label: 'Hexagonal (vértices arriba/abajo)', ratio: Math.sqrt(3) / 2, shape: 'hex-vertical' },
-  { value: 'hex-horizontal', label: 'Hexagonal (vértices izquierda/derecha)', ratio: 2 / Math.sqrt(3), shape: 'hex-horizontal' },
-  { value: 'triangulo', label: 'Triángulo', ratio: 1, shape: 'triangulo' },
-  { value: 'triangulo-invertido', label: 'Triángulo invertido', ratio: 1, shape: 'triangulo-invertido' },
-  { value: 'libre', label: 'Libre (redimensionamiento libre)', ratio: 5 / 7, shape: 'rect' },
+  { value: '5:7', get label() { return t('cardProportion.poker-v'); }, ratio: 5 / 7, shape: 'rect' },
+  { value: '7:5', get label() { return t('cardProportion.poker-h'); }, ratio: 7 / 5, shape: 'rect' },
+  { value: 'tarot-h', get label() { return t('cardProportion.tarot-v'); }, ratio: 70 / 120, shape: 'rect' },
+  { value: 'tarot-v', get label() { return t('cardProportion.tarot-h'); }, ratio: 120 / 70, shape: 'rect' },
+  { value: '1:1', get label() { return t('cardProportion.square'); }, ratio: 1, shape: 'rect' },
+  { value: 'circular', get label() { return t('cardProportion.circular'); }, ratio: 1, shape: 'circular' },
+  { value: 'hex-vertical', get label() { return t('cardProportion.hex-vertical'); }, ratio: Math.sqrt(3) / 2, shape: 'hex-vertical' },
+  { value: 'hex-horizontal', get label() { return t('cardProportion.hex-horizontal'); }, ratio: 2 / Math.sqrt(3), shape: 'hex-horizontal' },
+  { value: 'triangulo', get label() { return t('cardProportion.triangle'); }, ratio: 1, shape: 'triangulo' },
+  { value: 'triangulo-invertido', get label() { return t('cardProportion.triangle-inverted'); }, ratio: 1, shape: 'triangulo-invertido' },
+  { value: 'libre', get label() { return t('cardProportion.free'); }, ratio: 5 / 7, shape: 'rect' },
 ];
 
 const DEFAULT_PROPORTION = '5:7';

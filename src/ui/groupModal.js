@@ -8,11 +8,12 @@ import { isGroupIdTaken } from '../core/group.js';
 import { createTag, isTagNameTaken } from '../core/tag.js';
 import { sortByName } from '../core/textSort.js';
 import { createHelpIcon } from './helpIcon.js';
+import { t } from '../core/i18n.js';
 
 const BLOQUEADO_OPTIONS = [
-  { value: 'ninguno', label: 'Ninguno' },
-  { value: 'juego', label: 'Solo modo juego' },
-  { value: 'todos', label: 'Todos los modos' },
+  { value: 'ninguno', label: t('option.bloqueado.ninguno') },
+  { value: 'juego', label: t('option.bloqueado.juego') },
+  { value: 'todos', label: t('option.bloqueado.todos') },
 ];
 
 export function openGroupModal({ group, onAccept, onCancel }) {
@@ -24,7 +25,7 @@ export function openGroupModal({ group, onAccept, onCancel }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Propiedades del grupo';
+  header.textContent = t('groupModal.title');
   modal.appendChild(header);
 
   const tabs = document.createElement('div');
@@ -43,13 +44,13 @@ export function openGroupModal({ group, onAccept, onCancel }) {
 
   const tab = document.createElement('button');
   tab.className = 'modal__tab active';
-  tab.textContent = 'General';
+  tab.textContent = t('common.general');
   tabs.appendChild(tab);
 
   const idField = document.createElement('div');
   idField.className = 'modal__field';
   const idLabel = document.createElement('label');
-  idLabel.textContent = 'Id del grupo';
+  idLabel.textContent = t('groupModal.idLabel');
   const idInput = document.createElement('input');
   idInput.type = 'text';
   idInput.value = workingGroup.id;
@@ -65,12 +66,12 @@ export function openGroupModal({ group, onAccept, onCancel }) {
   function validateId() {
     const newId = idInput.value.trim();
     if (!newId) {
-      idError.textContent = 'El ID no puede estar vacío';
+      idError.textContent = t('groupModal.idEmpty');
       idError.style.display = 'block';
       return false;
     }
     if (isGroupIdTaken(newId, getGroups(), group.id)) {
-      idError.textContent = 'Ya existe otro grupo con este ID';
+      idError.textContent = t('groupModal.idTaken');
       idError.style.display = 'block';
       return false;
     }
@@ -94,7 +95,7 @@ export function openGroupModal({ group, onAccept, onCancel }) {
   infoSection.className = 'modal__section';
   const infoLegend = document.createElement('legend');
   infoLegend.className = 'modal__section-title';
-  infoLegend.textContent = 'General';
+  infoLegend.textContent = t('common.general');
   infoSection.appendChild(infoLegend);
 
   const moveField = document.createElement('div');
@@ -105,7 +106,7 @@ export function openGroupModal({ group, onAccept, onCancel }) {
   moveLabelRow.style.gap = '0.35rem';
   moveLabelRow.style.marginBottom = '0.25rem';
   const moveLabel = document.createElement('label');
-  moveLabel.textContent = 'Bloqueado';
+  moveLabel.textContent = t('componentModal.locked');
   moveLabel.style.marginBottom = '0';
   const moveSelect = document.createElement('select');
 
@@ -123,8 +124,7 @@ export function openGroupModal({ group, onAccept, onCancel }) {
 
   moveLabelRow.appendChild(moveLabel);
   moveLabelRow.appendChild(createHelpIcon({
-    text: 'Indica en qué modo(s) los miembros de este grupo no se pueden mover, mientras dure la agrupación. \'Todos los modos\' lo fija también en Modo Edición; \'Solo modo juego\' lo fija únicamente durante la partida; \'Ninguno\' permite arrastrarlos libremente en ambos.',
-  }));
+    text: t('help.group.lockedField'),  }));
   moveField.appendChild(moveLabelRow);
   moveField.appendChild(moveSelect);
   infoSection.appendChild(moveField);
@@ -135,7 +135,7 @@ export function openGroupModal({ group, onAccept, onCancel }) {
   hiddenCheckbox.type = 'checkbox';
   hiddenCheckbox.checked = workingGroup.oculto ?? false;
   const hiddenLabel = document.createElement('label');
-  hiddenLabel.textContent = 'Oculto';
+  hiddenLabel.textContent = t('componentModal.hidden');
 
   hiddenCheckbox.addEventListener('change', () => {
     workingGroup.oculto = hiddenCheckbox.checked;
@@ -144,8 +144,7 @@ export function openGroupModal({ group, onAccept, onCancel }) {
   hiddenField.appendChild(hiddenCheckbox);
   hiddenField.appendChild(hiddenLabel);
   hiddenField.appendChild(createHelpIcon({
-    text: 'Si está marcado, todos los miembros de este grupo dejan de aparecer por completo en Modo Juego mientras dure la agrupación. En Modo Edición se siguen mostrando con normalidad, con una insignia que indica que no aparecerán en la partida.',
-  }));
+    text: t('help.group.hiddenField'),  }));
   infoSection.appendChild(hiddenField);
 
   const tooltipField = document.createElement('div');
@@ -154,7 +153,7 @@ export function openGroupModal({ group, onAccept, onCancel }) {
   tooltipCheckbox.type = 'checkbox';
   tooltipCheckbox.checked = workingGroup.mostrarTooltip ?? false;
   const tooltipLabel = document.createElement('label');
-  tooltipLabel.textContent = 'Mostrar tooltip';
+  tooltipLabel.textContent = t('groupModal.showTooltip');
 
   tooltipCheckbox.addEventListener('change', () => {
     workingGroup.mostrarTooltip = tooltipCheckbox.checked;
@@ -163,8 +162,7 @@ export function openGroupModal({ group, onAccept, onCancel }) {
   tooltipField.appendChild(tooltipCheckbox);
   tooltipField.appendChild(tooltipLabel);
   tooltipField.appendChild(createHelpIcon({
-    text: 'Si está marcado, los miembros de este grupo muestran su identificador como tooltip al pasar el ratón por encima, pero solo en Modo Juego.',
-  }));
+    text: t('help.group.showTooltip'),  }));
   infoSection.appendChild(tooltipField);
 
   const titleField = document.createElement('div');
@@ -173,7 +171,7 @@ export function openGroupModal({ group, onAccept, onCancel }) {
   titleCheckbox.type = 'checkbox';
   titleCheckbox.checked = workingGroup.mostrarTitulo ?? false;
   const titleLabel = document.createElement('label');
-  titleLabel.textContent = 'Mostrar título de componente';
+  titleLabel.textContent = t('componentModal.showTitle');
 
   titleCheckbox.addEventListener('change', () => {
     workingGroup.mostrarTitulo = titleCheckbox.checked;
@@ -182,8 +180,7 @@ export function openGroupModal({ group, onAccept, onCancel }) {
   titleField.appendChild(titleCheckbox);
   titleField.appendChild(titleLabel);
   titleField.appendChild(createHelpIcon({
-    text: 'Si está marcado, los miembros de este grupo muestran su título de componente (configurado individualmente en cada uno) en Modo Juego.',
-  }));
+    text: t('help.group.showTitle'),  }));
   infoSection.appendChild(titleField);
 
   const upOnMoveField = document.createElement('div');
@@ -192,7 +189,7 @@ export function openGroupModal({ group, onAccept, onCancel }) {
   upOnMoveCheckbox.type = 'checkbox';
   upOnMoveCheckbox.checked = workingGroup.subirAlMoverInteractuar ?? false;
   const upOnMoveLabel = document.createElement('label');
-  upOnMoveLabel.textContent = 'Subir al mover/interactuar';
+  upOnMoveLabel.textContent = t('componentModal.raiseOnMove');
 
   upOnMoveCheckbox.addEventListener('change', () => {
     workingGroup.subirAlMoverInteractuar = upOnMoveCheckbox.checked;
@@ -201,8 +198,7 @@ export function openGroupModal({ group, onAccept, onCancel }) {
   upOnMoveField.appendChild(upOnMoveCheckbox);
   upOnMoveField.appendChild(upOnMoveLabel);
   upOnMoveField.appendChild(createHelpIcon({
-    text: 'Si está marcado, los miembros de este grupo se colocan automáticamente encima de todos los demás cada vez que se mueven o se interactúa con ellos en Modo Juego.',
-  }));
+    text: t('help.group.raiseOnMove'),  }));
   infoSection.appendChild(upOnMoveField);
 
   contentArea.appendChild(infoSection);
@@ -214,7 +210,7 @@ export function openGroupModal({ group, onAccept, onCancel }) {
   tagSection.className = 'modal__section';
   const tagLegend = document.createElement('legend');
   tagLegend.className = 'modal__section-title';
-  tagLegend.textContent = 'Etiquetas';
+  tagLegend.textContent = t('componentModal.tagsLegend');
   tagSection.appendChild(tagLegend);
 
   const tagCheckboxList = document.createElement('div');
@@ -224,7 +220,7 @@ export function openGroupModal({ group, onAccept, onCancel }) {
   const createTagItem = document.createElement('div');
   createTagItem.className = 'modal__field modal__field--checkbox';
   createTagItem.style.cursor = 'pointer';
-  createTagItem.textContent = '+ Crear nueva etiqueta…';
+  createTagItem.textContent = t('componentModal.createNewTag');
   createTagItem.addEventListener('click', () => {
     newTagRow.style.display = 'block';
     newTagInput.focus();
@@ -239,11 +235,11 @@ export function openGroupModal({ group, onAccept, onCancel }) {
   newTagInputRow.style.gap = '0.5rem';
   const newTagInput = document.createElement('input');
   newTagInput.type = 'text';
-  newTagInput.placeholder = 'Nombre de la etiqueta nueva';
+  newTagInput.placeholder = t('componentModal.tagNamePlaceholder');
   const newTagCreateBtn = document.createElement('button');
   newTagCreateBtn.type = 'button';
   newTagCreateBtn.className = 'btn-cancel';
-  newTagCreateBtn.textContent = 'Crear';
+  newTagCreateBtn.textContent = t('common.create');
   newTagInputRow.appendChild(newTagInput);
   newTagInputRow.appendChild(newTagCreateBtn);
   const newTagError = document.createElement('div');
@@ -282,12 +278,12 @@ export function openGroupModal({ group, onAccept, onCancel }) {
   function validateNewTagName() {
     const name = newTagInput.value.trim();
     if (!name) {
-      newTagError.textContent = 'El nombre no puede estar vacío';
+      newTagError.textContent = t('componentModal.tagNameEmpty');
       newTagError.style.display = 'block';
       return false;
     }
     if (isTagNameTaken(name, getTags())) {
-      newTagError.textContent = 'Ya existe una etiqueta con este nombre';
+      newTagError.textContent = t('componentModal.tagNameTaken');
       newTagError.style.display = 'block';
       return false;
     }
@@ -312,7 +308,7 @@ export function openGroupModal({ group, onAccept, onCancel }) {
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => {
     overlay.remove();
     if (onCancel) onCancel();
@@ -321,7 +317,7 @@ export function openGroupModal({ group, onAccept, onCancel }) {
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Guardar';
+  acceptBtn.textContent = t('common.save');
   acceptBtn.addEventListener('click', () => {
     if (validateId()) {
       if (onAccept) onAccept(workingGroup);

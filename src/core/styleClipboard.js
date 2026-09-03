@@ -3,6 +3,8 @@
 // en el guardado/exportado del juego. Solo puede contener un estilo copiado
 // a la vez (el último sustituye por completo al anterior, sin historial).
 
+import { t } from './i18n.js';
+
 let clipboard = null;
 
 function cloneFace(face) {
@@ -52,30 +54,30 @@ export function validateStyleClipboardForPaste(clip, { tags, resources }) {
       const exists = tags.some((t) => t.id === etiquetaId);
       if (!exists) {
         incidencias.push({
-          elemento: 'Generales',
-          referencia: 'Etiqueta',
-          detalle: `"${clip.generales.etiquetaNames?.[index] || etiquetaId}" ya no existe`,
+          elemento: t('styleClipboardError.row.generales'),
+          referencia: t('styleClipboardError.row.tag'),
+          detalle: t('styleClipboardError.row.noLongerExists', { name: clip.generales.etiquetaNames?.[index] || etiquetaId }),
         });
       }
     });
   }
 
   const faceChecks = [
-    { key: 'caraFrontal', label: 'Cara frontal' },
-    { key: 'caraTrasera', label: 'Cara trasera' },
+    { key: 'caraFrontal', label: t('option.cara.frontal') },
+    { key: 'caraTrasera', label: t('option.cara.trasera') },
   ];
   for (const { key, label } of faceChecks) {
     const face = clip[key];
     if (!face) continue;
     if (face.imagenResourceId && !resources.some((r) => r.id === face.imagenResourceId)) {
-      incidencias.push({ elemento: label, referencia: 'Imagen de fondo', detalle: 'Recurso ya no existe' });
+      incidencias.push({ elemento: label, referencia: t('styleClipboardError.row.backgroundImage'), detalle: t('styleClipboardError.row.resourceGone') });
     }
     for (const textBox of face.textBoxes) {
       if (textBox.fuenteResourceId && !resources.some((r) => r.id === textBox.fuenteResourceId)) {
         incidencias.push({
           elemento: label,
-          referencia: `Tipografía (cuadro de texto "${textBox.contenido || textBox.id}")`,
-          detalle: 'Recurso ya no existe',
+          referencia: t('styleClipboardError.row.typefaceInTextBox', { box: textBox.contenido || textBox.id }),
+          detalle: t('styleClipboardError.row.resourceGone'),
         });
       }
     }

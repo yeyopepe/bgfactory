@@ -4,6 +4,8 @@
 // design/docs/style/03-modales-menus.md), desplegable fijo bajo un botón: este
 // se abre en cualquier punto y cierra también con ESC, no solo click fuera.
 
+import { t } from '../core/i18n.js';
+
 let currentMenu = null;
 
 function closeCurrentMenu() {
@@ -56,7 +58,7 @@ function addSelectRow(menu, { label, options = [], disabled, onChange }) {
 
   const placeholder = document.createElement('option');
   placeholder.value = '';
-  placeholder.textContent = options.length === 0 ? 'Sin etiquetas' : 'Elegir etiqueta…';
+  placeholder.textContent = options.length === 0 ? t('contextMenu.tagSelect.empty') : t('contextMenu.tagSelect.placeholder');
   placeholder.disabled = true;
   placeholder.selected = true;
   select.appendChild(placeholder);
@@ -112,7 +114,7 @@ function addInfoSection(menu, interactionItems) {
 
   const title = document.createElement('div');
   title.className = 'context-menu__info-title';
-  title.textContent = 'Interacciones';
+  title.textContent = t('contextMenu.interactions');
   infoBlock.appendChild(title);
 
   for (const item of interactionItems) {
@@ -121,15 +123,15 @@ function addInfoSection(menu, interactionItems) {
 
     const label = document.createElement('span');
     label.className = 'context-menu__info-label';
-    label.textContent = item.label;
+    label.textContent = t(item.labelKey);
     row.appendChild(label);
 
     const value = document.createElement('span');
     value.className = 'context-menu__info-value';
-    if (item.value === 'Ninguno') {
+    if (item.valueKey === 'interaction.value.none') {
       value.classList.add('context-menu__info-value--none');
     }
-    value.textContent = item.value;
+    value.textContent = t(item.valueKey);
     row.appendChild(value);
 
     infoBlock.appendChild(row);

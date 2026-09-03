@@ -5,6 +5,7 @@
 // etiquetas (ver modes/edit/editMode.js).
 
 import { getComponentTypeLabel } from './componentTypeModal.js';
+import { t } from '../core/i18n.js';
 
 export function openTagDeleteConfirmModal({ tagName, affectedComponents, onConfirm }) {
   const overlay = document.createElement('div');
@@ -15,14 +16,14 @@ export function openTagDeleteConfirmModal({ tagName, affectedComponents, onConfi
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Eliminar etiqueta en uso';
+  header.textContent = t('tagDelete.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
   content.className = 'modal__content';
 
   const message = document.createElement('p');
-  message.textContent = `La etiqueta "${tagName}" está siendo usada por los siguientes elementos. Si continúas, se eliminará la etiqueta y esos elementos perderán la pertenencia a esta etiqueta.`;
+  message.textContent = t('tagDelete.message', { name: tagName });
   content.appendChild(message);
 
   const list = document.createElement('ul');
@@ -41,13 +42,13 @@ export function openTagDeleteConfirmModal({ tagName, affectedComponents, onConfi
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(cancelBtn);
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
   acceptBtn.addEventListener('click', () => {
     onConfirm();
     overlay.remove();

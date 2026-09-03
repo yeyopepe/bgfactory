@@ -3,6 +3,7 @@
 // ui/importConfirmModal.js. Cubre tanto un único duplicado (subida de un
 // fichero) como varios a la vez (subida múltiple o de carpeta).
 
+import { t } from '../core/i18n.js';
 export function openResourceReplaceConfirmModal({ names, onAccept, onCancel }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -12,7 +13,7 @@ export function openResourceReplaceConfirmModal({ names, onAccept, onCancel }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = names.length === 1 ? 'Recurso duplicado' : 'Recursos duplicados';
+  header.textContent = names.length === 1 ? t('resourceReplace.titleSingle') : t('resourceReplace.titleMulti');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -20,11 +21,11 @@ export function openResourceReplaceConfirmModal({ names, onAccept, onCancel }) {
 
   if (names.length === 1) {
     const message = document.createElement('p');
-    message.textContent = `Ya existe un recurso llamado "${names[0]}". Si continúas, se reemplazará su contenido. Los componentes que ya lo usan pasarán a mostrar el recurso nuevo.`;
+    message.textContent = t('resourceReplace.messageSingle', { name: names[0] });
     content.appendChild(message);
   } else {
     const intro = document.createElement('p');
-    intro.textContent = `${names.length} de los ficheros seleccionados coinciden con recursos ya existentes en la galería:`;
+    intro.textContent = t('resourceReplace.introMulti', { count: names.length });
     content.appendChild(intro);
 
     const list = document.createElement('ul');
@@ -37,7 +38,7 @@ export function openResourceReplaceConfirmModal({ names, onAccept, onCancel }) {
     content.appendChild(list);
 
     const outro = document.createElement('p');
-    outro.textContent = 'Si continúas, se reemplazará su contenido. El resto de ficheros sin conflicto se añadirán con normalidad.';
+    outro.textContent = t('resourceReplace.outro');
     content.appendChild(outro);
   }
 
@@ -52,7 +53,7 @@ export function openResourceReplaceConfirmModal({ names, onAccept, onCancel }) {
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => {
     close();
     if (onCancel) onCancel();
@@ -61,7 +62,7 @@ export function openResourceReplaceConfirmModal({ names, onAccept, onCancel }) {
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Reemplazar';
+  acceptBtn.textContent = t('resourceReplace.replace');
   acceptBtn.addEventListener('click', () => {
     close();
     if (onAccept) onAccept();

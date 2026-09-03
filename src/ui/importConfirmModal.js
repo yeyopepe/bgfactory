@@ -2,6 +2,7 @@
 // importación y comportamiento ante id duplicado. Mismo patrón sin tabs que
 // ui/boardPatternModal.js.
 
+import { t } from '../core/i18n.js';
 export function openImportConfirmModal({ onAccept, onCancel }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -11,7 +12,7 @@ export function openImportConfirmModal({ onAccept, onCancel }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Importar — confirmar';
+  header.textContent = t('import.confirm.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -27,11 +28,11 @@ export function openImportConfirmModal({ onAccept, onCancel }) {
   const modeField = document.createElement('div');
   modeField.className = 'modal__field';
   const modeLabel = document.createElement('label');
-  modeLabel.textContent = 'Modo de importación';
+  modeLabel.textContent = t('import.confirm.modeLabel');
   const modeSelect = document.createElement('select');
   const modeOptions = [
-    { value: 'add', label: 'Añadir a lo existente' },
-    { value: 'overwrite', label: 'Sobrescribir todo el juego' },
+    { value: 'add', label: t('import.confirm.mode.add') },
+    { value: 'overwrite', label: t('import.confirm.mode.overwrite') },
   ];
   for (const { value, label } of modeOptions) {
     const option = document.createElement('option');
@@ -50,11 +51,11 @@ export function openImportConfirmModal({ onAccept, onCancel }) {
   const conflictField = document.createElement('div');
   conflictField.className = 'modal__field';
   const conflictLabel = document.createElement('label');
-  conflictLabel.textContent = 'Comportamiento ante id duplicado';
+  conflictLabel.textContent = t('import.confirm.conflictLabel');
   const conflictSelect = document.createElement('select');
   const conflictOptions = [
-    { value: 'overwrite', label: 'Sobrescribir el existente' },
-    { value: 'keepBoth', label: 'Mantener ambos' },
+    { value: 'overwrite', label: t('import.confirm.conflict.overwrite') },
+    { value: 'keepBoth', label: t('import.confirm.conflict.keepBoth') },
   ];
   for (const { value, label } of conflictOptions) {
     const option = document.createElement('option');
@@ -76,7 +77,7 @@ export function openImportConfirmModal({ onAccept, onCancel }) {
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => {
     close();
     if (onCancel) onCancel();
@@ -85,7 +86,7 @@ export function openImportConfirmModal({ onAccept, onCancel }) {
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Importar';
+  acceptBtn.textContent = t('import.confirm.accept');
   acceptBtn.addEventListener('click', () => {
     close();
     if (onAccept) onAccept({ ...working });

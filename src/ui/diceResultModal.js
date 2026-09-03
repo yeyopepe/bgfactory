@@ -2,6 +2,7 @@
 // Reutiliza el patrón modal-overlay/modal sin tabs (mismo criterio que
 // ui/resourceModal.js), solo con el resultado a tamaño grande y "Cerrar".
 
+import { t } from '../core/i18n.js';
 export function openDiceResultModal({ resultado }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -11,7 +12,7 @@ export function openDiceResultModal({ resultado }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Resultado';
+  header.textContent = t('diceResult.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -26,7 +27,7 @@ export function openDiceResultModal({ resultado }) {
   footer.className = 'modal__footer';
   const closeBtn = document.createElement('button');
   closeBtn.className = 'btn-cancel';
-  closeBtn.textContent = 'Cerrar';
+  closeBtn.textContent = t('common.close');
   closeBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(closeBtn);
   modal.appendChild(footer);

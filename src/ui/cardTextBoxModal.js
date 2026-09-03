@@ -4,6 +4,7 @@
 import { openDiceFontModal } from './diceFontModal.js';
 import { getResources } from '../core/state.js';
 import { createRotationSliderField } from './rotationSlider.js';
+import { t } from '../core/i18n.js';
 
 export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate }) {
   const overlay = document.createElement('div');
@@ -14,7 +15,7 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Editar cuadro de texto';
+  header.textContent = t('cardTextBox.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -32,7 +33,7 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   const contentField = document.createElement('div');
   contentField.className = 'modal__field';
   const contentLabel = document.createElement('label');
-  contentLabel.textContent = 'Contenido';
+  contentLabel.textContent = t('cardTextBox.contentLabel');
   const contentInput = document.createElement('textarea');
   contentInput.rows = 3;
   contentInput.value = working.contenido || '';
@@ -46,7 +47,7 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   const fontField = document.createElement('div');
   fontField.className = 'modal__field';
   const fontLabel = document.createElement('label');
-  fontLabel.textContent = 'Tipografía';
+  fontLabel.textContent = t('cardTextBox.fontLabel');
   const fontRow = document.createElement('div');
   fontRow.style.display = 'flex';
   fontRow.style.gap = '0.5rem';
@@ -56,14 +57,14 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   fontCurrentName.style.color = 'var(--text-muted)';
   function updateFontCurrentName() {
     const resource = getResources().find((r) => r.id === working.fuenteResourceId);
-    fontCurrentName.textContent = resource ? resource.name : 'Por defecto';
+    fontCurrentName.textContent = resource ? resource.name : t('common.fontDefault');
   }
   updateFontCurrentName();
 
   const fontBtn = document.createElement('button');
   fontBtn.type = 'button';
   fontBtn.className = 'btn-cancel';
-  fontBtn.textContent = 'Elegir tipografía';
+  fontBtn.textContent = t('cardTextBox.chooseFont');
   fontBtn.addEventListener('click', () => {
     openDiceFontModal({
       resources: getResources(),
@@ -85,17 +86,17 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   const HORIZONTAL_ALIGN_OPTIONS = [
     {
       value: 'izquierda',
-      label: 'Alinear a la izquierda',
+      label: t('align.left'),
       icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="4" x2="16" y2="4"/><line x1="2" y1="9" x2="11" y2="9"/><line x1="2" y1="14" x2="14" y2="14"/></svg>',
     },
     {
       value: 'centro',
-      label: 'Centrar horizontalmente',
+      label: t('align.centerH'),
       icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="4" x2="16" y2="4"/><line x1="4.5" y1="9" x2="13.5" y2="9"/><line x1="3" y1="14" x2="15" y2="14"/></svg>',
     },
     {
       value: 'derecha',
-      label: 'Alinear a la derecha',
+      label: t('align.right'),
       icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="4" x2="16" y2="4"/><line x1="7" y1="9" x2="16" y2="9"/><line x1="4" y1="14" x2="16" y2="14"/></svg>',
     },
   ];
@@ -103,17 +104,17 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   const VERTICAL_ALIGN_OPTIONS = [
     {
       value: 'arriba',
-      label: 'Alinear arriba',
+      label: t('align.top'),
       icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="3" x2="16" y2="3"/><line x1="9" y1="3" x2="9" y2="15"/><line x1="5.5" y1="7" x2="9" y2="3"/><line x1="12.5" y1="7" x2="9" y2="3"/></svg>',
     },
     {
       value: 'centro',
-      label: 'Centrar verticalmente',
+      label: t('align.centerV'),
       icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="9" x2="16" y2="9"/><line x1="9" y1="3" x2="9" y2="15"/><line x1="5.5" y1="5.5" x2="9" y2="2.5"/><line x1="12.5" y1="5.5" x2="9" y2="2.5"/><line x1="5.5" y1="12.5" x2="9" y2="15.5"/><line x1="12.5" y1="12.5" x2="9" y2="15.5"/></svg>',
     },
     {
       value: 'abajo',
-      label: 'Alinear abajo',
+      label: t('align.bottom'),
       icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="15" x2="16" y2="15"/><line x1="9" y1="3" x2="9" y2="15"/><line x1="5.5" y1="11" x2="9" y2="15"/><line x1="12.5" y1="11" x2="9" y2="15"/></svg>',
     },
   ];
@@ -145,7 +146,7 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   const positionField = document.createElement('div');
   positionField.className = 'modal__field';
   const positionLabel = document.createElement('label');
-  positionLabel.textContent = 'Posición del texto en el cuadro';
+  positionLabel.textContent = t('cardTextBox.positionLabel');
   positionField.appendChild(positionLabel);
 
   const alignRow = document.createElement('div');
@@ -178,10 +179,10 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   marginRow.style.marginTop = '0.5rem';
 
   const MARGIN_FIELDS = [
-    { prop: 'margenSuperior', label: 'Arriba' },
-    { prop: 'margenDerecha', label: 'Derecha' },
-    { prop: 'margenInferior', label: 'Abajo' },
-    { prop: 'margenIzquierda', label: 'Izquierda' },
+    { prop: 'margenSuperior', label: t('align.marginTop') },
+    { prop: 'margenDerecha', label: t('align.marginRight') },
+    { prop: 'margenInferior', label: t('align.marginBottom') },
+    { prop: 'margenIzquierda', label: t('align.marginLeft') },
   ];
   working.margenSuperior = working.margenSuperior ?? 0;
   working.margenDerecha = working.margenDerecha ?? 0;
@@ -212,7 +213,7 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   const sizeField = document.createElement('div');
   sizeField.className = 'modal__field';
   const sizeLabel = document.createElement('label');
-  sizeLabel.textContent = 'Tamaño de fuente';
+  sizeLabel.textContent = t('cardTextBox.sizeLabel');
   const sizeInput = document.createElement('input');
   sizeInput.type = 'number';
   sizeInput.min = 4;
@@ -229,7 +230,7 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   const colorField = document.createElement('div');
   colorField.className = 'modal__field';
   const colorLabel = document.createElement('label');
-  colorLabel.textContent = 'Color';
+  colorLabel.textContent = t('cardTextBox.colorLabel');
   const colorInput = document.createElement('input');
   colorInput.type = 'color';
   colorInput.value = working.color || '#000000';
@@ -245,17 +246,17 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   const STYLE_TOGGLE_OPTIONS = [
     {
       prop: 'negrita',
-      label: 'Negrita',
+      label: t('align.bold'),
       icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h5.2a2.8 2.8 0 0 1 0 5.6H5z"/><path d="M5 9.1h5.9a2.9 2.9 0 0 1 0 5.8H5z"/></svg>',
     },
     {
       prop: 'cursiva',
-      label: 'Cursiva',
+      label: t('align.italic'),
       icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="11" y1="3.5" x2="7" y2="14.5"/><line x1="6" y1="14.5" x2="10" y2="14.5"/><line x1="8" y1="3.5" x2="12" y2="3.5"/></svg>',
     },
     {
       prop: 'subrayado',
-      label: 'Subrayado',
+      label: t('align.underline'),
       icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3v5.5a4 4 0 0 0 8 0V3"/><line x1="4" y1="15" x2="14" y2="15"/></svg>',
     },
   ];
@@ -267,7 +268,7 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   const styleField = document.createElement('div');
   styleField.className = 'modal__field';
   const styleLabel = document.createElement('label');
-  styleLabel.textContent = 'Estilo de texto';
+  styleLabel.textContent = t('cardTextBox.styleLabel');
   styleField.appendChild(styleLabel);
 
   const styleGroup = document.createElement('div');
@@ -298,7 +299,7 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   borderActiveCheckbox.type = 'checkbox';
   borderActiveCheckbox.checked = working.bordeActivo ?? false;
   borderLegend.appendChild(borderActiveCheckbox);
-  borderLegend.appendChild(document.createTextNode('Borde'));
+  borderLegend.appendChild(document.createTextNode(t('common.border')));
   borderSection.appendChild(borderLegend);
 
   const borderRow = document.createElement('div');
@@ -310,7 +311,7 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   const borderColorField = document.createElement('div');
   borderColorField.style.flex = '1';
   const borderColorLabel = document.createElement('label');
-  borderColorLabel.textContent = 'Color del borde';
+  borderColorLabel.textContent = t('cardTextBox.borderColorLabel');
   const borderColorInput = document.createElement('input');
   borderColorInput.type = 'color';
   borderColorInput.value = working.bordeColor || '#000000';
@@ -323,7 +324,7 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   const borderWidthField = document.createElement('div');
   borderWidthField.style.flex = '1';
   const borderWidthLabel = document.createElement('label');
-  borderWidthLabel.textContent = 'Grosor';
+  borderWidthLabel.textContent = t('cardTextBox.borderWidthLabel');
   const borderWidthInput = document.createElement('input');
   borderWidthInput.type = 'number';
   borderWidthInput.min = 1;
@@ -344,11 +345,11 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   const borderTypeField = document.createElement('div');
   borderTypeField.className = 'modal__field';
   const borderTypeLabel = document.createElement('label');
-  borderTypeLabel.textContent = 'Tipo de línea';
+  borderTypeLabel.textContent = t('cardTextBox.borderTypeLabel');
   const borderTypeSelect = document.createElement('select');
   const borderTypeOptions = [
-    { value: 'continua', label: 'Continua' },
-    { value: 'punteada', label: 'Punteada' },
+    { value: 'continua', label: t('option.lineType.continua') },
+    { value: 'punteada', label: t('option.lineType.punteada') },
   ];
   for (const { value, label } of borderTypeOptions) {
     const option = document.createElement('option');
@@ -383,13 +384,13 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   bgSection.className = 'modal__section';
   const bgLegend = document.createElement('legend');
   bgLegend.className = 'modal__section-title';
-  bgLegend.textContent = 'Fondo';
+  bgLegend.textContent = t('cardTextBox.bgLegend');
   bgSection.appendChild(bgLegend);
 
   const bgColorField = document.createElement('div');
   bgColorField.className = 'modal__field';
   const bgColorLabel = document.createElement('label');
-  bgColorLabel.textContent = 'Color de fondo';
+  bgColorLabel.textContent = t('cardTextBox.bgColorLabel');
   const bgColorContainer = document.createElement('div');
   bgColorContainer.style.display = 'flex';
   bgColorContainer.style.gap = '0.5rem';
@@ -404,13 +405,13 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
   bgTransparentCheckbox.checked = !working.colorFondo;
 
   const bgTransparentLabel = document.createElement('label');
-  bgTransparentLabel.textContent = 'Transparente';
+  bgTransparentLabel.textContent = t('common.transparent');
   bgTransparentLabel.style.margin = 0;
 
   const bgOpacityField = document.createElement('div');
   bgOpacityField.className = 'modal__field';
   const bgOpacityLabel = document.createElement('label');
-  bgOpacityLabel.textContent = 'Nivel de transparencia';
+  bgOpacityLabel.textContent = t('cardTextBox.bgOpacityLabel');
 
   const bgOpacitySlider = document.createElement('input');
   bgOpacitySlider.type = 'range';
@@ -488,7 +489,7 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
 
   const deleteBtn = document.createElement('button');
   deleteBtn.className = 'btn-eliminar';
-  deleteBtn.textContent = 'Eliminar';
+  deleteBtn.textContent = t('common.delete');
   deleteBtn.addEventListener('click', () => {
     if (onDelete) onDelete();
     overlay.remove();
@@ -497,7 +498,7 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
 
   const duplicateBtn = document.createElement('button');
   duplicateBtn.className = 'btn-duplicate';
-  duplicateBtn.textContent = 'Duplicar';
+  duplicateBtn.textContent = t('common.duplicate');
   duplicateBtn.addEventListener('click', () => {
     if (onDuplicate) onDuplicate(working);
     overlay.remove();
@@ -506,13 +507,13 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(cancelBtn);
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
   acceptBtn.addEventListener('click', () => {
     if (onAccept) onAccept(working);
     overlay.remove();

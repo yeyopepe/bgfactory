@@ -16,6 +16,7 @@ import { hexToRgba, shadeColor } from '../core/colorUtils.js';
 import { isInteractionActive } from '../core/interactions.js';
 import { getEffectiveGeneralProps } from '../core/group.js';
 import { resolveTextVariables } from '../core/textVariables.js';
+import { t } from '../core/i18n.js';
 
 const MIN_TEXT_BOX_WIDTH = 40;
 const MIN_TEXT_BOX_HEIGHT = 24;
@@ -254,17 +255,18 @@ function renderDiceSilhouette(svgEl, size, count, colorCuerpo) {
   svgEl.appendChild(outline);
 }
 
-const COMPONENT_TYPE_LABELS = {
-  texto: 'Texto',
-  tableroSimple: 'Tablero simple',
-  dado: 'Dado Configurable',
-  documento: 'Documento',
-  carta: 'Carta/Ficha',
-  mazo: 'Mazo',
+const COMPONENT_IDENTIFIER_TYPE_KEY = {
+  texto: 'componentIdentifier.type.texto',
+  tableroSimple: 'componentIdentifier.type.tableroSimple',
+  dado: 'componentIdentifier.type.dado',
+  documento: 'componentIdentifier.type.documento',
+  carta: 'componentIdentifier.type.carta',
+  mazo: 'componentIdentifier.type.mazo',
 };
 
 export function formatComponentIdentifier(component) {
-  const typeLabel = COMPONENT_TYPE_LABELS[component.type] || component.type;
+  const key = COMPONENT_IDENTIFIER_TYPE_KEY[component.type];
+  const typeLabel = key ? t(key) : component.type;
   return `${typeLabel}: ${component.id}`;
 }
 
@@ -536,7 +538,7 @@ function renderMazoRevealZone(worldEl, mazo) {
   zone.style.width = `${rect.width}px`;
   zone.style.height = `${rect.height}px`;
   zone.style.borderRadius = mazo.properties?.forma === 'circular' ? '50%' : '';
-  zone.textContent = mazo.properties?.textoCartaRevelada ?? 'Carta revelada';
+  zone.textContent = mazo.properties?.textoCartaRevelada ?? t('mazo.revealZone.default');
   worldEl.appendChild(zone);
   return zone;
 }
@@ -1486,7 +1488,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
 
         const errorOverlay = document.createElement('div');
         errorOverlay.className = 'document-viewer__error';
-        errorOverlay.textContent = 'No se pudo cargar el contenido';
+        errorOverlay.textContent = t('documentViewer.loadError');
         errorOverlay.style.display = 'none';
         documentViewer.appendChild(errorOverlay);
 

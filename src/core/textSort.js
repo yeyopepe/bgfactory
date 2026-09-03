@@ -1,11 +1,13 @@
 // Utilidad de ordenación por nombre, reutilizada por cualquier listado de la
 // app que muestre elementos con un campo `name` (etiquetas, recursos...).
 
+import { getLocale } from './i18n.js';
+
 // Devuelve una copia nueva de `items` ordenada alfabéticamente por `.name`,
 // insensible a mayúsculas y a tildes (p.ej. "Águila" y "águila" quedan
-// juntos), sin mutar el array recibido.
+// juntos), sin mutar el array recibido. El locale sigue al idioma activo.
 export function sortByName(items) {
-  return [...items].sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
+  return [...items].sort((a, b) => a.name.localeCompare(b.name, getLocale(), { sensitivity: 'base' }));
 }
 
 // Comparador genérico por valor, reutilizado por la ordenación de columna de
@@ -15,5 +17,5 @@ export function sortByName(items) {
 // (`numeric: true`, p.ej. "carta-2" antes que "carta-10").
 export function compareValues(a, b) {
   if (typeof a === 'number' && typeof b === 'number') return a - b;
-  return String(a).localeCompare(String(b), 'es', { sensitivity: 'base', numeric: true });
+  return String(a).localeCompare(String(b), getLocale(), { sensitivity: 'base', numeric: true });
 }

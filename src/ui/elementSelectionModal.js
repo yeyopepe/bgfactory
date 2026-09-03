@@ -5,6 +5,7 @@
 // individuales debajo, todos marcados por defecto.
 
 import { formatComponentIdentifier } from './componentRenderer.js';
+import { t } from '../core/i18n.js';
 
 // Pinta los tres bloques dentro de `container` y devuelve `getSelection()`
 // con los ids marcados en cada bloque. `onSelectionChange(selection)` se
@@ -20,9 +21,9 @@ export function createElementSelectionGroups(container, { components = [], resou
   };
 
   const blocks = [
-    { key: 'componentIds', title: 'Componentes', items: components, label: formatComponentIdentifier },
-    { key: 'resourceIds', title: 'Recursos', items: resources, label: (r) => r.name },
-    { key: 'tagIds', title: 'Etiquetas', items: tags, label: (t) => t.name },
+    { key: 'componentIds', title: t('elementSelection.block.components'), items: components, label: formatComponentIdentifier },
+    { key: 'resourceIds', title: t('elementSelection.block.resources'), items: resources, label: (r) => r.name },
+    { key: 'tagIds', title: t('elementSelection.block.tags'), items: tags, label: (tag) => tag.name },
   ];
 
   function getSelection() {

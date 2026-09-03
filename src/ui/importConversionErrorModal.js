@@ -7,6 +7,8 @@
 // ui/importReportModal.js (clase `import-report-modal` reutilizada tal cual,
 // sin CSS nuevo).
 
+import { t } from '../core/i18n.js';
+
 export function openImportConversionErrorModal({ errors, onContinue, onAbort }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -22,7 +24,7 @@ export function openImportConversionErrorModal({ errors, onContinue, onAbort }) 
   header.appendChild(icon);
   const heading = document.createElement('h2');
   heading.className = 'modal__header-title';
-  heading.textContent = 'Errores al convertir fichas';
+  heading.textContent = t('import.conversionError.heading');
   header.appendChild(heading);
   modal.appendChild(header);
 
@@ -30,7 +32,7 @@ export function openImportConversionErrorModal({ errors, onContinue, onAbort }) 
   content.className = 'modal__content';
 
   const message = document.createElement('p');
-  message.textContent = 'Se han detectado errores al convertir las siguientes fichas a Carta/Ficha. Puedes continuar la importación sin ellas, o abortarla por completo.';
+  message.textContent = t('import.conversionError.message');
   content.appendChild(message);
 
   const table = document.createElement('table');
@@ -38,7 +40,7 @@ export function openImportConversionErrorModal({ errors, onContinue, onAbort }) 
 
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
-  for (const label of ['Ficha afectada', 'Error']) {
+  for (const label of [t('import.conversionError.colFicha'), t('import.conversionError.colError')]) {
     const th = document.createElement('th');
     th.textContent = label;
     headRow.appendChild(th);
@@ -67,7 +69,7 @@ export function openImportConversionErrorModal({ errors, onContinue, onAbort }) 
 
   const abortBtn = document.createElement('button');
   abortBtn.className = 'btn-cancel';
-  abortBtn.textContent = 'Abortar importación';
+  abortBtn.textContent = t('import.conversionError.abort');
   abortBtn.addEventListener('click', () => {
     overlay.remove();
     onAbort();
@@ -76,7 +78,7 @@ export function openImportConversionErrorModal({ errors, onContinue, onAbort }) 
 
   const continueBtn = document.createElement('button');
   continueBtn.className = 'btn-accept';
-  continueBtn.textContent = 'Continuar sin esas fichas';
+  continueBtn.textContent = t('import.conversionError.continue');
   continueBtn.addEventListener('click', () => {
     overlay.remove();
     onContinue();

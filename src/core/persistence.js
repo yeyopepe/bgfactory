@@ -4,6 +4,7 @@
 
 import { CURRENT_VERSION } from '../data/version.js';
 import { DEFAULT_APP_TITLE } from './appTitle.js';
+import { t } from './i18n.js';
 
 const STORAGE_KEY = 'bgfactory:state';
 
@@ -75,7 +76,7 @@ export function parseImportedComponents(raw) {
     return { error: true, detail: e.message };
   }
   if (!parsed || !Array.isArray(parsed.components)) {
-    return { error: true, detail: 'El fichero no contiene un listado de componentes válido.' };
+    return { error: true, detail: t('persistence.importParseError') };
   }
   const resources = Array.isArray(parsed.resources) ? parsed.resources : [];
   const tags = Array.isArray(parsed.tags) ? parsed.tags : (Array.isArray(parsed.groups) ? parsed.groups : (Array.isArray(parsed.decks) ? parsed.decks : []));

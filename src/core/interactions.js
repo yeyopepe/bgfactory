@@ -4,10 +4,12 @@
 // ui/componentModal.js y comprobar si siguen activas al renderizar en Modo
 // Juego (ui/componentRenderer.js).
 
+import { t } from './i18n.js';
+
 export const TYPE_INTERACTIONS = {
-  dado: [{ key: 'lanzar', label: 'Lanzar dado' }],
-  carta: [{ key: 'voltear', label: 'Voltear carta' }],
-  mazo: [{ key: 'sacarCarta', label: 'Sacar carta de arriba' }],
+  dado: [{ key: 'lanzar', get label() { return t('interactionDef.rollDie'); } }],
+  carta: [{ key: 'voltear', get label() { return t('interactionDef.flipCard'); } }],
+  mazo: [{ key: 'sacarCarta', get label() { return t('interactionDef.drawTopCard'); } }],
 };
 
 export function getInteractionsForType(type) {

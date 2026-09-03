@@ -5,17 +5,20 @@
 // Iconos ilustrativos por tipo. SVG inline lineal (24×24, stroke currentColor),
 // misma iconografía que ui/editModeToggle.js / ui/componentList.js. Decorativos:
 // el <span> contenedor los marca aria-hidden al pintarlos.
+import { t } from '../core/i18n.js';
+// `label` como getter: se resuelve con t() en cada lectura, siguiendo el idioma
+// activo. La clave i18n es `componentType.<value>`.
 const COMPONENT_TYPES = [
   {
     value: 'texto',
-    label: 'Cuadro de texto',
+    get label() { return t('componentType.texto'); },
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M4 6h16"/><path d="M4 10h16"/><path d="M4 14h16"/><path d="M4 18h9"/>
     </svg>`,
   },
   {
     value: 'tableroSimple',
-    label: 'Tablero simple',
+    get label() { return t('componentType.tableroSimple'); },
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="3" width="18" height="18" rx="1.5"/>
       <path d="M9 3v18"/><path d="M15 3v18"/><path d="M3 9h18"/><path d="M3 15h18"/>
@@ -23,7 +26,7 @@ const COMPONENT_TYPES = [
   },
   {
     value: 'tableroPersonalizado',
-    label: 'Tablero personalizado',
+    get label() { return t('componentType.tableroPersonalizado'); },
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M3 3h11v6"/><path d="M3 9h9"/><path d="M3 15h7"/><path d="M3 3v18h9"/><path d="M9 15v6"/>
       <path d="M18.5 12.5l3 3L16 21l-3 .5.5-3z"/>
@@ -31,7 +34,7 @@ const COMPONENT_TYPES = [
   },
   {
     value: 'dado',
-    label: 'Dado Configurable',
+    get label() { return t('componentType.dado'); },
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="3" y="3" width="18" height="18" rx="3"/>
       <circle cx="8" cy="8" r="1.1" fill="currentColor" stroke="none"/>
@@ -43,7 +46,7 @@ const COMPONENT_TYPES = [
   },
   {
     value: 'documento',
-    label: 'Visor de documentos',
+    get label() { return t('componentType.documento'); },
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
       <path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h6"/>
@@ -51,7 +54,7 @@ const COMPONENT_TYPES = [
   },
   {
     value: 'carta',
-    label: 'Carta/Ficha',
+    get label() { return t('componentType.carta'); },
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="6" y="2.5" width="12" height="19" rx="2.5"/>
       <path d="M9 7h6"/><path d="M9 11h4"/>
@@ -59,7 +62,7 @@ const COMPONENT_TYPES = [
   },
   {
     value: 'mazo',
-    label: 'Mazo',
+    get label() { return t('componentType.mazo'); },
     icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <rect x="8" y="6" width="11" height="15" rx="2"/>
       <path d="M5.5 17.5V5.5a2 2 0 0 1 2-2H15"/>
@@ -68,7 +71,7 @@ const COMPONENT_TYPES = [
 ];
 
 export function getComponentTypeLabel(type) {
-  const entry = COMPONENT_TYPES.find((t) => t.value === type);
+  const entry = COMPONENT_TYPES.find((e) => e.value === type);
   return entry ? entry.label : type;
 }
 
@@ -81,7 +84,7 @@ export function openComponentTypeModal({ onAccept }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Añadir componente';
+  header.textContent = t('componentTypeModal.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -128,13 +131,13 @@ export function openComponentTypeModal({ onAccept }) {
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(cancelBtn);
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
   acceptBtn.addEventListener('click', () => {
     if (onAccept) onAccept(selectedType);
     overlay.remove();

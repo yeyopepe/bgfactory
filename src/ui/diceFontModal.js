@@ -6,6 +6,7 @@
 
 import { RESOURCE_TYPES } from '../core/resource.js';
 import { fontFamilyFor } from './fontFaceRegistry.js';
+import { t } from '../core/i18n.js';
 
 const SAMPLE_TEXT = 'Aa 123';
 
@@ -18,7 +19,7 @@ export function openDiceFontModal({ resources, currentResourceId, onAccept }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Elegir tipografía';
+  header.textContent = t('diceFont.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -34,7 +35,7 @@ export function openDiceFontModal({ resources, currentResourceId, onAccept }) {
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
 
   function updateAcceptButton() {
     acceptBtn.disabled = !selectedId;
@@ -43,7 +44,7 @@ export function openDiceFontModal({ resources, currentResourceId, onAccept }) {
   if (fonts.length === 0) {
     const empty = document.createElement('p');
     empty.className = 'dice-font-modal__empty';
-    empty.textContent = 'No hay tipografías disponibles';
+    empty.textContent = t('diceFont.empty');
     content.appendChild(empty);
   } else {
     const list = document.createElement('div');
@@ -81,7 +82,7 @@ export function openDiceFontModal({ resources, currentResourceId, onAccept }) {
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(cancelBtn);
 

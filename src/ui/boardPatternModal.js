@@ -1,6 +1,7 @@
 // Sub-modal "Color y patrón" del fondo de tablero, abierta desde pestaña "Específicas" de componentModal.js.
 // Misma estructura visual que resourceModal.js (overlay/modal/header/content/footer, sin tabs).
 
+import { t } from '../core/i18n.js';
 const MIN_CELLS = 1;
 const MAX_CELLS = 50;
 
@@ -13,7 +14,7 @@ export function openBoardPatternModal({ properties, onAccept }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Configurar fondo — Color y patrón';
+  header.textContent = t('boardPattern.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -42,14 +43,14 @@ export function openBoardPatternModal({ properties, onAccept }) {
   configSection.className = 'modal__section';
   const configLegend = document.createElement('legend');
   configLegend.className = 'modal__section-title';
-  configLegend.textContent = 'Configuración';
+  configLegend.textContent = t('boardPattern.configLegend');
   configSection.appendChild(configLegend);
 
   const colorSection = document.createElement('fieldset');
   colorSection.className = 'modal__section';
   const colorLegend = document.createElement('legend');
   colorLegend.className = 'modal__section-title';
-  colorLegend.textContent = 'Color';
+  colorLegend.textContent = t('boardPattern.colorLegend');
   colorSection.appendChild(colorLegend);
 
   // Color de fondo (con opción "Transparente"), detrás del patrón. Mismo patrón que el campo
@@ -57,7 +58,7 @@ export function openBoardPatternModal({ properties, onAccept }) {
   const bgColorField = document.createElement('div');
   bgColorField.className = 'modal__field';
   const bgColorLabel = document.createElement('label');
-  bgColorLabel.textContent = 'Color de fondo';
+  bgColorLabel.textContent = t('boardPattern.bgColorLabel');
   const bgColorContainer = document.createElement('div');
   bgColorContainer.style.display = 'flex';
   bgColorContainer.style.gap = '0.5rem';
@@ -72,7 +73,7 @@ export function openBoardPatternModal({ properties, onAccept }) {
   bgTransparentCheckbox.checked = !working.colorFondo;
 
   const bgTransparentLabel = document.createElement('label');
-  bgTransparentLabel.textContent = 'Transparente';
+  bgTransparentLabel.textContent = t('common.transparent');
   bgTransparentLabel.style.margin = 0;
 
   bgColorInput.disabled = bgTransparentCheckbox.checked;
@@ -103,7 +104,7 @@ export function openBoardPatternModal({ properties, onAccept }) {
   const colorField = document.createElement('div');
   colorField.style.flex = '1';
   const colorLabel = document.createElement('label');
-  colorLabel.textContent = 'Color del patrón';
+  colorLabel.textContent = t('boardPattern.patternColorLabel');
   const colorInput = document.createElement('input');
   colorInput.type = 'color';
   colorInput.value = working.patronColor;
@@ -116,7 +117,7 @@ export function openBoardPatternModal({ properties, onAccept }) {
   const grosorField = document.createElement('div');
   grosorField.style.flex = '1';
   const grosorLabel = document.createElement('label');
-  grosorLabel.textContent = 'Grosor';
+  grosorLabel.textContent = t('boardPattern.thicknessLabel');
   const grosorInput = document.createElement('input');
   grosorInput.type = 'number';
   grosorInput.min = 1;
@@ -137,12 +138,12 @@ export function openBoardPatternModal({ properties, onAccept }) {
   const shapeField = document.createElement('div');
   shapeField.className = 'modal__field';
   const shapeLabel = document.createElement('label');
-  shapeLabel.textContent = 'Forma de casilla';
+  shapeLabel.textContent = t('boardPattern.cellShapeLabel');
   const shapeSelect = document.createElement('select');
   const shapeOptions = [
-    { value: 'cuadrada', label: 'Cuadrada' },
-    { value: 'hex-vertical', label: 'Hexagonal (vértices arriba/abajo)' },
-    { value: 'hex-horizontal', label: 'Hexagonal (vértices izquierda/derecha)' },
+    { value: 'cuadrada', label: t('option.cellShape.cuadrada') },
+    { value: 'hex-vertical', label: t('option.cellShape.hexVertical') },
+    { value: 'hex-horizontal', label: t('option.cellShape.hexHorizontal') },
   ];
   for (const { value, label } of shapeOptions) {
     const option = document.createElement('option');
@@ -167,7 +168,7 @@ export function openBoardPatternModal({ properties, onAccept }) {
   const rowsField = document.createElement('div');
   rowsField.style.flex = '1';
   const rowsLabel = document.createElement('label');
-  rowsLabel.textContent = 'Filas';
+  rowsLabel.textContent = t('boardPattern.rowsLabel');
   const rowsInput = document.createElement('input');
   rowsInput.type = 'number';
   rowsInput.min = MIN_CELLS;
@@ -183,7 +184,7 @@ export function openBoardPatternModal({ properties, onAccept }) {
   const colsField = document.createElement('div');
   colsField.style.flex = '1';
   const colsLabel = document.createElement('label');
-  colsLabel.textContent = 'Columnas';
+  colsLabel.textContent = t('boardPattern.colsLabel');
   const colsInput = document.createElement('input');
   colsInput.type = 'number';
   colsInput.min = MIN_CELLS;
@@ -206,13 +207,13 @@ export function openBoardPatternModal({ properties, onAccept }) {
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(cancelBtn);
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
   acceptBtn.addEventListener('click', () => {
     if (onAccept) onAccept({ ...working });
     overlay.remove();

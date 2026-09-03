@@ -3,6 +3,7 @@
 // de sub-modales de fondo (overlay/modal/header/content/footer, sin tabs, campo único sin fieldset).
 // Mismo patrón color + checkbox "Transparente" que ui/boardPatternModal.js.
 
+import { t } from '../core/i18n.js';
 export function openCardBackgroundColorModal({ properties, onAccept }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -12,7 +13,7 @@ export function openCardBackgroundColorModal({ properties, onAccept }) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Configurar color de fondo';
+  header.textContent = t('cardBackgroundColor.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -31,7 +32,7 @@ export function openCardBackgroundColorModal({ properties, onAccept }) {
   const colorField = document.createElement('div');
   colorField.className = 'modal__field';
   const colorLabel = document.createElement('label');
-  colorLabel.textContent = 'Color de fondo';
+  colorLabel.textContent = t('cardBackgroundColor.colorLabel');
   const colorContainer = document.createElement('div');
   colorContainer.style.display = 'flex';
   colorContainer.style.gap = '0.5rem';
@@ -46,7 +47,7 @@ export function openCardBackgroundColorModal({ properties, onAccept }) {
   transparentCheckbox.checked = !working.colorFondo;
 
   const transparentLabel = document.createElement('label');
-  transparentLabel.textContent = 'Transparente';
+  transparentLabel.textContent = t('common.transparent');
   transparentLabel.style.margin = 0;
 
   colorInput.disabled = transparentCheckbox.checked;
@@ -69,13 +70,13 @@ export function openCardBackgroundColorModal({ properties, onAccept }) {
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(cancelBtn);
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
   acceptBtn.addEventListener('click', () => {
     if (onAccept) onAccept({ ...working });
     overlay.remove();

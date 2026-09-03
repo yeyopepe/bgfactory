@@ -6,6 +6,7 @@
 import { RESOURCE_TYPES, resourceTypeForFileName } from '../core/resource.js';
 import { convertImageToWebP } from '../core/imageConversion.js';
 import { fontFamilyFor } from './fontFaceRegistry.js';
+import { t } from '../core/i18n.js';
 
 export function openResourceModal({ resource, onAccept, onDelete }) {
   const overlay = document.createElement('div');
@@ -16,11 +17,11 @@ export function openResourceModal({ resource, onAccept, onDelete }) {
   const modal = document.createElement('div');
   modal.className = isImage ? 'modal resource-modal--image' : 'modal';
 
-  const label = isImage ? 'Imagen' : 'Tipografía';
+  const label = isImage ? t('resourceKind.image') : t('resourceKind.font');
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = `Recurso: ${label} — ${resource.name}`;
+  header.textContent = t('resourceModal.title', { kind: label, name: resource.name });
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -47,7 +48,7 @@ export function openResourceModal({ resource, onAccept, onDelete }) {
 
   const deleteBtn = document.createElement('button');
   deleteBtn.className = 'btn-eliminar';
-  deleteBtn.textContent = 'Eliminar';
+  deleteBtn.textContent = t('common.delete');
   deleteBtn.addEventListener('click', () => {
     const deleted = onDelete ? onDelete(resource) : false;
     if (deleted) closeModal();
@@ -57,13 +58,13 @@ export function openResourceModal({ resource, onAccept, onDelete }) {
   if (isImage) {
     const cancelBtn = document.createElement('button');
     cancelBtn.className = 'btn-cancel';
-    cancelBtn.textContent = 'Cancelar';
+    cancelBtn.textContent = t('common.cancel');
     cancelBtn.addEventListener('click', closeModal);
     footer.appendChild(cancelBtn);
 
     const acceptBtn = document.createElement('button');
     acceptBtn.className = 'btn-accept';
-    acceptBtn.textContent = 'Aceptar cambios';
+    acceptBtn.textContent = t('resourceModal.acceptChanges');
     acceptBtn.addEventListener('click', () => {
       if (onAccept) onAccept(workingResource);
       closeModal();
@@ -72,7 +73,7 @@ export function openResourceModal({ resource, onAccept, onDelete }) {
   } else {
     const closeBtn = document.createElement('button');
     closeBtn.className = 'btn-cancel';
-    closeBtn.textContent = 'Cerrar ventana';
+    closeBtn.textContent = t('resourceModal.closeWindow');
     closeBtn.addEventListener('click', closeModal);
     footer.appendChild(closeBtn);
   }
@@ -93,7 +94,7 @@ function renderImageContent(content, workingResource) {
   const nameField = document.createElement('div');
   nameField.className = 'modal__field';
   const nameLabel = document.createElement('label');
-  nameLabel.textContent = 'Nombre del recurso';
+  nameLabel.textContent = t('resourceModal.nameLabel');
   const nameInput = document.createElement('input');
   nameInput.type = 'text';
   nameInput.value = workingResource.name;
@@ -107,7 +108,7 @@ function renderImageContent(content, workingResource) {
   const previewField = document.createElement('div');
   previewField.className = 'modal__field';
   const previewLabel = document.createElement('label');
-  previewLabel.textContent = 'Vista previa';
+  previewLabel.textContent = t('resourceModal.previewLabel');
   const previewBox = document.createElement('div');
   previewBox.className = 'resource-modal__image-preview';
   const previewImg = document.createElement('img');
@@ -123,9 +124,9 @@ function renderImageContent(content, workingResource) {
 
   const zoomControls = document.createElement('div');
   zoomControls.className = 'resource-modal__zoom-controls';
-  const zoomInBtn = createZoomButton('Ampliar', ICON_ZOOM_IN);
-  const zoomOutBtn = createZoomButton('Reducir', ICON_ZOOM_OUT);
-  const resetBtn = createZoomButton('Restablecer vista', ICON_RESET);
+  const zoomInBtn = createZoomButton(t('resourceModal.zoom.in'), ICON_ZOOM_IN);
+  const zoomOutBtn = createZoomButton(t('resourceModal.zoom.out'), ICON_ZOOM_OUT);
+  const resetBtn = createZoomButton(t('resourceModal.zoom.reset'), ICON_RESET);
   zoomControls.appendChild(zoomInBtn);
   zoomControls.appendChild(zoomOutBtn);
   zoomControls.appendChild(resetBtn);
@@ -136,7 +137,7 @@ function renderImageContent(content, workingResource) {
 
   const hint = document.createElement('div');
   hint.className = 'resource-modal__hint';
-  hint.textContent = 'Rueda del ratón para hacer zoom · arrastrar para mover la imagen';
+  hint.textContent = t('resourceModal.zoomPanHint');
   previewField.appendChild(hint);
 
   content.appendChild(previewField);
@@ -240,7 +241,7 @@ function renderImageContent(content, workingResource) {
   const changeBtn = document.createElement('button');
   changeBtn.type = 'button';
   changeBtn.className = 'btn-cancel';
-  changeBtn.textContent = 'Cambiar imagen...';
+  changeBtn.textContent = t('resourceModal.changeImage');
   changeBtn.addEventListener('click', () => fileInput.click());
   content.appendChild(changeBtn);
 
@@ -275,11 +276,11 @@ function renderFontContent(content, resource) {
   const previewField = document.createElement('div');
   previewField.className = 'modal__field';
   const previewLabel = document.createElement('label');
-  previewLabel.textContent = 'Vista previa';
+  previewLabel.textContent = t('resourceModal.previewLabel');
   const previewBox = document.createElement('div');
   previewBox.className = 'resource-modal__font-preview';
   previewBox.style.fontFamily = `'${fontFamilyFor(resource.id)}'`;
-  previewBox.textContent = 'BG Factory sample — ABCDEFGHIJKLMÑ abcdefghijklmñ 0123456789';
+  previewBox.textContent = t('resourceModal.fontSample');
   previewField.appendChild(previewLabel);
   previewField.appendChild(previewBox);
   content.appendChild(previewField);

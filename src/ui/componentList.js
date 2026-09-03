@@ -5,9 +5,16 @@ import { attachResizeHandle } from './resizeHandle.js';
 import { attachColumnResizing } from './tableColumnResize.js';
 import { attachColumnMenu } from './tableColumnMenu.js';
 import { compareValues } from '../core/textSort.js';
+import { t } from '../core/i18n.js';
+import { getComponentTypeLabel } from './componentTypeModal.js';
 
-function capitalize(value) {
-  return value.charAt(0).toUpperCase() + value.slice(1);
+// Nombre de tipo traducido al idioma activo, usado tanto en las celdas de la
+// columna "Tipo" como en las opciones de su filtro. `getComponentTypeLabel`
+// devuelve el valor tal cual si no es un tipo conocido, lo que cubre las filas
+// sintéticas de grupo (cuyo `type` ya viene traducido vía
+// `componentList.groupRowType`).
+function formatTypeLabel(value) {
+  return getComponentTypeLabel(value);
 }
 
 const MIN_PANEL_WIDTH = 290;
@@ -19,8 +26,8 @@ const COMPONENT_LIST_COLUMNS = ['orden', 'id', 'tipo', 'copia', 'acciones'];
 const COMPONENT_LIST_COLUMN_DEFS = [
   { key: 'orden', filterable: false, getValue: (c) => c.order },
   { key: 'id', filterable: true, getValue: (c) => c.id },
-  { key: 'tipo', filterable: true, getValue: (c) => c.type, formatFilterLabel: capitalize },
-  { key: 'copia', filterable: true, getValue: (c) => (c.copyOf ? 'Sí' : 'No') },
+  { key: 'tipo', filterable: true, getValue: (c) => c.type, formatFilterLabel: formatTypeLabel },
+  { key: 'copia', filterable: true, getValue: (c) => (c.copyOf ? t('common.yes') : t('common.no')) },
 ];
 const COMPONENT_LIST_COLUMN_DEFS_BY_KEY = Object.fromEntries(COMPONENT_LIST_COLUMN_DEFS.map((d) => [d.key, d]));
 
@@ -64,7 +71,7 @@ function buildGroupRows(components) {
       const sortedMembers = [...members].sort((a, b) => a.order - b.order);
       return {
         id: groupId,
-        type: 'Grupo',
+        type: t('componentList.groupRowType'),
         order: sortedMembers[0].order,
         copyOf: null,
         __isGroupRow: true,
@@ -144,7 +151,13 @@ function renderBody(body, displayedComponents, total, { onEdit, onEditGroup, onC
 
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
-  const headLabels = { orden: 'Orden', id: 'Id', tipo: 'Tipo', copia: 'Copia', acciones: 'Acciones' };
+  const headLabels = {
+    orden: t('componentList.col.orden'),
+    id: t('componentList.col.id'),
+    tipo: t('componentList.col.tipo'),
+    copia: t('componentList.col.copia'),
+    acciones: t('common.actions'),
+  };
   for (const key of COMPONENT_LIST_COLUMNS) {
     const th = document.createElement('th');
     th.dataset.col = key;
@@ -164,10 +177,10 @@ function renderBody(body, displayedComponents, total, { onEdit, onEditGroup, onC
     emptyCell.colSpan = COMPONENT_LIST_COLUMNS.length;
     if (!hasActiveFilter) {
       emptyCell.className = 'component-list__empty';
-      emptyCell.textContent = 'No hay componentes todavía.';
+      emptyCell.textContent = t('componentList.empty');
     } else {
       emptyCell.className = 'component-list__empty-filter';
-      emptyCell.textContent = `No hay componentes que coincidan con «${filterText}».`;
+      emptyCell.textContent = t('componentList.emptyFilter', { filter: filterText });
     }
     emptyRow.appendChild(emptyCell);
     tbody.appendChild(emptyRow);
@@ -215,7 +228,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onEditGroup, onC
       row.appendChild(idCell);
 
       const typeCell = document.createElement('td');
-      typeCell.textContent = capitalize(component.type);
+      typeCell.textContent = formatTypeLabel(component.type);
       row.appendChild(typeCell);
 
       const copyCell = document.createElement('td');
@@ -228,7 +241,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onEditGroup, onC
         const editButton = document.createElement('button');
         editButton.type = 'button';
         editButton.className = 'component-list__action-btn';
-        editButton.textContent = 'Editar';
+        editButton.textContent = t('common.edit');
         editButton.addEventListener('click', (event) => {
           event.stopPropagation();
           onEditGroup(component.id);
@@ -239,7 +252,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onEditGroup, onC
         const ungroupButton = document.createElement('button');
         ungroupButton.type = 'button';
         ungroupButton.className = 'component-list__action-btn';
-        ungroupButton.textContent = 'Desagrupar';
+        ungroupButton.textContent = t('componentList.ungroup');
         ungroupButton.addEventListener('click', (event) => {
           event.stopPropagation();
           onUngroup(component.__members.map((m) => m.id));
@@ -300,7 +313,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onEditGroup, onC
     row.appendChild(idCell);
 
     const typeCell = document.createElement('td');
-    typeCell.textContent = capitalize(component.type);
+    typeCell.textContent = formatTypeLabel(component.type);
     row.appendChild(typeCell);
 
     const copyCell = document.createElement('td');
@@ -315,7 +328,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onEditGroup, onC
       const editButton = document.createElement('button');
       editButton.type = 'button';
       editButton.className = 'component-list__action-btn';
-      editButton.textContent = 'Editar';
+      editButton.textContent = t('common.edit');
       editButton.addEventListener('click', (event) => {
         event.stopPropagation();
         onEdit(component);
@@ -327,7 +340,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onEditGroup, onC
       const cloneButton = document.createElement('button');
       cloneButton.type = 'button';
       cloneButton.className = 'component-list__action-btn';
-      cloneButton.textContent = 'Clonar';
+      cloneButton.textContent = t('contextMenu.clone');
       cloneButton.disabled = component.groupId != null;
       cloneButton.addEventListener('click', (event) => {
         event.stopPropagation();
@@ -340,7 +353,7 @@ function renderBody(body, displayedComponents, total, { onEdit, onEditGroup, onC
       const copyButton = document.createElement('button');
       copyButton.type = 'button';
       copyButton.className = 'component-list__action-btn';
-      copyButton.textContent = 'Copiar';
+      copyButton.textContent = t('contextMenu.copy');
       copyButton.disabled = component.groupId != null;
       copyButton.addEventListener('click', (event) => {
         event.stopPropagation();
@@ -353,14 +366,14 @@ function renderBody(body, displayedComponents, total, { onEdit, onEditGroup, onC
       const removeButton = document.createElement('button');
       removeButton.type = 'button';
       removeButton.className = 'component-list__action-btn component-list__action-btn--danger';
-      removeButton.textContent = 'Eliminar';
+      removeButton.textContent = t('common.delete');
       removeButton.addEventListener('click', (event) => {
         event.stopPropagation();
         if (selectedIds.size > 1 && selectedIds.has(component.id)) {
           onRemove(component, { bulk: true });
           return;
         }
-        if (confirm(`¿Eliminar el componente "${component.id}"?`)) {
+        if (confirm(t('confirm.deleteComponent', { id: component.id }))) {
           onRemove(component);
         }
       });
@@ -431,7 +444,7 @@ export function renderComponentList(
   header.className = 'component-panel__header';
 
   const title = document.createElement('strong');
-  title.textContent = `Componentes (${components.length})`;
+  title.textContent = t('componentList.title', { count: components.length });
   header.appendChild(title);
 
   const toggleButton = document.createElement('button');
@@ -499,7 +512,7 @@ export function renderComponentList(
 
     function rerenderBody() {
       const displayed = computeDisplayedList(components);
-      title.textContent = `Componentes (${displayed.filter((r) => !r.__isGroupRow).length})`;
+      title.textContent = t('componentList.title', { count: displayed.filter((r) => !r.__isGroupRow).length });
       renderBody(body, displayed, components.length, rowHandlers);
     }
 
@@ -509,7 +522,7 @@ export function renderComponentList(
 
       const filterInput = document.createElement('input');
       filterInput.type = 'text';
-      filterInput.placeholder = 'Filtrar componentes…';
+      filterInput.placeholder = t('componentList.filterPlaceholder');
       filterInput.value = filterText;
       filterInput.addEventListener('input', () => {
         filterText = filterInput.value;
@@ -521,8 +534,8 @@ export function renderComponentList(
       const clearBtn = document.createElement('button');
       clearBtn.type = 'button';
       clearBtn.className = 'component-panel__filter-clear';
-      clearBtn.title = 'Limpiar búsqueda';
-      clearBtn.setAttribute('aria-label', 'Limpiar búsqueda');
+      clearBtn.title = t('common.clearSearch');
+      clearBtn.setAttribute('aria-label', t('common.clearSearch'));
       clearBtn.innerHTML = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 6l12 12" stroke-linecap="round"/>
@@ -562,7 +575,7 @@ export function renderComponentList(
 
     const addButton = document.createElement('button');
     addButton.type = 'button';
-    addButton.textContent = '+ Añadir componente';
+    addButton.textContent = t('componentList.add');
     addButton.addEventListener('click', () => {
       if (onAdd) onAdd();
     });

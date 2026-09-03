@@ -51,6 +51,13 @@ bootFromSeedOrDefaults()  [local to main.js]:
 - Row selection (`selectedComponentIds`) is not part of any `panelState`, is never persisted.
 - **Backward compatibility**: `parseState`/`parseImportedComponents` read `tags`/`tagPanelState`, with a chained fallback to `groups`/`groupPanelState` and then to the oldest keys `decks`/`deckPanelState` if the previous ones are not present (see `group.persist.decision.key-componentGroups` and the "Backward compatibility" table in `004-groups-resources.md`). `componentGroups` has no such alias — it is a new collection.
 
+### Language preference (`localStorage` key `bgfactory:lang`, change 00244)
+
+- Separate `localStorage` key from the state slot `bgfactory:state`. Read by `initI18n()` (`core/i18n.js`) as the first step of `main.js` startup, before state resolution and startup toasts.
+- Value ∈ `{'es', 'en'}` (`SUPPORTED_LANGUAGES`). Absent/unsupported → autodetection: `navigator.language` startsWith `'es'` ? `'es'` : `'en'`. Autodetection result is NOT written back — only an explicit `setLanguage()` writes.
+- NOT in `persistence.serializedFields`, NOT in `buildComponentsExport`'s JSON. Survives `CURRENT_VERSION` changes (unlike `bgfactory:state`, discarded by `parseState` on version mismatch). No migration — pre-00244 saves simply lack the key.
+- See [010 — Internationalization (i18n)](010-internationalization-i18n.md).
+
 ### File save
 
 [gotcha] there is no whole-app "Guardar" action any more — `src/ui/editModeToggle.js` (`.edit-toolbar`) only offers "Importar"/"Exportar"; a full-app HTML download (`buildExportHtml`/`downloadHtml`) existed in earlier versions of `core/fileExport.js` but has since been removed (only present today inside `src/_output/versions/index-v*.html`, past build artifacts, not in current `/src`). `core/fileExport.js` now exposes only `downloadJson(filename, data)`, used by the "Exportar" flow below.

@@ -6,14 +6,18 @@ import { attachColumnResizing } from './tableColumnResize.js';
 import { attachColumnMenu } from './tableColumnMenu.js';
 import { RESOURCE_TYPES, getComponentsUsingResource } from '../core/resource.js';
 import { sortByName, compareValues } from '../core/textSort.js';
+import { t } from '../core/i18n.js';
 
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
 const RESOURCE_LIST_COLUMNS = ['nombre', 'usos', 'tipo', 'acciones'];
 
+// Etiqueta de tipo traducida al idioma activo. Getters, no valores fijos: se
+// resuelven con t() en cada lectura (mismo patrón que los arrays que alimentan
+// <select>/menús, ver design/docs/architecture/010-internationalization-i18n.md).
 const TYPE_LABELS = {
-  [RESOURCE_TYPES.IMAGE]: 'Imagen',
-  [RESOURCE_TYPES.FONT]: 'Tipografía',
+  get [RESOURCE_TYPES.IMAGE]() { return t('resourceKind.image'); },
+  get [RESOURCE_TYPES.FONT]() { return t('resourceKind.font'); },
 };
 
 // Columnas interactivas del menú de cabecera: todas menos "Acciones".
@@ -69,7 +73,7 @@ function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnR
 
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
-  const headLabels = { nombre: 'Nombre', usos: 'Usos', tipo: 'Tipo', acciones: 'Acciones' };
+  const headLabels = { nombre: t('common.name'), usos: t('resourceList.col.usos'), tipo: t('resourceList.col.tipo'), acciones: t('common.actions') };
   for (const key of RESOURCE_LIST_COLUMNS) {
     const th = document.createElement('th');
     th.dataset.col = key;
@@ -89,10 +93,10 @@ function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnR
     emptyCell.colSpan = RESOURCE_LIST_COLUMNS.length;
     if (!hasActiveFilter) {
       emptyCell.className = 'resource-list__empty';
-      emptyCell.textContent = 'No hay recursos todavía.';
+      emptyCell.textContent = t('resourceList.empty');
     } else {
       emptyCell.className = 'resource-list__empty-filter';
-      emptyCell.textContent = `No hay recursos que coincidan con «${filterText}».`;
+      emptyCell.textContent = t('resourceList.emptyFilter', { filter: filterText });
     }
     emptyRow.appendChild(emptyCell);
     tbody.appendChild(emptyRow);
@@ -121,7 +125,7 @@ function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnR
       const editButton = document.createElement('button');
       editButton.type = 'button';
       editButton.className = 'resource-list__action-btn';
-      editButton.textContent = 'Editar';
+      editButton.textContent = t('common.edit');
       editButton.addEventListener('click', () => onEdit(resource));
       actionsCell.appendChild(editButton);
     }
@@ -130,7 +134,7 @@ function renderBody(body, resources, { onEdit, onRemove, columnWidths, onColumnR
       const removeButton = document.createElement('button');
       removeButton.type = 'button';
       removeButton.className = 'resource-list__action-btn resource-list__action-btn--danger';
-      removeButton.textContent = 'Eliminar';
+      removeButton.textContent = t('common.delete');
       removeButton.addEventListener('click', () => onRemove(resource));
       actionsCell.appendChild(removeButton);
     }
@@ -163,7 +167,7 @@ function createAddMenu({ onAddFile, onAddMultiple, onAddFolder }) {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'resource-add__button';
-  button.textContent = '+ Añadir recurso ▾';
+  button.textContent = t('resourceList.add');
   wrap.appendChild(button);
 
   const menu = document.createElement('div');
@@ -193,9 +197,9 @@ function createAddMenu({ onAddFile, onAddMultiple, onAddFolder }) {
     menu.appendChild(item);
   }
 
-  addItem('Subir fichero', null, onAddFile);
-  addItem('Subir varios ficheros', null, onAddMultiple);
-  addItem('Subir carpeta', 'Solo se tiene en cuenta el primer nivel de la carpeta', onAddFolder);
+  addItem(t('resourceList.addMenu.file'), null, onAddFile);
+  addItem(t('resourceList.addMenu.multiple'), null, onAddMultiple);
+  addItem(t('resourceList.addMenu.folder'), t('resourceList.addMenu.folderNote'), onAddFolder);
 
   wrap.appendChild(menu);
 
@@ -249,7 +253,7 @@ export function renderResourceList(
   header.className = 'resource-panel__header';
 
   const title = document.createElement('strong');
-  title.textContent = `Recursos (${resources.length})`;
+  title.textContent = t('resourceList.title', { count: resources.length });
   header.appendChild(title);
 
   const toggleButton = document.createElement('button');
@@ -330,7 +334,7 @@ export function renderResourceList(
 
     function rerenderBody() {
       const displayed = computeDisplayedResources();
-      title.textContent = `Recursos (${displayed.length})`;
+      title.textContent = t('resourceList.title', { count: displayed.length });
       renderBody(body, displayed, bodyOptions);
     }
 
@@ -340,7 +344,7 @@ export function renderResourceList(
 
       const filterInput = document.createElement('input');
       filterInput.type = 'text';
-      filterInput.placeholder = 'Filtrar recursos…';
+      filterInput.placeholder = t('resourceList.filterPlaceholder');
       filterInput.value = filterText;
       filterInput.addEventListener('input', () => {
         filterText = filterInput.value;
@@ -352,8 +356,8 @@ export function renderResourceList(
       const clearBtn = document.createElement('button');
       clearBtn.type = 'button';
       clearBtn.className = 'resource-panel__filter-clear';
-      clearBtn.title = 'Limpiar búsqueda';
-      clearBtn.setAttribute('aria-label', 'Limpiar búsqueda');
+      clearBtn.title = t('common.clearSearch');
+      clearBtn.setAttribute('aria-label', t('common.clearSearch'));
       clearBtn.innerHTML = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 6l12 12" stroke-linecap="round"/>

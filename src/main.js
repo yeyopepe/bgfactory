@@ -20,6 +20,11 @@ import { deriveMissingGroups } from './core/group.js';
 import { saveState, loadState, readSeedState } from './core/persistence.js';
 import { showToast } from './ui/toast.js';
 import { syncFontFaces } from './ui/fontFaceRegistry.js';
+import { initI18n, t } from './core/i18n.js';
+
+// i18n lo primero: resuelve el idioma activo, fija <html lang> y document.title
+// antes de construir nada de UI ni disparar los toasts de arranque.
+initI18n();
 
 const switcherEl = document.getElementById('mode-switcher');
 const toolbarEl = document.getElementById('edit-toolbar');
@@ -27,8 +32,9 @@ const contentEl = document.getElementById('content');
 const titleEl = document.getElementById('app-title');
 const versionEl = document.getElementById('app-version');
 
-if (versionEl) {
-  versionEl.textContent = '';
+function renderAppVersion(el) {
+  if (!el) return;
+  el.textContent = '';
 
   const nameLine = document.createElement('div');
   nameLine.className = 'app-version__name';
@@ -40,10 +46,10 @@ if (versionEl) {
   repoLink.href = 'https://github.com/yeyopepe/bgfactory';
   repoLink.target = '_blank';
   repoLink.rel = 'noopener';
-  repoLink.textContent = 'Ver en Github';
+  repoLink.textContent = t('appVersion.repoLink');
   repoLine.appendChild(repoLink);
 
-  versionEl.append(nameLine, repoLine);
+  el.append(nameLine, repoLine);
 }
 
 function renderActiveMode() {
@@ -56,6 +62,7 @@ function renderActiveMode() {
 
 function renderAll() {
   if (titleEl) renderAppTitle(titleEl);
+  renderAppVersion(versionEl);
   renderModeSwitcher(switcherEl);
   renderEditToolbar(toolbarEl);
   renderActiveMode();
@@ -80,6 +87,7 @@ on('groups:changed', renderAll);
 on('groups:changed', persistState);
 on('appTitle:changed', renderAll);
 on('appTitle:changed', persistState);
+on('language:changed', renderAll);
 
 initGlobalShortcuts({
   isEditMode: () => getState().mode === MODES.EDIT,
@@ -87,11 +95,20 @@ initGlobalShortcuts({
   onMoveSelected: (dx, dy) => moveSelectedComponent(dx, dy),
 });
 
+// El nombre de cada recurso semilla se traduce en el momento de sembrarlo
+// (id fijo -> clave de i18n). Tras la siembra son datos de usuario, no se re-traducen.
+const DEFAULT_RESOURCE_NAME_KEY = {
+  'example-image': 'defaultResource.exampleImage',
+  'example-font': 'defaultResource.exampleFont',
+};
+
 function seedDefaultResources() {
   // Flag a true antes de añadir: cada addResource() dispara autoguardado síncrono.
   markResourcesSeeded();
   for (const resourceData of DEFAULT_RESOURCES) {
-    addResource(createResource(resourceData));
+    const nameKey = DEFAULT_RESOURCE_NAME_KEY[resourceData.id];
+    const name = nameKey ? t(nameKey) : resourceData.name;
+    addResource(createResource({ ...resourceData, name }));
   }
 }
 
@@ -124,10 +141,10 @@ function bootFromSeedOrDefaults() {
 const saved = loadState();
 if (saved?.error === 'version-mismatch') {
   bootFromSeedOrDefaults();
-  showToast('No se ha podido recuperar el estado de una versión anterior; se ha empezado con el contenido por defecto.');
+  showToast(t('toast.stateRecoverFailedVersion'));
 } else if (saved?.error === 'corrupt') {
   bootFromSeedOrDefaults();
-  showToast('No se ha podido recuperar el estado guardado.');
+  showToast(t('toast.stateRecoverFailedCorrupt'));
 } else if (saved) {
   if (saved.panelState) {
     loadPanelState(saved.panelState);

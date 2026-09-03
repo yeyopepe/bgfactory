@@ -29,6 +29,8 @@ Convention: `block__element--modifier`.
 - A button that belongs to an already-existing block (e.g. a `.component-list` row): does not use the `.btn-*` exception. Normal BEM with a modifier: `.component-list__action-btn--danger`.
 - IDs (`#mode-switcher`, `#content`, `#app-version`, `#edit-toolbar`): reserved for unique layout containers in `index.html`. Never for reusable components.
   - A unique layout container may still hold internal BEM structure under a block named after it: `#app-version` contains `.app-version__name` + `.app-version__repo` (00243). The block name (`app-version`) matches the ID; the ID stays the styling/JS hook for the container, the `__element` classes for its parts.
+  - `#mode-switcher` also follows this: its header-row buttons use `.mode-switcher__mode-btn` / `.mode-switcher__fit-btn` / `.mode-switcher__settings-btn` (`__element` classes under the ID-matching block, 00244; see `002-componentes-layout.md`, "Header control row").
+- `.settings-modal__version` (`ui/settingsModal.js`, 00244): read-only version value inside the settings panel. `.modal__separator` (00244): thin body-block divider inside a modal — both plain BEM.
 
 ## Component patterns (JS)
 

@@ -82,6 +82,25 @@ resource.usage.rule:                      anchor: src/core/resource.js#isResourc
 resource.typeForFileName.rule:            anchor: src/core/resource.js#resourceTypeForFileName
     png/jpg/jpeg/gif/svg/webp -> imagen; ttf/otf/woff/woff2 -> tipografia; else null
 
+i18n                                      concepto.  anchor: src/core/i18n.js
+i18n.language.active: enum ∈ {es, en} = es concepto (en memoria).  anchor: src/core/i18n.js
+i18n.language.persist.key = 'bgfactory:lang'   afirmación.  anchor: src/core/i18n.js (STORAGE_KEY)
+i18n.language.resolve.rule:               anchor: src/core/i18n.js#initI18n
+    localStorage[i18n.language.persist.key] ∈ SUPPORTED_LANGUAGES  → active = stored
+    else  → navigator.language startsWith 'es' ? 'es' : 'en'   (no se escribe en localStorage)
+i18n.language.persist.decision.separate-key   decisión.  sin ancla
+    [motivación] parseState descarta bgfactory:state entero si version != CURRENT_VERSION; la preferencia de idioma no debe perderse en cada versión
+i18n.t.rule:                              anchor: src/core/i18n.js#t
+    CATALOG[active][key] → CATALOG['es'][key] → key
+    entrada {one, other} + params.count → one si count===1, si no other
+    interpola {name} con String(params[name]); resultado texto plano (textContent)
+i18n.catalog.decision.pure-data           decisión.  sin ancla
+    [motivación] data/i18n.<lang>.js son objetos planos clave→texto sin lógica ni imports; editar una traducción no puede romper comportamiento; añadir idioma = catálogo + entrada en SUPPORTED_LANGUAGES
+i18n.event.language-changed               afirmación.  anchor: src/core/i18n.js#setLanguage
+    setLanguage(code) emite 'language:changed' por core/eventBus.js; suscriptores: main.js#renderAll y cada modal abierto (re-textualiza)
+i18n.compare.locale.rule:                 anchor: src/core/textSort.js, src/core/resource.js#findResourceByName
+    localeCompare usa getLocale() (idioma activo), no 'es' fijo
+
 persistence.serializedFields = [components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, componentGroups, appTitle]
                                           afirmación.  anchor: src/core/persistence.js
 persistence.serializedFields.rule:        anchor: src/core/persistence.js (saveState/parseState)
@@ -129,4 +148,10 @@ ui.link.external                          concepto de estilo (enlace a destino f
     target="_blank" ∧ rel="noopener" ∧ texto = etiqueta legible, nunca la URL cruda
 ui.class.app-version                      concepto de estilo (footer de versión de dos líneas).  anchor: src/main.js
     #app-version contiene .app-version__name + .app-version__repo (00243)
+ui.class.mode-switcher__mode-btn          concepto de estilo (00244).  anchor: src/ui/editModeToggle.js#createModeButton
+    botón de cambio de modo ("Modo Edición"/"Modo Juego"), acción primaria (azul), siempre en la fila de la cabecera (#mode-switcher) en ambos modos
+ui.class.mode-switcher__settings-btn      concepto de estilo (00244).  anchor: src/ui/editModeToggle.js#createSettingsButton
+    botón de configuración icono-solo 36×36, esquema "sobre fondo oscuro" (contorno claro, sin fondo azul), a diferencia de .mode-switcher__fit-btn
+ui.class.decision.mode-switcher-both-modes   decisión (00244).  sin ancla
+    [motivación] #mode-switcher se puebla en ambos modos (renderModeSwitcher ya no hace early return si !PLAY); #edit-toolbar solo aloja la franja .edit-toolbar con Importar/Exportar; el botón de modo y "Ajustar zoom" viven siempre en #mode-switcher
 ```

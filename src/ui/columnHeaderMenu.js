@@ -9,6 +9,8 @@
 // Contenido propio, no reutiliza DOM de contextMenu.js: dos filas de ordenación tipo toggle y,
 // si la columna es filtrable, un <select> con los valores distintos de esa columna.
 
+import { t } from '../core/i18n.js';
+
 let currentMenu = null;
 
 function closeCurrentMenu() {
@@ -57,12 +59,12 @@ export function openColumnHeaderMenu({
   menu.className = 'column-header-menu';
 
   addSortItem(menu, {
-    label: 'Ordenar A..Z',
+    label: t('columnMenu.sortAsc'),
     active: sortDirection === 'asc',
     onClick: () => onToggleSort('asc'),
   });
   addSortItem(menu, {
-    label: 'Ordenar Z..A',
+    label: t('columnMenu.sortDesc'),
     active: sortDirection === 'desc',
     onClick: () => onToggleSort('desc'),
   });
@@ -77,13 +79,13 @@ export function openColumnHeaderMenu({
 
     const label = document.createElement('div');
     label.className = 'column-header-menu__filter-label';
-    label.textContent = 'Filtrar';
+    label.textContent = t('columnMenu.filter');
     filterBlock.appendChild(label);
 
     const select = document.createElement('select');
     const allOption = document.createElement('option');
     allOption.value = '';
-    allOption.textContent = 'Todos';
+    allOption.textContent = t('columnMenu.all');
     select.appendChild(allOption);
     for (const value of filterValues) {
       const option = document.createElement('option');

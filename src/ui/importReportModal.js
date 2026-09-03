@@ -3,10 +3,11 @@
 // selección/fichero, o etiqueta ausente autocreada). Mismo patrón modal-overlay/
 // modal que el resto, con tabla en vez de campos de formulario.
 
-const ERROR_LABELS = {
-  recurso: 'Recurso no incluido',
-  etiqueta: 'Etiqueta no incluida',
-  etiquetaDuplicada: 'Nombre de etiqueta duplicado',
+import { t } from '../core/i18n.js';
+const ERROR_LABEL_KEY = {
+  recurso: 'importReport.errorType.recurso',
+  etiqueta: 'importReport.errorType.etiqueta',
+  etiquetaDuplicada: 'importReport.errorType.etiquetaDuplicada',
 };
 
 export function openImportReportModal(report) {
@@ -18,7 +19,7 @@ export function openImportReportModal(report) {
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Informe de importación';
+  header.textContent = t('import.report.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -30,7 +31,7 @@ export function openImportReportModal(report) {
 
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
-  for (const label of ['Componente afectado', 'Error', 'Solución', 'Elemento erróneo/faltante']) {
+  for (const label of [t('importReport.col.component'), t('importReport.col.error'), t('importReport.col.solution'), t('importReport.col.element')]) {
     const th = document.createElement('th');
     th.textContent = label;
     headRow.appendChild(th);
@@ -44,7 +45,7 @@ export function openImportReportModal(report) {
     const componentCell = document.createElement('td');
     componentCell.textContent = row.componentId;
     const errorCell = document.createElement('td');
-    errorCell.textContent = ERROR_LABELS[row.tipoError] || row.tipoError;
+    errorCell.textContent = ERROR_LABEL_KEY[row.tipoError] ? t(ERROR_LABEL_KEY[row.tipoError]) : row.tipoError;
     const solutionCell = document.createElement('td');
     solutionCell.textContent = row.solucion;
     const elementCell = document.createElement('td');
@@ -62,7 +63,7 @@ export function openImportReportModal(report) {
   footer.className = 'modal__footer';
   const closeBtn = document.createElement('button');
   closeBtn.className = 'btn-cancel';
-  closeBtn.textContent = 'Cerrar';
+  closeBtn.textContent = t('common.close');
   closeBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(closeBtn);
   modal.appendChild(footer);

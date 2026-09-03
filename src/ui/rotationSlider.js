@@ -3,6 +3,8 @@
 // reutilizada entre varios llamadores (imageAdjustModal.js, cardShapeModal.js,
 // cardTextBoxModal.js), sin conocer el modelo de datos del componente/carta.
 
+import { t } from '../core/i18n.js';
+
 const SNAP_MARKS = [-360, -270, -180, -90, 0, 90, 180, 270, 360];
 const ROTATION_SNAP_THRESHOLD_DEG = 8;
 
@@ -14,7 +16,7 @@ function closestMark(value) {
   return SNAP_MARKS.reduce((closest, mark) => (Math.abs(mark - value) < Math.abs(closest - value) ? mark : closest), SNAP_MARKS[0]);
 }
 
-export function createRotationSliderField({ label = 'Rotación', value = 0, onChange }) {
+export function createRotationSliderField({ label = t('rotation.label'), value = 0, onChange }) {
   const field = document.createElement('div');
   field.className = 'modal__field rotation-field';
 

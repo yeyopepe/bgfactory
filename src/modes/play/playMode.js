@@ -12,6 +12,7 @@ import { getCartaIdsEnAlgunMazo, shuffleCartaIds, rectsOverlap } from '../../cor
 import { openMazoContentModal } from '../../ui/mazoContentModal.js';
 import { openInsertIntoMazoModal } from '../../ui/insertIntoMazoModal.js';
 import { isInteractionActive } from '../../core/interactions.js';
+import { t } from '../../core/i18n.js';
 
 // Mapea el `type` de componente a la `key` de `core/interactions.js` cuya interacción
 // de click corresponde a la fila "Clic izquierdo" de `interactionsByType`. Solo estos
@@ -28,52 +29,51 @@ const CLICK_INTERACTION_KEY_BY_TYPE = {
 // ligado siempre al menú contextual abierto.
 let selectedComponentId = null;
 
+// Filas por tipo: labelKey/valueKey son claves de i18n (contextMenu.js las
+// resuelve con t() al pintar). El valueKey 'interaction.value.none' es además
+// el centinela que marca la fila como "Ninguno" (estilo atenuado).
+const ROW_LEFT = 'interaction.leftClick';
+const ROW_DBL = 'interaction.doubleLeftClick';
+const ROW_RIGHT = 'interaction.rightClick';
+const V_NONE = 'interaction.value.none';
+const V_MENU = 'interaction.value.openThisMenu';
+
+const passiveRows = [
+  { labelKey: ROW_LEFT, valueKey: V_NONE },
+  { labelKey: ROW_DBL, valueKey: V_NONE },
+  { labelKey: ROW_RIGHT, valueKey: V_MENU },
+];
+
 const interactionsByType = {
-  'texto': [
-    { label: 'Clic izquierdo', value: 'Ninguno' },
-    { label: 'Doble clic izquierdo', value: 'Ninguno' },
-    { label: 'Clic derecho', value: 'Abrir este menú' },
-  ],
-  'tableroSimple': [
-    { label: 'Clic izquierdo', value: 'Ninguno' },
-    { label: 'Doble clic izquierdo', value: 'Ninguno' },
-    { label: 'Clic derecho', value: 'Abrir este menú' },
-  ],
-  'tableroPersonalizado': [
-    { label: 'Clic izquierdo', value: 'Ninguno' },
-    { label: 'Doble clic izquierdo', value: 'Ninguno' },
-    { label: 'Clic derecho', value: 'Abrir este menú' },
-  ],
-  'documento': [
-    { label: 'Clic izquierdo', value: 'Ninguno' },
-    { label: 'Doble clic izquierdo', value: 'Ninguno' },
-    { label: 'Clic derecho', value: 'Abrir este menú' },
-  ],
+  'texto': passiveRows,
+  'tableroSimple': passiveRows,
+  'tableroPersonalizado': passiveRows,
+  'documento': passiveRows,
   'dado': [
-    { label: 'Clic izquierdo', value: 'Lanzar el dado' },
-    { label: 'Doble clic izquierdo', value: 'Ver el resultado en grande' },
-    { label: 'Clic derecho', value: 'Abrir este menú' },
+    { labelKey: ROW_LEFT, valueKey: 'interaction.value.rollDie' },
+    { labelKey: ROW_DBL, valueKey: 'interaction.value.viewResultLarge' },
+    { labelKey: ROW_RIGHT, valueKey: V_MENU },
   ],
   'carta': [
-    { label: 'Clic izquierdo', value: 'Voltear la carta' },
-    { label: 'Doble clic izquierdo', value: 'Ninguno' },
-    { label: 'Clic derecho', value: 'Abrir este menú' },
+    { labelKey: ROW_LEFT, valueKey: 'interaction.value.flipCard' },
+    { labelKey: ROW_DBL, valueKey: V_NONE },
+    { labelKey: ROW_RIGHT, valueKey: V_MENU },
   ],
   'mazo': [
-    { label: 'Clic izquierdo', value: 'Sacar la carta de arriba' },
-    { label: 'Doble clic izquierdo', value: 'Ninguno' },
-    { label: 'Clic derecho', value: 'Abrir este menú' },
+    { labelKey: ROW_LEFT, valueKey: 'interaction.value.drawTopCard' },
+    { labelKey: ROW_DBL, valueKey: V_NONE },
+    { labelKey: ROW_RIGHT, valueKey: V_MENU },
   ],
 };
 
-// Sustituye el valor de la fila "Clic izquierdo" por "Ninguno" cuando la interacción
-// de click de ese componente está desactivada. No muta `interactionsByType`, constante
-// de módulo compartida entre renders.
+// Sustituye el valueKey de la fila "Clic izquierdo" por "Ninguno" cuando la
+// interacción de click de ese componente está desactivada. No muta
+// `interactionsByType`, constante de módulo compartida entre renders.
 function getInteractionItemsFor(component) {
   const items = interactionsByType[component.type] || [];
   const key = CLICK_INTERACTION_KEY_BY_TYPE[component.type];
   if (!key || isInteractionActive(component, key)) return items;
-  return items.map((item, index) => (index === 0 ? { ...item, value: 'Ninguno' } : item));
+  return items.map((item, index) => (index === 0 ? { ...item, valueKey: V_NONE } : item));
 }
 
 function createLockIcon(open) {
@@ -200,18 +200,18 @@ export function renderPlayMode(container) {
         const bloqueado = getEffectiveGeneralProps(component, groups).bloqueado !== 'ninguno';
         let extra;
         if (component.type === 'dado') {
-          extra = `${getPosibleValores(component.properties || {}).length} caras`;
+          extra = t('contextMenu.extra.faces', { count: getPosibleValores(component.properties || {}).length });
         } else if (component.type === 'tableroSimple' || component.type === 'tableroPersonalizado') {
           extra = `${Math.round(component.width)}x${Math.round(component.height)}`;
         } else if (component.type === 'mazo') {
-          extra = `${(component.properties?.cartaIds || []).length} cartas`;
+          extra = t('contextMenu.extra.cards', { count: (component.properties?.cartaIds || []).length });
         }
 
         const specificItems = [];
         if (component.type === 'mazo') {
           specificItems.push({
             icon: createShuffleIcon(),
-            label: 'Barajar',
+            label: t('contextMenu.shuffle'),
             onClick: () => {
               replaceComponent(component.id, updateComponent(component, {
                 properties: { cartaIds: shuffleCartaIds(component.properties?.cartaIds || []) },
@@ -220,7 +220,7 @@ export function renderPlayMode(container) {
           });
           specificItems.push({
             icon: createEyeIcon(),
-            label: 'Ver contenido...',
+            label: t('contextMenu.viewContent'),
             onClick: () => {
               openMazoContentModal({
                 mazoId: component.id,
@@ -233,7 +233,7 @@ export function renderPlayMode(container) {
           if (mazos.length > 0) {
             specificItems.push({
               icon: createInsertIcon(),
-              label: 'Meter en mazo...',
+              label: t('contextMenu.insertIntoMazo'),
               onClick: () => {
                 openInsertIntoMazoModal({
                   carta: component,
@@ -256,7 +256,7 @@ export function renderPlayMode(container) {
         const generalItems = (!component.copyOf || component.sincronizado === false) ? [
           {
             icon: createLockIcon(bloqueado),
-            label: bloqueado ? 'Desbloquear' : 'Bloquear',
+            label: bloqueado ? t('contextMenu.unlock') : t('contextMenu.lock'),
             onClick: () => {
               replaceComponent(component.id, updateComponent(component, { bloqueado: bloqueado ? 'ninguno' : 'juego' }));
             },

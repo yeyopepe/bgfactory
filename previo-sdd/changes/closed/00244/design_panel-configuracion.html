@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Panel de configuración — mockup 00244</title>
+<style>
+  :root {
+    --bg-toolbar: #333333;
+    --bg-card: #f5f5f5;
+    --accent-blue: #2c7dd8;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e8e8e8;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-2: 0 4px 20px rgba(0,0,0,0.15);
+    --transition-fast: 150ms ease;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    background: #ffffff;
+    padding: 2rem;
+  }
+
+  h1.page-title { font-size: 1.125rem; margin: 0 0 0.25rem; }
+  p.page-note {
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+    margin: 0 0 1.5rem;
+    max-width: 66ch;
+  }
+
+  .variants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+    align-items: flex-start;
+  }
+
+  .variant-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin: 0 0 0.75rem;
+  }
+
+  /* ---- Patrón de modal estándar de la app ---- */
+  .modal-overlay {
+    position: relative;
+    width: 440px;
+    max-width: 100%;
+    background: rgba(0,0,0,0.5);
+    border-radius: var(--radius-lg);
+    padding: 2rem 1.5rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .modal {
+    width: 100%;
+    max-width: 400px;
+    background: #ffffff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal__header {
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-light);
+    background: linear-gradient(180deg, #3a3a3a 0%, var(--bg-toolbar) 100%);
+  }
+
+  .modal__content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .modal__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+  .modal__field label {
+    font-weight: 500;
+    font-size: 0.875rem;
+  }
+
+  select {
+    font-family: inherit;
+    font-size: 0.875rem;
+    padding: 0.4375rem 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    background: #ffffff;
+    color: var(--text-primary);
+  }
+  select:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 2px rgba(44,125,216,0.25);
+  }
+
+  .field-hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  .readonly-value {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    padding: 0.4375rem 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    background: var(--bg-subtle);
+  }
+
+  .modal__separator {
+    border: none;
+    border-top: 1px solid var(--border-neutral);
+    margin: 0;
+  }
+
+  .future-slot {
+    border: 1px dashed var(--border-neutral);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    font-size: 0.75rem;
+    font-style: italic;
+    color: var(--text-muted);
+    background: repeating-linear-gradient(
+      45deg,
+      rgba(0,0,0,0.02),
+      rgba(0,0,0,0.02) 6px,
+      transparent 6px,
+      transparent 12px
+    );
+  }
+
+  .modal__footer {
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    border-top: 1px solid var(--border-neutral);
+    background: var(--bg-card);
+  }
+
+  .btn-cancel {
+    font-family: inherit;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+  }
+  .btn-cancel:hover { background: var(--bg-hover); }
+
+  .footnote {
+    margin-top: 1.5rem;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    max-width: 66ch;
+  }
+  .footnote strong { color: var(--text-primary); }
+</style>
+</head>
+<body>
+
+  <h1 class="page-title">Panel de configuración</h1>
+  <p class="page-note">
+    Cambio 00244 — Ventana modal «Configuración» abierta desde el botón de engranaje de la esquina
+    superior derecha. Usa el patrón de modal estándar de la aplicación. A la izquierda, el estado por
+    defecto (español); a la derecha, el mismo panel tras cambiar el idioma a inglés («todo al vuelo»).
+  </p>
+
+  <div class="variants">
+
+    <!-- ---------- Variante ES (principal) ---------- -->
+    <div>
+      <p class="variant-label">Estado por defecto · Español</p>
+      <div class="modal-overlay">
+        <div class="modal" role="dialog" aria-label="Configuración">
+          <div class="modal__header">Configuración</div>
+          <div class="modal__content">
+
+            <div class="modal__field">
+              <label for="lang-es">Idioma</label>
+              <select id="lang-es">
+                <option selected>Español</option>
+                <option>English</option>
+              </select>
+              <span class="field-hint">El cambio se aplica al instante.</span>
+            </div>
+
+            <hr class="modal__separator" />
+
+            <div class="modal__field">
+              <label>Versión</label>
+              <div class="readonly-value">BG Factory v.00246</div>
+            </div>
+
+            <div class="future-slot">
+              (Aquí se integrará más adelante el historial de cambios — cambio 00231)
+            </div>
+
+          </div>
+          <div class="modal__footer">
+            <button class="btn-cancel" type="button">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- Variante EN (ilustra el cambio al vuelo) ---------- -->
+    <div>
+      <p class="variant-label">Tras cambiar a inglés · English</p>
+      <div class="modal-overlay">
+        <div class="modal" role="dialog" aria-label="Settings">
+          <div class="modal__header">Settings</div>
+          <div class="modal__content">
+
+            <div class="modal__field">
+              <label for="lang-en">Language</label>
+              <select id="lang-en">
+                <option>Español</option>
+                <option selected>English</option>
+              </select>
+              <span class="field-hint">Changes apply instantly.</span>
+            </div>
+
+            <hr class="modal__separator" />
+
+            <div class="modal__field">
+              <label>Version</label>
+              <div class="readonly-value">BG Factory v.00246</div>
+            </div>
+
+            <div class="future-slot">
+              (The changelog will be integrated here later — change 00231)
+            </div>
+
+          </div>
+          <div class="modal__footer">
+            <button class="btn-cancel" type="button">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="footnote">
+    El recuadro punteado del final del cuerpo es un <strong>hueco reservado</strong> para una entrega
+    futura (el historial de cambios del 00244 no lo incluye) — no es un elemento real de este cambio.
+    «BG Factory» y el número de versión no se traducen.
+  </p>
+
+</body>
+</html>

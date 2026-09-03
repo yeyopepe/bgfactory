@@ -2,6 +2,7 @@
 // componentes/recursos/etiquetas incluir, en tres bloques (ui/elementSelectionModal.js).
 
 import { createElementSelectionGroups } from './elementSelectionModal.js';
+import { t } from '../core/i18n.js';
 
 export function openExportSelectionModal({ components, resources, tags, defaultFilename, onAccept }) {
   const overlay = document.createElement('div');
@@ -12,7 +13,7 @@ export function openExportSelectionModal({ components, resources, tags, defaultF
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Exportar';
+  header.textContent = t('export.selection.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -22,7 +23,7 @@ export function openExportSelectionModal({ components, resources, tags, defaultF
   const nameField = document.createElement('div');
   nameField.className = 'modal__field';
   const nameLabel = document.createElement('label');
-  nameLabel.textContent = 'Nombre de fichero';
+  nameLabel.textContent = t('export.selection.nameLabel');
   const nameInput = document.createElement('input');
   nameInput.type = 'text';
   nameInput.value = defaultFilename;
@@ -40,13 +41,13 @@ export function openExportSelectionModal({ components, resources, tags, defaultF
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(cancelBtn);
 
   const exportBtn = document.createElement('button');
   exportBtn.className = 'btn-accept';
-  exportBtn.textContent = 'Exportar';
+  exportBtn.textContent = t('export.selection.accept');
   footer.appendChild(exportBtn);
 
   const { getSelection } = createElementSelectionGroups(tagsContainer, { components, resources, tags }, {

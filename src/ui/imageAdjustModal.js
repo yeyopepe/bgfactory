@@ -17,6 +17,7 @@
 // `applyImageAdjustStyle`.
 
 import { createRotationSliderField } from './rotationSlider.js';
+import { t } from '../core/i18n.js';
 
 const PREVIEW_MAX_SIDE = 390;
 
@@ -71,7 +72,7 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
 
   const header = document.createElement('div');
   header.className = 'modal__header';
-  header.textContent = 'Ajustar imagen';
+  header.textContent = t('imageAdjust.title');
   modal.appendChild(header);
 
   const content = document.createElement('div');
@@ -223,7 +224,7 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
   const zoomField = document.createElement('div');
   zoomField.className = 'modal__field';
   const zoomLabel = document.createElement('label');
-  zoomLabel.textContent = 'Zoom';
+  zoomLabel.textContent = t('imageAdjust.zoomLabel');
   const zoomInput = document.createElement('input');
   zoomInput.type = 'range';
   zoomInput.min = 100;
@@ -285,7 +286,7 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
     const opacityField = document.createElement('div');
     opacityField.className = 'modal__field';
     const opacityLabel = document.createElement('label');
-    opacityLabel.textContent = 'Transparencia';
+    opacityLabel.textContent = t('imageAdjust.opacityLabel');
 
     opacitySlider = document.createElement('input');
     opacitySlider.type = 'range';
@@ -335,7 +336,7 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';
-  cancelBtn.textContent = 'Cancelar';
+  cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => {
     document.removeEventListener('mousemove', handleMouseMove);
     document.removeEventListener('mouseup', handleMouseUp);
@@ -345,7 +346,7 @@ export function openImageAdjustModal({ shape, width, height, resource, adjustmen
 
   const acceptBtn = document.createElement('button');
   acceptBtn.className = 'btn-accept';
-  acceptBtn.textContent = 'Aceptar';
+  acceptBtn.textContent = t('common.accept');
   acceptBtn.addEventListener('click', () => {
     if (onAccept) {
       if (faces) {

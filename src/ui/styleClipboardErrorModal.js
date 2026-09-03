@@ -5,6 +5,7 @@
 // combinada con la tabla de ui/importReportModal.js, reutilizando tal cual
 // (sin CSS propio) las clases `.import-report-modal`/`.import-report-modal__table`.
 
+import { t } from '../core/i18n.js';
 export function openStyleClipboardPasteErrorModal(incidencias) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
@@ -20,7 +21,7 @@ export function openStyleClipboardPasteErrorModal(incidencias) {
   header.appendChild(icon);
   const heading = document.createElement('h2');
   heading.className = 'modal__header-title';
-  heading.textContent = 'No se pudo pegar el estilo';
+  heading.textContent = t('styleClipboardError.heading');
   header.appendChild(heading);
   modal.appendChild(header);
 
@@ -28,7 +29,7 @@ export function openStyleClipboardPasteErrorModal(incidencias) {
   content.className = 'modal__content';
 
   const message = document.createElement('p');
-  message.textContent = 'El estilo copiado hace referencia a elementos que ya no existen en el proyecto. No se ha modificado nada de esta carta.';
+  message.textContent = t('styleClipboardError.message');
   content.appendChild(message);
 
   const table = document.createElement('table');
@@ -36,7 +37,7 @@ export function openStyleClipboardPasteErrorModal(incidencias) {
 
   const thead = document.createElement('thead');
   const headRow = document.createElement('tr');
-  for (const label of ['Elemento', 'Referencia', 'Detalle']) {
+  for (const label of [t('styleClipboardError.colElemento'), t('styleClipboardError.colReferencia'), t('styleClipboardError.colDetalle')]) {
     const th = document.createElement('th');
     th.textContent = label;
     headRow.appendChild(th);
@@ -67,7 +68,7 @@ export function openStyleClipboardPasteErrorModal(incidencias) {
   footer.className = 'modal__footer';
   const closeBtn = document.createElement('button');
   closeBtn.className = 'btn-cancel';
-  closeBtn.textContent = 'Cerrar';
+  closeBtn.textContent = t('common.close');
   closeBtn.addEventListener('click', () => overlay.remove());
   footer.appendChild(closeBtn);
   modal.appendChild(footer);
