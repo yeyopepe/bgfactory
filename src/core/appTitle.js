@@ -11,3 +11,10 @@ export function formatVersion() {
 export function getFullAppTitle(appTitle) {
   return `${appTitle} ${formatVersion()}`;
 }
+
+// Nombre de producto + versión, SIEMPRE con el literal por defecto ("BG Factory"),
+// con independencia del título editable que el usuario haya dado a su juego.
+// Fuente única de ese literal versionado (lo usan ui/settingsModal.js y main.js).
+export function getVersionedProductName() {
+  return `${DEFAULT_APP_TITLE} ${formatVersion()}`;
+}

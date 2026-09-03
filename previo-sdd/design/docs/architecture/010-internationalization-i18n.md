@@ -11,7 +11,7 @@ Change 00244. UI chrome text is translatable; user-entered content is not.
 | `src/core/i18n.js` | All i18n logic. Active language (in-memory), resolution on startup, `t()` string resolution with fallback chain + param interpolation + plural, `language:changed` emission. Imports only `./eventBus.js`, `./appTitle.js`, `../data/i18n.es.js`, `../data/i18n.en.js` — no `ui/*`/`modes/*` (respects layer direction). |
 | `src/data/i18n.es.js` | `CATALOG_ES` — plain `key: string \| { one, other }` object. PURE DATA: no logic, no imports. Canonical reference: must be complete. |
 | `src/data/i18n.en.js` | `CATALOG_EN` — same keys, English. May be temporarily incomplete (falls back to `CATALOG_ES`). |
-| `src/ui/settingsModal.js` | Settings panel modal. Standard `.modal-overlay`/`.modal` pattern (ref `ui/helpIcon.js`). Content: language `<select>` (es/en, options are fixed literals not via `t()`) + read-only version line (`getFullAppTitle(getAppTitle())`). Subscribes `on('language:changed', renderContent)` on open, `off()` on close (any close path). Opened by `createSettingsButton` in `ui/editModeToggle.js`. |
+| `src/ui/settingsModal.js` | Settings panel modal. Standard `.modal-overlay`/`.modal` pattern (ref `ui/helpIcon.js`). Content: language `<select>` (es/en, options are fixed literals not via `t()`) + "Texto en la mesa" `<textarea>` for `state.tableText` (keys `settings.tableText.label`/`.hint`, `input` → `setTableText`, 00250) + read-only version line `getVersionedProductName()` (fixed `BG Factory v.<NNNNN>`, no longer `getFullAppTitle(getAppTitle())`, 00250) with GitHub link (`t('appVersion.repoLink')`). Subscribes `on('language:changed', renderContent)` on open, `off()` on close (any close path). Opened by `createSettingsButton` in `ui/editModeToggle.js`. |
 
 ## Contracts (`src/core/i18n.js` exports)
 
@@ -39,7 +39,7 @@ t(key: string, params?: object) -> string
 
 | Subscriber | Effect |
 |---|---|
-| `src/main.js` | `renderAll()` — repaints header title, `#app-version` (now `renderAppVersion()`, was one-shot), mode switcher, edit toolbar, active mode. |
+| `src/main.js` | `renderAll()` — repaints header title, `#app-version` (now `renderAppVersion()`, was one-shot; also subscribed to `tableText:changed`, 00250), mode switcher, edit toolbar, active mode. |
 | each open modal that can outlive a language switch | re-renders its own text content via `t()` without closing. `ui/settingsModal.js` implements this; other complex modals re-textualize on reopen. |
 
 ## Startup flow (`src/main.js`)

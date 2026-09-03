@@ -22,6 +22,11 @@ let panelState = { collapsed: false, position: null, width: null, height: null, 
 let resourcePanelState = { collapsed: false, position: null, width: null, height: null };
 let tagPanelState = { collapsed: false, position: null, width: null, height: null };
 let appTitle = DEFAULT_APP_TITLE;
+// Texto libre que el usuario escribe en el panel de Configuración para mostrarlo
+// en la esquina inferior derecha de la mesa, encima de la versión. Preferencia
+// global del navegador (como el idioma): se persiste en localStorage pero NO
+// forma parte del juego que se exporta/importa. Por defecto vacío.
+let tableText = '';
 // Recuerda si los recursos por defecto (data/defaultResources.js) ya se han
 // sembrado alguna vez en este guardado, para no reponerlos cada vez que el
 // usuario los borra a propósito — ver seedDefaultResources() en main.js.
@@ -341,6 +346,19 @@ export function setAppTitle(newTitle) {
 
 export function loadAppTitle(newTitle) {
   appTitle = newTitle;
+}
+
+export function getTableText() {
+  return tableText;
+}
+
+export function setTableText(newText) {
+  tableText = typeof newText === 'string' ? newText : '';
+  emit('tableText:changed', tableText);
+}
+
+export function loadTableText(newText) {
+  tableText = typeof newText === 'string' ? newText : '';
 }
 
 export function getResources() {

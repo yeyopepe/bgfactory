@@ -175,6 +175,8 @@ export const CATALOG_ES = {
   // --- Modal de configuración ---
   'settings.title': 'Configuración',
   'settings.language.label': 'Idioma',
+  'settings.tableText.label': 'Texto en la mesa',
+  'settings.tableText.hint': 'Aparece en la esquina inferior derecha de la mesa, encima de la versión. Solo texto plano.',
   'settings.version.label': 'Versión',
 
   // --- Modal de componente ---

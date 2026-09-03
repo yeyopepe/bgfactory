@@ -71,9 +71,16 @@ transition: background var(--transition-fast), opacity var(--transition-fast);
 
 `position: fixed; bottom: 1rem; right: 1rem; z-index: 10` (table above). `font-size: 0.75rem` (`001-tokens-visual.md`, Typography), `color: var(--text-muted)`, `line-height: 1.35`, `text-align: right`.
 
-- Two lines (00243): `.app-version__name` (`BG Factory v<NNNNN>`) + `.app-version__repo` (an external link, `004-naming-and-patterns.md` → BEM block `app-version`; link style in `005-text-links-and-external-links.md`).
-- Fixed project content, not user-editable, identical in both modes.
-- Built in `src/main.js` bootstrap, not a `src/ui/*` module.
+- Two fixed lines (00243): `.app-version__name` (`BG Factory v<NNNNN>`) + `.app-version__repo` (an external link, `004-naming-and-patterns.md` → BEM block `app-version`; link style in `005-text-links-and-external-links.md`). Fixed project content, not user-editable, identical in both modes.
+- Optional user line (00250): `.app-version__table-text` + `.app-version__separator`, prepended above the two fixed lines, only when `state.tableText` (`00-namespace.md`) is non-empty. Built by `renderAppVersion()` in `src/main.js` bootstrap, not a `src/ui/*` module.
+
+| Element | Rule |
+|---|---|
+| `.app-version__table-text` | `white-space: pre-line` (honors the user's line breaks); `margin-bottom: 0.25rem`. Plain text via `textContent`, never `innerHTML`. Inherits `font-size`/`color`/`text-align` from `#app-version`. |
+| `.app-version__separator` | `<hr>`; `border: none; border-top: 1px solid var(--border-neutral)` (`001-tokens-visual.md`); `margin: 0 0 0.25rem`. Full width of the fixed-position `#app-version` box (no explicit `width`). |
+
+- [gotcha] `state.tableText.trim() === ''` → neither `.app-version__table-text` nor `.app-version__separator` rendered; footer identical to 00243.
+- User line is a local browser preference, editable in the settings panel (`006-ui-layer.md`, `ui/settingsModal.js`); the two fixed lines stay non-editable.
 
 ## Resize (corner handle)
 

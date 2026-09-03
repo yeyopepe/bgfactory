@@ -7,6 +7,7 @@ import {
   addResource, loadResources, getResources, getResourcePanelState, loadResourcePanelState,
   getResourcesSeeded, markResourcesSeeded, loadResourcesSeeded, getTags, loadTags,
   getTagPanelState, loadTagPanelState, getAppTitle, loadAppTitle, getGroups, loadGroups,
+  getTableText, loadTableText,
 } from './core/state.js';
 import { CURRENT_VERSION } from './data/version.js';
 import { DEFAULT_RESOURCES } from './data/defaultResources.js';
@@ -49,6 +50,22 @@ function renderAppVersion(el) {
   repoLink.textContent = t('appVersion.repoLink');
   repoLine.appendChild(repoLink);
 
+  // Texto libre del usuario (config): solo si tiene contenido, encima de las dos
+  // líneas fijas y separado por una fina línea. Texto plano: textContent, nunca
+  // innerHTML; los saltos de línea los respeta el CSS (white-space: pre-line).
+  const tableText = getTableText();
+  if (tableText.trim() !== '') {
+    const noteLine = document.createElement('div');
+    noteLine.className = 'app-version__table-text';
+    noteLine.textContent = tableText;
+
+    const separator = document.createElement('hr');
+    separator.className = 'app-version__separator';
+
+    el.append(noteLine, separator, nameLine, repoLine);
+    return;
+  }
+
   el.append(nameLine, repoLine);
 }
 
@@ -69,7 +86,7 @@ function renderAll() {
 }
 
 function persistState() {
-  saveState(getComponents(), getPanelState(), getResources(), getResourcePanelState(), getResourcesSeeded(), getTags(), getTagPanelState(), getGroups(), getAppTitle());
+  saveState(getComponents(), getPanelState(), getResources(), getResourcePanelState(), getResourcesSeeded(), getTags(), getTagPanelState(), getGroups(), getAppTitle(), getTableText());
 }
 
 on('mode:changed', renderAll);
@@ -87,6 +104,8 @@ on('groups:changed', renderAll);
 on('groups:changed', persistState);
 on('appTitle:changed', renderAll);
 on('appTitle:changed', persistState);
+on('tableText:changed', renderAll);
+on('tableText:changed', persistState);
 on('language:changed', renderAll);
 
 initGlobalShortcuts({
@@ -119,6 +138,7 @@ function bootFromSeedOrDefaults() {
   const seed = readSeedState();
   if (seed) {
     loadAppTitle(seed.appTitle);
+    loadTableText(seed.tableText);
     loadResourcesSeeded(seed.resourcesSeeded === true);
     loadComponents(seed.components);
     loadResources(seed.resources);
@@ -156,6 +176,7 @@ if (saved?.error === 'version-mismatch') {
     loadTagPanelState(saved.tagPanelState);
   }
   loadAppTitle(saved.appTitle);
+  loadTableText(saved.tableText);
   loadResourcesSeeded(saved.resourcesSeeded === true);
   loadComponents(saved.components);
   loadResources(saved.resources);

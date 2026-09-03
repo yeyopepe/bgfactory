@@ -28,11 +28,11 @@ Startup (main.js):
     null (key bgfactory:state absent)  → bootFromSeedOrDefaults()                                   — no notice
     { error: 'version-mismatch' }      → bootFromSeedOrDefaults() + showToast('No se ha podido recuperar el estado de una versión anterior; se ha empezado con el contenido por defecto.')
     { error: 'corrupt' }               → bootFromSeedOrDefaults() + showToast('No se ha podido recuperar el estado guardado.')
-    success object                     → hydrate panelState/resourcePanelState/tagPanelState + loadAppTitle + loadResourcesSeeded + loadComponents + loadResources + loadTags + loadGroups + backfillDefaultResourcesIfNeeded — no notice
+    success object                     → hydrate panelState/resourcePanelState/tagPanelState + loadAppTitle + loadTableText + loadResourcesSeeded + loadComponents + loadResources + loadTags + loadGroups + backfillDefaultResourcesIfNeeded — no notice
 
 bootFromSeedOrDefaults()  [local to main.js]:
   readSeedState() [<script id="initial-state">]
-    → has seed → loadAppTitle + loadResourcesSeeded + loadComponents + loadResources + loadTags + loadGroups + backfillDefaultResourcesIfNeeded
+    → has seed → loadAppTitle + loadTableText + loadResourcesSeeded + loadComponents + loadResources + loadTags + loadGroups + backfillDefaultResourcesIfNeeded
     → no seed  → seedDefaultResources()
 ```
 
@@ -41,9 +41,10 @@ bootFromSeedOrDefaults()  [local to main.js]:
 
 ### Autosave (`core/persistence.js`)
 
-- Subscribed to `components:changed`, `panelState:changed`, `resources:changed`, `resourcePanelState:changed`, `tags:changed`, `tagPanelState:changed`, `appTitle:changed` (`core/eventBus.js`) from `main.js`.
-- `persistence.serializedFields` (see `00-namespace.md`): `saveState()` serializes `{ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, componentGroups, appTitle }` to `localStorage` on any of those changes.
+- Subscribed to `components:changed`, `panelState:changed`, `resources:changed`, `resourcePanelState:changed`, `tags:changed`, `tagPanelState:changed`, `appTitle:changed`, `tableText:changed` (`core/eventBus.js`) from `main.js`.
+- `persistence.serializedFields` (see `00-namespace.md`): `saveState()` serializes `{ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, componentGroups, appTitle, tableText }` to `localStorage` on any of those changes.
 - A save with no `appTitle`, or with an empty/non-string value, is treated as `core/appTitle.js` → `DEFAULT_APP_TITLE`.
+- `tableText` (00250): `parseState` returns `''` when `parsed.tableText` is missing or not a string. No migration — pre-00250 saves simply lack the key. NOT in `buildComponentsExport`/`parseImportedComponents` (local display preference, like `panelState`; see `state.tableText` in `00-namespace.md`).
 - `tags:changed` also triggers a full repaint (`renderAll`), not only autosave.
 - A single slot per browser/profile (`localStorage` is not isolated per file under `file://`), with no persistence across browsers/devices.
 - On startup, with a valid save in `localStorage` that brings `panelState`/`resourcePanelState`/`tagPanelState`, they are hydrated with `loadPanelState()`/`loadResourcePanelState()`/`loadTagPanelState()` before the first render; if they are not there, each panel uses its default values (expanded, default position/width/height).

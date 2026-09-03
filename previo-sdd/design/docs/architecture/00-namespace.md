@@ -101,8 +101,18 @@ i18n.event.language-changed               afirmación.  anchor: src/core/i18n.js
 i18n.compare.locale.rule:                 anchor: src/core/textSort.js, src/core/resource.js#findResourceByName
     localeCompare usa getLocale() (idioma activo), no 'es' fijo
 
-persistence.serializedFields = [components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, componentGroups, appTitle]
+persistence.serializedFields = [components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, componentGroups, appTitle, tableText]
                                           afirmación.  anchor: src/core/persistence.js
+state.tableText: string = ''              concepto.  anchor: src/core/state.js (tableText)
+    texto libre del usuario para la esquina de la mesa (#app-version); editable en ui/settingsModal.js (00250)
+    preferencia local, mismo criterio que appTitle/idioma: NO en persistence.buildComponentsExport ni parseImportedComponents
+    parseState devuelve '' si parsed.tableText falta o no es string — guardados pre-00250 no traen la clave, sin migración
+state.event.table-text-changed           afirmación.  anchor: src/core/state.js#setTableText
+    setTableText(newText) normaliza a '' si no es string y emite 'tableText:changed' (payload: el nuevo string) por core/eventBus.js
+    suscriptores: src/main.js → renderAll ∧ persistState; loadTableText(newText) hidrata en arranque sin emitir
+appTitle.getVersionedProductName          concepto.  anchor: src/core/appTitle.js#getVersionedProductName
+    `${DEFAULT_APP_TITLE} ${formatVersion()}` — literal fijo "BG Factory" + versión, independiente de state.getAppTitle() (00250)
+    fuente única del nombre versionado; consumidores: ui/settingsModal.js (bloque Versión). main.js#renderAppVersion arma su propio `BG Factory ${CURRENT_VERSION}` (formato distinto, sin `v.`)
 panelState.expandedGroupIds: string[]     concepto.  anchor: src/core/state.js (panelState)
     groupId[] de las filas de grupo del panel "Componentes" desplegadas explícitamente; ausencia = plegado (estado por defecto)
     se poda de groupId sin grupo real (2+ miembros) en cada renderComponentList; filtro activo fuerza desplegado sin mutar la lista
@@ -157,8 +167,13 @@ ui.link                                   concepto de estilo (enlace de texto). 
     [gotcha] un enlace de texto NO es --accent-blue; se distingue solo por el subrayado, en el color de su contexto
 ui.link.external                          concepto de estilo (enlace a destino fuera de la app)
     target="_blank" ∧ rel="noopener" ∧ texto = etiqueta legible, nunca la URL cruda
-ui.class.app-version                      concepto de estilo (footer de versión de dos líneas).  anchor: src/main.js
+    referencia: enlace al repo (https://github.com/yeyopepe/bgfactory) en #app-version a y, replicado, en .settings-modal__repo a (00250) — mismo tratamiento
+ui.class.settings-modal__repo             concepto de estilo (00250).  anchor: src/styles/main.css
+    enlace a GitHub bajo la versión en el panel de Configuración; font-size 0.875rem, color var(--text-muted), margin-top 0.15rem; el <a> hereda color + text-decoration: underline (idéntico a #app-version a, ver ui.link)
+ui.class.app-version                      concepto de estilo (footer de versión).  anchor: src/main.js#renderAppVersion
     #app-version contiene .app-version__name + .app-version__repo (00243)
+    con state.tableText no vacío: antepone .app-version__table-text (texto plano, textContent, white-space: pre-line) + .app-version__separator (<hr>, border-top 1px var(--border-neutral)) (00250)
+    [gotcha] .app-version__table-text y .app-version__separator NO se pintan si state.tableText.trim() === '' — footer idéntico a 00243
 ui.class.mode-switcher__mode-btn          concepto de estilo (00244).  anchor: src/ui/editModeToggle.js#createModeButton
     botón de cambio de modo ("Modo Edición"/"Modo Juego"), acción primaria (azul), siempre en la fila de la cabecera (#mode-switcher) en ambos modos
 ui.class.mode-switcher__settings-btn      concepto de estilo (00244).  anchor: src/ui/editModeToggle.js#createSettingsButton

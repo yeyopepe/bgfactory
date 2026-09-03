@@ -837,6 +837,19 @@ fieldset.modal__section--untitled {
   color: var(--text-muted);
 }
 
+/* Enlace al repositorio bajo la versión, en el panel de configuración: mismo
+   tratamiento de enlace de texto discreto que #app-version a. */
+.settings-modal__repo {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.settings-modal__repo a {
+  color: inherit;
+  text-decoration: underline;
+}
+
 /* Mensaje centrado cuando una pestaña de propiedades específicas se queda sin contenido
    (ui/componentModal.js, renderSpecificTab) — p.ej. 'tableroSimple' tras trasladar sus
    controles visuales a la pestaña "Visuales". */
@@ -3498,6 +3511,22 @@ fieldset.modal__section--untitled {
 #app-version a {
   color: inherit;
   text-decoration: underline;
+}
+
+/* Texto libre del usuario (configurable en el panel de Configuración), encima
+   de las dos líneas fijas del footer. Texto plano: se respetan los saltos de
+   línea introducidos por el usuario. */
+#app-version .app-version__table-text {
+  white-space: pre-line;
+  margin-bottom: 0.25rem;
+}
+
+/* Línea separadora entre el texto del usuario y las líneas fijas (nombre/
+   versión + enlace). Solo se pinta cuando hay texto de usuario. */
+#app-version .app-version__separator {
+  border: none;
+  border-top: 1px solid var(--border-neutral);
+  margin: 0 0 0.25rem;
 }
 
 /* Estado transitorio "levantado": mientras se arrastra un componente en Modo

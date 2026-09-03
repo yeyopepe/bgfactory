@@ -13,7 +13,8 @@ First user-facing hyperlink (`<a>`) in `/src`: change 00243, the repository link
 | `:visited` / `:hover` / `:active` | not styled | No state variants; browser default pointer cursor from `<a href>` |
 
 - [gotcha] a text link is NOT `--accent-blue`. Accent blue means "interactive control / selected" across the app (buttons, active tab, selection outline); a text link is distinguished by the underline alone, in the color of its context.
-- Reference rule: `#app-version a` in `src/styles/main.css`.
+- Reference rules: `#app-version a` and `.settings-modal__repo a` in `src/styles/main.css` — same treatment, two sites.
+  - `.settings-modal__repo` (00250): the GitHub external link repeated inside the settings panel's version block (`006-ui-layer.md`, `ui/settingsModal.js`). Container `font-size: 0.875rem` (default UI text, `001-tokens-visual.md`), `color: var(--text-muted)`, `margin-top: 0.15rem`; the `<a>` inherits `color` and adds `text-decoration: underline`, identical to `#app-version a`.
 
 ## Markup
 
@@ -27,4 +28,4 @@ First user-facing hyperlink (`<a>`) in `/src`: change 00243, the repository link
 
 - `target="_blank"` always paired with `rel="noopener"`.
 - Opens in a new browser tab; the app tab keeps its state.
-- Reference: the repository link in `#app-version` → `https://github.com/yeyopepe/bgfactory`.
+- Reference: the repository link (`https://github.com/yeyopepe/bgfactory`), in `#app-version` and, replicated, in `.settings-modal__repo` (00250). Text via `t('appVersion.repoLink')`, `href` fixed, built `createElement` + property assignment in both sites.

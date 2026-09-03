@@ -177,6 +177,8 @@ export const CATALOG_EN = {
   // --- Settings modal ---
   'settings.title': 'Settings',
   'settings.language.label': 'Language',
+  'settings.tableText.label': 'Text on the table',
+  'settings.tableText.hint': 'Shows in the bottom-right corner of the table, above the version. Plain text only.',
   'settings.version.label': 'Version',
 
   // --- Component modal ---

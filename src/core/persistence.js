@@ -39,12 +39,15 @@ function parseState(raw) {
   // compatibilidad — no puede llamarse `groups`, esa clave ya está reservada como alias legacy de `tags`.
   const componentGroups = Array.isArray(parsed.componentGroups) ? parsed.componentGroups : [];
   const appTitle = (typeof parsed.appTitle === 'string' && parsed.appTitle.trim() !== '') ? parsed.appTitle : DEFAULT_APP_TITLE;
-  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, componentGroups, appTitle };
+  // Texto de la mesa (preferencia local): cadena vacía si falta o no es string.
+  // Guardados anteriores a este campo simplemente no traen la clave; sin migración.
+  const tableText = typeof parsed.tableText === 'string' ? parsed.tableText : '';
+  return { components: parsed.components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, componentGroups, appTitle, tableText };
 }
 
-export function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, componentGroups, appTitle) {
+export function saveState(components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, componentGroups, appTitle, tableText) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, componentGroups, appTitle }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: CURRENT_VERSION, components, panelState, resources, resourcePanelState, resourcesSeeded, tags, tagPanelState, componentGroups, appTitle, tableText }));
   } catch {
     // Cuota excedida u otro fallo de localStorage: el autoguardado se omite
     // silenciosamente, sin interrumpir el uso normal de la aplicación.
