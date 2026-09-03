@@ -47,6 +47,7 @@ The lightweight JSON of `core/persistence.js` (`buildComponentsExport(components
 3. `buildComponentsExport(...)` builds the JSON, `downloadJson` triggers the download.
 
 **Import**:
+0. Entry point: "Importar" button. Two call sites, same handler (`importComponentsFromFile`, `ui/editModeToggle.js`): `.edit-toolbar` (edit mode) and `#mode-switcher` (play mode) — both built by `createImportControls()` (see `../architecture/005-modes.md`). [gotcha] the flow never calls `setMode`; the mode active when the button was pressed is the mode after import completes/aborts. Post-import repaint is via the `*:changed` events (`loadComponents`/`loadResources`/`loadTags`/`loadGroups`), `renderAll` picks `renderPlayMode`/`renderEditMode`.
 1. `parseImportedComponents` reads the file.
 2. `openImportSelectionModal` shows the file's elements to choose which to import.
 3. On confirm, `openImportConfirmModal` asks for mode (`add`/`overwrite`) and duplicate-id behavior (`overwrite`/`keepBoth`).

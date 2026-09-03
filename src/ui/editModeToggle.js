@@ -210,6 +210,42 @@ function createExportMenu() {
   return wrap;
 }
 
+// Controles de "Importar" (input de fichero oculto + botón) reutilizados tanto por
+// la barra del modo edición como por la barra del modo juego (#mode-switcher).
+// `buttonClassName`, si se pasa, se añade al botón para poder darle estilo propio
+// según la barra que lo aloje (en #mode-switcher hereda el azul de esa zona; en
+// .edit-toolbar mantiene el estilo transparente sin clase extra).
+function createImportControls({ buttonClassName } = {}) {
+  const fragment = document.createDocumentFragment();
+
+  const importInput = document.createElement('input');
+  importInput.type = 'file';
+  importInput.accept = '.json';
+  importInput.hidden = true;
+  importInput.addEventListener('change', () => {
+    const file = importInput.files[0];
+    importInput.value = '';
+    if (!file) return;
+    importComponentsFromFile(file);
+  });
+  fragment.appendChild(importInput);
+
+  const importButton = document.createElement('button');
+  if (buttonClassName) importButton.className = buttonClassName;
+  importButton.innerHTML = `
+    <svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 15V3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Importar
+  `;
+  importButton.addEventListener('click', () => importInput.click());
+  fragment.appendChild(importButton);
+
+  return fragment;
+}
+
 function createFitButton(className) {
   const button = document.createElement('button');
   if (className) button.className = className;
@@ -232,6 +268,12 @@ export function renderModeSwitcher(container) {
 
   if (getState().mode !== MODES.PLAY) return;
 
+  // "Importar" a la izquierda de "Entrar en modo edición". Reutiliza el mismo
+  // flujo de importación que el modo edición; al importar desde modo juego no se
+  // llama a setMode, así que la app permanece en modo juego (loadComponents/etc.
+  // emiten sus eventos y main.js repinta renderPlayMode).
+  container.appendChild(createImportControls({ buttonClassName: 'mode-switcher__import-btn' }));
+
   const button = document.createElement('button');
   button.textContent = 'Entrar en modo edición';
   button.addEventListener('click', () => setMode(MODES.EDIT));
@@ -250,30 +292,7 @@ export function renderEditToolbar(container) {
 
   const persistenceGroup = document.createElement('div');
   persistenceGroup.className = 'toolbar-group';
-
-  const importInput = document.createElement('input');
-  importInput.type = 'file';
-  importInput.accept = '.json';
-  importInput.hidden = true;
-  importInput.addEventListener('change', () => {
-    const file = importInput.files[0];
-    importInput.value = '';
-    if (!file) return;
-    importComponentsFromFile(file);
-  });
-  persistenceGroup.appendChild(importInput);
-
-  const importButton = document.createElement('button');
-  importButton.innerHTML = `
-    <svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M7 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M12 15V3" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    Importar
-  `;
-  importButton.addEventListener('click', () => importInput.click());
-  persistenceGroup.appendChild(importButton);
+  persistenceGroup.appendChild(createImportControls());
   toolbar.appendChild(persistenceGroup);
 
   toolbar.appendChild(document.createElement('div')).className = 'toolbar-divider';

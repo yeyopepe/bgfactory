@@ -37,13 +37,6 @@ const MIN_EDITOR_MODAL_HEIGHT = 360;
 // disponible a partir del alto manual sin depender de medidas de layout
 // frágiles durante el arrastre.
 const EDITOR_CHROME_V = 210;
-// Ancho aproximado del "cromo" horizontal de la modal manual que no es lienzo
-// (cambio 00233): padding lateral de `.modal__content` + gaps entre caras + el
-// botón "Ajustar imagen…" intercalado. Se descuenta del ancho manual y se
-// reparte entre las caras para acotar el lado de lienzo por el ancho
-// disponible, de modo que las dos caras de 'carta' quepan siempre lado a lado
-// (la toolbar, `max-width: 16rem`, no cuenta: va en su propia fila).
-const EDITOR_CHROME_H = 200;
 // Holgura (px) para que el lienzo no toque los bordes del hueco interior de
 // trabajo de `.modal__content` ni fuerce scroll por redondeos de medida
 // (cambio 00235). Se resta del alto y del ancho disponibles calculados en
@@ -294,19 +287,16 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
 
   // Tamaño efectivo del lienzo de cada cara (escalar: "lado máximo"; sus dos
   // llamadores lo dividen por Math.max(designWidth, designHeight) para sacar
-  // `previewScale`):
-  // - maximizado o con tamaño manual (cambios 00225/00233/00235): el lienzo
-  //   escala para ser lo más grande posible dentro del hueco interior REAL de
-  //   `.modal__content` (ancho por cara Y alto), medido en runtime por
-  //   getEditorWorkArea(), manteniendo la proporción del diseño — topa contra
-  //   la primera de las dos restricciones (ancho o alto). Ya no se topa contra
-  //   fracciones fijas del viewport (window.innerWidth * 0.42, etc.). El hueco
-  //   sobrante en la otra dimensión no se rellena deformando el lienzo: el CSS
-  //   scoped a `.card-editor-modal` (`.modal__content` flex column,
-  //   `.card-editor-modal__faces` flex:1 align-items:center) lo deja centrado,
-  //   sin scroll. Se conserva el suelo CANVAS_MIN_SIDE y un techo prudente
-  //   CANVAS_MAX_SIDE * 3.
-  // - estado normal por defecto: la constante fija de siempre.
+  // `previewScale`). Dos ramas:
+  // - estado por defecto (ni maximizado ni tamaño manual): constante fija.
+  // - maximizado o con tamaño manual: el lienzo se escala para caber a la vez
+  //   en el ancho por cara Y el alto del hueco interior REAL de
+  //   `.modal__content` (medido por getEditorWorkArea()), manteniendo la
+  //   proporción del diseño — topa contra la primera de las dos restricciones,
+  //   único suelo CANVAS_MIN_SIDE, sin techo. El sobrante en la otra dimensión
+  //   lo centra el CSS scoped a `.card-editor-modal`, sin scroll.
+  // Doc de referencia completa (capas, convergencia, gotchas):
+  // previo-sdd/design/docs/architecture/006-ui-layer.md § "Window sizing".
   function getEffectiveCanvasMaxSide() {
     if (maximized || manualSize) {
       const { width: dW, height: dH } = getFaceDesignSize();
@@ -318,7 +308,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
       const sideFromHeight = availHeight * longSide / dH;
       return Math.max(
         CANVAS_MIN_SIDE,
-        Math.min(sideFromWidth, sideFromHeight, CANVAS_MAX_SIDE * 3),
+        Math.min(sideFromWidth, sideFromHeight),
       );
     }
     return CANVAS_MAX_SIDE;
@@ -585,6 +575,9 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
   function cleanup() {
     document.removeEventListener('keydown', handleKeyDown);
     window.removeEventListener('resize', handleWindowResize);
+    // Cancela la segunda pasada de convergencia pendiente (cambio 00237) si el
+    // editor se cierra entre un render y su rAF de convergencia.
+    cancelAnimationFrame(convergeRaf);
     overlay.remove();
   }
 
@@ -669,6 +662,13 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
   // tamaño distinto al de la segunda cara.
   let currentCanvasMaxSide = CANVAS_MAX_SIDE;
 
+  // Segunda pasada de convergencia (cambio 00237): guarda si ya hay un
+  // re-render de convergencia en curso (corta la recursión) y el id del
+  // requestAnimationFrame pendiente (lo cancela cleanup() si se cierra el
+  // editor entre el render y su convergencia).
+  let convergePending = false;
+  let convergeRaf = 0;
+
   function renderFaces() {
     // Medir el hueco real ANTES de desmontar el render anterior: getEditorWorkArea()
     // necesita una cara montada para medir su cromo vertical.
@@ -699,6 +699,30 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
       adjustImageBtn.style.marginTop = `${canvasHeight / 2 - adjustImageBtn.offsetHeight / 2}px`;
     } else {
       adjustImageBtn.style.marginTop = '';
+    }
+
+    // Segunda pasada de convergencia (cambio 00237): en estado maximizado o con
+    // tamaño manual, getEditorWorkArea() midió la fila de acciones del render
+    // anterior, cuya altura (flex-wrap) depende del ancho del lienzo y cambia
+    // con el render nuevo — sobre todo en 'tableroPersonalizado' apaisado, donde
+    // el lienzo pasa a ocupar casi todo el ancho. Tras pintar, se re-mide el
+    // "lado" con la fila ya a su anchura final y, si difiere de forma
+    // apreciable, se re-renderiza una sola vez. `convergePending` corta la
+    // recursión: el segundo render no vuelve a agendar. [gotcha] no es un bucle
+    // de convergencia iterativo (mismo criterio acotado que el doble rAF de
+    // ui/progressModal.js, bug 00218): una única pasada extra basta porque ya
+    // mide el layout definitivo.
+    if ((maximized || manualSize) && !convergePending) {
+      const before = currentCanvasMaxSide;
+      cancelAnimationFrame(convergeRaf);
+      convergeRaf = requestAnimationFrame(() => {
+        const after = getEffectiveCanvasMaxSide();
+        if (Math.abs(after - before) > 1) {
+          convergePending = true;
+          renderFaces();
+          convergePending = false;
+        }
+      });
     }
   }
 

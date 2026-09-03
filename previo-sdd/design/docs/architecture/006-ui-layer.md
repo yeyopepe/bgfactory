@@ -140,32 +140,72 @@ UI modules reused across modes (`modes/play` and `modes/edit`) with no direct kn
   - Background image (if `imagenResourceId`) painted with `applyImageAdjustStyle`; `textBoxes` positioned/sized by design values × `previewScale`, alignment/margin via `core/textBoxLayout.js`, each draggable (screen delta converted to "design units" by dividing by `previewScale`) and resizable (`ui/resizeHandle.js`, `getScale: () => previewScale`); double click opens `ui/cardTextBoxModal.js`. Per-face buttons: "Elegir imagen…" (`ui/boardImageModal.js`), "+ Cuadro de texto".
   - Single "Ajustar imagen…" button (disabled if no face of `faces` has an image); invokes `openImageAdjustModal` once with a `faces` array built from the editor's own `faces` (fixed positions) and `initialFocusKey` (first face with an image) — the popup itself manages focus internally without closing/reopening. On accept, `onAccept(adjustments)` stores `adjustments[key]` in each face's `working[key].ajusteImagen`; cancel applies nothing.
   - Footer "Cancelar"/"Aceptar" (invokes `onAccept(result)`).
-  - **Window size.** Three states, not persisted between openings (variables local to `openVisualEditorModal`, reinitialized on each call):
+  - **Window sizing.** Two layers, sized in order every `renderFaces()`: **(1)** the modal box (`.card-editor-modal`) gets a width/height; **(2)** `getEffectiveCanvasMaxSide()` derives each face's canvas size from the *measured* interior of that box. History: 00225 (manual resize) → 00233 (carta faces never stack) → 00235 (canvas fills the real work area, not viewport fractions) → 00237 (drop `* 3` ceiling, `min-height: 0`, convergence pass) → 00240 (`--maximized` needs explicit `width`) → 00241 (dead `EDITOR_CHROME_H` removed, this doc consolidated).
 
-    | State | What fixes the size | Persists between openings |
-    |---|---|---|
-    | `maximized: boolean` | `.card-editor-modal__maximize-btn` header button (`../style/003-modales-menus.md` §12.4.1). `.card-editor-modal--maximized` sets `max-width: 90vw; height: 90vh; max-height: 90vh` (fix 00235: fixed `height`, not just `max-height`) | No |
-    | `manualSize: {width, height} \| null` | Manual resize with a double corner handle over the `modal` itself (`attachResizeHandle` `corner: 'br'` + `corner: 'tl'`, `getScale: () => 1`). `null` = default size (`.card-editor-modal { width: fit-content }` centered by flexbox). On starting the drag, `freezeModalGeometry()` switches the modal to `position: fixed` with its current `getBoundingClientRect()` and nullifies inline `max-width`/`max-height` (pattern copied from the header drag of `ui/componentList.js`), so the corner opposite the handle stays fixed. Each move sets `width`/`height` (and `left`/`top` on the `tl` handle, with `dx`/`dy` from `resizeHandle.js`), stores `manualSize` and calls `renderFaces()` | No |
-    | default (no `maximized`, no `manualSize`) | `getEffectiveCanvasMaxSide()` returns `CANVAS_MAX_SIDE = 380` | — (starting state) |
-  - `getEffectiveCanvasMaxSide()` priority: `(maximized || manualSize)` → default. Both non-default states share one branch (fix 00235):
+    **Layer 1 — the modal box.** Three mutually exclusive states, none persisted between openings (all are `let` locals of `openVisualEditorModal`, reinitialized per call):
+
+    | State | How the modal box gets its size |
+    |---|---|
+    | default (`!maximized && !manualSize`) | No inline geometry, no `--maximized` class. `.card-editor-modal { width: fit-content }` overrides `.modal { width: 90% }`; `.modal { max-height: 80vh }` still caps it. Centered by the `.modal-overlay` flexbox. |
+    | `maximized: boolean` | `.card-editor-modal--maximized` class (toggled by `.card-editor-modal__maximize-btn`, `../style/003-modales-menus.md` §"Modal maximize/restore button"): `width: 90vw; max-width: 90vw; height: 90vh; max-height: 90vh`. Handler clears inline geometry first (`clearModalInlineGeometry()`), so the class wins with no `!important`. |
+    | `manualSize: {width,height}` | Set by the two corner handles (`attachResizeHandle` `corner: 'br'` + `'tl'`, `getScale: () => 1`). Each move: `freezeModalGeometry()` (once) switches the modal to `position: fixed` at its current `getBoundingClientRect()` and nulls inline `max-width`/`max-height`; then `modal.style.width`/`height` (+ `left`/`top` for `tl`, via `dx`/`dy`) are set inline, `manualSize` stored, `renderFaces()` called. |
+
+    - [gotcha] `--maximized` must set **both** `width` and `height` as fixed values, not just `max-*` — the modal inherits `width: fit-content`, so a bare `max-width` leaves it content-sized and maximize enlarges only the dimension that does carry a fixed value (bug 00240: maximize only grew the height; masked before 00237 because the `CANVAS_MAX_SIDE * 3` canvas ceiling was indirectly pushing the `fit-content` width to ~1140px).
+    - [gotcha] `--maximized`'s `max-height: 90vh` is also there to override `.modal { max-height: 80vh }` (same specificity, `--maximized` is later in the file).
+    - `maximized` and `manualSize` coexist without clearing each other: maximize clears inline geometry (`manualSize` kept, the class drives the box); restore reapplies `manualSize` centered if present, else clears everything back to `fit-content`.
+    - `handleWindowResize()`: `maximized` → just `renderFaces()` (the `90vw`/`90vh` class re-resolves on its own); `manualSize` → reclamp against the shrunk viewport (anchoring the top-left corner) then `renderFaces()`.
+    - `clampModalSize(proposed, {maxWidth, maxHeight})`: min `MIN_EDITOR_MODAL_WIDTH`/`MIN_EDITOR_MODAL_HEIGHT`; max whatever the caller passes — `br` handle: `innerWidth - modal.left` / `innerHeight - modal.top`; `tl` handle: `tlStart.left + tlStart.width` / `tlStart.top + tlStart.height` (the fixed bottom-right corner).
+    - [gotcha] the modal is NOT draggable to reposition — only resizable; at rest the `.modal-overlay` flexbox centers it.
+
+    **Layer 2 — the canvas.** `renderFaces()` computes `currentCanvasMaxSide = getEffectiveCanvasMaxSide()` **once, before `facesRow.innerHTML = ''`**; every face's `previewScale = currentCanvasMaxSide / max(designWidth, designHeight)` and the "Ajustar imagen…" margin read that cached scalar.
+    - [gotcha] not called per-face: `getEditorWorkArea()` measures the *previous* render's face chrome, and after `facesRow` is emptied the first face of a carta would fall to the constant fallback while the second measures for real → two mismatched faces.
+
+    `getEffectiveCanvasMaxSide()` — returns a scalar "max side":
     ```
-    { width: dW, height: dH } = getFaceDesignSize()
-    longSide = max(dW, dH)
+    if (!maximized && !manualSize)  return CANVAS_MAX_SIDE           // default: fixed
+    { dW, dH } = getFaceDesignSize();  longSide = max(dW, dH)
     { availWidthPerFace, availHeight } = getEditorWorkArea()
-    sideFromWidth  = availWidthPerFace * longSide / dW    // canvasWidth  = availWidthPerFace when width-bound
-    sideFromHeight = availHeight       * longSide / dH    // canvasHeight = availHeight       when height-bound
-    return max(CANVAS_MIN_SIDE, min(sideFromWidth, sideFromHeight, CANVAS_MAX_SIDE * 3))
+    sideFromWidth  = availWidthPerFace * longSide / dW    // → canvasWidth  = availWidthPerFace when width-bound
+    sideFromHeight = availHeight       * longSide / dH    // → canvasHeight = availHeight       when height-bound
+    return max(CANVAS_MIN_SIDE, min(sideFromWidth, sideFromHeight))  // first constraint wins; only floor is CANVAS_MIN_SIDE
     ```
-    - [motivación] fix 00235: canvas scales to the largest size fitting BOTH the per-face width and the height of the real interior work area, keeping the design aspect ratio — replaces the pre-00235 fixed viewport fractions (`window.innerHeight * 0.7`, `window.innerWidth * 0.42`) that left slack in the non-limiting dimension for landscape designs.
-    - default branch unchanged: `return CANVAS_MAX_SIDE`.
-  - `getEditorWorkArea() -> { availWidthPerFace, availHeight }` — measures the real interior of `.modal__content` at render time (fix 00235). `availHeight = max(CANVAS_MIN_SIDE, content.clientHeight - padY - toolbarH - faceLabelH - actionsH - facesGap - EDITOR_WORK_MARGIN)`; `faceLabelH`/`actionsH` measured from a mounted `.card-editor-modal__face` of the previous render (`facesRow.querySelector`), else the whole vertical chrome falls back to `EDITOR_CHROME_V`. `availWidthPerFace = max(CANVAS_MIN_SIDE, (content.clientWidth - padX - adjustBtnSpace - facesRowGaps) / faces.length)`; `adjustBtnSpace = faces.length === 2 ? adjustImageBtn.offsetWidth + 8 : 0`.
-    - [gotcha] called only from the `(maximized || manualSize)` branch — always after a user gesture with `overlay` in the DOM; never from the first render (default branch, no measurement).
-  - Centering + no-scroll are CSS, scoped to `.card-editor-modal` (fix 00235): `.card-editor-modal .modal__content { display: flex; flex-direction: column }` and `.card-editor-modal__faces { flex: 1 1 auto; align-items: center }` — the faces row fills the leftover vertical space of `.modal__content` and centers the canvas; `justify-content: center` centers it horizontally when width is slack. `overflow-y: auto` (inherited from `.modal__content`) is the fallback if the window shrinks below the `CANVAS_MIN_SIDE`-floored canvas.
-  - Module constants: `CANVAS_MIN_SIDE = 140`, `MIN_EDITOR_MODAL_WIDTH = 420`, `MIN_EDITOR_MODAL_HEIGHT = 360`, `EDITOR_CHROME_V = 210` (fallback vertical chrome height), `EDITOR_CHROME_H = 200`, `EDITOR_WORK_MARGIN = 24` (breathing margin so the canvas doesn't touch the work-area edges / force scroll on measurement rounding).
-  - `clampModalSize(proposed, {maxWidth, maxHeight})`: minimum `MIN_EDITOR_MODAL_WIDTH`/`MIN_EDITOR_MODAL_HEIGHT`; maximum whatever each caller passes — `br` handle: `window.innerWidth - modal.left` / `window.innerHeight - modal.top`; `tl` handle: `tlStart.left + tlStart.width` / `tlStart.top + tlStart.height` (the bottom-right corner, which stays fixed).
-  - `maximized` and `manualSize` coexist without clearing each other: on maximize, the inline geometry styles are cleared (`manualSize` intact, `.card-editor-modal--maximized` `height: 90vh` drives the modal size); on restore, if there is `manualSize` that size is reapplied centered in the window, otherwise everything is cleared (back to `fit-content`).
-  - `handleWindowResize()`: with `maximized`, re-renders; with `manualSize` and a smaller window, reclamps `manualSize` against the viewport (anchors the top-left corner) and re-renders.
-  - [gotcha] the modal is NOT draggable to move around the screen — only resizable; at rest it stays centered by the `.modal-overlay` flexbox.
+    - [motivación] the measured branch fits the canvas into BOTH the per-face width and the real interior height, keeping the design aspect ratio — replaced (00235) fixed viewport fractions (`innerHeight * 0.7`, `innerWidth * 0.42`) that left slack in the non-limiting dimension for landscape designs, and dropped (00237) a `min(…, CANVAS_MAX_SIDE * 3)` ceiling that kept a width-bound landscape 'tableroPersonalizado' from filling a maximized window's width.
+
+    `getEditorWorkArea() -> { availWidthPerFace, availHeight }` — measures `.modal__content`'s real interior at render time:
+    ```
+    inner = content.clientHeight - padY;  rowW = content.clientWidth - padX      // padX/padY from getComputedStyle
+    sampleFace = facesRow.querySelector('.card-editor-modal__face')              // the PREVIOUS render's face
+    availHeight = sampleFace
+      ? max(CANVAS_MIN_SIDE, inner - toolbarH - faceLabelH - actionsH - facesGap(16) - EDITOR_WORK_MARGIN)
+      : max(CANVAS_MIN_SIDE, inner - EDITOR_CHROME_V - EDITOR_WORK_MARGIN)       // no face to measure → constant fallback
+    adjustBtnSpace = faces.length === 2 ? adjustImageBtn.offsetWidth + 8 : 0     // the interleaved button, carta only
+    availWidthPerFace = max(CANVAS_MIN_SIDE, (rowW - adjustBtnSpace - facesRowGaps) / faces.length)
+    ```
+    - `toolbarH` = `toolbar.offsetHeight`, `0` when `showProporcionSelector` is `false` ('tableroPersonalizado' — the toolbar node is still appended, just empty); `faceLabelH` = `0` for 'tableroPersonalizado' (`label: null`).
+    - [gotcha] only ever called from the measured branch of `getEffectiveCanvasMaxSide()` — i.e. after a user gesture with `overlay` already in the DOM. Never from the first render.
+
+    **Convergence pass** (`renderFaces()` tail, when `maximized || manualSize`): `availHeight` above subtracts `actionsH`, measured on the *previous* render, whose `.card-editor-modal__face-actions` height (`flex-wrap: wrap`) depends on canvas width. A width-bound 'tableroPersonalizado' render widens the canvas sharply → the previous actions row had wrapped into more rows → `availHeight` was under-subtracted → new canvas too small, gap below. Fix: one `requestAnimationFrame` re-runs `getEffectiveCanvasMaxSide()` with the *new* render's actions row at its final width; if the side moved `> 1` px it calls `renderFaces()` once more. `convergePending` breaks recursion; `convergeRaf` is `cancelAnimationFrame`'d in `cleanup()`.
+    - [gotcha] one extra pass, NOT an iterative loop — same bounded criterion as `ui/progressModal.js`'s double `requestAnimationFrame` (bug 00218). The second measurement is of the final layout, so it settles.
+    - carta ('showProporcionSelector: true', two narrow faces): `actionsH` is stable between renders → `abs(after - before) <= 1` → no second pass → carta unaffected by the convergence machinery.
+
+    **Centering + no-scroll** — CSS only, scoped to `.card-editor-modal` so no other modal is touched:
+    ```
+    .card-editor-modal .modal__content { display: flex; flex-direction: column; min-height: 0 }
+    .card-editor-modal__faces          { flex: 1 1 auto; align-items: center; justify-content: center; flex-wrap: nowrap }
+    ```
+    The faces row fills the leftover vertical space and centers the face block; `justify-content: center` centers horizontally when width is slack; `flex-wrap: nowrap` + the per-face width bound keep carta's two faces side by side.
+    - [gotcha] `min-height: 0` on `.card-editor-modal .modal__content` is load-bearing (00237): without it the `overflow-y: auto` inherited from `.modal__content` stops `.card-editor-modal__faces` from actually stretching, so `align-items: center` has no slack and the canvas sits pinned to the top with all the leftover space below. Same idiom as `#content` (`../style/002-componentes-layout.md`, Layout).
+    - `overflow-y: auto` (inherited) is the intentional fallback when the window shrinks below the `CANVAS_MIN_SIDE`-floored canvas — the footer stays visible because it is outside `.modal__content`.
+
+    **Module constants** (`ui/visualEditorModal.js` top):
+
+    | Constant | Value | Role |
+    |---|---|---|
+    | `CANVAS_MAX_SIDE` | `380` | Canvas side in the **default** state only. No `* 3` multiple anywhere since 00237. |
+    | `CANVAS_MIN_SIDE` | `140` | Floor for both `availWidthPerFace`/`availHeight` and the `getEffectiveCanvasMaxSide()` return. |
+    | `MIN_EDITOR_MODAL_WIDTH` / `_HEIGHT` | `420` / `360` | Floor for `clampModalSize()` (manual resize only). |
+    | `EDITOR_CHROME_V` | `210` | Constant vertical-chrome estimate, used **only** in `getEditorWorkArea()`'s no-`sampleFace` fallback. There is no horizontal counterpart — `availWidthPerFace` is always measured (`content.clientWidth`). |
+    | `EDITOR_WORK_MARGIN` | `24` | Breathing room subtracted from `availWidthPerFace`/`availHeight` so the canvas doesn't touch the work-area edges or force scroll on rounding. |
 - **`ui/cardTextBoxModal.js`**: sub-modal without tabs to edit a face's `textBox`, opened with double click from `ui/visualEditorModal.js`. Exposes `openCardTextBoxModal({ textBox, onAccept, onDelete })`: content (`textarea`), typeface (button reusing `ui/diceFontModal.js`, logic already generic despite the file name), "Posición del texto en el cuadro" block (two `.align-group` for horizontal/vertical alignment, a row of 4 numeric fields for margins — `parseInt` + `Math.max(value, 0)`), size (design units) and color. Operates over a working copy, applied to the original `textBox` only on accept. Footer "Eliminar" (removes the box and closes), "Cancelar", "Aceptar".
 - **`ui/diceFontModal.js`**: sub-modal analogous to `ui/boardImageModal.js` for `'dado'`'s `fuenteResourceId` — list (not grid) of `type === 'tipografia'` resources, each with a name and a sample text rendered in that typeface (`ui/fontFaceRegistry.js`, `fontFamilyFor`), single selection with click; with none, "No hay tipografías disponibles" with "Aceptar" disabled.
 - **`ui/diceResultModal.js`**: "view the result large" modal of `'dado'`, opened with double click in play mode — no tabs, shows `properties.resultadoActual` at large size, "Cerrar" button.

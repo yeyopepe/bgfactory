@@ -76,6 +76,13 @@ flowchart TD
 - El grupo automático incluye solo las 54 cartas, no el mazo.
 - La sección "Conjuntos pre-definidos" es completamente nueva y no altera los tipos de componente individuales existentes.
 
+### Diseño del picker (mockup de referencia)
+
+- El mockup de referencia del picker es **`design_picker-menu-estilo-real.html`**: reproduce el modal real "Añadir componente" (`src/ui/componentTypeModal.js`) con sus tokens y estructura reales (cabecera simple sin fondo oscuro, lista vertical de tipos con radio + icono lineal + label, footer con "Cancelar" / "Aceptar").
+- Sobre ese modal real, el cambio añade: un rótulo "Componentes" sobre la lista existente, un separador "o elige un conjunto completo" y la nueva sección "Conjuntos pre-definidos".
+- El item "Baraja francesa estándar (54 cartas)" es un **item de acción inmediata**, no de selección: no tiene radio, se distingue visualmente (fondo `--accent-blue-light`, borde `--accent-blue`, tags informativas y chevron `›`) y, al pulsarlo, crea la baraja y cierra el modal directamente **sin pasar por el botón "Aceptar"**. "Aceptar" sigue aplicando solo a la selección de un tipo individual.
+- Se descartó una exploración visual alternativa con tema oscuro y rejilla de componentes; no representa el estilo real de la aplicación.
+
 ## Technical notes
 
 - El picker de componentes actual es `src/ui/componentTypeModal.js`. El array `COMPONENT_TYPES` (líneas 8-68) define las entradas actuales; la nueva sección "Conjuntos pre-definidos" requerirá un nuevo mecanismo (sección separada o array propio) en este mismo modal, o un nuevo modal/panel dedicado a conjuntos.
