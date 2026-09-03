@@ -50,7 +50,7 @@ All colors live as custom properties in `:root`. Never hardcode a color that alr
 | `1.5rem` | Main title (`h1`) |
 | `1.125rem` | Panel titles (`.edit-mode-panel h2`) |
 | `0.875rem` | Default UI text (buttons, tabs, labels, inputs, list items) |
-| `0.75rem` | Auxiliary text (small buttons, validation error, version footer) |
+| `0.75rem` | Auxiliary text (small buttons, validation error, version footer — both lines, see `002-componentes-layout.md`, "Version footer") |
 
 - `font-weight: 500` for form labels. Rest: the browser's normal weight.
 

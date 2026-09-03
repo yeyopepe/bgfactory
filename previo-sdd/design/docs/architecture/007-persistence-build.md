@@ -11,15 +11,33 @@
 
 `src/index.html` includes an empty `<script type="application/json" id="initial-state"></script>` that survives the build (copied as-is) and the runtime download (filled before downloading) — the state seed embedded in each copy of the HTML.
 
+`parseState(raw)` return is discriminated, not a generic `{ error: true }`:
+
+| Case | Return |
+|---|---|
+| `JSON.parse` throws | `{ error: 'corrupt' }` |
+| `parsed` is an object ∧ `parsed.version !== CURRENT_VERSION` | `{ error: 'version-mismatch' }` (checked before the `components` check — a wrong-version object with no `components` is still `'version-mismatch'`) |
+| `parsed` falsy ∨ `!Array.isArray(parsed.components)` (with `parsed.version === CURRENT_VERSION`) | `{ error: 'corrupt' }` |
+| otherwise | success object (no `error` field) |
+
+`readSeedState()` unchanged: `return result.error ? null : result;` — any truthy `error` string (`'corrupt'` / `'version-mismatch'`) discards the embedded seed silently, falls to defaults.
+
 ```
 Startup (main.js):
   loadState() [core/persistence.js, localStorage]
-    → valid          → loadComponents(...) + loadResources(...) + backfillDefaultResourcesIfNeeded(...)
-    → corrupt/incompatible → showToast(notice) + example component + default resources
-    → nothing saved   → readSeedState() [<script id="initial-state">]
-                          → has seed → loadComponents(...) + loadResources(...) + backfillDefaultResourcesIfNeeded(...)
-                          → no seed  → example component + default resources
+    null (key bgfactory:state absent)  → bootFromSeedOrDefaults()                                   — no notice
+    { error: 'version-mismatch' }      → bootFromSeedOrDefaults() + showToast('No se ha podido recuperar el estado de una versión anterior; se ha empezado con el contenido por defecto.')
+    { error: 'corrupt' }               → bootFromSeedOrDefaults() + showToast('No se ha podido recuperar el estado guardado.')
+    success object                     → hydrate panelState/resourcePanelState/tagPanelState + loadAppTitle + loadResourcesSeeded + loadComponents + loadResources + loadTags + loadGroups + backfillDefaultResourcesIfNeeded — no notice
+
+bootFromSeedOrDefaults()  [local to main.js]:
+  readSeedState() [<script id="initial-state">]
+    → has seed → loadAppTitle + loadResourcesSeeded + loadComponents + loadResources + loadTags + loadGroups + backfillDefaultResourcesIfNeeded
+    → no seed  → seedDefaultResources()
 ```
+
+- [gotcha] startup never calls `showErrorModal` any more — a wrong-version `localStorage` save is a non-blocking `showToast`, not a modal to dismiss. `showErrorModal` (`ui/errorModal.js`) stays in use elsewhere (`ui/editModeToggle.js`, `modes/edit/editMode.js`).
+- `'version-mismatch'` and `'corrupt'` run the exact same fallback path as `null` (`bootFromSeedOrDefaults()`); they differ only in the `showToast` text.
 
 ### Autosave (`core/persistence.js`)
 
@@ -70,6 +88,6 @@ The previous functions `getComponentsWithMissingResources` (`core/resource.js`) 
 
 | State on load | Action |
 |---|---|
-| Fully new session (nothing saved, no embedded seed, or corrupt/incompatible save) | `seedDefaultResources()` seeds the 2 entries of `DEFAULT_RESOURCES` (see `004-groups-resources.md`), sets `resourcesSeeded = true` (`markResourcesSeeded()`) |
+| Fully new session (nothing saved, no embedded seed, or `parseState` returned `{ error: 'corrupt' }` / `{ error: 'version-mismatch' }`) | `seedDefaultResources()` seeds the 2 entries of `DEFAULT_RESOURCES` (see `004-groups-resources.md`), sets `resourcesSeeded = true` (`markResourcesSeeded()`) |
 | Valid save or seed (with existing components) but `resourcesSeeded` not `true` (typically a save predating this feature, `resources` empty or nonexistent) | `backfillDefaultResourcesIfNeeded()` seeds them that one time anyway |
 | `resourcesSeeded` already `true` | No backfill — if the user deletes the default resources, they do not reappear on later loads |

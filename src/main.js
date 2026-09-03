@@ -18,7 +18,7 @@ import { renderEditMode, deleteSelectedComponent, moveSelectedComponent } from '
 import { createResource } from './core/resource.js';
 import { deriveMissingGroups } from './core/group.js';
 import { saveState, loadState, readSeedState } from './core/persistence.js';
-import { showErrorModal } from './ui/errorModal.js';
+import { showToast } from './ui/toast.js';
 import { syncFontFaces } from './ui/fontFaceRegistry.js';
 
 const switcherEl = document.getElementById('mode-switcher');
@@ -28,7 +28,22 @@ const titleEl = document.getElementById('app-title');
 const versionEl = document.getElementById('app-version');
 
 if (versionEl) {
-  versionEl.textContent = CURRENT_VERSION;
+  versionEl.textContent = '';
+
+  const nameLine = document.createElement('div');
+  nameLine.className = 'app-version__name';
+  nameLine.textContent = `BG Factory ${CURRENT_VERSION}`;
+
+  const repoLine = document.createElement('div');
+  repoLine.className = 'app-version__repo';
+  const repoLink = document.createElement('a');
+  repoLink.href = 'https://github.com/yeyopepe/bgfactory';
+  repoLink.target = '_blank';
+  repoLink.rel = 'noopener';
+  repoLink.textContent = 'Ver en Github';
+  repoLine.appendChild(repoLink);
+
+  versionEl.append(nameLine, repoLine);
 }
 
 function renderActiveMode() {
@@ -80,6 +95,26 @@ function seedDefaultResources() {
   }
 }
 
+// Arranque de reserva: semilla embebida si la hay, si no recursos por defecto.
+// Mismo camino para "no hay nada guardado", "estado de otra versión" y
+// "estado corrupto".
+function bootFromSeedOrDefaults() {
+  const seed = readSeedState();
+  if (seed) {
+    loadAppTitle(seed.appTitle);
+    loadResourcesSeeded(seed.resourcesSeeded === true);
+    loadComponents(seed.components);
+    loadResources(seed.resources);
+    loadTags(seed.tags ?? []);
+    loadGroups(deriveMissingGroups(getComponents(), seed.componentGroups ?? []));
+    if (!getResourcesSeeded()) {
+      seedDefaultResources();
+    }
+  } else {
+    seedDefaultResources();
+  }
+}
+
 // Guardado/semilla sin `resourcesSeeded` (o en false): se rellena una vez con
 // los recursos por defecto; a partir de ahí son normales (si se borran, no vuelven).
 // Hidratar el flag ANTES de loadComponents()/loadResources(): esas dos emiten
@@ -87,9 +122,12 @@ function seedDefaultResources() {
 // persistiría `false` si el flag no está hidratado ya.
 
 const saved = loadState();
-if (saved?.error) {
-  showErrorModal('Error', 'No se ha podido recuperar el estado guardado.');
-  seedDefaultResources();
+if (saved?.error === 'version-mismatch') {
+  bootFromSeedOrDefaults();
+  showToast('No se ha podido recuperar el estado de una versión anterior; se ha empezado con el contenido por defecto.');
+} else if (saved?.error === 'corrupt') {
+  bootFromSeedOrDefaults();
+  showToast('No se ha podido recuperar el estado guardado.');
 } else if (saved) {
   if (saved.panelState) {
     loadPanelState(saved.panelState);
@@ -113,20 +151,7 @@ if (saved?.error) {
     seedDefaultResources();
   }
 } else {
-  const seed = readSeedState();
-  if (seed) {
-    loadAppTitle(seed.appTitle);
-    loadResourcesSeeded(seed.resourcesSeeded === true);
-    loadComponents(seed.components);
-    loadResources(seed.resources);
-    loadTags(seed.tags ?? []);
-    loadGroups(deriveMissingGroups(getComponents(), seed.componentGroups ?? []));
-    if (!getResourcesSeeded()) {
-      seedDefaultResources();
-    }
-  } else {
-    seedDefaultResources();
-  }
+  bootFromSeedOrDefaults();
 }
 
 syncFontFaces(getResources());

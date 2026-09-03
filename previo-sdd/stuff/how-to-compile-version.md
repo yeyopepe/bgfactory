@@ -1,20 +1,44 @@
 # Cómo compilar el entregable de este proyecto
 
-Fichero propio de este proyecto (no de la skill `ms-version` ni de `.claude/ms-context.json`): describe el procedimiento de shell/build concreto de este repo para generar el entregable jugable. Lo rellena `ms-version` la primera vez que se invoca y no existe todavía, preguntando al usuario; en invocaciones siguientes se lee y se sigue tal cual, sin volver a preguntar.
+Fichero propio de `pv-version` (no forma parte de `.claude/pv-context.json`): describe el procedimiento de shell/build concreto de este repo para generar el entregable jugable. Lo rellena `pv-version` la primera vez que se invoca y el fichero no existe todavía, preguntando al usuario; en invocaciones siguientes se lee y se sigue tal cual, sin volver a preguntar. También se actualiza cuando el usuario reporta un cambio en este procedimiento.
+
+## Distinción: build interna vs. versión oficial
+
+En este repo hay dos procesos distintos:
+
+- **Build interna** (`src/scripts/build.py`): se genera tras aplicar cambios, para probar. Numeración automática `vNNNNN`. **NO es lo que `pv-version` debe empaquetar.**
+- **Versión oficial** (`src/scripts/generate-version.py`): el entregable que `pv-version` prepara. Versión semántica `x.y.z` confirmada con el usuario. Internamente lanza `build.py`, así que arrastra su efecto secundario.
+
+Este documento describe **el proceso de versión oficial**.
 
 ## Comando(s) a ejecutar
 
-Desde la raíz del repo:
+Desde cualquier ubicación del repo:
 
 ```
-python src/scripts/build.py
+python src/scripts/generate-version.py
 ```
+
+El script es **interactivo**: al arrancar pregunta por consola `Version oficial a empaquetar (formato x.y.z):`. Teclea ahí la versión oficial ya confirmada con el usuario (formato `x.y.z`, p. ej. `0.9.0`). El script rechaza y vuelve a preguntar si el formato no es `x.y.z`.
+
+Comando único: genera el entregable oficial completo (un solo artefacto).
 
 ## Fichero(s) generado(s)
 
-`src/_output/versions/index-v{NNNN}.html`, un único HTML autocontenido (JS, CSS, imágenes y fuentes incrustados). `{NNNN}` es un contador automático e independiente del `XXXX` de `ms-version`: el script lee `CURRENT_VERSION` de `src/data/version.js`, la incrementa en 1, la guarda ahí mismo y nombra el fichero con ese nuevo valor. El fichero más reciente es siempre el que imprime el propio script en su salida ("Build generado en ...") tras la ejecución.
+`src/_output/versions/official/v{x.y.z}/bgfactory-{x.y.z}.html`, un único HTML autocontenido, idéntico en contenido a la build interna pero con la versión reescrita a la oficial:
+
+- `<title>BG Factory v.{x.y.z}</title>`
+- `const CURRENT_VERSION = 'v{x.y.z}';` (conserva el prefijo `v`; `core/appTitle.js` hace `CURRENT_VERSION.slice(1)`)
+
+El script crea la subcarpeta `official/v{x.y.z}/` si no existe. Esa **misma carpeta** es donde debe crearse después el fichero de changelog (ver "Notas"). La ruta final la imprime el propio script al terminar: `Paquete oficial generado en src\_output\versions\official\vX.Y.Z\bgfactory-X.Y.Z.html`.
 
 ## Notas
 
-- No requiere Node.js.
-- El build modifica `src/data/version.js` (incrementa `CURRENT_VERSION`) como efecto secundario; ese cambio queda en el repo tras ejecutar el script.
+- **Changelog**: tras generar la versión oficial, crear el fichero de changelog dentro de `src/_output/versions/official/v{x.y.z}/` (junto al HTML). Ese es el trabajo que `pv-version` encadena a `pv-internal-changelog` pasándole esa carpeta como destino.
+- **Efecto secundario en el repo**: `generate-version.py` lanza `build.py`, que incrementa `CURRENT_VERSION` en `src/data/version.js`. Ese cambio queda sin commitear en el árbol de trabajo tras ejecutar el script; consérvalo (es la fuente de verdad del contador interno).
+- El script aborta con error, sin generar el paquete oficial, si:
+  - `build.py` falla (código de salida ≠ 0).
+  - `src/data/version.js` no tiene una `CURRENT_VERSION` con formato `'vNNNNN'`.
+  - No aparece el fichero de build interno esperado (`src/_output/versions/index-vNNNNN.html`).
+  - No encuentra en el bundle los fragmentos de versión a reescribir (`v.NNNNN` en el `<title>` y `'vNNNNN'` en `CURRENT_VERSION`).
+- No requiere Node.js ni instalación de paquetes: solo Python 3 de la librería estándar.

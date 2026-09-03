@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BG Factory v.0.9.0</title>
+  <title>BG Factory v.0.9.1</title>
   <style>
 :root {
   --bg-table: #c2c2c2;
@@ -129,6 +129,21 @@ h1 {
 
 #mode-switcher button:hover {
   opacity: 0.9;
+}
+
+/* Botón "Importar" del modo juego: hereda el fondo azul de #mode-switcher button;
+   solo necesita alinear icono + texto (#mode-switcher button no trae inline-flex
+   ni regla de .icon-frame, a diferencia de .edit-toolbar button). */
+#mode-switcher .mode-switcher__import-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+#mode-switcher .mode-switcher__import-btn .icon-frame {
+  width: 16px;
+  height: 16px;
+  display: block;
 }
 
 #mode-switcher .mode-switcher__fit-btn,
@@ -869,11 +884,33 @@ fieldset.modal__section--untitled {
 /* Text box component: texto suelto directamente sobre la mesa, sin caja ni
    fondo — la sombra de contacto del resto de piezas no aplica aquí (no hay
    caja que elevar); en su lugar lleva una sombra de texto muy sutil para
-   mantener la legibilidad sobre cualquier color de mesa. */
+   mantener la legibilidad sobre cualquier color de mesa. El recorte del
+   contenido vive en un div interno (ui/componentRenderer.js), no aquí. */
 .text-box {
   word-wrap: break-word;
   white-space: pre-wrap;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* Al no tener caja rellena, las insignias de estado se anclarían a las
+   esquinas de un área invisible mayor que los glifos. Se pegan al texto
+   visible con offsets propios (criterio de anclaje "por fuera de la esquina",
+   como .component-title-label), sin tocar las reglas base que usan el resto
+   de tipos. */
+.text-box > .component-lock-badge {
+  top: -0.55rem;
+  right: -0.55rem;
+}
+
+.text-box > .component-hidden-badge {
+  bottom: -0.55rem;
+  right: -0.55rem;
+}
+
+.text-box > .component-copy-badge,
+.text-box > .component-has-copies-badge {
+  bottom: -0.55rem;
+  left: -0.55rem;
 }
 
 .text-box--selectable {
@@ -1554,6 +1591,27 @@ fieldset.modal__section--untitled {
   box-shadow: 0 2px 6px rgba(44, 125, 216, 0.15);
 }
 
+/* Icono ilustrativo por tipo (SVG inline en ui/componentTypeModal.js), entre el
+   radio y la etiqueta. Acento en :hover del item o con su radio marcado. */
+.component-type-modal__icon {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.component-type-modal__icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.component-type-modal__item:hover .component-type-modal__icon,
+.component-type-modal__item:has(input:checked) .component-type-modal__icon {
+  color: var(--accent-blue);
+}
+
 /* Board background modal — sub-modal "Imagen" (gallery grid of image resources) */
 .board-image-modal__search {
   margin-bottom: 1rem;
@@ -1844,13 +1902,21 @@ fieldset.modal__section--untitled {
 }
 
 /* Maximizar/restaurar: sustituye el ancho/alto por defecto por casi toda la
-   ventana. No fija `height`: el modal crece con su contenido hasta el límite
-   de `.modal__content` (`overflow-y: auto`), basta con anular el
-   `max-height: 80vh` de `.modal`. El handler de "Maximizar" limpia antes los
-   estilos inline de geometría del redimensionado manual (cambio 00225), así
-   que esta clase no necesita `!important` para ganarles. */
+   ventana. `width: 90vw` y `height: 90vh` FIJOS (cambios 00235/00238): el
+   lienzo se escala a partir del hueco interior real de `.modal__content`
+   medido en runtime (getEditorWorkArea()), así que la modal necesita ancho y
+   alto determinados que ese hueco pueda rellenar — con sólo `max-width`/
+   `max-height` la modal quedaría content-sized (hereda `width: fit-content`
+   de `.card-editor-modal`; `.modal-overlay` la centra, no la estira) y crecería
+   sólo en la dimensión que sí tuviera valor fijo (bug 00238: maximizar sólo
+   ampliaba en altura). `overflow-y: auto` de `.modal__content` sigue de válvula
+   si el contenido no cupiera. El handler de "Maximizar" limpia antes los
+   estilos inline de geometría del redimensionado manual (cambio 00225), así que
+   esta clase no necesita `!important` para ganarles. */
 .card-editor-modal--maximized {
+  width: 90vw;
   max-width: 90vw;
+  height: 90vh;
   max-height: 90vh;
 }
 
@@ -1916,11 +1982,38 @@ fieldset.modal__section--untitled {
   max-width: 16rem;
 }
 
+/* Columna flex para que `.card-editor-modal__faces` pueda estirarse y ocupar
+   el hueco vertical sobrante de `.modal__content`, dejando el lienzo centrado
+   en él (cambio 00235). Hereda `flex: 1; overflow-y: auto; padding: 1.5rem`
+   de `.modal__content`. `min-height: 0` (cambio 00237): sin él, el
+   `overflow-y: auto` heredado impide que `.card-editor-modal__faces`
+   (`flex: 1 1 auto`) se estire de verdad y deja el lienzo pegado arriba en vez
+   de centrado en el hueco — mismo idiom que `#content` (columna flex principal
+   de la app). Acotado a `.card-editor-modal`: no afecta a otras modales. */
+.card-editor-modal .modal__content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Las caras nunca se apilan: `getEffectiveCanvasMaxSide()` acota el lado de
+   lienzo por el ancho por cara disponible del hueco interior real
+   (cambios 00233/00235), así que las dos caras de 'carta' siempre caben en
+   una fila. `nowrap` lo garantiza y evita que una salte a otra fila y quede
+   desalineada durante el redimensionado manual.
+   `flex: 1 1 auto` + `align-items: center` (cambio 00235): la fila se estira
+   para llenar el alto de `.modal__content` y el lienzo — más bajo que el
+   hueco por su proporción — queda centrado verticalmente; `justify-content:
+   center` ya lo centra en horizontal cuando sobra ancho. `overflow-y: auto`
+   de `.modal__content` queda como válvula si la ventana se encoge por debajo
+   del lienzo mínimo (`CANVAS_MIN_SIDE`). */
 .card-editor-modal__faces {
   display: flex;
+  flex: 1 1 auto;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
+  align-items: center;
 }
 
 .card-editor-modal__face {
@@ -3882,7 +3975,7 @@ module.exports.MAZO_REVEAL_GAP = MAZO_REVEAL_GAP;
 };
 __modules['data/version.js'] = function(module, exports, require) {
 // Fuente única de la versión actual del prototipo.
-const CURRENT_VERSION = 'v0.9.0';
+const CURRENT_VERSION = 'v0.9.1';
 
 module.exports.CURRENT_VERSION = CURRENT_VERSION;
 };
@@ -4618,10 +4711,16 @@ function parseState(raw) {
   try {
     parsed = JSON.parse(raw);
   } catch {
-    return { error: true };
+    return { error: 'corrupt' };
   }
-  if (!parsed || parsed.version !== CURRENT_VERSION || !Array.isArray(parsed.components)) {
-    return { error: true };
+  // Objeto legible pero de otra versión de la app: no es un fallo, es lo
+  // esperable al estrenar versión. Se distingue de "corrupto" para que el
+  // arranque avise con un texto distinto (o silencie el modal por completo).
+  if (parsed && parsed.version !== CURRENT_VERSION) {
+    return { error: 'version-mismatch' };
+  }
+  if (!parsed || !Array.isArray(parsed.components)) {
+    return { error: 'corrupt' };
   }
   const panelState = (parsed.panelState && typeof parsed.panelState === 'object') ? parsed.panelState : null;
   const resourcePanelState = (parsed.resourcePanelState && typeof parsed.resourcePanelState === 'object') ? parsed.resourcePanelState : null;
@@ -6857,20 +6956,30 @@ function renderComponentsOnTable(worldEl, components, { onSelect, onToggleSelect
       textBox.style.position = 'absolute';
       textBox.style.top = `${component.y ?? 100}px`;
       textBox.style.left = `${component.x ?? 100}px`;
-      textBox.style.padding = '0.5rem';
-      textBox.style.fontSize = `${component.properties.tamañoFuente || 16}px`;
-      textBox.style.color = component.properties.colorTexto || '#000000';
-      textBox.style.whiteSpace = 'pre-wrap';
-      textBox.style.wordBreak = 'break-word';
-      textBox.style.overflow = 'hidden';
+      textBox.style.boxSizing = 'border-box';
       if (component.width != null) textBox.style.width = `${component.width}px`;
       if (component.height != null) textBox.style.height = `${component.height}px`;
 
+      // Recorte del contenido en contenedor interno (regla transversal,
+      // design/docs/architecture/05-ui-layer.md): el exterior queda sin
+      // `overflow` para no recortar la etiqueta identificativa ni las insignias.
+      // En flujo normal (no `position: absolute`) para que el exterior siga
+      // ajustándose al texto cuando el componente no tiene tamaño fijado.
+      const textBoxContent = document.createElement('div');
+      textBoxContent.style.boxSizing = 'border-box';
+      textBoxContent.style.width = '100%';
+      textBoxContent.style.height = '100%';
+      textBoxContent.style.overflow = 'hidden';
+      textBoxContent.style.padding = '0.5rem';
+      textBoxContent.style.fontSize = `${component.properties.tamañoFuente || 16}px`;
+      textBoxContent.style.color = component.properties.colorTexto || '#000000';
+      textBoxContent.style.whiteSpace = 'pre-wrap';
+      textBoxContent.style.wordBreak = 'break-word';
       if (component.properties.colorFondo) {
-        textBox.style.backgroundColor = component.properties.colorFondo;
+        textBoxContent.style.backgroundColor = component.properties.colorFondo;
       }
-
-      textBox.textContent = component.properties.contenido || '';
+      textBoxContent.textContent = component.properties.contenido || '';
+      textBox.appendChild(textBoxContent);
 
       if (identifyMode === 'tooltip' && effective.mostrarTooltip) attachComponentTooltip(textBox, component);
       if (identifyMode === 'tooltip' && effective.mostrarTitulo) attachComponentTitle(textBox, component);
@@ -8752,7 +8861,7 @@ function openImportConfirmModal({ onAccept, onCancel }) {
   footer.className = 'modal__footer';
   modal.appendChild(footer);
 
-  const working = { mode: 'add', conflictMode: 'overwrite' };
+  const working = { mode: 'overwrite', conflictMode: 'overwrite' };
 
   const modeField = document.createElement('div');
   modeField.className = 'modal__field';
@@ -9282,6 +9391,42 @@ function createExportMenu() {
   return wrap;
 }
 
+// Controles de "Importar" (input de fichero oculto + botón) reutilizados tanto por
+// la barra del modo edición como por la barra del modo juego (#mode-switcher).
+// `buttonClassName`, si se pasa, se añade al botón para poder darle estilo propio
+// según la barra que lo aloje (en #mode-switcher hereda el azul de esa zona; en
+// .edit-toolbar mantiene el estilo transparente sin clase extra).
+function createImportControls({ buttonClassName } = {}) {
+  const fragment = document.createDocumentFragment();
+
+  const importInput = document.createElement('input');
+  importInput.type = 'file';
+  importInput.accept = '.json';
+  importInput.hidden = true;
+  importInput.addEventListener('change', () => {
+    const file = importInput.files[0];
+    importInput.value = '';
+    if (!file) return;
+    importComponentsFromFile(file);
+  });
+  fragment.appendChild(importInput);
+
+  const importButton = document.createElement('button');
+  if (buttonClassName) importButton.className = buttonClassName;
+  importButton.innerHTML = `
+    <svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 15V3" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Importar
+  `;
+  importButton.addEventListener('click', () => importInput.click());
+  fragment.appendChild(importButton);
+
+  return fragment;
+}
+
 function createFitButton(className) {
   const button = document.createElement('button');
   if (className) button.className = className;
@@ -9304,6 +9449,12 @@ function renderModeSwitcher(container) {
 
   if (getState().mode !== MODES.PLAY) return;
 
+  // "Importar" a la izquierda de "Entrar en modo edición". Reutiliza el mismo
+  // flujo de importación que el modo edición; al importar desde modo juego no se
+  // llama a setMode, así que la app permanece en modo juego (loadComponents/etc.
+  // emiten sus eventos y main.js repinta renderPlayMode).
+  container.appendChild(createImportControls({ buttonClassName: 'mode-switcher__import-btn' }));
+
   const button = document.createElement('button');
   button.textContent = 'Entrar en modo edición';
   button.addEventListener('click', () => setMode(MODES.EDIT));
@@ -9322,30 +9473,7 @@ function renderEditToolbar(container) {
 
   const persistenceGroup = document.createElement('div');
   persistenceGroup.className = 'toolbar-group';
-
-  const importInput = document.createElement('input');
-  importInput.type = 'file';
-  importInput.accept = '.json';
-  importInput.hidden = true;
-  importInput.addEventListener('change', () => {
-    const file = importInput.files[0];
-    importInput.value = '';
-    if (!file) return;
-    importComponentsFromFile(file);
-  });
-  persistenceGroup.appendChild(importInput);
-
-  const importButton = document.createElement('button');
-  importButton.innerHTML = `
-    <svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M7 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M12 15V3" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    Importar
-  `;
-  importButton.addEventListener('click', () => importInput.click());
-  persistenceGroup.appendChild(importButton);
+  persistenceGroup.appendChild(createImportControls());
   toolbar.appendChild(persistenceGroup);
 
   toolbar.appendChild(document.createElement('div')).className = 'toolbar-divider';
@@ -12316,6 +12444,11 @@ const MIN_EDITOR_MODAL_HEIGHT = 360;
 // disponible a partir del alto manual sin depender de medidas de layout
 // frágiles durante el arrastre.
 const EDITOR_CHROME_V = 210;
+// Holgura (px) para que el lienzo no toque los bordes del hueco interior de
+// trabajo de `.modal__content` ni fuerce scroll por redondeos de medida
+// (cambio 00235). Se resta del alto y del ancho disponibles calculados en
+// runtime por getEditorWorkArea().
+const EDITOR_WORK_MARGIN = 24;
 // Fallback defensivo si el componente no tuviera aún `width`/`height`
 // (no debería ocurrir: 'carta'/'tableroPersonalizado' siempre nacen con
 // tamaño fijo) para no dividir por 0 al calcular el lienzo de diseño.
@@ -12553,30 +12686,91 @@ function openVisualEditorModal({ component, title, faces, showProporcionSelector
   // Tamaño "normal" fijado a mano con los manejadores de esquina de la modal
   // (cambio 00225). `null` = tamaño normal por defecto (comportamiento de
   // siempre, `width: fit-content` centrado por flexbox); `{ width, height }`
-  // en px = tamaño elegido por el usuario arrastrando un manejador. `maximized`
-  // lo ignora temporalmente y "Restaurar" vuelve a él. No se persiste entre
-  // aperturas, igual que `maximized`.
+  // en px = tamaño elegido por el usuario arrastrando un manejador. `maximizar`
+  // lo ignora temporalmente y "Restaurar" lo descarta (vuelve siempre al tamaño
+  // por defecto, cambio 00233). No se persiste entre aperturas, igual que
+  // `maximized`.
   let manualSize = null;
 
-  // Tamaño efectivo del lienzo de cada cara:
-  // - maximizado: el hueco real disponible en la ventana — dos lienzos +
-  //   toolbar caben en el ancho, así que el alto es el límite real.
-  // - con tamaño manual (cambio 00225): se deriva del alto manual descontando
-  //   el "cromo" vertical de la modal, para que el lienzo escale de forma
-  //   continua mientras se arrastra un manejador. Se permite crecer por encima
-  //   de CANVAS_MAX_SIDE (con un tope prudente) para aprovechar el espacio al
-  //   agrandar, y se topa a CANVAS_MIN_SIDE por abajo.
-  // - estado normal por defecto: la constante fija de siempre.
+  // Tamaño efectivo del lienzo de cada cara (escalar: "lado máximo"; sus dos
+  // llamadores lo dividen por Math.max(designWidth, designHeight) para sacar
+  // `previewScale`). Dos ramas:
+  // - estado por defecto (ni maximizado ni tamaño manual): constante fija.
+  // - maximizado o con tamaño manual: el lienzo se escala para caber a la vez
+  //   en el ancho por cara Y el alto del hueco interior REAL de
+  //   `.modal__content` (medido por getEditorWorkArea()), manteniendo la
+  //   proporción del diseño — topa contra la primera de las dos restricciones,
+  //   único suelo CANVAS_MIN_SIDE, sin techo. El sobrante en la otra dimensión
+  //   lo centra el CSS scoped a `.card-editor-modal`, sin scroll.
+  // Doc de referencia completa (capas, convergencia, gotchas):
+  // previo-sdd/design/docs/architecture/006-ui-layer.md § "Window sizing".
   function getEffectiveCanvasMaxSide() {
-    if (maximized) return Math.min(window.innerHeight * 0.7, window.innerWidth * 0.42);
-    if (manualSize) {
-      const available = manualSize.height - EDITOR_CHROME_V;
+    if (maximized || manualSize) {
+      const { width: dW, height: dH } = getFaceDesignSize();
+      const longSide = Math.max(dW, dH);
+      const { availWidthPerFace, availHeight } = getEditorWorkArea();
+      // "lado" tal que canvasWidth = dW * (lado / longSide) <= availWidthPerFace
+      const sideFromWidth = availWidthPerFace * longSide / dW;
+      // "lado" tal que canvasHeight = dH * (lado / longSide) <= availHeight
+      const sideFromHeight = availHeight * longSide / dH;
       return Math.max(
         CANVAS_MIN_SIDE,
-        Math.min(available, window.innerWidth * 0.42, CANVAS_MAX_SIDE * 3),
+        Math.min(sideFromWidth, sideFromHeight),
       );
     }
     return CANVAS_MAX_SIDE;
+  }
+
+  // Mide en runtime el hueco interior de trabajo real de `.modal__content`
+  // (cambio 00235). Devuelve `{ availWidthPerFace, availHeight }` en px: el
+  // ancho que le toca a cada cara y el alto disponibles para el/los lienzo(s)
+  // una vez descontado el "cromo" (toolbar, etiqueta y fila de acciones por
+  // cara, gaps, padding) y un margen de respiro EDITOR_WORK_MARGIN.
+  // [gotcha] Sólo se invoca desde las ramas `maximized`/`manualSize` de
+  // getEffectiveCanvasMaxSide(), que siempre corren tras un gesto del usuario
+  // con `overlay` ya en el DOM; nunca desde el primer render (la rama por
+  // defecto no mide). Mide la etiqueta y la fila de acciones del render
+  // anterior aún montado; si no hay ninguna cara montada todavía, cae a la
+  // estimación constante EDITOR_CHROME_V para todo el cromo vertical junto.
+  function getEditorWorkArea() {
+    const cs = getComputedStyle(content);
+    const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight);
+    const padY = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+
+    // `clientHeight`/`clientWidth` excluyen scrollbar pero incluyen padding:
+    // se resta explícitamente.
+    const inner = content.clientHeight - padY;
+    const rowW = content.clientWidth - padX;
+
+    const toolbarH = toolbar.offsetHeight; // 0 si showProporcionSelector es false
+    const facesGap = 16; // gap 0.5rem × 2 dentro de `.card-editor-modal__face`
+
+    const sampleFace = facesRow.querySelector('.card-editor-modal__face');
+    let availHeight;
+    if (sampleFace) {
+      const faceLabelH = sampleFace.querySelector('.card-editor-modal__face-label')?.offsetHeight ?? 0;
+      const actionsH = sampleFace.querySelector('.card-editor-modal__face-actions')?.offsetHeight ?? 0;
+      availHeight = Math.max(
+        CANVAS_MIN_SIDE,
+        inner - toolbarH - faceLabelH - actionsH - facesGap - EDITOR_WORK_MARGIN,
+      );
+    } else {
+      // Sin cara del render anterior que medir: estimación constante conjunta.
+      availHeight = Math.max(CANVAS_MIN_SIDE, inner - EDITOR_CHROME_V - EDITOR_WORK_MARGIN);
+    }
+
+    // El botón "Ajustar imagen…" va intercalado sólo con 2 caras; con 1 cara
+    // va debajo y no roba ancho a la fila. Los gaps de `.card-editor-modal__faces`
+    // son 0.5rem entre cada par de hijos (caras + botón intercalado).
+    const GAP = 8; // 0.5rem
+    const adjustBtnSpace = faces.length === 2 ? adjustImageBtn.offsetWidth + GAP : 0;
+    const facesRowGaps = GAP * (faces.length - 1 + (faces.length === 2 ? 1 : 0));
+    const availWidthPerFace = Math.max(
+      CANVAS_MIN_SIDE,
+      (rowW - adjustBtnSpace - facesRowGaps) / faces.length,
+    );
+
+    return { availWidthPerFace, availHeight };
   }
 
   // Congela la modal a posición absoluta con su geometría actual, sacándola del
@@ -12651,28 +12845,16 @@ function openVisualEditorModal({ component, title, faces, showProporcionSelector
     maximized = !maximized;
     modal.classList.toggle('card-editor-modal--maximized', maximized);
     updateMaximizeButton();
-    // Maximizar ignora temporalmente el tamaño manual (sin borrarlo): se
-    // limpian los estilos inline para que mande `.card-editor-modal--maximized`
-    // (centrado por flexbox). getEffectiveCanvasMaxSide() ya prioriza la rama
-    // `maximized`, así que el lienzo usa el tamaño maximizado aunque
-    // `manualSize` siga puesto.
-    if (maximized) {
-      clearModalInlineGeometry();
-    } else if (manualSize) {
-      // Restaurar: volver al tamaño manual elegido, centrado en la ventana.
-      modal.style.position = 'fixed';
-      modal.style.margin = '0';
-      modal.style.maxWidth = 'none';
-      modal.style.maxHeight = 'none';
-      modal.style.width = `${manualSize.width}px`;
-      modal.style.height = `${manualSize.height}px`;
-      modal.style.left = `${Math.max(0, (window.innerWidth - manualSize.width) / 2)}px`;
-      modal.style.top = `${Math.max(0, (window.innerHeight - manualSize.height) / 2)}px`;
-    } else {
-      // Restaurar sin tamaño manual previo: comportamiento de siempre
-      // (`fit-content` centrado por flexbox).
-      clearModalInlineGeometry();
-    }
+    // Maximizar y Restaurar limpian ambos los estilos inline de geometría del
+    // redimensionado manual (cambio 00225) para que mande el CSS de la clase
+    // (`.card-editor-modal--maximized` centrado por flexbox al maximizar,
+    // `fit-content` centrado al restaurar). Al restaurar además se descarta el
+    // tamaño manual (`manualSize = null`): "Restaurar" vuelve siempre al tamaño
+    // por defecto, no al tamaño manual que se hubiera fijado con los
+    // manejadores. getEffectiveCanvasMaxSide() cae entonces a su rama por
+    // defecto (`CANVAS_MAX_SIDE`).
+    clearModalInlineGeometry();
+    if (!maximized) manualSize = null;
     renderFaces();
   });
   header.appendChild(maximizeBtn);
@@ -12800,6 +12982,9 @@ function openVisualEditorModal({ component, title, faces, showProporcionSelector
   function cleanup() {
     document.removeEventListener('keydown', handleKeyDown);
     window.removeEventListener('resize', handleWindowResize);
+    // Cancela la segunda pasada de convergencia pendiente (cambio 00237) si el
+    // editor se cierra entre un render y su rAF de convergencia.
+    cancelAnimationFrame(convergeRaf);
     overlay.remove();
   }
 
@@ -12875,7 +13060,27 @@ function openVisualEditorModal({ component, title, faces, showProporcionSelector
   adjustImageBtn.textContent = 'Ajustar imagen…';
   adjustImageBtn.addEventListener('click', () => openAdjustSession());
 
+  // "Lado" de lienzo efectivo del render en curso. Se calcula UNA vez por
+  // renderFaces() — antes de vaciar `facesRow` — y todas las caras y el margen
+  // del botón "Ajustar imagen…" leen este valor (cambio 00235). Calcularlo por
+  // cara no valdría: getEditorWorkArea() mide la etiqueta y la fila de acciones
+  // de una cara ya montada, y la primera cara del render se calcularía con
+  // `facesRow` recién vaciado (sin cara que medir → rama de fallback), dando un
+  // tamaño distinto al de la segunda cara.
+  let currentCanvasMaxSide = CANVAS_MAX_SIDE;
+
+  // Segunda pasada de convergencia (cambio 00237): guarda si ya hay un
+  // re-render de convergencia en curso (corta la recursión) y el id del
+  // requestAnimationFrame pendiente (lo cancela cleanup() si se cierra el
+  // editor entre el render y su convergencia).
+  let convergePending = false;
+  let convergeRaf = 0;
+
   function renderFaces() {
+    // Medir el hueco real ANTES de desmontar el render anterior: getEditorWorkArea()
+    // necesita una cara montada para medir su cromo vertical.
+    currentCanvasMaxSide = getEffectiveCanvasMaxSide();
+
     facesRow.innerHTML = '';
     faces.forEach(({ key, label }, index) => {
       facesRow.appendChild(renderFace(key, label));
@@ -12888,16 +13093,43 @@ function openVisualEditorModal({ component, title, faces, showProporcionSelector
 
     // El margen fijo de la hoja de estilos (8.75rem) asume el alto de
     // lienzo del tamaño normal, para quedar centrado junto a las caras.
-    // Maximizado, el lienzo crece y ese valor fijo ya no centra el botón —
-    // se calcula en JS (excepción ya documentada en design/docs/style/index.md
-    // para valores que dependen de un cálculo numérico en tiempo de
-    // ejecución, no expresables como clase).
-    if (maximized) {
+    // Maximizado o con tamaño manual (cambios 00233/00235), el lienzo escala
+    // según el hueco interior real y ese valor fijo ya no centra el botón —
+    // se calcula en JS a partir del alto real resultante del lienzo
+    // (`currentCanvasMaxSide` ya es el "lado" derivado del hueco, así que
+    // `designHeight * previewScale` es el alto real). Excepción ya documentada
+    // en design/docs/style para valores que dependen de un cálculo numérico en
+    // tiempo de ejecución, no expresables como clase.
+    if (maximized || manualSize) {
       const { width: designWidth, height: designHeight } = getFaceDesignSize();
-      const canvasHeight = designHeight * (getEffectiveCanvasMaxSide() / Math.max(designWidth, designHeight));
+      const canvasHeight = designHeight * (currentCanvasMaxSide / Math.max(designWidth, designHeight));
       adjustImageBtn.style.marginTop = `${canvasHeight / 2 - adjustImageBtn.offsetHeight / 2}px`;
     } else {
       adjustImageBtn.style.marginTop = '';
+    }
+
+    // Segunda pasada de convergencia (cambio 00237): en estado maximizado o con
+    // tamaño manual, getEditorWorkArea() midió la fila de acciones del render
+    // anterior, cuya altura (flex-wrap) depende del ancho del lienzo y cambia
+    // con el render nuevo — sobre todo en 'tableroPersonalizado' apaisado, donde
+    // el lienzo pasa a ocupar casi todo el ancho. Tras pintar, se re-mide el
+    // "lado" con la fila ya a su anchura final y, si difiere de forma
+    // apreciable, se re-renderiza una sola vez. `convergePending` corta la
+    // recursión: el segundo render no vuelve a agendar. [gotcha] no es un bucle
+    // de convergencia iterativo (mismo criterio acotado que el doble rAF de
+    // ui/progressModal.js, bug 00218): una única pasada extra basta porque ya
+    // mide el layout definitivo.
+    if ((maximized || manualSize) && !convergePending) {
+      const before = currentCanvasMaxSide;
+      cancelAnimationFrame(convergeRaf);
+      convergeRaf = requestAnimationFrame(() => {
+        const after = getEffectiveCanvasMaxSide();
+        if (Math.abs(after - before) > 1) {
+          convergePending = true;
+          renderFaces();
+          convergePending = false;
+        }
+      });
     }
   }
 
@@ -13056,7 +13288,10 @@ function openVisualEditorModal({ component, title, faces, showProporcionSelector
   function renderFace(caraKey, label) {
     const cara = working[caraKey];
     const { width: designWidth, height: designHeight } = getFaceDesignSize();
-    const previewScale = getEffectiveCanvasMaxSide() / Math.max(designWidth, designHeight);
+    // `currentCanvasMaxSide`, no getEffectiveCanvasMaxSide() directo: se fija una
+    // sola vez por renderFaces() para que las dos caras de 'carta' salgan iguales
+    // (cambio 00235).
+    const previewScale = currentCanvasMaxSide / Math.max(designWidth, designHeight);
     const canvasWidth = designWidth * previewScale;
     const canvasHeight = designHeight * previewScale;
 
@@ -17002,14 +17237,69 @@ __modules['ui/componentTypeModal.js'] = function(module, exports, require) {
 // elegir cuál crear, antes de abrir su ventana de configuración
 // (ui/componentModal.js). Abierta desde el botón "+ Añadir componente".
 
+// Iconos ilustrativos por tipo. SVG inline lineal (24×24, stroke currentColor),
+// misma iconografía que ui/editModeToggle.js / ui/componentList.js. Decorativos:
+// el <span> contenedor los marca aria-hidden al pintarlos.
 const COMPONENT_TYPES = [
-  { value: 'texto', label: 'Cuadro de texto' },
-  { value: 'tableroSimple', label: 'Tablero simple' },
-  { value: 'tableroPersonalizado', label: 'Tablero personalizado' },
-  { value: 'dado', label: 'Dado Configurable' },
-  { value: 'documento', label: 'Visor de documentos' },
-  { value: 'carta', label: 'Carta/Ficha' },
-  { value: 'mazo', label: 'Mazo' },
+  {
+    value: 'texto',
+    label: 'Cuadro de texto',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 6h16"/><path d="M4 10h16"/><path d="M4 14h16"/><path d="M4 18h9"/>
+    </svg>`,
+  },
+  {
+    value: 'tableroSimple',
+    label: 'Tablero simple',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="1.5"/>
+      <path d="M9 3v18"/><path d="M15 3v18"/><path d="M3 9h18"/><path d="M3 15h18"/>
+    </svg>`,
+  },
+  {
+    value: 'tableroPersonalizado',
+    label: 'Tablero personalizado',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 3h11v6"/><path d="M3 9h9"/><path d="M3 15h7"/><path d="M3 3v18h9"/><path d="M9 15v6"/>
+      <path d="M18.5 12.5l3 3L16 21l-3 .5.5-3z"/>
+    </svg>`,
+  },
+  {
+    value: 'dado',
+    label: 'Dado Configurable',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="3"/>
+      <circle cx="8" cy="8" r="1.1" fill="currentColor" stroke="none"/>
+      <circle cx="16" cy="8" r="1.1" fill="currentColor" stroke="none"/>
+      <circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/>
+      <circle cx="8" cy="16" r="1.1" fill="currentColor" stroke="none"/>
+      <circle cx="16" cy="16" r="1.1" fill="currentColor" stroke="none"/>
+    </svg>`,
+  },
+  {
+    value: 'documento',
+    label: 'Visor de documentos',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
+      <path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h6"/>
+    </svg>`,
+  },
+  {
+    value: 'carta',
+    label: 'Carta/Ficha',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6" y="2.5" width="12" height="19" rx="2.5"/>
+      <path d="M9 7h6"/><path d="M9 11h4"/>
+    </svg>`,
+  },
+  {
+    value: 'mazo',
+    label: 'Mazo',
+    icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="8" y="6" width="11" height="15" rx="2"/>
+      <path d="M5.5 17.5V5.5a2 2 0 0 1 2-2H15"/>
+    </svg>`,
+  },
 ];
 
 function getComponentTypeLabel(type) {
@@ -17042,7 +17332,7 @@ function openComponentTypeModal({ onAccept }) {
   const list = document.createElement('div');
   list.className = 'component-type-modal__list';
 
-  for (const { value, label } of COMPONENT_TYPES) {
+  for (const { value, label, icon } of COMPONENT_TYPES) {
     const item = document.createElement('label');
     item.className = 'component-type-modal__item';
 
@@ -17055,10 +17345,16 @@ function openComponentTypeModal({ onAccept }) {
       selectedType = value;
     });
 
+    const iconEl = document.createElement('span');
+    iconEl.className = 'component-type-modal__icon';
+    iconEl.setAttribute('aria-hidden', 'true');
+    iconEl.innerHTML = icon;
+
     const text = document.createElement('span');
     text.textContent = label;
 
     item.appendChild(radio);
+    item.appendChild(iconEl);
     item.appendChild(text);
     list.appendChild(item);
   }
@@ -20693,7 +20989,7 @@ const { renderEditMode, deleteSelectedComponent, moveSelectedComponent } = requi
 const { createResource } = require('core/resource.js');
 const { deriveMissingGroups } = require('core/group.js');
 const { saveState, loadState, readSeedState } = require('core/persistence.js');
-const { showErrorModal } = require('ui/errorModal.js');
+const { showToast } = require('ui/toast.js');
 const { syncFontFaces } = require('ui/fontFaceRegistry.js');
 
 const switcherEl = document.getElementById('mode-switcher');
@@ -20755,6 +21051,26 @@ function seedDefaultResources() {
   }
 }
 
+// Arranque de reserva: semilla embebida si la hay, si no recursos por defecto.
+// Mismo camino para "no hay nada guardado", "estado de otra versión" y
+// "estado corrupto".
+function bootFromSeedOrDefaults() {
+  const seed = readSeedState();
+  if (seed) {
+    loadAppTitle(seed.appTitle);
+    loadResourcesSeeded(seed.resourcesSeeded === true);
+    loadComponents(seed.components);
+    loadResources(seed.resources);
+    loadTags(seed.tags ?? []);
+    loadGroups(deriveMissingGroups(getComponents(), seed.componentGroups ?? []));
+    if (!getResourcesSeeded()) {
+      seedDefaultResources();
+    }
+  } else {
+    seedDefaultResources();
+  }
+}
+
 // Guardado/semilla sin `resourcesSeeded` (o en false): se rellena una vez con
 // los recursos por defecto; a partir de ahí son normales (si se borran, no vuelven).
 // Hidratar el flag ANTES de loadComponents()/loadResources(): esas dos emiten
@@ -20762,9 +21078,12 @@ function seedDefaultResources() {
 // persistiría `false` si el flag no está hidratado ya.
 
 const saved = loadState();
-if (saved?.error) {
-  showErrorModal('Error', 'No se ha podido recuperar el estado guardado.');
-  seedDefaultResources();
+if (saved?.error === 'version-mismatch') {
+  bootFromSeedOrDefaults();
+  showToast('No se ha podido recuperar el estado de una versión anterior; se ha empezado con el contenido por defecto.');
+} else if (saved?.error === 'corrupt') {
+  bootFromSeedOrDefaults();
+  showToast('No se ha podido recuperar el estado guardado.');
 } else if (saved) {
   if (saved.panelState) {
     loadPanelState(saved.panelState);
@@ -20788,20 +21107,7 @@ if (saved?.error) {
     seedDefaultResources();
   }
 } else {
-  const seed = readSeedState();
-  if (seed) {
-    loadAppTitle(seed.appTitle);
-    loadResourcesSeeded(seed.resourcesSeeded === true);
-    loadComponents(seed.components);
-    loadResources(seed.resources);
-    loadTags(seed.tags ?? []);
-    loadGroups(deriveMissingGroups(getComponents(), seed.componentGroups ?? []));
-    if (!getResourcesSeeded()) {
-      seedDefaultResources();
-    }
-  } else {
-    seedDefaultResources();
-  }
+  bootFromSeedOrDefaults();
 }
 
 syncFontFaces(getResources());

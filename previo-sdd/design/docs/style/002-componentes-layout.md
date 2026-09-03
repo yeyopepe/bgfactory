@@ -56,6 +56,14 @@ transition: background var(--transition-fast), opacity var(--transition-fast);
 - `1050` is the app's highest level, not the modal overlay — both menus can open with a modal already visible behind (e.g. the card editor) and must be in front of it.
 - When adding a new fixed/absolute element: choose its `z-index` respecting this order (below the modal, above normal content).
 
+### Version footer (`#app-version`)
+
+`position: fixed; bottom: 1rem; right: 1rem; z-index: 10` (table above). `font-size: 0.75rem` (`001-tokens-visual.md`, Typography), `color: var(--text-muted)`, `line-height: 1.35`, `text-align: right`.
+
+- Two lines (00243): `.app-version__name` (`BG Factory v<NNNNN>`) + `.app-version__repo` (an external link, `004-naming-and-patterns.md` → BEM block `app-version`; link style in `005-text-links-and-external-links.md`).
+- Fixed project content, not user-editable, identical in both modes.
+- Built in `src/main.js` bootstrap, not a `src/ui/*` module.
+
 ## Resize (corner handle)
 
 Standard pattern to make any element in the app resizable (not exclusive to a component): `.resize-handle`, a standalone block (does not follow any other block's BEM, an exception similar to `.btn-*`), implemented in `ui/resizeHandle.js` (`attachResizeHandle`).

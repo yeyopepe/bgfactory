@@ -33,6 +33,7 @@
 - [034 — Agrupación de elementos: agrupar y desagrupar](034-agrupacion-de-elementos-agrupar-y-desagrupar.md)
 - [035 — Título de componente](035-titulo-de-componente.md)
 - [036 — Contenido de ejemplo al arrancar una partida nueva](036-contenido-de-ejemplo-al-arrancar-una-partida-nueva.md)
+- [037 — Indicador de versión y enlace al repositorio](037-indicador-de-version-y-enlace-al-repositorio.md)
 
 ## Notificación de errores
 

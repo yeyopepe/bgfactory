@@ -22,7 +22,7 @@ export function openImportConfirmModal({ onAccept, onCancel }) {
   footer.className = 'modal__footer';
   modal.appendChild(footer);
 
-  const working = { mode: 'add', conflictMode: 'overwrite' };
+  const working = { mode: 'overwrite', conflictMode: 'overwrite' };
 
   const modeField = document.createElement('div');
   modeField.className = 'modal__field';

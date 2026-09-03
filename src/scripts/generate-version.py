@@ -14,7 +14,9 @@ Flujo:
      para que el titulo quede 'v.0.9.0' y no 'v..9.0'.
        - <title>BG Factory v.XXXXX</title>   -> <title>BG Factory v.x.y.z</title>
        - const CURRENT_VERSION = 'vXXXXX';   -> const CURRENT_VERSION = 'vx.y.z';
-  5. Guarda el resultado en src/_output/versions/official/bgfactory-x.y.z.html.
+  5. Guarda el resultado en
+     src/_output/versions/official/vx.y.z/bgfactory-x.y.z.html
+     (una subcarpeta por version oficial, donde tambien se deja el changelog).
 
 No requiere Node.js. Ejecutar desde cualquier sitio:
     python src/scripts/generate-version.py
@@ -108,8 +110,9 @@ def main():
     html = built_file.read_text(encoding='utf-8')
     html = rewrite_version(html, build_version, official_version)
 
-    OFFICIAL_DIR.mkdir(parents=True, exist_ok=True)
-    out_path = OFFICIAL_DIR / f'bgfactory-{official_version}.html'
+    version_dir = OFFICIAL_DIR / f'v{official_version}'
+    version_dir.mkdir(parents=True, exist_ok=True)
+    out_path = version_dir / f'bgfactory-{official_version}.html'
     out_path.write_text(html, encoding='utf-8', newline='\n')
 
     print(f'\nPaquete oficial generado en {out_path}')
