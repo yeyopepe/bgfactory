@@ -34,10 +34,10 @@ El riesgo real de este cambio no es romper código (no se toca `/src`), sino **a
 
 ### Fase 0 — Mapa de áreas y renumeración (decisión previa, sin editar aún)
 
-- [ ] **Fijar el mapa de áreas** (valor de la línea `**Area**:`, por el que agrupa `rebuild-index.py`):
+- [x] **Fijar el mapa de áreas** (valor de la línea `**Area**:`, por el que agrupa `rebuild-index.py`):
   - arquitectura: `Overview`, `Data model`, `Component types`, `Groups & resources`, `Modes`, `UI layer`, `Persistence & build`, `Conventions`.
   - estilo: `Tokens`, `Layout & components`, `Modals & menus`.
-- [ ] **Fijar la tabla de renumeración** (sin reordenar ni renumerar huecos):
+- [x] **Fijar la tabla de renumeración** (sin reordenar ni renumerar huecos):
 
   | Actual | Nuevo | Título (`# NNN — …`) | `**Area**:` |
   |---|---|---|---|
@@ -60,7 +60,7 @@ El riesgo real de este cambio no es romper código (no se toca `/src`), sino **a
   | `03-modales-menus.md` | `003-modales-menus.md` | `003 — Modals, menus, tooltips, identification patterns` | `Modals & menus` |
   | *(nuevo)* | `004-naming-and-patterns.md` | `004 — Class naming (BEM) and JS component patterns` | `Layout & components` |
 
-- [ ] **Confirmar que `next-feature-number.py` no interfiere**: al renumerar a mano, los ficheros ya llevarán su `NNN` en el nombre y en el título. `next-feature-number.py` solo se usaría para un fichero nuevo cuyo número no se quiera fijar a mano; aquí se fijan todos. No se usa `upsert` de `pv-internal-doc-files` para ninguno (edición directa Read/Write/`git mv`).
+- [x] **Confirmar que `next-feature-number.py` no interfiere**: al renumerar a mano, los ficheros ya llevarán su `NNN` en el nombre y en el título. `next-feature-number.py` solo se usaría para un fichero nuevo cuyo número no se quiera fijar a mano; aquí se fijan todos. No se usa `upsert` de `pv-internal-doc-files` para ninguno (edición directa Read/Write/`git mv`).
 
 ### Fase 1 — Renumerar ficheros y forzar cabeceras (arquitectura)
 
