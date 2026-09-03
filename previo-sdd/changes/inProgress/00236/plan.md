@@ -214,9 +214,9 @@ El riesgo real de este cambio no es romper código (no se toca `/src`), sino **a
 
 ### Fase 4 — Regenerar índices
 
-- [ ] **`python .claude/skills/pv-internal-doc-files/scripts/rebuild-index.py --folder previo-sdd/design/docs/architecture`** (sin `--title`). Debe regenerar `INDEX.md` con H1 `# Architecture`, agrupado por las 8 áreas, una línea por fichero `002`…`009` con enlace y su título. Si el script falla al parsear alguna cabecera, corregir el `# NNN — título` / `**Area**:` del fichero señalado y repetir.
-- [ ] **`python .claude/skills/pv-internal-doc-files/scripts/rebuild-index.py --folder previo-sdd/design/docs/style`** (sin `--title`). H1 `# Style`, agrupado por `Tokens` / `Layout & components` / `Modals & menus`, ficheros `001`…`004`.
-- [ ] **Revisar el `INDEX.md` regenerado de cada carpeta**: que NO quede ninguna tabla "Sibling files", ningún `§1 Goal and constraints`/`§7`/`§8`/`§13`, ninguna ref `design/docs/...`, ningún H1 libre. Si `rebuild-index.py` genera un one-liner por fichero a partir de algo del propio fichero, comprobar que ese one-liner es correcto; si lo deja vacío, ver si la convención pide añadir una línea de descripción bajo el `**Area**:` (revisar `rebuild-index.py` para saber de dónde saca el texto del enlace).
+- [x] **`python .claude/skills/pv-internal-doc-files/scripts/rebuild-index.py --folder previo-sdd/design/docs/architecture`** (sin `--title`). Debe regenerar `INDEX.md` con H1 `# Architecture`, agrupado por las 8 áreas, una línea por fichero `002`…`009` con enlace y su título. Si el script falla al parsear alguna cabecera, corregir el `# NNN — título` / `**Area**:` del fichero señalado y repetir.
+- [x] **`python .claude/skills/pv-internal-doc-files/scripts/rebuild-index.py --folder previo-sdd/design/docs/style`** (sin `--title`). H1 `# Style`, agrupado por `Tokens` / `Layout & components` / `Modals & menus`, ficheros `001`…`004`.
+- [x] **Revisar el `INDEX.md` regenerado de cada carpeta**: que NO quede ninguna tabla "Sibling files", ningún `§1 Goal and constraints`/`§7`/`§8`/`§13`, ninguna ref `design/docs/...`, ningún H1 libre. Si `rebuild-index.py` genera un one-liner por fichero a partir de algo del propio fichero, comprobar que ese one-liner es correcto; si lo deja vacío, ver si la convención pide añadir una línea de descripción bajo el `**Area**:` (revisar `rebuild-index.py` para saber de dónde saca el texto del enlace).
 
 ### Fase 5 — Barrido final de referencias y verificación de contenido
 
