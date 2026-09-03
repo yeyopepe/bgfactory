@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup 00236 — Panel componentes (baraja creada)</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-toolbar: #333333;
+  --bg-card: #f5f5f5;
+  --bg-table: #c2c2c2;
+  --accent-blue: #2c7dd8;
+  --accent-blue-light: #e8f0fc;
+  --text-primary: #1a1a1a;
+  --text-muted: #666666;
+  --border-neutral: #dcdcdc;
+  --radius-sm: 4px;
+  --radius-lg: 8px;
+  --shadow-2: 0 4px 20px rgba(0,0,0,0.28);
+}
+
+body {
+  background: var(--bg-table);
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 0.875rem;
+  padding: 20px;
+}
+
+/* App header hint */
+.app-header-hint {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 38px;
+  background: linear-gradient(to bottom, #3a3a3a, var(--bg-toolbar));
+  z-index: 0;
+}
+
+/* Floating panel — mirrors real componentList panel */
+.component-panel {
+  position: relative;
+  width: 440px;
+  max-width: 95vw;
+  max-height: 82vh;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+/* Panel header */
+.panel__header {
+  background: var(--bg-toolbar);
+  color: white;
+  padding: 0.6rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.panel__header-left { display: flex; align-items: center; gap: 7px; }
+.panel__header svg { opacity: 0.7; }
+.panel__header-count {
+  background: rgba(255,255,255,0.18);
+  color: white;
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* Filter bar */
+.panel__filter {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-neutral);
+  background: var(--bg-card);
+  flex-shrink: 0;
+}
+.filter-input {
+  width: 100%;
+  padding: 0.3rem 0.5rem 0.3rem 1.75rem;
+  border: 1px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  background: white;
+  position: relative;
+}
+.filter-wrap { position: relative; }
+.filter-wrap svg { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+
+/* Table area */
+.panel__table-wrap {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Column header row */
+.table-head {
+  display: grid;
+  grid-template-columns: 28px 1fr 80px 70px 80px;
+  padding: 0.3rem 0.75rem;
+  background: #f0f0f0;
+  border-bottom: 1px solid var(--border-neutral);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  position: sticky; top: 0; z-index: 1;
+}
+
+/* Generic table row */
+.table-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 80px 70px 80px;
+  padding: 0.35rem 0.75rem;
+  border-bottom: 1px solid #f0f0f0;
+  align-items: center;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  transition: background 0.1s;
+}
+.table-row:hover { background: #fafafa; }
+
+/* Checkbox cell */
+.cell-check input[type="checkbox"] {
+  accent-color: var(--accent-blue);
+  width: 13px; height: 13px;
+}
+
+/* ID/name cell */
+.cell-name {
+  display: flex; align-items: center; gap: 6px;
+  overflow: hidden;
+}
+.cell-name span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Type badge */
+.type-badge {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.type-carta { background: #fff3e0; color: #b45309; border: 1px solid #f5c36b; }
+.type-mazo  { background: #e8f0fc; color: #1a5fa8; border: 1px solid #9ec0ef; }
+
+/* Copy badge placeholder */
+.cell-copy {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+/* Actions cell */
+.cell-actions {
+  display: flex; gap: 4px; justify-content: flex-end;
+}
+.action-btn {
+  width: 22px; height: 22px;
+  border: none; background: none; cursor: pointer;
+  color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 3px;
+  transition: background 0.1s, color 0.1s;
+}
+.action-btn:hover { background: #f0f0f0; color: var(--text-primary); }
+
+/* ─── GROUP ROW ─── */
+.table-row--group {
+  background: #f5f8fe;
+  border-bottom: 1px solid #d8e6f8;
+  cursor: pointer;
+}
+.table-row--group:hover { background: #edf3fd; }
+.group-row-inner {
+  grid-column: 1 / -1;
+  display: flex; align-items: center; gap: 7px;
+}
+.group-chevron {
+  color: var(--accent-blue);
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+.group-chevron.open { transform: rotate(90deg); }
+.group-label {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #1a3a6a;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.group-badge {
+  background: var(--accent-blue);
+  color: white;
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.group-check input[type="checkbox"] {
+  accent-color: var(--accent-blue);
+  width: 13px; height: 13px;
+}
+
+/* ─── CHILD ROW (inside group) ─── */
+.table-row--child {
+  background: white;
+}
+.table-row--child .cell-name {
+  padding-left: 16px;
+  position: relative;
+}
+.table-row--child .cell-name::before {
+  content: '';
+  position: absolute;
+  left: 4px; top: 50%;
+  width: 8px; height: 1px;
+  background: #c0cfe8;
+}
+
+/* Suit color helpers */
+.suit-red { color: #c0392b; }
+.suit-black { color: #1a1a1a; }
+
+/* ─── MORE HINT ─── */
+.more-hint {
+  padding: 0.35rem 0.75rem 0.35rem 44px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  background: white;
+  border-bottom: 1px solid #f0f0f0;
+  font-style: italic;
+}
+
+/* ─── MAZO separator label ─── */
+.section-sep {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  background: #f8f8f8;
+  border-bottom: 1px solid var(--border-neutral);
+  border-top: 2px solid var(--border-neutral);
+}
+
+/* Panel footer */
+.panel__footer {
+  border-top: 1px solid var(--border-neutral);
+  padding: 0.55rem 0.875rem;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg-card);
+  flex-shrink: 0;
+}
+.footer-info {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.btn-add {
+  display: flex; align-items: center; gap: 5px;
+  padding: 0.35rem 0.875rem;
+  background: var(--accent-blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem; font-weight: 600;
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<div class="app-header-hint"></div>
+
+<div class="component-panel">
+
+  <!-- Header -->
+  <div class="panel__header">
+    <div class="panel__header-left">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <rect x="1" y="1" width="12" height="12" rx="2" stroke="white" stroke-width="1.4"/>
+        <line x1="1" y1="5" x2="13" y2="5" stroke="white" stroke-width="0.9"/>
+        <line x1="1" y1="9" x2="13" y2="9" stroke="white" stroke-width="0.9"/>
+        <line x1="5" y1="1" x2="5" y2="13" stroke="white" stroke-width="0.9"/>
+      </svg>
+      Componentes
+    </div>
+    <span class="panel__header-count">55</span>
+  </div>
+
+  <!-- Filter -->
+  <div class="panel__filter">
+    <div class="filter-wrap">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="color:#999">
+        <circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.3"/>
+        <line x1="8.5" y1="8.5" x2="12" y2="12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <input class="filter-input" type="text" placeholder="Filtrar componentes…" readonly>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="panel__table-wrap">
+
+    <!-- Column headers -->
+    <div class="table-head">
+      <div></div>
+      <div>Nombre / Id</div>
+      <div>Tipo</div>
+      <div>Copia</div>
+      <div style="text-align:right">Acciones</div>
+    </div>
+
+    <!-- GROUP ROW — Baraja francesa -->
+    <div class="table-row table-row--group">
+      <div class="group-row-inner">
+        <div class="group-check"><input type="checkbox" title="Seleccionar grupo"></div>
+        <span class="group-chevron open">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <polyline points="2,3 5,7 8,3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="group-label">Grupo: Baraja francesa estándar (54 cartas)</span>
+        <span class="group-badge">54</span>
+      </div>
+    </div>
+
+    <!-- Child rows — first cards of ♠ -->
+    <div class="table-row table-row--child">
+      <div class="cell-check"><input type="checkbox"></div>
+      <div class="cell-name">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="1.5" y="1.5" width="9" height="12" rx="1.2" stroke="#555" stroke-width="1"/>
+          <rect x="3" y="3" width="9" height="12" rx="1.2" stroke="#888" stroke-width="0.7" opacity="0.5"/>
+        </svg>
+        <span>A<span class="suit-black">♠</span> · baraja-francesa-picas-as</span>
+      </div>
+      <div><span class="type-badge type-carta">carta</span></div>
+      <div class="cell-copy">—</div>
+      <div class="cell-actions">
+        <button class="action-btn" title="Editar">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2.5l2 2L4 10H2v-2l5.5-5.5z" stroke="currentColor" stroke-width="1.2"/></svg>
+        </button>
+        <button class="action-btn" title="Eliminar">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="table-row table-row--child">
+      <div class="cell-check"><input type="checkbox"></div>
+      <div class="cell-name">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="1.5" y="1.5" width="9" height="12" rx="1.2" stroke="#555" stroke-width="1"/>
+          <rect x="3" y="3" width="9" height="12" rx="1.2" stroke="#888" stroke-width="0.7" opacity="0.5"/>
+        </svg>
+        <span>2<span class="suit-black">♠</span> · baraja-francesa-picas-2</span>
+      </div>
+      <div><span class="type-badge type-carta">carta</span></div>
+      <div class="cell-copy">—</div>
+      <div class="cell-actions">
+        <button class="action-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2.5l2 2L4 10H2v-2l5.5-5.5z" stroke="currentColor" stroke-width="1.2"/></svg></button>
+        <button class="action-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+      </div>
+    </div>
+
+    <div class="table-row table-row--child">
+      <div class="cell-check"><input type="checkbox"></div>
+      <div class="cell-name">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="1.5" y="1.5" width="9" height="12" rx="1.2" stroke="#555" stroke-width="1"/>
+          <rect x="3" y="3" width="9" height="12" rx="1.2" stroke="#888" stroke-width="0.7" opacity="0.5"/>
+        </svg>
+        <span>3<span class="suit-black">♠</span> · baraja-francesa-picas-3</span>
+      </div>
+      <div><span class="type-badge type-carta">carta</span></div>
+      <div class="cell-copy">—</div>
+      <div class="cell-actions">
+        <button class="action-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2.5l2 2L4 10H2v-2l5.5-5.5z" stroke="currentColor" stroke-width="1.2"/></svg></button>
+        <button class="action-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+      </div>
+    </div>
+
+    <div class="table-row table-row--child">
+      <div class="cell-check"><input type="checkbox"></div>
+      <div class="cell-name">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="1.5" y="1.5" width="9" height="12" rx="1.2" stroke="#555" stroke-width="1"/>
+          <rect x="3" y="3" width="9" height="12" rx="1.2" stroke="#888" stroke-width="0.7" opacity="0.5"/>
+        </svg>
+        <span>4<span class="suit-black">♠</span> · baraja-francesa-picas-4</span>
+      </div>
+      <div><span class="type-badge type-carta">carta</span></div>
+      <div class="cell-copy">—</div>
+      <div class="cell-actions">
+        <button class="action-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2.5l2 2L4 10H2v-2l5.5-5.5z" stroke="currentColor" stroke-width="1.2"/></svg></button>
+        <button class="action-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+      </div>
+    </div>
+
+    <!-- "…more" hint -->
+    <div class="more-hint">… y 50 cartas más dentro del grupo (5♠ → K♠, ♥, ♦, ♣ y Jokers)</div>
+
+    <!-- Mazo row — outside the group -->
+    <div class="section-sep">Fuera del grupo</div>
+
+    <div class="table-row">
+      <div class="cell-check"><input type="checkbox"></div>
+      <div class="cell-name">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="5" y="4" width="8" height="10" rx="1" stroke="#555" stroke-width="1" opacity="0.5"/>
+          <rect x="3" y="2.5" width="8" height="10" rx="1" stroke="#555" stroke-width="1" opacity="0.75"/>
+          <rect x="1" y="1" width="8" height="10" rx="1" stroke="#555" stroke-width="1.2"/>
+        </svg>
+        <span>mazo · baraja-francesa-mazo</span>
+      </div>
+      <div><span class="type-badge type-mazo">mazo</span></div>
+      <div class="cell-copy">—</div>
+      <div class="cell-actions">
+        <button class="action-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2.5l2 2L4 10H2v-2l5.5-5.5z" stroke="currentColor" stroke-width="1.2"/></svg></button>
+        <button class="action-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+      </div>
+    </div>
+
+  </div><!-- /.panel__table-wrap -->
+
+  <!-- Footer -->
+  <div class="panel__footer">
+    <span class="footer-info">55 componentes · 1 grupo</span>
+    <button class="btn-add">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <line x1="6" y1="2" x2="6" y2="10" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+        <line x1="2" y1="6" x2="10" y2="6" stroke="white" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      Añadir componente
+    </button>
+  </div>
+
+</div>
+
+</body>
+</html>
