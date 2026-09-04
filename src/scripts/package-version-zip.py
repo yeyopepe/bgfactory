@@ -4,7 +4,7 @@ Empaqueta en un unico ZIP el contenido publicable de una version ya preparada
 en previo-sdd/versions/<version>/.
 
 El ZIP resultante se llama bgfactory_v<version>.zip y contiene:
-  - changelog.md            (en la raiz del comprimido)
+  - changelog.md            (en la raiz del comprimido; OPCIONAL, se omite si no existe)
   - features.zip            (en la raiz; copiado de docs/features.zip)
   - los ficheros sueltos de files/*  (en la raiz)
   - la carpeta files/samples/ integra  (como samples/ dentro del comprimido)
@@ -49,10 +49,11 @@ def collect_entries(version_dir):
     """
     entries = []
 
+    # changelog.md es opcional: una version sin cambios funcionales que registrar
+    # no lo lleva. Si existe, se incluye en la raiz del zip; si no, se omite.
     changelog = version_dir / 'changelog.md'
-    if not changelog.is_file():
-        raise SystemExit(f'No se encontro el changelog: {changelog}')
-    entries.append((changelog, 'changelog.md'))
+    if changelog.is_file():
+        entries.append((changelog, 'changelog.md'))
 
     features_zip = version_dir / 'docs' / 'features.zip'
     if not features_zip.is_file():
