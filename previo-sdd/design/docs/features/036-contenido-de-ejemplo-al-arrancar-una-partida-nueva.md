@@ -1,6 +1,6 @@
 # 036 — Contenido de ejemplo al arrancar una partida nueva
 
-**Area**: Mesa de juego
+**Area**: Persistencia y guardado
 
 Al arrancar una partida totalmente nueva (sin ninguna partida guardada previamente en el navegador), la galería de recursos se rellena automáticamente con contenido de ejemplo mínimo, para mostrar de un vistazo lo que se puede hacer sin partir de una galería vacía ni de contenido real de ningún juego concreto.
 

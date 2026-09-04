@@ -1,6 +1,6 @@
 # 022 — Componente "carta"
 
-**Area**: Mesa de juego
+**Area**: Tipos de componente
 
 Quinto tipo de componente, con la etiqueta visible "Carta/Ficha" (cambio 00087 — absorbe también el caso de uso del antiguo tipo "Ficha": piezas/tokens simples; ver [Migración de fichas antiguas a Carta/Ficha](024-migracion-de-fichas-antiguas-a-carta-ficha.md)): un rectángulo de proporción configurable (a elegir entre las más habituales del mercado de juegos de cartas — Poker estándar vertical 5:7 por defecto, Poker estándar horizontal 7:5, Tarot estándar vertical, Tarot estándar horizontal, Cuadrada 1:1 — o "Circular"/hexagonal/triangular/"Libre", ver más abajo) con las esquinas ligeramente redondeadas y una sombra de contacto suave que la asienta sobre la mesa (mismo lenguaje visual que el resto de piezas de juego), cuyo aspecto se diseña con un editor dedicado (ver más abajo). A diferencia de todos los demás tipos salvo "dado", mantiene siempre la proporción configurada al redimensionarla en la mesa (no se puede cambiar arrastrando el manejador, solo editando la propiedad "Proporción") — **excepto** con las proporciones "Circular" y "Libre" (ver más abajo).
 

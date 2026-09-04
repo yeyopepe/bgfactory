@@ -2,7 +2,7 @@
 
 **Area**: Conventions
 
-Cross-cutting features, not tied to a single type — they iterate "all there are". Review each when adding a component type or a new collection at the `core/state.js` level:
+Cross-cutting features, not tied to a single type — they iterate "all there are". Review each when adding a component type, a new collection at the `core/state.js` level, or changing a component/group/tag's configuration UI:
 
 | Aspecto | Fichero(s) | Qué revisar |
 |---|---|---|
@@ -16,5 +16,6 @@ Cross-cutting features, not tied to a single type — they iterate "all there ar
 | Guía de estilo | `../style/003-modales-menus.md` y otros | Revisar excepciones ya catalogadas (bisel de `'tableroSimple'`/`'dado'`, `border-radius` de contenedores destacados reusado por `'carta'`) antes de introducir una excepción nueva |
 | Menú contextual, badge de bloqueo, indicador de oculto | `ui/componentRenderer.js` | Un tipo que use `renderComponentsOnTable` obtiene `contextmenu` (`onContextMenu`), badge de bloqueo (`showLockIndicator`) y badge "Oculto" (`showHiddenIndicator`) sin nada específico; un tipo sin caja de relleno propia (como `'texto'`) sí debe respetar el patrón de contenedor interno y anclar sus badges con offsets propios |
 | Ficheros de test | `src/test/*.json` | No se actualizan solos; añadir un ejemplo del tipo nuevo ya configurado |
+| Catálogo de propiedades (componente / grupo / etiqueta) | `../features/040-catalogo-de-propiedades-de-componentes-grupos-y-etiquetas.md` | Al añadir, quitar o reordenar una pestaña, sección o campo de `ui/componentModal.js` (y sus sub-modales), `ui/groupModal.js` o `ui/tagModal.js`, actualizar la Tabla A del bloque de esa ventana (fila, icono, tipo, contenedor, "Aparece en", ayuda, "Visible cuando…", clave i18n) y la Tabla B (solo si el elemento del modal de componente depende del tipo), y revisar las posiciones. Si `componentModal` cambia un rótulo compartido, comprobar que `groupModal` lo hereda como se espera |
 
 Referencia de guía de estilo: `../style/003-modales-menus.md`.

@@ -1,6 +1,6 @@
 # 019 — Componente "tablero personalizado"
 
-**Area**: Mesa de juego
+**Area**: Tipos de componente
 
 Octavo tipo de componente (cambio 00143): un tablero avanzado, alternativa a "Tablero simple" para cuando hace falta más que un color/patrón o una única imagen de fondo — se elige uno u otro según lo que necesite cada tablero, sin que uno sustituya al otro. Se redimensiona libremente en cualquier proporción en la mesa, igual que "Tablero simple" (no fuerza ningún ratio, a diferencia de "Carta/Ficha"). Su borde usa el mismo bisel de dos tonos que "Tablero simple"/"Dado" (color y grosor configurables, 1–20px) — a diferencia de "Carta/Ficha", cuyo borde es una línea simple sin relieve.
 

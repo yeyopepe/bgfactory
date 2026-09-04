@@ -1,6 +1,6 @@
 # 007 — Edición de un recurso Imagen, con vista previa ampliada de zoom y pan
 
-**Area**: Mesa de juego
+**Area**: Recursos
 
 El botón "Editar" de un recurso de tipo Imagen (panel "Recursos") abre una ventana más ancha que el resto de modales de la app, con el campo "Nombre del recurso", una vista previa grande de la imagen y el botón "Cambiar imagen..." (que reemplaza el fichero manteniendo el mismo recurso).
 

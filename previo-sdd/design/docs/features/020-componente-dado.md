@@ -1,6 +1,6 @@
 # 020 — Componente "dado"
 
-**Area**: Mesa de juego
+**Area**: Tipos de componente
 
 Tercer tipo de componente: un dado con representación 2D plana (sin perspectiva ni vista isométrica), con color del cuerpo y color de los números configurables de forma independiente, y una tipografía a elegir entre las disponibles en la galería de recursos (con muestra de texto en la propia fuente; si no hay ninguna disponible, se usa la tipografía por defecto de la app). El número de resultados posibles se configura de dos formas alternables sin perder la configuración de la que no está activa:
 

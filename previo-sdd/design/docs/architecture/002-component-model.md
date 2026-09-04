@@ -78,6 +78,8 @@ Notes on silent migrations on load (`core/state.js`, `loadComponents`), best-eff
 - `nextCloneId` computes the clone id by stripping any trailing `(n)` suffix from the original id (so clones of a clone share root/family) and appending `(n)` with the next free integer for that root.
 - `cloneComponent` builds the full clone object (shallow copy + own `properties`/`id`, position offset +30/+30 from the original) with `order: null`, resolved on `addComponent` (ends up at `order = 1`, like a new component). It also starts with `groupId: null`: a clone is independent, it is not automatically added to the cloned component's group.
 
+> Catalog of these fields' UI controls (tab, section, screen order, visibility condition), and also of the group/tag property windows: see the functional entry "Catálogo de propiedades de componentes, grupos y etiquetas" (`../features/040-catalogo-de-propiedades-de-componentes-grupos-y-etiquetas.md`).
+
 ## `order` logic
 
 `order` determines visual stacking on the table (replaces insertion/creation order). All logic lives in `core/state.js`, not in `core/component.js` (which only declares the field with default `null`, unable to compute it without knowing the rest of the list).

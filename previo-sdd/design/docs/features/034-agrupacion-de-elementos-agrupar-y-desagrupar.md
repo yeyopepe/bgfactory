@@ -1,6 +1,6 @@
 # 034 — Agrupación de elementos: agrupar y desagrupar
 
-**Area**: Mesa de juego
+**Area**: Grupos y etiquetas
 
 En modo edición, dos o más componentes de cualquier tipo (cuadro de texto, tablero simple/personalizado, dado, visor de documentos, carta, mazo) pueden agruparse en una unidad persistente y plana (sin grupos dentro de grupos): una vez agrupados, un solo click sobre cualquiera de sus miembros selecciona el grupo entero de golpe, sin tener que rehacer la [selección múltiple con Ctrl](003-panel-flotante-de-componentes-con-seleccion-resaltado-arrastre-y-redimensionado.md) manualmente cada vez, y arrastrar cualquier miembro mueve a todos en bloque manteniendo sus posiciones relativas — igual que ya hacía la selección múltiple manual, pero sin necesidad de reseleccionar. Un grupo ya formado cuenta como "1 elemento" a todos los efectos de selección: Ctrl+click sobre un miembro añade o quita el grupo entero de la selección, nunca uno solo de sus miembros por separado.
 

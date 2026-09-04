@@ -1,6 +1,6 @@
 # 009 — Subida múltiple y por carpeta de recursos
 
-**Area**: Mesa de juego
+**Area**: Recursos
 
 El botón "+ Añadir recurso" del panel de recursos despliega un menú con tres formas de añadir recursos a la galería, que conviven entre sí sin sustituirse:
 
