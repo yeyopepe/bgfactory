@@ -4,6 +4,8 @@
 
 Eight types. Creation always goes through `ui/componentTypeModal.js` (list of available types, not a dropdown) — on accept, the component is created with `createDefaultComponent(type)` (`ui/componentModal.js`) with default values, added to state, and `ui/componentModal.js` opens over that component to configure it.
 
+> Catalog of every type-specific property as it appears in the modal's "Específicas" tab (order, sections, visibility condition, sub-modals): see the functional entry "Catálogo de propiedades de componentes, grupos y etiquetas" (`../features/040-catalogo-de-propiedades-de-componentes-grupos-y-etiquetas.md`).
+
 ## `'texto'`
 
 First concrete type. No image background, automatic size by default.

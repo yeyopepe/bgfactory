@@ -1,6 +1,6 @@
 # 008 — Etiquetas, organización de elementos por nombre
 
-**Area**: Mesa de juego
+**Area**: Grupos y etiquetas
 
 Cualquier tipo de componente (cuadro de texto, tablero simple, dado, visor de documentos, carta o mazo) puede pertenecer opcionalmente a una o varias etiquetas a la vez (cambio 00139), elegidas desde una sección "Etiquetas" con un checkbox por cada etiqueta existente en la pestaña "Generales" de su modal de configuración (ver [Alta/edición/borrado de componentes con modal de tabs](002-alta-edicion-borrado-de-componentes-con-modal-de-tabs.md)) — ningún checkbox marcado ("Sin etiqueta") por defecto. Cualquier combinación de etiquetas marcadas es válida. Los checkboxes se listan ordenados alfabéticamente por nombre (insensible a mayúsculas/tildes, cambio 00141) y, si hay más de 3 etiquetas, esa lista muestra scroll vertical propio en vez de crecer sin límite — con 3 etiquetas o menos se ajusta a su alto real, sin hueco vacío. La sección permite además, al final (siempre visible, fuera de la zona con scroll), escribir un nombre nuevo para crear una etiqueta al vuelo sin salir de la modal (el nombre no puede estar vacío ni estar ya en uso por otra etiqueta, comparación recortada y sin distinguir mayúsculas/minúsculas, misma validación que el panel flotante de etiquetas); la etiqueta recién creada queda marcada de inmediato. Una etiqueta es puramente organizativa — solo agrupa/organiza elementos por nombre, sin ninguna funcionalidad de juego asociada — y no tiene representación visual propia en ningún panel de la app.
 

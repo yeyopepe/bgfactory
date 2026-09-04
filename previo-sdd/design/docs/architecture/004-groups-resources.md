@@ -21,6 +21,8 @@ Lightweight, independent entity to group/organize elements by name, in its own c
 
 `core/state.js` keeps an independent `tags` collection (`getTags`/`addTag`/`replaceTag`/`removeTag`/`loadTags`, event `tags:changed`) and its own `panelState` for the "Etiquetas" window (`tagPanelState`, shape `{ collapsed, position, width }`, no `columnWidths`, event `tagPanelState:changed`). Tag creation is possible on the fly from the "Generales" tab of any component, or from the dedicated "Etiquetas" panel (`ui/tagList.js`/`ui/tagModal.js`, see `005-modes.md`), which also allows editing the name and deleting.
 
+> Catalog of the tag property modal's fields (and the group property modal's): see the functional entry "Catálogo de propiedades de componentes, grupos y etiquetas" (`../features/040-catalogo-de-propiedades-de-componentes-grupos-y-etiquetas.md`).
+
 **Backward compatibility**: `core/persistence.js` (`parseState`/`parseImportedComponents`) reads the `tags`/`tagPanelState` collection through a 3-level fallback chain, so no tags already created in any previous save are lost:
 
 ```

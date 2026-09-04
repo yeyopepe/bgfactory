@@ -1,6 +1,6 @@
 # 006 — Panel flotante de recursos, con filtro de texto
 
-**Area**: Mesa de juego
+**Area**: Recursos
 
 Panel flotante en modo edición (análogo al panel de componentes: colapsable, arrastrable por su cabecera, redimensionable en ancho y alto con los mismos dos manejadores combinados en las esquinas inferior derecha y superior izquierda (cambio 00128), sin límite máximo salvo el mínimo de 290px de ancho y el mínimo de alto para ver la cabecera de la tabla más una fila, con el ancho de columna ajustable manualmente igual que en el panel de componentes, y que se trae automáticamente al frente al interactuar con él — ver [Traer al frente automáticamente](003-panel-flotante-de-componentes-con-seleccion-resaltado-arrastre-y-redimensionado.md)) con el listado de recursos disponibles (imágenes y tipografías) en tabla (columnas Nombre, Usos, Tipo, Acciones), ordenado siempre alfabéticamente por nombre (insensible a mayúsculas/tildes, cambio 00141), usado desde las modales de componentes que permiten elegir una imagen o tipografía (ver [Componente "tablero simple"](018-componente-tablero-simple.md), [Componente "dado"](020-componente-dado.md) y [Componente "carta"](022-componente-carta.md)).
 

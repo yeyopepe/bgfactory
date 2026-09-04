@@ -1,6 +1,6 @@
 # 024 — Migración de fichas antiguas a Carta/Ficha
 
-**Area**: Mesa de juego
+**Area**: Tipos de componente
 
 El tipo de componente independiente "Ficha" (piezas/tokens simples, cuadrados o circulares, con borde y fondo configurables) se ha retirado: su caso de uso queda cubierto por "Carta/Ficha" con proporción "Cuadrada" o "Circular" (ver más arriba). Ya no se puede dar de alta ningún componente "Ficha" nuevo, pero cualquier ficha guardada de una partida anterior sigue estando disponible: se convierte automáticamente a "Carta/Ficha" (forma cuadrada → proporción "Cuadrada", forma circular → proporción "Circular"; borde, imagen de fondo con su ajuste, o texto centrado — como un único cuadro de texto que ocupa toda la carta — se trasladan tal cual; un color de fondo sólido sin imagen ni texto no tiene equivalente y se pierde, quedando la carta en blanco con el borde migrado, igual que cualquier otra carta sin diseño) mostrando de entrada la cara frontal (con el diseño migrado, en vez de la trasera en blanco de una carta nueva) y sin etiqueta asignada.
 

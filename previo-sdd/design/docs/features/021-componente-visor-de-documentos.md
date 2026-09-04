@@ -1,6 +1,6 @@
 # 021 — Componente "Visor de documentos"
 
-**Area**: Mesa de juego
+**Area**: Tipos de componente
 
 Cuarto tipo de componente: una hoja con fondo blanco, borde fino y una sombra de contacto suave que la asienta sobre la mesa (como un papel apoyado encima), que muestra contenido renderizado, pensada para notas, reglas o material de referencia de la partida. El contenido siempre se ajusta al ancho del componente (nunca aparece scroll horizontal); si es más alto que el tamaño fijado, aparece scroll vertical dentro de ese tamaño.
 

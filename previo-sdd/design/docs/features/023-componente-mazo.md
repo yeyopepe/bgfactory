@@ -1,6 +1,6 @@
 # 023 — Componente "mazo"
 
-**Area**: Mesa de juego
+**Area**: Tipos de componente
 
 Séptimo tipo de componente (cambio 00106): una pila ordenada de cartas ("Carta/Ficha") siempre boca abajo, representada visualmente como una caja que muestra el diseño de la cara trasera de la carta que esté arriba del todo en cada momento, escalado al tamaño de la caja. Si el mazo no tiene ninguna carta dentro, muestra en su lugar una imagen/gráfico neutro por defecto, no dependiente de ningún recurso subido por el usuario. La imagen de fondo del dorso se muestra siempre sin aplicar ningún giro, independientemente del giro que tenga configurado en su `ajusteImagen` (cambio 00181) — los demás elementos de la cara (figuras, cuadros de texto) sí se muestran con sus giros configurados.
 
