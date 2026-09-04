@@ -17,21 +17,28 @@ Flujo:
   5. Guarda el resultado en
      src/_output/versions/official/vx.y.z/bgfactory-x.y.z.html
      (una subcarpeta por version oficial, donde tambien se deja el changelog).
+  6. Copia junto al HTML los dos README del repo (README.md y README.es.md),
+     para que formen parte del entregable oficial de esa version.
 
 No requiere Node.js. Ejecutar desde cualquier sitio:
     python src/scripts/generate-version.py
 """
 
 import re
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 SRC_DIR = SCRIPT_DIR.parent
+REPO_ROOT = SRC_DIR.parent
 BUILD_SCRIPT = SCRIPT_DIR / 'build.py'
 BUILD_OUTPUT_DIR = SRC_DIR / '_output' / 'versions'
 OFFICIAL_DIR = SRC_DIR / '_output' / 'versions' / 'official'
+
+# README del repo (dos idiomas) que se incluyen en cada version oficial.
+README_FILES = ('README.md', 'README.es.md')
 
 OFFICIAL_VERSION_PATTERN = re.compile(r'^\d+\.\d+\.\d+$')
 
@@ -115,8 +122,25 @@ def main():
     out_path = version_dir / f'bgfactory-{official_version}.html'
     out_path.write_text(html, encoding='utf-8', newline='\n')
 
+    copied_readmes = copy_readmes(version_dir)
+
     print(f'\nPaquete oficial generado en {out_path}')
     print(f'  (a partir del build interno {build_version})')
+    for readme_path in copied_readmes:
+        print(f'  README incluido: {readme_path}')
+
+
+def copy_readmes(version_dir):
+    """Copia los README del repo (dos idiomas) junto al HTML oficial."""
+    copied = []
+    for name in README_FILES:
+        source = REPO_ROOT / name
+        if not source.is_file():
+            raise SystemExit(f'No se encontro el README esperado en la raiz del repo: {source}')
+        dest = version_dir / name
+        shutil.copyfile(source, dest)
+        copied.append(dest)
+    return copied
 
 
 if __name__ == '__main__':

@@ -82,6 +82,7 @@ Simplemente descárgate la última versión en este repositorio y carga directam
 
 Este proyecto es desarrollado usando [Previo](https://github.com/yeyopepe/previo-sdd), un framework de desarrollo rápido basado en IA.
 
+El código fuente está en `/src`, organizado en capas (`core`, `modes`, `ui`, `data`). Para desarrollar y probar, abre `src/index.html` con un servidor estático local (p.ej. la extensión "Live Server" de VSCode) — no lo abras con doble clic, ya que usa módulos ES que no cargan bien vía `file://`.
 
 
 

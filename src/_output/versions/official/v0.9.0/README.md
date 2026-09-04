@@ -82,3 +82,4 @@ Just download the latest release from this repository and open the HTML file dir
 
 This project is developed using [Previo](https://github.com/yeyopepe/previo-sdd), an AI-based rapid development framework.
 
+The source code lives in `/src`, organized into layers (`core`, `modes`, `ui`, `data`). To develop and test, open `src/index.html` with a local static server (e.g. the VSCode "Live Server" extension) — do not open it by double-click, since it uses ES modules that don't load properly over `file://`.
