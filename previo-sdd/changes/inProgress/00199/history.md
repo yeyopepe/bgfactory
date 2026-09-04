@@ -13,3 +13,7 @@ Empezamos implementandolo para las cartas: exporta dos vistas, una de cada cara.
 ## 2026-08-09 — session 2
 
 Actualmente en los mazos hay una lista de las cartas que contiene, mostrando la vista previa de la cara frontal. Hay que actualizar esa ventana porque ahora esa lista debe pedir a cada carta que le pase la vista previa de la cara que necesita, para no tener código repetido en diferentes partes y mantener las responsabilidades en sus sitios correctos
+
+## 2026-09-04 — sesión de re-análisis
+
+199 borra el mockup actual y reanaliza desde el principio

@@ -1,329 +1,394 @@
-<title>Maqueta — Pestaña General con sección Exportar</title>
+<!DOCTYPE html>
+<!-- Mockup estático (00199): pestaña "Generales" del modal de propiedades (ui/componentModal.js),
+     replicando el estado ACTUAL del código, con la nueva sección "Exportar" al final (tras "Etiquetas").
+     Estilo de previo-sdd/design/docs/style/ (001-tokens-visual, 002-componentes-layout, 003-modales-menus);
+     textos de src/data/i18n.es.js. -->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>00199 — Sección "Exportar" en la pestaña Generales</title>
 <style>
+  :root {
+    --bg-table: #c2c2c2;
+    --bg-card: #f5f5f5;
+    --accent-blue: #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --error: #d32f2f;
+    --success: #2e7d32;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e8e8e8;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-2: 0 4px 20px rgba(0,0,0,0.15);
+    --transition-fast: 150ms ease;
+    --section-accent: #5b5f97;
+  }
+
   * { box-sizing: border-box; }
+
   body {
     margin: 0;
-    padding: 2rem;
-    background: #e8e8ec;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    color: #24242c;
+    min-height: 100vh;
+    background: var(--bg-table);
+    font-family: system-ui, sans-serif;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  .caption {
+    max-width: 620px;
+    margin: 0 auto 0.75rem;
+    color: var(--text-light);
+    font-size: 0.75rem;
+    text-align: center;
+    opacity: 0.92;
+    line-height: 1.4;
+  }
+
+  /* ---- Modal (.modal-overlay / .modal.component-editor-modal) ---- */
+  .modal-overlay {
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 760px;
   }
 
   .modal {
-    max-width: 480px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    width: 100%;
+    max-width: 620px;              /* .component-editor-modal: ~75vw acotado 400..1000; fijo aquí */
     margin: 0 auto;
-    background: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
     overflow: hidden;
   }
 
   .modal__header {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid #dcdce2;
+    padding: 1rem;
+    font-size: 1.125rem;
     font-weight: 600;
-    font-size: 1.05rem;
+    border-bottom: 1px solid var(--border-neutral);
   }
 
+  /* ---- Tira de pestañas (.modal__tabs / .modal__tab) ---- */
   .modal__tabs {
     display: flex;
-    border-bottom: 1px solid #dcdce2;
-    background: #f5f5f8;
+    gap: 0.25rem;
+    padding: 0.5rem 1rem 0;
+    border-bottom: 1px solid var(--border-neutral);
+    flex-wrap: wrap;
   }
-
   .modal__tab {
-    padding: 0.6rem 1rem;
-    font-size: 0.85rem;
-    color: #6a6a76;
+    padding: 0.5rem 1rem;
     border: none;
-    background: transparent;
-    cursor: default;
-    border-bottom: 2px solid transparent;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background var(--transition-fast);
   }
+  .modal__tab:hover { background: var(--bg-hover); }
+  .modal__tab.active { background: var(--accent-blue); color: var(--text-light); }
 
-  .modal__tab.active {
-    color: #24242c;
-    font-weight: 600;
-    border-bottom-color: #4a63e0;
-    background: #ffffff;
-  }
+  .modal__content { padding: 1rem; }
 
-  .modal__content {
-    padding: 1.25rem;
-    max-height: 70vh;
-    overflow-y: auto;
-  }
-
-  .modal__field {
-    margin-bottom: 0.9rem;
-  }
-
-  .modal__field label {
+  /* ---- Campos (.modal__field) ---- */
+  .modal__field { margin-bottom: 1rem; }
+  .modal__field:last-child { margin-bottom: 0; }
+  .modal__field > label {
     display: block;
-    font-size: 0.78rem;
-    color: #4a4a55;
-    margin-bottom: 0.3rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
   }
+  .modal__field--checkbox { display: flex; align-items: center; gap: 0.5rem; }
+  .modal__field--checkbox > label { margin-bottom: 0; font-weight: 500; }
 
-  .modal__field input[type="text"],
-  .modal__field input[type="number"],
-  .modal__field select {
-    width: 100%;
-    padding: 0.4rem 0.55rem;
-    font-size: 0.85rem;
-    border: 1px solid #c9c9d2;
-    border-radius: 4px;
-    background: #fff;
-    color: #24242c;
-  }
-
-  .modal__field--checkbox {
+  /* Fila etiqueta + help-icon (moveLabelRow / tooltipTextoLabelRow) */
+  .label-row {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
-    margin-bottom: 0.55rem;
-  }
-
-  .modal__field--checkbox label {
-    margin-bottom: 0;
-    font-size: 0.85rem;
-    color: #24242c;
-  }
-
-  .modal__section {
-    border: 1px solid #dcdce2;
-    border-radius: 6px;
-    padding: 0.9rem 0.9rem 0.6rem;
-    margin: 0 0 1rem;
-  }
-
-  .modal__section-title {
-    padding: 0 0.35rem;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    color: #6a6a76;
-  }
-
-  .size-row {
-    display: flex;
-    gap: 0.6rem;
-  }
-
-  .size-row .modal__field {
-    flex: 1;
-  }
-
-  .tag-list {
-    display: flex;
-    flex-direction: column;
     gap: 0.35rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+  .label-row > label { margin-bottom: 0; font-weight: 500; }
+
+  input[type="text"], select, textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.875rem;
+    background: var(--text-light);
+    color: var(--text-primary);
+  }
+  input[type="checkbox"] { cursor: pointer; width: auto; margin: 0; }
+  select { cursor: pointer; }
+  textarea:disabled { background: var(--bg-subtle); color: var(--text-muted); cursor: not-allowed; }
+
+  /* ---- Help icon (.help-icon) ---- */
+  .help-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    color: var(--text-light);
+    font-size: 0.7rem;
+    cursor: help;
+    flex-shrink: 0;
+    user-select: none;
   }
 
-  .tag-create {
-    font-size: 0.82rem;
-    color: #4a63e0;
-    cursor: default;
+  /* ---- Sección enmarcada (.modal__section / .modal__section-title) ---- */
+  .modal__section {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    margin: 1rem 0 0;
+    padding: 1rem;
   }
-
-  /* Sección nueva propuesta en este cambio */
-  .modal__section--new {
-    border-color: #b9c4f5;
-    background: #f6f8ff;
-    position: relative;
-  }
-
-  .new-badge {
-    display: inline-block;
-    margin-left: 0.5rem;
-    padding: 0.08rem 0.45rem;
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
+  .modal__section:first-of-type { margin-top: 0; }
+  .modal__section-title {
+    color: var(--section-accent);
     text-transform: uppercase;
-    color: #ffffff;
-    background: #4a63e0;
-    border-radius: 999px;
-    vertical-align: middle;
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 0 0.35rem;
   }
 
-  .export-hint {
-    font-size: 0.78rem;
-    color: #5a5a68;
+  .modal__divider {
+    border: none;
+    border-top: 1px solid var(--border-neutral);
+    margin: 1rem 0;
+  }
+
+  .modal__hint {
+    font-size: 0.75rem;
+    color: var(--text-muted);
     margin: 0 0 0.75rem;
   }
 
-  .btn-export {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.5rem 0.9rem;
-    font-size: 0.85rem;
+  .modal__error {
+    font-size: 0.75rem;
+    color: var(--error);
+    margin-top: 0.25rem;
+  }
+
+  /* Zona scroll de "Etiquetas" (.tag-checkbox-list__scroll) */
+  .tag-checkbox-list__scroll {
+    max-height: 6.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .tag-create-item {
+    margin-top: 0.5rem;
+    cursor: pointer;
+    color: var(--text-primary);
+  }
+  .new-tag-row { margin-top: 0.5rem; }
+  .new-tag-input-row { display: flex; gap: 0.5rem; }
+
+  /* ---- Botones ---- */
+  .btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-family: inherit;
+    transition: background var(--transition-fast), opacity var(--transition-fast);
+  }
+  .btn-secondary { background: var(--bg-subtle); color: var(--text-primary); }
+  .btn-secondary:hover { background: var(--bg-hover); }
+  .btn-primary { background: var(--accent-blue); color: var(--text-light); }
+  .btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(44, 125, 216, 0.35);
+  }
+  .btn-eliminar { background: var(--error); color: var(--text-light); margin-right: auto; }
+  .btn-eliminar:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  /* ---- Sección "Exportar" (NUEVA) ---- */
+  .export-section .btn { display: inline-flex; align-items: center; }
+  .export-section__btn-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 0.375rem;
+    stroke: currentColor;
+    fill: none;
+  }
+  .new-badge {
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0.05rem 0.4rem;
+    font-size: 0.7rem;
     font-weight: 600;
-    color: #4a63e0;
-    background: #ffffff;
-    border: 1.5px solid #4a63e0;
-    border-radius: 5px;
-    cursor: default;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--success);
+    border: 1px solid var(--success);
+    border-radius: 999px;
+    vertical-align: 1px;
   }
 
-  .btn-export svg {
-    width: 14px;
-    height: 14px;
-  }
-
+  /* ---- Footer (.modal__footer) ---- */
   .modal__footer {
     display: flex;
     justify-content: flex-end;
-    gap: 0.6rem;
-    padding: 0.85rem 1.25rem;
-    border-top: 1px solid #dcdce2;
-    background: #f5f5f8;
-  }
-
-  .btn-cancel, .btn-accept {
-    padding: 0.45rem 1rem;
-    font-size: 0.85rem;
-    border-radius: 5px;
-    cursor: default;
-  }
-
-  .btn-cancel {
-    background: #ffffff;
-    border: 1px solid #c9c9d2;
-    color: #4a4a55;
-  }
-
-  .btn-accept {
-    background: #4a63e0;
-    border: 1px solid #4a63e0;
-    color: #ffffff;
-    font-weight: 600;
+    gap: 0.5rem;
+    padding: 1rem;
+    border-top: 1px solid var(--border-neutral);
   }
 </style>
+</head>
+<body>
+<div class="modal-overlay">
+  <p class="caption">Mockup 00199 — pestaña <strong>“Generales”</strong> tal como está hoy (campo Id → sección “General” → sección “Ayuda jugador” → sección “Etiquetas”), con la nueva sección <strong>“Exportar”</strong> añadida al final. Solo aparece para tipos con exportación implementada (hoy, “Carta/Ficha”).</p>
 
-<div class="modal">
-  <div class="modal__header">Propiedades — carta_heroe_01</div>
+  <div class="modal">
+    <div class="modal__header">Editar propiedades del componente</div>
 
-  <div class="modal__tabs">
-    <button class="modal__tab active">Generales</button>
-    <button class="modal__tab">Específicas</button>
-    <button class="modal__tab">Copias</button>
-  </div>
-
-  <div class="modal__content">
-
-    <div class="modal__field">
-      <label>ID del componente</label>
-      <input type="text" value="carta_heroe_01" readonly>
+    <div class="modal__tabs">
+      <button class="modal__tab active" type="button">Generales</button>
+      <button class="modal__tab" type="button">Apariencia</button>
+      <button class="modal__tab" type="button">Específicas</button>
+      <button class="modal__tab" type="button">Interacciones</button>
+      <button class="modal__tab" type="button">Copias</button>
     </div>
 
-    <fieldset class="modal__section">
-      <legend class="modal__section-title">General</legend>
+    <div class="modal__content">
 
+      <!-- idField -->
       <div class="modal__field">
-        <label>Bloqueado</label>
-        <select disabled>
-          <option>Ninguno</option>
-          <option selected>Solo modo juego</option>
-          <option>Todos los modos</option>
-        </select>
+        <label for="id">ID del componente</label>
+        <input id="id" type="text" value="carta_dragon_01">
       </div>
 
-      <div class="modal__field--checkbox">
-        <input type="checkbox">
-        <label>Oculto</label>
-      </div>
+      <!-- infoSection: legend t('common.general') = "General" -->
+      <fieldset class="modal__section">
+        <legend class="modal__section-title">General</legend>
 
-      <div class="modal__field--checkbox">
-        <input type="checkbox" checked>
-        <label>Mostrar tooltip</label>
-      </div>
-
-      <div class="modal__field--checkbox">
-        <input type="checkbox">
-        <label>Subir al mover/interactuar</label>
-      </div>
-    </fieldset>
-
-    <fieldset class="modal__section">
-      <legend class="modal__section-title">Tamaño</legend>
-
-      <div class="size-row">
         <div class="modal__field">
-          <label>Alto (px)</label>
-          <input type="number" value="252">
+          <div class="label-row">
+            <label for="bloqueado">Bloqueado</label>
+            <span class="help-icon" title="Indica en qué modo(s) este componente no se puede mover…">?</span>
+          </div>
+          <select id="bloqueado">
+            <option selected>Ninguno</option>
+            <option>Solo modo juego</option>
+            <option>Todos los modos</option>
+          </select>
+        </div>
+
+        <div class="modal__field modal__field--checkbox">
+          <input id="oculto" type="checkbox">
+          <label for="oculto">Oculto</label>
+          <span class="help-icon" title="Si está marcado, este componente deja de aparecer por completo en Modo Juego…">?</span>
+        </div>
+
+        <div class="modal__field modal__field--checkbox">
+          <input id="subir" type="checkbox">
+          <label for="subir">Subir al mover/interactuar</label>
+          <span class="help-icon" title="Si está marcado, este componente se coloca automáticamente encima de todos los demás cada vez que se mueve o se interactúa con él en Modo Juego.">?</span>
+        </div>
+      </fieldset>
+
+      <!-- helpSection: legend t('componentModal.playerHelp') = "Ayuda jugador" -->
+      <fieldset class="modal__section">
+        <legend class="modal__section-title">Ayuda jugador</legend>
+
+        <div class="modal__field modal__field--checkbox">
+          <input id="mostrar-titulo" type="checkbox">
+          <label for="mostrar-titulo">Mostrar título de componente</label>
+          <span class="help-icon" title="Si está marcado, este componente muestra una etiqueta en su esquina superior izquierda en Modo Juego…">?</span>
         </div>
         <div class="modal__field">
-          <label>Ancho (px)</label>
-          <input type="number" value="180">
+          <button class="btn btn-secondary" type="button">Editar título de componente…</button>
         </div>
-      </div>
 
-      <div class="modal__field--checkbox">
-        <input type="checkbox" checked>
-        <label>Mantener proporción</label>
-      </div>
-    </fieldset>
+        <hr class="modal__divider">
 
-    <fieldset class="modal__section">
-      <legend class="modal__section-title">Etiquetas</legend>
-
-      <div class="tag-list">
-        <div class="modal__field--checkbox">
-          <input type="checkbox" checked>
-          <label>Personajes</label>
+        <div class="modal__field modal__field--checkbox">
+          <input id="mostrar-ayuda" type="checkbox">
+          <label for="mostrar-ayuda">Mostrar ayuda</label>
+          <span class="help-icon" title="Si está marcado, este componente muestra una ayuda al pasar el ratón por encima en Modo Juego…">?</span>
         </div>
-        <div class="modal__field--checkbox">
-          <input type="checkbox">
-          <label>Prólogo</label>
+        <div class="modal__field">
+          <div class="label-row">
+            <label for="ayuda-texto">Ayuda</label>
+            <span class="help-icon" title="Texto que verá el jugador como ayuda. Admite varias líneas, etiquetas HTML básicas y variables como {cards_current}…">?</span>
+          </div>
+          <textarea id="ayuda-texto" rows="4" disabled></textarea>
         </div>
-      </div>
+      </fieldset>
 
-      <div class="tag-create">+ Crear nueva etiqueta…</div>
-    </fieldset>
+      <!-- tagSection: legend t('componentModal.tagsLegend') = "Etiquetas" -->
+      <fieldset class="modal__section">
+        <legend class="modal__section-title">Etiquetas</legend>
 
-    <fieldset class="modal__section">
-      <legend class="modal__section-title">Interacciones programadas</legend>
+        <div class="tag-checkbox-list__scroll">
+          <div class="modal__field modal__field--checkbox">
+            <input id="tag-1" type="checkbox" checked>
+            <label for="tag-1">Mazo de dragones</label>
+          </div>
+          <div class="modal__field modal__field--checkbox">
+            <input id="tag-2" type="checkbox">
+            <label for="tag-2">Criaturas</label>
+          </div>
+        </div>
 
-      <div class="modal__field">
-        <label>Al hacer click</label>
-        <select disabled>
-          <option selected>Voltear</option>
-          <option>Ninguna</option>
-        </select>
-      </div>
+        <div class="modal__field modal__field--checkbox tag-create-item">+ Crear nueva etiqueta…</div>
 
-      <div class="modal__field">
-        <label>Click derecho</label>
-        <select disabled>
-          <option>Ninguno</option>
-          <option selected>Abrir menú contextual</option>
-        </select>
-      </div>
-    </fieldset>
+        <!-- newTagRow: oculto por defecto; se muestra al pulsar "+ Crear nueva etiqueta…" -->
+        <div class="new-tag-row" hidden>
+          <div class="new-tag-input-row">
+            <input type="text" placeholder="Nombre de la etiqueta nueva">
+            <button class="btn btn-secondary" type="button">Crear</button>
+          </div>
+        </div>
+      </fieldset>
 
-    <fieldset class="modal__section modal__section--new">
-      <legend class="modal__section-title">Exportar<span class="new-badge">Nuevo</span></legend>
+      <!-- NUEVA: sección "Exportar" — último fieldset.modal__section de generalContent -->
+      <fieldset class="modal__section export-section">
+        <legend class="modal__section-title">Exportar<span class="new-badge">Nuevo</span></legend>
+        <p class="modal__hint">Descarga una imagen WEBP de máxima calidad de cada cara de la carta.</p>
+        <div class="modal__field">
+          <button class="btn btn-secondary" type="button">
+            <svg class="export-section__btn-icon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 3v12"></path>
+              <path d="m7 10 5 5 5-5"></path>
+              <path d="M5 21h14"></path>
+            </svg>
+            Exportar vista (.webp)
+          </button>
+        </div>
+      </fieldset>
 
-      <p class="export-hint">Descarga una vista del elemento en formato WEBP de máxima calidad.</p>
+    </div>
 
-      <button class="btn-export" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 3v12"></path>
-          <path d="M7 10l5 5 5-5"></path>
-          <path d="M5 21h14"></path>
-        </svg>
-        Exportar vista (.webp)
-      </button>
-    </fieldset>
-
-  </div>
-
-  <div class="modal__footer">
-    <button class="btn-cancel" type="button">Cancelar</button>
-    <button class="btn-accept" type="button">Aceptar</button>
+    <div class="modal__footer">
+      <button class="btn btn-eliminar" type="button">Eliminar</button>
+      <button class="btn btn-secondary" type="button">Cancelar</button>
+      <button class="btn btn-primary" type="button">Aceptar</button>
+    </div>
   </div>
 </div>
+</body>
+</html>

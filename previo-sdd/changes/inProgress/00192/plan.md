@@ -1,5 +1,4 @@
 - **Creation date**: 2026-08-07
-- **Risk**: [pending recalculation]
 
 ## (a) Functional notes
 

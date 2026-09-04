@@ -172,6 +172,181 @@ def read_skill_version(path: Path) -> str | None:
 
 MARKER_RE = re.compile(r"\[\[\[(.+?)\]\]\]")
 
+# Canonical flag catalogue -- mirrors
+# .claude/skills/pv-internal-workflow/metadata.schema.json's 'flags' enum
+# and pv-status's terminal_output.FLAG_ORDER. Kept as a literal here so
+# this script has no JSON-Schema-library dependency for the check.
+KNOWN_FLAGS = ("priority", "workinprogress")
+METADATA_ALLOWED_KEYS = {"flags", "flagsLastModified", "risk"}
+
+# plan.md's old '- **Risk**: ...' header field, moved to .metadata.json's
+# 'risk'. RISK_HEADER_RE matches the field regardless of what follows the
+# label -- a real median ('7/10 — High risk'), an unfilled template
+# placeholder ('[pending recalculation]', '[median 0-10 ...]'), or a
+# translated value -- so the one-shot migration fires for every pre-migration
+# plan.md, not only those with a numeric value. RISK_VALUE_RE is applied to
+# the captured tail afterwards to recover an integer 0-10 if there is one;
+# when there isn't, the migration writes risk: null.
+RISK_HEADER_RE = re.compile(r"^[ \t]*-?[ \t]*\*\*Risk\*\*[ \t]*[:—-][ \t]*(.+?)[ \t]*$",
+                            re.MULTILINE)
+RISK_VALUE_RE = re.compile(r"\b(\d{1,2})\s*/\s*10\b")
+
+
+def check_risk_in_plan_headers(root: Path, work_folder: str, problems: list) -> None:
+    """One-shot migration detector: a plan.md still carrying the retired
+    '**Risk**' header field (median moved to .metadata.json's 'risk'). Fires
+    per plan.md under inProgress/, implemented/ and closed/ that has the
+    field AND whose sibling .metadata.json has no valid 'risk' yet -- whether
+    or not the field carries a numeric value (an unfilled '[pending
+    recalculation]' placeholder or a translated value still counts). Fixed
+    idempotently by pv-update: write the parsed integer 0-10 into
+    .metadata.json's 'risk' (or null when the field has no such value), then
+    -- for inProgress/ and implemented/ only -- strip the dead header line
+    (closed/ plan.md is frozen history, left as-is)."""
+    wf_path = resolve_under(root, work_folder)
+    changes_dir = wf_path / "changes"
+    if not changes_dir.is_dir():
+        return
+    for state in ("inProgress", "implemented", "closed"):
+        state_dir = changes_dir / state
+        if not state_dir.is_dir():
+            continue
+        for plan_path in sorted(state_dir.glob("*/plan.md")):
+            try:
+                text = plan_path.read_text(encoding="utf-8")
+            except OSError:
+                continue
+            match = RISK_HEADER_RE.search(text)
+            if not match:
+                continue
+            raw_tail = match.group(1).strip()
+            value_match = RISK_VALUE_RE.search(raw_tail)
+            parsed_value = None
+            if value_match:
+                n = int(value_match.group(1))
+                if 0 <= n <= 10:
+                    parsed_value = n
+            entry_dir = plan_path.parent
+            meta_path = entry_dir / ".metadata.json"
+            risk_key_present = False
+            existing_risk = None
+            if meta_path.is_file():
+                try:
+                    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+                    if isinstance(meta, dict):
+                        risk_key_present = "risk" in meta
+                        existing_risk = meta.get("risk")
+                except (OSError, json.JSONDecodeError):
+                    risk_key_present = False
+                    existing_risk = None
+            # Already migrated when .metadata.json carries a 'risk' key at all --
+            # an integer 0-10 (a real median was moved) OR an explicit null (the
+            # old field was an unfilled placeholder / non-numeric, nothing to
+            # move). Without the explicit-null branch, a closed/ plan.md whose
+            # dead '**Risk**: [pending recalculation]' line is left in place (by
+            # design) would re-fire this check on every run.
+            valid_existing = risk_key_present and (
+                existing_risk is None
+                or (
+                    isinstance(existing_risk, int)
+                    and not isinstance(existing_risk, bool)
+                    and 0 <= existing_risk <= 10
+                )
+            )
+            if valid_existing:
+                continue
+            rel = plan_path.relative_to(root).as_posix()
+            strip = state in ("inProgress", "implemented")
+            migrate_desc = (
+                f"write risk {parsed_value}" if parsed_value is not None
+                else "write risk null (the field has no numeric median to migrate)"
+            )
+            add(problems, f"risk-in-plan-header:{rel}", "optional", rel,
+                f"'{rel}' still carries the retired '- **Risk**: {raw_tail}' "
+                f"header field. The risk median lives in .metadata.json's 'risk' "
+                f"now. Migrate: {migrate_desc} into "
+                f"'{entry_dir.relative_to(root).as_posix()}/.metadata.json' "
+                f"(merge, preserving flags/flagsLastModified)"
+                + (", then delete the '- **Risk**: ...' line from the header."
+                   if strip else " -- leave the closed/ plan.md untouched (frozen history)."),
+                expected="risk in .metadata.json, not plan.md's header",
+                actual=f"**Risk**: {raw_tail} in plan.md header")
+
+
+def check_metadata_files(root: Path, work_folder: str, problems: list) -> None:
+    """Audits every .metadata.json under {workFolder}/changes/ against the
+    metadata.schema.json contract (see pv-internal-workflow): valid JSON
+    object, no unknown keys, 'flags' an array of known enum values, 'risk'
+    an int 0-10 or null. Also flags any .metadata.json that appears under
+    todo/ -- todo entries must never carry one."""
+    wf_path = resolve_under(root, work_folder)
+    changes_dir = wf_path / "changes"
+    if not changes_dir.is_dir():
+        return
+
+    # .metadata.json under todo/ -- always an error.
+    todo_dir = changes_dir / "todo"
+    if todo_dir.is_dir():
+        for meta in sorted(todo_dir.glob("*/.metadata.json")):
+            rel = meta.relative_to(root).as_posix()
+            add(problems, f"metadata-in-todo:{rel}", "optional", rel,
+                f"'{rel}' -- a todo/ entry must never carry .metadata.json "
+                f"(flags don't apply to loose ideas outside the change/fix flow). "
+                f"Delete it.",
+                expected="no .metadata.json under todo/", actual="present")
+
+    for state_dir in sorted(p for p in changes_dir.iterdir() if p.is_dir()):
+        if state_dir.name == "todo":
+            continue
+        for meta in sorted(state_dir.glob("*/.metadata.json")):
+            rel = meta.relative_to(root).as_posix()
+            try:
+                data = json.loads(meta.read_text(encoding="utf-8"))
+            except json.JSONDecodeError as exc:
+                add(problems, f"metadata-invalid-json:{rel}", "optional", rel,
+                    f"'{rel}' isn't valid JSON: {exc}. Fix or delete it -- pv-status "
+                    f"reads it defensively (treats it as no flags), but it should be valid.",
+                    expected="valid JSON object", actual="invalid JSON")
+                continue
+            if not isinstance(data, dict):
+                add(problems, f"metadata-not-object:{rel}", "optional", rel,
+                    f"'{rel}' must contain a JSON object, got {type(data).__name__}.",
+                    expected="JSON object", actual=type(data).__name__)
+                continue
+
+            unknown = sorted(set(data.keys()) - METADATA_ALLOWED_KEYS)
+            if unknown:
+                add(problems, f"metadata-unknown-key:{rel}", "optional", rel,
+                    f"'{rel}' has key(s) {', '.join(unknown)} not in metadata.schema.json "
+                    f"(additionalProperties: false). Allowed: {', '.join(sorted(METADATA_ALLOWED_KEYS))}.",
+                    expected=", ".join(sorted(METADATA_ALLOWED_KEYS)), actual=", ".join(sorted(data.keys())))
+
+            flags = data.get("flags")
+            if flags is not None:
+                if not isinstance(flags, list):
+                    add(problems, f"metadata-flags-not-array:{rel}", "optional", rel,
+                        f"'{rel}': 'flags' must be an array, got {type(flags).__name__}.",
+                        expected="array of strings", actual=type(flags).__name__)
+                else:
+                    bad = sorted({f for f in flags if f not in KNOWN_FLAGS})
+                    if bad:
+                        add(problems, f"metadata-flags-unknown-value:{rel}", "optional", rel,
+                            f"'{rel}': 'flags' contains value(s) {', '.join(map(str, bad))} not in "
+                            f"the metadata.schema.json enum ({', '.join(KNOWN_FLAGS)}).",
+                            expected=", ".join(KNOWN_FLAGS), actual=", ".join(map(str, flags)))
+                    if len(flags) != len(set(flags)):
+                        add(problems, f"metadata-flags-duplicate:{rel}", "optional", rel,
+                            f"'{rel}': 'flags' has duplicate entries (schema requires uniqueItems).",
+                            expected="unique values", actual=", ".join(map(str, flags)))
+
+            risk = data.get("risk")
+            if risk is not None and not (
+                isinstance(risk, int) and not isinstance(risk, bool) and 0 <= risk <= 10
+            ):
+                add(problems, f"metadata-risk-invalid:{rel}", "optional", rel,
+                    f"'{rel}': 'risk' must be an integer 0-10 or null, got {risk!r}.",
+                    expected="integer 0-10 or null", actual=repr(risk))
+
 # Maps each template that uses the [[[...]]] marker convention (see
 # pv-design.en.md's "Marker convention in templates") to the glob(s), relative
 # to workFolder, of the real files derived from it. The template itself is the
@@ -421,6 +596,14 @@ def main() -> None:
     # --- structural markers in changes/**-derived documents (optional) ---
     if isinstance(work_folder, str) and work_folder.strip():
         check_marked_documents(root, work_folder, problems)
+
+    # --- .metadata.json contract under changes/** (optional) ---
+    if isinstance(work_folder, str) and work_folder.strip():
+        check_metadata_files(root, work_folder, problems)
+
+    # --- retired plan.md '**Risk**' header field -> .metadata.json (optional) ---
+    if isinstance(work_folder, str) and work_folder.strip():
+        check_risk_in_plan_headers(root, work_folder, problems)
 
     # --- sourcecodeDir (required to exist if set, has a default) ---
     source_dir = framework.get("sourcecodeDir", "/src")

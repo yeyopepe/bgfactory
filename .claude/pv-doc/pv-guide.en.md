@@ -350,7 +350,7 @@ Every point except `interaction.language` is optional: if you don't configure th
 
 `pv-init` always asks about the language on a from-scratch initialization, proposing English by default for `interaction` and offering to reuse the same value for the rest unless you want something different — "the rest" no longer includes the technical documentation. If you initialized this project before language support existed, the next time you run `pv-init` it will ask you only this, without repeating the rest of the questionnaire. You can edit the values by hand in `.claude/pv-context.json` at any time afterward.
 
-**Three** things always stay in English, whatever you configure: the table in the `pv-status` report (deterministic scripts generate it, not the model, so it's free in tokens and consistent — only the sentence that introduces it follows `interaction.language`); the markdown field labels that the scripts parse literally in `description.md` and `plan.md` (`**Type**`, `**Name**`, `**Creation date**`, `**Risk**`, `## Idea`, `## Notes`, and so on) — marked with `[[[...]]]` in each skill's `*.template.md`, see the "Marker convention in templates" section of `pv-design.en.md`, so only the text following each label follows the configured language; and **all the technical documentation** (`architectureDocDir` + `styleBibleDocDir`), which is optimized to be read by the skills themselves, not by a person, and therefore can't be configured. If you configured Spanish and your technical documentation comes out in English, this is why: it's not a bug.
+**Three** things always stay in English, whatever you configure: the table in the `pv-status` report (deterministic scripts generate it, not the model, so it's free in tokens and consistent — only the sentence that introduces it follows `interaction.language`); the markdown field labels that the scripts parse literally in `description.md` and `plan.md` (`**Type**`, `**Name**`, `**Creation date**`, `## Idea`, `## Notes`, and so on) — marked with `[[[...]]]` in each skill's `*.template.md`, see the "Marker convention in templates" section of `pv-design.en.md`, so only the text following each label follows the configured language; and **all the technical documentation** (`architectureDocDir` + `styleBibleDocDir`), which is optimized to be read by the skills themselves, not by a person, and therefore can't be configured. If you configured Spanish and your technical documentation comes out in English, this is why: it's not a bug.
 
 ### 3. Model/effort per skill: `skillModels`
 
@@ -405,17 +405,34 @@ It's generated and updated automatically — both when installing/updating Previ
 The menu contains options for managing in-progress changes:
 
 1. **Overall project status** — the same summary as `/pv-status`.
-2. **Listing filtered by state** (`todo`, `inProgress`, `implemented`, and so on) — it asks you to pick one from the list before showing it.
+2. **Changes info** — opens a submenu with five options: search by id, search by content, list by state (`todo`, `inProgress`, `implemented`, and so on), **toggle a flag on a change**, and **list changes by flag**. See "Flags: work focus" below.
 3. **Ideas in `todo/`** — the same as `/pv-status todo`.
 4. **Close an implemented entry** (move it to `changes/closed/`) — it lets you choose a specific entry or close them all at once, asking for confirmation (`y`/`N`) before moving anything.
 5. **Configuration** — opens a submenu:
    - **Sync skill models according to `pv-context.json`** — applies the changes you made by hand in `skillModels` (see [Model/effort per skill](#3-modeleffort-per-skill-skillmodels) above), without you having to run the script by hand or invoke `pv-init` again.
-6. **Check versions** — opens a submenu:
+6. **Check Previo versions** — opens a submenu:
    - **List versions and read their changelog** — lists the folders in `{workFolder}/versions/{XXXX}/` and, after you pick one, shows its `changelog.md`.
    - **Check that `changes/closed/temp/` is empty** — this folder should always be empty or nonexistent; if it has something inside, it means a `pv-version` run failed partway through or is still running, and this option warns you and lists what got stuck there.
 7. **Exit**.
 
 Each submenu has its own "Back" option to return to the main menu. No option spends tokens: everything is deterministic scripts, the same kind of operation you'd run yourself from the terminal. Useful for a quick look at the project or for closing changes without opening Claude Code.
+
+### Flags: work focus
+
+Each change can carry one or more **flags** — status labels orthogonal to the lifecycle (`inProgress`/`implemented`/`closed`), meant as a layer of *personal focus*:
+
+| Flag | Icon | Meaning |
+|---|---|---|
+| `priority` | ⭐ | Marked as a priority, so it moves up the queue |
+| `workinprogress` | ⚙️ | Actively being worked on right now |
+
+A change can have both, one, or none. **`todo/` ideas never carry flags** (a loose idea outside the flow has nothing "in progress" or "prioritized within the flow" to mark).
+
+- **Toggle**: `pv.py` → *Changes info* → *Toggle a flag on a change* → the change list comes out **grouped the same way as "Overall project status"** (ready to close / planned / pending analysis); changes in `closed/` don't appear (they're frozen in a release — nothing left to prioritise). Pick the change, pick the flag (`[x]`/`[ ]` depending on whether it's active), and it applies instantly (no confirmation prompt — a toggle is undone by the same action). The list is re-shown, updated, and you can keep toggling flags or pick another change without leaving. Also from Claude Code, though there's no dedicated command: the system is handled by `pv-internal-workflow`'s `set-metadata.py` script.
+- **List by flag**: `pv.py` → *Changes info* → *Show changes by flag*, or `/pv-status` shows the ⭐/⚙️ icons in all its change listings (a `Flags` column in chat; an icon prefix in the terminal).
+- **Where it's stored**: in a hidden `.metadata.json` file inside the change's folder, next to `description.md`/`plan.md`. It only appears once the change has at least one flag; a change with no flags has no such file. It travels with the folder when the change moves between states.
+
+`/pv-update` audits that file: valid JSON, flags within the known catalogue, and no `.metadata.json` showing up under `todo/`.
 
 ## Other tips
 
