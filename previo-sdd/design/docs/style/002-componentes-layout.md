@@ -36,8 +36,8 @@ transition: background var(--transition-fast), opacity var(--transition-fast);
 - `#mode-switcher button` no longer sets `background: var(--accent-blue)` for every descendant (removed 00244). Blue is now opt-in per class (`.mode-switcher__mode-btn`, `.mode-switcher__fit-btn`); the file-block buttons fall through to the ghost scheme via `#mode-switcher > button:not(.mode-switcher__mode-btn):not(.mode-switcher__fit-btn):not(.mode-switcher__settings-btn)` and `#mode-switcher .export-menu-wrap > button`.
 - `.edit-toolbar__exit-btn` and its rules removed (00244) — the mode-switch button no longer lives in `.edit-toolbar`.
 - `#edit-toolbar > .mode-switcher__fit-btn` rules removed (00244) — "Ajustar zoom" is no longer a direct child of `#edit-toolbar`; it lives in `#mode-switcher` in both modes.
-- **Header control-row separator**: a `.toolbar-divider` (reused as-is: `width: 1px; height: 1.5rem; background: rgba(255,255,255,0.2)`) between the file block (Importar/Exportar) and the action block (Modo, Ajustar zoom, Configuración). Present **only in play mode** — in edit mode the file block is in the `.edit-toolbar` band, not the header row, so no separator there.
-- Edit mode: `.edit-toolbar` band keeps only `[Importar] │ [Exportar]` (its own `.toolbar-divider` between the two groups, unchanged).
+- **Header control-row separator**: a `.toolbar-divider` (`width: 1px; height: 1.5rem; background: rgba(255,255,255,0.2)`) between the file block (Importar/Exportar) and the action block (Modo, Ajustar zoom, Configuración). Present **only in play mode**, inside `#mode-switcher`. Edit mode never renders a `.toolbar-divider`: the file block lives in the `.edit-toolbar` band, and Importar/Exportar sit adjacent there with no divider between them.
+- Edit mode: `.edit-toolbar` band holds `[Importar] [Exportar]` adjacent in a single `.toolbar-group` (`gap: 0.5rem`), no `.toolbar-divider` between them (00254). `.toolbar-divider` exists only in `#mode-switcher`, play mode.
 - Disabled: `opacity: 0.5; cursor: not-allowed`, no `transform` on hover.
 - No `:active` — interaction feedback is the `opacity`/`background`/`box-shadow`/`transform` change on `:hover`, with a 150ms transition (`var(--transition-fast)`).
 - **Icon-only button** (action with no visible text): SVG icon with `stroke="currentColor"` (inherits the context's text/border color), always with `title`/`aria-label` as an accessible label.
@@ -60,7 +60,7 @@ transition: background var(--transition-fast), opacity var(--transition-fast);
 | `10` | Version footer |
 | `99` | Edit toolbar |
 | `100` | Header |
-| `101` | Header control row (`#mode-switcher`, populated in both modes: Importar/Exportar/separator/Modo/Ajustar zoom/Configuración) |
+| `101` | Header control row (`#mode-switcher`, populated in both modes; in play mode: Importar/Exportar/separator/Modo/Ajustar zoom/Configuración — the `separator` is play-mode only, never the `.edit-toolbar`) |
 | `1000` | Modal overlay |
 | `1050` | Component context menu (`.context-menu`, `003-modales-menus.md`, "Component context menu") and column-header menu (`.column-header-menu`, `003-modales-menus.md`, "Actions dropdown menu") |
 

@@ -21,8 +21,9 @@ flowchart TD
     ROOT(["Modal de componente"])
 
     ROOT --> T1[["Pestaña: Generales"]]
-    ROOT --> T2[["Pestaña: Visuales"]]
+    ROOT --> T2[["Pestaña: Apariencia"]]
     ROOT --> T3[["Pestaña: Específicas"]]
+    ROOT --> T3B[["Pestaña: Interacciones"]]
     ROOT --> T4[["Pestaña: Copias"]]
     ROOT --> FOOT[["Footer (común)"]]
 
@@ -31,7 +32,6 @@ flowchart TD
         T1 --> G_S1{{"Sección: General"}}
         T1 --> G_S2{{"Sección: Ayuda al jugador"}}
         T1 --> G_S3{{"Sección: Etiquetas"}}
-        T1 --> G_S4{{"Sección: Interacciones programadas"}}
 
         G_S1 --> G_S1a["Bloqueado"]
         G_S1 --> G_S1b["Oculto en modo juego"]
@@ -42,16 +42,21 @@ flowchart TD
 
         G_S3 --> G_S3a["Casillas de etiquetas"]
         G_S3 --> G_S3b["Crear nueva etiqueta…"]
-
-        G_S4 --> G_S4a["Al hacer clic (dado/carta/mazo)"]
-        G_S4 --> G_S4b["Clic derecho"]
     end
 
-    subgraph SG_VIS [Visuales]
+    subgraph SG_INT [Interacciones]
+        T3B --> I_S1{{"Sección: Interacciones programadas"}}
+        I_S1 --> I_S1a["Al hacer clic (dado/carta/mazo)"]
+        I_S1 --> I_S1b["Clic derecho"]
+    end
+
+    subgraph SG_VIS [Apariencia]
         T2 --> V_S1{{"Sección: Tamaño"}}
         T2 --> V_S2{{"Sección: Estilo (solo dado)"}}
-        T2 --> V_S3{{"Sección: Visual (tableroSimple / tableroPersonalizado)"}}
+        T2 --> V_SF{{"Sección: Forma (solo mazo)"}}
+        T2 --> V_S5{{"Sección: Borde (tableros)"}}
         T2 --> V_S4{{"Sección: Extrusión"}}
+        T2 --> V_S3{{"Sección: Efecto (texto / tableroSimple / tableroPersonalizado)"}}
 
         V_S1 --> V_S1a["Alto"]
         V_S1 --> V_S1b["Ancho"]
@@ -60,24 +65,29 @@ flowchart TD
         V_S2 --> V_S2a["Color del cuerpo"]
         V_S2 --> V_S2b["Color de los números"]
 
-        V_S3 --> V_S3a["Biselado"]
-        V_S3 --> V_S3b["Sombra"]
-        V_S3 --> V_S3c["Borde (color, grosor)"]
+        V_SF --> V_SFa["Forma"]
+        V_SF --> V_SFb["Orientación"]
+
+        V_S5 --> V_S5a["Color del borde"]
+        V_S5 --> V_S5b["Grosor del borde"]
 
         V_S4 --> V_S4a["Profundidad"]
         V_S4 --> V_S4b["Color de extrusión"]
+
+        V_S3 --> V_S3a["Biselado (tableros)"]
+        V_S3 --> V_S3b["Sombra (tableros)"]
+        V_S3 --> V_S3c["Tamaño de fuente, Color del texto, Color de fondo (texto)"]
     end
 
     subgraph SG_ESP [Específicas — contenido según tipo]
-        T3 --> E_TX["texto: Contenido, Tamaño de fuente, Color del texto, Color de fondo"]
+        T3 --> E_TX["texto: Contenido"]
         T3 --> E_TS["tableroSimple: Fondo → Configurar fondo…"]
         T3 --> E_TP["tableroPersonalizado: Editar diseño del tablero"]
         T3 --> E_DA["dado: Config. de caras, Nº máx. de caras, Lista de valores, Tipografía del resultado"]
         T3 --> E_DO["documento: Tipo de contenido, Contenido, Formato, URL de la página"]
         T3 --> E_CA["carta: Proporción, Editar diseño de la carta, Estilo (Copiar/Pegar estilo)"]
-        T3 --> E_MA["mazo: Forma, Cartas reveladas, Imagen, Ver contenido del mazo"]
+        T3 --> E_MA["mazo: Cartas reveladas, Imagen, Ver contenido del mazo"]
 
-        E_MA --> E_MA1["Forma: Forma, Orientación"]
         E_MA --> E_MA2["Cartas reveladas: Disposición, Texto, Cara revelada"]
         E_MA --> E_MA3["Imagen"]
     end
@@ -140,7 +150,7 @@ Fichas técnicas de referencia: modelo de datos del componente (`architecture/00
 
 # Ventana: Propiedades del componente
 
-Modal de edición de un componente. 4 pestañas ("Generales", "Visuales", "Específicas", "Copias") + footer común + 9 sub-modales. Se abre en modo edición desde el panel flotante de componentes o con doble clic sobre el componente en la mesa.
+Modal de edición de un componente. 5 pestañas ("Generales", "Apariencia", "Específicas", "Interacciones", "Copias") + footer común + 9 sub-modales. Se abre en modo edición desde el panel flotante de componentes o con doble clic sobre el componente en la mesa. La pestaña activa al abrir es siempre "Generales".
 
 ## Pestaña "Generales"
 
@@ -163,35 +173,41 @@ Modal de edición de un componente. 4 pestañas ("Generales", "Visuales", "Espec
 | | 14 | + Crear nueva etiqueta… | botón (despliega fila) | Generales › Etiquetas | Todos | No | | i18n `componentModal.createNewTag` |
 | | 15 | Nombre de la nueva etiqueta | texto | Generales › Etiquetas | Todos | No | tras pulsar "+ Crear nueva etiqueta…" | i18n placeholder `componentModal.tagNamePlaceholder`; errores `componentModal.tagNameEmpty` / `componentModal.tagNameTaken` |
 | | 16 | Crear | botón | Generales › Etiquetas | Todos | No | tras pulsar "+ Crear nueva etiqueta…" | i18n `common.create` |
-| 🔽 | 17 | **Interacciones programadas** | sección | Generales | Todos | No | | i18n `componentModal.programmedInteractions` |
-| | 18 | Al hacer clic *(o el nombre de la interacción del tipo)* | desplegable (activa / Ninguna) | Generales › Interacciones programadas | Dado, Carta, Mazo | Sí | el tipo tiene ≥1 interacción de clic izquierdo registrada | i18n `componentModal.onClickLabel` / `common.none.f` · ayuda `componentModal.interactionHelp`; propiedad `interaccionesDesactivadas`; interacciones definidas por tipo |
-| | 19 | Clic derecho | desplegable (Ninguno / Abrir menú contextual) | Generales › Interacciones programadas | Todos | Sí | | i18n `componentModal.rightClickLabel` / `componentModal.rightClick.openContextMenu` / `common.none.m` · ayuda `help.rightClickNone`; propiedad `accionClickDerecho` (`ninguno`/`menuContextual`) |
 
 ---
 
-## Pestaña "Visuales"
+## Pestaña "Apariencia"
+
+Orden de secciones de la pestaña (grupo ordenado por el bloque de reordenación del modal, ver Notas técnicas): **Tamaño** (siempre la primera, fuera del grupo) → **Estilo** → **Forma** → **Borde** → **Extrusión** → **Efecto**. Las posiciones de la columna `Pos.` reflejan ese orden si todas las secciones estuvieran presentes; ningún tipo las tiene todas (ver Tabla B para la posición real por tipo).
 
 | | Pos. | Nombre | Tipo | Dentro de… | Aparece en | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|---|:---:|---|---|
-| 🗂️ | — | **Visuales** | pestaña | (modal de componente) | Todos | No | | i18n `componentModal.tab.visual` |
-| 🔽 | 1 | **Tamaño** | sección | Visuales | Todos | No | | i18n `componentModal.sizeLegend` |
-| | 2 | Alto | número (px, mín. 1) | Visuales › Tamaño | Todos | No | | i18n `componentModal.heightLabel`; propiedad `height` |
-| | 3 | Ancho | número (px, mín. 1) | Visuales › Tamaño | Todos | No | | i18n `componentModal.widthLabel`; propiedad `width` |
-| | 4 | Mantener proporción | casilla | Visuales › Tamaño | Todos | No | | i18n `componentModal.keepRatio`; solo UI (no persiste); al desmarcar en Carta, su proporción pasa a "libre" |
-| 🔽 | 5 | **Estilo** | sección | Visuales | Dado | No | tipo = Dado | i18n `componentModal.styleLegend` |
-| | 6 | Color del cuerpo | color | Visuales › Estilo | Dado | No | tipo = Dado | i18n `componentModal.bodyColor`; propiedad `properties.colorCuerpo` |
-| | 7 | Color de los números | color | Visuales › Estilo | Dado | No | tipo = Dado | i18n `componentModal.numbersColor`; propiedad `properties.colorNumeros` |
-| 🔽 | 8 | **Visual** | sección | Visuales | T. simple, T. pers. | No | tipo = T. simple o T. pers. | i18n `common.visual` |
-| | 9 | Biselado | casilla | Visuales › Visual | T. simple, T. pers. | No | tipo = T. simple o T. pers. | i18n `componentModal.bevel`; propiedad `properties.biselado` |
-| | 10 | Sombra | casilla | Visuales › Visual | T. simple, T. pers. | No | tipo = T. simple o T. pers. | i18n `componentModal.shadow`; propiedad `properties.sombra` |
-| 🔽 | 11 | **Borde** | sección (con activación en el título) | Visuales › Visual | T. simple, T. pers. | No | tipo = T. simple o T. pers. | título con patrón toggle |
-| | 12 | Color del borde | color | Visuales › Visual › Borde | T. simple, T. pers. | No | tipo = T. simple o T. pers. | i18n `componentModal.borderColor`; propiedad `properties.bordeColor` |
-| | 13 | Grosor del borde | número (px, 1–20) | Visuales › Visual › Borde | T. simple, T. pers. | No | tipo = T. simple o T. pers. | i18n `componentModal.borderWidth`; propiedad `properties.bordeGrosor` |
-| 🔽 | 14 | **Extrusión** *(rótulo "Borde y extrusión" en Texto)* | sección | Visuales | Todos | No | | i18n `componentModal.extrusionLegend` / `componentModal.borderLegend.extrusion` |
-| | 15 | Profundidad | número (px, 0–40) | Visuales › Extrusión | Todos | Solo en Texto | siempre presente; sin efecto visual en Texto | i18n `componentModal.depthLabel` · ayuda `help.extrusionNoEffectOnText`; propiedad `profundidad` (clamp 0–40) |
-| | 16 | Color de extrusión | color | Visuales › Extrusión | Todos | No | | i18n `componentModal.extrusionColor`; propiedad `colorExtrusion` (`null` = automático; sin control de vuelta a automático) |
+| 🗂️ | — | **Apariencia** | pestaña | (modal de componente) | Todos | No | | i18n `componentModal.tab.visual` |
+| 🔽 | 1 | **Tamaño** | sección | Apariencia | Todos | No | | i18n `componentModal.sizeLegend` |
+| | 2 | Alto | número (px, mín. 1) | Apariencia › Tamaño | Todos | No | | i18n `componentModal.heightLabel`; propiedad `height` |
+| | 3 | Ancho | número (px, mín. 1) | Apariencia › Tamaño | Todos | No | | i18n `componentModal.widthLabel`; propiedad `width` |
+| | 4 | Mantener proporción | casilla | Apariencia › Tamaño | Todos | No | | i18n `componentModal.keepRatio`; solo UI (no persiste); al desmarcar en Carta, su proporción pasa a "libre" |
+| 🔽 | 5 | **Estilo** | sección | Apariencia | Dado | No | tipo = Dado | i18n `componentModal.styleLegend` |
+| | 6 | Color del cuerpo | color | Apariencia › Estilo | Dado | No | tipo = Dado | i18n `componentModal.bodyColor`; propiedad `properties.colorCuerpo` |
+| | 7 | Color de los números | color | Apariencia › Estilo | Dado | No | tipo = Dado | i18n `componentModal.numbersColor`; propiedad `properties.colorNumeros` |
+| 🔽 | 8 | **Forma** | sección | Apariencia | Mazo | No | tipo = Mazo | i18n `componentModal.shapeLegend` |
+| | 9 | Forma | desplegable (Rectangular / Circular) | Apariencia › Forma | Mazo | No | tipo = Mazo | i18n `componentModal.shapeLabel`; propiedad `properties.forma`; al pasar a "Circular" iguala ancho y alto |
+| | 10 | Orientación | desplegable (Vertical / Horizontal) | Apariencia › Forma | Mazo | No | tipo = Mazo y forma = "Rectangular" | i18n `componentModal.orientationLabel`; propiedad `properties.orientacion`; al cambiar transpone ancho/alto; oculta si la forma es circular |
+| 🔽 | 11 | **Borde** | sección (con activación en el título) | Apariencia | T. simple, T. pers. | No | tipo = T. simple o T. pers. | i18n `common.border`; título con patrón toggle |
+| | 12 | Color del borde | color | Apariencia › Borde | T. simple, T. pers. | No | tipo = T. simple o T. pers. | i18n `componentModal.borderColor`; propiedad `properties.bordeColor` |
+| | 13 | Grosor del borde | número (px, 1–20) | Apariencia › Borde | T. simple, T. pers. | No | tipo = T. simple o T. pers. | i18n `componentModal.borderWidth`; propiedad `properties.bordeGrosor` |
+| 🔽 | 14 | **Extrusión** *(rótulo "Borde y extrusión" en Texto)* | sección | Apariencia | Todos | No | | i18n `componentModal.extrusionLegend` / `componentModal.borderLegend.extrusion` |
+| | 15 | Profundidad | número (px, 0–40) | Apariencia › Extrusión | Todos | Solo en Texto | siempre presente; sin efecto visual en Texto | i18n `componentModal.depthLabel` · ayuda `help.extrusionNoEffectOnText`; propiedad `profundidad` (clamp 0–40) |
+| | 16 | Color de extrusión | color | Apariencia › Extrusión | Todos | No | | i18n `componentModal.extrusionColor`; propiedad `colorExtrusion` (`null` = automático; sin control de vuelta a automático) |
+| 🔽 | 17 | **Efecto** | sección | Apariencia | Texto, T. simple, T. pers. | No | tipo = Texto, T. simple o T. pers. | i18n `common.visual` |
+| | 18 | Tamaño de fuente | número (px) | Apariencia › Efecto | Texto | No | tipo = Texto | i18n `componentModal.fontSizeLabel`; propiedad `properties.tamañoFuente` |
+| | 19 | Color del texto | color | Apariencia › Efecto | Texto | No | tipo = Texto | i18n `componentModal.textColor`; propiedad `properties.colorTexto` |
+| | 20 | Color de fondo | color | Apariencia › Efecto | Texto | No | tipo = Texto | i18n `componentModal.bgColor`; propiedad `properties.colorFondo` |
+| | 21 | Transparente | casilla | Apariencia › Efecto | Texto | No | tipo = Texto | i18n `common.transparent`; fuerza `colorFondo` vacío |
+| | 22 | Biselado | casilla | Apariencia › Efecto | T. simple, T. pers. | No | tipo = T. simple o T. pers. | i18n `componentModal.bevel`; propiedad `properties.biselado` |
+| | 23 | Sombra | casilla | Apariencia › Efecto | T. simple, T. pers. | No | tipo = T. simple o T. pers. | i18n `componentModal.shadow`; propiedad `properties.sombra` |
 
-> Nota: las posiciones 5–13 (secciones "Estilo" y "Visual") solo se pintan para los tipos indicados; para el resto de tipos, "Extrusión" queda inmediatamente después de "Tamaño". Las posiciones de la columna reflejan el orden si todas las secciones estuvieran presentes; la Tabla B fija la posición real por tipo.
+> Nota: las secciones "Estilo" (dado), "Forma" (mazo), "Borde" (tableros) y "Efecto" (texto y tableros) solo se pintan para los tipos indicados. El bloque de reordenación del modal las coloca siempre, cuando están presentes, en el orden **Estilo → Forma → Borde → Extrusión → Efecto**, justo detrás de "Tamaño" (que va siempre la primera y no forma parte del grupo). Un tipo que no tenga alguna de esas secciones simplemente no la muestra y las demás suben; para los tipos sin "Estilo"/"Forma"/"Borde"/"Efecto", "Extrusión" queda inmediatamente después de "Tamaño". Las posiciones de la columna reflejan el orden si todas las secciones estuvieran presentes; la Tabla B fija la posición real por tipo.
 
 ---
 
@@ -204,11 +220,8 @@ El contenido cambia por completo según el tipo de componente. Cada bloque son l
 | | Pos. | Nombre | Tipo | Dentro de… | Aparece en | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|---|:---:|---|---|
 | | 1 | Contenido | área de texto | Específicas | Texto | No | | i18n `common.content`; propiedad `properties.contenido` |
-| 🔽 | 2 | **Visual** | sección | Específicas | Texto | No | | i18n `common.visual` |
-| | 3 | Tamaño de fuente | número (px) | Específicas › Visual | Texto | No | | i18n `componentModal.fontSizeLabel`; propiedad `properties.tamañoFuente` |
-| | 4 | Color del texto | color | Específicas › Visual | Texto | No | | i18n `componentModal.textColor`; propiedad `properties.colorTexto` |
-| | 5 | Color de fondo | color | Específicas › Visual | Texto | No | | i18n `componentModal.bgColor`; propiedad `properties.colorFondo` |
-| | 6 | Transparente | casilla | Específicas › Visual | Texto | No | | i18n `common.transparent`; fuerza `colorFondo` vacío |
+
+> Los campos de fuente, color de texto y color de fondo del tipo Texto **no** están en "Específicas": forman la sección "Efecto" de la pestaña "Apariencia" (ver Tabla A, pestaña "Apariencia", posiciones 9–12).
 
 ### T. simple (Tablero simple)
 
@@ -255,22 +268,34 @@ El contenido cambia por completo según el tipo de componente. Cada bloque son l
 
 ### Mazo
 
+> La sección "Forma" del Mazo (campos Forma y Orientación) **no** está en esta pestaña: se pinta en la pestaña "Apariencia" (ver Tabla A, pestaña "Apariencia", posiciones 8–10).
+
 | | Pos. | Nombre | Tipo | Dentro de… | Aparece en | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|---|:---:|---|---|
-| 🔽 | 1 | **Forma** | sección | Específicas | Mazo | No | | i18n `componentModal.shapeLegend` |
-| | 2 | Forma | desplegable (Rectangular / Circular) | Específicas › Forma | Mazo | No | | i18n `componentModal.shapeLabel`; propiedad `properties.forma` |
-| | 3 | Orientación | desplegable (Vertical / Horizontal) | Específicas › Forma | Mazo | No | forma = "Rectangular" | i18n `componentModal.orientationLabel`; propiedad `properties.orientacion`; al cambiar, transpone ancho/alto |
-| 🔽 | 4 | **Cartas reveladas** | sección | Específicas | Mazo | No | | i18n `componentModal.revealedCardsLegend` |
-| | 5 | Disposición carta revelada | desplegable (Arriba / Abajo / Derecha / Izquierda) | Específicas › Cartas reveladas | Mazo | No | | i18n `componentModal.revealDisposition`; propiedad `properties.disposicion` |
-| | 6 | *(nota sobre la disposición)* | texto informativo | Específicas › Cartas reveladas | Mazo | No | | i18n `componentModal.revealDispositionNote` |
-| | 7 | Texto carta revelada | texto | Específicas › Cartas reveladas | Mazo | No | | i18n `componentModal.revealedCardText`; propiedad `properties.textoCartaRevelada` (cadena vacía válida) |
-| | 8 | Cara de la carta revelada | desplegable (Frontal / Trasera) | Específicas › Cartas reveladas | Mazo | No | | i18n `componentModal.revealCard`; propiedad `properties.caraCartaRevelada` |
-| 🔽 | 9 | **Imagen** | sección | Específicas | Mazo | No | | i18n `componentModal.imageLegend` |
-| | 10 | *(previsualización de la imagen del mazo)* | previsualización | Específicas › Imagen | Mazo | No | | propiedad `properties.imagenResourceId` |
-| | 11 | Elegir imagen… | botón → *Elegir imagen* | Específicas › Imagen | Mazo | No | | i18n `componentModal.chooseImage` |
-| | 12 | Ajustar imagen… | botón → *Ajustar imagen* | Específicas › Imagen | Mazo | No | hay imagen elegida | i18n `componentModal.adjustImage`; propiedad `properties.ajusteImagen` / `properties.transparenciaImagen` |
-| | 13 | Quitar imagen | botón | Específicas › Imagen | Mazo | No | hay imagen elegida | i18n `componentModal.removeImage` |
-| | 14 | Ver contenido del mazo | botón → *Ver contenido del mazo* | Específicas | Mazo | No | | i18n `componentModal.viewMazoContent`; abre `mazoContentModal` (lista de cartas de `properties.cartaIds`) |
+| 🔽 | 1 | **Cartas reveladas** | sección | Específicas | Mazo | No | | i18n `componentModal.revealedCardsLegend` |
+| | 2 | Disposición carta revelada | desplegable (Arriba / Abajo / Derecha / Izquierda) | Específicas › Cartas reveladas | Mazo | No | | i18n `componentModal.revealDisposition`; propiedad `properties.disposicion` |
+| | 3 | *(nota sobre la disposición)* | texto informativo | Específicas › Cartas reveladas | Mazo | No | | i18n `componentModal.revealDispositionNote` |
+| | 4 | Texto carta revelada | texto | Específicas › Cartas reveladas | Mazo | No | | i18n `componentModal.revealedCardText`; propiedad `properties.textoCartaRevelada` (cadena vacía válida) |
+| | 5 | Cara de la carta revelada | desplegable (Frontal / Trasera) | Específicas › Cartas reveladas | Mazo | No | | i18n `componentModal.revealCard`; propiedad `properties.caraCartaRevelada` |
+| 🔽 | 6 | **Imagen** | sección | Específicas | Mazo | No | | i18n `componentModal.imageLegend` |
+| | 7 | *(previsualización de la imagen del mazo)* | previsualización | Específicas › Imagen | Mazo | No | | propiedad `properties.imagenResourceId` |
+| | 8 | Elegir imagen… | botón → *Elegir imagen* | Específicas › Imagen | Mazo | No | | i18n `componentModal.chooseImage` |
+| | 9 | Ajustar imagen… | botón → *Ajustar imagen* | Específicas › Imagen | Mazo | No | hay imagen elegida | i18n `componentModal.adjustImage`; propiedad `properties.ajusteImagen` / `properties.transparenciaImagen` |
+| | 10 | Quitar imagen | botón | Específicas › Imagen | Mazo | No | hay imagen elegida | i18n `componentModal.removeImage` |
+| | 11 | Ver contenido del mazo | botón → *Ver contenido del mazo* | Específicas | Mazo | No | | i18n `componentModal.viewMazoContent`; abre `mazoContentModal` (lista de cartas de `properties.cartaIds`) |
+
+---
+
+## Pestaña "Interacciones"
+
+i18n de la pestaña: `componentModal.tab.interacciones` ("Interacciones" / "Interactions"). Situada entre "Específicas" y "Copias". Su único contenido es la sección "Interacciones programadas". Se muestra siempre, para todos los tipos: la fila fija "Clic derecho" hace que nunca quede vacía.
+
+| | Pos. | Nombre | Tipo | Dentro de… | Aparece en | Ayuda (?) | Visible cuando… | Notas técnicas |
+|:-:|---:|---|---|---|---|:---:|---|---|
+| 🗂️ | — | **Interacciones** | pestaña | (modal de componente) | Todos | No | | i18n `componentModal.tab.interacciones` |
+| 🔽 | 1 | **Interacciones programadas** | sección | Interacciones | Todos | No | | i18n `componentModal.programmedInteractions` |
+| | 2 | Al hacer clic *(o el nombre de la interacción del tipo)* | desplegable (activa / Ninguna) | Interacciones › Interacciones programadas | Dado, Carta, Mazo | Sí | el tipo tiene ≥1 interacción de clic izquierdo registrada | i18n `componentModal.onClickLabel` / `common.none.f` · ayuda `componentModal.interactionHelp`; propiedad `interaccionesDesactivadas`; interacciones definidas por tipo |
+| | 3 | Clic derecho | desplegable (Ninguno / Abrir menú contextual) | Interacciones › Interacciones programadas | Todos | Sí | | i18n `componentModal.rightClickLabel` / `componentModal.rightClick.openContextMenu` / `common.none.m` · ayuda `help.rightClickNone`; propiedad `accionClickDerecho` (`ninguno`/`menuContextual`) |
 
 ---
 
@@ -468,7 +493,7 @@ Modal "Propiedades del grupo" (i18n `groupModal.title`). Una sola pestaña ("Gen
 | | 1 | Cancelar | botón | Footer del modal de grupo | No | | i18n `common.cancel` |
 | | 2 | Guardar | botón | Footer del modal de grupo | No | siempre presente; deshabilitado si el id no es válido | i18n `common.save` (no `common.accept`, a diferencia del componente y la etiqueta) |
 
-> El modal de grupo **no** tiene botón "Eliminar" (desagrupar se hace desde el menú contextual o el panel, no desde aquí), ni pestañas "Visuales"/"Específicas"/"Copias", ni campos de tamaño. Los textos de ayuda son propios del grupo (`help.group.*`), redactados en términos de "los miembros de este grupo".
+> El modal de grupo **no** tiene botón "Eliminar" (desagrupar se hace desde el menú contextual o el panel, no desde aquí), ni pestañas "Apariencia"/"Específicas"/"Copias", ni campos de tamaño. Los textos de ayuda son propios del grupo (`help.group.*`), redactados en términos de "los miembros de este grupo".
 
 ---
 
@@ -525,7 +550,7 @@ Esta ficha cubre las tres ventanas de propiedades (componente, grupo, etiqueta),
 
 **Ventana:** Modal de edición de **componente** únicamente. Las otras dos ventanas de propiedades catalogadas en esta ficha (modal de grupo, modal de etiqueta) no tienen variación por tipo, así que no tienen Tabla B — se documentan solo con su bloque en la Tabla A. (Ver Tabla A más arriba.)
 
-Filas = **solo los elementos cuya presencia o posición depende del tipo de componente**. Los elementos comunes a todos los tipos (identificador, secciones "General" / "Ayuda al jugador" / "Etiquetas" / "Interacciones programadas", "Tamaño", "Extrusión", pestaña "Copias", footer) están en la Tabla A con "Aparece en = Todos" y **no se repiten aquí**.
+Filas = **solo los elementos cuya presencia o posición depende del tipo de componente**. Los elementos comunes a todos los tipos (identificador, secciones "General" / "Ayuda al jugador" / "Etiquetas", pestaña "Interacciones" y su sección "Interacciones programadas", "Tamaño", "Extrusión", pestaña "Copias", footer) están en la Tabla A con "Aparece en = Todos" y **no se repiten aquí**.
 
 Columnas = los 7 tipos de componente.
 
@@ -537,37 +562,44 @@ Abreviaturas de tipo: **Texto** = Cuadro de texto · **T.simp** = Tablero simple
 
 ---
 
-## Pestaña "Generales"
+## Pestaña "Interacciones"
 
 | | Elemento | Texto | T.simp | T.pers | Dado | Doc | Carta | Mazo |
 |:-:|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | 🔽 | Interacciones programadas *(sección)* | | | | | | | |
-| | Al hacer clic *(interacción del tipo)* | — | — | — | 18 | — | 18 | 18 |
+| | Al hacer clic *(interacción del tipo)* | — | — | — | 2 | — | 2 | 2 |
 
-> Es el único elemento de la pestaña "Generales" que depende del tipo: solo aparece para los tipos con una interacción de clic izquierdo registrada (Dado = tirar, Carta = voltear, Mazo = robar). "Clic derecho" está justo debajo y sí aparece para todos (ver Tabla A, posición 19).
+> "Al hacer clic" es el único elemento de la pestaña "Interacciones" que depende del tipo: solo aparece para los tipos con una interacción de clic izquierdo registrada (Dado = tirar, Carta = voltear, Mazo = robar). "Clic derecho" está justo debajo y sí aparece para todos (ver Tabla A, pestaña "Interacciones", posición 3).
 
 ---
 
-## Pestaña "Visuales"
+## Pestaña "Apariencia"
 
-Posición dentro de la pestaña "Visuales". "Tamaño" (posiciones 1–4) y sus 3 campos son comunes a todos y no se listan aquí. La sección "Extrusión" y sus 2 campos también son comunes, pero **su posición cambia según haya o no secciones intermedias** ("Estilo" del dado, "Visual" de los tableros), así que se incluye para dejar claro el desplazamiento.
+Posición dentro de la pestaña "Apariencia". "Tamaño" (posiciones 1–4) y sus 3 campos son comunes a todos y no se listan aquí. El bloque de reordenación del modal coloca las secciones presentes en el orden **Estilo → Forma → Borde → Extrusión → Efecto**, detrás de "Tamaño". La sección "Extrusión" y sus 2 campos son comunes a todos los tipos, pero **su posición cambia según cuántas secciones del grupo la precedan** ("Estilo" del dado, "Forma" del mazo, "Borde" de los tableros), así que se incluye para dejar claro el desplazamiento. "Efecto" queda siempre **detrás** de "Extrusión".
 
 | | Elemento | Texto | T.simp | T.pers | Dado | Doc | Carta | Mazo |
 |:-:|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | 🔽 | Estilo *(sección — dado)* | — | — | — | 5 | — | — | — |
 | | Color del cuerpo | — | — | — | 6 | — | — | — |
 | | Color de los números | — | — | — | 7 | — | — | — |
-| 🔽 | Visual *(sección — tableros)* | — | 5 | 5 | — | — | — | — |
-| | Biselado | — | 6 | 6 | — | — | — | — |
-| | Sombra | — | 7 | 7 | — | — | — | — |
-| 🔽 | Borde *(sub-sección)* | — | 8 | 8 | — | — | — | — |
-| | Color del borde | — | 9 | 9 | — | — | — | — |
-| | Grosor del borde | — | 10 | 10 | — | — | — | — |
-| 🔽 | Extrusión *(sección común, posición variable; rótulo "Borde y extrusión" en Texto)* | 5 | 11 | 11 | 8 | 5 | 5 | 5 |
-| | Profundidad | 6 | 12 | 12 | 9 | 6 | 6 | 6 |
-| | Color de extrusión | 7 | 13 | 13 | 10 | 7 | 7 | 7 |
+| 🔽 | Forma *(sección — mazo)* | — | — | — | — | — | — | 5 |
+| | Forma | — | — | — | — | — | — | 6 |
+| | Orientación | — | — | — | — | — | — | 7 |
+| 🔽 | Borde *(sección — tableros)* | — | 5 | 5 | — | — | — | — |
+| | Color del borde | — | 6 | 6 | — | — | — | — |
+| | Grosor del borde | — | 7 | 7 | — | — | — | — |
+| 🔽 | Extrusión *(sección común, posición variable; rótulo "Borde y extrusión" en Texto)* | 5 | 8 | 8 | 8 | 5 | 5 | 8 |
+| | Profundidad | 6 | 9 | 9 | 9 | 6 | 6 | 9 |
+| | Color de extrusión | 7 | 10 | 10 | 10 | 7 | 7 | 10 |
+| 🔽 | Efecto *(sección — texto y tableros; detrás de "Extrusión")* | 8 | 11 | 11 | — | — | — | — |
+| | Tamaño de fuente | 9 | — | — | — | — | — | — |
+| | Color del texto | 10 | — | — | — | — | — | — |
+| | Color de fondo | 11 | — | — | — | — | — | — |
+| | Transparente | 12 | — | — | — | — | — | — |
+| | Biselado | — | 12 | 12 | — | — | — | — |
+| | Sombra | — | 13 | 13 | — | — | — | — |
 
-> Lectura: en Texto / Doc / Carta / Mazo no hay secciones intermedias, así que "Extrusión" arranca en la posición 5 (justo tras "Tamaño"). En el Dado, la sección "Estilo" (5–7) la empuja a la 8. En los tableros, la sección "Visual" + "Borde" (5–10) la empujan a la 11.
+> Lectura: en Doc / Carta no hay ninguna sección del grupo antes de "Extrusión", así que arranca en la posición 5 (justo tras "Tamaño"). En Texto tampoco (solo tiene "Extrusión" y "Efecto"), así que "Extrusión" es la 5 y "Efecto" (8–12) va detrás. En el Dado, "Estilo" (5–7) empuja "Extrusión" a la 8. En el Mazo, "Forma" (5–7) la empuja a la 8. En los tableros, "Borde" (5–7) la empuja a la 8 y "Efecto" (11–13, biselado y sombra) queda detrás.
 
 ---
 
@@ -579,11 +611,6 @@ Aquí **todo** depende del tipo (cada tipo tiene su propio contenido). Posición
 |:-:|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | | **— Texto —** | | | | | | | |
 | | Contenido | 1 | — | — | — | — | — | — |
-| 🔽 | Visual *(sección)* | 2 | — | — | — | — | — | — |
-| | Tamaño de fuente | 3 | — | — | — | — | — | — |
-| | Color del texto | 4 | — | — | — | — | — | — |
-| | Color de fondo | 5 | — | — | — | — | — | — |
-| | Transparente | 6 | — | — | — | — | — | — |
 | | **— Tablero simple —** | | | | | | | |
 | 🔽 | Fondo *(sección)* | — | 1 | — | — | — | — | — |
 | | Tipo de fondo | — | 2 | — | — | — | — | — |
@@ -607,20 +634,17 @@ Aquí **todo** depende del tipo (cada tipo tiene su propio contenido). Posición
 | | Copiar estilo | — | — | — | — | — | 4 | — |
 | | Pegar estilo | — | — | — | — | — | 5 | — |
 | | **— Mazo —** | | | | | | | |
-| 🔽 | Forma *(sección)* | — | — | — | — | — | — | 1 |
-| | Forma | — | — | — | — | — | — | 2 |
-| | Orientación | — | — | — | — | — | — | 3 |
-| 🔽 | Cartas reveladas *(sección)* | — | — | — | — | — | — | 4 |
-| | Disposición carta revelada | — | — | — | — | — | — | 5 |
-| | Texto carta revelada | — | — | — | — | — | — | 7 |
-| | Cara de la carta revelada | — | — | — | — | — | — | 8 |
-| 🔽 | Imagen *(sección)* | — | — | — | — | — | — | 9 |
-| | Elegir imagen… | — | — | — | — | — | — | 11 |
-| | Ajustar imagen… | — | — | — | — | — | — | 12 |
-| | Quitar imagen | — | — | — | — | — | — | 13 |
-| | Ver contenido del mazo | — | — | — | — | — | — | 14 |
+| 🔽 | Cartas reveladas *(sección)* | — | — | — | — | — | — | 1 |
+| | Disposición carta revelada | — | — | — | — | — | — | 2 |
+| | Texto carta revelada | — | — | — | — | — | — | 4 |
+| | Cara de la carta revelada | — | — | — | — | — | — | 5 |
+| 🔽 | Imagen *(sección)* | — | — | — | — | — | — | 6 |
+| | Elegir imagen… | — | — | — | — | — | — | 8 |
+| | Ajustar imagen… | — | — | — | — | — | — | 9 |
+| | Quitar imagen | — | — | — | — | — | — | 10 |
+| | Ver contenido del mazo | — | — | — | — | — | — | 11 |
 
-> En el Mazo, las posiciones 6 y 10 las ocupan una nota informativa (bajo "Disposición carta revelada") y la previsualización de la imagen, respectivamente (ver Tabla A). Por eso "Texto carta revelada" es 7 y "Elegir imagen…" es 11.
+> La sección "Forma" del Mazo (Forma, Orientación) no está en "Específicas": vive en la pestaña "Apariencia" (ver la subsección "Pestaña "Apariencia"" de esta Tabla B). En el bloque de "Específicas" del Mazo, las posiciones 3 y 7 las ocupan una nota informativa (bajo "Disposición carta revelada") y la previsualización de la imagen, respectivamente (ver Tabla A). Por eso "Texto carta revelada" es 4 y "Elegir imagen…" es 8.
 
 ---
 
@@ -640,6 +664,6 @@ Aquí **todo** depende del tipo (cada tipo tiene su propio contenido). Posición
 - Cuando un tipo no tiene ninguna fila específica en una sección, esa sección simplemente no se pinta y las siguientes suben.
 
 - **Available in**: modo edición — modal de propiedades del componente (panel flotante de componentes o doble clic sobre el componente en la mesa) y sus sub-modales; modal "Propiedades del grupo" (menú contextual o panel de componentes); modal de alta/edición de etiqueta (panel de etiquetas o menú contextual).
-- **Code**: 00249.
+- **Code**: 00249, 00252, 00255.
 - **Since**: 2026-09-03
-- **Last modified**: 2026-09-03
+- **Last modified**: 2026-09-04

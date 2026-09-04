@@ -814,6 +814,49 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
 
   generalContent.appendChild(tagSection);
 
+  function validateId() {
+    const newId = idInput.value.trim();
+    if (!newId) {
+      idError.textContent = t('componentModal.idEmpty');
+      idError.style.display = 'block';
+      return false;
+    }
+    const isDuplicate = getComponents().some(
+      (c) => c.id === newId && c.id !== (component?.id ?? '')
+    );
+    if (isDuplicate) {
+      idError.textContent = t('componentModal.idTaken');
+      idError.style.display = 'block';
+      return false;
+    }
+    idError.style.display = 'none';
+    return true;
+  }
+
+  function isDadoConfigValid() {
+    if (workingComponent.type !== 'dado') return true;
+    const props = workingComponent.properties;
+    return props.modoCaras !== 'lista' || isListaValoresValida(props.listaValores);
+  }
+
+  idInput.addEventListener('input', () => {
+    const sanitized = idInput.value.replace(/\s+/g, '_');
+    if (sanitized !== idInput.value) {
+      idInput.value = sanitized;
+    }
+    workingComponent.id = idInput.value.trim();
+    validateId();
+    updateAcceptButton();
+  });
+
+  // Specific tab: type-specific fields
+  createTab('specific', t('componentModal.tab.specific'));
+  const specificContent = tabContents.get('specific').content;
+
+  // Interacciones tab: sección "Interacciones programadas" (trasladada desde "Generales").
+  createTab('interacciones', t('componentModal.tab.interacciones'));
+  const interaccionesContent = tabContents.get('interacciones').content;
+
   // Interacciones programadas: un combo por cada interacción de click izquierdo que el tipo actual
   // tenga programada en Modo Juego (ver core/interactions.js), desactivable eligiendo "Ninguna", más
   // una fila fija de click derecho (ver más abajo) que aplica por igual a los 6 tipos de componente —
@@ -903,47 +946,8 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     rightClickField.appendChild(rightClickSelect);
     interactionsSection.appendChild(rightClickField);
 
-    generalContent.appendChild(interactionsSection);
+    interaccionesContent.appendChild(interactionsSection);
   }
-
-  function validateId() {
-    const newId = idInput.value.trim();
-    if (!newId) {
-      idError.textContent = t('componentModal.idEmpty');
-      idError.style.display = 'block';
-      return false;
-    }
-    const isDuplicate = getComponents().some(
-      (c) => c.id === newId && c.id !== (component?.id ?? '')
-    );
-    if (isDuplicate) {
-      idError.textContent = t('componentModal.idTaken');
-      idError.style.display = 'block';
-      return false;
-    }
-    idError.style.display = 'none';
-    return true;
-  }
-
-  function isDadoConfigValid() {
-    if (workingComponent.type !== 'dado') return true;
-    const props = workingComponent.properties;
-    return props.modoCaras !== 'lista' || isListaValoresValida(props.listaValores);
-  }
-
-  idInput.addEventListener('input', () => {
-    const sanitized = idInput.value.replace(/\s+/g, '_');
-    if (sanitized !== idInput.value) {
-      idInput.value = sanitized;
-    }
-    workingComponent.id = idInput.value.trim();
-    validateId();
-    updateAcceptButton();
-  });
-
-  // Specific tab: type-specific fields
-  createTab('specific', t('componentModal.tab.specific'));
-  const specificContent = tabContents.get('specific').content;
 
   // Copias tab: linked copies and sync actions
   createTab('copias', t('componentModal.tab.copias'));
@@ -1140,7 +1144,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       bgColorField.appendChild(bgColorContainer);
       textoVisualSection.appendChild(bgColorField);
 
-      visualContent.appendChild(textoVisualSection);
+      visualContent.insertBefore(textoVisualSection, extrusionSection);
     } else if (workingComponent.type === 'tableroSimple') {
       renderBoardSpecificFields(specificContent, visualContent);
     } else if (workingComponent.type === 'tableroPersonalizado') {
@@ -1216,7 +1220,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     sombraField.appendChild(sombraLabel);
     visualSection.appendChild(sombraField);
 
-    visualContainer.appendChild(visualSection);
+    visualContainer.insertBefore(visualSection, extrusionSection);
 
     // Borde: color y grosor juntos en la misma fila, con checkbox de
     // activación (mismo patrón que ui/cardShapeModal.js, sección "Borde")
@@ -1664,7 +1668,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     sombraField.appendChild(sombraLabel);
     visualSection.appendChild(sombraField);
 
-    visualContainer.appendChild(visualSection);
+    visualContainer.insertBefore(visualSection, extrusionSection);
 
     const editField = document.createElement('div');
     editField.className = 'modal__field';
@@ -2151,6 +2155,53 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   }
 
   renderSpecificTab();
+
+  // Orden fijo de las secciones de la pestaña "Apariencia": Estilo, Forma, Borde, Extrusión, Efecto.
+  // Cada tipo de componente pinta un subconjunto distinto de estas secciones desde rutas de render
+  // separadas (renderBoardSpecificFields, renderDadoSpecificFields, renderMazoSpecificFields, la rama
+  // 'texto', etc.), así que en vez de coordinar el orden en cada `appendChild`/`insertBefore`, se
+  // reordenan aquí una sola vez al final: se identifican por el texto de su <legend> y se reubican en
+  // los mismos huecos que ya ocupaban, manteniendo el resto de secciones que no están en la lista
+  // (Tamaño, fondo, Cartas reveladas, Imagen…) en su sitio.
+  {
+    // Texto de <legend> -> posición deseada. "Extrusión" tiene dos textos posibles según el tipo
+    // (extrusionLegend en general, borderLegend.extrusion en 'texto'), ambos al mismo rango.
+    const rankByLegend = new Map([
+      [t('componentModal.styleLegend'), 0],
+      [t('componentModal.shapeLegend'), 1],
+      [t('common.border'), 2],
+      [t('componentModal.extrusionLegend'), 3],
+      [t('componentModal.borderLegend.extrusion'), 3],
+      [t('common.visual'), 4],
+    ]);
+    const rank = (section) => {
+      // El texto propio del <legend> (nodos de texto directos), ignorando el checkbox de
+      // activación o el icono de ayuda "?" que algunas secciones añaden dentro del <legend>.
+      const legend = section.querySelector(':scope > legend');
+      const text = legend
+        ? [...legend.childNodes]
+            .filter((n) => n.nodeType === Node.TEXT_NODE)
+            .map((n) => n.textContent)
+            .join('')
+            .trim()
+        : '';
+      return rankByLegend.has(text) ? rankByLegend.get(text) : -1;
+    };
+    const managed = [...visualContent.querySelectorAll(':scope > fieldset')].filter((s) => rank(s) !== -1);
+    if (managed.length > 1) {
+      // Marcadores en los huecos actuales para reubicar las secciones sin desplazar las demás.
+      const slots = managed.map((s) => {
+        const marker = document.createComment('');
+        visualContent.insertBefore(marker, s);
+        return marker;
+      });
+      const sorted = [...managed].sort((a, b) => rank(a) - rank(b));
+      slots.forEach((marker, i) => {
+        visualContent.insertBefore(sorted[i], marker);
+        marker.remove();
+      });
+    }
+  }
 
   // Footer buttons
   if (!isNew && onDelete) {

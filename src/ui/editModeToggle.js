@@ -302,6 +302,9 @@ export function renderModeSwitcher(container) {
   container.appendChild(createSettingsButton('mode-switcher__settings-btn'));
 }
 
+// Franja .edit-toolbar de modo edición: contiene el bloque de fichero
+// [Importar] [Exportar] contiguos en un único .toolbar-group, sin separador
+// entre ambos (el .toolbar-divider solo se usa en #mode-switcher, modo juego).
 export function renderEditToolbar(container) {
   container.innerHTML = '';
 
@@ -310,17 +313,11 @@ export function renderEditToolbar(container) {
   const toolbar = document.createElement('div');
   toolbar.className = 'edit-toolbar';
 
-  const persistenceGroup = document.createElement('div');
-  persistenceGroup.className = 'toolbar-group';
-  persistenceGroup.appendChild(createImportControls());
-  toolbar.appendChild(persistenceGroup);
-
-  toolbar.appendChild(document.createElement('div')).className = 'toolbar-divider';
-
-  const exportGroup = document.createElement('div');
-  exportGroup.className = 'toolbar-group';
-  exportGroup.appendChild(createExportMenu());
-  toolbar.appendChild(exportGroup);
+  const fileGroup = document.createElement('div');
+  fileGroup.className = 'toolbar-group';
+  fileGroup.appendChild(createImportControls());
+  fileGroup.appendChild(createExportMenu());
+  toolbar.appendChild(fileGroup);
 
   container.appendChild(toolbar);
 }
