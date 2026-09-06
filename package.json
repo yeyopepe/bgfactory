@@ -1,0 +1,14 @@
+{
+  "name": "bgfactory-tests",
+  "private": true,
+  "type": "module",
+  "description": "Framework de tests funcionales de BG Factory. Solo para desarrollo: el entregable y su build (src/scripts/build.py) no dependen de Node ni de npm.",
+  "scripts": {
+    "test": "node src/test/run.js",
+    "test:setup": "node src/test/setup.js",
+    "test:all": "node src/test/setup.js && node src/test/run.js"
+  },
+  "devDependencies": {
+    "playwright": "1.55.1"
+  }
+}

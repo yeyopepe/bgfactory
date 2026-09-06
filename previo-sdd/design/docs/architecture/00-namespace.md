@@ -180,4 +180,23 @@ ui.class.mode-switcher__settings-btn      concepto de estilo (00244).  anchor: s
     botón de configuración icono-solo 36×36, esquema "sobre fondo oscuro" (contorno claro, sin fondo azul), a diferencia de .mode-switcher__fit-btn
 ui.class.decision.mode-switcher-both-modes   decisión (00244).  sin ancla
     [motivación] #mode-switcher se puebla en ambos modos (renderModeSwitcher ya no hace early return si !PLAY); #edit-toolbar solo aloja la franja .edit-toolbar con Importar/Exportar; el botón de modo y "Ajustar zoom" viven siempre en #mode-switcher
+test                                      concepto (framework de tests funcionales, 00238).  anchor: src/test/run.js
+    ver 011-functional-test-framework.md
+test.harness                              concepto.  anchor: src/test/harness.js#run
+    motor describe/it/expect/beforeEach/afterEach/registerFeature/run propio, corre en el navegador headless, sin Node
+test.helpers                              concepto.  anchor: src/test/helpers.js
+    resetState / mountChrome / mountEditMode / mountPlayMode / loadFixture / mockRandom / captureDownload / getLastDownload / injectFileImport / restoreAllMocks
+test.traceability.rule:                   afirmación.  anchor: src/test/traceability.js#generateTraceability
+    genera src/test/TRACEABILITY.md cruzando design/docs/features/INDEX.md con registerFeature de cada fichero
+    post: (∃ test con primary|secondary NNN ∧ NNN ∉ features/INDEX.md) ⟹ hasAnomaly ∧ run.js exit = 1
+test.code.rule:                           afirmación (código de test)
+    FT-<NNN>-<nn>: NNN = número de ficha design/docs/features/ de la funcionalidad principal; nn = correlativo de 2 dígitos; prefijo del nombre del it
+test.decision.no-main-js                  decisión (00238).  sin ancla
+    [motivación] la página headless no carga src/main.js; montaje explícito por test (mountChrome + renderEditMode/renderPlayMode) para que resetState sea determinista y no se acumulen los ~18 listeners del eventBus del bootstrap
+test.decision.page-reload-isolation      decisión (00238).  sin ancla
+    [motivación] aislamiento = una navegación de página por fichero de test; grafo de módulos ES fresco ⟹ Map de listeners del eventBus a cero, sin off() manual
+test.decision.own-engine                 decisión (00238).  sin ancla
+    [motivación] motor propio en vez de runner de terceros: corre dentro del navegador sin Node, el proyecto no adquiere dependencia de runtime
+test.decision.playwright-over-jsdom      decisión (00238).  sin ancla
+    [motivación] Chromium headless real, no jsdom: las funcionalidades frágiles (drag en bloque, fitToBounds, resize de paneles, solape carta-mazo, menús position:fixed, canvas de dado/mazo) necesitan layout y canvas reales
 ```

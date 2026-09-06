@@ -33,6 +33,10 @@
 
 - [007 — Development/build flow and persistence](007-persistence-build.md)
 
+## Testing
+
+- [011 — Functional test framework](011-functional-test-framework.md)
+
 ## UI layer
 
 - [006 — UI layer: reusable modules](006-ui-layer.md)

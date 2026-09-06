@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BG Factory — runner de tests funcionales</title>
+</head>
+<body>
+  <!-- Réplica de los contenedores de src/index.html: renderEditMode /
+       renderPlayMode los buscan por id. NO se carga main.js ni styles/main.css. -->
+  <h1 id="app-title"></h1>
+  <div id="edit-toolbar"></div>
+  <div id="mode-switcher"></div>
+  <div id="content"></div>
+  <footer id="app-version"></footer>
+  <script type="application/json" id="initial-state"></script>
+
+  <script type="module">
+    import * as harness from './harness.js';
+
+    const params = new URLSearchParams(location.search);
+    const file = params.get('file');
+
+    async function main() {
+      if (!file) throw new Error('Falta el parámetro ?file= en la URL del runner.');
+      // El fichero de test se importa relativo a src/test/ (lo sirve run.js).
+      await import('./' + file);
+      const results = await harness.run();
+      window.__BGF_TEST_FEATURES__ = harness.getRegisteredFeature();
+      window.__BGF_TEST_RESULTS__ = results;
+    }
+
+    main().catch((err) => {
+      window.__BGF_TEST_FEATURES__ = harness.getRegisteredFeature();
+      window.__BGF_TEST_RESULTS__ = [{
+        name: '(carga del fichero de test)',
+        status: 'fail',
+        error: String(err && err.stack ? err.stack : err),
+      }];
+    });
+  </script>
+</body>
+</html>
