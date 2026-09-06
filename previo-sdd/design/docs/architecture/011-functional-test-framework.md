@@ -64,7 +64,12 @@ captureDownload()                 patches URL.createObjectURL + HTMLAnchorElemen
 getLastDownload() -> Promise<{ filename, data }>   [async] Blob.text() is async
 injectFileImport(obj, { mode='overwrite', conflictMode='overwrite' })   mergeImportedGame directly, bypasses ui/editModeToggle.js modals
 restoreAllMocks()                 restores Math.random, URL.createObjectURL, HTMLAnchorElement.prototype.click
+dispatchContextMenu(el, { x=0, y=0 })   el.dispatchEvent(mousedown {button:2}) THEN el.dispatchEvent(contextmenu {button:2}); both { bubbles:true, cancelable:true, clientX:x, clientY:y }
+getOpenContextMenu() -> HTMLElement | null   document.body.querySelector('.context-menu')
 ```
+
+- [gotcha] `dispatchContextMenu` fires `mousedown` before `contextmenu`, not `contextmenu` alone. The browser emits `mousedown` first on a real right-click; `ui/contextMenu.js` closes an already-open menu from that `mousedown` (`handleOutsideClick`) *before* the mode's `onContextMenu` runs for the new target. Without the leading `mousedown`, a "menu already open, right-click another element" case ends with selection cleared: the previous menu's `onClose` runs after the new selection is set (`modes/play/playMode.js#onContextMenu` sets `selectedComponentId`, then calls `openContextMenu`, which closes the prior menu → its `onClose` nulls `selectedComponentId`).
+- `getOpenContextMenu` reads `document.body`, not `#content`: `ui/contextMenu.js#openContextMenu` does `document.body.appendChild(menu)` (`position: fixed`), so a `#content`-scoped query never finds it.
 
 ## Batch execution flow (`run.js`)
 
@@ -147,16 +152,20 @@ Exit code `0` = all pass and no traceability anomaly; `1` = any failure or any `
 - `test.decision.own-engine` — own `describe`/`it`/`expect` engine instead of a third-party runner. `[motivación]` the engine runs inside the browser page with no Node; the project takes no runtime dependency, and a third-party runner would not run in that context unbundled.
 - `test.decision.playwright-over-jsdom` — real headless Chromium, not jsdom. `[motivación]` the fragile features (block drag with relative distances, `fitToBounds`, panel resize, card-over-deck overlap, `position: fixed` menu placement, dice/deck canvas) need real layout and canvas; jsdom provides neither.
 
-## Initial batch
+## Test files
 
-| File | Feature | Cases |
+[gotcha] not a live inventory — `TRACEABILITY.md` (regenerated per `npm test`) is the authoritative feature↔test map, including per-file case counts. This table only records each file's feature link and level; case codes here are the seed set, not kept in sync as files grow.
+
+| File | Feature | Level |
 |---|---|---|
-| `functional/component-crud.test.js` | 002 | `FT-002-01/02/03` (state) |
-| `functional/top-controls.test.js` | 039 | `FT-039-01` (state), `FT-039-02` (ui) |
-| `functional/fresh-boot.test.js` | 036 | `FT-036-01` (state) |
-| `functional/autosave.test.js` | 029 | `FT-029-01/02` (state) |
-| `functional/hidden-in-play.test.js` | 016 | `FT-016-01` (ui) |
-| `functional/export-import.test.js` | 032 | `FT-032-01` (state) |
-| `functional/synced-copies.test.js` | 005 (primary), 022 (secondary) | `FT-005-01` (ui) — worked example |
+| `functional/component-crud.test.js` | 002 | state |
+| `functional/top-controls.test.js` | 039 | state + ui |
+| `functional/fresh-boot.test.js` | 036 | state |
+| `functional/autosave.test.js` | 029 | state |
+| `functional/hidden-in-play.test.js` | 016 | ui |
+| `functional/export-import.test.js` | 032 | state |
+| `functional/synced-copies.test.js` | 005 (primary), 022 (secondary) | ui — worked example |
+| `functional/carta.test.js` | 022 | state + ui |
+| `functional/context-menu-play.test.js` | 026 | ui — `dispatchContextMenu` + `getOpenContextMenu` over `.context-menu` in `document.body`; `mockRandom` for deterministic `shuffleCartaIds` (FT-026-08) |
 
 See also [007 — Development/build flow and persistence](007-persistence-build.md), [008 — Code conventions](008-code-conventions.md).

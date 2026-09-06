@@ -33,7 +33,7 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 | 023 — Componente "mazo" | — |
 | 024 — Migración de fichas antiguas a Carta/Ficha | — |
 | 025 — Identificación de componentes al pasar el ratón | — |
-| 026 — Menú contextual de componente en modo juego | — |
+| 026 — Menú contextual de componente en modo juego | FT-026-01, FT-026-02, FT-026-03, FT-026-04, FT-026-05, FT-026-06, FT-026-07, FT-026-08, FT-026-09, FT-026-10, FT-026-11, FT-026-12, FT-026-13, FT-026-14, FT-026-15, FT-026-16, FT-026-17 |
 | 027 — Menú contextual de elemento en modo edición | — |
 | 028 — Atajos de teclado en modo edición | — |
 | 029 — Autoguardado en el navegador | FT-029-01, FT-029-02, FT-029-03, FT-029-04, FT-029-05, FT-029-06, FT-029-07, FT-029-08, FT-029-09 |
@@ -80,7 +80,6 @@ _Ninguna._
 | 023 — Componente "mazo" |
 | 024 — Migración de fichas antiguas a Carta/Ficha |
 | 025 — Identificación de componentes al pasar el ratón |
-| 026 — Menú contextual de componente en modo juego |
 | 027 — Menú contextual de elemento en modo edición |
 | 028 — Atajos de teclado en modo edición |
 | 030 — Título de cabecera editable |

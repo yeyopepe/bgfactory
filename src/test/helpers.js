@@ -12,6 +12,9 @@
 //   getLastDownload()       { filename, data } de la última descarga capturada
 //   injectFileImport(obj)   aplica un JSON exportado sin pasar por los modales
 //   restoreAllMocks()       restaura Math.random / URL.createObjectURL / a.click
+//   dispatchContextMenu(el) dispara un MouseEvent('contextmenu') real sobre el
+//                           nodo (botón derecho); abre el menú contextual
+//   getOpenContextMenu()    el .context-menu abierto en document.body, o null
 
 import {
   MODES, setMode,
@@ -198,4 +201,27 @@ export function restoreAllMocks() {
   if (originals.random) { Math.random = originals.random; originals.random = null; }
   if (originals.createObjectURL) { URL.createObjectURL = originals.createObjectURL; originals.createObjectURL = null; }
   if (originals.anchorClick) { HTMLAnchorElement.prototype.click = originals.anchorClick; originals.anchorClick = null; }
+}
+
+// --- Menú contextual ---
+
+// Reproduce un click derecho real del usuario sobre `el`: un `mousedown` con
+// `button: 2` seguido del `contextmenu`, en ese orden — como los emite el
+// navegador. El `mousedown` es lo que cierra un menú contextual ya abierto (vía
+// el `handleOutsideClick` de `ui/contextMenu.js`) antes de que el modo procese
+// el nuevo `contextmenu`; sin él, un caso de "menú ya abierto" no se comportaría
+// como en la app. `renderComponentsOnTable` (ui/componentRenderer.js) escucha el
+// `contextmenu` sobre el nodo exterior de cada componente e invoca el
+// `onContextMenu` del modo.
+export function dispatchContextMenu(el, { x = 0, y = 0 } = {}) {
+  const opts = { clientX: x, clientY: y, bubbles: true, cancelable: true, button: 2 };
+  el.dispatchEvent(new MouseEvent('mousedown', opts));
+  el.dispatchEvent(new MouseEvent('contextmenu', opts));
+}
+
+// El menú contextual abierto, o null. `ui/contextMenu.js#openContextMenu` lo
+// adjunta a `document.body` (no dentro de `#content`), por eso no vale
+// `content.querySelector`.
+export function getOpenContextMenu() {
+  return document.body.querySelector('.context-menu');
 }
