@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/resources/img/bgfactory-logo-color_2.jpg" alt="BG Factory logo" width="120">
+  <img src="src/resources/img/bgfactory-logo-color_2.jpg" alt="BG Factory logo" width="120" style="border-radius:12px; border:1px solid #000;">
 </p>
 
 # BG Factory — Un editor de juegos de mesa 100% portable
@@ -9,7 +9,7 @@
 **BG Factory** es un editor visual para crear y jugar tus propios juegos de mesa digitales, que se distribuye como **un único fichero HTML autocontenido**. Sin instalación, sin cuentas, sin servidor, sin dependencias online: descargas el fichero, lo abres con doble clic en cualquier navegador moderno, y ya tienes tu mesa de juego lista — editor y datos incluidos en el mismo `.html`.
 
 <p align="center">
-  <a link="screenshots/screenshot_01.png" target="new"><img src="screenshots/screenshot_01.png" alt="BG Factory logo" width="800"></a>
+  <img src="screenshots/screenshot_01.png" alt="BG Factory logo" width="800" style="border-radius:12px; border:1px solid #000;">
 </p>
 
 
