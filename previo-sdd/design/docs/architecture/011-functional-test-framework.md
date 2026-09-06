@@ -167,5 +167,6 @@ Exit code `0` = all pass and no traceability anomaly; `1` = any failure or any `
 | `functional/synced-copies.test.js` | 005 (primary), 022 (secondary) | ui — worked example |
 | `functional/carta.test.js` | 022 | state + ui |
 | `functional/context-menu-play.test.js` | 026 | ui — `dispatchContextMenu` + `getOpenContextMenu` over `.context-menu` in `document.body`; `mockRandom` for deterministic `shuffleCartaIds` (FT-026-08) |
+| `functional/edit-context-menu.test.js` | 027 (primary), 034 (secondary) | ui — `dispatchContextMenu` + `getOpenContextMenu`; local `seedMultiSelection` (plain + Ctrl `click` to build a real multi-selection before the right click); asserts `.context-menu__item--disabled` for row-enabling rules and `getComponents()` for effects. [gotcha] `editMode.js`'s `selectedComponentIds` is module state that `resetState()` does not clear — each case uses distinct component ids so the right click always hits the "replace selection" branch |
 
 See also [007 — Development/build flow and persistence](007-persistence-build.md), [008 — Code conventions](008-code-conventions.md).

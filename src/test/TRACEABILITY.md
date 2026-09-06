@@ -34,14 +34,14 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 | 024 — Migración de fichas antiguas a Carta/Ficha | — |
 | 025 — Identificación de componentes al pasar el ratón | — |
 | 026 — Menú contextual de componente en modo juego | FT-026-01, FT-026-02, FT-026-03, FT-026-04, FT-026-05, FT-026-06, FT-026-07, FT-026-08, FT-026-09, FT-026-10, FT-026-11, FT-026-12, FT-026-13, FT-026-14, FT-026-15, FT-026-16, FT-026-17 |
-| 027 — Menú contextual de elemento en modo edición | — |
+| 027 — Menú contextual de elemento en modo edición | FT-027-01, FT-027-02, FT-027-03, FT-027-04, FT-027-05, FT-027-06, FT-027-07, FT-027-08, FT-027-09, FT-027-10, FT-027-11, FT-027-12, FT-027-13, FT-027-14, FT-027-15 |
 | 028 — Atajos de teclado en modo edición | — |
 | 029 — Autoguardado en el navegador | FT-029-01, FT-029-02, FT-029-03, FT-029-04, FT-029-05, FT-029-06, FT-029-07, FT-029-08, FT-029-09 |
 | 030 — Título de cabecera editable | — |
 | 031 — Guardar a fichero | — |
 | 032 — Exportar/importar componentes en JSON, con selección | FT-032-01, FT-032-02, FT-032-03, FT-032-04, FT-032-05, FT-032-06, FT-032-07, FT-032-08, FT-032-09, FT-032-10, FT-032-11 |
 | 033 — Modal de error común a toda la app | — |
-| 034 — Agrupación de elementos: agrupar y desagrupar | — |
+| 034 — Agrupación de elementos: agrupar y desagrupar | FT-027-01 (secundaria), FT-027-02 (secundaria), FT-027-03 (secundaria), FT-027-04 (secundaria), FT-027-05 (secundaria), FT-027-06 (secundaria), FT-027-07 (secundaria), FT-027-08 (secundaria), FT-027-09 (secundaria), FT-027-10 (secundaria), FT-027-11 (secundaria), FT-027-12 (secundaria), FT-027-13 (secundaria), FT-027-14 (secundaria), FT-027-15 (secundaria) |
 | 035 — Título de componente | — |
 | 036 — Contenido de ejemplo al arrancar una partida nueva | FT-036-01, FT-036-02, FT-036-03, FT-036-04, FT-036-05 |
 | 037 — Indicador de versión y enlace al repositorio | — |
@@ -80,12 +80,10 @@ _Ninguna._
 | 023 — Componente "mazo" |
 | 024 — Migración de fichas antiguas a Carta/Ficha |
 | 025 — Identificación de componentes al pasar el ratón |
-| 027 — Menú contextual de elemento en modo edición |
 | 028 — Atajos de teclado en modo edición |
 | 030 — Título de cabecera editable |
 | 031 — Guardar a fichero |
 | 033 — Modal de error común a toda la app |
-| 034 — Agrupación de elementos: agrupar y desagrupar |
 | 035 — Título de componente |
 | 037 — Indicador de versión y enlace al repositorio |
 | 038 — Aplicación multi-idioma y panel de configuración |
