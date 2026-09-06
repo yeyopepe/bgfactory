@@ -13,8 +13,8 @@ Convención de la columna **Estado**: `existe` = ya está en `:root` hoy, se man
 | `--bg-card` | `#f5f5f5` | existe | Fondo de paneles flotantes y tarjetas |
 | `--bg-subtle` | `#f0f0f0` | existe | Fondos neutros en reposo (cabecera de tabla, botón secundario) |
 | `--bg-hover` | `#e8e8e8` | existe | Cualquier hover neutro (fila, botón secundario, tab) |
-| `--bg-surface` | `#ffffff` | nuevo | Superficie blanca de modales y previsualizaciones (sustituye `white`/`#fff`/`#ffffff` sueltos) |
-| `--bg-overlay` | `rgba(0,0,0,0.5)` | nuevo | Velo oscuro tras un modal (sustituye el valor suelto de `.modal-overlay`) |
+| `--bg-surface` | `#ffffff` | nuevo | Superficie blanca de modales y previsualizaciones (sustituye ~9 usos sueltos de `white`/`#fff`/`#ffffff`) |
+| `--bg-overlay` | `rgba(0,0,0,0.5)` | nuevo | Velo oscuro tras un modal (sustituye el único valor suelto de `.modal-overlay`, línea ~509) |
 
 ## 1.2 Acento (azul)
 
@@ -25,7 +25,9 @@ Convención de la columna **Estado**: `existe` = ya está en `:root` hoy, se man
 | `--accent-blue-light` | `#eaf3fc` | existe | Fondo claro para paneles interactivos sin azul sólido |
 | `--accent-blue-alpha-15` | `rgba(44,125,216,0.15)` | nuevo | Anillos de foco y filas seleccionadas |
 | `--accent-blue-alpha-25` | `rgba(44,125,216,0.25)` | nuevo | Bordes de menús flotantes |
-| `--accent-blue-alpha-35` | `rgba(44,125,216,0.35)` | nuevo | Hover elevado en controles |
+| `--accent-blue-alpha-35` | `rgba(44,125,216,0.35)` | nuevo | Hover elevado en controles (incl. `box-shadow: 0 3px 8px rgba(44,125,216,.35)` del hover de botón primario, hoy suelto y citado literalmente en `002-componentes-layout.md`) |
+
+**Opacidad suelta pendiente de decidir (fase técnica):** el código real usa además `rgba(44,125,216,0.2)` en el anillo de foco de un elemento concreto (línea ~1903 de `main.css`). `pv-how` decide si se consolida en `--accent-blue-alpha-15` o `--accent-blue-alpha-25` (diferencia visual mínima) o si merece un cuarto token `--accent-blue-alpha-20`. También hay varias *formas* de sombra sobre este azul (`0 0 0 3px`, `0 2px 6px`, `0 2px 5px`, `0 3px 8px`) que la fase técnica valora si pasan a tokens de sombra semánticos.
 
 ## 1.3 Colores semánticos
 
@@ -33,7 +35,7 @@ Convención de la columna **Estado**: `existe` = ya está en `:root` hoy, se man
 |---|---|---|---|
 | `--error` | `#d32f2f` | existe | Estados de error y acciones destructivas |
 | `--error-subtle` | `rgba(211,47,47,0.08)` | nuevo | Fondo de zonas en error |
-| `--error-alpha` | `rgba(211,47,47,0.35)` | nuevo | Sombra del icono de error (hoy suelta) |
+| `--error-alpha` | `rgba(211,47,47,0.35)` | nuevo | Sombra del icono de error y hover del botón destructivo. Sustituye dos valores sueltos cercanos: `rgba(211,47,47,0.4)` (sombra del icono, línea ~685) y `rgba(211,47,47,0.3)` (`box-shadow: 0 3px 8px rgba(211,47,47,.3)` del hover destructivo, línea ~931, citado literal en `002-componentes-layout.md`). La fase técnica confirma que unificar ambos en 0,35 no cambia perceptiblemente la sombra. |
 | `--success` | `#2e7d32` | existe | Estados de éxito / confirmación positiva |
 | `--success-subtle` | `rgba(46,125,50,0.08)` | nuevo | Fondo de zonas de éxito |
 | `--success-alpha` | `rgba(46,125,50,0.4)` | nuevo | Sombra del icono de éxito (hoy suelta) |

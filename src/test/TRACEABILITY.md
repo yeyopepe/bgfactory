@@ -8,8 +8,8 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 
 | Funcionalidad (design/docs/features/) | Tests |
 |---|---|
-| 001 — Mesa infinita con navegación pan/zoom | — |
-| 002 — Alta/edición/borrado de componentes con modal de tabs | FT-002-01, FT-002-02, FT-002-03, FT-002-04, FT-002-05, FT-002-06, FT-002-07, FT-002-08, FT-002-09, FT-002-10, FT-002-11, FT-002-12 |
+| 001 — Mesa infinita con navegación pan/zoom | FT-001-01, FT-001-02, FT-001-03, FT-001-04, FT-001-05, FT-001-06, FT-001-07, FT-001-08 |
+| 002 — Alta/edición/borrado de componentes con modal de tabs | FT-002-01, FT-002-02, FT-002-03, FT-002-04, FT-002-05, FT-002-06, FT-002-07, FT-002-08, FT-002-09, FT-002-10, FT-002-11, FT-002-12, FT-002-13, FT-002-14, FT-002-15, FT-002-16, FT-002-17, FT-002-18 |
 | 003 — Panel flotante de componentes, con selección, resaltado, arrastre y redimensionado | — |
 | 004 — Ordenación y filtrado desde la cabecera de columna | — |
 | 005 — Elementos tipo Copia, vinculados y sincronizados con un original | FT-005-01, FT-005-02, FT-005-03, FT-005-04, FT-005-05, FT-005-06, FT-005-07, FT-005-08, FT-005-09 |
@@ -22,7 +22,7 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 | 012 — Orden de apilado en la mesa | — |
 | 013 — Subir al mover/interactuar | — |
 | 014 — Interacciones programadas de un componente | — |
-| 015 — Posición independiente, arrastre y redimensionado de componentes | — |
+| 015 — Posición independiente, arrastre y redimensionado de componentes | FT-015-01, FT-015-02, FT-015-03, FT-015-04, FT-015-05, FT-015-06, FT-015-07 |
 | 016 — Componente oculto en modo juego | FT-016-01, FT-016-02, FT-016-04, FT-016-05, FT-016-06 |
 | 017 — Componente "cuadro de texto" | — |
 | 018 — Componente "tablero simple" | — |
@@ -40,14 +40,15 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 | 030 — Título de cabecera editable | FT-030-01, FT-030-02, FT-030-03, FT-030-04, FT-030-05, FT-030-06, FT-030-07, FT-030-08, FT-030-09, FT-029-01 (secundaria), FT-029-02 (secundaria), FT-029-03 (secundaria), FT-029-04 (secundaria), FT-029-05 (secundaria), FT-029-06 (secundaria), FT-029-07 (secundaria), FT-029-08 (secundaria), FT-029-09 (secundaria), FT-032-01 (secundaria), FT-032-02 (secundaria), FT-032-03 (secundaria), FT-032-04 (secundaria), FT-032-05 (secundaria), FT-032-06 (secundaria), FT-032-07 (secundaria), FT-032-08 (secundaria), FT-032-09 (secundaria), FT-032-10 (secundaria), FT-032-11 (secundaria) |
 | 031 — Guardar a fichero | — |
 | 032 — Exportar/importar componentes en JSON, con selección | FT-032-01, FT-032-02, FT-032-03, FT-032-04, FT-032-05, FT-032-06, FT-032-07, FT-032-08, FT-032-09, FT-032-10, FT-032-11 |
-| 033 — Modal de error común a toda la app | — |
+| 033 — Modal de error común a toda la app | FT-033-01, FT-033-02, FT-033-03, FT-033-04, FT-033-05, FT-033-06 |
 | 034 — Agrupación de elementos: agrupar y desagrupar | FT-027-01 (secundaria), FT-027-02 (secundaria), FT-027-03 (secundaria), FT-027-04 (secundaria), FT-027-05 (secundaria), FT-027-06 (secundaria), FT-027-07 (secundaria), FT-027-08 (secundaria), FT-027-09 (secundaria), FT-027-10 (secundaria), FT-027-11 (secundaria), FT-027-12 (secundaria), FT-027-13 (secundaria), FT-027-14 (secundaria), FT-027-15 (secundaria) |
-| 035 — Título de componente | — |
+| 035 — Título de componente | FT-035-01, FT-035-02, FT-035-03, FT-035-04, FT-035-05, FT-035-06 |
 | 036 — Contenido de ejemplo al arrancar una partida nueva | FT-036-01, FT-036-02, FT-036-03, FT-036-04, FT-036-05 |
-| 037 — Indicador de versión y enlace al repositorio | — |
+| 037 — Indicador de versión y enlace al repositorio | FT-037-01, FT-037-02, FT-037-03, FT-037-04, FT-037-05, FT-037-06 |
 | 038 — Aplicación multi-idioma y panel de configuración | — |
 | 039 — Barra de controles superior: modos, importar y exportar | FT-039-01, FT-039-02, FT-039-03, FT-039-04, FT-039-05, FT-039-06, FT-039-07 |
 | 040 — Catálogo de propiedades de componentes, grupos y etiquetas | — |
+| 041 — Pantalla de bienvenida al arrancar la aplicación | — |
 
 ## Anomalías
 
@@ -59,7 +60,6 @@ _Ninguna._
 
 | Funcionalidad |
 |---|
-| 001 — Mesa infinita con navegación pan/zoom |
 | 003 — Panel flotante de componentes, con selección, resaltado, arrastre y redimensionado |
 | 004 — Ordenación y filtrado desde la cabecera de columna |
 | 006 — Panel flotante de recursos, con filtro de texto |
@@ -71,7 +71,6 @@ _Ninguna._
 | 012 — Orden de apilado en la mesa |
 | 013 — Subir al mover/interactuar |
 | 014 — Interacciones programadas de un componente |
-| 015 — Posición independiente, arrastre y redimensionado de componentes |
 | 017 — Componente "cuadro de texto" |
 | 018 — Componente "tablero simple" |
 | 019 — Componente "tablero personalizado" |
@@ -82,8 +81,6 @@ _Ninguna._
 | 025 — Identificación de componentes al pasar el ratón |
 | 028 — Atajos de teclado en modo edición |
 | 031 — Guardar a fichero |
-| 033 — Modal de error común a toda la app |
-| 035 — Título de componente |
-| 037 — Indicador de versión y enlace al repositorio |
 | 038 — Aplicación multi-idioma y panel de configuración |
 | 040 — Catálogo de propiedades de componentes, grupos y etiquetas |
+| 041 — Pantalla de bienvenida al arrancar la aplicación |

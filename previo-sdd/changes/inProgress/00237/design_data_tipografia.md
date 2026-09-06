@@ -2,6 +2,8 @@
 
 Definición funcional de los tokens de tipografía: tamaños de texto, pesos de fuente e interlineado.
 
+Hoy el CSS real tiene **13** valores distintos de `font-size` (los 11 del análisis inicial más `2.25rem` y `0.5em`, que aportó la pantalla de splash añadida después). Ningún paso de la escala queda ya reservado sin uso.
+
 ## 2.1 Tamaños de texto (8 pasos)
 
 | Token | Valor | px aprox. | Estado | Reemplaza / uso funcional |
@@ -12,7 +14,7 @@ Definición funcional de los tokens de tipografía: tamaños de texto, pesos de 
 | `--text-base` | `1rem` | 16px | nuevo | `1rem` — botones de cabecera de paneles |
 | `--text-md` | `1.125rem` | 18px | nuevo | `1.125rem` — títulos de modales, previsualización de tipografía del dado |
 | `--text-lg` | `1.5rem` | 24px | nuevo | `1.5rem` — título de la aplicación (`h1`) |
-| `--text-xl` | `2rem` | 32px | nuevo | Reservado para uso futuro (sin uso actual) |
+| `--text-xl` | `2rem` | 32px | nuevo | `2.25rem` — título de la ventana de la pantalla de splash (`.splash-window__title`), consolidado en 32px |
 | `--text-display` | `4rem` | 64px | nuevo | `4rem` — resultado del dado a pantalla completa |
 
 **Decisión sobre valores intermedios.** No se añaden pasos intermedios. Se consolidan al paso más cercano, aceptando la diferencia visual (1-2px):
@@ -22,8 +24,11 @@ Definición funcional de los tokens de tipografía: tamaños de texto, pesos de 
 | `0.8125rem` (13px) | `--text-xs` (12px) | −1px |
 | `0.9375rem` (15px) | `--text-sm` (14px) | −1px |
 | `0.95rem` (~15,2px, solo en el texto de la ventana de progreso) | `--text-sm` (14px) | ~−1,2px |
+| `2.25rem` (36px, título de la pantalla de splash) | `--text-xl` (32px) | −4px |
 
-Estas tres sustituciones se revisan una a una en la fase técnica.
+Estas cuatro sustituciones se revisan una a una en la fase técnica. El `2.25rem→32px` es la de mayor salto (−4px) — se comprueba en el entregable que el título de la splash sigue leyéndose bien.
+
+**Fuera de la escala:** `font-size: 0.5em` en `.splash-window__title sup` (el superíndice del logo). Es un tamaño **relativo** al texto del contenedor, no un valor absoluto: se mantiene tal cual, no se tokeniza.
 
 ## 2.2 Pesos de fuente (3 pasos)
 

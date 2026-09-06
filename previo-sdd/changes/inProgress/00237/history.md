@@ -317,6 +317,19 @@ Todo color, tamaño o valor fuera del sistema de tokens debe migrarse. Listado d
 
 ---
 
+## 2026-09-06 — re-análisis
+
+`/pv-new 237 revísalo todo de nuevo y enlaza con pv-how`
+
+Sin información funcional nueva: petición de revisar y re-analizar el cambio contra el código actual, y de dejarlo enlazado con la fase técnica (`pv-how`). Verificado `main.css` (3.702 líneas, no ~3.589), `build.py` y las docs de estilo. Ajustes aplicados a `description.md` y a los `design_data_*.md`:
+
+- Incorporada la **pantalla de splash** (añadida después del análisis inicial, commit 6fea680): `2.25rem`→`--text-xl` (32px, el paso deja de estar reservado), `0.5em` del `sup` se mantiene (relativo), `1.75rem`/`2rem` del relleno → `--space-8`, `.splash-window` como consumidor de `--shadow-3` y como sección "07 - modales específicas". El total de tamaños de texto distintos pasa de 11 a 13.
+- Cerrado el mapeo de valores sueltos: añadidas la opacidad `rgba(44,125,216,0.2)` (pendiente de destino en `pv-how`), `rgba(211,47,47,0.3)` del hover destructivo (→ `--error-alpha`, unificada con la de 0,4), `rgba(44,125,216,0.35)` del hover primario (→ `--accent-blue-alpha-35`), las dos notaciones de `#999`, y precisado que `--bg-surface` sustituye ~9 usos y `--bg-overlay` solo 1.
+- Añadido nº de usos aproximado por fila y una lista de sueltos que `pv-how` debe examinar aunque no encajen 1:1 (sombras del azul con forma distinta de `0 0 0 3px`).
+- `description.md` cierra ahora con un apartado explícito "Siguiente paso — `pv-how`".
+
+---
+
 **Aclaraciones dadas por el usuario en esta sesión:**
 
 - Tras la propuesta inicial de análisis, el usuario pidió primero: *"plantea esta cambio sobre mínimos necesarios"* (recorte a solo los tokens imprescindibles para las demás áreas, sin reorganización ni migración exhaustiva).

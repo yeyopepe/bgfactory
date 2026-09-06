@@ -12,10 +12,10 @@ Definición funcional de las escalas de espaciado, esquinas redondeadas (`border
 | `--space-4` | `1rem` | 16px | nuevo | `1rem` (relleno estándar de contenedor; gap holgado) |
 | `--space-5` | `1.25rem` | 20px | nuevo | `1.25rem` |
 | `--space-6` | `1.5rem` | 24px | nuevo | `1.5rem` |
-| `--space-8` | `2rem` | 32px | nuevo | Absorbe `1.75rem` (único uso, en la ventana de progreso) |
+| `--space-8` | `2rem` | 32px | nuevo | `2rem` directo (relleno de la ventana de la pantalla de splash) + absorbe `1.75rem` (28px) |
 | `--space-12` | `3rem` | 48px | nuevo | — |
 
-**Decisión:** `1.75rem` (28px, entre `--space-6` y `--space-8`, un solo uso) se consolida en `--space-8` (32px). Se revisa en la fase técnica.
+**Decisión:** `1.75rem` (28px, entre `--space-6` y `--space-8`) se consolida en `--space-8` (32px). Usos: la ventana de progreso (`padding: 1.75rem 1.5rem`, `padding-left: 1.75rem`) y el relleno de la ventana de la pantalla de splash (`padding: 1.75rem 1.75rem 2rem`, donde el `2rem` ya mapea limpio a `--space-8`). Se revisa en la fase técnica. Nota: `1.75rem` también aparece como `width`/`height` de varios iconos (líneas ~2498, ~2622, ~3228) — esos son dimensiones de icono, no espaciado, y quedan fuera de esta escala.
 
 ## 4. Escala de esquinas redondeadas (6 pasos)
 
@@ -39,7 +39,7 @@ Definición funcional de las escalas de espaciado, esquinas redondeadas (`border
 | `--shadow-0` | `none` | nuevo | Plano — estado de arrastre activo sin sombra |
 | `--shadow-1` | `0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08)` | existe | Flotante sutil — paneles y piezas del tablero en reposo, cabecera, toast |
 | `--shadow-2` | `0 4px 20px rgba(0,0,0,0.15)` | existe | Overlay — modales y tooltips (el nivel más alto actual) |
-| `--shadow-3` | `0 8px 24px rgba(0,0,0,0.18)` | nuevo | Modal grande — editor visual, modales de selección complejos |
+| `--shadow-3` | `0 8px 24px rgba(0,0,0,0.18)` | nuevo | Modal grande — editor visual, modales de selección complejos, ventana de la pantalla de splash (`.splash-window`) |
 | `--shadow-lifted` | `6px 7px 9px 2px rgba(0,0,0,0.35)` | nuevo | Arrastre activo — sustituye el valor suelto del estado "levantado" (`.lifted`) |
 
 ### Sombras de estado
