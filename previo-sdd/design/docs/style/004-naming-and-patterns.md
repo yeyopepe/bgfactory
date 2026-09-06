@@ -61,7 +61,9 @@ See the full form in `src/ui/componentModal.js`.
 - Do not introduce a second color-token system (Tailwind, another palette) — extend `:root` in `main.css`.
 - Do not mix inline `style="color:#..."` for colors in the token catalog (`001-tokens-visual.md`, Design tokens).
 - Do not create single-use classes without BEM unless they fit the `.btn-*` exception.
-- Do not add flashy gradients (beyond the existing subtle header gradient) or complex animations/transitions (`@keyframes`, narrative animations).
+- Do not add flashy gradients or complex animations/transitions (`@keyframes`, narrative animations).
+  - Gradient exceptions (closed list, each explicitly agreed): the subtle header gradient (`h1`); the startup splash window background `.splash-window` (`linear-gradient(135deg, #e3effb 0%, #eef1fb 45%, #f7ecf6 100%)`, change 00245, validated in mockups — `003-modales-menus.md`, "Startup splash / welcome screen"). No new gradient without the same explicit agreement.
+  - Animation: exactly two `@keyframes` in the project, both bounded functional animations (not decorative/narrative): `progress-modal-spin` (in-progress-operation spinner, `003-modales-menus.md`) and `splash-progress-fill` (startup splash 3s time-indicator bar, 00246/00247, `001-tokens-visual.md` Transitions + `003-modales-menus.md`). No third `@keyframes` without an explicit decision.
   - Shadows and radii are allowed: they always follow the elevation system (`001-tokens-visual.md`, Elevation) and the radius scale (`001-tokens-visual.md`, Borders and corners), never an ad-hoc per-component value.
 
 Bevel/depth, rounded-corner and clip-path exceptions for specific component types (`'tableroSimple'`/`'tableroPersonalizado'`/`'dado'` bevel, `'carta'`/`'mazo'` corners and hexagonal/triangular clips, drop-target and flip-feedback states) are cataloged per type in `003-modales-menus.md`; elevation/extrusion detail (including the die roll's flicker/shake and the "Lift" drag effect) lives in `001-tokens-visual.md`.

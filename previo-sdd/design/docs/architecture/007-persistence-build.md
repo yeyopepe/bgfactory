@@ -6,6 +6,8 @@
 
 - **Development**: `src/index.html` (not the deliverable) is opened with a local static server (e.g. VSCode's "Live Server" extension) — native ES modules (`<script type="module">`) do not load correctly via `file://`. This file references the `/src` modules directly.
 - **Build**: `src/scripts/build.py` walks the `import`/`export` graph from `src/main.js`, transforms each module to a small runtime `require`/`module.exports` system (no bundlers or Node.js, only Python), inserts the result together with the CSS of `src/styles/main.css` inside a copy of `src/index.html`. Result: a single self-contained file written to `src/_output/versions/index-v{NNNN}.html` (`NNNN` = `CURRENT_VERSION` of `src/data/version.js`) — the portable deliverable.
+  - Asset inlining: `build.py` (`embed_css_asset_urls` / `embed_html_asset_refs`) inlines as `data:` URIs only assets referenced from `main.css` `url(...)` or from `index.html` `<img>`/`<link>`/`<source>` — NOT assets referenced only from JS. `.webp` is a recognised MIME.
+  - [gotcha] a module needing an image bundled (e.g. `ui/splashScreen.js`, 00245, the 4 `resources/img/bgfactory-logo-color_<n>.webp` splash logos) references it as `background-image: url(../resources/img/…)` in a `main.css` rule and toggles that class from JS — not as an `<img src>` set in JS, which `build.py` would leave as a live `file://`/HTTP path.
 
 ## Persistence and file save
 
@@ -24,6 +26,9 @@
 
 ```
 Startup (main.js):
+  showSplashScreen() [ui/splashScreen.js]  — step 0, before initI18n(). Overlay appended to document.body,
+                                             self-removed after 5s. Independent of state/i18n/mode; does not
+                                             alter any step below. See 006-ui-layer.md, 010-internationalization-i18n.md.
   loadState() [core/persistence.js, localStorage]
     null (key bgfactory:state absent)  → bootFromSeedOrDefaults()                                   — no notice
     { error: 'version-mismatch' }      → bootFromSeedOrDefaults() + showToast('No se ha podido recuperar el estado de una versión anterior; se ha empezado con el contenido por defecto.')

@@ -26,6 +26,7 @@
 - [038 — Aplicación multi-idioma y panel de configuración](038-aplicacion-multi-idioma-y-panel-de-configuracion.md)
 - [039 — Barra de controles superior: modos, importar y exportar](039-barra-de-controles-superior-modos-importar-y-exportar.md)
 - [040 — Catálogo de propiedades de componentes, grupos y etiquetas](040-catalogo-de-propiedades-de-componentes-grupos-y-etiquetas.md)
+- [041 — Pantalla de bienvenida al arrancar la aplicación](041-pantalla-de-bienvenida-al-arrancar-la-aplicacion.md)
 
 ## Notificación de errores
 

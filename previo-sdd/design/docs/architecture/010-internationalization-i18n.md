@@ -45,6 +45,8 @@ t(key: string, params?: object) -> string
 ## Startup flow (`src/main.js`)
 
 ```
+0. showSplashScreen()                    // ui/splashScreen.js — before initI18n(). NOT i18n-aware:
+                                         // title "Board Game Factory" + "(2026)" is a fixed brand string, no t().
 1. initI18n()                            // reads localStorage['bgfactory:lang']
 2.   supported? -> active = stored
      else -> navigator.language startsWith 'es' ? 'es' : 'en'   // NOT written to localStorage

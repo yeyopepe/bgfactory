@@ -4,6 +4,8 @@
 
 Location: `src/test/`. Dev-only. Nothing here enters the deliverable: `src/scripts/build.py` walks imports from `src/main.js` only (`ENTRY_MODULE = 'main.js'`, `visit_module(ENTRY_MODULE)`), and no `src/test/` file is reachable from `src/main.js`. `src/scripts/generate-version.py` unchanged.
 
+> **[importante] Regla de cobertura por cambio.** Todo cambio que **añada** funcionalidad debe añadir los tests funcionales correspondientes (`src/test/functional/*.test.js`, con su `registerFeature` y códigos `FT-<NNN>-<nn>`). Todo cambio que **modifique** funcionalidad debe actualizar los tests existentes para reflejar el nuevo comportamiento. Todo cambio que **elimine** funcionalidad debe borrar los tests que la validaban (y, si procede, sus fixtures). El cambio no se considera completo hasta que `npm test` pasa y `TRACEABILITY.md` queda regenerado sin anomalías.
+
 ## Files and responsibilities
 
 | File | Runtime | Responsibility |

@@ -134,6 +134,30 @@ persistence.startup.rule:                  anchor: src/main.js (bootFromSeedOrDe
     objeto de éxito -> restaurar estado, sin aviso
     [gotcha] el arranque ya no usa showErrorModal; version-mismatch es toast no bloqueante, no modal
 
+splash                                    concepto (00245, 00247).  anchor: src/ui/splashScreen.js#showSplashScreen
+    overlay de bienvenida al arrancar; showSplashScreen() sin params/retorno; SPLASH_DURATION_MS = 3000 (era 5000 hasta 00247), LOGO_COUNT = 4
+    DOM propio (.splash-overlay > .splash-window > logo, título, .splash-window__link, .splash-window__progress), NO reutiliza .modal/.modal-overlay; primera sentencia de main.js, antes de initI18n()
+    logo n = Math.floor(Math.random()*LOGO_COUNT)+1, sin estado de módulo; título "Board Game Factory" + <sup> "(2026)" por textContent, sin t()
+    [gotcha] único elemento interactivo: ui.class.splash-window__link. Su clic NO cierra el overlay (no hay listener); el setTimeout de 3s no se cancela nunca
+    [gotcha] sin listener click/keydown de cierre; overlay sin clase .modal-overlay -> ui/globalShortcuts.js no lo trata (ESC/ENTER no le afectan)
+splash.duration.value = 3000ms            afirmación (00245 -> 00246 -> 00247)
+    debe coincidir con la duración del @keyframes splash-progress-fill de ui.class.splash-window__progress-fill. SPLASH_DURATION_MS (src/ui/splashScreen.js) y esa duración CSS deben ser iguales. Era 5000ms hasta 00247.
+splash.decision.bar-fill-scalex-keyframes   decisión (00245 -> 00246 -> ajuste 00246).  sin ancla
+    la barra se llena con @keyframes splash-progress-fill: transform scaleX(0 -> 1), transform-origin left, 3s linear forwards (era 5s hasta 00247). NO transition, NO animación de width.
+    [motivación] tres intentos: (1) 00245 transition: width disparada por toggle de clase JS tras doble rAF; (2) 00246 @keyframes sobre width. Ambos fallan en el navegador real: showSplashScreen() es la 1ª sentencia de main.js y el bootstrap síncrono (initI18n -> estado -> primer renderAll) bloquea el hilo y difiere el paint del que dependen; la animación llega "consumida". (3) ajuste 00246: @keyframes sobre transform scaleX — se compone en el compositor sin layout y arranca fiable al entrar el elemento en el árbol de render, igual que @keyframes progress-modal-spin.
+    consecuencia: 2ª animación @keyframes del proyecto, junto a @keyframes progress-modal-spin (ui/progressModal.js) — ver 004-naming-and-patterns.md
+    NO condicionada por prefers-reduced-motion: indicador funcional del tiempo restante, mismo criterio que progress-modal-spin
+splash.decision.logo-as-css-background     decisión (00245).  sin ancla
+    [motivación] los 4 logos se referencian como background-image en reglas .splash-window__logo--<n> de main.css, no como <img> en JS — build.py solo incrusta como data URI assets citados desde CSS/HTML (embed_css_asset_urls), no desde JS
+ui.class.splash-window__link              concepto de estilo (00247).  anchor: src/styles/main.css
+    enlace externo del splash; <a href="https://github.com/yeyopepe/bgfactory" target="_blank" rel="noopener"> textContent "View on Github"
+    sigue ui.link + ui.link.external (color: inherit; text-decoration: underline; sin :hover/:visited/:active; cursor pointer); margin-top -0.5rem (compensa gap de .splash-window); font-size 0.875rem
+    [gotcha] texto LITERAL FIJO, NO t() — a diferencia de #app-version a y .settings-modal__repo a, que usan t('appVersion.repoLink'). Coherente con splash (título tampoco usa t()).
+    3er sitio con el literal de URL del repo (junto a src/main.js#renderAppVersion y src/ui/settingsModal.js); no centralizada
+splash.decision.logo-square-box            decisión (00246).  sin ancla
+    .splash-window__logo: aspect-ratio 1/1 (no 4/3) + background-size contain + mask-image radial-gradient(circle at 50% 50%, #000 55%, transparent 78%)
+    [motivación] con caja 4/3 los 4 logos casi-cuadrados (884×876 … 1024×1048) dejaban franjas y la máscara difuminaba el borde de la caja, no el del logo pintado -> recuadro blanco visible. Caja cuadrada: el background llena casi toda la caja y la máscara circular muerde el borde real del logo.
+
 ui.token.accent-blue = #2c7dd8            afirmación de estilo.  anchor: src/styles/main.css
 ui.token.accent-blue-dark = #123a66       afirmación de estilo.
 ui.token.accent-blue-light = #eaf3fc      afirmación de estilo.
@@ -180,6 +204,19 @@ ui.class.mode-switcher__settings-btn      concepto de estilo (00244).  anchor: s
     botón de configuración icono-solo 36×36, esquema "sobre fondo oscuro" (contorno claro, sin fondo azul), a diferencia de .mode-switcher__fit-btn
 ui.class.decision.mode-switcher-both-modes   decisión (00244).  sin ancla
     [motivación] #mode-switcher se puebla en ambos modos (renderModeSwitcher ya no hace early return si !PLAY); #edit-toolbar solo aloja la franja .edit-toolbar con Importar/Exportar; el botón de modo y "Ajustar zoom" viven siempre en #mode-switcher
+ui.class.splash-overlay                    concepto de estilo (00245, 00248).  anchor: src/styles/main.css
+    overlay del splash de arranque; position fixed, inset 0, flex centrado, z-index 1300
+    fondo (00248): fondo de la mesa de juego — background-color var(--bg-table) + background-image radial-gradient(circle, var(--bg-table-dot) 1.5px, transparent 1.5px) + background-size 32px 32px, replicado de .infinite-table (el <body> solo trae var(--bg-table) liso, sin el patrón). Sin capa de atenuación (sigue sin ser el rgba(0,0,0,0.5) de .modal-overlay). Era #ffffff opaco hasta 00248.
+    [gotcha] el patrón de puntos de la mesa está duplicado en .infinite-table y .splash-overlay (no extraído a una utilidad) — si cambia, tocar ambos
+    ver 003-modales-menus.md "Startup splash / welcome screen"
+ui.class.splash-window                     concepto de estilo (00245, revisado 00246).  anchor: src/styles/main.css
+    background linear-gradient(135deg, #e3effb 0%, #eef1fb 45%, #f7ecf6 100%), border-radius var(--radius-lg), box-shadow var(--shadow-2) (elevación nivel 2), overflow hidden; sin header/footer/botones
+    hijos: .splash-window__logo (aspect-ratio 1/1, background-size contain, mask-image radial-gradient(circle at 50% 50%, #000 55%, transparent 78%); variantes --1..--4; ver splash.decision.logo-square-box), .splash-window__title (<p> 2.25rem/700 + <sup>), ui.class.splash-window__link (00247), .splash-window__progress / __progress-fill (este último: animation splash-progress-fill 3s linear forwards, 00247)
+ui.zindex.max = 1300                       afirmación de estilo (00245)
+    .splash-overlay; nuevo máximo del proyecto (antes 1200 en .export-menu). Escala completa en 001-tokens-visual.md "z-index scale"
+ui.motion.reduced.rule:                    afirmación de estilo (00245 -> 00246 -> eliminado en ajuste 00246).  sin ancla
+    el proyecto NO usa prefers-reduced-motion en ningún sitio. Las 2 animaciones (@keyframes progress-modal-spin, @keyframes splash-progress-fill) son indicadores funcionales, corren siempre.
+    un @media (prefers-reduced-motion: reduce) para la barra del splash existió brevemente (00246) y se quitó en la misma sesión
 test                                      concepto (framework de tests funcionales, 00238).  anchor: src/test/run.js
     ver 011-functional-test-framework.md
 test.harness                              concepto.  anchor: src/test/harness.js#run

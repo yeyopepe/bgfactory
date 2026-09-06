@@ -7,7 +7,8 @@
 All colors live as custom properties in `:root`. Never hardcode a color that already has a token — reuse the existing one or add a new one to `:root` if a new reusable tone is needed.
 
 ```css
---bg-table:     #c2c2c2;  /* infinite-table background */
+--bg-table:     #c2c2c2;  /* infinite-table / splash-overlay background base */
+--bg-table-dot: rgba(0, 0, 0, 0.09);  /* dot of the table's dotted pattern (see "Table dotted background" below) */
 --bg-toolbar:   #333333;  /* header and toolbars */
 --bg-card:      #f5f5f5;  /* panels/cards (lists, edit panel) */
 --accent-blue:  #2c7dd8;  /* primary action color (buttons, focus, active tabs) */
@@ -31,6 +32,19 @@ All colors live as custom properties in `:root`. Never hardcode a color that alr
 
 - All neutral grays and reusable shadows/radii are already tokens — no "one-off" colors remain unpromoted.
 - Overlays that are still one-off values (not repeated enough to deserve a token): `rgba(0,0,0,0.5)` (`.modal-overlay` background), `rgba(255,255,255,0.1)` (hover on the dark toolbar).
+
+### Table dotted background
+
+The game table's ground: solid `var(--bg-table)` + a dotted pattern.
+
+| Property | Value |
+|---|---|
+| `background-color` | `var(--bg-table)` |
+| `background-image` | `radial-gradient(circle, var(--bg-table-dot) 1.5px, transparent 1.5px)` |
+| `background-size` | `32px 32px` |
+
+- Used by `.infinite-table` (the game table, adds `background-position: -8px -8px` to align the grid to the table's coordinate origin) and by `.splash-overlay` (00248, no `background-position` — static full-screen overlay; the startup splash shows "over the table"). See `003-modales-menus.md`, "Startup splash / welcome screen".
+- [gotcha] the pattern is duplicated in those two rules, not extracted to a shared utility. `body` only carries `background: var(--bg-table)` — the solid ground, NOT the dots. Change the pattern → update both rules.
 
 ### Color dedicated to the `.modal__section` title
 
@@ -79,7 +93,7 @@ A 3-level elevation system, reusable across the app.
   - `.dice`: uses `filter: drop-shadow(...)` instead of `box-shadow`, so the shadow follows the real silhouette (triangle/square/rhombus/decagon) instead of the container's square box.
   - `.carta--hex` (hexagonal-proportion card): same criterion as `.dice` — non-rectangular silhouette, uses `filter: drop-shadow(...)`.
   - `.text-box` (loose text on the table, no box/background): uses `text-shadow` instead of `box-shadow`, only for readability over any table color.
-- **Level 2 — overlay** (`box-shadow: var(--shadow-2)`): modals (`.modal`) and `.help-icon__tooltip` — the highest level.
+- **Level 2 — overlay** (`box-shadow: var(--shadow-2)`): modals (`.modal`), `.help-icon__tooltip`, `.splash-window` (startup splash, `003-modales-menus.md`) — the highest level.
 - **Optional shadow of `'tableroSimple'`/`'tableroPersonalizado'`**: unlike the rest of the level-1 pieces, their contact shadow can be disabled per component.
   - "Sombra" checkbox in the "Visual" section (`.modal__field--checkbox`, see `003-modales-menus.md` §12.6).
   - `properties.sombra` (boolean, `true` by default).
@@ -95,6 +109,27 @@ A 3-level elevation system, reusable across the app.
 - **Transitions**: interactive elements (buttons, list rows, tabs, selectable items, help icon, form fields) carry `transition: <property> var(--transition-fast)` (150ms) on `:hover`/`:focus` changes — background/border color, `opacity`, `box-shadow`, and on primary/destructive action buttons a slight `transform: translateY(-1px)`.
   - Do not use `:active`.
   - Do not use transitions on the dashed selection outline (`--selectable`/`--selected`) nor on the die's shake/flicker — they are functional state indicators and pure JS, not decoration (see "The die roll's flicker and shake — not a CSS animation" below).
+  - **Startup splash progress bar** (`.splash-window__progress-fill`, `003-modales-menus.md`, changes 00245/00246/00247): `animation: splash-progress-fill 3s linear forwards` (00247, was 5s), keyframes on `transform: scaleX(0 → 1)` — a long-duration functional animation (3s time indicator), not a hover/focus micro-transition. `@keyframes splash-progress-fill` is the **2nd `@keyframes` in the project**, alongside `@keyframes progress-modal-spin`. [gotcha] `width`-based approaches (00245 JS-toggled `transition`, 00246 `@keyframes` on `width`) did not animate in the real browser — `main.js`'s blocking bootstrap defers the paint they rely on; `transform: scaleX` (compositor-only) starts reliably on render-tree entry.
+
+### z-index scale
+
+Highest-to-lowest, for stacking new overlays:
+
+| z-index | Element |
+|---|---|
+| `1300` | `.splash-overlay` (startup splash, `003-modales-menus.md`, 00245) — project maximum |
+| `1200` | `.export-menu` |
+| `1100` | `.toast` |
+| `1050` | `.context-menu`, `.column-header-menu` |
+| `1000` | `.modal-overlay` (all modals, incl. `.progress-modal`) |
+| `101` / `100` / `99` | `#mode-switcher` / `h1` header / `#edit-toolbar` |
+
+- Floating panels (`.component-panel`, `.resource-panel`) get their z-index assigned dynamically in JS (`editMode.js`, `applyPanelStackOrder`), below the modal layer.
+- A new always-on-top overlay goes above `1300`; anything modal-like reuses `1000`.
+
+### Motion-reduction (`prefers-reduced-motion`)
+
+- Not used anywhere in the project. The 2 animations (`progress-modal-spin`, `splash-progress-fill`) are functional indicators (operation-in-progress, time-remaining), not decoration — both run unconditionally. A `@media (prefers-reduced-motion: reduce)` block for the splash bar existed briefly (00246) and was removed in the same session.
 
 ### "Lift" effect on dragging in play mode
 

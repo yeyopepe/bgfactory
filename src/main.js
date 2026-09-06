@@ -16,12 +16,18 @@ import { renderAppTitle } from './ui/appTitle.js';
 import { initGlobalShortcuts } from './ui/globalShortcuts.js';
 import { renderPlayMode } from './modes/play/playMode.js';
 import { renderEditMode, deleteSelectedComponent, moveSelectedComponent } from './modes/edit/editMode.js';
+import { showSplashScreen } from './ui/splashScreen.js';
 import { createResource } from './core/resource.js';
 import { deriveMissingGroups } from './core/group.js';
 import { saveState, loadState, readSeedState } from './core/persistence.js';
 import { showToast } from './ui/toast.js';
 import { syncFontFaces } from './ui/fontFaceRegistry.js';
 import { initI18n, t } from './core/i18n.js';
+
+// Splash lo primero: visible de inmediato, independiente de i18n y del estado.
+// Es un overlay que se añade a document.body y se cierra solo a los 5 s; la app
+// se monta con normalidad por debajo mientras tanto.
+showSplashScreen();
 
 // i18n lo primero: resuelve el idioma activo, fija <html lang> y document.title
 // antes de construir nada de UI ni disparar los toasts de arranque.

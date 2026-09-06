@@ -3586,3 +3586,117 @@ fieldset.modal__section--untitled {
   background: var(--accent-blue);
   color: var(--text-light);
 }
+
+/* Pantalla de bienvenida al arrancar (ui/splashScreen.js). Overlay propio, no
+   reutiliza .modal/.modal-overlay. Se cierra sola (sin cierre manual). */
+.splash-overlay {
+  position: fixed;
+  inset: 0;
+  /* Fondo de la mesa de juego (tapete gris + patrón de puntos) en vez de un
+     fondo opaco: la pantalla de bienvenida se ve "sobre la mesa". Mismos valores
+     que .infinite-table (el <body> solo trae el gris liso, no el patrón); si el
+     patrón de la mesa cambia, actualizar también aquí. Sin capa de atenuación. */
+  background-color: var(--bg-table);
+  background-image: radial-gradient(circle, var(--bg-table-dot) 1.5px, transparent 1.5px);
+  background-size: 32px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  /* Por encima de todo lo demás del proyecto: .export-menu/.toast (1200/1100),
+     .context-menu (1050), .modal-overlay (1000). */
+  z-index: 1300;
+}
+
+.splash-window {
+  position: relative;
+  /* Nominal del área del logo: 800x600 px (4:3). Aquí se limita para caber en
+     viewport; la proporción la mantiene aspect-ratio en __logo. */
+  width: min(90vw, 520px);
+  padding: 1.75rem 1.75rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(135deg, #e3effb 0%, #eef1fb 45%, #f7ecf6 100%);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+  overflow: hidden; /* la barra inferior respeta el border-radius */
+}
+
+.splash-window__logo {
+  width: 100%;
+  /* Caja cuadrada: los 4 logos son casi cuadrados, así background-size: contain
+     llena casi toda la caja y la máscara circular muerde el borde real del
+     logo (no una caja 4:3 con franjas, que dejaba un recuadro blanco visible). */
+  aspect-ratio: 1 / 1;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain; /* imagen entera, sin recorte ni deformación */
+  /* Difuminado de los bordes: el fondo claro propio de los WebP se funde con el
+     degradado de la ventana, sin recuadro visible. */
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 55%, transparent 78%);
+          mask-image: radial-gradient(circle at 50% 50%, #000 55%, transparent 78%);
+}
+
+.splash-window__logo--1 { background-image: url(../resources/img/bgfactory-logo-color_1.webp); }
+.splash-window__logo--2 { background-image: url(../resources/img/bgfactory-logo-color_2.webp); }
+.splash-window__logo--3 { background-image: url(../resources/img/bgfactory-logo-color_3.webp); }
+.splash-window__logo--4 { background-image: url(../resources/img/bgfactory-logo-color_4.webp); }
+
+.splash-window__title {
+  margin: 0;
+  font-size: 2.25rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.splash-window__title sup {
+  font-size: 0.5em;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-left: 0.15em;
+  vertical-align: super;
+}
+
+/* Enlace externo al repo. Patrón de enlace de texto de la app (ver
+   design/docs/style/005-text-links-and-external-links.md): color heredado del
+   contexto + subrayado, sin --accent-blue; se distingue solo por el subrayado.
+   Se centra por el align-items: center de .splash-window; el margin-top negativo
+   compensa parte del gap: 1rem del contenedor para quedar pegado al título. */
+.splash-window__link {
+  margin-top: -0.5rem;
+  font-size: 0.875rem;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.splash-window__progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4px;
+  background: rgba(44, 125, 216, 0.15); /* carril tenue del --accent-blue */
+}
+
+.splash-window__progress-fill {
+  height: 100%;
+  width: 100%;
+  background: var(--accent-blue);
+  transform-origin: left;
+  /* Se llena sola al pintar. Anima transform (compuesto en GPU, no depende de
+     layout ni del timing del bootstrap), mismo criterio que el spinner de
+     .progress-modal. 3s: debe coincidir con SPLASH_DURATION_MS de
+     ui/splashScreen.js. No se desactiva con prefers-reduced-motion: es un
+     indicador funcional del tiempo restante, igual que progress-modal-spin. */
+  animation: splash-progress-fill 3s linear forwards;
+}
+
+@keyframes splash-progress-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}

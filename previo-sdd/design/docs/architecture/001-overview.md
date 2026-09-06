@@ -10,6 +10,11 @@
 - Build does not depend on Node.js or complex build tools: uses Python.
 - Source code organized in separate files/layers inside `/src`.
 - `src/scripts/build.py` transforms the source code into a single versioned file under `src/_output/versions/`.
+- Functional tests live in `src/test/` (dev-only, Node + headless Chromium via Playwright); they never enter the deliverable. See [011 — Functional test framework](011-functional-test-framework.md).
+
+## Test coverage rule
+
+Every change that **adds** a feature must add its functional tests; every change that **modifies** a feature must update them; every change that **removes** a feature must delete the tests (and fixtures) that validated it. A change is not complete until `npm test` passes and `src/test/TRACEABILITY.md` is regenerated with no anomalies. Details in [011 — Functional test framework](011-functional-test-framework.md).
 
 ## Layered architecture
 

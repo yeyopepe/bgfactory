@@ -1,11 +1,18 @@
-# 🎲 BG Factory — A 100% portable board game editor
+<p align="center">
+  <img src="src/resources/img/bgfactory-logo-color_2.jpg" alt="BG Factory logo" width="120">
+</p>
+
+# BG Factory — A 100% portable board game editor
 
 [Versión en español](README.es.md)
 
 **BG Factory** is a visual editor for creating and playing your own digital board games, shipped as **a single self-contained HTML file**. No install, no accounts, no server, no online dependencies: download the file, double-click it in any modern browser, and your game table is ready — editor and data bundled in the same `.html`.
 
 
-> 🖼️ *Screenshot: infinite game table with several components (cards, board, die) — `docs/screenshots/mesa-general.png`*
+<p align="center">
+  <a link="screenshots/screenshot_01.png" target="new"><img src="screenshots/screenshot_01.png" alt="BG Factory logo" width="800"></a>
+</p>
+
 
 ## 🚀 Why BG Factory?
 
