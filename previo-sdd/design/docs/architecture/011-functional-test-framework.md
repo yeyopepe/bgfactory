@@ -124,6 +124,22 @@ One page navigation per test **file** (not per case). Navigation re-instantiates
 
 Exit code `0` = all pass and no traceability anomaly; `1` = any failure or any `NNN` inexistent; `2` = `playwright` not installed.
 
+## Release pipeline gate
+
+`npm test` also runs automatically during release prep, wired as `### Step 1` of the `## In the middle` section of `previo-sdd/stuff/custom-version-pipeline.md` (consumed by `pv-version` step 4.1).
+
+- Runs against the real `src/` tree — the same code just packaged into the deliverable ZIP (`pv-version` step 4 already ran).
+- Order: after the deliverable ZIP + `copy-build-artifacts.py`, before `copy-docs.py` and the changelog (`pv-version` steps 5–6).
+- Exit `2` handling in this context: run `npm run test:setup` once, re-run `npm test` once. Second `2` = environment failure, release stops.
+- Exit `1` = release stops before `copy-docs.py`/changelog. The deliverable ZIP may already exist (built in step 4); `docs/*.zip` and `changelog.md` are not generated. User is pointed at the report path, not shown the failure list, then asked whether to analyze failures.
+- Exit `0` = release continues normally.
+
+| Artifact | Path | Contents |
+|---|---|---|
+| Per-version test report | `previo-sdd/versions/{XXXX}/test-report.md` | Written always (pass or fail). `Versión`, `Fecha` (`YYYY-MM-DD HH:MM`), `Resultado` ∈ {`Correcto`, `Con fallos`}, `Total: N — Correctos: X — Fallidos: Y`. On failure, appends `Tests fallidos:` + the `✗ <file> › <case>` / `esperado:`/`obtenido:` (or `error:`) block copied verbatim from `npm test` stdout. |
+
+- [gotcha] `test-report.md` ≠ `TRACEABILITY.md`. `TRACEABILITY.md` (`src/test/`, versioned) carries no date or run status by design, so its diff only reflects coverage changes. `test-report.md` (`previo-sdd/versions/{XXXX}/`, per release) is a dated per-run execution record — a distinct file, one per prepared version.
+
 ## Decisions
 
 - `test.decision.no-main-js` — the headless page does not load `src/main.js`. `[motivación]` `main.js` bootstrap wires ~18 `eventBus` listeners (`renderAll`/`persistState` on every `*:changed`) and the autosave; per-test explicit mounting (`mountChrome` + `renderEditMode`/`renderPlayMode`) keeps `resetState` deterministic and avoids listener accumulation. A boot/persistence case that genuinely needs the full `main.js` sequence would load it in its own `runner-page` (Playwright reloads per file, so it would not contaminate other files) — not needed by the current batch.

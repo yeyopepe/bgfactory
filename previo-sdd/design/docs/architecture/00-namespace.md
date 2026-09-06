@@ -191,6 +191,12 @@ test.traceability.rule:                   afirmación.  anchor: src/test/traceab
     post: (∃ test con primary|secondary NNN ∧ NNN ∉ features/INDEX.md) ⟹ hasAnomaly ∧ run.js exit = 1
 test.code.rule:                           afirmación (código de test)
     FT-<NNN>-<nn>: NNN = número de ficha design/docs/features/ de la funcionalidad principal; nn = correlativo de 2 dígitos; prefijo del nombre del it
+test.release-gate.rule:                   afirmación (00239).  sin ancla (prosa de previo-sdd/stuff/custom-version-pipeline.md → In the middle → Step 1)
+    npm test corre en pv-version paso 4.1, tras el ZIP del entregable y antes de copy-docs.py/changelog
+    exit 2 ⟹ npm run test:setup + reintento único; segundo exit 2 ⟹ release se detiene
+    exit 1 ⟹ release se detiene antes de docs/changelog (el ZIP del entregable puede ya existir)
+    post: siempre se escribe previo-sdd/versions/{XXXX}/test-report.md (Resultado ∈ {Correcto, Con fallos}, totales; bloque de fallos literal de npm test si los hay)
+    ver 011-functional-test-framework.md
 test.decision.no-main-js                  decisión (00238).  sin ancla
     [motivación] la página headless no carga src/main.js; montaje explícito por test (mountChrome + renderEditMode/renderPlayMode) para que resetState sea determinista y no se acumulen los ~18 listeners del eventBus del bootstrap
 test.decision.page-reload-isolation      decisión (00238).  sin ancla

@@ -5,20 +5,20 @@
 
 ## Full description
 
-Al preparar una versión oficial del proyecto, justo después de determinar el número de esa versión y de crear su carpeta (el primer paso ya existente del proceso), se ejecuta automáticamente toda la batería de tests funcionales del proyecto sobre el código real, tal y como está organizado hoy en el editor (no sobre un entregable ya construido).
+Al preparar una versión oficial del proyecto, una vez determinada su carpeta y generado el ZIP del entregable, se ejecuta automáticamente toda la batería de tests funcionales del proyecto sobre el código real, tal y como está organizado hoy en el editor (no sobre el entregable ya construido). El chequeo se engancha en el punto más temprano del proceso donde ya se dispone del número de versión y de su carpeta para guardar el informe, y antes de generar la documentación técnica/funcional y el changelog de la versión.
 
 - Si el entorno de tests no está preparado (falta instalar el navegador headless necesario para ejecutarlos), se prepara automáticamente y se reintenta la ejecución una vez, sin pedir confirmación.
 - En cualquier caso, pasen o no todos los tests, se guarda dentro de la carpeta de esa versión un fichero de informe con el resultado (ver "Informe de resultado de los tests" más abajo).
 - Si todos los tests pasan, el proceso de preparación de la versión continúa con su flujo normal. No hace falta informar nada especial de este paso salvo que se ejecutó correctamente.
-- Si algún test falla, el proceso se detiene por completo: no se genera el resto de artefactos de esa versión (ni entregable, ni documentación, ni changelog), aunque el fichero de informe sí queda guardado. Se informa al usuario que hay tests fallidos y se le indica la ruta del fichero de informe para consultar el detalle (no se le muestra la lista completa directamente en la conversación). A continuación se pregunta explícitamente si se quieren analizar esos fallos.
+- Si algún test falla, el proceso se detiene: no se genera el resto de artefactos de esa versión (ni documentación técnica/funcional, ni changelog), aunque el ZIP del entregable ya se haya construido en el paso anterior y el fichero de informe sí queda guardado. Se informa al usuario que hay tests fallidos y se le indica la ruta del fichero de informe para consultar el detalle (no se le muestra la lista completa directamente en la conversación). A continuación se pregunta explícitamente si se quieren analizar esos fallos.
   - Si la respuesta es que sí: se indica que cada fallo puede tratarse como una corrección o un cambio del proyecto (por las vías ya existentes para ello), o simplemente comentarse en la conversación. No se dispara ninguna acción automática sobre los fallos. El proceso de preparación de la versión queda detenido en este punto.
   - Si la respuesta es que no: el proceso de preparación de la versión queda detenido, sin generar nada más.
 
-Este chequeo se hace en el punto más temprano posible del proceso en el que ya se conoce el número de la versión, porque los tests siempre se ejecutan contra el código fuente real del proyecto — el mismo que después se usa para construir el entregable — y nada lo modifica entre este chequeo y la generación real. Esto garantiza que se prueba exactamente lo mismo que se va a entregar.
+Los tests siempre se ejecutan contra el código fuente real del proyecto — el mismo que se acaba de usar para construir el entregable — y nada lo modifica entre la construcción del entregable y este chequeo. Esto garantiza que se prueba exactamente lo mismo que se va a entregar. El ZIP del entregable puede quedar construido aunque los tests fallen (el proceso solo se detiene antes de la documentación y el changelog); esa carpeta de versión no se publica si el proceso no termina.
 
 ```mermaid
 flowchart TD
-    A(["El usuario invoca la preparación de una versión oficial"]) --> B["Se determina el número de esa versión y se prepara su carpeta"]
+    A(["El usuario invoca la preparación de una versión oficial"]) --> B["Se determina el número de esa versión, se prepara su carpeta y se genera el ZIP del entregable"]
     B --> C["Se ejecutan todos los tests funcionales del proyecto"]
     C --> D{"¿El entorno de tests está preparado?"}
     D -->|No, falta instalación| E["Se prepara el entorno automáticamente"]
@@ -26,7 +26,7 @@ flowchart TD
     D -->|Sí| F["Se guarda, dentro de la carpeta de esa versión, un informe con el resultado"]
     F --> G{"¿Pasan todos los tests?"}
     G -->|Sí| H(["El proceso de preparación de la versión continúa con normalidad"])
-    G -->|No, hay tests fallidos| I["Se detiene el proceso: no se genera el resto de la versión"]
+    G -->|No, hay tests fallidos| I["Se detiene el proceso: no se genera documentación ni changelog de la versión"]
     I --> J["Se informa que hay fallos y se indica dónde consultar el informe guardado"]
     J --> K{"¿El usuario quiere analizar los fallos?"}
     K -->|Sí| L(["Se indica cómo analizarlos (una corrección u otro cambio); el proceso queda detenido aquí"])
@@ -44,7 +44,7 @@ Ver `design_data_test-report.md` para el detalle de qué datos contiene y un eje
 
 ### Preguntas de alcance resueltas
 
-- **¿En qué punto del proceso se engancha este chequeo?** Justo después de determinar el número de la versión (y crear su carpeta), no antes: en ese momento ya se garantiza que se testea exactamente el mismo código que se va a entregar, y ya existe la carpeta de la versión donde guardar el informe.
+- **¿En qué punto del proceso se engancha este chequeo?** En la sección "In the middle" del custom pipeline de `pv-version`, que corre después de generar el ZIP del entregable y copiarlo a `files/`, y antes de copiar la documentación técnica/funcional y generar el changelog. Es el único hook del pipeline que ya dispone del número de versión y de la carpeta `versions/{XXXX}/` para guardar el informe. Se aceptó que el ZIP del entregable se construya aunque los tests fallen (no hay ningún hook entre "resolver XXXX" y "generar el entregable"); el proceso se detiene igualmente antes de documentación y changelog, y esa carpeta de versión no llega a publicarse.
 - **¿Qué ocurre si el usuario confirma que quiere analizar los fallos?** El proceso de preparación de la versión no dispara ninguna acción automática por su cuenta: se limita a indicar que los fallos pueden analizarse por las vías ya existentes del proyecto para corregir o cambiar comportamiento, o comentarse directamente en la conversación.
 - **¿Qué ocurre si falta el entorno de tests (navegador headless sin instalar)?** Se prepara automáticamente y se reintenta la ejecución una vez, sin pedir confirmación al usuario ni tratarlo como un fallo de tests.
 - **¿Por qué un fichero de informe aparte, en vez de mostrar la lista de fallos directamente en la conversación?** Para que el usuario pueda consultar el detalle completo por su cuenta (y conservarlo junto a la versión), en lugar de que se le tenga que volcar todo el listado como texto en el chat.
