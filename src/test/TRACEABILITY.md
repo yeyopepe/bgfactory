@@ -37,7 +37,7 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 | 027 — Menú contextual de elemento en modo edición | FT-027-01, FT-027-02, FT-027-03, FT-027-04, FT-027-05, FT-027-06, FT-027-07, FT-027-08, FT-027-09, FT-027-10, FT-027-11, FT-027-12, FT-027-13, FT-027-14, FT-027-15 |
 | 028 — Atajos de teclado en modo edición | — |
 | 029 — Autoguardado en el navegador | FT-029-01, FT-029-02, FT-029-03, FT-029-04, FT-029-05, FT-029-06, FT-029-07, FT-029-08, FT-029-09 |
-| 030 — Título de cabecera editable | — |
+| 030 — Título de cabecera editable | FT-030-01, FT-030-02, FT-030-03, FT-030-04, FT-030-05, FT-030-06, FT-030-07, FT-030-08, FT-030-09, FT-029-01 (secundaria), FT-029-02 (secundaria), FT-029-03 (secundaria), FT-029-04 (secundaria), FT-029-05 (secundaria), FT-029-06 (secundaria), FT-029-07 (secundaria), FT-029-08 (secundaria), FT-029-09 (secundaria), FT-032-01 (secundaria), FT-032-02 (secundaria), FT-032-03 (secundaria), FT-032-04 (secundaria), FT-032-05 (secundaria), FT-032-06 (secundaria), FT-032-07 (secundaria), FT-032-08 (secundaria), FT-032-09 (secundaria), FT-032-10 (secundaria), FT-032-11 (secundaria) |
 | 031 — Guardar a fichero | — |
 | 032 — Exportar/importar componentes en JSON, con selección | FT-032-01, FT-032-02, FT-032-03, FT-032-04, FT-032-05, FT-032-06, FT-032-07, FT-032-08, FT-032-09, FT-032-10, FT-032-11 |
 | 033 — Modal de error común a toda la app | — |
@@ -81,7 +81,6 @@ _Ninguna._
 | 024 — Migración de fichas antiguas a Carta/Ficha |
 | 025 — Identificación de componentes al pasar el ratón |
 | 028 — Atajos de teclado en modo edición |
-| 030 — Título de cabecera editable |
 | 031 — Guardar a fichero |
 | 033 — Modal de error común a toda la app |
 | 035 — Título de componente |

@@ -12,7 +12,7 @@ import { mergeImportedGame } from '../../core/importMerge.js';
 import { downloadJson } from '../../core/fileExport.js';
 import { CURRENT_VERSION } from '../../data/version.js';
 
-registerFeature({ primary: 32 });
+registerFeature({ primary: 32, secondary: [30] });
 
 // Atajo para invocar mergeImportedGame con listas vacías por defecto.
 function merge({ mode, conflictMode = 'overwrite', existingComponents = [], existingResources = [], existingTags = [], selectedComponents = [], selectedResources = [], selectedTags = [], allImportedResources = [], allImportedTags = [] }) {

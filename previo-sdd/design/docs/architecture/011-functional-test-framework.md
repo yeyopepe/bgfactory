@@ -58,6 +58,8 @@ mountChrome()                    renderModeSwitcher(#mode-switcher) + renderEdit
                                  [motivación] in production main.js#renderAll mounts these, not renderEditMode/renderPlayMode
 mountEditMode() -> HTMLElement    ensureI18n (idempotent) + setMode(EDIT) + mountChrome() + renderEditMode(#content); returns #content
 mountPlayMode() -> HTMLElement    same, PLAY
+mountAppTitle() -> HTMLElement    ensureI18n (idempotent) + renderAppTitle(#app-title); returns #app-title
+                                 [motivación] production main.js#renderAll repaints #app-title on every *:changed; tests call it explicitly after a state/mode change they want reflected
 loadFixture(name) -> merged       fetch ./fixtures/<name>.json -> parseImportedComponents -> mergeImportedGame(mode:'overwrite') -> loadComponents/Resources/Tags
 mockRandom(seq: number[])         Math.random cycles through seq
 captureDownload()                 patches URL.createObjectURL + HTMLAnchorElement.prototype.click; records { filename, _pending: Promise<parsed> }
@@ -158,6 +160,7 @@ Exit code `0` = all pass and no traceability anomaly; `1` = any failure or any `
 
 | File | Feature | Level |
 |---|---|---|
+| `functional/app-title.test.js` | 030 | state + ui |
 | `functional/component-crud.test.js` | 002 | state |
 | `functional/top-controls.test.js` | 039 | state + ui |
 | `functional/fresh-boot.test.js` | 036 | state |

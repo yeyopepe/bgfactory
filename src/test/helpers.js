@@ -5,6 +5,7 @@
 //   resetState()            deja el estado y el localStorage a cero
 //   mountEditMode()         initI18n() + renderEditMode(#content); devuelve #content
 //   mountPlayMode()         initI18n() + renderPlayMode(#content); devuelve #content
+//   mountAppTitle()         renderAppTitle(#app-title); devuelve #app-title
 //   loadFixture(nombre)     carga src/test/fixtures/<nombre>.json por el mismo
 //                           camino que "Importar"
 //   mockRandom(secuencia)   Math.random determinista (ciclo sobre la secuencia)
@@ -29,6 +30,7 @@ import { mergeImportedGame } from '../core/importMerge.js';
 import { renderEditMode } from '../modes/edit/editMode.js';
 import { renderPlayMode } from '../modes/play/playMode.js';
 import { renderModeSwitcher, renderEditToolbar } from '../ui/editModeToggle.js';
+import { renderAppTitle } from '../ui/appTitle.js';
 
 export { MODES };
 
@@ -84,6 +86,15 @@ export function mountPlayMode() {
   mountChrome();
   renderPlayMode(contentEl());
   return contentEl();
+}
+
+// Pinta el título de cabecera (#app-title) llamando a renderAppTitle, igual que
+// main.js#renderAll en producción tras cada *:changed. Los tests lo llaman a
+// mano después de un cambio de modo o de estado que quieran ver reflejado.
+export function mountAppTitle() {
+  ensureI18n();
+  renderAppTitle(document.getElementById('app-title'));
+  return document.getElementById('app-title');
 }
 
 export async function loadFixture(nombre) {

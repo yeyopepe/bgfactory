@@ -16,7 +16,7 @@ import { saveState, loadState } from '../../core/persistence.js';
 import { DEFAULT_APP_TITLE } from '../../core/appTitle.js';
 import { CURRENT_VERSION } from '../../data/version.js';
 
-registerFeature({ primary: 29 });
+registerFeature({ primary: 29, secondary: [30] });
 
 function persist() {
   saveState(

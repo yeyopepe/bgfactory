@@ -1,0 +1,296 @@
+<!-- Mockup de parte real de la app (sub-modal Cuadro de texto de la carta) con iconos Lucide — cambio 00244 -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuadro de texto — iconos Lucide (00244)</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --accent-blue: #2c7dd8;
+    --accent-blue-light: #eaf3fc;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --error: #d32f2f;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e8e8e8;
+    --border-neutral: #dcdcdc;
+    --section-accent: #5b5f97;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-2: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    background: var(--bg-table);
+  }
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal {
+    background: #fff;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    max-width: 500px;
+    width: 100%;
+    overflow: hidden;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal__header {
+    font-size: 1.125rem;
+    font-weight: 600;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+  .modal__content {
+    padding: 1rem 1.5rem;
+    overflow-y: auto;
+  }
+  .modal__footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .modal__footer .footer-right { display: flex; gap: 0.5rem; }
+
+  .modal__field { margin-bottom: 1rem; }
+  .modal__field > label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.875rem;
+    margin-bottom: 0.35rem;
+  }
+  .modal__field textarea,
+  .modal__field input[type="number"] {
+    width: 100%;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    padding: 0.5rem;
+    font: inherit;
+    font-size: 0.875rem;
+  }
+  .modal__field textarea { resize: vertical; }
+
+  .modal__section {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+  .modal__section-title {
+    color: var(--section-accent);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0 0.35rem;
+    letter-spacing: 0.04em;
+  }
+  .section-row { margin-bottom: 0.85rem; }
+  .section-row:last-child { margin-bottom: 0; }
+  .section-row > label {
+    display: block;
+    font-weight: 500;
+    font-size: 0.8125rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .align-group { display: inline-flex; gap: 0.25rem; }
+  .align-group__btn {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-subtle);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+  .align-group__btn:hover { background: var(--bg-hover); }
+  .align-group__btn.active {
+    background: var(--accent-blue);
+    color: var(--text-light);
+  }
+  .align-group__btn svg { width: 16px; height: 16px; }
+
+  .margins-row { display: flex; gap: 0.5rem; }
+  .margins-row .margin-field { flex: 1; }
+  .margins-row .margin-field .mini-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+    font-weight: 400;
+  }
+
+  .color-field-row { display: flex; align-items: center; gap: 0.6rem; }
+  .color-swatch {
+    width: 40px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-neutral);
+    background: #1a1a1a;
+    flex-shrink: 0;
+  }
+  .color-value {
+    font-family: ui-monospace, monospace;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+  }
+
+  .btn-cancel {
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 1rem;
+    font: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .btn-cancel:hover { background: var(--bg-hover); }
+  .btn-cancel--full { width: 100%; text-align: center; }
+  .btn-accept {
+    background: var(--accent-blue);
+    color: var(--text-light);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 1rem;
+    font: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .btn-eliminar {
+    background: var(--error);
+    color: var(--text-light);
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 0.5rem 1rem;
+    font: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div class="modal-overlay">
+  <div class="modal" role="dialog" aria-label="Cuadro de texto">
+    <div class="modal__header">Cuadro de texto</div>
+    <div class="modal__content">
+
+      <div class="modal__field">
+        <label for="contenido">Contenido</label>
+        <textarea id="contenido" rows="3">Roba 2 cartas y descarta 1.</textarea>
+      </div>
+
+      <div class="modal__field">
+        <label>Tipografía</label>
+        <button class="btn-cancel btn-cancel--full">Tipografía predeterminada</button>
+      </div>
+
+      <fieldset class="modal__section">
+        <legend class="modal__section-title">Posición del texto en el cuadro</legend>
+
+        <div class="section-row">
+          <label>Alineación horizontal</label>
+          <div class="align-group">
+            <button class="align-group__btn active" aria-label="Izquierda" title="Izquierda">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="3" y1="6" y2="6"/><line x1="15" x2="3" y1="12" y2="12"/><line x1="17" x2="3" y1="18" y2="18"/></svg>
+            </button>
+            <button class="align-group__btn" aria-label="Centro" title="Centro">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="3" y1="6" y2="6"/><line x1="17" x2="7" y1="12" y2="12"/><line x1="19" x2="5" y1="18" y2="18"/></svg>
+            </button>
+            <button class="align-group__btn" aria-label="Derecha" title="Derecha">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="3" y1="6" y2="6"/><line x1="21" x2="9" y1="12" y2="12"/><line x1="21" x2="7" y1="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="section-row">
+          <label>Alineación vertical</label>
+          <div class="align-group">
+            <button class="align-group__btn" aria-label="Arriba" title="Arriba">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="6" height="10" x="9" y="12" rx="2"/><path d="M4 6h16"/><path d="m8 8 4-4 4 4"/></svg>
+            </button>
+            <button class="align-group__btn active" aria-label="Centro" title="Centro">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v5"/><path d="M8 14v5a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-5"/><path d="M4 12h16"/></svg>
+            </button>
+            <button class="align-group__btn" aria-label="Abajo" title="Abajo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="6" height="10" x="9" y="2" rx="2"/><path d="M4 18h16"/><path d="m8 16 4 4 4-4"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="section-row">
+          <label>Márgenes</label>
+          <div class="margins-row">
+            <div class="margin-field"><span class="mini-label">Arriba</span><input type="number" value="4" min="0"></div>
+            <div class="margin-field"><span class="mini-label">Derecha</span><input type="number" value="4" min="0"></div>
+            <div class="margin-field"><span class="mini-label">Abajo</span><input type="number" value="4" min="0"></div>
+            <div class="margin-field"><span class="mini-label">Izquierda</span><input type="number" value="4" min="0"></div>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="modal__section">
+        <legend class="modal__section-title">Estilo de texto</legend>
+        <div class="section-row">
+          <label>Formato</label>
+          <div class="align-group">
+            <button class="align-group__btn active" aria-label="Negrita" title="Negrita">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h9a4 4 0 0 1 0 8H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h7a4 4 0 0 1 0 8"/></svg>
+            </button>
+            <button class="align-group__btn" aria-label="Cursiva" title="Cursiva">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" x2="10" y1="4" y2="4"/><line x1="14" x2="5" y1="20" y2="20"/><line x1="15" x2="9" y1="4" y2="20"/></svg>
+            </button>
+            <button class="align-group__btn active" aria-label="Subrayado" title="Subrayado">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v6a6 6 0 0 0 12 0V4"/><line x1="4" x2="20" y1="20" y2="20"/></svg>
+            </button>
+          </div>
+        </div>
+      </fieldset>
+
+      <div class="modal__field">
+        <label for="tam">Tamaño (unidades de diseño)</label>
+        <input id="tam" type="number" value="16">
+      </div>
+
+      <div class="modal__field">
+        <label>Color del texto</label>
+        <div class="color-field-row">
+          <span class="color-swatch" aria-hidden="true"></span>
+          <span class="color-value">#1a1a1a</span>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal__footer">
+      <button class="btn-eliminar">Eliminar</button>
+      <div class="footer-right">
+        <button class="btn-cancel">Cancelar</button>
+        <button class="btn-accept">Aceptar</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
