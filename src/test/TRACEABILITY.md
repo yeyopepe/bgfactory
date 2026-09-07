@@ -10,11 +10,11 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 |---|---|
 | 001 — Mesa infinita con navegación pan/zoom | FT-001-01, FT-001-02, FT-001-03, FT-001-04, FT-001-05, FT-001-06, FT-001-07, FT-001-08 |
 | 002 — Alta/edición/borrado de componentes con modal de tabs | FT-002-01, FT-002-02, FT-002-03, FT-002-04, FT-002-05, FT-002-06, FT-002-07, FT-002-08, FT-002-09, FT-002-10, FT-002-11, FT-002-12, FT-002-13, FT-002-14, FT-002-15, FT-002-16, FT-002-17, FT-002-18 |
-| 003 — Panel flotante de componentes, con selección, resaltado, arrastre y redimensionado | — |
-| 004 — Ordenación y filtrado desde la cabecera de columna | — |
+| 003 — Panel flotante de componentes, con selección, resaltado, arrastre y redimensionado | FT-003-01, FT-003-02, FT-003-03, FT-003-04, FT-003-05, FT-003-06, FT-003-07, FT-003-08, FT-003-09, FT-003-10, FT-003-11, FT-003-12, FT-003-13, FT-003-14, FT-003-15, FT-003-16, FT-003-17, FT-004-01 (secundaria), FT-004-02 (secundaria), FT-004-03 (secundaria), FT-004-04 (secundaria), FT-004-05 (secundaria), FT-004-06 (secundaria), FT-004-07 (secundaria), FT-004-08 (secundaria), FT-004-09 (secundaria), FT-004-10 (secundaria), FT-004-11 (secundaria), FT-004-12 (secundaria) |
+| 004 — Ordenación y filtrado desde la cabecera de columna | FT-004-01, FT-004-02, FT-004-03, FT-004-04, FT-004-05, FT-004-06, FT-004-07, FT-004-08, FT-004-09, FT-004-10, FT-004-11, FT-004-12 |
 | 005 — Elementos tipo Copia, vinculados y sincronizados con un original | FT-005-01, FT-005-02, FT-005-03, FT-005-04, FT-005-05, FT-005-06, FT-005-07, FT-005-08, FT-005-09 |
-| 006 — Panel flotante de recursos, con filtro de texto | — |
-| 007 — Edición de un recurso Imagen, con vista previa ampliada de zoom y pan | — |
+| 006 — Panel flotante de recursos, con filtro de texto | FT-006-01, FT-006-02, FT-006-03, FT-006-04, FT-006-05, FT-006-06, FT-006-07, FT-006-08, FT-006-09, FT-006-10, FT-006-11, FT-006-12, FT-006-13, FT-004-01 (secundaria), FT-004-02 (secundaria), FT-004-03 (secundaria), FT-004-04 (secundaria), FT-004-05 (secundaria), FT-004-06 (secundaria), FT-004-07 (secundaria), FT-004-08 (secundaria), FT-004-09 (secundaria), FT-004-10 (secundaria), FT-004-11 (secundaria), FT-004-12 (secundaria) |
+| 007 — Edición de un recurso Imagen, con vista previa ampliada de zoom y pan | FT-007-01, FT-007-02, FT-007-03, FT-007-04, FT-007-05, FT-007-06, FT-007-07, FT-007-08, FT-007-09, FT-007-10, FT-007-11 |
 | 008 — Etiquetas, organización de elementos por nombre | — |
 | 009 — Subida múltiple y por carpeta de recursos | — |
 | 010 — Conversión automática a WebP al subir imágenes | — |
@@ -25,7 +25,7 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 | 015 — Posición independiente, arrastre y redimensionado de componentes | FT-015-01, FT-015-02, FT-015-03, FT-015-04, FT-015-05, FT-015-06, FT-015-07 |
 | 016 — Componente oculto en modo juego | FT-016-01, FT-016-02, FT-016-04, FT-016-05, FT-016-06 |
 | 017 — Componente "cuadro de texto" | — |
-| 018 — Componente "tablero simple" | — |
+| 018 — Componente "tablero simple" | FT-018-01, FT-018-02, FT-018-03, FT-018-04, FT-018-05, FT-018-06, FT-018-07, FT-018-08, FT-018-09 |
 | 019 — Componente "tablero personalizado" | — |
 | 020 — Componente "dado" | — |
 | 021 — Componente "Visor de documentos" | — |
@@ -60,10 +60,6 @@ _Ninguna._
 
 | Funcionalidad |
 |---|
-| 003 — Panel flotante de componentes, con selección, resaltado, arrastre y redimensionado |
-| 004 — Ordenación y filtrado desde la cabecera de columna |
-| 006 — Panel flotante de recursos, con filtro de texto |
-| 007 — Edición de un recurso Imagen, con vista previa ampliada de zoom y pan |
 | 008 — Etiquetas, organización de elementos por nombre |
 | 009 — Subida múltiple y por carpeta de recursos |
 | 010 — Conversión automática a WebP al subir imágenes |
@@ -72,7 +68,6 @@ _Ninguna._
 | 013 — Subir al mover/interactuar |
 | 014 — Interacciones programadas de un componente |
 | 017 — Componente "cuadro de texto" |
-| 018 — Componente "tablero simple" |
 | 019 — Componente "tablero personalizado" |
 | 020 — Componente "dado" |
 | 021 — Componente "Visor de documentos" |

@@ -9,7 +9,7 @@
 **BG Factory** es un editor visual para crear y jugar tus propios juegos de mesa digitales, que se distribuye como **un único fichero HTML autocontenido**. Sin instalación, sin cuentas, sin servidor, sin dependencias online: descargas el fichero, lo abres con doble clic en cualquier navegador moderno, y ya tienes tu mesa de juego lista — editor y datos incluidos en el mismo `.html`.
 
 <p align="center">
-  <img src="screenshots/screenshot_01.png" alt="BG Factory logo" width="800" style="border-radius:12px; border:1px solid #000;">
+  <img src="screenshots/screenshot_table_1.png" alt="BG Factory logo" width="800" style="border-radius:12px; border:1px solid #000;">
 </p>
 
 
@@ -25,19 +25,18 @@
 
 ### 🖌️ Un editor visual completo
 
-- Mesa de juego infinita, con navegación libre por *pan* y *zoom*.
-- Panel flotante de componentes (arrastrable, colapsable y redimensionable) con listado en tabla: ordena, filtra y busca por texto en cualquier columna con un par de clics.
-- Selección múltiple con Ctrl/Cmd+clic, arrastre en bloque manteniendo distancias relativas, y borrado masivo con confirmación.
+- Mesa de juego infinita, con navegación libre, zoom, paneles de componentes/recursos/etiquetas que permiten ordenar, filtrar y buscar por texto en cualquier columna con un par de clics.
 - **Agrupación de elementos**: agrupa varios componentes en una unidad con sus propias propiedades (bloqueo, visibilidad, tooltip, etiquetas), muévelos y edítalos como uno solo, y desagrúpalos cuando quieras sin perder nada.
 - **Elementos "Copia"**: crea copias vinculadas y sincronizadas con un componente original — cambia el original y todas sus copias se actualizan solas (con opción de desincronizar bloqueo/visibilidad copia a copia).
 - **Etiquetas**: organiza y localiza componentes por nombre; selecciona de un clic todos los elementos con una etiqueta, aunque estén guardados dentro de un mazo.
-- Menús contextuales (clic derecho) específicos por modo y tipo de componente.
 - Atajos de teclado y portapapeles de estilos para copiar/pegar apariencia entre componentes.
 - Control fino del **orden de apilado** (z-index) en la mesa, individual o en bloque para grupos enteros.
-- Efecto de **profundidad/extrusión** configurable (grosor y color) para dar volumen 3D a cualquier pieza.
-- **Título y tooltip por componente**, con variables de texto dinámicas (p. ej. `{cards_current}` para mostrar cuántas cartas quedan en un mazo, siempre actualizado).
+- Un completo editor de cartas y tableros con posibilidad de añadir y configurar imágenes, textos y figuras geométricas.
 
-> 🖼️ *Captura: panel de componentes con filtros, grupo desplegado y menú contextual — `docs/screenshots/panel-componentes.png`*
+
+<p align="center">
+  <img src="screenshots/screenshot_card_editor_1.png" alt="BG Factory logo" width="600" style="border-radius:12px; border:1px solid #000;">
+</p>
 
 ### 🎯 Componentes de juego listos para usar
 
@@ -51,8 +50,7 @@
 - **Interacciones programadas** por componente y por tipo de acción (clic, doble clic, arrastrar, clic derecho): decide qué puede hacer el jugador con cada pieza.
 - Bloqueo de movimiento configurable por componente o grupo (nunca / solo en modo juego / siempre) y opción de ocultar piezas al público en modo juego.
 
-> 🖼️ *Captura: editor visual de una carta con capas de imagen, formas y texto — `docs/screenshots/editor-carta.png`*
-> 🖼️ *Captura: mazo con zona de revelado y modal "Ver contenido" — `docs/screenshots/mazo-cartas.png`*
+
 
 ### 🖼️ Gestión de recursos e imágenes
 
@@ -69,7 +67,6 @@
 - **Modo juego**: interactúa con la partida como jugador — lanza dados, roba y voltea cartas, mueve fichas, consulta tooltips — sin arriesgarte a tocar el diseño ni ver los paneles de edición.
 - Cambio instantáneo entre ambos modos, siempre sobre la misma partida (no hay dos versiones distintas del estado).
 
-> 🖼️ *Captura: comparativa modo edición vs. modo juego de la misma mesa — `docs/screenshots/modo-edicion-vs-juego.png`*
 
 ### 🔄 Import/export flexible
 

@@ -23,20 +23,22 @@ Square element resizable to any proportion, configurable border and background. 
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `bordeColor` | string (hex) | black | Border color, `box-sizing: border-box` |
-| `bordeGrosor` | number, px 1–20 | `2` | Border thickness |
-| `biselado` | boolean | `true` | `true`: border in two tones derived from `bordeColor` (bevel/relief, style exception — see `../style/`). `false`: flat single-color border |
+| `bordeColor` | string (hex) | `#000000` | Border color, `box-sizing: border-box`. Kept in `properties` when `bordeActivo === false` |
+| `bordeGrosor` | number, px 1–20 | `2` | Border thickness. Clamp in `ui/componentModal.js` (`renderBoardSpecificFields`) fires on the `input` event: `parsed = parseInt(value, 10)`; `bordeGrosor = Number.isNaN(parsed) ? 2 : Math.min(Math.max(parsed, 1), 20)`. `'25' → 20`, `'0' → 1`, `'-5' → 1`, non-numeric (`''`, `'abc'`) → `2` (default, not 1) |
+| `bordeActivo` | boolean | `true` | Checkbox "Activar borde". `false`: no border drawn (`border-style: none`); `bordeColor`/`bordeGrosor` kept in `properties` |
+| `biselado` | boolean | `true` | `true`: two-tone bevel — `borderTopColor`/`borderLeftColor` = `shadeColor(bordeColor, +0.35)` (lighter), `borderBottomColor`/`borderRightColor` = `shadeColor(bordeColor, -0.35)` (darker); style exception — see `../style/`. `false`: `board.style.borderColor = bordeColor` (4 sides equal) |
 | `sombra` | boolean | `true` | `true`: contact shadow level 1. `false`: flat, no shadow (class `.board--sin-sombra`) |
-| `fondoTipo` | `'colorPatron' \| 'imagen'` | — | Which background configuration is active. Switching between them does not clear the other's configuration — both blocks coexist in `properties` |
+| `fondoTipo` | `'colorPatron' \| 'imagen' \| 'color'` | — | Which background configuration is active. `'color'` = solid color fill (change 00156). Switching between them does not clear the others' configuration — all three blocks coexist in `properties` |
+| `colorSolido` | string (hex or empty) | `#ffffff` | Solid background color when `fondoTipo === 'color'`. Empty string → `background-color: transparent` (checkbox "transparente" in `ui/boardColorModal.js`) |
 | `patronColor` | string (hex) | — | Grid pattern color |
 | `patronGrosor` | number, px 1–20 | `1` | Pattern line thickness |
-| `patronForma` | `'cuadrada' \| 'hex-vertical' \| 'hex-horizontal'` | — | Cell shape. `'hexagonal'` (legacy value) is interpreted as an alias of `'hex-horizontal'` on render and normalized on re-save |
+| `patronForma` | `'cuadrada' \| 'hex-vertical' \| 'hex-horizontal'` | — | Cell shape. `'hexagonal'` (legacy value) is resolved as an alias of `'hex-horizontal'` **on render only** (`ui/componentRenderer.js`); the stored value is never rewritten (`migrateTableroSimple` only changes `type`, nothing normalizes `patronForma`) |
 | `patronFilas`, `patronColumnas` | number, 1–50 | — | Grid dimensions |
-| `imagenResourceId` | string \| null | `null` | Id of a `'imagen'` resource as background (`background-size: cover`). Does not use `component.image` |
+| `imagenResourceId` | string \| null | `null` | Id of a `'imagen'` resource as background (`background-size: cover`). Missing / nonexistent resource → `background-color: #ffffff` fallback, no `background-image`. Does not use `component.image` |
 
 Pattern rendering: square/rectangular grids use a double CSS `linear-gradient` (`background-size` = cell size, thickness = `patronGrosor`). Hexagonal grids draw an `<svg>` with one polygon per hexagon (`renderHexGrid` of `ui/componentRenderer.js`, parameterized by orientation): `'hex-vertical'` = pointy-top (vertices up/down), `'hex-horizontal'` = flat-top (vertices left/right).
 
-Background configuration is edited in sub-modals `ui/boardPatternModal.js` (color and pattern) and `ui/boardImageModal.js` (image).
+Background configuration is edited in sub-modals `ui/boardPatternModal.js` (color and pattern), `ui/boardImageModal.js` (image) and `ui/boardColorModal.js` (solid color). Each sub-modal's `onAccept` writes only its own keys — that is why switching `fondoTipo` does not destroy the inactive options' config.
 
 ## `'dado'`
 
