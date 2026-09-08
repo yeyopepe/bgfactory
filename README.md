@@ -10,7 +10,7 @@
 
 
 <p align="center">
-  <img src="screenshots/screenshot_01.png" alt="BG Factory logo" width="800" style="border-radius:12px; border:1px solid #000;">
+  <img src="screenshots/screenshot_table_1.png" alt="BG Factory logo" width="800" style="border-radius:12px; border:1px solid #000;">
 </p>
 
 
@@ -38,7 +38,9 @@
 - Configurable **depth/extrusion** effect (thickness and color) to give any piece 3D volume.
 - **Per-component title and tooltip**, with dynamic text variables (e.g. `{cards_current}` to show how many cards are left in a deck, always up to date).
 
-> 🖼️ *Screenshot: components panel with filters, an expanded group and a context menu — `docs/screenshots/panel-componentes.png`*
+<p align="center">
+  <img src="screenshots/screenshot_card_editor_1.png" alt="BG Factory logo" width="600" style="border-radius:12px; border:1px solid #000;">
+</p>
 
 ### 🎯 Ready-to-use game components
 
@@ -52,8 +54,7 @@
 - **Scripted interactions** per component and per action type (click, double-click, drag, right-click): decide what the player can do with each piece.
 - Configurable movement lock per component or group (never / only in play mode / always) and an option to hide pieces from the audience in play mode.
 
-> 🖼️ *Screenshot: visual editor of a card with image layers, shapes and text — `docs/screenshots/editor-carta.png`*
-> 🖼️ *Screenshot: deck with a reveal area and the "View contents" modal — `docs/screenshots/mazo-cartas.png`*
+
 
 ### 🖼️ Asset and image management
 
@@ -70,7 +71,6 @@
 - **Play mode**: interact with the game as a player — roll dice, draw and flip cards, move pieces, check tooltips — without risking a change to the design or seeing the editing panels.
 - Instant switch between the two modes, always on the same game (there are no two separate versions of the state).
 
-> 🖼️ *Screenshot: edit mode vs. play mode of the same table, side by side — `docs/screenshots/modo-edicion-vs-juego.png`*
 
 ### 🔄 Flexible import/export
 
