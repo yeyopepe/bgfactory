@@ -50,7 +50,7 @@
       "docs.functional.language": "Mismo idioma que la interaccion, elegido por el usuario para todo el framework."
     },
     "frameworkStatus": {
-      "lastVerifiedVersion": "0.9.7b1",
+      "lastVerifiedVersion": "0.9.7b2",
       "blocked": false
     }
   }
