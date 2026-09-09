@@ -186,5 +186,8 @@ Exit code `0` = all pass and no traceability anomaly; `1` = any failure or any `
 | `functional/multi-idioma.test.js` | 038 | state + ui |
 | `functional/catalogo-propiedades.test.js` | 040 | state + ui |
 | `functional/orden-apilado.test.js` | 012 | state + ui |
+| `functional/subir-al-interactuar.test.js` | 013 | state + ui — drag/dice roll/card flip/card draw in `mountPlayMode` trigger `reorderComponent(id,1)` when `subirAlMoverInteractuar`; per-type default cases, independence from `bloqueado`, play-mode-only exclusivity, group override. [gotcha] the runner does not load CSS: stacking is checked via the model's `order`, not z-index |
+| `functional/interacciones-programadas.test.js` | 014 (primary), 005 (secondary) | state + ui — `core/interactions.js` (`getInteractionsForType`/`isInteractionActive`); "Interacciones" tab of `openComponentModal` (`<select>` `activa`/`ninguna` + right-click row `ninguno`/`menuContextual`); play-mode effect (no `dice--clickable`/`carta--clickable`, `onContextMenu` does not open the menu); `.context-menu__info` section reflects "Ninguno" (`--none`); `syncCopyWithOriginal` propagates `interaccionesDesactivadas`+`accionClickDerecho` |
+| `functional/visor-documentos.test.js` | 021 | state + ui — `core/markdown.js` (marked v18.0.6, one GFM case) and `core/sanitizeHtml.js` (strips `<script>`, `on*`, `javascript:`); text-branch render (`.document-viewer__content` = `sanitizeHtml(markdownToHtml(...))`) and URL-branch render (`<iframe sandbox>`, `.document-viewer__error` on the `error` event); blank sheet with no warning |
 
 See also [007 — Development/build flow and persistence](007-persistence-build.md), [008 — Code conventions](008-code-conventions.md).

@@ -36,7 +36,6 @@
 
 - [029 — Autoguardado en el navegador](029-autoguardado-en-el-navegador.md)
 - [030 — Título de cabecera editable](030-titulo-de-cabecera-editable.md)
-- [031 — Guardar a fichero](031-guardar-a-fichero.md)
 - [032 — Exportar/importar componentes en JSON, con selección](032-exportar-importar-componentes-en-json-con-seleccion.md)
 - [036 — Contenido de ejemplo al arrancar una partida nueva](036-contenido-de-ejemplo-al-arrancar-una-partida-nueva.md)
 

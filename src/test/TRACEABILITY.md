@@ -12,7 +12,7 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 | 002 — Alta/edición/borrado de componentes con modal de tabs | FT-002-01, FT-002-02, FT-002-03, FT-002-04, FT-002-05, FT-002-06, FT-002-07, FT-002-08, FT-002-09, FT-002-10, FT-002-11, FT-002-12, FT-002-13, FT-002-14, FT-002-15, FT-002-16, FT-002-17, FT-002-18 |
 | 003 — Panel flotante de componentes, con selección, resaltado, arrastre y redimensionado | FT-003-01, FT-003-02, FT-003-03, FT-003-04, FT-003-05, FT-003-06, FT-003-07, FT-003-08, FT-003-09, FT-003-10, FT-003-11, FT-003-12, FT-003-13, FT-003-14, FT-003-15, FT-003-16, FT-003-17, FT-004-01 (secundaria), FT-004-02 (secundaria), FT-004-03 (secundaria), FT-004-04 (secundaria), FT-004-05 (secundaria), FT-004-06 (secundaria), FT-004-07 (secundaria), FT-004-08 (secundaria), FT-004-09 (secundaria), FT-004-10 (secundaria), FT-004-11 (secundaria), FT-004-12 (secundaria) |
 | 004 — Ordenación y filtrado desde la cabecera de columna | FT-004-01, FT-004-02, FT-004-03, FT-004-04, FT-004-05, FT-004-06, FT-004-07, FT-004-08, FT-004-09, FT-004-10, FT-004-11, FT-004-12 |
-| 005 — Elementos tipo Copia, vinculados y sincronizados con un original | FT-005-01, FT-005-02, FT-005-03, FT-005-04, FT-005-05, FT-005-06, FT-005-07, FT-005-08, FT-005-09 |
+| 005 — Elementos tipo Copia, vinculados y sincronizados con un original | FT-005-01, FT-005-02, FT-005-03, FT-005-04, FT-005-05, FT-005-06, FT-005-07, FT-005-08, FT-005-09, FT-014-01 (secundaria), FT-014-02 (secundaria), FT-014-03 (secundaria), FT-014-04 (secundaria), FT-014-05 (secundaria), FT-014-06 (secundaria), FT-014-07 (secundaria), FT-014-08 (secundaria), FT-014-09 (secundaria), FT-014-10 (secundaria), FT-014-11 (secundaria) |
 | 006 — Panel flotante de recursos, con filtro de texto | FT-006-01, FT-006-02, FT-006-03, FT-006-04, FT-006-05, FT-006-06, FT-006-07, FT-006-08, FT-006-09, FT-006-10, FT-006-11, FT-006-12, FT-006-13, FT-004-01 (secundaria), FT-004-02 (secundaria), FT-004-03 (secundaria), FT-004-04 (secundaria), FT-004-05 (secundaria), FT-004-06 (secundaria), FT-004-07 (secundaria), FT-004-08 (secundaria), FT-004-09 (secundaria), FT-004-10 (secundaria), FT-004-11 (secundaria), FT-004-12 (secundaria) |
 | 007 — Edición de un recurso Imagen, con vista previa ampliada de zoom y pan | FT-007-01, FT-007-02, FT-007-03, FT-007-04, FT-007-05, FT-007-06, FT-007-07, FT-007-08, FT-007-09, FT-007-10, FT-007-11 |
 | 008 — Etiquetas, organización de elementos por nombre | — |
@@ -20,15 +20,15 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 | 010 — Conversión automática a WebP al subir imágenes | — |
 | 011 — Búsqueda de imagen en el modal "Elegir imagen" | — |
 | 012 — Orden de apilado en la mesa | FT-012-01, FT-012-02, FT-012-03, FT-012-04, FT-012-05, FT-012-06, FT-012-07, FT-012-08, FT-012-09, FT-012-10, FT-012-11 |
-| 013 — Subir al mover/interactuar | — |
-| 014 — Interacciones programadas de un componente | — |
+| 013 — Subir al mover/interactuar | FT-013-01, FT-013-02, FT-013-03, FT-013-04, FT-013-05, FT-013-06, FT-013-07, FT-013-08, FT-013-09, FT-013-10 |
+| 014 — Interacciones programadas de un componente | FT-014-01, FT-014-02, FT-014-03, FT-014-04, FT-014-05, FT-014-06, FT-014-07, FT-014-08, FT-014-09, FT-014-10, FT-014-11 |
 | 015 — Posición independiente, arrastre y redimensionado de componentes | FT-015-01, FT-015-02, FT-015-03, FT-015-04, FT-015-05, FT-015-06, FT-015-07 |
 | 016 — Componente oculto en modo juego | FT-016-01, FT-016-02, FT-016-04, FT-016-05, FT-016-06 |
 | 017 — Componente "cuadro de texto" | — |
 | 018 — Componente "tablero simple" | FT-018-01, FT-018-02, FT-018-03, FT-018-04, FT-018-05, FT-018-06, FT-018-07, FT-018-08, FT-018-09 |
 | 019 — Componente "tablero personalizado" | FT-019-01, FT-019-02, FT-019-03, FT-019-04, FT-019-05, FT-019-06, FT-019-07, FT-019-08 |
 | 020 — Componente "dado" | FT-020-01, FT-020-02, FT-020-03, FT-020-04, FT-020-05, FT-020-06, FT-020-07, FT-020-08 |
-| 021 — Componente "Visor de documentos" | — |
+| 021 — Componente "Visor de documentos" | FT-021-01, FT-021-02, FT-021-03, FT-021-04, FT-021-05, FT-021-06, FT-021-07, FT-021-08, FT-021-09, FT-021-10, FT-021-11 |
 | 022 — Componente "carta" | FT-022-01, FT-022-02, FT-022-03, FT-022-04, FT-022-05, FT-022-06, FT-022-07, FT-022-08, FT-005-01 (secundaria), FT-005-02 (secundaria), FT-005-03 (secundaria), FT-005-04 (secundaria), FT-005-05 (secundaria), FT-005-06 (secundaria), FT-005-07 (secundaria), FT-005-08 (secundaria), FT-005-09 (secundaria) |
 | 023 — Componente "mazo" | FT-023-01, FT-023-02, FT-023-03, FT-023-04, FT-023-05, FT-023-06, FT-023-07, FT-023-08, FT-023-09, FT-023-10, FT-023-11, FT-023-12, FT-023-13 |
 | 024 — Migración de fichas antiguas a Carta/Ficha | — |
@@ -38,7 +38,6 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 | 028 — Atajos de teclado en modo edición | — |
 | 029 — Autoguardado en el navegador | FT-029-01, FT-029-02, FT-029-03, FT-029-04, FT-029-05, FT-029-06, FT-029-07, FT-029-08, FT-029-09 |
 | 030 — Título de cabecera editable | FT-030-01, FT-030-02, FT-030-03, FT-030-04, FT-030-05, FT-030-06, FT-030-07, FT-030-08, FT-030-09, FT-029-01 (secundaria), FT-029-02 (secundaria), FT-029-03 (secundaria), FT-029-04 (secundaria), FT-029-05 (secundaria), FT-029-06 (secundaria), FT-029-07 (secundaria), FT-029-08 (secundaria), FT-029-09 (secundaria), FT-032-01 (secundaria), FT-032-02 (secundaria), FT-032-03 (secundaria), FT-032-04 (secundaria), FT-032-05 (secundaria), FT-032-06 (secundaria), FT-032-07 (secundaria), FT-032-08 (secundaria), FT-032-09 (secundaria), FT-032-10 (secundaria), FT-032-11 (secundaria) |
-| 031 — Guardar a fichero | — |
 | 032 — Exportar/importar componentes en JSON, con selección | FT-032-01, FT-032-02, FT-032-03, FT-032-04, FT-032-05, FT-032-06, FT-032-07, FT-032-08, FT-032-09, FT-032-10, FT-032-11 |
 | 033 — Modal de error común a toda la app | FT-033-01, FT-033-02, FT-033-03, FT-033-04, FT-033-05, FT-033-06 |
 | 034 — Agrupación de elementos: agrupar y desagrupar | FT-027-01 (secundaria), FT-027-02 (secundaria), FT-027-03 (secundaria), FT-027-04 (secundaria), FT-027-05 (secundaria), FT-027-06 (secundaria), FT-027-07 (secundaria), FT-027-08 (secundaria), FT-027-09 (secundaria), FT-027-10 (secundaria), FT-027-11 (secundaria), FT-027-12 (secundaria), FT-027-13 (secundaria), FT-027-14 (secundaria), FT-027-15 (secundaria) |
@@ -64,11 +63,7 @@ _Ninguna._
 | 009 — Subida múltiple y por carpeta de recursos |
 | 010 — Conversión automática a WebP al subir imágenes |
 | 011 — Búsqueda de imagen en el modal "Elegir imagen" |
-| 013 — Subir al mover/interactuar |
-| 014 — Interacciones programadas de un componente |
 | 017 — Componente "cuadro de texto" |
-| 021 — Componente "Visor de documentos" |
 | 024 — Migración de fichas antiguas a Carta/Ficha |
 | 028 — Atajos de teclado en modo edición |
-| 031 — Guardar a fichero |
 | 041 — Pantalla de bienvenida al arrancar la aplicación |
