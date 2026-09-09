@@ -1,0 +1,140 @@
+{
+  "version": "v00102",
+  "components": [
+    {
+      "id": "mazo-fx",
+      "type": "mazo",
+      "name": "",
+      "properties": {
+        "cartaIds": ["carta-a", "carta-b", "carta-c"],
+        "orientacion": "vertical",
+        "forma": "rectangular",
+        "disposicion": "derecha",
+        "textoCartaRevelada": "Carta revelada",
+        "caraCartaRevelada": "frontal",
+        "imagenResourceId": null
+      },
+      "image": null,
+      "x": 100,
+      "y": 100,
+      "width": 60,
+      "height": 90,
+      "bloqueado": "ninguno",
+      "mostrarTooltip": false,
+      "subirAlMoverInteractuar": true,
+      "order": 3
+    },
+    {
+      "id": "carta-a",
+      "type": "carta",
+      "name": "",
+      "properties": {
+        "proporcion": "5:7",
+        "esquinasRedondeadas": true,
+        "caraActual": "trasera",
+        "medidasReales": true,
+        "caraFrontal": {
+          "imagenResourceId": null,
+          "ajusteImagen": { "zoom": 100, "posX": 50, "posY": 50 },
+          "textBoxes": [],
+          "bordeColor": "#000000",
+          "bordeGrosor": 0,
+          "transparenciaImagen": 0
+        },
+        "caraTrasera": {
+          "imagenResourceId": null,
+          "ajusteImagen": { "zoom": 100, "posX": 50, "posY": 50 },
+          "textBoxes": [],
+          "bordeColor": "#000000",
+          "bordeGrosor": 0,
+          "transparenciaImagen": 0
+        }
+      },
+      "image": null,
+      "x": 200,
+      "y": 200,
+      "width": 60,
+      "height": 84,
+      "bloqueado": "ninguno",
+      "mostrarTooltip": false,
+      "subirAlMoverInteractuar": true,
+      "order": 2
+    },
+    {
+      "id": "carta-b",
+      "type": "carta",
+      "name": "",
+      "properties": {
+        "proporcion": "5:7",
+        "esquinasRedondeadas": true,
+        "caraActual": "trasera",
+        "medidasReales": true,
+        "caraFrontal": {
+          "imagenResourceId": null,
+          "ajusteImagen": { "zoom": 100, "posX": 50, "posY": 50 },
+          "textBoxes": [],
+          "bordeColor": "#000000",
+          "bordeGrosor": 0,
+          "transparenciaImagen": 0
+        },
+        "caraTrasera": {
+          "imagenResourceId": null,
+          "ajusteImagen": { "zoom": 100, "posX": 50, "posY": 50 },
+          "textBoxes": [],
+          "bordeColor": "#000000",
+          "bordeGrosor": 0,
+          "transparenciaImagen": 0
+        }
+      },
+      "image": null,
+      "x": 270,
+      "y": 200,
+      "width": 60,
+      "height": 84,
+      "bloqueado": "ninguno",
+      "mostrarTooltip": false,
+      "subirAlMoverInteractuar": true,
+      "order": 1
+    },
+    {
+      "id": "carta-c",
+      "type": "carta",
+      "name": "",
+      "properties": {
+        "proporcion": "5:7",
+        "esquinasRedondeadas": true,
+        "caraActual": "trasera",
+        "medidasReales": true,
+        "caraFrontal": {
+          "imagenResourceId": null,
+          "ajusteImagen": { "zoom": 100, "posX": 50, "posY": 50 },
+          "textBoxes": [],
+          "bordeColor": "#000000",
+          "bordeGrosor": 0,
+          "transparenciaImagen": 0
+        },
+        "caraTrasera": {
+          "imagenResourceId": null,
+          "ajusteImagen": { "zoom": 100, "posX": 50, "posY": 50 },
+          "textBoxes": [],
+          "bordeColor": "#000000",
+          "bordeGrosor": 0,
+          "transparenciaImagen": 0
+        }
+      },
+      "image": null,
+      "x": 340,
+      "y": 200,
+      "width": 60,
+      "height": 84,
+      "bloqueado": "ninguno",
+      "mostrarTooltip": false,
+      "subirAlMoverInteractuar": true,
+      "order": 0
+    }
+  ],
+  "resources": [],
+  "tags": [],
+  "componentGroups": [],
+  "appTitle": "Mazo con cartas"
+}
