@@ -56,4 +56,3 @@
 - [021 — Componente "Visor de documentos"](021-componente-visor-de-documentos.md)
 - [022 — Componente "carta"](022-componente-carta.md)
 - [023 — Componente "mazo"](023-componente-mazo.md)
-- [024 — Migración de fichas antiguas a Carta/Ficha](024-migracion-de-fichas-antiguas-a-carta-ficha.md)

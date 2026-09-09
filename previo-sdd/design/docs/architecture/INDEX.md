@@ -15,7 +15,7 @@
 
 ## Groups & resources
 
-- [004 — Tags, resources, ficha migration, style clipboard](004-groups-resources.md)
+- [004 — Tags, resources, style clipboard](004-groups-resources.md)
 
 ## Internationalization
 

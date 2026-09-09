@@ -19,7 +19,7 @@ First concrete type. No image background, automatic size by default.
 
 ## `'tableroSimple'`
 
-Square element resizable to any proportion, configurable border and background. `width`/`height` set to `200px` by default (never automatic size). Current type name; saves with the previous name (`'tablero'`) are silently migrated on load (`core/state.js`, `migrateTableroSimple`).
+Square element resizable to any proportion, configurable border and background. `width`/`height` set to `200px` by default (never automatic size). Current type name; the earlier name (`'tablero'`) was migrated on load until 00250 removed all pre-1.0 save migrations — a component created with the current version is already `'tableroSimple'`.
 
 | Property | Type | Default | Description |
 |---|---|---|---|
@@ -32,7 +32,7 @@ Square element resizable to any proportion, configurable border and background. 
 | `colorSolido` | string (hex or empty) | `#ffffff` | Solid background color when `fondoTipo === 'color'`. Empty string → `background-color: transparent` (checkbox "transparente" in `ui/boardColorModal.js`) |
 | `patronColor` | string (hex) | — | Grid pattern color |
 | `patronGrosor` | number, px 1–20 | `1` | Pattern line thickness |
-| `patronForma` | `'cuadrada' \| 'hex-vertical' \| 'hex-horizontal'` | — | Cell shape. `'hexagonal'` (legacy value) is resolved as an alias of `'hex-horizontal'` **on render only** (`ui/componentRenderer.js`); the stored value is never rewritten (`migrateTableroSimple` only changes `type`, nothing normalizes `patronForma`) |
+| `patronForma` | `'cuadrada' \| 'hex-vertical' \| 'hex-horizontal'` | — | Cell shape. `'hexagonal'` (legacy value) is resolved as an alias of `'hex-horizontal'` **on render only** (`ui/componentRenderer.js`); the stored value is never rewritten |
 | `patronFilas`, `patronColumnas` | number, 1–50 | — | Grid dimensions |
 | `imagenResourceId` | string \| null | `null` | Id of a `'imagen'` resource as background (`background-size: cover`). Missing / nonexistent resource → `background-color: #ffffff` fallback, no `background-image`. Does not use `component.image` |
 
@@ -84,7 +84,7 @@ Corners: `border-radius: 8px` for the five rectangular/square proportions, gated
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `proporcion` | see `CARD_PROPORTIONS` below | `'5:7'` | Proportion/shape of the card |
-| `medidasReales` | boolean | `true` (new/migrated) | Internal, not editable: marks whether `caraFrontal`/`caraTrasera` are in real pixels. Only the `core/state.js` migration reads it, to avoid reprocessing |
+| `medidasReales` | boolean | `true` | Internal, not editable: marks whether `caraFrontal`/`caraTrasera` are in real pixels. Always `true` for a card created with the current version; no longer read by any load-time migration (removed in 00250) |
 | `esquinasRedondeadas` | boolean | `true` | Rounded corners (`8px`) or square (`0`). Its control (checkbox in `ui/visualEditorModal.js`) is shown only when the proportion is rectangular/square (`isRectShape`) — circular and hexagonal do not use it. "Copiar/Pegar estilo" includes it alongside `proporcion` |
 | `caraActual` | `'frontal' \| 'trasera'` | `'trasera'` | Face shown. In play mode, click toggles it (`onCartaFlip`), independent of `bloqueado`. Each flip triggers a brief visual feedback (`.carta--flip-feedback`), detected by data diff via a module `Map` `lastCaraById`, not by a click event |
 | `caraFrontal`, `caraTrasera` | object, same shape | — | Design of each face, specific to that card. See shape below |
@@ -107,7 +107,7 @@ Corners: `border-radius: 8px` for the five rectangular/square proportions, gated
 | `fondoTipo` | `'imagen' \| 'color' \| undefined` | — | Absent and `'imagen'` are treated the same (paints `imagenResourceId` if it exists, white otherwise) — unlike `Forma`, where `undefined` is treated as `'color'`. Switching does not clear the inactive one |
 | `colorFondo` | string (hex or empty) | — | Solid background color if `fondoTipo === 'color'` |
 
-Coordinates (`x`/`y`/`width`/`height` of each `Forma`/`TextBox`, `tamañoFuente` of each `TextBox`) are stored in real pixels, fixed regardless of card size — same criterion as `'tableroPersonalizado'`. Cards saved with the previous system (abstract 300px canvas rescaled by a uniform factor) are migrated once on load (`core/state.js`, `migrateCartaMedidasReales`, see `007-persistence-build.md`).
+Coordinates (`x`/`y`/`width`/`height` of each `Forma`/`TextBox`, `tamañoFuente` of each `TextBox`) are stored in real pixels, fixed regardless of card size — same criterion as `'tableroPersonalizado'`. (Cards saved with the earlier "design units" system, an abstract 300px canvas rescaled by a uniform factor, were migrated once on load until 00250 removed all pre-1.0 save migrations; a card created with the current version already stores real pixels.)
 
 **Stacking order within a face**: the background image is always at the bottom, outside any order. `formas` and `textBoxes` share a single mixed stacking order (each element's `orden` field) — any shape can be above or below any text box. `core/cardFaceElements.js` (pure data module) combines both arrays: `getOrderedFaceElements(cara)` returns the list from back to front (in-memory fallback for elements without `orden`, no data migration); `bringElementToFront`/`sendElementToBack` set an element's `orden` above/below all others of its face. Reused by `ui/visualEditorModal.js` and `ui/componentRenderer.js` → `paintCartaFace`.
 
@@ -160,7 +160,7 @@ All `TextBox` fields are optional and unmigrated: absence behaves as the table's
 
 A face with no `imagenResourceId` and no `textBoxes`: the card is shown blank with the configured proportion, no notice.
 
-`core/cardProportions.js` also exposes `CARD_PROPORTIONS`, `getProporcionRatio(value)` (fallback `'2:3'`), `CARD_DESIGN_WIDTH = 300` (historical constant, used only by the `migrateCartaMedidasReales` migration to know the reference width of cards saved with the previous "design units" system).
+`core/cardProportions.js` also exposes `CARD_PROPORTIONS`, `getProporcionRatio(value)` (fallback `'2:3'`), `CARD_DESIGN_WIDTH = 300` (historical constant only: the reference width of the retired "design units" canvas; no live consumer since 00250 removed the card-rescale migration).
 
 ## `'mazo'`
 

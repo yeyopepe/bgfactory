@@ -112,15 +112,17 @@ describe('029 — Autoguardado en el navegador', () => {
     expect(loadState().appTitle).toBe(DEFAULT_APP_TITLE);
   });
 
-  it('FT-029-08 · loadState distingue misma versión / otra versión / corrupto / inexistente', () => {
+  it('FT-029-08 · loadState distingue guardado válido / no restaurable / inexistente', () => {
     localStorage.removeItem('bgfactory:state');
     expect(loadState()).toBeNull();
 
     localStorage.setItem('bgfactory:state', JSON.stringify({ version: CURRENT_VERSION, components: [] }));
     expect(loadState().error).toBeFalsy();
 
+    // Guardado de otra versión: no restaurable, mismo error unificado que
+    // "corrupto" (no hay todavía una versión publicada que migrar).
     localStorage.setItem('bgfactory:state', JSON.stringify({ version: 999999, components: [] }));
-    expect(loadState().error).toBe('version-mismatch');
+    expect(loadState().error).toBe('corrupt');
 
     localStorage.setItem('bgfactory:state', '{ esto no es json');
     expect(loadState().error).toBe('corrupt');

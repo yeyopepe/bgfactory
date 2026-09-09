@@ -2,11 +2,9 @@
 // Cualquier cambio se notifica vía eventBus para que la UI se refresque.
 
 import { emit } from './eventBus.js';
-import { migrateFichaComponent } from './fichaMigration.js';
-import { syncCopyWithOriginal, renameCopyId, updateComponent, normalizeComponentEtiquetaIds } from './component.js';
+import { syncCopyWithOriginal, renameCopyId, updateComponent } from './component.js';
 import { computeSacarCartaDeMazo } from './deck.js';
 import { DEFAULT_APP_TITLE } from './appTitle.js';
-import { CARD_DESIGN_WIDTH } from './cardProportions.js';
 
 export const MODES = { PLAY: 'play', EDIT: 'edit' };
 
@@ -41,19 +39,16 @@ export function setMode(mode) {
   emit('mode:changed', state.mode);
 }
 
-// Reordena `components` por su `order` actual (o por posición en el array si `order`
-// falta o no es un número válido, para migrar guardados anteriores a este campo) y
-// reasigna 1..n de forma contigua, mutando cada componente en el sitio.
+// Reordena `components` por su `order` actual y reasigna 1..n de forma
+// contigua, mutando cada componente en el sitio. Asume que todo componente
+// trae un `order` entero (lo garantizan `createComponent` y el merge de
+// importación); se sigue usando para recompactar tras un borrado
+// (`removeComponent`) o un merge de importación.
 function compactOrders(components) {
-  const withIndex = components.map((component, index) => ({ component, index }));
-  withIndex.sort((a, b) => {
-    const orderA = Number.isInteger(a.component.order) ? a.component.order : a.index + 1;
-    const orderB = Number.isInteger(b.component.order) ? b.component.order : b.index + 1;
-    return orderA - orderB;
-  });
-  withIndex.forEach(({ component }, i) => {
-    component.order = i + 1;
-  });
+  components
+    .slice()
+    .sort((a, b) => a.order - b.order)
+    .forEach((component, i) => { component.order = i + 1; });
 }
 
 export function getComponents() {
@@ -193,129 +188,7 @@ export function sacarCartaDeMazo(mazoId, cartaId) {
   reorderComponent(carta.id, 1);
 }
 
-// Migra en el sitio (sustituyendo cada entrada del array) cualquier
-// componente de tipo 'ficha' (tipo eliminado) a 'carta', best-effort e
-// ignorando siempre los errores de conversión — igual que la migración
-// silenciosa de `order` de más arriba, nunca debe bloquear el arranque.
-function migrateFichas(components) {
-  for (let i = 0; i < components.length; i += 1) {
-    if (components[i].type === 'ficha') {
-      components[i] = migrateFichaComponent(components[i]).component;
-    }
-  }
-}
-
-// Migra en el sitio cualquier componente que todavía tenga el formato
-// antiguo (escalar `grupoId`, o array `grupoIds`) al campo `etiquetaIds`
-// (array, "N etiquetas"), best-effort, mismo criterio que migrateFichas:
-// nunca debe bloquear el arranque. Debe ejecutarse antes que
-// migrateDeckIdToEtiqueta, que ya asume `etiquetaIds` como array.
-function migrateGrupoIdToEtiquetaIds(components) {
-  for (let i = 0; i < components.length; i += 1) {
-    components[i] = normalizeComponentEtiquetaIds(components[i]);
-  }
-}
-
-// Migra en el sitio cualquier componente con `properties.deckId` (campo
-// específico de carta del antiguo "Mazo", ahora "Etiqueta") añadiendo ese id
-// a su `etiquetaIds`, best-effort, mismo criterio que migrateFichas: nunca
-// debe bloquear el arranque.
-function migrateDeckIdToEtiqueta(components) {
-  for (const component of components) {
-    if (component.properties && 'deckId' in component.properties) {
-      const { deckId, ...restProperties } = component.properties;
-      if (!Array.isArray(component.etiquetaIds)) component.etiquetaIds = [];
-      if (deckId != null && !component.etiquetaIds.includes(deckId)) component.etiquetaIds.push(deckId);
-      component.properties = restProperties;
-    }
-  }
-}
-
-// Migra en el sitio el campo `bloqueado` de booleano al campo de 3 valores
-// ('ninguno' | 'juego' | 'todos'): `true` conservaba exactamente el
-// comportamiento de 'juego' (solo restringía Modo Juego, nunca edición),
-// `false` pasa a 'ninguno'. Best-effort, mismo criterio que migrateFichas.
-function migrateBloqueado(components) {
-  for (const component of components) {
-    if (typeof component.bloqueado === 'boolean') {
-      component.bloqueado = component.bloqueado ? 'juego' : 'ninguno';
-    }
-  }
-}
-
-// Migra en el sitio los componentes guardados sin el campo
-// `accionClickDerecho` a `'menuContextual'`, para conservar su comportamiento
-// previo: antes de este campo, el click derecho abría siempre el menú
-// contextual sin ser configurable. Componentes nuevos nacen en `'ninguno'`
-// (ver `core/component.js`, `createComponent`). Best-effort, mismo criterio
-// que migrateFichas.
-function migrateAccionClickDerecho(components) {
-  for (const component of components) {
-    if (component.accionClickDerecho === undefined) {
-      component.accionClickDerecho = 'menuContextual';
-    }
-  }
-}
-
-// Migra en el sitio cualquier componente de tipo 'tablero' (nombre antiguo
-// de 'tableroSimple') a 'tableroSimple', best-effort, mismo criterio que
-// migrateFichas: nunca debe bloquear el arranque.
-function migrateTableroSimple(components) {
-  for (const component of components) {
-    if (component.type === 'tablero') {
-      component.type = 'tableroSimple';
-    }
-  }
-}
-
-// Migra en el sitio el contenido de cualquier 'carta' guardada en el formato
-// antiguo (formas/textBoxes en "unidades de diseño" sobre un lienzo
-// abstracto de CARD_DESIGN_WIDTH px, reescaladas al pintarse) al sistema de
-// píxeles reales (mismo criterio que 'tableroPersonalizado'): multiplica sus
-// coordenadas por el factor de escala que tenían, para que el diseño se vea
-// exactamente igual que antes de migrar. Reproduce a propósito el mismo
-// factor único (basado solo en el ancho) que usaba antes
-// `ui/componentRenderer.js` — no separa X/Y porque el render anterior
-// tampoco lo hacía. Best-effort, mismo criterio que migrateFichas: nunca
-// debe bloquear el arranque. Cartas recién convertidas desde 'ficha'
-// (`migrateFichas`, más arriba) ya nacen con `medidasReales: true` y se
-// saltan sin tocar.
-function migrateCartaMedidasReales(components) {
-  for (const component of components) {
-    if (component.type !== 'carta') continue;
-    const props = component.properties;
-    if (!props || props.medidasReales) continue;
-
-    const factor = component.width > 0 ? component.width / CARD_DESIGN_WIDTH : 1;
-    for (const caraKey of ['caraFrontal', 'caraTrasera']) {
-      const cara = props[caraKey];
-      if (!cara) continue;
-      for (const forma of cara.formas || []) {
-        forma.x *= factor;
-        forma.y *= factor;
-        forma.width *= factor;
-        forma.height *= factor;
-      }
-      for (const textBox of cara.textBoxes || []) {
-        textBox.x *= factor;
-        textBox.y *= factor;
-        textBox.width *= factor;
-        textBox.height *= factor;
-        if (Number.isFinite(textBox.tamañoFuente)) textBox.tamañoFuente *= factor;
-      }
-    }
-    props.medidasReales = true;
-  }
-}
-
 export function loadComponents(components) {
-  migrateFichas(components);
-  migrateCartaMedidasReales(components);
-  migrateGrupoIdToEtiquetaIds(components);
-  migrateDeckIdToEtiqueta(components);
-  migrateBloqueado(components);
-  migrateAccionClickDerecho(components);
-  migrateTableroSimple(components);
   compactOrders(components);
   state.components = components;
   emit('components:changed', state.components);

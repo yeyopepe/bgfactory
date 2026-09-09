@@ -1,4 +1,4 @@
-# 004 — Tags, resources, ficha migration, style clipboard
+# 004 — Tags, resources, style clipboard
 
 **Area**: Groups & resources
 
@@ -23,12 +23,14 @@ Lightweight, independent entity to group/organize elements by name, in its own c
 
 > Catalog of the tag property modal's fields (and the group property modal's): see the functional entry "Catálogo de propiedades de componentes, grupos y etiquetas" (`../features/040-catalogo-de-propiedades-de-componentes-grupos-y-etiquetas.md`).
 
-**Backward compatibility**: `core/persistence.js` (`parseState`/`parseImportedComponents`) reads the `tags`/`tagPanelState` collection through a 3-level fallback chain, so no tags already created in any previous save are lost:
+**Backward compatibility**: the `tags`/`tagPanelState` collection has a 3-level read fallback chain, so no tags created in a file exported by another version are lost:
 
 ```
 tags / tagPanelState  →  groups / groupPanelState  →  decks / deckPanelState
 (current)                 (pre-"Etiquetas" rename)      (pre-"Grupos")
 ```
+
+Since 00250 this chain applies **only to `parseImportedComponents`** (the import path — importing a file from another version is a primary use case). `parseState` (startup from `localStorage`/embedded seed) reads `tags`/`tagPanelState` only; no published version exists yet, so no old-schema save can be in circulation.
 
 ## Group data model
 
@@ -83,7 +85,7 @@ Automatic creation (default values) when the group is formed, automatic removal 
 | `resourceTypeForFileName(fileName)` | See `resource.typeForFileName.rule` in `00-namespace.md`. Infers type by extension, `null` if unsupported: `png/jpg/jpeg/gif/svg/webp` → image, `ttf/otf/woff/woff2` → typeface |
 | `isResourceInUse(resourceId, components)` / `getComponentsUsingResource(resourceId, components)` | See `resource.usage.rule` in `00-namespace.md`. Share a local helper `collectDeepValues(value)` that traverses `component.properties` deeply (not just top level — needed because `'carta'` references resources inside `properties.caraFrontal`/`caraTrasera` and each `textBox`). `isResourceInUse` returns a boolean; `getComponentsUsingResource` returns the list of ids that use it (used by `modes/edit/editMode.js` to identify in the error message which component(s) block deletion) |
 
-`core/state.js` keeps a `resources` collection (`getResources`/`addResource`/`replaceResource`/`removeResource`/`loadResources`, event `resources:changed`) and its own `panelState` (`resourcePanelState`, shape `{ collapsed, position, width, columnWidths }` — `columnWidths`: object `{ [column]: pxNumber }` or `null`, event `resourcePanelState:changed`). It also keeps a `resourcesSeeded` flag (`getResourcesSeeded`/`markResourcesSeeded`/`loadResourcesSeeded`, no own event, persisted alongside the rest) that remembers whether the default resources were already seeded, so they are not restored if the user deletes them.
+`core/state.js` keeps a `resources` collection (`getResources`/`addResource`/`replaceResource`/`removeResource`/`loadResources`, event `resources:changed`) and its own `panelState` (`resourcePanelState`, shape `{ collapsed, position, width, columnWidths }` — `columnWidths`: object `{ [column]: pxNumber }` or `null`, event `resourcePanelState:changed`). It also keeps a `resourcesSeeded` flag (`getResourcesSeeded`/`markResourcesSeeded`/`loadResourcesSeeded`, no own event, persisted alongside the rest) that records whether the default resources were seeded for this save, so they are not restored if the user deletes them.
 
 `data/defaultResources.js` exports `DEFAULT_RESOURCES` (2 entries), any fully new session (no save, no seed) starts with — one per supported resource type, no game-specific content:
 
@@ -92,36 +94,13 @@ Automatic creation (default values) when the group is formed, automatic removal 
 | `example-image` | `imagen` | 512×512 square with background/border/text from `../style/001-tokens-visual.md` tokens (`--accent-blue-light`/`--accent-blue`), WebP format embedded like any image uploaded by the app |
 | `example-font` | `tipografia` | Actor typeface (Google Fonts, OFL) embedded in TTF |
 
-Both carry a fixed, readable `id` instead of a UUID. Seeded in `main.js` (`seedDefaultResources()`) alongside the example text component. A save or seed predating this feature (`resourcesSeeded` absent or `false`) also receives them once, via `backfillDefaultResourcesIfNeeded()` (see `007-persistence-build.md`).
+Both carry a fixed, readable `id` instead of a UUID. Seeded in `main.js` (`seedDefaultResources()`) alongside the example text component, and **only** for a fully new session. Since 00250 there is no retroactive backfill for a save or seed that already carries data — its `resourcesSeeded` flag is hydrated as-is (see `007-persistence-build.md`). The flag still prevents the resources from reappearing after the user deletes them.
 
 On uploading a new image (PNG/JPG/JPEG) from the "Recursos" panel or `ui/resourceModal.js` (replacement), `core/imageConversion.js` (`convertImageToWebP(file, dataUrl)`) automatically converts it to lossy WebP at high quality (`<canvas>` + `toDataURL('image/webp', 0.92)`) before saving, updating `dataUrl`/`fileName`/`mimeType`. WebP, SVG and GIF already uploaded are saved as-is with no reconversion; if conversion fails or is unavailable, the original is saved without blocking or notifying.
 
-## `'ficha'` component migration
+## Retired `'ficha'` type
 
-The `'ficha'` type (square or circle with configurable border/background) has been retired: it can no longer be created. Its visible label ("Carta/Ficha") moved to `'carta'`, which absorbs its use case (`'1:1'` or `'circular'` proportion). `core/fichaMigration.js` (pure module) exposes the `'ficha'` → `'carta'` mapping.
-
-`migrateFichaProperties(fichaProperties, componentSize)` → `{ properties, errors }` (`componentSize`: `{ width, height }` of the `'ficha'` component being converted). Never throws; always returns valid card `properties` (best-effort) plus a list of errors (empty if none):
-
-| `ficha` field | Maps to `'carta'` | Error case |
-|---|---|---|
-| `forma: 'circular'` | `proporcion: 'circular'` | — |
-| `forma: 'cuadrada'` | `proporcion: '1:1'` | — |
-| `forma`, any other value | `proporcion: '1:1'` (fallback) | Yes |
-| `bordeColor`/`bordeGrosor` | Copied as-is to both faces | — |
-| `fondoTipo: 'imagen'` | `imagenResourceId`/`ajusteImagen` copied to both faces | `ajusteImagen` with an invalid shape |
-| `fondoTipo: 'texto'` | `texto` moved as a single `TextBox` filling the whole card in real pixels (`x:0, y:0, width: componentSize.width, height: componentSize.height`) with `colorFondo` equal to the ficha's | — |
-| `fondoTipo: 'color'` or absent | No equivalent — `colorFondo` is lost | No (not counted as an error) |
-
-Resulting `caraFrontal`/`caraTrasera` are always identical (the ficha did not distinguish faces). Resulting `properties` starts with `medidasReales: true` (does not need to go through `migrateCartaMedidasReales`).
-
-`migrateFichaComponent(component)` → `{ component, errors }`: wraps the previous function, sets `type: 'carta'`, `etiquetaIds: []` and `properties.caraActual: 'frontal'` (not `'trasera'`, so the migration is noticeable) in the result; the rest of the general fields are not touched.
-
-Two use points, different criteria for `errors`:
-
-| Use point | File | Treats `errors` |
-|---|---|---|
-| Silent migration on load | `core/state.js`, `loadComponents` → internal `migrateFichas(components)` | Always ignored (best-effort, never blocks startup). Automatically covers the two startup entry points (`localStorage` and the embedded HTML seed) |
-| Explicit import | `ui/editModeToggle.js`, `importComponentsFromFile` (see `007-persistence-build.md`) | The only conversion point that can be interrupted. Each ficha selected for import goes through `migrateFichaComponent` before `mergeImportedGame`; if any returns non-empty `errors`, `ui/importConversionErrorModal.js` (see `006-ui-layer.md`) opens with the list before applying any change. The user chooses "Continuar sin esas fichas" (excluded from `selectedComponents`, the rest proceeds normally) or "Abortar importación" (`mergeImportedGame`, `loadComponents`/`loadResources`/`loadTags` are not called, the current game is left intact) |
+The `'ficha'` type (square or circle with configurable border/background) was retired before 1.0: it can no longer be created, and its visible label ("Carta/Ficha") moved to `'carta'`, which absorbs its use case (`'1:1'` or `'circular'` proportion). Since 00250 there is no conversion code left for it: `core/fichaMigration.js` and its two call points (silent migration in `core/state.js#loadComponents`, and the explicit import path in `ui/editModeToggle.js` with `ui/importConversionErrorModal.js`) were all removed. No published version ever had `'ficha'`, so no save or exported file in circulation carries one.
 
 ## Style clipboard
 

@@ -1,12 +1,12 @@
 // Funcionalidad 018 — Componente "tablero simple".
 //
-// Valida los valores por defecto del modelo, la migración del nombre antiguo
-// ('tablero' → 'tableroSimple'), el dibujo del borde (activo/biselado/plano/
-// desactivado), la sombra, el fondo (color sólido, patrón cuadrado, patrón
-// hexagonal, imagen sin recurso), la coexistencia de la configuración de fondo
-// al alternar `fondoTipo`, el alias legacy `patronForma: 'hexagonal'`, el clamp
-// del grosor de borde en la ventana de configuración y el comportamiento en
-// modo juego (se pinta, no reacciona al clic).
+// Valida los valores por defecto del modelo, el dibujo del borde (activo/
+// biselado/plano/desactivado), la sombra, el fondo (color sólido, patrón
+// cuadrado, patrón hexagonal, imagen sin recurso), la coexistencia de la
+// configuración de fondo al alternar `fondoTipo`, el alias legacy
+// `patronForma: 'hexagonal'` (solo en render), el clamp del grosor de borde en
+// la ventana de configuración y el comportamiento en modo juego (se pinta, no
+// reacciona al clic).
 //
 // [gotcha] aislamiento: `src/modes/edit/editMode.js` mantiene
 // `selectedComponentIds` (y `primarySelectedIds`) como estado de módulo que
@@ -16,7 +16,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, registerFeature } from '../harness.js';
 import { resetState, mountEditMode, mountPlayMode } from '../helpers.js';
-import { getComponents, addComponent, loadComponents } from '../../core/state.js';
+import { getComponents, addComponent } from '../../core/state.js';
 import { createComponent } from '../../core/component.js';
 import { createDefaultComponent } from '../../ui/componentModal.js';
 import { openComponentModal } from '../../ui/componentModal.js';
@@ -66,45 +66,6 @@ describe('018 — Tablero simple', () => {
     expect(Object.keys(bare.properties)).toHaveLength(0);
     expect(bare.width).toBeNull();
     expect(bare.height).toBeNull();
-  });
-
-  it("FT-018-02 · migración del nombre antiguo 'tablero' → 'tableroSimple'", () => {
-    loadComponents([
-      {
-        id: 'brd-legacy',
-        type: 'tablero',
-        name: 'X',
-        properties: { bordeColor: '#123456', bordeGrosor: 7, fondoTipo: 'color', colorSolido: '#abcdef' },
-        x: 10,
-        y: 20,
-        width: 300,
-        height: 150,
-      },
-      {
-        id: 'brd-nuevo',
-        type: 'tableroSimple',
-        properties: { bordeGrosor: 3 },
-        x: 0,
-        y: 0,
-        width: 200,
-        height: 200,
-      },
-    ]);
-
-    const legacy = getComponents().find((c) => c.id === 'brd-legacy');
-    expect(legacy.type).toBe('tableroSimple');
-    expect(legacy.properties.bordeColor).toBe('#123456');
-    expect(legacy.properties.bordeGrosor).toBe(7);
-    expect(legacy.properties.fondoTipo).toBe('color');
-    expect(legacy.properties.colorSolido).toBe('#abcdef');
-    expect(legacy.x).toBe(10);
-    expect(legacy.y).toBe(20);
-    expect(legacy.width).toBe(300);
-    expect(legacy.height).toBe(150);
-
-    const nuevo = getComponents().find((c) => c.id === 'brd-nuevo');
-    expect(nuevo.type).toBe('tableroSimple');
-    expect(nuevo.properties.bordeGrosor).toBe(3);
   });
 
   it('FT-018-03 · dibujo del borde: activo, biselado, plano y desactivado', () => {

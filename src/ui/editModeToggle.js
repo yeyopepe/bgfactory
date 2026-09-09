@@ -14,8 +14,6 @@ import { openExportSelectionModal } from './exportSelectionModal.js';
 import { openImportSelectionModal } from './importSelectionModal.js';
 import { openImportConfirmModal } from './importConfirmModal.js';
 import { openImportReportModal } from './importReportModal.js';
-import { openImportConversionErrorModal } from './importConversionErrorModal.js';
-import { migrateFichaComponent } from '../core/fichaMigration.js';
 import { runWithProgressModal } from './progressModal.js';
 import { t } from '../core/i18n.js';
 import { openSettingsModal } from './settingsModal.js';
@@ -78,18 +76,6 @@ function importComponentsFromFile(file) {
           onAccept: ({ mode, conflictMode }) => {
             const selectedComponents = byIds(result.components, componentIds);
 
-            const migratedSelectedComponents = [];
-            const conversionErrors = [];
-            for (const component of selectedComponents) {
-              if (component.type !== 'ficha') {
-                migratedSelectedComponents.push(component);
-                continue;
-              }
-              const { component: migrated, errors } = migrateFichaComponent(component);
-              migratedSelectedComponents.push(migrated);
-              if (errors.length > 0) conversionErrors.push({ componentId: component.id, errors });
-            }
-
             const proceedWithImport = (components) => {
               runWithProgressModal(t('import.progress'), () => {
                 const { components: mergedComponents, resources, tags, report } = mergeImportedGame({
@@ -124,19 +110,7 @@ function importComponentsFromFile(file) {
               });
             };
 
-            if (conversionErrors.length === 0) {
-              proceedWithImport(migratedSelectedComponents);
-              return;
-            }
-
-            openImportConversionErrorModal({
-              errors: conversionErrors,
-              onContinue: () => {
-                const errorIds = new Set(conversionErrors.map((e) => e.componentId));
-                proceedWithImport(migratedSelectedComponents.filter((c) => !errorIds.has(c.id)));
-              },
-              onAbort: () => {},
-            });
+            proceedWithImport(selectedComponents);
           },
         });
       },

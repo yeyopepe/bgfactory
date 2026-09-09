@@ -136,8 +136,7 @@ export function getTriangleInnerClipPath(proporcionValue, width, height, bordePx
 
 // Ancho de referencia del lienzo de diseño del formato antiguo de carta
 // ("unidades de diseño" reescaladas por un factor uniforme). El contenido de
-// 'carta' ahora se guarda en píxeles reales; esta constante ya no interviene
-// en editor ni render, solo la usa `core/state.js` (migración
-// `migrateCartaMedidasReales`) para el factor de conversión de cartas
-// guardadas con el formato antiguo.
+// 'carta' ahora se guarda siempre en píxeles reales; esta constante ya no
+// interviene en editor, render ni carga de estado — se conserva solo como
+// dato histórico del ancho de ese lienzo.
 export const CARD_DESIGN_WIDTH = 300;

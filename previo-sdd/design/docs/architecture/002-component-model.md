@@ -64,14 +64,14 @@
 | `interaccionesDesactivadas` | string[] | `[]` (all active) | Keys of `core/interactions.js` disabled for this component | "Interacciones" tab (00251), "Interacciones programadas" section: one `<select>` per left-click interaction the `type` has registered |
 | `accionClickDerecho` | `'ninguno' \| 'menuContextual'` | `'ninguno'` | What right-click does in play mode | "Interacciones" tab, fixed row inside "Interacciones programadas" ("Click derecho"), independent of `type` |
 
-Notes on silent migrations on load (`core/state.js`, `loadComponents`), best-effort, non-blocking:
+Notes on default handling of absent fields on load. Since 00250, `core/state.js#loadComponents` runs **no** save migration — it only calls `compactOrders` (which now assumes every component carries an integer `order`) and stores the array. A component created with the current version already has every field below; the pre-1.0 saves these notes used to describe can no longer be in circulation.
 
-- `bloqueado`: saves with the previous boolean are migrated via `migrateBloqueado` (`true` → `'juego'`, `false` → `'ninguno'`).
-- `mostrarTooltip`, `tooltipTexto`, `mostrarTitulo`, `tituloTexto`, `tituloColorTexto`, `tituloColorFondo`, `tituloFondoTransparencia`, `oculto`, `subirAlMoverInteractuar`, `interaccionesDesactivadas`: an absent field behaves as its default (unchecked / `''` / `'#000000'`/`'#ffffff'` / `0` / `[]`), no explicit migration needed.
-- `etiquetaIds`: a component without this field, or with the intermediate `grupoIds` (array) or the earlier scalar `grupoId`, is migrated via `migrateGrupoIdToEtiquetaIds`; cards with an assigned `properties.deckId` automatically add that id via `migrateDeckIdToEtiqueta` (run right after). `core/component.js` exposes the pure conversion as `normalizeComponentEtiquetaIds(component)`, reused by `core/importMerge.js` (`mergeImportedGame`) too so importing a file predating this migration does not fail.
-- `accionClickDerecho`: a component saved without this field is migrated to `'menuContextual'` (`migrateAccionClickDerecho`), to preserve the previous behavior — unlike the rest of this family, the default for a new component (`'ninguno'`) and the migrated value for a pre-existing one (`'menuContextual'`) are deliberately different.
-- `groupId`: an absent field behaves as its default (`null`, no group), no explicit migration needed — same criterion as `mostrarTooltip`/`oculto`/`subirAlMoverInteractuar`.
-- `profundidad`, `colorExtrusion`: an absent field behaves as its default (`0`/`null`, no effect), no explicit migration needed — same criterion as `oculto`/`mostrarTooltip`.
+- `bloqueado`: the current field is `'ninguno' | 'juego' | 'todos'`; `createComponent` sets `'ninguno'`. (The earlier boolean form is no longer converted.)
+- `mostrarTooltip`, `tooltipTexto`, `mostrarTitulo`, `tituloTexto`, `tituloColorTexto`, `tituloColorFondo`, `tituloFondoTransparencia`, `oculto`, `subirAlMoverInteractuar`, `interaccionesDesactivadas`: `createComponent` sets each (unchecked / `''` / `'#000000'`/`'#ffffff'` / `0` / `[]`).
+- `etiquetaIds`: `createComponent` sets `[]`. `core/component.js` still exposes `normalizeComponentEtiquetaIds(component)` (accepts `grupoIds` array, scalar `grupoId`, or absence), used by `core/importMerge.js` (`mergeImportedGame`) so importing a file exported by an older version still normalizes its components. (The earlier `grupoId`/`grupoIds`/`properties.deckId` forms are no longer converted on startup.)
+- `accionClickDerecho`: `createComponent` sets `'ninguno'` for a new component. (A save without the field is no longer migrated to `'menuContextual'`.)
+- `groupId`: `createComponent` sets `null` (no group).
+- `profundidad`, `colorExtrusion`: `createComponent` sets `0`/`null` (no effect).
 
 `core/component.js` exposes `createComponent()`/`updateComponent()` as the only way to build/modify components. `createComponent()` initializes `x`/`y` to `0`; `width`/`height` to `null`. It also exposes `cloneComponent(component, components)` and `nextCloneId(baseComponentId, components)`:
 

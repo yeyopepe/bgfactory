@@ -138,8 +138,8 @@ function seedDefaultResources() {
 }
 
 // Arranque de reserva: semilla embebida si la hay, si no recursos por defecto.
-// Mismo camino para "no hay nada guardado", "estado de otra versión" y
-// "estado corrupto".
+// Mismo camino para "no hay nada guardado" y "estado guardado no restaurable"
+// (JSON corrupto, sin componentes, o de otra versión — todos unificados).
 function bootFromSeedOrDefaults() {
   const seed = readSeedState();
   if (seed) {
@@ -150,25 +150,22 @@ function bootFromSeedOrDefaults() {
     loadResources(seed.resources);
     loadTags(seed.tags ?? []);
     loadGroups(deriveMissingGroups(getComponents(), seed.componentGroups ?? []));
-    if (!getResourcesSeeded()) {
-      seedDefaultResources();
-    }
   } else {
     seedDefaultResources();
   }
 }
 
-// Guardado/semilla sin `resourcesSeeded` (o en false): se rellena una vez con
-// los recursos por defecto; a partir de ahí son normales (si se borran, no vuelven).
+// Solo una sesión totalmente nueva (sin guardado y sin semilla) siembra los
+// recursos de ejemplo. Un guardado o una semilla que ya traen datos NO reciben
+// esa siembra, ni siquiera si su `resourcesSeeded` no es `true`.
 // Hidratar el flag ANTES de loadComponents()/loadResources(): esas dos emiten
 // components:changed/resources:changed y disparan autoguardado síncrono, que
 // persistiría `false` si el flag no está hidratado ya.
 
 const saved = loadState();
-if (saved?.error === 'version-mismatch') {
-  bootFromSeedOrDefaults();
-  showToast(t('toast.stateRecoverFailedVersion'));
-} else if (saved?.error === 'corrupt') {
+if (saved?.error === 'corrupt') {
+  // `parseState` devuelve `{ error: 'corrupt' }` para cualquier guardado no
+  // restaurable: JSON ilegible, sin array `components`, o de otra versión.
   bootFromSeedOrDefaults();
   showToast(t('toast.stateRecoverFailedCorrupt'));
 } else if (saved) {
@@ -191,9 +188,6 @@ if (saved?.error === 'version-mismatch') {
   // (`componentGroups` ausente) derivan una entrada por defecto por cada
   // `groupId` ya presente en los componentes.
   loadGroups(deriveMissingGroups(getComponents(), saved.componentGroups ?? []));
-  if (!getResourcesSeeded()) {
-    seedDefaultResources();
-  }
 } else {
   bootFromSeedOrDefaults();
 }

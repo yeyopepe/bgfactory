@@ -121,18 +121,17 @@ panelState.expandedGroupIds: string[]     concepto.  anchor: src/core/state.js (
 persistence.serializedFields.rule:        anchor: src/core/persistence.js (saveState/parseState)
     autosave serializa exactamente esa lista a localStorage; una colección/campo nuevo debe añadirse ahí y en la suscripción de autosave (007-persistence-build.md)
     [gotcha] core/fileExport.js NO participa en esta lista (solo expone downloadJson, un helper genérico) — corrección S2, el borrador original citaba fileExport.js como coautor de la serialización
-persistence.parseState.result: enum ∈ {success-object, {error: 'corrupt'}, {error: 'version-mismatch'}}   afirmación.  anchor: src/core/persistence.js#parseState
+persistence.parseState.result: enum ∈ {success-object, {error: 'corrupt'}}   afirmación.  anchor: src/core/persistence.js#parseState
 persistence.parseState.result.rule:       anchor: src/core/persistence.js (parseState)
     JSON.parse lanza -> {error: 'corrupt'}
-    parsed objeto ∧ parsed.version != CURRENT_VERSION -> {error: 'version-mismatch'} (antes del chequeo de components)
+    parsed objeto ∧ parsed.version != CURRENT_VERSION -> {error: 'corrupt'} (antes del chequeo de components; el chequeo de versión se mantiene, solo se unifica su desenlace — 00250)
     parsed falsy ∨ !Array.isArray(parsed.components), con version correcta -> {error: 'corrupt'}
     resto -> objeto de éxito sin campo error
 persistence.startup.rule:                  anchor: src/main.js (bootFromSeedOrDefaults + bloque de arranque)
     loadState() null -> bootFromSeedOrDefaults(), sin aviso
-    {error: 'version-mismatch'} -> bootFromSeedOrDefaults() + showToast('...estado de una versión anterior...')
-    {error: 'corrupt'} -> bootFromSeedOrDefaults() + showToast('No se ha podido recuperar el estado guardado.')
+    {error: 'corrupt'} -> bootFromSeedOrDefaults() + showToast('No se ha podido recuperar el estado guardado.')  (cualquier guardado no restaurable: JSON ilegible, sin components, o de otra versión)
     objeto de éxito -> restaurar estado, sin aviso
-    [gotcha] el arranque ya no usa showErrorModal; version-mismatch es toast no bloqueante, no modal
+    [gotcha] el arranque ya no usa showErrorModal; un guardado no restaurable es toast no bloqueante, no modal
 
 splash                                    concepto (00245, 00247).  anchor: src/ui/splashScreen.js#showSplashScreen
     overlay de bienvenida al arrancar; showSplashScreen() sin params/retorno; SPLASH_DURATION_MS = 3000 (era 5000 hasta 00247), LOGO_COUNT = 4

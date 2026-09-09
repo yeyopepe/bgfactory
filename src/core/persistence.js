@@ -15,26 +15,22 @@ function parseState(raw) {
   } catch {
     return { error: 'corrupt' };
   }
-  // Objeto legible pero de otra versión de la app: no es un fallo, es lo
-  // esperable al estrenar versión. Se distingue de "corrupto" para que el
-  // arranque avise con un texto distinto (o silencie el modal por completo).
+  // Objeto legible pero de otra versión de la app: al no haber todavía una
+  // versión publicada, se trata como un guardado no restaurable más, sin
+  // aviso ni rama propios.
   if (parsed && parsed.version !== CURRENT_VERSION) {
-    return { error: 'version-mismatch' };
+    return { error: 'corrupt' };
   }
   if (!parsed || !Array.isArray(parsed.components)) {
     return { error: 'corrupt' };
   }
   const panelState = (parsed.panelState && typeof parsed.panelState === 'object') ? parsed.panelState : null;
   const resourcePanelState = (parsed.resourcePanelState && typeof parsed.resourcePanelState === 'object') ? parsed.resourcePanelState : null;
-  // Compatibilidad hacia atrás ("Mazo" → "Grupo" → "Etiqueta"): guardados
-  // antiguos tienen estas dos colecciones bajo las claves `deckPanelState`/
-  // `groupPanelState` o `decks`/`groups` — se siguen leyendo si las nuevas
-  // no están presentes.
-  const tagPanelStateRaw = parsed.tagPanelState ?? parsed.groupPanelState ?? parsed.deckPanelState;
+  const tagPanelStateRaw = parsed.tagPanelState;
   const tagPanelState = (tagPanelStateRaw && typeof tagPanelStateRaw === 'object') ? tagPanelStateRaw : null;
   const resources = Array.isArray(parsed.resources) ? parsed.resources : [];
   const resourcesSeeded = parsed.resourcesSeeded === true;
-  const tags = Array.isArray(parsed.tags) ? parsed.tags : (Array.isArray(parsed.groups) ? parsed.groups : (Array.isArray(parsed.decks) ? parsed.decks : []));
+  const tags = Array.isArray(parsed.tags) ? parsed.tags : [];
   // `componentGroups`: registro de propiedades de grupo (core/group.js), colección nueva sin alias de
   // compatibilidad — no puede llamarse `groups`, esa clave ya está reservada como alias legacy de `tags`.
   const componentGroups = Array.isArray(parsed.componentGroups) ? parsed.componentGroups : [];

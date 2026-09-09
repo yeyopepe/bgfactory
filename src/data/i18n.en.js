@@ -10,7 +10,6 @@ export const CATALOG_EN = {
   'appVersion.repoLink': 'View on GitHub',
 
   // --- Startup toasts ---
-  'toast.stateRecoverFailedVersion': 'Could not restore state from a previous version; started with the default content.',
   'toast.stateRecoverFailedCorrupt': 'Could not restore the saved state.',
 
   // --- Seed resources ---
@@ -66,12 +65,6 @@ export const CATALOG_EN = {
   'import.selection.title': 'Import — choose elements',
   'import.selection.continue': 'Continue',
   'import.report.title': 'Import report',
-  'import.conversionError.heading': 'Errors converting tokens',
-  'import.conversionError.message': 'Errors were found converting the following tokens to Card/Token. You can continue the import without them, or abort it entirely.',
-  'import.conversionError.abort': 'Abort import',
-  'import.conversionError.continue': 'Continue without those tokens',
-  'import.conversionError.colFicha': 'Affected token',
-  'import.conversionError.colError': 'Error',
 
   // --- Export ---
   'export.selection.title': 'Export',
@@ -588,12 +581,6 @@ export const CATALOG_EN = {
   'importReport.solution.componentWithoutResource': 'The component was added without that resource',
   'importReport.solution.tagLinkedToExisting': 'Linked to an existing tag with the same name instead of creating a duplicate',
   'importReport.solution.tagAutoCreated': 'The tag was created automatically',
-
-  // --- Token conversion errors ---
-  'fichaMigration.error.missingDesign': 'Missing design configuration (properties)',
-  'fichaMigration.error.missingShape': 'Missing token shape',
-  'fichaMigration.error.unknownShape': 'Unrecognized shape',
-  'fichaMigration.error.incompleteImageAdjust': 'Image adjustment with incomplete data',
 
   // --- Import file parse error ---
   'persistence.importParseError': 'The file does not contain a valid component list.',

@@ -19,9 +19,7 @@ El botón "+ Añadir etiqueta" abre una ventana mínima con un único campo "Nom
 
 Renombrar una etiqueta no afecta a ningún elemento que la tenga asignada: solo cambia el nombre visible, el elemento sigue apuntando a la misma etiqueta.
 
-Hasta el cambio 00105 este panel se llamaba "Mazos" y la pertenencia a un grupo (entonces "Mazo") era una propiedad específica de "Carta/Ficha", pensada como base para una futura mecánica de juego propia (barajar, robar carta); ese cambio generalizó el campo a cualquier tipo de componente y retiró esa intención futura, dejando el concepto como un mecanismo puramente organizativo, llamado "Grupo". El cambio 00139 generalizó a su vez la pertenencia de un único grupo a varios a la vez; partidas guardadas con el modelo anterior migran automáticamente su grupo único a una lista de un solo grupo, de forma silenciosa al abrir la app. El cambio 00190 renombró el concepto de "Grupo" a "Etiqueta" en toda la app (solo terminología, el comportamiento de multi-pertenencia no cambia); las cartas que ya tuvieran un mazo asignado, o un grupo asignado bajo el nombre anterior, migran automáticamente esa asignación al campo actual de etiqueta, de forma igualmente silenciosa al abrir la app — las etiquetas ya creadas (antes grupos, antes mazos) se conservan tal cual, con el mismo nombre e identificador.
-
 - **Available in**: modo edición.
-- **Code**: 00053, 00079, 00081, 00083, 00101, 00105, 00107, 00128, 00130, 00131, 00139, 00141, 00165, 00190.
+- **Code**: 00053, 00079, 00081, 00083, 00101, 00105, 00107, 00128, 00130, 00131, 00139, 00141, 00165, 00190, 00250.
 - **Since**: 2026-07-21
-- **Last modified**: 2026-08-07
+- **Last modified**: 2026-09-09

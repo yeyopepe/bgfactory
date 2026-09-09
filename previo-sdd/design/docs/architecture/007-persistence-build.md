@@ -13,16 +13,16 @@
 
 `src/index.html` includes an empty `<script type="application/json" id="initial-state"></script>` that survives the build (copied as-is) and the runtime download (filled before downloading) — the state seed embedded in each copy of the HTML.
 
-`parseState(raw)` return is discriminated, not a generic `{ error: true }`:
+`parseState(raw)` return is discriminated, not a generic `{ error: true }`. Since 00250 there is a single error value — `{ error: 'corrupt' }` — for every non-restorable save; a wrong-version save is one more cause of it, with no branch or message of its own (no published version exists yet, so no old schema can be in circulation to migrate):
 
 | Case | Return |
 |---|---|
 | `JSON.parse` throws | `{ error: 'corrupt' }` |
-| `parsed` is an object ∧ `parsed.version !== CURRENT_VERSION` | `{ error: 'version-mismatch' }` (checked before the `components` check — a wrong-version object with no `components` is still `'version-mismatch'`) |
+| `parsed` is an object ∧ `parsed.version !== CURRENT_VERSION` | `{ error: 'corrupt' }` (checked before the `components` check; the version check itself is kept, only its outcome is unified) |
 | `parsed` falsy ∨ `!Array.isArray(parsed.components)` (with `parsed.version === CURRENT_VERSION`) | `{ error: 'corrupt' }` |
 | otherwise | success object (no `error` field) |
 
-`readSeedState()` unchanged: `return result.error ? null : result;` — any truthy `error` string (`'corrupt'` / `'version-mismatch'`) discards the embedded seed silently, falls to defaults.
+`readSeedState()` unchanged: `return result.error ? null : result;` — any truthy `error` discards the embedded seed silently, falls to defaults.
 
 ```
 Startup (main.js):
@@ -31,18 +31,18 @@ Startup (main.js):
                                              alter any step below. See 006-ui-layer.md, 010-internationalization-i18n.md.
   loadState() [core/persistence.js, localStorage]
     null (key bgfactory:state absent)  → bootFromSeedOrDefaults()                                   — no notice
-    { error: 'version-mismatch' }      → bootFromSeedOrDefaults() + showToast('No se ha podido recuperar el estado de una versión anterior; se ha empezado con el contenido por defecto.')
     { error: 'corrupt' }               → bootFromSeedOrDefaults() + showToast('No se ha podido recuperar el estado guardado.')
-    success object                     → hydrate panelState/resourcePanelState/tagPanelState + loadAppTitle + loadTableText + loadResourcesSeeded + loadComponents + loadResources + loadTags + loadGroups + backfillDefaultResourcesIfNeeded — no notice
+                                         (any non-restorable save: unparseable JSON, no components array, or other version)
+    success object                     → hydrate panelState/resourcePanelState/tagPanelState + loadAppTitle + loadTableText + loadResourcesSeeded + loadComponents + loadResources + loadTags + loadGroups — no notice
 
 bootFromSeedOrDefaults()  [local to main.js]:
   readSeedState() [<script id="initial-state">]
-    → has seed → loadAppTitle + loadTableText + loadResourcesSeeded + loadComponents + loadResources + loadTags + loadGroups + backfillDefaultResourcesIfNeeded
+    → has seed → loadAppTitle + loadTableText + loadResourcesSeeded + loadComponents + loadResources + loadTags + loadGroups
     → no seed  → seedDefaultResources()
 ```
 
-- [gotcha] startup never calls `showErrorModal` any more — a wrong-version `localStorage` save is a non-blocking `showToast`, not a modal to dismiss. `showErrorModal` (`ui/errorModal.js`) stays in use elsewhere (`ui/editModeToggle.js`, `modes/edit/editMode.js`).
-- `'version-mismatch'` and `'corrupt'` run the exact same fallback path as `null` (`bootFromSeedOrDefaults()`); they differ only in the `showToast` text.
+- [gotcha] startup never calls `showErrorModal` — a non-restorable `localStorage` save is a non-blocking `showToast`, not a modal to dismiss. `showErrorModal` (`ui/errorModal.js`) stays in use elsewhere (`ui/editModeToggle.js`, `modes/edit/editMode.js`).
+- The `{ error: 'corrupt' }` path runs the exact same fallback as `null` (`bootFromSeedOrDefaults()`), plus a `showToast`.
 
 ### Autosave (`core/persistence.js`)
 
@@ -57,9 +57,9 @@ bootFromSeedOrDefaults()  [local to main.js]:
   - `expandedGroupIds` (00239): `groupId`s of the "Componentes" panel's group rows the user expanded explicitly. Absence of a `groupId` = that group is collapsed (default state). Pruned of ids with no matching real group (2+ members) on every `renderComponentList` render — a stale `groupId` reused later never shows expanded by surprise. With a text/column filter active, matching groups render force-expanded regardless of `expandedGroupIds`, without mutating it.
   - [gotcha] `loadPanelState(newPanelState)` normalizes `expandedGroupIds` to `[]` when absent or not an array — pre-00239 saves simply lack the key, no migration.
   - NOT in `buildComponentsExport`/`parseImportedComponents` JSON (like the whole of `panelState`) — it is a local display preference, not part of the exported game.
-- `resources` and `tags`: if they are missing or not an array in the save/seed, `[]` is assumed instead of invalidating the whole state (`resources` also triggers a default-resources backfill; `tags` needs no backfill). `componentGroups` follows the same criterion (`[]` if missing/not an array).
+- `resources` and `tags`: if they are missing or not an array in the save/seed, `[]` is assumed instead of invalidating the whole state. `componentGroups` follows the same criterion (`[]` if missing/not an array).
 - Row selection (`selectedComponentIds`) is not part of any `panelState`, is never persisted.
-- **Backward compatibility**: `parseState`/`parseImportedComponents` read `tags`/`tagPanelState`, with a chained fallback to `groups`/`groupPanelState` and then to the oldest keys `decks`/`deckPanelState` if the previous ones are not present (see `group.persist.decision.key-componentGroups` and the "Backward compatibility" table in `004-groups-resources.md`). `componentGroups` has no such alias — it is a new collection.
+- **Backward compatibility**: only `parseImportedComponents` (the import path) reads `tags`/`tagPanelState` with a chained fallback to `groups`/`groupPanelState` and then to the oldest keys `decks`/`deckPanelState`. Since 00250 `parseState` (startup) no longer does — it reads `tags`/`tagPanelState` only. `componentGroups` has no such alias — it is a new collection. See `group.persist.decision.key-componentGroups` and the "Backward compatibility" table in `004-groups-resources.md`.
 
 ### Language preference (`localStorage` key `bgfactory:lang`, change 00244)
 
@@ -86,8 +86,7 @@ The lightweight JSON of `core/persistence.js` (`buildComponentsExport(components
 1. `parseImportedComponents` reads the file.
 2. `openImportSelectionModal` shows the file's elements to choose which to import.
 3. On confirm, `openImportConfirmModal` asks for mode (`add`/`overwrite`) and duplicate-id behavior (`overwrite`/`keepBoth`).
-4. Before `mergeImportedGame` (see `004-groups-resources.md`), `ui/editModeToggle.js` runs each selected component of type `'ficha'` through `migrateFichaComponent`; if any returns errors, `openImportConversionErrorModal` opens with the list before touching state — "Abortar importación" does not call `mergeImportedGame` or `loadComponents`/`loadResources`/`loadTags` (current game intact); "Continuar sin esas fichas" follows the flow excluding them from `selectedComponents`.
-5. With the fichas already migrated (or none to migrate), `core/importMerge.js` (`mergeImportedGame`) computes the final state:
+4. `ui/editModeToggle.js` calls `proceedWithImport(selectedComponents)` directly — since 00250 there is no `'ficha'` conversion step and no `openImportConversionErrorModal`. `core/importMerge.js` (`mergeImportedGame`) computes the final state:
 
    | Mode | Existing id | Effect |
    |---|---|---|
@@ -97,14 +96,16 @@ The lightweight JSON of `core/persistence.js` (`buildComponentsExport(components
    | `add` | Present, `conflictMode: 'keepBoth'` | Renames the imported one with a `-imported`/`-imported(n)` suffix (`nextImportedId`, analogous to `nextCloneId` but generic per type) — references of imported components to a renamed resource/tag are rewritten to the new id before merging (`etiquetaIds` is a flat top-level property of the component, like `image`, not a key inside `properties`) |
 
    Already-existing components are not touched in `add` mode.
-6. After the merge: a reference of a freshly imported component to a resource absent from the final state is discarded (field to `null`, tolerated like a deleted resource in use); each id absent from `etiquetaIds` (there may be several per component) is processed separately — a tag with that id is auto-created (once per id even if several components reference it), or it is linked to the existing tag with the same name if there is one. Each case generates a report row (`{ componentId, tipoError, solucion, elemento }`); if there is any, `ui/editModeToggle.js` opens `openImportReportModal(report)` on finishing.
+5. After the merge: a reference of a freshly imported component to a resource absent from the final state is discarded (field to `null`, tolerated like a deleted resource in use); each id absent from `etiquetaIds` (there may be several per component) is processed separately — a tag with that id is auto-created (once per id even if several components reference it), or it is linked to the existing tag with the same name if there is one. Each case generates a report row (`{ componentId, tipoError, solucion, elemento }`); if there is any, `ui/editModeToggle.js` opens `openImportReportModal(report)` on finishing.
 
 The previous functions `getComponentsWithMissingResources` (`core/resource.js`) and `getComponentsWithMissingDeck` (`core/deck.js`) of the earlier import flow (all-or-nothing with `confirm()`) have been removed for being unused — `mergeImportedGame`'s report replaces them with more detail.
 
-### Default resources and backfill (`data/defaultResources.js`, `main.js`)
+### Default resources (`data/defaultResources.js`, `main.js`)
+
+Since 00250 there is no retroactive backfill: the example resources are seeded only for a fully new session. A save or a seed that already carries data is never topped up, even if its `resourcesSeeded` is not `true`.
 
 | State on load | Action |
 |---|---|
-| Fully new session (nothing saved, no embedded seed, or `parseState` returned `{ error: 'corrupt' }` / `{ error: 'version-mismatch' }`) | `seedDefaultResources()` seeds the 2 entries of `DEFAULT_RESOURCES` (see `004-groups-resources.md`), sets `resourcesSeeded = true` (`markResourcesSeeded()`) |
-| Valid save or seed (with existing components) but `resourcesSeeded` not `true` (typically a save predating this feature, `resources` empty or nonexistent) | `backfillDefaultResourcesIfNeeded()` seeds them that one time anyway |
-| `resourcesSeeded` already `true` | No backfill — if the user deletes the default resources, they do not reappear on later loads |
+| Fully new session (nothing saved and no embedded seed; or `parseState` returned an error and `readSeedState()` found no seed) | `seedDefaultResources()` seeds the 2 entries of `DEFAULT_RESOURCES` (see `004-groups-resources.md`), sets `resourcesSeeded = true` (`markResourcesSeeded()`) |
+| Valid save, or a save that failed to restore but there is an embedded seed | `resourcesSeeded` is hydrated from the save/seed as-is; no seeding, no backfill |
+| `resourcesSeeded` already `true` | If the user deletes the default resources, they do not reappear on later loads |

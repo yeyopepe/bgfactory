@@ -8,7 +8,6 @@ export const CATALOG_ES = {
   'appVersion.repoLink': 'Ver en Github',
 
   // --- Toasts de arranque ---
-  'toast.stateRecoverFailedVersion': 'No se ha podido recuperar el estado de una versión anterior; se ha empezado con el contenido por defecto.',
   'toast.stateRecoverFailedCorrupt': 'No se ha podido recuperar el estado guardado.',
 
   // --- Recursos semilla ---
@@ -64,12 +63,6 @@ export const CATALOG_ES = {
   'import.selection.title': 'Importar — elegir elementos',
   'import.selection.continue': 'Continuar',
   'import.report.title': 'Informe de importación',
-  'import.conversionError.heading': 'Errores al convertir fichas',
-  'import.conversionError.message': 'Se han detectado errores al convertir las siguientes fichas a Carta/Ficha. Puedes continuar la importación sin ellas, o abortarla por completo.',
-  'import.conversionError.abort': 'Abortar importación',
-  'import.conversionError.continue': 'Continuar sin esas fichas',
-  'import.conversionError.colFicha': 'Ficha afectada',
-  'import.conversionError.colError': 'Error',
 
   // --- Export ---
   'export.selection.title': 'Exportar',
@@ -586,12 +579,6 @@ export const CATALOG_ES = {
   'importReport.solution.componentWithoutResource': 'Se añadió el componente sin ese recurso',
   'importReport.solution.tagLinkedToExisting': 'Se vinculó a una etiqueta ya existente con el mismo nombre en vez de crear una duplicada',
   'importReport.solution.tagAutoCreated': 'Se creó la etiqueta automáticamente',
-
-  // --- Errores de conversión de ficha ---
-  'fichaMigration.error.missingDesign': 'Falta la configuración de diseño (properties)',
-  'fichaMigration.error.missingShape': 'Falta la forma de la ficha',
-  'fichaMigration.error.unknownShape': 'Forma no reconocida',
-  'fichaMigration.error.incompleteImageAdjust': 'Ajuste de imagen con datos incompletos',
 
   // --- Error de lectura de fichero de importación ---
   'persistence.importParseError': 'El fichero no contiene un listado de componentes válido.',

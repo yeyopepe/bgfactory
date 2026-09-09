@@ -3,8 +3,7 @@
 //
 // Valida el registro por tipo de interacción de click izquierdo
 // (core/interactions.js), `isInteractionActive`, los valores por defecto del
-// modelo (interaccionesDesactivadas: [], accionClickDerecho: 'ninguno'), la
-// migración de guardados antiguos (accionClickDerecho ausente -> 'menuContextual'),
+// modelo (interaccionesDesactivadas: [], accionClickDerecho: 'ninguno'),
 // la pestaña "Interacciones" de la modal (combos + fila de click derecho), el
 // efecto de desactivar cada interacción en Modo Juego, el efecto de
 // accionClickDerecho: 'ninguno' sobre el botón derecho, el reflejo en la
@@ -15,7 +14,7 @@ import { describe, it, expect, beforeEach, afterEach, registerFeature } from '..
 import {
   resetState, mountEditMode, mountPlayMode, dispatchContextMenu, getOpenContextMenu, mockRandom, restoreAllMocks,
 } from '../helpers.js';
-import { getComponents, addComponent, replaceComponent, loadComponents } from '../../core/state.js';
+import { getComponents, addComponent, replaceComponent } from '../../core/state.js';
 import { createComponent, syncCopyWithOriginal, createCopy } from '../../core/component.js';
 import { getInteractionsForType, isInteractionActive } from '../../core/interactions.js';
 import { createDefaultComponent, openComponentModal } from '../../ui/componentModal.js';
@@ -62,18 +61,6 @@ describe('014 — Interacciones programadas de un componente', () => {
     expect(createComponent({ type: 'carta' }).interaccionesDesactivadas).toEqual([]);
     expect(createComponent({ type: 'carta' }).accionClickDerecho).toBe('ninguno');
     expect(isInteractionActive(createDefaultComponent('mazo'), 'sacarCarta')).toBe(true);
-  });
-
-  it('FT-014-04 · migración de accionClickDerecho en guardado antiguo (state)', () => {
-    const c = createComponent({ type: 'dado' });
-    delete c.accionClickDerecho;
-    c.id = 'd-old';
-    const nuevo = createComponent({ type: 'dado' });
-    nuevo.id = 'd-new';
-    loadComponents([c, nuevo]);
-
-    expect(getComponents().find((x) => x.id === 'd-old').accionClickDerecho).toBe('menuContextual');
-    expect(getComponents().find((x) => x.id === 'd-new').accionClickDerecho).toBe('ninguno');
   });
 
   it('FT-014-05 · pestaña "Interacciones" de la modal: combos y fila de click derecho (ui)', () => {

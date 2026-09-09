@@ -2,7 +2,7 @@
 // del componente; alta (nuevo → order 1, empuja al resto); clonado (clon →
 // order 1); borrado (recompacta 1..n sin huecos); reorderComponent
 // (desplazamiento por colisión, clamp fuera de rango, no-op a la misma
-// posición); loadComponents/compactOrders al cargar guardados sin order;
+// posición); loadComponents/compactOrders normaliza `order` a 1..n contiguo;
 // reorderGroupBlock (mínimo); columna "Orden" del panel (<input type=number>,
 // solo dígitos, confirmar con change, vacío restaura, deshabilitado en
 // miembro de grupo, no selecciona la fila); orden de pintado en la mesa
@@ -159,22 +159,13 @@ describe('012 — Orden de apilado en la mesa', () => {
     off2();
   });
 
-  it('FT-012-06 · loadComponents normaliza order a 1..n y migra guardados sin order', () => {
+  it('FT-012-06 · loadComponents normaliza order a 1..n contiguo por el order de cada componente', () => {
     loadComponents([mkComp('a', { order: 10 }), mkComp('b', { order: 3 }), mkComp('c', { order: 7 })]);
     expect(ordersById()).toEqual({ b: 1, c: 2, a: 3 });
 
-    const x = mkComp('x');
-    delete x.order;
-    const y = mkComp('y');
-    delete y.order;
-    const z = mkComp('z');
-    delete z.order;
-    loadComponents([x, y, z]);
-    expect(ordersById()).toEqual({ x: 1, y: 2, z: 3 });
-
-    loadComponents([mkComp('p', { order: null }), mkComp('q', { order: 'foo' }), mkComp('r', { order: 2 })]);
-    const vals = getComponents().map((c) => c.order).sort((x2, y2) => x2 - y2);
-    expect(vals).toEqual([1, 2, 3]);
+    // Empates de order: se resuelven de forma estable por el orden del array.
+    loadComponents([mkComp('m', { order: 5 }), mkComp('n', { order: 5 }), mkComp('o', { order: 1 })]);
+    expect(ordersById()).toEqual({ o: 1, m: 2, n: 3 });
   });
 
   it('FT-012-07 · reorderGroupBlock: mueve el bloque preservando el orden relativo', () => {
