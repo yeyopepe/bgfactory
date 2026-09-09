@@ -221,7 +221,13 @@ test                                      concepto (framework de tests funcional
 test.harness                              concepto.  anchor: src/test/harness.js#run
     motor describe/it/expect/beforeEach/afterEach/registerFeature/run propio, corre en el navegador headless, sin Node
 test.helpers                              concepto.  anchor: src/test/helpers.js
-    resetState / mountChrome / mountEditMode / mountPlayMode / loadFixture / mockRandom / captureDownload / getLastDownload / injectFileImport / restoreAllMocks
+    resetState / mountChrome / mountEditMode / mountPlayMode / loadFixture / mockRandom / captureDownload / getLastDownload / injectFileImport / restoreAllMocks / seedLocalStorageState / setInitialStateSeed
+test.boot.rule:                            afirmación (00262).  anchor: src/test/runner-page-boot.html
+    ficheros *.boot.test.js: run.js los enruta a runner-page-boot.html, que SÍ carga src/main.js una vez (resto de *.test.js -> runner-page.html, que no)
+    contrato del módulo: export setupBoot() (opcional, async; prepara localStorage/#initial-state antes de main.js) + afterBoot() (opcional; registra describe/it tras main.js). registerFeature en el top level
+    1 ejecución de main.js por fichero (módulo top-level, 1 vez por página) ⟹ 1 escenario de arranque por fichero; un 2º estado pre-boot va en otro *.boot.test.js o a nivel unidad/réplica
+    [gotcha] el invariante de orden de resourcesSeeded (FT-029-13, boot-seed-order.boot.test.js) solo es observable con un guardado que traiga resourcesSeeded: true; con la clave ausente el defecto false coincide con lo esperado
+    ver 011-functional-test-framework.md
 test.traceability.rule:                   afirmación.  anchor: src/test/traceability.js#generateTraceability
     genera src/test/TRACEABILITY.md cruzando design/docs/features/INDEX.md con registerFeature de cada fichero
     post: (∃ test con primary|secondary NNN ∧ NNN ∉ features/INDEX.md) ⟹ hasAnomaly ∧ run.js exit = 1
@@ -233,8 +239,9 @@ test.release-gate.rule:                   afirmación (00239).  sin ancla (prosa
     exit 1 ⟹ release se detiene antes de docs/changelog (el ZIP del entregable puede ya existir)
     post: siempre se escribe previo-sdd/versions/{XXXX}/test-report.md (Resultado ∈ {Correcto, Con fallos}, totales; bloque de fallos literal de npm test si los hay)
     ver 011-functional-test-framework.md
-test.decision.no-main-js                  decisión (00238).  sin ancla
-    [motivación] la página headless no carga src/main.js; montaje explícito por test (mountChrome + renderEditMode/renderPlayMode) para que resetState sea determinista y no se acumulen los ~18 listeners del eventBus del bootstrap
+test.decision.no-main-js                  decisión (00238; excepción materializada en 00262).  sin ancla
+    [motivación] la página del lote general (runner-page.html) no carga src/main.js; montaje explícito por test (mountChrome + renderEditMode/renderPlayMode) para que resetState sea determinista y no se acumulen los ~18 listeners del eventBus del bootstrap
+    [gotcha] excepción: los *.boot.test.js (00262) SÍ cargan main.js una vez en runner-page-boot.html para observar el arranque real de extremo a extremo (ver test.boot.rule)
 test.decision.page-reload-isolation      decisión (00238).  sin ancla
     [motivación] aislamiento = una navegación de página por fichero de test; grafo de módulos ES fresco ⟹ Map de listeners del eventBus a cero, sin off() manual
 test.decision.own-engine                 decisión (00238).  sin ancla

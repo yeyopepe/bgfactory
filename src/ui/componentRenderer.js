@@ -1314,6 +1314,7 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         let currentX = startX;
         let currentY = startY;
         let blockDragTargets = [];
+        let lifted = false;
 
         function handleMouseMove(e) {
           const zoom = getWorldZoom(worldEl);
@@ -1327,12 +1328,21 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
             target.el.style.left = `${target.startX + dx}px`;
             target.el.style.top = `${target.startY + dy}px`;
           }
+          // Levantar (reordena el nodo en el DOM) solo al confirmarse un arrastre
+          // real, en el primer `mousemove` — hacerlo ya en `mousedown` impide que
+          // el navegador sintetice el `click` posterior, que es la vía por la que
+          // se lanza el dado. Mismo patrón que 'carta'/'mazo'.
+          if (liftOnDrag && !lifted) {
+            lifted = true;
+            beginDragLift(dice, worldEl);
+          }
         }
 
         function handleMouseUp() {
           document.removeEventListener('mousemove', handleMouseMove);
           document.removeEventListener('mouseup', handleMouseUp);
-          if (liftOnDrag) endDragLift(dice);
+          if (lifted) endDragLift(dice);
+          lifted = false;
           if (currentX === startX && currentY === startY) return;
           onMove(component, currentX, currentY);
         }
@@ -1340,7 +1350,6 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
         dice.addEventListener('mousedown', (e) => {
           if (e.button !== 0) return;
           e.stopPropagation();
-          if (liftOnDrag) beginDragLift(dice, worldEl);
           startMouseX = e.clientX;
           startMouseY = e.clientY;
           startX = component.x ?? 100;
@@ -1349,7 +1358,13 @@ export function renderComponentsOnTable(worldEl, components, { onSelect, onToggl
           document.addEventListener('mousemove', handleMouseMove);
           document.addEventListener('mouseup', handleMouseUp);
         });
-      } else if (onDiceResult && isInteractionActive(component, 'lanzar')) {
+      }
+
+      // Afordancia de click: siempre disponible mientras la interacción esté
+      // activa, con independencia de si el dado es arrastrable — mismo patrón que
+      // 'carta' (onCartaFlip) y 'mazo' (onMazoDraw), para que "Bloqueado" nunca
+      // afecte al lanzamiento, solo al arrastre.
+      if (onDiceResult && isInteractionActive(component, 'lanzar')) {
         dice.classList.add('dice--clickable');
       }
 

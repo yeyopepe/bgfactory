@@ -12,8 +12,9 @@ Location: `src/test/`. Dev-only. Nothing here enters the deliverable: `src/scrip
 |---|---|---|
 | `package.json` (repo root) | — | Dev project descriptor. `"private": true`, `"type": "module"`. `devDependencies.playwright` pinned. Scripts: `test`, `test:setup`, `test:all` (see *Install and run*). Not consumed by `build.py` or the deliverable. |
 | `src/test/setup.js` | Node | Orchestrates `npm install` (skipped if `node_modules/playwright/package.json` exists) then `npx playwright install chromium`. Idempotent. |
-| `src/test/run.js` | Node | Only file importing Node built-ins and `playwright`. Static HTTP server over `src/` + Chromium headless driver + per-file navigation + summary + screenshot + `generateTraceability` call + exit code. |
+| `src/test/run.js` | Node | Only file importing Node built-ins and `playwright`. Static HTTP server over `src/` + Chromium headless driver + per-file navigation (container picked by filename suffix: `*.boot.test.js` → `runner-page-boot.html`, else `runner-page.html`) + summary + screenshot + `generateTraceability` call + exit code. |
 | `src/test/runner-page.html` | Browser (headless) | Page loaded per test file. Replicates the 5 containers of `src/index.html` (`#app-title`, `#edit-toolbar`, `#mode-switcher`, `#content`, `#app-version`) + `<script type="application/json" id="initial-state">`. Inline `<script type="module">` reads `?file=`, imports `./harness.js`, dynamic-imports the test file, runs `harness.run()`, publishes results on `window`. Does NOT load `main.js` or `styles/main.css`. |
+| `src/test/runner-page-boot.html` | Browser (headless) | Replica of `runner-page.html` that **does** load `src/main.js`, once, for end-to-end boot cases. Same 5 containers + `#initial-state`. Inline `<script type="module">`: dynamic-imports the test file, `await mod.setupBoot?.()` (prepares `localStorage` / `#initial-state`), `await import('../main.js')` (real bootstrap, once), `await mod.afterBoot?.()` (test registers its `it()` now that `main.js` has run), then `harness.run()`. Same `window` contract as `runner-page.html`. Used only for `*.boot.test.js` files (routed by `run.js`). Does NOT load `styles/main.css`. |
 | `src/test/harness.js` | Browser | Own test engine. No Node/Playwright import. Runs inside the headless page. |
 | `src/test/helpers.js` | Browser | State reset, mode mounting, fixture loading, deterministic mocks. Imports from `../core/*`, `../modes/*`, `../ui/editModeToggle.js`. |
 | `src/test/traceability.js` | Node | `generateTraceability(featuresDir, features, outPath)`. Invoked by `run.js` after the batch. |
@@ -30,6 +31,14 @@ Location: `src/test/`. Dev-only. Nothing here enters the deliverable: `src/scrip
 | ui | `mountEditMode()` / `mountPlayMode()` (see `helpers.js` contract) | `#content` DOM + state |
 
 Each test picks its level. A test file declares which `design/docs/features/` entry it validates via `registerFeature`.
+
+### `*.boot.test.js` — boot level
+
+A third, opt-in level for cases that need the real `main.js` bootstrap (not the per-test `mountEditMode`/`mountPlayMode`). Convention:
+
+- **Filename suffix `.boot.test.js`.** `run.js` routes these to `runner-page-boot.html` (loads `main.js`); every other `*.test.js` goes to `runner-page.html` (does not).
+- **Module contract:** the file exports `setupBoot()` (optional, async — prepares `localStorage` / `#initial-state` before `main.js` runs) and `afterBoot()` (optional — registers `describe`/`it` after `main.js` has run). `registerFeature` stays at module top level. Helpers `seedLocalStorageState(obj)` / `setInitialStateSeed(obj)` (`helpers.js`) write a save-format object.
+- **One `main.js` run per file ⇒ one boot scenario per file.** `main.js` is a top-level module: it runs exactly once per page, and Playwright reloads per file, so a boot file cannot re-run the bootstrap with a different starting state. A scenario needing two distinct pre-boot states is split into two `*.boot.test.js` files, or the second state is covered at unit/replica level in a normal `*.test.js`.
 
 ## Engine contract (`harness.js`)
 
@@ -79,8 +88,8 @@ getOpenContextMenu() -> HTMLElement | null   document.body.querySelector('.conte
 
 1. Start `node:http` static server over `src/` on `127.0.0.1`, ephemeral port (`listen(0)`). Handler resolves the request path and serves only if it stays within `SRC_DIR` (path-traversal block -> `403`); `Content-Type` by extension; `404` if absent.
 2. `import('playwright')` -> `chromium.launch({ headless: true })`. If the import fails: instructions + `exit(2)`.
-3. `readdir('src/test/functional')` filtered to `*.test.js`, sorted.
-4. Per file: `page.goto('/test/runner-page.html?file=functional/<file>')`; `waitForFunction(window.__BGF_TEST_RESULTS__ !== undefined)`; read `window.__BGF_TEST_RESULTS__` and `window.__BGF_TEST_FEATURES__`.
+3. `readdir('src/test/functional')` filtered to `*.test.js` (catches `*.boot.test.js` too), sorted.
+4. Per file: pick the container by suffix — `file.endsWith('.boot.test.js') ? 'runner-page-boot.html' : 'runner-page.html'` — then `page.goto('/test/<container>?file=functional/<file>')`; `waitForFunction(window.__BGF_TEST_RESULTS__ !== undefined)`; read `window.__BGF_TEST_RESULTS__` and `window.__BGF_TEST_FEATURES__`. The `window` contract is identical for both containers.
 5. First `fail` of a file -> `page.screenshot()` into `src/test/_screenshots/<file>.png`.
 6. Print `Total: N — OK: X — FALLOS: Y`; per failure: `file › name`, `esperado:` / `obtenido:` or `error:`.
 7. `generateTraceability(FEATURES_DIR, allFeatures, TRACEABILITY_OUT)`.
@@ -151,7 +160,7 @@ Exit code `0` = all pass and no traceability anomaly; `1` = any failure or any `
 
 ## Decisions
 
-- `test.decision.no-main-js` — the headless page does not load `src/main.js`. `[motivación]` `main.js` bootstrap wires ~18 `eventBus` listeners (`renderAll`/`persistState` on every `*:changed`) and the autosave; per-test explicit mounting (`mountChrome` + `renderEditMode`/`renderPlayMode`) keeps `resetState` deterministic and avoids listener accumulation. A boot/persistence case that genuinely needs the full `main.js` sequence would load it in its own `runner-page` (Playwright reloads per file, so it would not contaminate other files) — not needed by the current batch.
+- `test.decision.no-main-js` — the general batch's headless page (`runner-page.html`) does not load `src/main.js`. `[motivación]` `main.js` bootstrap wires ~18 `eventBus` listeners (`renderAll`/`persistState` on every `*:changed`) and the autosave; per-test explicit mounting (`mountChrome` + `renderEditMode`/`renderPlayMode`) keeps `resetState` deterministic and avoids listener accumulation. `[gotcha]` The exception is materialized in the `*.boot.test.js` files (change 00262): they load `main.js` once in `runner-page-boot.html` to observe the real bootstrap end-to-end (fresh session, valid/corrupt save restore, embedded seed, group backfill, `#app-version` render, and the `resourcesSeeded` hydration-order invariant). Playwright reloads per file, so a boot file's `main.js` listeners do not contaminate other files.
 - `test.decision.page-reload-isolation` — isolation is one page navigation per test file. `[motivación]` `eventBus` `listeners` live in a module-level `Map`; a fresh module graph per file zeroes it with no manual `off()` bookkeeping.
 - `test.decision.own-engine` — own `describe`/`it`/`expect` engine instead of a third-party runner. `[motivación]` the engine runs inside the browser page with no Node; the project takes no runtime dependency, and a third-party runner would not run in that context unbundled.
 - `test.decision.playwright-over-jsdom` — real headless Chromium, not jsdom. `[motivación]` the fragile features (block drag with relative distances, `fitToBounds`, panel resize, card-over-deck overlap, `position: fixed` menu placement, dice/deck canvas) need real layout and canvas; jsdom provides neither.
@@ -167,6 +176,13 @@ Exit code `0` = all pass and no traceability anomaly; `1` = any failure or any `
 | `functional/top-controls.test.js` | 039 | state + ui |
 | `functional/fresh-boot.test.js` | 036 | state |
 | `functional/autosave.test.js` | 029 | state |
+| `functional/boot-fresh-session.boot.test.js` | 036 | boot (real `main.js`) — scenario: fresh session, no save, no seed. Asserts the 2 example resources seeded, their names translated to the active language (`localStorage['bgfactory:lang']` set in `setupBoot`), `getResourcesSeeded()` true, no `.toast` |
+| `functional/boot-valid-save.boot.test.js` | 029 (primary), 036 (secondary) | boot (real `main.js`) — scenario: restore a valid save with no `resourcesSeeded` key. Asserts full restore (components/resources/tags/appTitle/tableText/panelState), no example-resource seeding, `getResourcesSeeded()` false, no `.toast` |
+| `functional/boot-seed-order.boot.test.js` | 029 | boot (real `main.js`) — scenario 5: the `resourcesSeeded` hydration-order invariant. [gotcha] only observable with a save carrying `resourcesSeeded: true` (a value ≠ the `false` default) — hence its own file. FT-029-13: the save rewritten by the bootstrap's synchronous autosave keeps `resourcesSeeded === true`. Moving `loadResourcesSeeded` to the end of the `else if (saved)` branch trips it (`loadTags`/`loadGroups` autosave would otherwise mask a mid-branch move) |
+| `functional/boot-corrupt-save.boot.test.js` | 029 (primary), 036 (secondary) | boot (real `main.js`) — scenario: unrecoverable save. Covers the "unreadable JSON" variant end-to-end (`.toast` with `t('toast.stateRecoverFailedCorrupt')`, boot from defaults + example resources seeded). The other two variants `parseState` unifies under `{ error: 'corrupt' }` (missing `components`, other version) share the same branch and are unit-covered by `autosave.test.js` FT-029-08 |
+| `functional/boot-embedded-seed.boot.test.js` | 036 (primary), 029 (secondary) | boot (real `main.js`) — scenario: no save but an embedded `#initial-state` seed. Asserts the seed is restored and example resources are NOT seeded even though the seed carried `resourcesSeeded: false`; no `.toast` |
+| `functional/boot-group-backfill.boot.test.js` | 029 | boot (real `main.js`) — scenario: pre-`componentGroups` save. Asserts `deriveMissingGroups` reconstructs one group per distinct `groupId`. [gotcha] `deriveMissingGroups` only derives groups with 2+ members (plan proposed a 1-member `g2`; adjusted to 2 members each so both are derived) |
+| `functional/boot-app-version.boot.test.js` | 037 | boot (real `main.js`) — scenario: valid save with non-empty `tableText` containing markup. Exercises the **non-exported** `main.js#renderAppVersion` for real on `#app-version`: name+version, repo link `target="_blank"`/`rel="noopener"`, free-text note + `hr` above the two fixed lines (4 children), free text rendered as plain text. "No free text" case stays replica-covered by `version-indicator.test.js` FT-037-03 |
 | `functional/hidden-in-play.test.js` | 016 | ui |
 | `functional/export-import.test.js` | 032 | state |
 | `functional/synced-copies.test.js` | 005 (primary), 022 (secondary) | ui — worked example |

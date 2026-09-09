@@ -27,7 +27,7 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 | 017 — Componente "cuadro de texto" | — |
 | 018 — Componente "tablero simple" | FT-018-01, FT-018-03, FT-018-04, FT-018-05, FT-018-06, FT-018-07, FT-018-08, FT-018-09 |
 | 019 — Componente "tablero personalizado" | FT-019-01, FT-019-02, FT-019-03, FT-019-04, FT-019-05, FT-019-06, FT-019-07, FT-019-08 |
-| 020 — Componente "dado" | FT-020-01, FT-020-02, FT-020-03, FT-020-04, FT-020-05, FT-020-06, FT-020-07, FT-020-08 |
+| 020 — Componente "dado" | FT-020-01, FT-020-02, FT-020-03, FT-020-04, FT-020-05, FT-020-06, FT-020-07, FT-020-08, FT-020-09 |
 | 021 — Componente "Visor de documentos" | FT-021-01, FT-021-02, FT-021-03, FT-021-04, FT-021-05, FT-021-06, FT-021-07, FT-021-08, FT-021-09, FT-021-10, FT-021-11 |
 | 022 — Componente "carta" | FT-022-01, FT-022-02, FT-022-03, FT-022-04, FT-022-05, FT-022-06, FT-022-07, FT-022-08, FT-005-01 (secundaria), FT-005-02 (secundaria), FT-005-03 (secundaria), FT-005-04 (secundaria), FT-005-05 (secundaria), FT-005-06 (secundaria), FT-005-07 (secundaria), FT-005-08 (secundaria), FT-005-09 (secundaria) |
 | 023 — Componente "mazo" | FT-023-01, FT-023-02, FT-023-03, FT-023-04, FT-023-05, FT-023-06, FT-023-07, FT-023-08, FT-023-09, FT-023-10, FT-023-11, FT-023-12, FT-023-13 |
@@ -35,14 +35,14 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 | 026 — Menú contextual de componente en modo juego | FT-026-01, FT-026-02, FT-026-03, FT-026-04, FT-026-05, FT-026-06, FT-026-07, FT-026-08, FT-026-09, FT-026-10, FT-026-11, FT-026-12, FT-026-13, FT-026-14, FT-026-15, FT-026-16, FT-026-17 |
 | 027 — Menú contextual de elemento en modo edición | FT-027-01, FT-027-02, FT-027-03, FT-027-04, FT-027-05, FT-027-06, FT-027-07, FT-027-08, FT-027-09, FT-027-10, FT-027-11, FT-027-12, FT-027-13, FT-027-14, FT-027-15 |
 | 028 — Atajos de teclado en modo edición | — |
-| 029 — Autoguardado en el navegador | FT-029-01, FT-029-02, FT-029-03, FT-029-04, FT-029-05, FT-029-06, FT-029-07, FT-029-08, FT-029-09 |
+| 029 — Autoguardado en el navegador | FT-029-01, FT-029-02, FT-029-03, FT-029-04, FT-029-05, FT-029-06, FT-029-07, FT-029-08, FT-029-09, FT-029-10, FT-029-11, FT-029-12, FT-029-13, FT-029-14, FT-029-15, FT-029-17, FT-029-18, FT-029-19, FT-029-20, FT-036-10, FT-036-11, FT-029-16 (secundaria), FT-036-12 (secundaria), FT-036-13 (secundaria) |
 | 030 — Título de cabecera editable | FT-030-01, FT-030-02, FT-030-03, FT-030-04, FT-030-05, FT-030-06, FT-030-07, FT-030-08, FT-030-09, FT-029-01 (secundaria), FT-029-02 (secundaria), FT-029-03 (secundaria), FT-029-04 (secundaria), FT-029-05 (secundaria), FT-029-06 (secundaria), FT-029-07 (secundaria), FT-029-08 (secundaria), FT-029-09 (secundaria), FT-032-01 (secundaria), FT-032-02 (secundaria), FT-032-03 (secundaria), FT-032-04 (secundaria), FT-032-05 (secundaria), FT-032-06 (secundaria), FT-032-07 (secundaria), FT-032-08 (secundaria), FT-032-09 (secundaria), FT-032-10 (secundaria), FT-032-11 (secundaria) |
 | 032 — Exportar/importar componentes en JSON, con selección | FT-032-01, FT-032-02, FT-032-03, FT-032-04, FT-032-05, FT-032-06, FT-032-07, FT-032-08, FT-032-09, FT-032-10, FT-032-11 |
 | 033 — Modal de error común a toda la app | FT-033-01, FT-033-02, FT-033-03, FT-033-04, FT-033-05, FT-033-06 |
 | 034 — Agrupación de elementos: agrupar y desagrupar | FT-027-01 (secundaria), FT-027-02 (secundaria), FT-027-03 (secundaria), FT-027-04 (secundaria), FT-027-05 (secundaria), FT-027-06 (secundaria), FT-027-07 (secundaria), FT-027-08 (secundaria), FT-027-09 (secundaria), FT-027-10 (secundaria), FT-027-11 (secundaria), FT-027-12 (secundaria), FT-027-13 (secundaria), FT-027-14 (secundaria), FT-027-15 (secundaria) |
 | 035 — Título de componente | FT-035-01, FT-035-02, FT-035-03, FT-035-04, FT-035-05, FT-035-06 |
-| 036 — Contenido de ejemplo al arrancar una partida nueva | FT-036-01, FT-036-02, FT-036-03, FT-036-04, FT-036-05 |
-| 037 — Indicador de versión y enlace al repositorio | FT-037-01, FT-037-02, FT-037-03, FT-037-04, FT-037-05, FT-037-06 |
+| 036 — Contenido de ejemplo al arrancar una partida nueva | FT-029-16, FT-036-01, FT-036-02, FT-036-03, FT-036-04, FT-036-05, FT-036-06, FT-036-07, FT-036-08, FT-036-09, FT-036-12, FT-036-13, FT-029-10 (secundaria), FT-029-11 (secundaria), FT-029-12 (secundaria), FT-029-14 (secundaria), FT-029-15 (secundaria), FT-036-10 (secundaria), FT-036-11 (secundaria) |
+| 037 — Indicador de versión y enlace al repositorio | FT-037-01, FT-037-02, FT-037-03, FT-037-04, FT-037-05, FT-037-06, FT-037-07, FT-037-08, FT-037-09 |
 | 038 — Aplicación multi-idioma y panel de configuración | FT-038-01, FT-038-02, FT-038-03, FT-038-04, FT-038-05, FT-038-06, FT-038-07, FT-038-08, FT-038-09 |
 | 039 — Barra de controles superior: modos, importar y exportar | FT-039-01, FT-039-02, FT-039-03, FT-039-04, FT-039-05, FT-039-06, FT-039-07 |
 | 040 — Catálogo de propiedades de componentes, grupos y etiquetas | FT-040-01, FT-040-02, FT-040-03, FT-040-04, FT-040-05, FT-040-06, FT-040-07, FT-040-08, FT-040-09, FT-040-10 |

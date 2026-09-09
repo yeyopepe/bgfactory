@@ -16,6 +16,10 @@
 //   dispatchContextMenu(el) dispara un MouseEvent('contextmenu') real sobre el
 //                           nodo (botón derecho); abre el menú contextual
 //   getOpenContextMenu()    el .context-menu abierto en document.body, o null
+//   seedLocalStorageState(obj)  escribe `obj` (formato de guardado) en
+//                           localStorage['bgfactory:state']; para los *.boot.test.js
+//   setInitialStateSeed(obj)    escribe `obj` (formato de guardado) en el
+//                           <script id="initial-state">; para los *.boot.test.js
 
 import {
   MODES, setMode,
@@ -61,6 +65,20 @@ export function resetState() {
 
 function contentEl() {
   return document.getElementById('content');
+}
+
+// --- Preparación de arranque (*.boot.test.js) ---
+// Los ficheros que se ejecutan en runner-page-boot.html preparan el estado
+// persistido ANTES de que main.js corra. `obj` va en formato de guardado
+// (el que produce saveState / buildComponentsExport): { version, components,
+// resources, tags, componentGroups, appTitle, tableText, resourcesSeeded, ... }.
+
+export function seedLocalStorageState(obj) {
+  localStorage.setItem('bgfactory:state', JSON.stringify(obj));
+}
+
+export function setInitialStateSeed(obj) {
+  document.getElementById('initial-state').textContent = JSON.stringify(obj);
 }
 
 // Pinta la "cromática" que en producción monta main.js#renderAll: la franja de

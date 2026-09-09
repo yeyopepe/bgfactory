@@ -191,18 +191,17 @@ describe('020 — Dado', () => {
   it('FT-020-08 · lanzamiento en modo juego', async () => {
     const DICE_ROLL_DURATION_MS = 1000;
 
-    // Nota de implementación: `dice--clickable` (rama `else if` en
-    // componentRenderer.js) nunca se aplica en la práctica, porque tanto
-    // playMode.js como editMode.js pasan siempre `onMove` a
-    // `renderComponentsOnTable`, así que la rama `onMove && canMove(component)`
-    // gana siempre y el dado recibe `dice--movable` en ambos modos (es
-    // arrastrable en los dos). La lanzabilidad real en modo juego la da un
-    // listener de `click` independiente, activo solo si se pasa `onDiceResult`
-    // (que editMode.js no pasa). Se verifica aquí ese comportamiento real en
-    // vez del que describía el plan original (distinguir por clase CSS).
+    // Nota de implementación: el dado recibe `dice--movable` en ambos modos
+    // (es arrastrable en los dos: playMode.js y editMode.js pasan siempre
+    // `onMove` a `renderComponentsOnTable`). `dice--clickable` y el listener de
+    // `click` que lanza el dado se registran en un `if` independiente del
+    // arrastre, activo mientras se pase `onDiceResult` (solo modo juego) y la
+    // interacción 'lanzar' esté activa — con independencia de si el dado es
+    // arrastrable o está bloqueado, mismo patrón que 'carta'/'mazo'.
     addDado('dado-juego');
     let content = mountPlayMode();
     expect(diceEl(content).classList.contains('dice--movable')).toBe(true);
+    expect(diceEl(content).classList.contains('dice--clickable')).toBe(true);
 
     resetState();
     addDado('dado-edit');
@@ -221,6 +220,37 @@ describe('020 — Dado', () => {
 
     expect(content.querySelector('.dice__result').textContent).toBe('6');
     expect(getComponents().find((c) => c.id === 'dado-tira').properties.resultadoActual).toBe('6');
+    expect(dice.style.transform).toBe('');
+  });
+
+  it('FT-020-09 · pulsar (sin arrastrar) un dado no bloqueado lo lanza', async () => {
+    const DICE_ROLL_DURATION_MS = 1000;
+
+    // Regresión: el dado no bloqueado es arrastrable, pero una pulsación sin
+    // desplazamiento debe lanzarlo. `beginDragLift` reordena el nodo en el DOM
+    // y, si se hace ya en `mousedown`, el navegador no sintetiza el `click`
+    // posterior. Debe diferirse al primer `mousemove` (mismo patrón que
+    // 'carta'/'mazo'); aquí se simula mousedown→mouseup sin mousemove y se
+    // comprueba que el nodo no se ha reordenado (no lleva `.lifted`), lo que
+    // permite que el `click` que sigue lance el dado.
+    mockRandom(new Array(64).fill(0.999));
+    const dado = addDado('dado-pulsar', { numeroMaximoCaras: 6, resultadoActual: '1' });
+    const content = mountPlayMode();
+    const dice = diceEl(content);
+
+    expect(dice.classList.contains('dice--movable')).toBe(true);
+
+    dice.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, button: 0, clientX: 10, clientY: 10 }));
+    expect(dice.classList.contains('lifted')).toBe(false);
+    document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 0, clientX: 10, clientY: 10 }));
+    expect(dice.classList.contains('lifted')).toBe(false);
+
+    dice.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+    await new Promise((r) => setTimeout(r, 250 + DICE_ROLL_DURATION_MS + 400));
+
+    expect(content.querySelector('.dice__result').textContent).toBe('6');
+    expect(getComponents().find((c) => c.id === dado.id).properties.resultadoActual).toBe('6');
     expect(dice.style.transform).toBe('');
   });
 });

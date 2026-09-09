@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BG Factory</title>
+<meta name="description" content="A visual board-game editor that ships as one self-contained HTML file — no install, no server, no accounts.">
+<style>
+body{max-width:720px;margin:2.5rem auto;padding:0 1.25rem 3rem;font:16px/1.6 system-ui,sans-serif}
+img{max-width:100%}
+h1{font-size:1.9rem;line-height:1.2}
+h2{font-size:1.3rem;margin-top:2.2rem}
+li{margin:.4rem 0}
+.logo{display:block;width:90px;margin:0 auto 1.5rem;border-radius:12px;border:1px solid color-mix(in srgb,currentColor 20%,transparent)}
+.lead{font-size:1.05rem;font-weight:500}
+footer{margin-top:2.5rem;font-size:.9rem;opacity:.7}
+</style>
+
+<img class="logo" src="src/resources/img/bgfactory-logo-color_2.webp" alt="BG Factory logo">
+
+<h1>BG Factory — a 100% portable board game editor</h1>
+
+<p><strong>BG Factory</strong> is a visual editor for creating and playing your own digital board games, shipped as <strong>a single self-contained HTML file</strong>.</p>
+
+<p class="lead">No install, no accounts, no server, no online dependencies: download the file, double-click it in any modern browser, and your game table is ready — editor and data bundled in the same <code>.html</code>.</p>
+
+<h2>🚀 Why BG Factory?</h2>
+<ul>
+<li><strong>📦 100% portable</strong> — the whole editor lives in one file. USB stick, email, cloud — it works the same wherever you open it.</li>
+<li><strong>⚡ No install, no accounts</strong> — nothing to install, no sign-up, no cloud service. Open the file and start.</li>
+<li><strong>🎒 Your game travels with you</strong> — export a complete copy of all content and settings as JSON, ready to share.</li>
+<li><strong>✈️ Works offline</strong> — once downloaded, it needs no internet connection at all.</li>
+<li><strong>💾 Local autosave</strong> — your game is saved automatically in the browser as you work.</li>
+</ul>
+
+<h2>🎯 Ready-to-use game components</h2>
+<ul>
+<li><strong>🃏 Cards</strong> — visual editor with image, shape and text layers; two independent faces with animated flip; preset ratios (poker, tarot, square, circular, hexagonal, triangular) or free.</li>
+<li><strong>🂠 Decks</strong> — an ordered, shufflable stack with a configurable reveal area, its own back image, and Shuffle / View contents / Add-to-deck.</li>
+<li><strong>🎲 Dice</strong> — configurable face count or custom value list (numeric or text), own result font, roll animation, enlarged result on double-click.</li>
+<li><strong>🗺️ Simple boards</strong> — square or hexagonal grid with a background colour or image, beveled or flat border, with or without shadow.</li>
+<li><strong>🖼️ Custom boards</strong> — the same advanced visual editor as cards, for bespoke boards and maps at real pixel size.</li>
+<li><strong>📝 Text boxes</strong> with rich formatting (Markdown or HTML).</li>
+<li><strong>📄 Document viewers</strong> — pasted text/Markdown or an embedded web page, as a rulebook always at hand.</li>
+</ul>
+
+<h2>🖌️ A full visual editor</h2>
+<ul>
+<li><strong>Infinite table</strong> with pan and zoom, plus floating panels for components, assets and tags — sort, filter and text-search any column.</li>
+<li><strong>Grouping</strong> — combine components into one unit with its own lock, visibility, tooltip and tags; move and edit as one, ungroup any time.</li>
+<li><strong>Linked "Copy" elements</strong> — change an original and all its synced copies update on their own.</li>
+<li><strong>Tags</strong> — one click selects every element carrying a tag, even cards stored inside a deck.</li>
+<li><strong>Depth/extrusion</strong>, per-component title and tooltip with dynamic variables (e.g. <code>{cards_current}</code>), style clipboard, keyboard shortcuts, stacking-order control.</li>
+<li><strong>Asset panel</strong> — upload one file, several, or a whole folder; automatic WebP conversion; an asset in use can't be deleted by accident.</li>
+</ul>
+
+<h2>🕹️ Edit mode and play mode, kept apart</h2>
+<ul>
+<li><strong>Edit mode</strong> — configure components, properties, assets, tags and table layout with every design panel in view.</li>
+<li><strong>Play mode</strong> — roll dice, draw and flip cards, move pieces, read tooltips — without risking a change to the design.</li>
+<li><strong>Instant switch</strong> between the two, always on the same game — no two separate versions of the state.</li>
+<li><strong>Scripted interactions</strong> per component and per action (click, double-click, drag, right-click).</li>
+<li><strong>Movement lock</strong> per component or group (never / play-mode only / always), plus hiding pieces from the audience.</li>
+</ul>
+
+<h2>🔄 Flexible import/export</h2>
+<ul>
+<li><strong>Save</strong> downloads a complete copy of the editor with your game embedded inside it — the portable file itself.</li>
+<li><strong>Selective export/import</strong> moves individual components, assets and tags between games as JSON.</li>
+<li>On import, add or overwrite, resolve duplicate ids, and get a detailed report on any conflict.</li>
+<li>Saves from earlier versions migrate automatically; the editable game title is the default file name.</li>
+</ul>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BG Factory — runner de arranque (SÍ carga main.js)</title>
+</head>
+<body>
+  <!-- Réplica de los contenedores de src/index.html: main.js los busca por id.
+       A diferencia de runner-page.html, este contenedor SÍ carga src/main.js,
+       una sola vez, para los casos de arranque de extremo a extremo
+       (*.boot.test.js). NO se carga styles/main.css. -->
+  <h1 id="app-title"></h1>
+  <div id="edit-toolbar"></div>
+  <div id="mode-switcher"></div>
+  <div id="content"></div>
+  <footer id="app-version"></footer>
+  <script type="application/json" id="initial-state"></script>
+
+  <script type="module">
+    import * as harness from './harness.js';
+
+    const file = new URLSearchParams(location.search).get('file');
+
+    async function main() {
+      if (!file) throw new Error('Falta el parámetro ?file= en la URL del runner de arranque.');
+      // El fichero de test se importa PRIMERO y prepara el entorno (localStorage,
+      // #initial-state) ANTES de cargar main.js. Contrato del módulo de test:
+      //   setupBoot()  (opcional, async)  — prepara localStorage / #initial-state
+      //   -> import('../main.js') una vez — arranque real
+      //   afterBoot()  (opcional, async)  — registra los it() ya con main.js corrido
+      const mod = await import('./' + file);
+      if (typeof mod.setupBoot === 'function') await mod.setupBoot();
+      await import('../main.js');
+      if (typeof mod.afterBoot === 'function') await mod.afterBoot();
+      const results = await harness.run();
+      window.__BGF_TEST_FEATURES__ = harness.getRegisteredFeature();
+      window.__BGF_TEST_RESULTS__ = results;
+    }
+
+    main().catch((err) => {
+      window.__BGF_TEST_FEATURES__ = harness.getRegisteredFeature();
+      window.__BGF_TEST_RESULTS__ = [{
+        name: '(carga del fichero de test)',
+        status: 'fail',
+        error: String(err && err.stack ? err.stack : err),
+      }];
+    });
+  </script>
+</body>
+</html>

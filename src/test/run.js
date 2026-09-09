@@ -125,7 +125,11 @@ async function main() {
     let results = null;
     let features = null;
     try {
-      await page.goto(`${base}/test/runner-page.html?file=functional/${file}`, {
+      // Los ficheros `*.boot.test.js` necesitan el arranque real de `main.js`:
+      // se sirven en `runner-page-boot.html` (que sí lo carga). El resto va al
+      // `runner-page.html` de siempre. El contrato de `window` es el mismo.
+      const runnerPage = file.endsWith('.boot.test.js') ? 'runner-page-boot.html' : 'runner-page.html';
+      await page.goto(`${base}/test/${runnerPage}?file=functional/${file}`, {
         waitUntil: 'load',
       });
       await page.waitForFunction(
