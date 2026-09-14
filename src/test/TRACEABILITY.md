@@ -15,16 +15,16 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 | 005 — Elementos tipo Copia, vinculados y sincronizados con un original | FT-005-01, FT-005-02, FT-005-03, FT-005-04, FT-005-05, FT-005-06, FT-005-07, FT-005-08, FT-005-09, FT-014-01 (secundaria), FT-014-02 (secundaria), FT-014-03 (secundaria), FT-014-05 (secundaria), FT-014-06 (secundaria), FT-014-07 (secundaria), FT-014-08 (secundaria), FT-014-09 (secundaria), FT-014-10 (secundaria), FT-014-11 (secundaria) |
 | 006 — Panel flotante de recursos, con filtro de texto | FT-006-01, FT-006-02, FT-006-03, FT-006-04, FT-006-05, FT-006-06, FT-006-07, FT-006-08, FT-006-09, FT-006-10, FT-006-11, FT-006-12, FT-006-13, FT-004-01 (secundaria), FT-004-02 (secundaria), FT-004-03 (secundaria), FT-004-04 (secundaria), FT-004-05 (secundaria), FT-004-06 (secundaria), FT-004-07 (secundaria), FT-004-08 (secundaria), FT-004-09 (secundaria), FT-004-10 (secundaria), FT-004-11 (secundaria), FT-004-12 (secundaria) |
 | 007 — Edición de un recurso Imagen, con vista previa ampliada de zoom y pan | FT-007-01, FT-007-02, FT-007-03, FT-007-04, FT-007-05, FT-007-06, FT-007-07, FT-007-08, FT-007-09, FT-007-10, FT-007-11 |
-| 008 — Etiquetas, organización de elementos por nombre | — |
-| 009 — Subida múltiple y por carpeta de recursos | — |
-| 010 — Conversión automática a WebP al subir imágenes | — |
-| 011 — Búsqueda de imagen en el modal "Elegir imagen" | — |
+| 008 — Etiquetas, organización de elementos por nombre | FT-008-01, FT-008-02, FT-008-03, FT-008-04, FT-008-05, FT-008-06, FT-008-07, FT-008-08, FT-008-09, FT-008-10, FT-008-11, FT-008-12, FT-008-13, FT-008-14 |
+| 009 — Subida múltiple y por carpeta de recursos | FT-009-01, FT-009-02, FT-009-03, FT-009-04, FT-009-05 |
+| 010 — Conversión automática a WebP al subir imágenes | FT-010-01, FT-010-02, FT-010-03 |
+| 011 — Búsqueda de imagen en el modal "Elegir imagen" | FT-011-01, FT-011-02, FT-011-03, FT-011-04, FT-011-05, FT-011-06 |
 | 012 — Orden de apilado en la mesa | FT-012-01, FT-012-02, FT-012-03, FT-012-04, FT-012-05, FT-012-06, FT-012-07, FT-012-08, FT-012-09, FT-012-10, FT-012-11 |
 | 013 — Subir al mover/interactuar | FT-013-01, FT-013-02, FT-013-03, FT-013-04, FT-013-05, FT-013-06, FT-013-07, FT-013-08, FT-013-09, FT-013-10 |
 | 014 — Interacciones programadas de un componente | FT-014-01, FT-014-02, FT-014-03, FT-014-05, FT-014-06, FT-014-07, FT-014-08, FT-014-09, FT-014-10, FT-014-11 |
 | 015 — Posición independiente, arrastre y redimensionado de componentes | FT-015-01, FT-015-02, FT-015-03, FT-015-04, FT-015-05, FT-015-06, FT-015-07, FT-015-20, FT-015-21, FT-015-22, FT-015-23 |
 | 016 — Componente oculto en modo juego | FT-016-01, FT-016-02, FT-016-04, FT-016-05, FT-016-06 |
-| 017 — Componente "cuadro de texto" | — |
+| 017 — Componente "cuadro de texto" | FT-017-01, FT-017-02, FT-017-03 |
 | 018 — Componente "tablero simple" | FT-018-01, FT-018-03, FT-018-04, FT-018-05, FT-018-06, FT-018-07, FT-018-08, FT-018-09 |
 | 019 — Componente "tablero personalizado" | FT-019-01, FT-019-02, FT-019-03, FT-019-04, FT-019-05, FT-019-06, FT-019-07, FT-019-08 |
 | 020 — Componente "dado" | FT-020-01, FT-020-02, FT-020-03, FT-020-04, FT-020-05, FT-020-06, FT-020-07, FT-020-08, FT-020-09, FT-015-20 (secundaria), FT-015-21 (secundaria), FT-015-22 (secundaria), FT-015-23 (secundaria) |
@@ -34,7 +34,7 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 | 025 — Identificación de componentes al pasar el ratón | FT-025-01, FT-025-02, FT-025-03, FT-025-04, FT-025-05, FT-025-06, FT-025-07, FT-025-08, FT-025-09 |
 | 026 — Menú contextual de componente en modo juego | FT-026-01, FT-026-02, FT-026-03, FT-026-04, FT-026-05, FT-026-06, FT-026-07, FT-026-08, FT-026-09, FT-026-10, FT-026-11, FT-026-12, FT-026-13, FT-026-14, FT-026-15, FT-026-16, FT-026-17 |
 | 027 — Menú contextual de elemento en modo edición | FT-027-01, FT-027-02, FT-027-03, FT-027-04, FT-027-05, FT-027-06, FT-027-07, FT-027-08, FT-027-09, FT-027-10, FT-027-11, FT-027-12, FT-027-13, FT-027-14, FT-027-15 |
-| 028 — Atajos de teclado en modo edición | — |
+| 028 — Atajos de teclado en modo edición | FT-028-01, FT-028-02, FT-028-03, FT-028-04, FT-028-05, FT-028-06, FT-028-07, FT-028-08, FT-028-09, FT-028-10, FT-028-11, FT-028-12 |
 | 029 — Autoguardado en el navegador | FT-029-01, FT-029-02, FT-029-03, FT-029-04, FT-029-05, FT-029-06, FT-029-07, FT-029-08, FT-029-09, FT-029-10, FT-029-11, FT-029-12, FT-029-13, FT-029-14, FT-029-15, FT-029-17, FT-029-18, FT-029-19, FT-029-20, FT-036-10, FT-036-11, FT-029-16 (secundaria), FT-036-12 (secundaria), FT-036-13 (secundaria) |
 | 030 — Título de cabecera editable | FT-030-01, FT-030-02, FT-030-03, FT-030-04, FT-030-05, FT-030-06, FT-030-07, FT-030-08, FT-030-09, FT-029-01 (secundaria), FT-029-02 (secundaria), FT-029-03 (secundaria), FT-029-04 (secundaria), FT-029-05 (secundaria), FT-029-06 (secundaria), FT-029-07 (secundaria), FT-029-08 (secundaria), FT-029-09 (secundaria), FT-032-01 (secundaria), FT-032-02 (secundaria), FT-032-03 (secundaria), FT-032-04 (secundaria), FT-032-05 (secundaria), FT-032-06 (secundaria), FT-032-07 (secundaria), FT-032-08 (secundaria), FT-032-09 (secundaria), FT-032-10 (secundaria), FT-032-11 (secundaria) |
 | 032 — Exportar/importar componentes en JSON, con selección | FT-032-01, FT-032-02, FT-032-03, FT-032-04, FT-032-05, FT-032-06, FT-032-07, FT-032-08, FT-032-09, FT-032-10, FT-032-11 |
@@ -46,7 +46,7 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 | 038 — Aplicación multi-idioma y panel de configuración | FT-038-01, FT-038-02, FT-038-03, FT-038-04, FT-038-05, FT-038-06, FT-038-07, FT-038-08, FT-038-09 |
 | 039 — Barra de controles superior: modos, importar y exportar | FT-039-01, FT-039-02, FT-039-03, FT-039-04, FT-039-05, FT-039-06, FT-039-07 |
 | 040 — Catálogo de propiedades de componentes, grupos y etiquetas | FT-040-01, FT-040-02, FT-040-03, FT-040-04, FT-040-05, FT-040-06, FT-040-07, FT-040-08, FT-040-09, FT-040-10 |
-| 041 — Pantalla de bienvenida al arrancar la aplicación | — |
+| 041 — Pantalla de bienvenida al arrancar la aplicación | FT-041-01, FT-041-02, FT-041-03, FT-041-04 |
 
 ## Anomalías
 
@@ -56,12 +56,4 @@ _Ninguna._
 
 ### Funcionalidades sin ningún test (solo informativo)
 
-| Funcionalidad |
-|---|
-| 008 — Etiquetas, organización de elementos por nombre |
-| 009 — Subida múltiple y por carpeta de recursos |
-| 010 — Conversión automática a WebP al subir imágenes |
-| 011 — Búsqueda de imagen en el modal "Elegir imagen" |
-| 017 — Componente "cuadro de texto" |
-| 028 — Atajos de teclado en modo edición |
-| 041 — Pantalla de bienvenida al arrancar la aplicación |
+_Ninguna._
