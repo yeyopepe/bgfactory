@@ -44,9 +44,16 @@ function addRow(menu, { icon, label, onClick, disabled }) {
 // Fila con un `<select>` inline en vez de acción de click directo. Mismo
 // `stopPropagation` que `ui/columnHeaderMenu.js`: interactuar con el
 // desplegable no dispara el cierre por click-fuera.
-function addSelectRow(menu, { label, options = [], disabled, onChange }) {
+function addSelectRow(menu, { icon, label, options = [], disabled, onChange }) {
   const row = document.createElement('div');
   row.className = 'context-menu__select-row';
+
+  if (icon) {
+    const iconWrap = document.createElement('span');
+    iconWrap.className = 'context-menu__item-icon';
+    iconWrap.appendChild(icon);
+    row.appendChild(iconWrap);
+  }
 
   const text = document.createElement('span');
   text.className = 'context-menu__select-row-label';
@@ -142,7 +149,8 @@ function addInfoSection(menu, interactionItems) {
 
 // `generalItems`/`specificItems`: `{ icon: SVGElement, label: string, onClick: () => void, disabled?: boolean }[]`,
 // o, para una fila con `<select>` inline en vez de acción de click directo:
-// `{ label: string, select: { options: { value: string, label: string }[], disabled?: boolean, onChange: (value: string) => void } }`.
+// `{ icon?: SVGElement, label: string, select: { options: { value: string, label: string }[], disabled?: boolean, onChange: (value: string) => void } }`
+// (`icon` opcional, mismo `.context-menu__item-icon` que las filas de acción — 00244).
 // `disabled`: item atenuado y sin acción (no registra listener de click).
 // El separador entre ambas secciones solo se dibuja si `specificItems` no está vacío.
 // `interactionItems`: `{ label: string, value: string }[]` — sección de solo lectura al final del menú.
@@ -159,7 +167,7 @@ export function openContextMenu({ x, y, generalItems = [], specificItems = [], i
   if (description) addDescriptionSection(menu, description);
 
   for (const item of generalItems) {
-    if (item.select) addSelectRow(menu, { label: item.label, ...item.select });
+    if (item.select) addSelectRow(menu, { icon: item.icon, label: item.label, ...item.select });
     else addRow(menu, item);
   }
 
@@ -168,7 +176,7 @@ export function openContextMenu({ x, y, generalItems = [], specificItems = [], i
     separator.className = 'context-menu__separator';
     menu.appendChild(separator);
     for (const item of specificItems) {
-      if (item.select) addSelectRow(menu, { label: item.label, ...item.select });
+      if (item.select) addSelectRow(menu, { icon: item.icon, label: item.label, ...item.select });
       else addRow(menu, item);
     }
   }

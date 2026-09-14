@@ -34,78 +34,7 @@ import { showToast } from '../../ui/toast.js';
 import { runWithProgressModal } from '../../ui/progressModal.js';
 import { sortByName } from '../../core/textSort.js';
 import { t } from '../../core/i18n.js';
-
-// Iconos del menú contextual de elemento. Mismo patrón que playMode.js: SVGs 24x24
-// locales, sin fichero de iconos compartido en el proyecto.
-function createCloneIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML = '<rect x="7" y="7" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>';
-  return svg;
-}
-
-function createCopyIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML = '<rect x="9" y="9" width="11" height="11" rx="2"/><rect x="4" y="4" width="11" height="11" rx="2"/>';
-  return svg;
-}
-
-function createRemoveIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML = '<path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>';
-  return svg;
-}
-
-function createHiddenIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML = '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="3"/><line x1="3" y1="21" x2="21" y2="3" stroke-linecap="round"/>';
-  return svg;
-}
-
-function createGroupIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML = '<rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><path d="M11 7h4a2 2 0 0 1 2 2v4" stroke-dasharray="2 2"/>';
-  return svg;
-}
-
-function createUngroupIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML = '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>';
-  return svg;
-}
-
-function createFlipIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML = '<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M3 9a6 6 0 0 1 4-5" stroke-linecap="round"/><path d="M3 9l0-3.5M3 9l3-1" stroke-linecap="round"/><path d="M21 15a6 6 0 0 1-4 5" stroke-linecap="round"/><path d="M21 15l0 3.5M21 15l-3 1" stroke-linecap="round"/>';
-  return svg;
-}
+import { iconEl, ICON_SIZE } from '../../ui/icons.js';
 
 // Selección de la sesión en curso. Vive fuera de `renderEditMode`: `components:changed`
 // remonta todo el modo, así no se pierde al mover/redimensionar/editar un componente.
@@ -612,7 +541,7 @@ export function renderEditMode(container) {
 
     const generalItems = [
       {
-        icon: createHiddenIcon(),
+        icon: iconEl('hide', { size: ICON_SIZE.menu }),
         label: (selectedGroup ? selectedGroup.oculto : affectedComponents.every((c) => c.oculto)) ? t('menu.show') : t('menu.hide'),
         onClick: () => {
           if (selectedGroup) {
@@ -628,7 +557,7 @@ export function renderEditMode(container) {
         },
       },
       {
-        icon: createCloneIcon(),
+        icon: iconEl('clone', { size: ICON_SIZE.menu }),
         label: t('contextMenu.clone'),
         disabled: cloneables.length === 0,
         onClick: () => {
@@ -638,7 +567,7 @@ export function renderEditMode(container) {
         },
       },
       {
-        icon: createCopyIcon(),
+        icon: iconEl('copy-style', { size: ICON_SIZE.menu }),
         label: t('contextMenu.copy'),
         disabled: cloneables.length === 0,
         onClick: () => {
@@ -648,12 +577,12 @@ export function renderEditMode(container) {
         },
       },
       {
-        icon: createRemoveIcon(),
+        icon: iconEl('delete', { size: ICON_SIZE.menu }),
         label: t('contextMenu.delete'),
         onClick: () => attemptDeleteComponents(affectedComponents),
       },
       {
-        icon: createGroupIcon(),
+        icon: iconEl('group', { size: ICON_SIZE.menu }),
         label: t('contextMenu.group'),
         disabled: !canGroup,
         onClick: () => {
@@ -671,7 +600,7 @@ export function renderEditMode(container) {
         },
       },
       {
-        icon: createUngroupIcon(),
+        icon: iconEl('ungroup', { size: ICON_SIZE.menu }),
         label: t('contextMenu.ungroup'),
         disabled: !canUngroup,
         onClick: () => {
@@ -692,7 +621,7 @@ export function renderEditMode(container) {
 
     const specificItems = [
       ...(allCartas ? [{
-        icon: createFlipIcon(),
+        icon: iconEl('flip', { size: ICON_SIZE.menu }),
         label: t('menu.flipCard'),
         onClick: () => {
           for (const c of affectedComponents) {
@@ -703,6 +632,7 @@ export function renderEditMode(container) {
         },
       }] : []),
       {
+        icon: iconEl('tag', { size: ICON_SIZE.menu }),
         label: t('contextMenu.addToTag'),
         select: {
           options: sortByName(getTags()).map((tag) => ({ value: tag.id, label: tag.name })),

@@ -6,7 +6,8 @@
   "scripts": {
     "test": "node src/test/run.js",
     "test:setup": "node src/test/setup.js",
-    "test:all": "node src/test/setup.js && node src/test/run.js"
+    "test:build": "node src/test/build-check.js",
+    "test:all": "node src/test/setup.js && node src/test/run.js && node src/test/build-check.js"
   },
   "devDependencies": {
     "playwright": "1.55.1"

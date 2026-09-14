@@ -7,6 +7,7 @@ import { RESOURCE_TYPES, resourceTypeForFileName } from '../core/resource.js';
 import { convertImageToWebP } from '../core/imageConversion.js';
 import { fontFamilyFor } from './fontFaceRegistry.js';
 import { t } from '../core/i18n.js';
+import { iconSvg, ICON_SIZE } from './icons.js';
 
 export function openResourceModal({ resource, onAccept, onDelete }) {
   const overlay = document.createElement('div');
@@ -124,9 +125,9 @@ function renderImageContent(content, workingResource) {
 
   const zoomControls = document.createElement('div');
   zoomControls.className = 'resource-modal__zoom-controls';
-  const zoomInBtn = createZoomButton(t('resourceModal.zoom.in'), ICON_ZOOM_IN);
-  const zoomOutBtn = createZoomButton(t('resourceModal.zoom.out'), ICON_ZOOM_OUT);
-  const resetBtn = createZoomButton(t('resourceModal.zoom.reset'), ICON_RESET);
+  const zoomInBtn = createZoomButton(t('resourceModal.zoom.in'), iconSvg('zoom-in', { size: ICON_SIZE.zoom }));
+  const zoomOutBtn = createZoomButton(t('resourceModal.zoom.out'), iconSvg('zoom-out', { size: ICON_SIZE.zoom }));
+  const resetBtn = createZoomButton(t('resourceModal.zoom.reset'), iconSvg('zoom-reset', { size: ICON_SIZE.zoom }));
   zoomControls.appendChild(zoomInBtn);
   zoomControls.appendChild(zoomOutBtn);
   zoomControls.appendChild(resetBtn);
@@ -248,29 +249,15 @@ function renderImageContent(content, workingResource) {
   return stopDrag;
 }
 
-function createZoomButton(title, iconSvg) {
+function createZoomButton(title, iconMarkup) {
   const btn = document.createElement('button');
   btn.type = 'button';
   btn.className = 'resource-modal__zoom-btn';
   btn.title = title;
   btn.setAttribute('aria-label', title);
-  btn.innerHTML = iconSvg;
+  btn.innerHTML = iconMarkup;
   return btn;
 }
-
-const ICON_ZOOM_IN =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-  '<circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>' +
-  '<line x1="11" y1="8" x2="11" y2="14"></line><line x1="8" y1="11" x2="14" y2="11"></line></svg>';
-
-const ICON_ZOOM_OUT =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-  '<circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>' +
-  '<line x1="8" y1="11" x2="14" y2="11"></line></svg>';
-
-const ICON_RESET =
-  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-  '<path d="M21 12a9 9 0 1 1-3.2-6.9"></path><polyline points="21 3 21 9 15 9"></polyline></svg>';
 
 function renderFontContent(content, resource) {
   const previewField = document.createElement('div');

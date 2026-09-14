@@ -5,6 +5,7 @@ import { openDiceFontModal } from './diceFontModal.js';
 import { getResources } from '../core/state.js';
 import { createRotationSliderField } from './rotationSlider.js';
 import { t } from '../core/i18n.js';
+import { iconSvg, ICON_SIZE } from './icons.js';
 
 export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate }) {
   const overlay = document.createElement('div');
@@ -87,17 +88,17 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
     {
       value: 'izquierda',
       label: t('align.left'),
-      icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="4" x2="16" y2="4"/><line x1="2" y1="9" x2="11" y2="9"/><line x1="2" y1="14" x2="14" y2="14"/></svg>',
+      icon: iconSvg('align-left', { size: ICON_SIZE.menu }),
     },
     {
       value: 'centro',
       label: t('align.centerH'),
-      icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="4" x2="16" y2="4"/><line x1="4.5" y1="9" x2="13.5" y2="9"/><line x1="3" y1="14" x2="15" y2="14"/></svg>',
+      icon: iconSvg('align-center', { size: ICON_SIZE.menu }),
     },
     {
       value: 'derecha',
       label: t('align.right'),
-      icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="4" x2="16" y2="4"/><line x1="7" y1="9" x2="16" y2="9"/><line x1="4" y1="14" x2="16" y2="14"/></svg>',
+      icon: iconSvg('align-right', { size: ICON_SIZE.menu }),
     },
   ];
 
@@ -105,17 +106,17 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
     {
       value: 'arriba',
       label: t('align.top'),
-      icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="3" x2="16" y2="3"/><line x1="9" y1="3" x2="9" y2="15"/><line x1="5.5" y1="7" x2="9" y2="3"/><line x1="12.5" y1="7" x2="9" y2="3"/></svg>',
+      icon: iconSvg('align-top', { size: ICON_SIZE.menu }),
     },
     {
       value: 'centro',
       label: t('align.centerV'),
-      icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="9" x2="16" y2="9"/><line x1="9" y1="3" x2="9" y2="15"/><line x1="5.5" y1="5.5" x2="9" y2="2.5"/><line x1="12.5" y1="5.5" x2="9" y2="2.5"/><line x1="5.5" y1="12.5" x2="9" y2="15.5"/><line x1="12.5" y1="12.5" x2="9" y2="15.5"/></svg>',
+      icon: iconSvg('align-middle', { size: ICON_SIZE.menu }),
     },
     {
       value: 'abajo',
       label: t('align.bottom'),
-      icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="2" y1="15" x2="16" y2="15"/><line x1="9" y1="3" x2="9" y2="15"/><line x1="5.5" y1="11" x2="9" y2="15"/><line x1="12.5" y1="11" x2="9" y2="15"/></svg>',
+      icon: iconSvg('align-bottom', { size: ICON_SIZE.menu }),
     },
   ];
 
@@ -247,17 +248,17 @@ export function openCardTextBoxModal({ textBox, onAccept, onDelete, onDuplicate 
     {
       prop: 'negrita',
       label: t('align.bold'),
-      icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h5.2a2.8 2.8 0 0 1 0 5.6H5z"/><path d="M5 9.1h5.9a2.9 2.9 0 0 1 0 5.8H5z"/></svg>',
+      icon: iconSvg('bold', { size: ICON_SIZE.menu }),
     },
     {
       prop: 'cursiva',
       label: t('align.italic'),
-      icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="11" y1="3.5" x2="7" y2="14.5"/><line x1="6" y1="14.5" x2="10" y2="14.5"/><line x1="8" y1="3.5" x2="12" y2="3.5"/></svg>',
+      icon: iconSvg('italic', { size: ICON_SIZE.menu }),
     },
     {
       prop: 'subrayado',
       label: t('align.underline'),
-      icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 3v5.5a4 4 0 0 0 8 0V3"/><line x1="4" y1="15" x2="14" y2="15"/></svg>',
+      icon: iconSvg('underline', { size: ICON_SIZE.menu }),
     },
   ];
 

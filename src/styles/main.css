@@ -1,3 +1,4 @@
+/* ═══ 1. TOKENS ═══ */
 :root {
   --bg-table: #c2c2c2;
   --bg-table-dot: rgba(0, 0, 0, 0.09);
@@ -20,8 +21,99 @@
   --shadow-2: 0 4px 20px rgba(0, 0, 0, 0.15); /* nivel 2: overlay (modales, el más alto) */
   --transition-fast: 150ms ease;
   --section-accent: #5b5f97; /* título de .modal__section, distinto de --accent-blue (interactivo/seleccionado) */
+
+  /* Superficies */
+  --bg-surface: #ffffff;
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+
+  /* Acento azul (alphas) */
+  --accent-blue-alpha-15: rgba(44, 125, 216, 0.15);
+  --accent-blue-alpha-25: rgba(44, 125, 216, 0.25);
+  --accent-blue-alpha-35: rgba(44, 125, 216, 0.35);
+
+  /* Semánticos */
+  --error-subtle: rgba(211, 47, 47, 0.08);
+  --error-alpha: rgba(211, 47, 47, 0.35);
+  --success-subtle: rgba(46, 125, 50, 0.08);
+  --success-alpha: rgba(46, 125, 50, 0.4);
+  --warning: #e65100;
+  --warning-subtle: rgba(230, 81, 0, 0.08);
+  --info: #0277bd;
+  --info-subtle: rgba(2, 119, 189, 0.08);
+
+  /* Escala de grises */
+  --gray-100: var(--bg-card);
+  --gray-200: var(--bg-subtle);
+  --gray-300: var(--bg-hover);
+  --gray-400: var(--border-neutral);
+  --gray-500: #cccccc;
+  --gray-600: #999999;
+  --gray-700: var(--text-muted);
+  --gray-800: #3a3a3a;
+  --gray-900: var(--text-primary);
+
+  /* Barra de herramientas */
+  --toolbar-hover: rgba(255, 255, 255, 0.1);
+  --toolbar-divider: rgba(255, 255, 255, 0.2);
+  --toolbar-muted: rgba(255, 255, 255, 0.55);
+
+  /* Tipografía — tamaños */
+  --text-2xs: 0.7rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.125rem;
+  --text-lg: 1.5rem;
+  --text-xl: 2rem;
+  --text-display: 4rem;
+
+  /* Tipografía — pesos e interlineado */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  /* Espaciado */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+
+  /* Esquinas */
+  --radius-xs: 2px;
+  --radius-md: 6px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  /* Sombras — niveles */
+  --shadow-0: none;
+  --shadow-3: 0 8px 24px rgba(0, 0, 0, 0.18);
+  --shadow-lifted: 6px 7px 9px 2px rgba(0, 0, 0, 0.35);
+
+  /* Sombras — estado */
+  --shadow-focus: 0 0 0 3px var(--accent-blue-alpha-15);
+  --shadow-focus-strong: 0 0 0 3px var(--accent-blue-alpha-25);
+  --shadow-badge: 0 2px 4px rgba(0, 0, 0, 0.25);
+
+  /* Animación — duraciones */
+  --duration-instant: 80ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+
+  /* Animación — curvas */
+  --ease-default: ease;
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* ═══ 2. RESET Y BASE ═══ */
 * {
   box-sizing: border-box;
 }
@@ -41,11 +133,12 @@ body {
   height: 100vh;
 }
 
+/* ═══ 3. LAYOUT GLOBAL ═══ */
 h1 {
   margin: 0;
   padding: 0.75rem 1rem;
-  font-size: 1.5rem;
-  background: linear-gradient(180deg, #3a3a3a, var(--bg-toolbar));
+  font-size: var(--text-lg);
+  background: linear-gradient(180deg, var(--gray-800), var(--bg-toolbar));
   color: var(--text-light);
   height: 3.5rem;
   box-sizing: border-box;
@@ -116,7 +209,7 @@ h1 {
   padding: 0.5rem 1rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -140,7 +233,7 @@ h1 {
 
 #mode-switcher .export-menu-wrap > button:hover,
 #mode-switcher > button:not(.mode-switcher__mode-btn):not(.mode-switcher__fit-btn):not(.mode-switcher__settings-btn):hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--toolbar-hover);
 }
 
 /* Botón de cambio de modo ("Modo Edición" / "Modo Juego"): acción primaria (azul). */
@@ -182,7 +275,7 @@ h1 {
 }
 
 #mode-switcher .mode-switcher__settings-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--toolbar-hover);
 }
 
 .mode-switcher__fit-btn .icon-frame,
@@ -219,14 +312,14 @@ h1 {
   padding: 0.5rem 1rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   display: inline-flex;
   align-items: center;
   transition: background var(--transition-fast);
 }
 
 .edit-toolbar button:hover {
-  background: rgba(255,255,255,0.1);
+  background: var(--toolbar-hover);
 }
 
 .edit-toolbar button .icon-frame {
@@ -244,7 +337,7 @@ h1 {
 .toolbar-divider {
   width: 1px;
   height: 1.5rem;
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--toolbar-divider);
 }
 
 /* Desplegable "Exportar" de la barra de modo edición: mismo patrón funcional
@@ -283,12 +376,12 @@ h1 {
   padding: 0.5rem 0.75rem;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   transition: background var(--transition-fast);
 }
 
 .export-menu__item:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--toolbar-hover);
 }
 
 .export-menu__separator {
@@ -307,8 +400,8 @@ h1 {
 }
 
 .export-menu__soon-tag {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.55);
+  font-size: var(--text-2xs);
+  color: var(--toolbar-muted);
   white-space: nowrap;
 }
 
@@ -338,11 +431,12 @@ h1 {
   height: 100%;
 }
 
+/* ═══ 5. PANELES FLOTANTES ═══ */
 /* Component list (table inside the floating component panel) */
 .component-list {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .component-list__empty {
@@ -363,7 +457,7 @@ h1 {
   z-index: 2;
   padding: 0.5rem;
   text-align: left;
-  font-weight: 500;
+  font-weight: var(--font-medium);
   background: var(--bg-subtle);
 }
 
@@ -391,7 +485,7 @@ h1 {
 .component-list__order-input {
   width: 3rem;
   padding: 0.2rem 0.3rem;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   text-align: center;
   border: 1px solid var(--border-neutral);
   border-radius: var(--radius-sm);
@@ -409,7 +503,7 @@ h1 {
 .component-list__order-input:focus {
   outline: none;
   border-color: var(--accent-blue);
-  box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
+  box-shadow: 0 0 0 3px var(--accent-blue-alpha-15);
 }
 
 .component-list__order-input:disabled {
@@ -430,7 +524,7 @@ h1 {
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   transition: opacity var(--transition-fast);
 }
 
@@ -452,7 +546,7 @@ h1 {
 }
 
 .component-list__row.component-list__row--selected {
-  background: rgba(44, 125, 216, 0.15);
+  background: var(--accent-blue-alpha-15);
 }
 
 /* Miembro de un grupo, anidado justo debajo de la fila de su grupo (00204):
@@ -467,17 +561,17 @@ h1 {
 }
 
 .component-list__row--member.component-list__row--selected {
-  background: rgba(44, 125, 216, 0.15);
+  background: var(--accent-blue-alpha-15);
 }
 
 .component-list__row--member .component-list__id-cell {
-  padding-left: 1.75rem;
+  padding-left: var(--space-8);
 }
 
 /* Fila de grupo plegable (00239): el identificador del grupo va en negrita
    para distinguir la fila de grupo de un componente suelto o de un miembro. */
 .component-list__group-name {
-  font-weight: 700;
+  font-weight: var(--font-semibold);
 }
 
 /* Triángulo de plegado al principio de la celda Id de la fila de grupo. Mismo
@@ -489,7 +583,7 @@ h1 {
   width: 16px;
   margin-right: 5px;
   color: var(--text-muted);
-  font-size: 0.9375rem;
+  font-size: var(--text-sm);
   line-height: 1;
   cursor: pointer;
   user-select: none;
@@ -500,28 +594,30 @@ h1 {
   color: var(--accent-blue);
 }
 
+/* ═══ 6. SISTEMA DE MODALES ═══ */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background: var(--bg-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 }
 
+/* ═══ 7. MODALES ESPECÍFICOS ═══ */
 /* Modal de operación en curso: estructura propia (sin header/content/footer),
    sin botones ni vía de cierre manual. */
 .progress-modal {
-  background: white;
+  background: var(--bg-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-2);
   width: 90%;
   max-width: 320px;
-  padding: 1.75rem 1.5rem;
+  padding: var(--space-8) var(--space-6);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -534,7 +630,7 @@ h1 {
   height: 40px;
   border: 4px solid var(--accent-blue-light);
   border-top-color: var(--accent-blue);
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   animation: progress-modal-spin 0.8s linear infinite;
 }
 
@@ -543,12 +639,12 @@ h1 {
 }
 
 .progress-modal__text {
-  font-size: 0.95rem;
+  font-size: var(--text-sm);
   color: var(--text-primary);
 }
 
 .modal {
-  background: white;
+  background: var(--bg-surface);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-2);
   max-width: 500px;
@@ -565,6 +661,7 @@ h1 {
 .component-editor-modal {
   width: clamp(400px, 50vw, min(600px, 65vw));
   max-width: none;
+  box-shadow: var(--shadow-3);
 }
 
 .modal__header {
@@ -584,19 +681,19 @@ h1 {
   border: none;
   cursor: pointer;
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   border-bottom: 2px solid transparent;
   transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .modal__tab.active {
-  background: white;
+  background: var(--bg-surface);
   color: var(--text-primary);
   border-bottom-color: var(--accent-blue);
 }
 
 .modal__tab:hover {
-  background: white;
+  background: var(--bg-surface);
 }
 
 .modal__content {
@@ -617,8 +714,8 @@ h1 {
 
 .modal__field label {
   display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
   margin-bottom: 0.25rem;
 }
 
@@ -632,7 +729,7 @@ h1 {
   border: 1px solid var(--border-neutral);
   border-radius: var(--radius-sm);
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
@@ -642,7 +739,7 @@ h1 {
 .modal__field textarea:focus {
   outline: none;
   border-color: var(--accent-blue);
-  box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
+  box-shadow: 0 0 0 3px var(--accent-blue-alpha-15);
 }
 
 .modal__field input[type="color"] {
@@ -661,7 +758,7 @@ input[type="radio"] {
 
 .modal__error {
   color: var(--error);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   margin-top: 0.25rem;
 }
 
@@ -677,12 +774,12 @@ input[type="radio"] {
   justify-content: center;
   width: 20px;
   height: 20px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--error);
   color: var(--text-light);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   flex-shrink: 0;
-  box-shadow: 0 2px 5px rgba(211, 47, 47, 0.4);
+  box-shadow: 0 2px 5px var(--error-alpha);
 }
 
 .modal__header--success {
@@ -697,25 +794,25 @@ input[type="radio"] {
   justify-content: center;
   width: 20px;
   height: 20px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--success);
   color: var(--text-light);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   flex-shrink: 0;
-  box-shadow: 0 2px 5px rgba(46, 125, 50, 0.4);
+  box-shadow: 0 2px 5px var(--success-alpha);
 }
 
 .batch-upload-summary-modal__table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   margin-top: 0.5rem;
 }
 
 .batch-upload-summary-modal__table th {
   padding: 0.5rem;
   text-align: left;
-  font-weight: 500;
+  font-weight: var(--font-medium);
   background: var(--bg-subtle);
 }
 
@@ -726,18 +823,18 @@ input[type="radio"] {
 
 .modal__header-title {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: var(--text-md);
   color: var(--text-primary);
 }
 
 .modal__error-detail {
-  background: #fff;
+  background: var(--bg-surface);
   border: 1px solid var(--border-neutral);
   border-radius: var(--radius-sm);
   padding: 0.75rem;
   margin-top: 0.75rem;
   font-family: ui-monospace, monospace;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
   white-space: pre-wrap;
   word-break: break-word;
@@ -770,8 +867,8 @@ fieldset.modal__section > *:last-child {
 
 legend.modal__section-title {
   padding: 0 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
   color: var(--section-accent);
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -819,7 +916,7 @@ fieldset.modal__section--untitled {
 
 /* Texto auxiliar bajo un grupo de campos/sección. */
 .modal__hint {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
   margin: 0.5rem 0 0;
 }
@@ -833,14 +930,14 @@ fieldset.modal__section--untitled {
 
 /* Valor de solo lectura de la versión en el panel de configuración. */
 .settings-modal__version {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: var(--text-muted);
 }
 
 /* Enlace al repositorio bajo la versión, en el panel de configuración: mismo
    tratamiento de enlace de texto discreto que #app-version a. */
 .settings-modal__repo {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: var(--text-muted);
   margin-top: 0.15rem;
 }
@@ -856,14 +953,14 @@ fieldset.modal__section--untitled {
 .modal__empty-state {
   text-align: center;
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   padding: 1rem 0;
 }
 
 /* Nota auxiliar a la derecha de un ítem de checklist (ui/styleClipboardSelectionModal.js)
    — mismo criterio que .resource-add__hint. */
 .element-selection-group__item-hint {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
   margin-left: auto;
 }
@@ -881,7 +978,7 @@ fieldset.modal__section--untitled {
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   transition: background var(--transition-fast), opacity var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
@@ -911,7 +1008,7 @@ fieldset.modal__section--untitled {
 .btn-accept:hover:not(:disabled) {
   opacity: 0.9;
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(44, 125, 216, 0.35);
+  box-shadow: 0 3px 8px var(--accent-blue-alpha-35);
 }
 
 .btn-accept:disabled {
@@ -928,9 +1025,10 @@ fieldset.modal__section--untitled {
 .btn-eliminar:hover {
   opacity: 0.9;
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(211, 47, 47, 0.3);
+  box-shadow: 0 3px 8px var(--error-alpha);
 }
 
+/* ═══ 4. COMPONENTES DE TABLERO ═══ */
 /* Text box component: texto suelto directamente sobre la mesa, sin caja ni
    fondo — la sombra de contacto del resto de piezas no aplica aquí (no hay
    caja que elevar); en su lugar lleva una sombra de texto muy sutil para
@@ -1175,11 +1273,11 @@ fieldset.modal__section--untitled {
   white-space: nowrap;
   background: var(--accent-blue-dark);
   color: var(--text-light);
-  font-size: 0.72rem;
+  font-size: var(--text-2xs);
   line-height: 1.4;
   padding: 0.1rem 0.4rem;
   border-radius: var(--radius-sm);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-badge);
   pointer-events: none;
   display: none;
 }
@@ -1193,7 +1291,7 @@ fieldset.modal__section--untitled {
 }
 
 .dice__result {
-  font-weight: 500;
+  font-weight: var(--font-medium);
   user-select: none;
 }
 
@@ -1201,7 +1299,7 @@ fieldset.modal__section--untitled {
    como el resto de piezas (papel apoyado sobre la mesa, sombra de contacto
    nivel 1, design/docs/style/01-tokens-visual.md). */
 .document-viewer {
-  background-color: #ffffff;
+  background-color: var(--bg-surface);
   border: 1px solid var(--border-neutral);
   box-shadow: var(--shadow-1);
 }
@@ -1254,7 +1352,7 @@ fieldset.modal__section--untitled {
   padding: 0.5rem;
   background-color: rgba(255, 255, 255, 0.9);
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   box-sizing: border-box;
 }
 
@@ -1388,11 +1486,11 @@ fieldset.modal__section--untitled {
   top: -1.6rem;
   left: 2px;
   white-space: nowrap;
-  font-size: 0.72rem;
+  font-size: var(--text-2xs);
   line-height: 1.4;
   padding: 0.1rem 0.4rem;
   border-radius: var(--radius-sm);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-badge);
   pointer-events: none;
 }
 
@@ -1417,7 +1515,7 @@ fieldset.modal__section--untitled {
   border: 2px dashed var(--border-neutral);
   border-radius: var(--radius-sm);
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   pointer-events: none;
 }
 
@@ -1447,13 +1545,13 @@ fieldset.modal__section--untitled {
   position: relative;
   flex: 0 0 auto;
   overflow: hidden;
-  background: #ffffff;
+  background: var(--bg-surface);
 }
 
 .mazo-contenido__id {
   flex: 1 1 auto;
-  font-size: 0.8125rem;
-  font-weight: 500;
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1463,7 +1561,7 @@ fieldset.modal__section--untitled {
   padding: 1.5rem 0.5rem;
   text-align: center;
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .component-copies-summary {
@@ -1473,7 +1571,7 @@ fieldset.modal__section--untitled {
   padding: 1.5rem 0.5rem;
   text-align: center;
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .component-copies-summary__row {
@@ -1481,13 +1579,13 @@ fieldset.modal__section--untitled {
   align-items: center;
   justify-content: space-between;
   padding: 0.25rem 0 0.75rem;
-  font-size: 0.8125rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
   gap: 1rem;
 }
 
 .component-copies-summary__label {
-  font-weight: 500;
+  font-weight: var(--font-medium);
 }
 
 .component-copies-summary__value {
@@ -1501,13 +1599,13 @@ fieldset.modal__section--untitled {
 .component-copies-modal__table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.8125rem;
+  font-size: var(--text-xs);
 }
 
 .component-copies-modal__table th {
   padding: 0.5rem;
   text-align: left;
-  font-weight: 500;
+  font-weight: var(--font-medium);
   background: var(--bg-subtle);
 }
 
@@ -1530,7 +1628,7 @@ fieldset.modal__section--untitled {
 .component-copies-modal__sync-dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   display: inline-block;
   flex-shrink: 0;
 }
@@ -1540,7 +1638,7 @@ fieldset.modal__section--untitled {
 }
 
 .component-copies-modal__sync--no .component-copies-modal__sync-dot {
-  background: #999999;
+  background: var(--gray-600);
 }
 
 .component-copies-modal__sync--no {
@@ -1551,8 +1649,8 @@ fieldset.modal__section--untitled {
    (ui/tagModal.js), mismo patrón visual que .mazo-contenido__* de arriba */
 .tag-modal__elements-label {
   display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
   margin-bottom: 0.4rem;
 }
 
@@ -1581,7 +1679,7 @@ fieldset.modal__section--untitled {
 
 .tag-modal__element-id {
   flex: 1 1 auto;
-  font-size: 0.8125rem;
+  font-size: var(--text-xs);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1595,7 +1693,7 @@ fieldset.modal__section--untitled {
   padding: 1rem 0.5rem;
   text-align: center;
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 /* .btn-sacar sigue la excepción ya documentada por .btn-cancel/.btn-accept/
@@ -1607,7 +1705,7 @@ fieldset.modal__section--untitled {
   border-radius: var(--radius-sm);
   background: var(--bg-subtle);
   color: var(--text-primary);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   cursor: pointer;
   transition: background var(--transition-fast), color var(--transition-fast);
 }
@@ -1632,13 +1730,13 @@ fieldset.modal__section--untitled {
   border: 1px solid var(--border-neutral);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .component-type-modal__item:hover {
   border-color: var(--accent-blue);
-  box-shadow: 0 2px 6px rgba(44, 125, 216, 0.15);
+  box-shadow: 0 2px 6px var(--accent-blue-alpha-15);
 }
 
 /* Icono ilustrativo por tipo (SVG inline en ui/componentTypeModal.js), entre el
@@ -1674,14 +1772,14 @@ fieldset.modal__section--untitled {
   border: 1px solid var(--border-neutral);
   border-radius: var(--radius-sm);
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .board-image-modal__search input[type="text"]:focus {
   outline: none;
   border-color: var(--accent-blue);
-  box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
+  box-shadow: 0 0 0 3px var(--accent-blue-alpha-15);
 }
 
 .board-image-modal__gallery {
@@ -1722,7 +1820,7 @@ fieldset.modal__section--untitled {
 }
 
 .board-image-modal__name {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--text-primary);
   text-align: center;
   word-break: break-word;
@@ -1760,13 +1858,13 @@ fieldset.modal__section--untitled {
   padding: 1rem;
   background:
     repeating-conic-gradient(#e8e8e8 0% 25%, #f5f5f5 0% 50%) 50% / 20px 20px;
-  border: 1px dashed #ccc;
+  border: 1px dashed var(--gray-500);
 }
 
 .image-adjust-modal__stage-title {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
-  font-weight: 600;
+  font-weight: var(--font-semibold);
 }
 
 .image-adjust-modal__stage--focused .image-adjust-modal__stage-title {
@@ -1786,7 +1884,7 @@ fieldset.modal__section--untitled {
 
 .image-adjust-modal__mask--active {
   border: 2px solid var(--accent-blue);
-  box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.25);
+  box-shadow: 0 0 0 3px var(--accent-blue-alpha-25);
 }
 
 .image-adjust-modal__mask--clickable {
@@ -1892,7 +1990,7 @@ fieldset.modal__section--untitled {
 .rotation-slider__mark {
   width: 3px;
   height: 10px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   background: var(--accent-blue-dark);
   opacity: 0.55;
 }
@@ -1900,13 +1998,13 @@ fieldset.modal__section--untitled {
 .rotation-slider__mark--active {
   opacity: 1;
   background: var(--accent-blue);
-  box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.2);
+  box-shadow: 0 0 0 3px var(--accent-blue-alpha-15);
 }
 
 .rotation-slider__labels {
   display: flex;
   justify-content: space-between;
-  font-size: 0.7rem;
+  font-size: var(--text-2xs);
   color: var(--text-muted);
   margin-top: 0.15rem;
 }
@@ -1925,12 +2023,12 @@ fieldset.modal__section--untitled {
   border: 1px solid var(--border-neutral);
   border-radius: var(--radius-sm);
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .rotation-slider__value span {
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 /* Card editor modal — editor de las dos caras de una carta a la vez */
@@ -2074,14 +2172,14 @@ fieldset.modal__section--untitled {
 }
 
 .card-editor-modal__face-label {
-  font-weight: 500;
-  font-size: 0.875rem;
+  font-weight: var(--font-medium);
+  font-size: var(--text-sm);
 }
 
 .card-editor-modal__canvas {
   position: relative;
   overflow: hidden;
-  background: #ffffff;
+  background: var(--bg-surface);
   border: 1px solid var(--border-neutral);
 }
 
@@ -2108,8 +2206,8 @@ fieldset.modal__section--untitled {
 }
 
 .card-editor-modal__border-title {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -2148,6 +2246,7 @@ fieldset.modal__section--untitled {
    checklist; excepción de max-width propio junto a .card-editor-modal. */
 .element-selection-modal {
   max-width: 640px;
+  box-shadow: var(--shadow-3);
 }
 
 .element-selection-modal__tags {
@@ -2175,8 +2274,8 @@ fieldset.modal__section--untitled {
 }
 
 .element-selection-group__title {
-  font-weight: 500;
-  font-size: 0.875rem;
+  font-weight: var(--font-medium);
+  font-size: var(--text-sm);
 }
 
 .element-selection-group__list {
@@ -2190,7 +2289,7 @@ fieldset.modal__section--untitled {
   align-items: center;
   gap: 0.5rem;
   padding: 0.35rem 0.75rem 0.35rem 1.5rem;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   cursor: pointer;
   transition: background var(--transition-fast);
 }
@@ -2209,13 +2308,13 @@ fieldset.modal__section--untitled {
 .import-report-modal__table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .import-report-modal__table th {
   padding: 0.5rem;
   text-align: left;
-  font-weight: 500;
+  font-weight: var(--font-medium);
   background: var(--bg-subtle);
 }
 
@@ -2257,7 +2356,7 @@ fieldset.modal__section--untitled {
 
 .dice-font-modal__item:hover {
   border-color: var(--accent-blue);
-  box-shadow: 0 2px 6px rgba(44, 125, 216, 0.15);
+  box-shadow: 0 2px 6px var(--accent-blue-alpha-15);
 }
 
 .dice-font-modal__item--selected {
@@ -2266,12 +2365,12 @@ fieldset.modal__section--untitled {
 }
 
 .dice-font-modal__name {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: var(--text-primary);
 }
 
 .dice-font-modal__sample {
-  font-size: 1.125rem;
+  font-size: var(--text-md);
   color: var(--text-primary);
 }
 
@@ -2283,13 +2382,14 @@ fieldset.modal__section--untitled {
 
 /* Dice result modal — resultado a tamaño grande (doble click en modo juego) */
 .dice-result-modal__value {
-  font-size: 4rem;
-  font-weight: 500;
+  font-size: var(--text-display);
+  font-weight: var(--font-medium);
   text-align: center;
   padding: 1rem;
   word-break: break-word;
 }
 
+/* ═══ 9. CONTROLES REUTILIZABLES ═══ */
 /* Reusable help icon ("?"): opens a modal with the text/HTML on click */
 .help-icon {
   position: relative;
@@ -2298,11 +2398,11 @@ fieldset.modal__section--untitled {
   justify-content: center;
   width: 16px;
   height: 16px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--text-muted);
   color: var(--text-light);
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: var(--text-2xs);
+  font-weight: var(--font-semibold);
   cursor: help;
   user-select: none;
   flex-shrink: 0;
@@ -2311,7 +2411,7 @@ fieldset.modal__section--untitled {
 
 .help-icon:hover {
   background: var(--accent-blue);
-  box-shadow: 0 2px 5px rgba(44, 125, 216, 0.35);
+  box-shadow: 0 2px 5px var(--accent-blue-alpha-35);
 }
 
 /* Tooltip propio de componente en Modo Juego (ui/componentRenderer.js, `identifyMode === 'tooltip'`),
@@ -2335,8 +2435,8 @@ fieldset.modal__section--untitled {
   color: var(--text-light);
   padding: 0.5rem 0.65rem;
   border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 400;
+  font-size: var(--text-xs);
+  font-weight: var(--font-normal);
   line-height: 1.3;
   white-space: pre-wrap;
   word-break: break-word;
@@ -2367,8 +2467,8 @@ fieldset.modal__section--untitled {
   width: 9px;
   height: 9px;
   background:
-    linear-gradient(135deg, transparent 0 45%, #999 45% 55%, transparent 55% 100%),
-    linear-gradient(135deg, transparent 0 65%, #999 65% 75%, transparent 75% 100%);
+    linear-gradient(135deg, transparent 0 45%, var(--gray-600) 45% 55%, transparent 55% 100%),
+    linear-gradient(135deg, transparent 0 65%, var(--gray-600) 65% 75%, transparent 75% 100%);
   transition: transform var(--transition-fast);
 }
 
@@ -2416,7 +2516,7 @@ fieldset.modal__section--untitled {
   bottom: 0;
   left: 2px;
   width: 2px;
-  background: #999;
+  background: var(--gray-600);
   background-image: none;
   transition: background var(--transition-fast);
 }
@@ -2464,7 +2564,7 @@ fieldset.modal__section--untitled {
   background: none;
   border: none;
   color: inherit;
-  font-size: 1rem;
+  font-size: var(--text-base);
   cursor: pointer;
 }
 
@@ -2483,14 +2583,14 @@ fieldset.modal__section--untitled {
   border: 1px solid var(--border-neutral);
   border-radius: var(--radius-sm);
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .component-panel__filter input[type="text"]:focus {
   outline: none;
   border-color: var(--accent-blue);
-  box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
+  box-shadow: 0 0 0 3px var(--accent-blue-alpha-15);
 }
 
 .component-panel__filter-clear {
@@ -2588,7 +2688,7 @@ fieldset.modal__section--untitled {
   background: none;
   border: none;
   color: inherit;
-  font-size: 1rem;
+  font-size: var(--text-base);
   cursor: pointer;
 }
 
@@ -2607,14 +2707,14 @@ fieldset.modal__section--untitled {
   border: 1px solid var(--border-neutral);
   border-radius: var(--radius-sm);
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .resource-panel__filter input[type="text"]:focus {
   outline: none;
   border-color: var(--accent-blue);
-  box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
+  box-shadow: 0 0 0 3px var(--accent-blue-alpha-15);
 }
 
 .resource-panel__filter-clear {
@@ -2659,6 +2759,7 @@ fieldset.modal__section--untitled {
   border-top: 1px solid var(--border-neutral);
 }
 
+/* ═══ 8. MENÚS CONTEXTUALES Y DESPLEGABLES ═══ */
 .resource-add {
   position: relative;
 }
@@ -2684,7 +2785,7 @@ fieldset.modal__section--untitled {
   left: 0;
   width: 100%;
   background: var(--accent-blue-light);
-  border: 1px solid rgba(44, 125, 216, 0.25);
+  border: 1px solid var(--accent-blue-alpha-25);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-2);
   overflow: hidden;
@@ -2697,7 +2798,7 @@ fieldset.modal__section--untitled {
 }
 
 .resource-add__item:not(:last-child) {
-  border-bottom: 1px solid rgba(44, 125, 216, 0.25);
+  border-bottom: 1px solid var(--accent-blue-alpha-25);
 }
 
 .resource-add__item:hover {
@@ -2710,12 +2811,12 @@ fieldset.modal__section--untitled {
 }
 
 .resource-add__item-label {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: var(--text-primary);
 }
 
 .resource-add__hint {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
   margin-top: 0.15rem;
 }
@@ -2732,7 +2833,7 @@ fieldset.modal__section--untitled {
   z-index: 1050;
   min-width: 180px;
   background: var(--accent-blue-light);
-  border: 1px solid rgba(44, 125, 216, 0.25);
+  border: 1px solid var(--accent-blue-alpha-25);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-2);
   overflow: hidden;
@@ -2744,13 +2845,13 @@ fieldset.modal__section--untitled {
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: var(--text-primary);
   transition: background var(--transition-fast);
 }
 
 .context-menu__item:not(:last-child) {
-  border-bottom: 1px solid rgba(44, 125, 216, 0.25);
+  border-bottom: 1px solid var(--accent-blue-alpha-25);
 }
 
 .context-menu__item:hover {
@@ -2784,7 +2885,7 @@ fieldset.modal__section--untitled {
 }
 
 .context-menu__separator {
-  border-top: 1px solid rgba(44, 125, 216, 0.25);
+  border-top: 1px solid var(--accent-blue-alpha-25);
 }
 
 /* Fila con un <select> inline, p.ej. "Añadir a etiqueta" — cursor por defecto
@@ -2797,14 +2898,31 @@ fieldset.modal__section--untitled {
 }
 
 .context-menu__select-row:not(:last-child) {
-  border-bottom: 1px solid rgba(44, 125, 216, 0.25);
+  border-bottom: 1px solid var(--accent-blue-alpha-25);
 }
 
 .context-menu__select-row-label {
   display: block;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: var(--text-primary);
   margin-bottom: 0.35rem;
+}
+
+/* Fila select con icono (00244): icono + etiqueta en línea, el <select>
+   sigue ocupando su propia línea completa debajo (ver .context-menu__select-row select). */
+.context-menu__select-row:has(.context-menu__item-icon) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.context-menu__select-row:has(.context-menu__item-icon) .context-menu__select-row-label {
+  margin-bottom: 0;
+}
+
+.context-menu__select-row:has(.context-menu__item-icon) select {
+  flex-basis: 100%;
 }
 
 .context-menu__select-row select {
@@ -2815,7 +2933,7 @@ fieldset.modal__section--untitled {
   border-radius: var(--radius-sm);
   background: var(--bg-card);
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: var(--text-primary);
 }
 
@@ -2834,13 +2952,13 @@ fieldset.modal__section--untitled {
 }
 
 .context-menu__description-main {
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
   color: var(--text-primary);
 }
 
 .context-menu__description-extra {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
 }
 
@@ -2851,8 +2969,8 @@ fieldset.modal__section--untitled {
 
 .context-menu__info-title {
   padding: 0.25rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
   text-transform: uppercase;
   color: var(--text-muted);
   letter-spacing: 0.5px;
@@ -2863,14 +2981,14 @@ fieldset.modal__section--untitled {
   align-items: center;
   justify-content: space-between;
   padding: 0.375rem 0.75rem;
-  font-size: 0.8125rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
   gap: 1rem;
 }
 
 .context-menu__info-label {
   flex: 0 0 auto;
-  font-weight: 500;
+  font-weight: var(--font-medium);
 }
 
 .context-menu__info-value {
@@ -2901,11 +3019,11 @@ fieldset.modal__section--untitled {
   z-index: 1050;
   min-width: 190px;
   background: var(--accent-blue-light);
-  border: 1px solid rgba(44, 125, 216, 0.25);
+  border: 1px solid var(--accent-blue-alpha-25);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-2);
   overflow: hidden;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .column-header-menu__item {
@@ -2916,7 +3034,7 @@ fieldset.modal__section--untitled {
 }
 
 .column-header-menu__item:not(:last-child) {
-  border-bottom: 1px solid rgba(44, 125, 216, 0.25);
+  border-bottom: 1px solid var(--accent-blue-alpha-25);
 }
 
 .column-header-menu__item:hover {
@@ -2932,11 +3050,11 @@ fieldset.modal__section--untitled {
 .column-header-menu__item--active {
   background: var(--accent-blue);
   color: var(--text-light);
-  font-weight: 600;
+  font-weight: var(--font-semibold);
 }
 
 .column-header-menu__separator {
-  border-top: 1px solid rgba(44, 125, 216, 0.25);
+  border-top: 1px solid var(--accent-blue-alpha-25);
 }
 
 .column-header-menu__filter {
@@ -2944,7 +3062,7 @@ fieldset.modal__section--untitled {
 }
 
 .column-header-menu__filter-label {
-  font-weight: 600;
+  font-weight: var(--font-semibold);
   color: var(--text-primary);
   margin-bottom: 0.35rem;
 }
@@ -2957,7 +3075,7 @@ fieldset.modal__section--untitled {
   border-radius: var(--radius-sm);
   background: var(--bg-card);
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: var(--text-primary);
 }
 
@@ -2994,10 +3112,10 @@ fieldset.modal__section--untitled {
   z-index: 1;
   width: 18px;
   height: 18px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: rgba(0, 0, 0, 0.55);
   color: var(--text-light);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-badge);
   pointer-events: none;
 }
 
@@ -3015,10 +3133,10 @@ fieldset.modal__section--untitled {
   z-index: 1;
   width: 18px;
   height: 18px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: rgba(0, 0, 0, 0.55);
   color: var(--text-light);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-badge);
   pointer-events: none;
 }
 
@@ -3040,10 +3158,10 @@ fieldset.modal__section--untitled {
   z-index: 1;
   width: 18px;
   height: 18px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--error);
   color: var(--text-light);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-badge);
   pointer-events: none;
 }
 
@@ -3065,15 +3183,15 @@ fieldset.modal__section--untitled {
   z-index: 1;
   height: 18px;
   padding: 0 6px 0 3px;
-  border-radius: 9px;
+  border-radius: var(--radius-full);
   background: var(--accent-blue-dark);
   color: var(--text-light);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--shadow-badge);
   display: flex;
   align-items: center;
   gap: 3px;
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-size: var(--text-2xs);
+  font-weight: var(--font-semibold);
   white-space: nowrap;
   pointer-events: none;
 }
@@ -3088,7 +3206,7 @@ fieldset.modal__section--untitled {
 .resource-list {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .resource-list__empty {
@@ -3109,7 +3227,7 @@ fieldset.modal__section--untitled {
   z-index: 2;
   padding: 0.5rem;
   text-align: left;
-  font-weight: 500;
+  font-weight: var(--font-medium);
   background: var(--bg-subtle);
 }
 
@@ -3138,7 +3256,7 @@ fieldset.modal__section--untitled {
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   transition: opacity var(--transition-fast);
 }
 
@@ -3189,7 +3307,7 @@ fieldset.modal__section--untitled {
   background: none;
   border: none;
   color: inherit;
-  font-size: 1rem;
+  font-size: var(--text-base);
   cursor: pointer;
 }
 
@@ -3211,14 +3329,14 @@ fieldset.modal__section--untitled {
   border: 1px solid var(--border-neutral);
   border-radius: var(--radius-sm);
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .tag-panel__filter input[type="text"]:focus {
   outline: none;
   border-color: var(--accent-blue);
-  box-shadow: 0 0 0 3px rgba(44, 125, 216, 0.15);
+  box-shadow: 0 0 0 3px var(--accent-blue-alpha-15);
 }
 
 /* Botón de limpiar filtro — mismo patrón que .component-panel__filter-clear
@@ -3284,7 +3402,7 @@ fieldset.modal__section--untitled {
 .tag-list {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .tag-list__empty {
@@ -3305,7 +3423,7 @@ fieldset.modal__section--untitled {
   z-index: 2;
   padding: 0.5rem;
   text-align: left;
-  font-weight: 500;
+  font-weight: var(--font-medium);
   background: var(--bg-subtle);
 }
 
@@ -3328,7 +3446,7 @@ fieldset.modal__section--untitled {
 
 .tag-list__row:focus {
   outline: none;
-  background: rgba(44, 125, 216, 0.15);
+  background: var(--accent-blue-alpha-15);
 }
 
 .tag-list__actions-cell {
@@ -3343,7 +3461,7 @@ fieldset.modal__section--untitled {
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   transition: opacity var(--transition-fast);
 }
 
@@ -3362,7 +3480,7 @@ fieldset.modal__section--untitled {
   overflow-y: auto;
   margin: 0.5rem 0;
   padding-left: 1.5rem;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 /* Bulk delete confirmation modal (change 00108) — lista de componentes afectados
@@ -3372,7 +3490,7 @@ fieldset.modal__section--untitled {
   overflow-y: auto;
   margin: 0.5rem 0;
   padding-left: 1.5rem;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 /* Resource replace confirmation modal — lista de nombres de recurso
@@ -3382,7 +3500,7 @@ fieldset.modal__section--untitled {
   overflow-y: auto;
   margin: 0.5rem 0;
   padding-left: 1.5rem;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 /* Resource modal previews (image / font) */
@@ -3392,7 +3510,7 @@ fieldset.modal__section--untitled {
   padding: 1rem;
   border: 1px solid var(--border-neutral);
   border-radius: var(--radius-sm);
-  background: #fff;
+  background: var(--bg-surface);
   box-sizing: border-box;
 }
 
@@ -3462,21 +3580,22 @@ fieldset.modal__section--untitled {
   border-radius: var(--radius-sm);
   background: rgba(0, 0, 0, 0.55);
   color: var(--text-light);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-variant-numeric: tabular-nums;
 }
 
 .resource-modal__hint {
   margin-top: 0.5rem;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   color: var(--text-muted);
 }
 
 .resource-modal__font-preview {
-  font-size: 1.125rem;
+  font-size: var(--text-md);
   text-align: center;
 }
 
+/* ═══ 10. AVISOS Y NOTIFICACIONES ═══ */
 /* Toast (aviso breve no bloqueante) */
 .toast {
   display: none;
@@ -3488,7 +3607,7 @@ fieldset.modal__section--untitled {
   color: var(--text-light);
   padding: 0.5rem 1rem;
   border-radius: var(--radius-sm);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   z-index: 1100;
   box-shadow: var(--shadow-1);
 }
@@ -3501,7 +3620,7 @@ fieldset.modal__section--untitled {
   position: fixed;
   bottom: 1rem;
   right: 1rem;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   line-height: 1.35;
   color: var(--text-muted);
   text-align: right;
@@ -3536,7 +3655,7 @@ fieldset.modal__section--untitled {
    var(--transition-fast), igual que el resto de elementos interactivos. */
 .lifted {
   transform: translate(-2px, -4px);
-  box-shadow: 6px 7px 9px 2px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-lifted);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
@@ -3628,14 +3747,14 @@ fieldset.modal__section--untitled {
   /* Nominal del área del logo: 800x600 px (4:3). Aquí se limita para caber en
      viewport; la proporción la mantiene aspect-ratio en __logo. */
   width: min(90vw, 520px);
-  padding: 1.75rem 1.75rem 2rem;
+  padding: var(--space-8) var(--space-8) var(--space-8);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
   background: linear-gradient(135deg, #e3effb 0%, #eef1fb 45%, #f7ecf6 100%);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-2);
+  box-shadow: var(--shadow-3);
   overflow: hidden; /* la barra inferior respeta el border-radius */
 }
 
@@ -3661,16 +3780,16 @@ fieldset.modal__section--untitled {
 
 .splash-window__title {
   margin: 0;
-  font-size: 2.25rem;
+  font-size: var(--text-xl);
   font-weight: 700;
   text-align: center;
   color: var(--text-primary);
-  line-height: 1.2;
+  line-height: var(--leading-tight);
 }
 
 .splash-window__title sup {
   font-size: 0.5em;
-  font-weight: 600;
+  font-weight: var(--font-semibold);
   color: var(--text-muted);
   margin-left: 0.15em;
   vertical-align: super;
@@ -3683,7 +3802,7 @@ fieldset.modal__section--untitled {
    compensa parte del gap: 1rem del contenedor para quedar pegado al título. */
 .splash-window__link {
   margin-top: -0.5rem;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: inherit;
   text-decoration: underline;
   cursor: pointer;
@@ -3695,7 +3814,7 @@ fieldset.modal__section--untitled {
   right: 0;
   bottom: 0;
   height: 4px;
-  background: rgba(44, 125, 216, 0.15); /* carril tenue del --accent-blue */
+  background: var(--accent-blue-alpha-15); /* carril tenue del --accent-blue */
 }
 
 .splash-window__progress-fill {
@@ -3711,6 +3830,7 @@ fieldset.modal__section--untitled {
   animation: splash-progress-fill 3s linear forwards;
 }
 
+/* ═══ 11. ANIMACIONES ═══ */
 @keyframes splash-progress-fill {
   from { transform: scaleX(0); }
   to { transform: scaleX(1); }

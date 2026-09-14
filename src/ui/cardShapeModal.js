@@ -7,6 +7,7 @@ import { openBoardImageModal } from './boardImageModal.js';
 import { openImageAdjustModal } from './imageAdjustModal.js';
 import { createRotationSliderField } from './rotationSlider.js';
 import { t } from '../core/i18n.js';
+import { iconSvg, ICON_SIZE } from './icons.js';
 
 export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
   const overlay = document.createElement('div');
@@ -47,17 +48,17 @@ export function openCardShapeModal({ shape, onAccept, onDelete, onDuplicate }) {
     {
       value: 'circular',
       label: t('option.cardShapeType.circulo'),
-      icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="9" r="7"/></svg>',
+      icon: iconSvg('shape-circle', { size: ICON_SIZE.zoom }),
     },
     {
       value: 'cuadrada',
       label: t('option.cardShapeType.cuadrado'),
-      icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="13" height="13"/></svg>',
+      icon: iconSvg('shape-square', { size: ICON_SIZE.zoom }),
     },
     {
       value: 'redondeada',
       label: t('option.cardShapeType.redondeado'),
-      icon: '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="2.5" width="13" height="13" rx="4"/></svg>',
+      icon: iconSvg('shape-rounded', { size: ICON_SIZE.zoom }),
     },
   ];
 

@@ -3,6 +3,7 @@
 
 import { MODES, getState, getAppTitle, setAppTitle } from '../core/state.js';
 import { getFullAppTitle, formatVersion } from '../core/appTitle.js';
+import { iconSvg, ICON_SIZE } from './icons.js';
 
 // Estado transitorio, mismo patrón que `selectedComponentId` en `playMode.js`: no persiste, se pierde al recargar sin problema.
 let editing = false;
@@ -14,12 +15,7 @@ function renderHoverable(container, appTitle) {
   const pencil = document.createElement('span');
   pencil.className = 'app-title__pencil';
   pencil.setAttribute('aria-hidden', 'true');
-  pencil.innerHTML = `
-    <svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M12 20h9" stroke-linecap="round"/>
-      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  `;
+  pencil.innerHTML = iconSvg('edit-title', { size: ICON_SIZE.menu });
   container.appendChild(pencil);
 
   container.onclick = () => {

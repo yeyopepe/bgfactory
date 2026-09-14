@@ -10,6 +10,7 @@ import { getComponentsUsingTag } from '../core/tag.js';
 import { getGroupsUsingTag } from '../core/group.js';
 import { sortByName, compareValues } from '../core/textSort.js';
 import { t } from '../core/i18n.js';
+import { iconSvg } from './icons.js';
 
 const MIN_PANEL_WIDTH = 290;
 const MIN_PANEL_BODY_HEIGHT = 96;
@@ -289,12 +290,7 @@ export function renderTagList(
       clearBtn.className = 'tag-panel__filter-clear';
       clearBtn.title = t('common.clearSearch');
       clearBtn.setAttribute('aria-label', t('common.clearSearch'));
-      clearBtn.innerHTML = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M6 6l12 12" stroke-linecap="round"/>
-          <path d="M18 6L6 18" stroke-linecap="round"/>
-        </svg>
-      `;
+      clearBtn.innerHTML = iconSvg('clear');
       const updateClearBtnState = () => {
         clearBtn.classList.toggle('is-empty', filterInput.value === '');
       };

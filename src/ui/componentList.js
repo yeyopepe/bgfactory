@@ -7,6 +7,7 @@ import { attachColumnMenu } from './tableColumnMenu.js';
 import { compareValues } from '../core/textSort.js';
 import { t } from '../core/i18n.js';
 import { getComponentTypeLabel } from './componentTypeModal.js';
+import { iconSvg } from './icons.js';
 
 // Nombre de tipo traducido al idioma activo, usado tanto en las celdas de la
 // columna "Tipo" como en las opciones de su filtro. `getComponentTypeLabel`
@@ -596,12 +597,7 @@ export function renderComponentList(
       clearBtn.className = 'component-panel__filter-clear';
       clearBtn.title = t('common.clearSearch');
       clearBtn.setAttribute('aria-label', t('common.clearSearch'));
-      clearBtn.innerHTML = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M6 6l12 12" stroke-linecap="round"/>
-          <path d="M18 6L6 18" stroke-linecap="round"/>
-        </svg>
-      `;
+      clearBtn.innerHTML = iconSvg('clear');
       const updateClearBtnState = () => {
         clearBtn.classList.toggle('is-empty', filterInput.value === '');
       };

@@ -114,8 +114,8 @@ Lista completa de los iconos de la aplicación: nombre común (clave semántica)
 
 ## Notas
 
-- **`add-to-tag` (`tag`)**: hoy esa fila del menú contextual de edición no lleva icono (es una fila con `<select>`). Se propone añadirle el icono `tag` por coherencia con el resto de filas; si se prefiere dejarla sin icono, se marca como "sin icono" y no entra en el módulo. **A confirmar.**
-- **`flip` (`refresh-cw`)**: el dibujo actual es una carta con flechas de giro. `refresh-cw` transmite "voltear/rotar"; alternativa `flip-horizontal` (más literal de "espejo"). **A confirmar cuál en el mockup.**
+- **`add-to-tag` (`tag`)**: hoy esa fila del menú contextual de edición no lleva icono (es una fila con `<select>`). Se confirma añadirle el icono `tag` por coherencia con el resto de filas.
+- **`flip` (`refresh-cw`)**: el dibujo actual es una carta con flechas de giro. Se confirma `refresh-cw`, que transmite "voltear/rotar".
 - **`insert-into-deck` (`between-vertical-start`)**: el nombre exacto del icono Lucide se afina en la fase técnica; el gesto buscado es "insertar un elemento dentro de una pila".
 - **Iconos descartados del inventario** (el plan base los daba como esperados, pero hoy no existen como opción de menú): "tirar dado", "subir/bajar capa", "sacar de mazo". Si en el futuro se añaden esas acciones, se añadirán entonces `dice-5`, `arrow-up`/`arrow-down` y `between-vertical-end` (o equivalentes).
 - **Total**: ~40 claves semánticas (varias comparten el mismo icono Lucide: `copy`, `eye`, `eye-off`, `trash-2`, `lock` se reutilizan en más de un sitio). El módulo define cada icono Lucide una sola vez; las claves semánticas pueden apuntar al mismo dibujo.

@@ -22,6 +22,7 @@ import { createHelpIcon } from './helpIcon.js';
 import { openContextMenu } from './contextMenu.js';
 import { getOrderedFaceElements, bringElementToFront, sendElementToBack } from '../core/cardFaceElements.js';
 import { t } from '../core/i18n.js';
+import { iconEl, ICON_SIZE } from './icons.js';
 
 const CANVAS_MAX_SIDE = 380;
 // Suelo del lado de lienzo cuando la modal se encoge al mínimo con los
@@ -80,95 +81,12 @@ function buildHelpHtml(showProporcionSelector) {
   `;
 }
 
-// Iconos del menú contextual de elemento: mismo patrón de funciones locales
-// que createLockIcon/createShuffleIcon en modes/play/playMode.js — no hay
-// módulo de iconos compartido.
-function createDeleteIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML = '<path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16Z"/>';
-  return svg;
-}
-
-function createBringToFrontIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML = '<rect x="7" y="7" width="12" height="12" rx="1"/><path d="M5 15V5a2 2 0 0 1 2-2h10" opacity="0.5"/>';
-  return svg;
-}
-
-function createSendToBackIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML = '<rect x="5" y="5" width="12" height="12" rx="1" opacity="0.5"/><path d="M9 19h8a2 2 0 0 0 2-2V9"/>';
-  return svg;
-}
-
-function createRotateIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML = '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v5h5"/>';
-  return svg;
-}
-
 // Envuelve al extremo opuesto del rango -360..360 (720 = tamaño del rango) en vez de
 // cortar, para preservar el carácter cíclico del atajo "Girar 90°" con el rango ampliado.
 function wrapRotation(value) {
   if (value > 360) return value - 720;
   if (value < -360) return value + 720;
   return value;
-}
-
-function createCopyIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML = '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>';
-  return svg;
-}
-
-function createPasteIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML = '<rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>';
-  return svg;
-}
-
-function createMaximizeIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML = '<path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/>';
-  return svg;
-}
-
-function createRestoreIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML = '<path d="M8 3v5H3M16 3v5h5M8 21v-5H3M16 21v-5h5"/>';
-  return svg;
 }
 
 function isTextEditableElement(el) {
@@ -415,7 +333,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
 
   function updateMaximizeButton() {
     maximizeBtn.innerHTML = '';
-    maximizeBtn.appendChild(maximized ? createRestoreIcon() : createMaximizeIcon());
+    maximizeBtn.appendChild(iconEl(maximized ? 'restore' : 'maximize', { size: ICON_SIZE.menu }));
     const label = maximized ? t('visualEditor.restore') : t('visualEditor.maximize');
     maximizeBtn.title = label;
     maximizeBtn.setAttribute('aria-label', label);
@@ -809,7 +727,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
 
     if (kind && id) {
       generalItems.push({
-        icon: createCopyIcon(),
+        icon: iconEl('copy', { size: ICON_SIZE.menu }),
         label: t('visualEditor.menu.copy'),
         onClick: () => {
           const collection = kind === 'forma' ? cara.formas : cara.textBoxes;
@@ -822,7 +740,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     }
 
     generalItems.push({
-      icon: createPasteIcon(),
+      icon: iconEl('paste', { size: ICON_SIZE.menu }),
       label: t('visualEditor.menu.paste'),
       disabled: !copiedElement,
       onClick: () => pasteElementAt(caraKey, pastePoint),
@@ -831,12 +749,12 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
     if (kind && id) {
       generalItems.push(
         {
-          icon: createDeleteIcon(),
+          icon: iconEl('delete', { size: ICON_SIZE.menu }),
           label: t('visualEditor.menu.delete'),
           onClick: () => removeElement(caraKey, kind, id),
         },
         {
-          icon: createRotateIcon(),
+          icon: iconEl('rotate', { size: ICON_SIZE.menu }),
           label: t('visualEditor.menu.rotateCW'),
           onClick: () => {
             const collection = kind === 'forma' ? cara.formas : cara.textBoxes;
@@ -847,7 +765,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
           },
         },
         {
-          icon: createRotateIcon(),
+          icon: iconEl('rotate', { size: ICON_SIZE.menu }),
           label: t('visualEditor.menu.rotateCCW'),
           onClick: () => {
             const collection = kind === 'forma' ? cara.formas : cara.textBoxes;
@@ -858,7 +776,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
           },
         },
         {
-          icon: createBringToFrontIcon(),
+          icon: iconEl('bring-to-front', { size: ICON_SIZE.menu }),
           label: t('visualEditor.menu.bringForward'),
           onClick: () => {
             bringElementToFront(cara, kind, id);
@@ -866,7 +784,7 @@ export function openVisualEditorModal({ component, title, faces, showProporcionS
           },
         },
         {
-          icon: createSendToBackIcon(),
+          icon: iconEl('send-to-back', { size: ICON_SIZE.menu }),
           label: t('visualEditor.menu.sendBackward'),
           onClick: () => {
             sendElementToBack(cara, kind, id);

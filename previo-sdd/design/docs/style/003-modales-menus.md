@@ -2,7 +2,27 @@
 
 **Area**: Modals & menus
 
-## Help icon (modal on click)
+## Iconography (`ui/icons.js`, 00244)
+
+Single source for every icon: `ui/icons.js` (`../architecture/006-ui-layer.md`). No other module draws icon SVG inline.
+
+| Token | Value |
+|---|---|
+| Family | Lucide (MIT) |
+| Reference canvas | `viewBox="0 0 24 24"` |
+| Color | `stroke="currentColor"` — no fixed color on any icon |
+| Stroke width | `2` (Lucide default), adjustable globally via `iconSvg`/`iconEl`'s `strokeWidth` opt |
+
+| Named size (`ICON_SIZE`) | px | Usage |
+|---|---|---|
+| `toolbar` | 20 | Large icon-only/icon+text buttons (top toolbar, component-type list) — actual on-screen size still governed per-context by `main.css` `.icon-frame` rules |
+| `menu` | 16 | Context menus, column menus, alignment/style button groups, badges |
+| `zoom` | 18 | Resource-modal zoom controls, card-shape type selector |
+
+- `name` not present in `ui/icons.js`'s icon map → warning-box placeholder, not a thrown error (`[gotcha]` — a typo'd name degrades visibly instead of breaking the screen).
+- `size` sets the emitted `<svg>`'s `width`/`height` attributes; a context-scoped `.icon-frame` CSS rule (`main.css`) overrides them where one exists — `size` is the icon's own declared default, not a guarantee of the rendered pixel size.
+
+
 
 Standard pattern for contextual help anywhere in the app: `.help-icon`, a 16px circle with "?" (`ui/helpIcon.js`, `createHelpIcon({ text, html })`).
 

@@ -17,6 +17,7 @@ import { isInteractionActive } from '../core/interactions.js';
 import { getEffectiveGeneralProps } from '../core/group.js';
 import { resolveTextVariables } from '../core/textVariables.js';
 import { t } from '../core/i18n.js';
+import { iconSvg, ICON_SIZE } from './icons.js';
 
 const MIN_TEXT_BOX_WIDTH = 40;
 const MIN_TEXT_BOX_HEIGHT = 24;
@@ -323,11 +324,7 @@ function attachComponentTitle(element, component) {
 function createLockBadge() {
   const badge = document.createElement('span');
   badge.className = 'component-lock-badge';
-  badge.innerHTML =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
-    '<rect x="5" y="11" width="14" height="9" rx="1.5"/>' +
-    '<path d="M8 11V7a4 4 0 0 1 8 0v4" stroke-linecap="round"/>' +
-    '</svg>';
+  badge.innerHTML = iconSvg('locked', { size: ICON_SIZE.menu });
   return badge;
 }
 
@@ -340,12 +337,7 @@ function createLockBadge() {
 function createHiddenBadge() {
   const badge = document.createElement('span');
   badge.className = 'component-hidden-badge';
-  badge.innerHTML =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
-    '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<circle cx="12" cy="12" r="3"/>' +
-    '<line x1="3" y1="21" x2="21" y2="3" stroke-linecap="round"/>' +
-    '</svg>';
+  badge.innerHTML = iconSvg('hidden', { size: ICON_SIZE.menu });
   return badge;
 }
 

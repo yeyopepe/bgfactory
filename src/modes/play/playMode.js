@@ -13,6 +13,7 @@ import { openMazoContentModal } from '../../ui/mazoContentModal.js';
 import { openInsertIntoMazoModal } from '../../ui/insertIntoMazoModal.js';
 import { isInteractionActive } from '../../core/interactions.js';
 import { t } from '../../core/i18n.js';
+import { iconEl, ICON_SIZE } from '../../ui/icons.js';
 
 // Mapea el `type` de componente a la `key` de `core/interactions.js` cuya interacción
 // de click corresponde a la fila "Clic izquierdo" de `interactionsByType`. Solo estos
@@ -74,64 +75,6 @@ function getInteractionItemsFor(component) {
   const key = CLICK_INTERACTION_KEY_BY_TYPE[component.type];
   if (!key || isInteractionActive(component, key)) return items;
   return items.map((item, index) => (index === 0 ? { ...item, valueKey: V_NONE } : item));
-}
-
-function createLockIcon(open) {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  const body = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-  body.setAttribute('x', '5');
-  body.setAttribute('y', '11');
-  body.setAttribute('width', '14');
-  body.setAttribute('height', '9');
-  body.setAttribute('rx', '1.5');
-  svg.appendChild(body);
-  const shackle = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-  shackle.setAttribute('stroke-linecap', 'round');
-  shackle.setAttribute('d', open ? 'M8 11V7a4 4 0 0 1 7.5-1.9' : 'M8 11V7a4 4 0 0 1 8 0v4');
-  svg.appendChild(shackle);
-  return svg;
-}
-
-function createShuffleIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML =
-    '<path d="M4 4h4l6 6 6-6h0" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<path d="M4 20h4l6-6 6 6h0" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<path d="M17 4h3v3" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<path d="M17 20h3v-3" stroke-linecap="round" stroke-linejoin="round"/>';
-  return svg;
-}
-
-function createEyeIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML =
-    '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z" stroke-linecap="round" stroke-linejoin="round"/>' +
-    '<circle cx="12" cy="12" r="3"/>';
-  return svg;
-}
-
-function createInsertIcon() {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 24 24');
-  svg.setAttribute('fill', 'none');
-  svg.setAttribute('stroke', 'currentColor');
-  svg.setAttribute('stroke-width', '2');
-  svg.innerHTML =
-    '<rect x="4" y="3" width="12" height="16" rx="2"/>' +
-    '<path d="M9 21h6a2 2 0 0 0 2-2V9l-6-6H9a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2Z" stroke-linecap="round" stroke-linejoin="round"/>';
-  return svg;
 }
 
 export function renderPlayMode(container) {
@@ -210,7 +153,7 @@ export function renderPlayMode(container) {
         const specificItems = [];
         if (component.type === 'mazo') {
           specificItems.push({
-            icon: createShuffleIcon(),
+            icon: iconEl('shuffle', { size: ICON_SIZE.menu }),
             label: t('contextMenu.shuffle'),
             onClick: () => {
               replaceComponent(component.id, updateComponent(component, {
@@ -219,7 +162,7 @@ export function renderPlayMode(container) {
             },
           });
           specificItems.push({
-            icon: createEyeIcon(),
+            icon: iconEl('view-contents', { size: ICON_SIZE.menu }),
             label: t('contextMenu.viewContent'),
             onClick: () => {
               openMazoContentModal({
@@ -232,7 +175,7 @@ export function renderPlayMode(container) {
           const mazos = getComponents().filter((c) => c.type === 'mazo');
           if (mazos.length > 0) {
             specificItems.push({
-              icon: createInsertIcon(),
+              icon: iconEl('insert-into-deck', { size: ICON_SIZE.menu }),
               label: t('contextMenu.insertIntoMazo'),
               onClick: () => {
                 openInsertIntoMazoModal({
@@ -255,7 +198,7 @@ export function renderPlayMode(container) {
         // sigue siempre al original mientras esté sincronizada.
         const generalItems = (!component.copyOf || component.sincronizado === false) ? [
           {
-            icon: createLockIcon(bloqueado),
+            icon: iconEl(bloqueado ? 'unlock' : 'lock', { size: ICON_SIZE.menu }),
             label: bloqueado ? t('contextMenu.unlock') : t('contextMenu.lock'),
             onClick: () => {
               replaceComponent(component.id, updateComponent(component, { bloqueado: bloqueado ? 'ninguno' : 'juego' }));

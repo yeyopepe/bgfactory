@@ -11,16 +11,16 @@ padding: 0.5rem 1rem;   /* or 0.25rem 0.5rem if a small button inside an item */
 border: none;           /* or 1px solid var(--text-light) on a dark background */
 border-radius: var(--radius-sm);
 cursor: pointer;
-font-size: 0.875rem;    /* or 0.75rem if small */
+font-size: var(--text-sm);    /* or var(--text-xs) if small */
 transition: background var(--transition-fast), opacity var(--transition-fast);
 ```
 
-- Primary action: background `var(--accent-blue)`, text `var(--text-light)`. Hover: `opacity: 0.9` + `transform: translateY(-1px)` + `box-shadow: 0 3px 8px rgba(44,125,216,.35)`.
+- Primary action: background `var(--accent-blue)`, text `var(--text-light)`. Hover: `opacity: 0.9` + `transform: translateY(-1px)` + `box-shadow: 0 3px 8px var(--accent-blue-alpha-35)`.
 - Secondary/cancel action: background `var(--bg-subtle)`, text `var(--text-primary)`. Hover: `var(--bg-hover)` — only `background` transition, no `transform`.
-- Destructive action (delete/remove): background `var(--error)`, text `var(--text-light)`. Hover: `opacity: 0.9` + `transform: translateY(-1px)` + `box-shadow: 0 3px 8px rgba(211,47,47,.3)` — same treatment as primary, only background/shadow color changes.
+- Destructive action (delete/remove): background `var(--error)`, text `var(--text-light)`. Hover: `opacity: 0.9` + `transform: translateY(-1px)` + `box-shadow: 0 3px 8px var(--error-alpha)` — same treatment as primary, only background/shadow color changes. [gotcha] `--error-alpha` unifies two previously distinct opacities (0.3 here, 0.4 on the error icon shadow, `001-tokens-visual.md`) into `0.35` — checked visually in 00237 to not change perceptibly.
   - Applies to `.btn-eliminar` (modals) and the BEM modifier `--danger` (e.g. `.component-list__action-btn--danger`).
   - Any action that deletes an element uses this color across the whole app, never the primary blue.
-- Button on a dark background (toolbar): transparent, border `1px solid var(--text-light)`. Hover: `rgba(255,255,255,0.1)` with a `background` transition, no `transform`.
+- Button on a dark background (toolbar): transparent, border `1px solid var(--text-light)`. Hover: `var(--toolbar-hover)` with a `background` transition, no `transform`.
 
 ### Header control row (`#mode-switcher`, reorganized 00244)
 
@@ -30,13 +30,13 @@ transition: background var(--transition-fast), opacity var(--transition-fast);
 |---|---|---|---|
 | "Modo Edición" / "Modo Juego" | `.mode-switcher__mode-btn` | primary action (blue) | Mode-switch button, same look the old "Entrar/Salir del modo edición" had. Always in `#mode-switcher`, in both modes. Play mode = text-only; edit mode = icon + text. |
 | "Ajustar zoom" | `.mode-switcher__fit-btn` | primary action (blue), icon-only | `padding: 0; width: 36px; height: 36px; justify-content: center`. `.icon-frame` `18×18`. |
-| "Configuración" | `.mode-switcher__settings-btn` | "ghost on dark", icon-only | Same `36×36` size block as `.mode-switcher__fit-btn` (`.mode-switcher__fit-btn .icon-frame, .mode-switcher__settings-btn .icon-frame { 18×18 }`). `background: none; border: 1px solid var(--text-light)`; hover `rgba(255,255,255,0.1)`. **NOT blue** — visually separates it from the two blue actions. Gear glyph is a filled-silhouette SVG (`fill="currentColor"`), distinct from `.mode-switcher__fit-btn`'s stroked corner-frame icon. |
-| "Importar" / "Exportar" | — (`.export-menu-wrap > button` for Export) | "ghost on dark" | `background: none; border: 1px solid var(--text-light)`; hover `rgba(255,255,255,0.1)` — the **same scheme as `.edit-toolbar button`**, so the file block looks identical in both modes. `#mode-switcher button` base: `padding: 0.5rem 1rem; display: inline-flex; align-items: center; gap: 0.375rem`; `.icon-frame` `16×16`. |
+| "Configuración" | `.mode-switcher__settings-btn` | "ghost on dark", icon-only | Same `36×36` size block as `.mode-switcher__fit-btn` (`.mode-switcher__fit-btn .icon-frame, .mode-switcher__settings-btn .icon-frame { 18×18 }`). `background: none; border: 1px solid var(--text-light)`; hover `var(--toolbar-hover)`. **NOT blue** — visually separates it from the two blue actions. Gear glyph is a filled-silhouette SVG (`fill="currentColor"`), distinct from `.mode-switcher__fit-btn`'s stroked corner-frame icon. |
+| "Importar" / "Exportar" | — (`.export-menu-wrap > button` for Export) | "ghost on dark" | `background: none; border: 1px solid var(--text-light)`; hover `var(--toolbar-hover)` — the **same scheme as `.edit-toolbar button`**, so the file block looks identical in both modes. `#mode-switcher button` base: `padding: 0.5rem 1rem; display: inline-flex; align-items: center; gap: 0.375rem`; `.icon-frame` `16×16`. |
 
 - `#mode-switcher button` no longer sets `background: var(--accent-blue)` for every descendant (removed 00244). Blue is now opt-in per class (`.mode-switcher__mode-btn`, `.mode-switcher__fit-btn`); the file-block buttons fall through to the ghost scheme via `#mode-switcher > button:not(.mode-switcher__mode-btn):not(.mode-switcher__fit-btn):not(.mode-switcher__settings-btn)` and `#mode-switcher .export-menu-wrap > button`.
 - `.edit-toolbar__exit-btn` and its rules removed (00244) — the mode-switch button no longer lives in `.edit-toolbar`.
 - `#edit-toolbar > .mode-switcher__fit-btn` rules removed (00244) — "Ajustar zoom" is no longer a direct child of `#edit-toolbar`; it lives in `#mode-switcher` in both modes.
-- **Header control-row separator**: a `.toolbar-divider` (`width: 1px; height: 1.5rem; background: rgba(255,255,255,0.2)`) between the file block (Importar/Exportar) and the action block (Modo, Ajustar zoom, Configuración). Present **only in play mode**, inside `#mode-switcher`. Edit mode never renders a `.toolbar-divider`: the file block lives in the `.edit-toolbar` band, and Importar/Exportar sit adjacent there with no divider between them.
+- **Header control-row separator**: a `.toolbar-divider` (`width: 1px; height: 1.5rem; background: var(--toolbar-divider)`) between the file block (Importar/Exportar) and the action block (Modo, Ajustar zoom, Configuración). Present **only in play mode**, inside `#mode-switcher`. Edit mode never renders a `.toolbar-divider`: the file block lives in the `.edit-toolbar` band, and Importar/Exportar sit adjacent there with no divider between them.
 - Edit mode: `.edit-toolbar` band holds `[Importar] [Exportar]` adjacent in a single `.toolbar-group` (`gap: 0.5rem`), no `.toolbar-divider` between them (00254). `.toolbar-divider` exists only in `#mode-switcher`, play mode.
 - Disabled: `opacity: 0.5; cursor: not-allowed`, no `transform` on hover.
 - No `:active` — interaction feedback is the `opacity`/`background`/`box-shadow`/`transform` change on `:hover`, with a 150ms transition (`var(--transition-fast)`).
@@ -69,7 +69,7 @@ transition: background var(--transition-fast), opacity var(--transition-fast);
 
 ### Version footer (`#app-version`)
 
-`position: fixed; bottom: 1rem; right: 1rem; z-index: 10` (table above). `font-size: 0.75rem` (`001-tokens-visual.md`, Typography), `color: var(--text-muted)`, `line-height: 1.35`, `text-align: right`.
+`position: fixed; bottom: 1rem; right: 1rem; z-index: 10` (table above). `font-size: var(--text-xs)` (`001-tokens-visual.md`, Typography), `color: var(--text-muted)`, `line-height: 1.35`, `text-align: right`.
 
 - Two fixed lines (00243): `.app-version__name` (`BG Factory v<NNNNN>`) + `.app-version__repo` (an external link, `004-naming-and-patterns.md` → BEM block `app-version`; link style in `005-text-links-and-external-links.md`). Fixed project content, not user-editable, identical in both modes.
 - Optional user line (00250): `.app-version__table-text` + `.app-version__separator`, prepended above the two fixed lines, only when `state.tableText` (`00-namespace.md`) is non-empty. Built by `renderAppVersion()` in `src/main.js` bootstrap, not a `src/ui/*` module.
@@ -131,7 +131,7 @@ First use of visual nesting inside a table row: a group's members are shown righ
 
 The `.component-list__row--group` row (a `groupId` with 2+ members) carries a collapse control at the start of its Id cell, before the group name. Members render only while expanded — see "Nested row under a parent block" above for the member-row look, unchanged.
 
-- **Group name**: `.component-list__group-name` — `font-weight: 700`. Distinguishes the group row at a glance from a loose component row and from a member row (both normal weight).
+- **Group name**: `.component-list__group-name` — `font-weight: var(--font-semibold)` (00237, consolidated from a literal `700`). Distinguishes the group row at a glance from a loose component row and from a member row (both normal weight).
 - **Collapse triangle**: `.component-list__group-toggle` — a `<span>` holding a text glyph, `▸` collapsed / `▾` expanded. Same visual language as the `▾`/`▸` glyph in the three floating panels' headers (text character, gray, no background), one size up because it is a row-level control meant to be clicked.
 
   | Property | Value | Note |
@@ -140,7 +140,7 @@ The `.component-list__row--group` row (a `groupId` with 2+ members) carries a co
   | `width` | `16px` | fixed, so the name column starts aligned collapsed vs expanded |
   | `margin-right` | `5px` | gap to the group name |
   | `color` | `var(--text-muted)` (`#666666`) | at rest |
-  | `font-size` | `0.9375rem` (15px) | vs ~13px for the panel-header triangle |
+  | `font-size` | `var(--text-sm)` (14px, consolidated 00237 from a literal 15px) | vs ~13px for the panel-header triangle |
   | `line-height` | `1` | — |
   | `cursor` | `pointer` | — |
   | `user-select` | `none` | glyph not selectable as text |

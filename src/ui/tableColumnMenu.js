@@ -7,13 +7,14 @@
 
 import { openColumnHeaderMenu } from './columnHeaderMenu.js';
 import { compareValues } from '../core/textSort.js';
+import { iconSvg, ICON_SIZE } from './icons.js';
 
 function buildIndicator(active) {
   const span = document.createElement('span');
   span.className = 'column-header-menu__indicator';
   if (active) span.classList.add('column-header-menu__indicator--active');
   span.title = active ? 'Columna con orden y/o filtro activos' : 'Columna ordenable/filtrable';
-  span.innerHTML = '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12l-4.5 5.5V13l-3 1.5V8.5L2 3z"/></svg>';
+  span.innerHTML = iconSvg('filter', { size: ICON_SIZE.menu });
   return span;
 }
 

@@ -17,14 +17,7 @@ import { openImportReportModal } from './importReportModal.js';
 import { runWithProgressModal } from './progressModal.js';
 import { t } from '../core/i18n.js';
 import { openSettingsModal } from './settingsModal.js';
-
-// SVG (24x24) para cada botón icono-solo de la barra. Solo markup estático.
-const ICON_FIT = '<svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9V5a1 1 0 0 1 1-1h4" stroke-linecap="round"/><path d="M20 9V5a1 1 0 0 0-1-1h-4" stroke-linecap="round"/><path d="M4 15v4a1 1 0 0 0 1 1h4" stroke-linecap="round"/><path d="M20 15v4a1 1 0 0 1-1 1h-4" stroke-linecap="round"/></svg>';
-const ICON_SETTINGS = '<svg class="icon-frame" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.32 2.5a1 1 0 0 0-.98.8l-.33 1.66a7.5 7.5 0 0 0-1.6.93l-1.6-.55a1 1 0 0 0-1.19.45l-1.68 2.9a1 1 0 0 0 .2 1.25l1.28 1.1a7.6 7.6 0 0 0 0 1.86l-1.27 1.1a1 1 0 0 0-.21 1.25l1.68 2.9a1 1 0 0 0 1.19.45l1.6-.55c.5.38 1.03.7 1.6.93l.33 1.66a1 1 0 0 0 .98.8h3.36a1 1 0 0 0 .98-.8l.33-1.66c.57-.24 1.1-.55 1.6-.93l1.6.55a1 1 0 0 0 1.19-.45l1.68-2.9a1 1 0 0 0-.21-1.25l-1.27-1.1c.06-.62.06-1.24 0-1.86l1.28-1.1a1 1 0 0 0 .2-1.25l-1.68-2.9a1 1 0 0 0-1.19-.45l-1.6.55a7.5 7.5 0 0 0-1.6-.93l-.33-1.66a1 1 0 0 0-.98-.8h-3.36ZM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z"/></svg>';
-const ICON_IMPORT = '<svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10l5-5 5 5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 15V3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const ICON_EXPORT = '<svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 10l5 5 5-5" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 15V3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const ICON_EXPORT_CHEVRON = '<svg class="icon-frame export-menu__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-const ICON_MODE_PLAY = '<svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 17l5-5-5-5" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12H9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+import { iconSvg } from './icons.js';
 
 // Botón con un SVG + un texto (separados: el SVG en innerHTML, el texto en un span).
 function iconTextButton(svg, text) {
@@ -123,8 +116,8 @@ function createExportMenu() {
   const wrap = document.createElement('div');
   wrap.className = 'export-menu-wrap';
 
-  const button = iconTextButton(ICON_EXPORT, t('toolbar.export'));
-  button.insertAdjacentHTML('beforeend', ICON_EXPORT_CHEVRON);
+  const button = iconTextButton(iconSvg('export'), t('toolbar.export'));
+  button.insertAdjacentHTML('beforeend', iconSvg('chevron-down', { size: 10 }).replace('class="icon-frame"', 'class="icon-frame export-menu__chevron"'));
   wrap.appendChild(button);
 
   const menu = document.createElement('div');
@@ -212,7 +205,7 @@ function createImportControls() {
   });
   fragment.appendChild(importInput);
 
-  const importButton = iconTextButton(ICON_IMPORT, t('toolbar.import'));
+  const importButton = iconTextButton(iconSvg('import'), t('toolbar.import'));
   importButton.addEventListener('click', () => importInput.click());
   fragment.appendChild(importButton);
 
@@ -224,7 +217,7 @@ function createFitButton(className) {
   if (className) button.className = className;
   button.title = t('toolbar.fitZoom');
   button.setAttribute('aria-label', t('toolbar.fitZoom.aria'));
-  button.innerHTML = ICON_FIT;
+  button.innerHTML = iconSvg('fit-view');
   button.addEventListener('click', () => fitToBounds(getComponentsBounds(getComponents())));
   return button;
 }
@@ -236,7 +229,7 @@ function createSettingsButton(className) {
   if (className) button.className = className;
   button.title = t('toolbar.settings');
   button.setAttribute('aria-label', t('toolbar.settings'));
-  button.innerHTML = ICON_SETTINGS;
+  button.innerHTML = iconSvg('settings');
   button.addEventListener('click', () => openSettingsModal());
   return button;
 }
@@ -247,7 +240,7 @@ function createModeButton() {
   const isPlay = getState().mode === MODES.PLAY;
   const button = isPlay
     ? (() => { const b = document.createElement('button'); b.textContent = t('toolbar.modeEdit'); return b; })()
-    : iconTextButton(ICON_MODE_PLAY, t('toolbar.modePlay'));
+    : iconTextButton(iconSvg('mode-play'), t('toolbar.modePlay'));
   button.className = 'mode-switcher__mode-btn';
   button.addEventListener('click', () => setMode(isPlay ? MODES.EDIT : MODES.PLAY));
   return button;
