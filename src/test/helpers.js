@@ -16,6 +16,9 @@
 //   dispatchContextMenu(el) dispara un MouseEvent('contextmenu') real sobre el
 //                           nodo (botón derecho); abre el menú contextual
 //   getOpenContextMenu()    el .context-menu abierto en document.body, o null
+//   loadRealStylesheet()    carga styles/main.css real (runner-page.html no lo
+//                           hace por defecto); para tests que verifican un
+//                           aspecto visual computado (getComputedStyle)
 //   seedLocalStorageState(obj)  escribe `obj` (formato de guardado) en
 //                           localStorage['bgfactory:state']; para los *.boot.test.js
 //   setInitialStateSeed(obj)    escribe `obj` (formato de guardado) en el
@@ -113,6 +116,27 @@ export function mountAppTitle() {
   ensureI18n();
   renderAppTitle(document.getElementById('app-title'));
   return document.getElementById('app-title');
+}
+
+// `runner-page.html` no carga `styles/main.css` a propósito (ver su comentario):
+// la inmensa mayoría de los tests no necesita CSS real, y cargarlo siempre
+// costaría un fetch/parseo de más en cada fichero. Los pocos tests que sí
+// verifican un aspecto visual computado (p.ej. la forma de la sombra de
+// `.lifted`) lo cargan bajo demanda con este helper. Idempotente: una segunda
+// llamada en el mismo documento no añade un `<link>` duplicado.
+let stylesheetPromise = null;
+export function loadRealStylesheet() {
+  if (document.getElementById('bgf-real-stylesheet')) return stylesheetPromise;
+  stylesheetPromise = new Promise((resolvePromise, reject) => {
+    const link = document.createElement('link');
+    link.id = 'bgf-real-stylesheet';
+    link.rel = 'stylesheet';
+    link.href = '../styles/main.css';
+    link.onload = () => resolvePromise();
+    link.onerror = () => reject(new Error('No se pudo cargar ../styles/main.css'));
+    document.head.appendChild(link);
+  });
+  return stylesheetPromise;
 }
 
 export async function loadFixture(nombre) {

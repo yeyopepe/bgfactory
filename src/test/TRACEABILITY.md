@@ -22,14 +22,14 @@ el test la ejercita de forma incidental. Generado por `npm test`.
 | 012 — Orden de apilado en la mesa | FT-012-01, FT-012-02, FT-012-03, FT-012-04, FT-012-05, FT-012-06, FT-012-07, FT-012-08, FT-012-09, FT-012-10, FT-012-11 |
 | 013 — Subir al mover/interactuar | FT-013-01, FT-013-02, FT-013-03, FT-013-04, FT-013-05, FT-013-06, FT-013-07, FT-013-08, FT-013-09, FT-013-10 |
 | 014 — Interacciones programadas de un componente | FT-014-01, FT-014-02, FT-014-03, FT-014-05, FT-014-06, FT-014-07, FT-014-08, FT-014-09, FT-014-10, FT-014-11 |
-| 015 — Posición independiente, arrastre y redimensionado de componentes | FT-015-01, FT-015-02, FT-015-03, FT-015-04, FT-015-05, FT-015-06, FT-015-07 |
+| 015 — Posición independiente, arrastre y redimensionado de componentes | FT-015-01, FT-015-02, FT-015-03, FT-015-04, FT-015-05, FT-015-06, FT-015-07, FT-015-20, FT-015-21, FT-015-22, FT-015-23 |
 | 016 — Componente oculto en modo juego | FT-016-01, FT-016-02, FT-016-04, FT-016-05, FT-016-06 |
 | 017 — Componente "cuadro de texto" | — |
 | 018 — Componente "tablero simple" | FT-018-01, FT-018-03, FT-018-04, FT-018-05, FT-018-06, FT-018-07, FT-018-08, FT-018-09 |
 | 019 — Componente "tablero personalizado" | FT-019-01, FT-019-02, FT-019-03, FT-019-04, FT-019-05, FT-019-06, FT-019-07, FT-019-08 |
-| 020 — Componente "dado" | FT-020-01, FT-020-02, FT-020-03, FT-020-04, FT-020-05, FT-020-06, FT-020-07, FT-020-08, FT-020-09 |
+| 020 — Componente "dado" | FT-020-01, FT-020-02, FT-020-03, FT-020-04, FT-020-05, FT-020-06, FT-020-07, FT-020-08, FT-020-09, FT-015-20 (secundaria), FT-015-21 (secundaria), FT-015-22 (secundaria), FT-015-23 (secundaria) |
 | 021 — Componente "Visor de documentos" | FT-021-01, FT-021-02, FT-021-03, FT-021-04, FT-021-05, FT-021-06, FT-021-07, FT-021-08, FT-021-09, FT-021-10, FT-021-11 |
-| 022 — Componente "carta" | FT-022-01, FT-022-02, FT-022-03, FT-022-04, FT-022-05, FT-022-06, FT-022-07, FT-022-08, FT-005-01 (secundaria), FT-005-02 (secundaria), FT-005-03 (secundaria), FT-005-04 (secundaria), FT-005-05 (secundaria), FT-005-06 (secundaria), FT-005-07 (secundaria), FT-005-08 (secundaria), FT-005-09 (secundaria) |
+| 022 — Componente "carta" | FT-022-01, FT-022-02, FT-022-03, FT-022-04, FT-022-05, FT-022-06, FT-022-07, FT-022-08, FT-005-01 (secundaria), FT-005-02 (secundaria), FT-005-03 (secundaria), FT-005-04 (secundaria), FT-005-05 (secundaria), FT-005-06 (secundaria), FT-005-07 (secundaria), FT-005-08 (secundaria), FT-005-09 (secundaria), FT-015-20 (secundaria), FT-015-21 (secundaria), FT-015-22 (secundaria), FT-015-23 (secundaria) |
 | 023 — Componente "mazo" | FT-023-01, FT-023-02, FT-023-03, FT-023-04, FT-023-05, FT-023-06, FT-023-07, FT-023-08, FT-023-09, FT-023-10, FT-023-11, FT-023-12, FT-023-13 |
 | 025 — Identificación de componentes al pasar el ratón | FT-025-01, FT-025-02, FT-025-03, FT-025-04, FT-025-05, FT-025-06, FT-025-07, FT-025-08, FT-025-09 |
 | 026 — Menú contextual de componente en modo juego | FT-026-01, FT-026-02, FT-026-03, FT-026-04, FT-026-05, FT-026-06, FT-026-07, FT-026-08, FT-026-09, FT-026-10, FT-026-11, FT-026-12, FT-026-13, FT-026-14, FT-026-15, FT-026-16, FT-026-17 |

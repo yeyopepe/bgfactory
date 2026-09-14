@@ -3540,6 +3540,21 @@ fieldset.modal__section--untitled {
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
 }
 
+/* Piezas de silueta no rectangular (recorte con clip-path en un hijo
+   interior): en reposo ya usan filter: drop-shadow para que la sombra siga
+   la silueta real en vez de la caja exterior (ver .dice / .carta--hex,
+   .carta--triangle más arriba). El box-shadow fijo de .lifted no respeta
+   ese recorte porque se pinta sobre la caja rectangular del propio
+   elemento — aquí se sustituye por un filter: drop-shadow equivalente
+   (mismo desplazamiento/opacidad aproximada que el box-shadow de .lifted)
+   solo para esta combinación, sin alterar .lifted para el resto de piezas. */
+.dice.lifted,
+.carta--hex.lifted,
+.carta--triangle.lifted {
+  box-shadow: none;
+  filter: drop-shadow(6px 7px 6px rgba(0, 0, 0, 0.40));
+}
+
 /* Estado transitorio "feedback de volteo": segundo estado de elevación
    breve, propio y distinto de `.lifted` (no reutiliza su transform ni su
    gesto) — confirma al soltar el click que la carta cambió de cara. Se

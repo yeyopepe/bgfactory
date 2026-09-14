@@ -570,13 +570,38 @@ export function getComponentsBounds(components) {
 // al final de `worldEl` (visualmente al frente, sin tocar `order`) y añade el
 // estado transitorio `lifted`. El reordenamiento real y persistido sigue
 // disparándose aparte, al soltar.
+//
+// [gotcha] Un componente con extrusión (`profundidad` > 0) fija su sombra de
+// reposo como `style.filter`/`style.boxShadow` inline (ver
+// `buildExtrusionLayers`, más arriba) — un estilo inline tiene siempre
+// prioridad sobre cualquier regla de una hoja de estilos, así que ninguna
+// regla `.lifted`/`.dice.lifted`/`.carta--hex.lifted` puede cambiar esas
+// propiedades mientras el inline siga puesto. Se retira aquí temporalmente
+// (guardado en un dataset) para que las reglas CSS del estado "levantado"
+// tomen el control, y se restaura tal cual al soltar.
 function beginDragLift(el, worldEl) {
   worldEl.appendChild(el);
+  if (el.style.filter) {
+    el.dataset.liftInlineFilter = el.style.filter;
+    el.style.filter = '';
+  }
+  if (el.style.boxShadow) {
+    el.dataset.liftInlineBoxShadow = el.style.boxShadow;
+    el.style.boxShadow = '';
+  }
   el.classList.add('lifted');
 }
 
 function endDragLift(el) {
   el.classList.remove('lifted');
+  if (el.dataset.liftInlineFilter !== undefined) {
+    el.style.filter = el.dataset.liftInlineFilter;
+    delete el.dataset.liftInlineFilter;
+  }
+  if (el.dataset.liftInlineBoxShadow !== undefined) {
+    el.style.boxShadow = el.dataset.liftInlineBoxShadow;
+    delete el.dataset.liftInlineBoxShadow;
+  }
 }
 
 // Feedback visual al voltear una carta: detectado por diferencia de datos

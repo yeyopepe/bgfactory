@@ -92,6 +92,7 @@ A 3-level elevation system, reusable across the app.
 - **Level 1 — subtle float** (`box-shadow: var(--shadow-1)`): work panels (`.component-panel`, `.resource-panel`), header/toolbar (`h1`, `.edit-toolbar`), `.toast`, game pieces on the table (`.board`, `.tablero-personalizado`, `.carta`, `.document-viewer`).
   - `.dice`: uses `filter: drop-shadow(...)` instead of `box-shadow`, so the shadow follows the real silhouette (triangle/square/rhombus/decagon) instead of the container's square box.
   - `.carta--hex` (hexagonal-proportion card): same criterion as `.dice` — non-rectangular silhouette, uses `filter: drop-shadow(...)`.
+  - `.carta--triangle` (triangular-proportion card): same criterion as `.dice`/`.carta--hex`.
   - `.text-box` (loose text on the table, no box/background): uses `text-shadow` instead of `box-shadow`, only for readability over any table color.
 - **Level 2 — overlay** (`box-shadow: var(--shadow-2)`): modals (`.modal`), `.help-icon__tooltip`, `.splash-window` (startup splash, `003-modales-menus.md`) — the highest level.
 - **Optional shadow of `'tableroSimple'`/`'tableroPersonalizado'`**: unlike the rest of the level-1 pieces, their contact shadow can be disabled per component.
@@ -100,6 +101,8 @@ A 3-level elevation system, reusable across the app.
   - Unchecked: modifier `.board--sin-sombra`/`.tablero-personalizado--sin-sombra` (`box-shadow: none`) — the component drops to level 0.
   - A board saved without this property behaves as if checked (with shadow) — no visual change.
 - The transient state `.lifted` on dragging a component in play mode is the "in the air" state of this same system (a more pronounced shadow + fixed offset during the drag) — not an isolated exception. See "'Lift' effect on dragging in play mode" below.
+  - `.dice.lifted`, `.carta--hex.lifted`, `.carta--triangle.lifted`: same `filter: drop-shadow(...)` criterion as their rest-state rule above, applies to `.lifted` too — `box-shadow` would paint the container's rectangular box regardless of the `clip-path` on an inner child, not the real silhouette.
+  - [gotcha] a component with extrusion (`profundidad > 0`, see "Configurable extrusion" below) sets its rest-state shadow as an **inline** `style.filter`/`style.boxShadow` — an inline style always wins over any stylesheet rule, `.lifted`/`.dice.lifted`/`.carta--hex.lifted`/`.carta--triangle.lifted` included, no matter their specificity. `beginDragLift`/`endDragLift` (`ui/componentRenderer.js`) remove that inline value (saved in `el.dataset`) right before adding `.lifted`, and restore it as-is right after removing it — otherwise the lift effect would silently do nothing on any extruded piece (`'dado'` reproduces it by default, since it's created with `profundidad: 4`).
 - **Configurable extrusion** (`profundidad`/`colorExtrusion`, general component field, `core/component.js`): stacked solid layers with no blur, not a diffuse shadow. A concept independent of and compatible with the 3 elevation levels — it does not introduce a fourth level. Elevation = contact shadow with the table; extrusion = thickness/body of the component itself.
   - `profundidad`: number, px, `0` by default (no effect), cap `40`.
   - `colorExtrusion`: color string or `null` (automatic computation `shadeColor(colorBase, -0.25)`, `colorBase` by type — see `ui/componentRenderer.js`, `resolveExtrusionColor`).
@@ -138,6 +141,7 @@ Integrated into the elevation system above.
 - Transient state `.lifted` (`src/styles/main.css`), added/removed by `ui/componentRenderer.js` (`beginDragLift`/`endDragLift`).
 - Only when `renderComponentsOnTable` receives `liftOnDrag: true` (exclusive to `modes/play/playMode.js`, never `modes/edit/editMode.js`).
 - Applies a fixed offset (`transform: translate(-2px, -4px)`) and a shadow (`box-shadow: 6px 7px 9px 2px rgba(0,0,0,0.35)`) while dragging — simulates the component lifting and settling back on release.
+- [gotcha] `.dice.lifted`, `.carta--hex.lifted`, `.carta--triangle.lifted` override that `box-shadow` with `none` and use `filter: drop-shadow(6px 7px 6px rgba(0,0,0,0.40))` instead — same rest-state criterion (non-rectangular silhouette clipped in an inner child, `box-shadow` on the outer box would paint a rectangle regardless). Every other piece keeps `.lifted`'s plain `box-shadow` unchanged.
 - Transitions with `var(--transition-fast)`, symmetric on lift and release — not instant.
 - Does not reopen the general ban on complex animations (`@keyframes`, narrative): it keeps applying unchanged to the rest of the cases (die shake/flicker, `--selectable`/`--selected` outline).
 - It is the "in the air" state of the same elevation system the rest of the pieces use at rest — scoped only to this transient state and this gesture (drag in play mode).
