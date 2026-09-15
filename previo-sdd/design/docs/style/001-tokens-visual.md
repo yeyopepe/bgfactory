@@ -206,7 +206,7 @@ The game table's ground: solid `var(--bg-table)` + a dotted pattern.
 | Token | Value | Level / use |
 |---|---|---|
 | `--shadow-0` | `none` | Flat — active-drag state with no shadow |
-| `--shadow-1` | `0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08)` | Subtle float — work panels (`.component-panel`, `.resource-panel`), header/toolbar (`h1`, `.edit-toolbar`), `.toast`, game pieces at rest (`.board`, `.tablero-personalizado`, `.carta`, `.document-viewer`) |
+| `--shadow-1` | `0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08)` | Subtle float — work panels (`.component-panel`, `.resource-panel`), header (`h1`), `.toast`, game pieces at rest (`.board`, `.tablero-personalizado`, `.carta`, `.document-viewer`) |
 | `--shadow-2` | `0 4px 20px rgba(0,0,0,0.15)` | Overlay — regular modals (`.modal`), `.help-icon__tooltip` |
 | `--shadow-3` | `0 8px 24px rgba(0,0,0,0.18)` | Large modal — `.component-editor-modal` (visual editor), `.element-selection-modal` (complex selection modal), `.splash-window` (startup splash) |
 | `--shadow-lifted` | `6px 7px 9px 2px rgba(0,0,0,0.35)` | Active drag — `.lifted` transient state |
@@ -255,7 +255,7 @@ Highest-to-lowest, for stacking new overlays:
 | `1100` | `.toast` |
 | `1050` | `.context-menu`, `.column-header-menu` |
 | `1000` | `.modal-overlay` (all modals, incl. `.progress-modal`) |
-| `101` / `100` / `99` | `#mode-switcher` / `h1` header / `#edit-toolbar` |
+| `101` / `100` | `#mode-switcher` / `h1` header |
 
 - Floating panels (`.component-panel`, `.resource-panel`) get their z-index assigned dynamically in JS (`editMode.js`, `applyPanelStackOrder`), below the modal layer.
 - A new always-on-top overlay goes above `1300`; anything modal-like reuses `1000`.

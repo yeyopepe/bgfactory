@@ -1,0 +1,11 @@
+Each of the JPEG files is a 300dpi image that is sized to fit on an A4 piece of paper.
+
+If you are printing on A4 paper, you need not check 'scale to fit', just print centrally on the page at 300dpi.
+
+If you are printing on US Letter paper (8.5x11"), check 'scale to fit' on both the Board and the Bits pages, as these need to both be printed at the same scale for the Spare Room tiles to fit. At 300dpi the other pages should fit without scaling onto US-Letter paper, so it is up to you whether or not to scale them.
+
+Alternatively, download 150dpi PDFs are also available, check here for details:
+
+	http://boardgamegeek.com/thread/1020404
+
+Be aware, the PDFs are larger file sizes as well as being lower resolution!

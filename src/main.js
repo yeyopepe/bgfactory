@@ -11,7 +11,7 @@ import {
 } from './core/state.js';
 import { CURRENT_VERSION } from './data/version.js';
 import { DEFAULT_RESOURCES } from './data/defaultResources.js';
-import { renderModeSwitcher, renderEditToolbar } from './ui/editModeToggle.js';
+import { renderModeSwitcher } from './ui/editModeToggle.js';
 import { renderAppTitle } from './ui/appTitle.js';
 import { initGlobalShortcuts } from './ui/globalShortcuts.js';
 import { renderPlayMode } from './modes/play/playMode.js';
@@ -34,7 +34,6 @@ showSplashScreen();
 initI18n();
 
 const switcherEl = document.getElementById('mode-switcher');
-const toolbarEl = document.getElementById('edit-toolbar');
 const contentEl = document.getElementById('content');
 const titleEl = document.getElementById('app-title');
 const versionEl = document.getElementById('app-version');
@@ -87,7 +86,6 @@ function renderAll() {
   if (titleEl) renderAppTitle(titleEl);
   renderAppVersion(versionEl);
   renderModeSwitcher(switcherEl);
-  renderEditToolbar(toolbarEl);
   renderActiveMode();
 }
 

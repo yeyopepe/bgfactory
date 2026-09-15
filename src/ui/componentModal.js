@@ -2218,7 +2218,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
     deleteBtn.addEventListener('click', () => {
       if (confirm(t('confirm.deleteComponent', { id: workingComponent.id }))) {
         onDelete(component);
-        overlay.remove();
+        closeModal();
       }
     });
     footer.appendChild(deleteBtn);
@@ -2228,7 +2228,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   cancelBtn.className = 'btn-cancel';
   cancelBtn.textContent = t('common.cancel');
   cancelBtn.addEventListener('click', () => {
-    overlay.remove();
+    closeModal();
   });
   footer.appendChild(cancelBtn);
 
@@ -2240,7 +2240,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
       if (onAccept) {
         onAccept(workingComponent, isNew);
       }
-      overlay.remove();
+      closeModal();
     }
   });
   footer.appendChild(acceptBtn);
@@ -2254,6 +2254,35 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   overlay.appendChild(modal);
   document.body.appendChild(overlay);
 
+  // Borde superior fijo entre pestañas (00284): se ancla a la posición que
+  // ocuparía el modal mostrando la pestaña de mayor altura, en vez de
+  // recentrarse verticalmente cada vez que switchTab() cambia el contenido
+  // visible. Medido una vez tras insertar el modal en el DOM (mismo criterio
+  // que measureTextoNaturalSize más arriba: display temporal para medir,
+  // restaurado después), antes de cualquier pintado perceptible.
+  let maxModalHeight = 0;
+  tabContents.forEach((data, name) => {
+    if (name === activeTab) return;
+    data.content.style.display = 'block';
+    maxModalHeight = Math.max(maxModalHeight, modal.offsetHeight);
+    data.content.style.display = 'none';
+  });
+  maxModalHeight = Math.max(maxModalHeight, modal.offsetHeight);
+
+  function applyFixedTop() {
+    const cappedHeight = Math.min(maxModalHeight, window.innerHeight * 0.8);
+    const topPx = Math.max(0, (window.innerHeight - cappedHeight) / 2);
+    modal.style.top = `${topPx}px`;
+  }
+
+  applyFixedTop();
+  window.addEventListener('resize', applyFixedTop);
+
+  function closeModal() {
+    window.removeEventListener('resize', applyFixedTop);
+    overlay.remove();
+  }
+
   // Close on overlay click (outside modal), but not if the drag started inside
   let mousedownOnOverlay = false;
   overlay.addEventListener('mousedown', (e) => {
@@ -2261,7 +2290,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   });
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay && mousedownOnOverlay) {
-      overlay.remove();
+      closeModal();
     }
   });
 }

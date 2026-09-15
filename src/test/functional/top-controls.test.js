@@ -2,7 +2,7 @@
 // FT-039-01 nivel estado; FT-039-02 nivel interfaz.
 
 import { describe, it, expect, beforeEach, afterEach, registerFeature } from '../harness.js';
-import { resetState, mountEditMode, mountPlayMode } from '../helpers.js';
+import { resetState, mountEditMode, mountPlayMode, mountAppTitle, loadRealStylesheet } from '../helpers.js';
 import { MODES, getState, setMode } from '../../core/state.js';
 import { on } from '../../core/eventBus.js';
 import { t } from '../../core/i18n.js';
@@ -30,18 +30,20 @@ describe('039 — Barra de controles superior', () => {
 
   it('FT-039-02 · la barra pinta Importar/Exportar/Modo según el modo activo', () => {
     mountEditMode();
-    const editBar = document.getElementById('edit-toolbar');
+    mountAppTitle();
+    const h1 = document.getElementById('app-title');
     const switcherEdit = document.getElementById('mode-switcher');
-    expect(editBar.textContent).toContain(t('toolbar.import'));
-    expect(editBar.textContent).toContain(t('toolbar.export'));
+    expect(h1.textContent).toContain(t('toolbar.import'));
+    expect(h1.textContent).toContain(t('toolbar.export'));
     // En edición el botón de modo dice "Modo Juego".
     expect(switcherEdit.textContent).toContain(t('toolbar.modePlay'));
 
     mountPlayMode();
-    const editBarAfter = document.getElementById('edit-toolbar');
+    mountAppTitle();
+    const h1After = document.getElementById('app-title');
     const switcherPlay = document.getElementById('mode-switcher');
-    // En juego la franja de edición queda vacía y el bloque de fichero está en #mode-switcher.
-    expect(editBarAfter.textContent.trim()).toBe('');
+    // En juego Importar/Exportar ya no viven en el título: el bloque de fichero está en #mode-switcher.
+    expect(h1After.textContent.includes(t('toolbar.import'))).toBe(false);
     expect(switcherPlay.textContent).toContain(t('toolbar.import'));
     expect(switcherPlay.textContent).toContain(t('toolbar.modeEdit'));
   });
@@ -61,15 +63,16 @@ describe('039 — Barra de controles superior', () => {
 
   it('FT-039-04 · en modo edición #mode-switcher no lleva el bloque de fichero ni el separador', () => {
     mountEditMode();
+    mountAppTitle();
     const switcher = document.getElementById('mode-switcher');
     // El harness no tiene matcher negado: se comprueba el booleano directamente.
     expect(switcher.textContent.includes(t('toolbar.import'))).toBe(false);
     expect(switcher.querySelector('.toolbar-divider')).toBeNull();
     expect(switcher.textContent).toContain(t('toolbar.modePlay'));
 
-    const editBar = document.getElementById('edit-toolbar');
-    expect(editBar.textContent).toContain(t('toolbar.import'));
-    expect(editBar.textContent).toContain(t('toolbar.export'));
+    const h1 = document.getElementById('app-title');
+    expect(h1.textContent).toContain(t('toolbar.import'));
+    expect(h1.textContent).toContain(t('toolbar.export'));
   });
 
   it('FT-039-05 · el botón de modo cambia de texto pero está siempre en #mode-switcher', () => {
@@ -104,5 +107,16 @@ describe('039 — Barra de controles superior', () => {
         .find((b) => b.title === t('toolbar.settings'));
       expect(settingsBtn).toBeTruthy();
     }
+  });
+
+  it('FT-039-08 · en modo edición Importar/Exportar viven dentro de la cabecera del título, con su misma trama de fondo (00290)', async () => {
+    await loadRealStylesheet();
+    mountEditMode();
+    mountAppTitle();
+
+    const h1 = document.getElementById('app-title');
+    expect(h1.textContent).toContain(t('toolbar.import'));
+    expect(h1.textContent).toContain(t('toolbar.export'));
+    expect(getComputedStyle(h1).backgroundImage === 'none').toBe(false);
   });
 });

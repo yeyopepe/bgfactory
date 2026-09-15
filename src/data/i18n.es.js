@@ -36,7 +36,7 @@ export const CATALOG_ES = {
 
   // --- Barra de controles superior ---
   'toolbar.modeEdit': 'Modo Edición',
-  'toolbar.modePlay': 'Modo Juego',
+  'toolbar.modePlay': 'Ir al Modo Juego',
   'toolbar.import': 'Importar',
   'toolbar.export': 'Exportar',
   'toolbar.fitZoom': 'Ajustar zoom para ver todos los elementos',

@@ -119,6 +119,21 @@ describe('002 — Ventana de alta/edición de componentes', () => {
     expect(getComputedStyle(modal()).overflow).toBe('hidden');
   });
 
+  it('FT-002-20 · el borde superior de la modal no se desplaza al cambiar de pestaña', async () => {
+    await loadRealStylesheet();
+    openComponentModal({ component: createDefaultComponent('carta'), onAccept() {}, onDelete() {} });
+
+    const referenceTop = modal().getBoundingClientRect().top;
+    for (let i = 1; i < 5; i += 1) {
+      tabs()[i].click();
+      const top = modal().getBoundingClientRect().top;
+      expect(Math.abs(top - referenceTop) <= 1).toBe(true);
+    }
+    // Vuelta a "Generales" (la pestaña más corta): el borde superior sigue igual.
+    tabs()[0].click();
+    expect(Math.abs(modal().getBoundingClientRect().top - referenceTop) <= 1).toBe(true);
+  });
+
   it('FT-002-18 · validación de id: vacío, sólo espacios y duplicado de otro', () => {
     const a = createDefaultComponent('carta');
     a.id = 'alpha';

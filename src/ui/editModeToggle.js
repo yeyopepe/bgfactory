@@ -1,5 +1,6 @@
-// UI para entrar/salir del modo edición: botón de entrada en modo juego,
-// barra de herramientas propia (con botón de salida) en modo edición.
+// UI de la fila de controles de la cabecera (#mode-switcher): cambio de
+// modo, ajustar zoom, configuración, y (solo en modo juego) Importar/Exportar
+// (en modo edición estos dos últimos viven dentro de h1#app-title, 00290).
 
 import { MODES, getState, setMode, getComponents, getResources, getPanelState, getResourcePanelState, getResourcesSeeded, loadComponents, loadResources, loadTags, getTags, getTagPanelState, getAppTitle, setAppTitle, getGroups, loadGroups } from '../core/state.js';
 import { getFullAppTitle } from '../core/appTitle.js';
@@ -112,7 +113,7 @@ function importComponentsFromFile(file) {
   reader.readAsText(file);
 }
 
-function createExportMenu() {
+export function createExportMenu() {
   const wrap = document.createElement('div');
   wrap.className = 'export-menu-wrap';
 
@@ -188,9 +189,10 @@ function createExportMenu() {
 }
 
 // Controles de "Importar" (input de fichero oculto + botón). Mismo aspecto en
-// ambos modos (blanco sobre fondo oscuro): la clase .toolbar-btn--ghost la aplica
-// tanto la barra .edit-toolbar como la fila de controles de la cabecera.
-function createImportControls() {
+// ambos modos (blanco sobre fondo oscuro), reutilizado tanto en #mode-switcher
+// (modo juego, este mismo fichero) como en h1#app-title (modo edición,
+// ui/appTitle.js, 00290) — factory agnóstica del contenedor donde se monte.
+export function createImportControls() {
   const fragment = document.createDocumentFragment();
 
   const importInput = document.createElement('input');
@@ -255,7 +257,8 @@ export function renderModeSwitcher(container) {
   const isPlay = getState().mode === MODES.PLAY;
 
   // En modo juego el bloque de fichero (Importar/Exportar) vive aquí; en modo
-  // edición vive en la franja .edit-toolbar, así que aquí no aparece ni el separador.
+  // edición vive dentro de h1#app-title (ui/appTitle.js, 00290), así que aquí
+  // no aparece ni el separador.
   if (isPlay) {
     container.appendChild(createImportControls());
     container.appendChild(createExportMenu());
@@ -269,22 +272,3 @@ export function renderModeSwitcher(container) {
   container.appendChild(createSettingsButton('mode-switcher__settings-btn'));
 }
 
-// Franja .edit-toolbar de modo edición: contiene el bloque de fichero
-// [Importar] [Exportar] contiguos en un único .toolbar-group, sin separador
-// entre ambos (el .toolbar-divider solo se usa en #mode-switcher, modo juego).
-export function renderEditToolbar(container) {
-  container.innerHTML = '';
-
-  if (getState().mode !== MODES.EDIT) return;
-
-  const toolbar = document.createElement('div');
-  toolbar.className = 'edit-toolbar';
-
-  const fileGroup = document.createElement('div');
-  fileGroup.className = 'toolbar-group';
-  fileGroup.appendChild(createImportControls());
-  fileGroup.appendChild(createExportMenu());
-  toolbar.appendChild(fileGroup);
-
-  container.appendChild(toolbar);
-}

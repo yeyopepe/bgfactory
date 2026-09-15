@@ -31,36 +31,35 @@ transition: background var(--transition-fast), opacity var(--transition-fast);
 | "Modo Edición" / "Modo Juego" | `.mode-switcher__mode-btn` | primary action (blue) | Mode-switch button, same look the old "Entrar/Salir del modo edición" had. Always in `#mode-switcher`, in both modes. Play mode = text-only; edit mode = icon + text. |
 | "Ajustar zoom" | `.mode-switcher__fit-btn` | primary action (blue), icon-only | `padding: 0; width: 36px; height: 36px; justify-content: center`. `.icon-frame` `18×18`. |
 | "Configuración" | `.mode-switcher__settings-btn` | "ghost on dark", icon-only | Same `36×36` size block as `.mode-switcher__fit-btn` (`.mode-switcher__fit-btn .icon-frame, .mode-switcher__settings-btn .icon-frame { 18×18 }`). `background: none; border: 1px solid var(--text-light)`; hover `var(--toolbar-hover)`. **NOT blue** — visually separates it from the two blue actions. Gear glyph is a filled-silhouette SVG (`fill="currentColor"`), distinct from `.mode-switcher__fit-btn`'s stroked corner-frame icon. |
-| "Importar" / "Exportar" | — (`.export-menu-wrap > button` for Export) | "ghost on dark" | `background: none; border: 1px solid var(--text-light)`; hover `var(--toolbar-hover)` — the **same scheme as `.edit-toolbar button`**, so the file block looks identical in both modes. `#mode-switcher button` base: `padding: 0.5rem 1rem; display: inline-flex; align-items: center; gap: 0.375rem`; `.icon-frame` `16×16`. |
+| "Importar" / "Exportar" | — (`.export-menu-wrap > button` for Export) | "ghost on dark" | `background: none; border: 1px solid var(--text-light)`; hover `var(--toolbar-hover)` — the **same scheme wherever mounted**: `#mode-switcher button` in play mode, `.app-title__controls button` in edit mode (00290) — so the file block looks identical in both modes. Base padding/layout: `padding: 0.5rem 1rem; display: inline-flex; align-items: center; gap: 0.375rem`; `.icon-frame` `16×16`. |
 
 - `#mode-switcher button` no longer sets `background: var(--accent-blue)` for every descendant (removed 00244). Blue is now opt-in per class (`.mode-switcher__mode-btn`, `.mode-switcher__fit-btn`); the file-block buttons fall through to the ghost scheme via `#mode-switcher > button:not(.mode-switcher__mode-btn):not(.mode-switcher__fit-btn):not(.mode-switcher__settings-btn)` and `#mode-switcher .export-menu-wrap > button`.
-- `.edit-toolbar__exit-btn` and its rules removed (00244) — the mode-switch button no longer lives in `.edit-toolbar`.
-- `#edit-toolbar > .mode-switcher__fit-btn` rules removed (00244) — "Ajustar zoom" is no longer a direct child of `#edit-toolbar`; it lives in `#mode-switcher` in both modes.
-- **Header control-row separator**: a `.toolbar-divider` (`width: 1px; height: 1.5rem; background: var(--toolbar-divider)`) between the file block (Importar/Exportar) and the action block (Modo, Ajustar zoom, Configuración). Present **only in play mode**, inside `#mode-switcher`. Edit mode never renders a `.toolbar-divider`: the file block lives in the `.edit-toolbar` band, and Importar/Exportar sit adjacent there with no divider between them.
-- Edit mode: `.edit-toolbar` band holds `[Importar] [Exportar]` adjacent in a single `.toolbar-group` (`gap: 0.5rem`), no `.toolbar-divider` between them (00254). `.toolbar-divider` exists only in `#mode-switcher`, play mode.
+- `.edit-toolbar__exit-btn` and its rules removed (00244) — the mode-switch button no longer lives in a separate edit-mode band.
+- `#edit-toolbar > .mode-switcher__fit-btn` rules removed (00244) — "Ajustar zoom" is no longer a direct child of that band (which itself was removed 00290); it lives in `#mode-switcher` in both modes.
+- **Header control-row separator**: a `.toolbar-divider` (`width: 1px; height: 1.5rem; background: var(--toolbar-divider)`) between the file block (Importar/Exportar) and the action block (Modo, Ajustar zoom, Configuración). Present **only in play mode**, inside `#mode-switcher`. Edit mode never renders a `.toolbar-divider`: Importar/Exportar sit adjacent inside `.app-title__controls` (`h1#app-title`, 00290) with no divider between them.
+- Edit mode (00290, replacing the earlier `.edit-toolbar`/`.toolbar-group` pair): `.app-title__controls` (a row inside `h1#app-title`'s `.app-title__block`, `gap: 1rem`) holds `[Importar] [Exportar]` adjacent, no `.toolbar-divider` between them. `.toolbar-divider` exists only in `#mode-switcher`, play mode.
 - Disabled: `opacity: 0.5; cursor: not-allowed`, no `transform` on hover.
 - No `:active` — interaction feedback is the `opacity`/`background`/`box-shadow`/`transform` change on `:hover`, with a 150ms transition (`var(--transition-fast)`).
 - **Icon-only button** (action with no visible text): SVG icon with `stroke="currentColor"` (inherits the context's text/border color), always with `title`/`aria-label` as an accessible label.
-  - Inside an existing bar button (e.g. `.edit-toolbar button`): same padding/size as that block's text buttons — only the content changes.
+  - Inside an existing bar button (e.g. `.app-title__controls button`): same padding/size as that block's text buttons — only the content changes.
   - Standalone square icon-only button (`.mode-switcher__fit-btn`, `.mode-switcher__settings-btn`): `padding: 0; width: 36px; height: 36px`, centered icon (`display: inline-flex; align-items: center; justify-content: center`), `.icon-frame` `18×18`. Both live in `#mode-switcher` in both modes (00244) — see "Header control row" above for their schemes (fit = blue, settings = ghost). The size block uses `#mode-switcher .mode-switcher__fit-btn` / `#mode-switcher .mode-switcher__settings-btn` to win by specificity over `#mode-switcher button`'s `padding: 0.5rem 1rem` (a bare class loses and the icon distorts inside the `36×36`).
 - **Full-text button in a tight space**: when a text button is wedged between narrow elements (not in a loose action row) — e.g. `.card-editor-modal__adjust-image`, between the two faces of a card — it uses `padding: 0.5rem 0.75rem` as an intermediate variant between the standard (`0.5rem 1rem`) and the small item one (`0.25rem 0.5rem`). Reuse `0.75rem` instead of introducing a fourth ad-hoc value.
 
 ## Layout
 
-- App = full-height flex column: `html, body { height: 100% }`, `body { display:flex; flex-direction:column; height:100vh }`. Fixed header (`h1`, `3.5rem`) + flexible `#content` (`flex: 1 1 auto; min-height: 0`).
+- App = full-height flex column: `html, body { height: 100% }`, `body { display:flex; flex-direction:column; height:100vh }`. Header (`h1`, `min-height: 3.5rem` — grows in edit mode to fit the title/indicator/controls stack, 00290) + flexible `#content` (`flex: 1 1 auto; min-height: 0`).
 - Fixed-width side panels: `400px` (`.component-list`, `.edit-mode-panel`).
 - Default initial position of edit-mode floating panels: both anchored to the right side, stacked vertically (`.component-panel-container` on top, `.resource-panel-container` below) — only a starting position, the user can drag each panel freely afterward.
 - `z-index` of `.component-panel-container`/`.resource-panel-container`/`.tag-panel-container`: not a fixed CSS value — computed in `modes/edit/editMode.js` (`applyPanelStackOrder`, base `15`, one per position in `panelStackOrder`) to reflect which of the three is in front after the user's last interaction.
-  - Being `position: absolute` inside `tableContainer` (not `fixed`), they fall outside the next layer table, but always well below its first layer (`99`, edit toolbar).
+  - Being `position: absolute` inside `tableContainer` (not `fixed`), they fall outside the next layer table, but always well below the header layers (`100`).
 
 ### Z-index of overlays (`position: fixed`)
 
 | z-index | Layer |
 |---|---|
 | `10` | Version footer |
-| `99` | Edit toolbar |
-| `100` | Header |
-| `101` | Header control row (`#mode-switcher`, populated in both modes; in play mode: Importar/Exportar/separator/Modo/Ajustar zoom/Configuración — the `separator` is play-mode only, never the `.edit-toolbar`) |
+| `100` | Header (`h1`, includes Importar/Exportar in edit mode since 00290) |
+| `101` | Header control row (`#mode-switcher`, populated in both modes; in play mode: Importar/Exportar/separator/Modo/Ajustar zoom/Configuración — the `separator` is play-mode only) |
 | `1000` | Modal overlay |
 | `1050` | Component context menu (`.context-menu`, `003-modales-menus.md`, "Component context menu") and column-header menu (`.column-header-menu`, `003-modales-menus.md`, "Actions dropdown menu") |
 

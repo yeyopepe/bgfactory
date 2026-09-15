@@ -38,7 +38,7 @@ export const CATALOG_EN = {
 
   // --- Top control bar ---
   'toolbar.modeEdit': 'Edit Mode',
-  'toolbar.modePlay': 'Play Mode',
+  'toolbar.modePlay': 'Go to Play Mode',
   'toolbar.import': 'Import',
   'toolbar.export': 'Export',
   'toolbar.fitZoom': 'Zoom to fit all elements',
@@ -559,7 +559,7 @@ export const CATALOG_EN = {
   'componentModal.createTitle': 'Create component',
   'componentModal.tab.general': 'General',
   'componentModal.tab.visual': 'Appearance',
-  'componentModal.tab.specific': 'Specific',
+  'componentModal.tab.specific': 'Content',
   'componentModal.tab.interacciones': 'Interactions',
   'componentModal.tab.copias': 'Copies',
   'componentModal.borderLegend.extrusion': 'Extrusion',

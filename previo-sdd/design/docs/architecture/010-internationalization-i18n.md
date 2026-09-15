@@ -79,6 +79,6 @@ Bundled with i18n (same file). See [006 — UI layer: reusable modules](006-ui-l
 - `createSettingsButton(className)` — new. Icon-only 36×36, class `mode-switcher__settings-btn`, opens `settingsModal`. NOT blue (`background: none; border: 1px solid var(--text-light)`), unlike `mode-switcher__fit-btn`.
 - `createModeButton()` — new helper. Mode-switch button (`Modo Edición` in play, `Modo Juego` in edit), class `mode-switcher__mode-btn`, primary-action blue. Always mounted in the header corner row (`#mode-switcher`) in both modes.
 - `renderModeSwitcher` runs in both modes now (was play-only early return): builds `#mode-switcher` with `[Importar] [Exportar] | (divider, play only) [Modo] [Ajustar zoom] [Configuración]`.
-- `renderEditToolbar` no longer mounts the mode button nor `createFitButton` on `#edit-toolbar`; `.edit-toolbar` keeps only `[Importar] | [Exportar]`.
+- [gotcha] the `.edit-toolbar` band this point originally described (edit mode: `[Importar] | [Exportar]`, separate from `#mode-switcher`) was removed in 00290 — Import/Export in edit mode now render inside `h1#app-title` itself (`ui/appTitle.js`, canonical detail in `006-ui-layer.md`), not in a distinct container.
 - `createImportControls` lost its `buttonClassName` param — `Importar`/`Exportar` use the same "ghost on dark" scheme in both modes.
 - Text separated from inline SVG in the `innerHTML` template buttons (`Importar`, `Exportar`, mode button) via `iconTextButton(svg, text)` helper.

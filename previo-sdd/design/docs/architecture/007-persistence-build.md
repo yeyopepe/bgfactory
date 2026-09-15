@@ -70,7 +70,7 @@ bootFromSeedOrDefaults()  [local to main.js]:
 
 ### File save
 
-[gotcha] there is no whole-app "Guardar" action any more — `src/ui/editModeToggle.js` (`.edit-toolbar`) only offers "Importar"/"Exportar"; a full-app HTML download (`buildExportHtml`/`downloadHtml`) existed in earlier versions of `core/fileExport.js` but has since been removed (only present today inside `src/_output/versions/index-v*.html`, past build artifacts, not in current `/src`). `core/fileExport.js` now exposes only `downloadJson(filename, data)`, used by the "Exportar" flow below.
+[gotcha] there is no whole-app "Guardar" action any more — `src/ui/editModeToggle.js`'s `createImportControls`/`createExportMenu` (mounted in `#mode-switcher` in play mode, inside `h1#app-title` in edit mode since 00290) only offer "Importar"/"Exportar"; a full-app HTML download (`buildExportHtml`/`downloadHtml`) existed in earlier versions of `core/fileExport.js` but has since been removed (only present today inside `src/_output/versions/index-v*.html`, past build artifacts, not in current `/src`). `core/fileExport.js` now exposes only `downloadJson(filename, data)`, used by the "Exportar" flow below.
 
 ### Export/Import with selection (`core/importMerge.js` + `ui/exportSelectionModal.js`/`ui/importSelectionModal.js`/`ui/importConfirmModal.js`/`ui/importReportModal.js` in `ui/editModeToggle.js`)
 
@@ -82,7 +82,7 @@ The lightweight JSON of `core/persistence.js` (`buildComponentsExport(components
 3. `buildComponentsExport(...)` builds the JSON, `downloadJson` triggers the download.
 
 **Import**:
-0. Entry point: "Importar" button. Two call sites, same handler (`importComponentsFromFile`, `ui/editModeToggle.js`): `.edit-toolbar` (edit mode) and `#mode-switcher` (play mode) — both built by `createImportControls()` (see `../architecture/005-modes.md`). [gotcha] the flow never calls `setMode`; the mode active when the button was pressed is the mode after import completes/aborts. Post-import repaint is via the `*:changed` events (`loadComponents`/`loadResources`/`loadTags`/`loadGroups`), `renderAll` picks `renderPlayMode`/`renderEditMode`.
+0. Entry point: "Importar" button. Two call sites, same handler (`importComponentsFromFile`, `ui/editModeToggle.js`): `h1#app-title` (edit mode, since 00290) and `#mode-switcher` (play mode) — both built by `createImportControls()` (see `../architecture/005-modes.md`). [gotcha] the flow never calls `setMode`; the mode active when the button was pressed is the mode after import completes/aborts. Post-import repaint is via the `*:changed` events (`loadComponents`/`loadResources`/`loadTags`/`loadGroups`), `renderAll` picks `renderPlayMode`/`renderEditMode`.
 1. `parseImportedComponents` reads the file.
 2. `openImportSelectionModal` shows the file's elements to choose which to import.
 3. On confirm, `openImportConfirmModal` asks for mode (`add`/`overwrite`) and duplicate-id behavior (`overwrite`/`keepBoth`).

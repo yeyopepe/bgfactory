@@ -36,7 +36,7 @@ import { parseImportedComponents } from '../core/persistence.js';
 import { mergeImportedGame } from '../core/importMerge.js';
 import { renderEditMode } from '../modes/edit/editMode.js';
 import { renderPlayMode } from '../modes/play/playMode.js';
-import { renderModeSwitcher, renderEditToolbar } from '../ui/editModeToggle.js';
+import { renderModeSwitcher } from '../ui/editModeToggle.js';
 import { renderAppTitle } from '../ui/appTitle.js';
 
 export { MODES };
@@ -84,13 +84,14 @@ export function setInitialStateSeed(obj) {
   document.getElementById('initial-state').textContent = JSON.stringify(obj);
 }
 
-// Pinta la "cromática" que en producción monta main.js#renderAll: la franja de
-// modo edición (#edit-toolbar) y el selector de modo (#mode-switcher). Se llama
-// aparte de renderEditMode/renderPlayMode porque esos sólo pintan #content.
+// Pinta la "cromática" que en producción monta main.js#renderAll: el título de
+// cabecera (#app-title, con Importar/Exportar dentro en modo edición, 00290) y
+// el selector de modo (#mode-switcher). Se llama aparte de renderEditMode/
+// renderPlayMode porque esos sólo pintan #content.
 export function mountChrome() {
   ensureI18n();
+  renderAppTitle(document.getElementById('app-title'));
   renderModeSwitcher(document.getElementById('mode-switcher'));
-  renderEditToolbar(document.getElementById('edit-toolbar'));
 }
 
 export function mountEditMode() {

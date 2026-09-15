@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Mockup — Cabecera en modo juego (contraste)</title>
+<style>
+  :root {
+    --bg-toolbar: #333333;
+    --accent-blue: #2c7dd8;
+    --text-light: #ffffff;
+    --gray-800: #3a3a3a;
+    --text-lg: 1.5rem;
+    --text-sm: 0.875rem;
+  }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: #c2c2c2;
+  }
+  .mockup-label {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    color: #333;
+    background: #eee;
+    border-bottom: 1px solid #ccc;
+  }
+  h1 {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    font-size: var(--text-lg);
+    background: linear-gradient(180deg, var(--gray-800), var(--bg-toolbar));
+    color: var(--text-light);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  #mode-switcher {
+    position: fixed;
+    top: 0.75rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  /* Botón de modo, réplica fiel del real (editModeToggle.js, createModeButton):
+     en MODO JUEGO (isPlay = true) es texto plano, sin icono: "Modo Edición". */
+  #mode-switcher .mode-switcher__mode-btn {
+    background: var(--accent-blue);
+    color: var(--text-light);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  #mode-switcher .mode-switcher__mode-btn:hover {
+    opacity: 0.9;
+  }
+</style>
+</head>
+<body>
+  <div class="mockup-label">Cabecera en MODO JUEGO — sin indicador (contraste); el botón "Modo Edición" (solo texto, sin icono) no cambia</div>
+
+  <h1>
+    Mi Juego de Mesa — v0.9.7
+  </h1>
+
+  <div id="mode-switcher">
+    <button type="button" class="mode-switcher__mode-btn">Modo Edición</button>
+  </div>
+</body>
+</html>

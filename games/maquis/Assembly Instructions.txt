@@ -1,0 +1,68 @@
+Availability
+============
+
+The game components are available in three forms: 300dpi JPEGs sized to fit A4 paper, 150dpi A4 PDFs and 150dpi US Letter PDFs.
+Check the following BGG post for links to the other versions:
+
+	http://boardgamegeek.com/thread/1020404
+
+Printing
+========
+
+It's necessary to print three sheets to play Maquis: the Board, the Bits and the Player Board.
+
+In addition to these sheets, you will also require either the following components or the optional fourth sheet:
+- Fifteen pawns/meeples, five each of three different colours (blue, white and red preferred).
+- Thirty marker tokens; 8mm wooden cubes are ideal for this. You will ideally have the following colours and quantities:
+    - Four Green (food resources)
+    - Four Purple/Pink (medicine resources)
+    - Four Yellow/Orange (money resources)
+    - Four Blue (intelligence resources)
+    - Four Red (weapon resources)
+    - Four Black/Brown (explosives resources)
+    - Six of another colour (success markers; I use white)
+
+A fourth Optional sheet is included to provide tokens and stand-up workers in case you don't have any parts you can use; if you construct this sheet you don't need any of the above extra components at all.
+
+
+Construction
+============
+
+Board
+-----
+
+Simply print the board and - if desired - mount on card.
+
+Bits
+----
+
+The top six rectangular tiles (Safe House/Counterfeiter/Smuggler/Informant/Propagandist/Chemist's Lab) are the Spare Room tiles; these need to be cut individually and placed on the board at times, so it's advisable to mount them on card.
+
+The ten clipboards in the middle of the sheet are the patrol cards; cut individually. For extra marks mount to a sheet of thin coloured card to provide a coloured back!
+
+The six cards at the bottom are the goal cards; cut individually. Again, mounting on a different colour of thin card would help.
+
+Player Board
+------------
+
+The player board is where the player keeps track of the game state, and would benefit from being mounted similarly to the main board.
+
+The three tokens below are to use on the Morale, Turns and Soldiers tracks of the Player Board, and ideally would be mounted on thick card for easy movement. For bonus marks cut out with an arch punch and adhere to wooden discs!
+
+Optional
+--------
+
+The three sets of stand-up figures replace the need to use pawns/meeples in the game; score a fold from the dashed crop marks, and cut from the solid crop marks. Assemble as follows:
+
+- Make a mountain fold in the centre between the two sides of the figure, and use glue or double-sided tape to stick the two sides of the figure together.
+
+- Make a valley fold on either side at the point that the figure's feet meet the half-symbols; these sections will form the top side of the stand-up's base.
+
+- Make a mountain fold between the front half-symbol and the full symbol; the full-symbol forms the underside of the stand-up's base. Use glue or double-sided tape to stick the top and bottom faces of the base together to complete your stand-up.
+
+If you don't want to use stand-ups, you can simply cut out the individual symbols which would form the underside of the base, mount these to card and use these in the place of pawns/meeples instead.
+
+
+Beneath the standups on the left-hand side are six Success Tokens; these are used to track successes on goal cards. Cut individually and mount on thick card so they can be picked up easily. These replace the need to use cubes etc. as success marker tokens.
+
+To the bottom-right are thirty resource icons; cut individually and mount on thick card. These replace the need to use cubes etc. as resource tokens.

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Comparativa posición modal propiedades</title>
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --bg-toolbar: #333333;
+    --accent-blue: #2c7dd8;
+    --accent-blue-light: #eaf3fc;
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --error: #d32f2f;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e8e8e8;
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-3: 0 8px 24px rgba(0,0,0,0.18);
+    --bg-surface: #ffffff;
+    --text-sm: 0.875rem;
+    --text-md: 1.125rem;
+    --font-semibold: 600;
+    --space-2: 0.5rem;
+    --space-4: 1rem;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: #fafafa;
+    color: var(--text-primary);
+    padding: 2rem;
+  }
+  h1 { font-size: var(--text-md); margin: 0 0 0.5rem; }
+  p.intro { color: var(--text-muted); font-size: var(--text-sm); margin: 0 0 2rem; max-width: 60rem; }
+  .comparison-block { margin-bottom: 3rem; }
+  .comparison-block h2 {
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-light);
+    background: var(--bg-toolbar);
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-sm);
+    margin: 0 0 1rem;
+  }
+  .viewport-row {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .viewport {
+    position: relative;
+    width: 320px;
+    height: 420px;
+    background: var(--bg-table);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2) inset;
+  }
+  .viewport-label {
+    position: absolute;
+    bottom: 0.4rem;
+    left: 0.5rem;
+    font-size: 0.7rem;
+    color: rgba(0,0,0,0.55);
+    font-weight: var(--font-semibold);
+  }
+  .guide-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    border-top: 2px dashed var(--error);
+    z-index: 5;
+  }
+  .guide-line.solid { border-top: 2px solid var(--accent-blue); }
+  .guide-line .guide-tag {
+    position: absolute;
+    right: 0.35rem;
+    top: -1.1rem;
+    font-size: 0.62rem;
+    background: var(--error);
+    color: var(--text-light);
+    padding: 0.1rem 0.35rem;
+    border-radius: var(--radius-sm);
+  }
+  .guide-line.solid .guide-tag { background: var(--accent-blue); }
+
+  /* Modal mock */
+  .modal {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 240px;
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-3);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal__header {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border-neutral);
+    font-size: 0.75rem;
+    font-weight: var(--font-semibold);
+  }
+  .modal__tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-neutral);
+  }
+  .modal__tab {
+    flex: 1;
+    padding: 0.35rem 0.2rem;
+    font-size: 0.55rem;
+    text-align: center;
+    color: var(--text-muted);
+    background: var(--bg-hover);
+    border-bottom: 2px solid transparent;
+  }
+  .modal__tab.active {
+    color: var(--text-primary);
+    background: var(--bg-surface);
+    border-bottom-color: var(--accent-blue);
+    font-weight: var(--font-semibold);
+  }
+  .modal__content {
+    padding: 0.6rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .field-row {
+    height: 0.85rem;
+    background: var(--bg-subtle);
+    border-radius: 3px;
+    width: 100%;
+  }
+  .field-row.short { width: 65%; }
+  .modal__footer {
+    padding: 0.5rem 0.75rem;
+    border-top: 1px solid var(--border-neutral);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.4rem;
+  }
+  .btn {
+    font-size: 0.6rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: var(--radius-sm);
+    border: none;
+  }
+  .btn-cancel { background: var(--bg-subtle); color: var(--text-primary); }
+  .btn-accept { background: var(--accent-blue); color: var(--text-light); }
+
+  .caption {
+    margin-top: 0.6rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    max-width: 320px;
+  }
+  .caption strong { color: var(--text-primary); }
+</style>
+</head>
+<body>
+  <h1>Comparativa: posición vertical del modal de propiedades al cambiar de pestaña</h1>
+  <p class="intro">Dos pestañas del mismo modal de propiedades de componente: "Generales" (pocos campos) y "Apariencia" (más secciones, modal más alto). Comparación entre el comportamiento actual y el propuesto.</p>
+
+  <div class="comparison-block">
+    <h2>Antes — comportamiento actual</h2>
+    <div class="viewport-row">
+      <div>
+        <div class="viewport" id="before-short">
+          <div class="viewport-label">Pestaña "Generales" (corta)</div>
+        </div>
+        <p class="caption">Modal centrado verticalmente: con poco contenido, el borde superior queda <strong>más abajo</strong>.</p>
+      </div>
+      <div>
+        <div class="viewport" id="before-tall">
+          <div class="viewport-label">Pestaña "Apariencia" (alta)</div>
+        </div>
+        <p class="caption">Con más contenido el modal crece y, al seguir centrado, el borde superior sube — <strong>el modal salta verticalmente</strong> al cambiar de pestaña.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="comparison-block">
+    <h2>Después — comportamiento propuesto</h2>
+    <div class="viewport-row">
+      <div>
+        <div class="viewport" id="after-short">
+          <div class="viewport-label">Pestaña "Generales" (corta)</div>
+        </div>
+        <p class="caption">El borde superior queda anclado en el mismo punto que en la pestaña más alta; el espacio libre restante queda por debajo del modal.</p>
+      </div>
+      <div>
+        <div class="viewport" id="after-tall">
+          <div class="viewport-label">Pestaña "Apariencia" (alta)</div>
+        </div>
+        <p class="caption">Misma posición del borde superior que en la pestaña corta — <strong>solo cambia el contenido</strong>, no la posición vertical del modal.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Puramente decorativo: construye los mocks de modal dentro de cada viewport.
+    function buildModal(tabs, activeIndex, contentRows) {
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+
+      const header = document.createElement('div');
+      header.className = 'modal__header';
+      header.textContent = 'Propiedades del componente';
+      modal.appendChild(header);
+
+      const tabsRow = document.createElement('div');
+      tabsRow.className = 'modal__tabs';
+      tabs.forEach((label, i) => {
+        const tab = document.createElement('div');
+        tab.className = 'modal__tab' + (i === activeIndex ? ' active' : '');
+        tab.textContent = label;
+        tabsRow.appendChild(tab);
+      });
+      modal.appendChild(tabsRow);
+
+      const content = document.createElement('div');
+      content.className = 'modal__content';
+      for (let i = 0; i < contentRows; i++) {
+        const row = document.createElement('div');
+        row.className = 'field-row' + (i % 3 === 2 ? ' short' : '');
+        content.appendChild(row);
+      }
+      modal.appendChild(content);
+
+      const footer = document.createElement('div');
+      footer.className = 'modal__footer';
+      footer.innerHTML = '<button class="btn btn-cancel">Cancelar</button><button class="btn btn-accept">Aceptar</button>';
+      modal.appendChild(footer);
+
+      return modal;
+    }
+
+    const TABS = ['General', 'Apariencia', 'Contenido', 'Interac.', 'Copias'];
+
+    const shortModalHeight = 150; // ~4 filas
+    const tallModalHeight = 330;  // ~13 filas
+    const viewportHeight = 420;
+
+    function place(id, tabIndex, rows, height, topPx) {
+      const vp = document.getElementById(id);
+      const modal = buildModal(TABS, tabIndex, rows);
+      modal.style.top = topPx + 'px';
+      vp.appendChild(modal);
+      return modal;
+    }
+
+    // ANTES: centrado por flexbox -> top = (viewportHeight - modalHeight) / 2
+    const beforeShortTop = (viewportHeight - shortModalHeight) / 2;
+    const beforeTallTop = (viewportHeight - tallModalHeight) / 2;
+    place('before-short', 0, 4, shortModalHeight, beforeShortTop);
+    place('before-tall', 1, 13, tallModalHeight, beforeTallTop);
+
+    // DESPUÉS: borde superior anclado a la posición de la pestaña más alta
+    const afterTop = beforeTallTop; // ancla = top que tendría la pestaña más alta
+    place('after-short', 0, 4, shortModalHeight, afterTop);
+    place('after-tall', 1, 13, tallModalHeight, afterTop);
+
+    // Líneas guía
+    function addGuide(vpId, top, solid, text) {
+      const vp = document.getElementById(vpId);
+      const line = document.createElement('div');
+      line.className = 'guide-line' + (solid ? ' solid' : '');
+      line.style.top = top + 'px';
+      const tag = document.createElement('div');
+      tag.className = 'guide-tag';
+      tag.textContent = text;
+      line.appendChild(tag);
+      vp.appendChild(line);
+    }
+
+    addGuide('before-short', beforeShortTop, false, 'borde superior');
+    addGuide('before-tall', beforeTallTop, false, 'borde superior');
+    addGuide('after-short', afterTop, true, 'borde superior fijo');
+    addGuide('after-tall', afterTop, true, 'borde superior fijo');
+  </script>
+</body>
+</html>

@@ -140,7 +140,7 @@ h1 {
   font-size: var(--text-lg);
   background: linear-gradient(180deg, var(--gray-800), var(--bg-toolbar));
   color: var(--text-light);
-  height: 3.5rem;
+  min-height: 3.5rem;
   box-sizing: border-box;
   display: flex;
   align-items: center;
@@ -150,7 +150,75 @@ h1 {
   box-shadow: var(--shadow-1);
 }
 
-/* Título de cabecera editable (modo edición) */
+/* Modo edición: trama sutil de rayas diagonales sobre el degradado base, para
+   reforzar visualmente que la cabecera está en ese modo (00283). Título,
+   indicador de modo e Importar/Exportar viven todos dentro de este mismo `h1`
+   (00290: antes Importar/Exportar vivían en un elemento hermano, .edit-toolbar,
+   y ninguna combinación de color/trama/sombra/fase de trama — 00287/00288/00289 —
+   lograba que las dos franjas se vieran como una sola; con un único elemento la
+   trama es, por construcción, una sola capa continua, sin necesidad de trucos). */
+h1.app-title-bar--edit {
+  background-image:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 1px, transparent 1px, transparent 8px),
+    linear-gradient(180deg, var(--gray-800), var(--bg-toolbar));
+}
+
+/* Título de cabecera editable (modo edición): bloque columna (título + indicador de modo) */
+.app-title__block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.app-title__row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.app-title__mode-indicator {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--accent-blue);
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+/* Fila de Importar/Exportar, tercera fila de `.app-title__block` (00290):
+   transparente, sin fondo/sombra propios — hereda el fondo/trama de `h1`, ya
+   que es un hijo real suyo, no un elemento hermano aparte. */
+.app-title__controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.app-title__controls button {
+  color: inherit;
+  background: none;
+  border: 1px solid var(--text-light);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  display: inline-flex;
+  align-items: center;
+  transition: background var(--transition-fast);
+}
+
+.app-title__controls button:hover {
+  background: var(--toolbar-hover);
+}
+
+.app-title__controls button .icon-frame {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
 .app-title--hoverable {
   cursor: pointer;
 }
@@ -223,7 +291,7 @@ h1 {
 }
 
 /* Bloque de fichero (Importar/Exportar): mismo esquema "sobre fondo oscuro" que
-   .edit-toolbar button — blanco, contorno claro, sin fondo azul, en ambos modos. */
+   .app-title__controls button — blanco, contorno claro, sin fondo azul, en ambos modos. */
 #mode-switcher .export-menu-wrap > button,
 #mode-switcher > button:not(.mode-switcher__mode-btn):not(.mode-switcher__fit-btn):not(.mode-switcher__settings-btn) {
   color: var(--text-light);
@@ -290,60 +358,17 @@ h1 {
   min-height: 0;
 }
 
-.edit-toolbar {
-  width: 100%;
-  box-sizing: border-box;
-  background: var(--bg-toolbar);
-  color: var(--text-light);
-  padding: 0.5rem 1rem;
-  flex-shrink: 0;
-  z-index: 99;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 1rem;
-  box-shadow: var(--shadow-1);
-}
-
-.edit-toolbar button {
-  color: inherit;
-  background: none;
-  border: 1px solid var(--text-light);
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: var(--text-sm);
-  display: inline-flex;
-  align-items: center;
-  transition: background var(--transition-fast);
-}
-
-.edit-toolbar button:hover {
-  background: var(--toolbar-hover);
-}
-
-.edit-toolbar button .icon-frame {
-  width: 16px;
-  height: 16px;
-  display: block;
-}
-
-.toolbar-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .toolbar-divider {
   width: 1px;
   height: 1.5rem;
   background: var(--toolbar-divider);
 }
 
-/* Desplegable "Exportar" de la barra de modo edición: mismo patrón funcional
-   que .resource-add (wrap relativo + menú absoluto bajo el botón), con
-   fondo oscuro coherente con .edit-toolbar en vez del fondo claro de
-   .context-menu, que está pensado para menú contextual de click derecho. */
+/* Desplegable "Exportar", reutilizado en #mode-switcher (modo juego) y en
+   h1#app-title (modo edición, 00290): mismo patrón funcional que .resource-add
+   (wrap relativo + menú absoluto bajo el botón), con fondo oscuro coherente en
+   vez del fondo claro de .context-menu, que está pensado para menú
+   contextual de click derecho. */
 .export-menu-wrap {
   position: relative;
 }
@@ -659,11 +684,19 @@ h1 {
 /* Ancho dinámico vía clamp() con unidades de viewport: se recalcula solo en
    cualquier resize, sin JS. A diferencia de .card-editor-modal/
    .image-adjust-modal--large (`width: fit-content`, contenido de ancho
-   variable), aquí el ancho es siempre el mismo porcentaje de pantalla. */
+   variable), aquí el ancho es siempre el mismo porcentaje de pantalla.
+   position:fixed + left 50%/translateX sustituye el centrado horizontal que
+   .modal-overlay ofrece vía flexbox (el resto de modales lo sigue usando sin
+   cambios): este modal necesita salir de ese flujo flex porque su `top` se
+   fija por JS (ui/componentModal.js, computeFixedTop) en vez de depender del
+   centrado vertical automático — ver 00284. */
 .component-editor-modal {
   width: clamp(460px, 50vw, min(600px, 65vw));
   max-width: none;
   box-shadow: var(--shadow-3);
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .modal__header {

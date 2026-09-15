@@ -18,6 +18,7 @@ import { resetState, mountEditMode, mountPlayMode, mountAppTitle } from '../help
 import { getAppTitle, setAppTitle } from '../../core/state.js';
 import { on } from '../../core/eventBus.js';
 import { getFullAppTitle, formatVersion } from '../../core/appTitle.js';
+import { t } from '../../core/i18n.js';
 
 registerFeature({ primary: 30 });
 
@@ -47,7 +48,7 @@ describe('030 — Título de cabecera editable', () => {
     const h1 = document.getElementById('app-title');
 
     expect(h1.querySelector('.app-title__pencil')).toBeTruthy();
-    expect(h1.querySelector('input')).toBeNull();
+    expect(h1.querySelector('.app-title__input')).toBeNull();
 
     h1.click();
 
@@ -71,7 +72,7 @@ describe('030 — Título de cabecera editable', () => {
 
     expect(getAppTitle()).toBe('Título nuevo');
     expect(h1.querySelector('.app-title__pencil')).toBeTruthy();
-    expect(h1.querySelector('input')).toBeNull();
+    expect(h1.querySelector('.app-title__input')).toBeNull();
   });
 
   it('FT-030-05 · sacar el foco del campo confirma igual que Enter', () => {
@@ -87,7 +88,7 @@ describe('030 — Título de cabecera editable', () => {
 
     expect(getAppTitle()).toBe('Confirmado al salir');
     expect(h1.querySelector('.app-title__pencil')).toBeTruthy();
-    expect(h1.querySelector('input')).toBeNull();
+    expect(h1.querySelector('.app-title__input')).toBeNull();
   });
 
   it('FT-030-06 · confirmar el campo vacío recupera el texto previo y no emite aviso', () => {
@@ -109,7 +110,7 @@ describe('030 — Título de cabecera editable', () => {
 
     mountAppTitle();
     expect(h1.querySelector('.app-title__pencil')).toBeTruthy();
-    expect(h1.querySelector('input')).toBeNull();
+    expect(h1.querySelector('.app-title__input')).toBeNull();
   });
 
   it('FT-030-07 · tras confirmar un título nuevo el título de la pestaña se actualiza', () => {
@@ -132,7 +133,7 @@ describe('030 — Título de cabecera editable', () => {
     const h1 = document.getElementById('app-title');
 
     expect(h1.querySelector('.app-title__pencil')).toBeNull();
-    expect(h1.querySelector('input')).toBeNull();
+    expect(h1.querySelector('.app-title__input')).toBeNull();
     expect(h1.textContent).toBe(getFullAppTitle(getAppTitle()));
 
     h1.click();
@@ -159,5 +160,53 @@ describe('030 — Título de cabecera editable', () => {
     expect(h1.querySelector('.app-title__input').value).toBe(getAppTitle());
 
     h1.querySelector('.app-title__input').dispatchEvent(new Event('blur'));
+  });
+
+  it('FT-030-10 · en modo edición (aspecto lápiz) aparece el indicador de modo con el texto de "Modo Edición"', () => {
+    mountEditMode();
+    mountAppTitle();
+    const h1 = document.getElementById('app-title');
+
+    const indicator = h1.querySelector('.app-title__mode-indicator');
+    expect(indicator).toBeTruthy();
+    expect(indicator.textContent).toBe(t('toolbar.modeEdit'));
+  });
+
+  it('FT-030-11 · el indicador de modo sigue presente al entrar en edición del título', () => {
+    mountEditMode();
+    mountAppTitle();
+    const h1 = document.getElementById('app-title');
+
+    h1.click();
+
+    const indicator = h1.querySelector('.app-title__mode-indicator');
+    expect(indicator).toBeTruthy();
+    expect(indicator.textContent).toBe(t('toolbar.modeEdit'));
+
+    h1.querySelector('.app-title__input').dispatchEvent(new Event('blur'));
+  });
+
+  it('FT-030-12 · en modo juego no aparece el indicador de modo', () => {
+    mountPlayMode();
+    mountAppTitle();
+    const h1 = document.getElementById('app-title');
+
+    expect(h1.querySelector('.app-title__mode-indicator')).toBeNull();
+  });
+
+  it('FT-030-13 · al volver a modo juego el indicador y los controles de fichero desaparecen por completo, sin dejar rastro', () => {
+    mountEditMode();
+    mountAppTitle();
+    let h1 = document.getElementById('app-title');
+    expect(h1.querySelector('.app-title__mode-indicator')).toBeTruthy();
+    expect(h1.textContent).toContain(t('toolbar.import'));
+
+    mountPlayMode();
+    mountAppTitle();
+    h1 = document.getElementById('app-title');
+    expect(h1.querySelector('.app-title__mode-indicator')).toBeNull();
+    expect(h1.classList.contains('app-title-bar--edit')).toBe(false);
+    expect(h1.querySelector('.app-title__controls')).toBeNull();
+    expect(h1.textContent.includes(t('toolbar.import'))).toBe(false);
   });
 });

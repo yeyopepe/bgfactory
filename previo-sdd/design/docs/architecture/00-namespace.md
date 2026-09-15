@@ -197,12 +197,25 @@ ui.class.app-version                      concepto de estilo (footer de versión
     #app-version contiene .app-version__name + .app-version__repo (00243)
     con state.tableText no vacío: antepone .app-version__table-text (texto plano, textContent, white-space: pre-line) + .app-version__separator (<hr>, border-top 1px var(--border-neutral)) (00250)
     [gotcha] .app-version__table-text y .app-version__separator NO se pintan si state.tableText.trim() === '' — footer idéntico a 00243
-ui.class.mode-switcher__mode-btn          concepto de estilo (00244).  anchor: src/ui/editModeToggle.js#createModeButton
-    botón de cambio de modo ("Modo Edición"/"Modo Juego"), acción primaria (azul), siempre en la fila de la cabecera (#mode-switcher) en ambos modos
+ui.class.mode-switcher__mode-btn          concepto de estilo (00244, texto actualizado 00283).  anchor: src/ui/editModeToggle.js#createModeButton
+    botón de cambio de modo, acción primaria (azul), siempre en la fila de la cabecera (#mode-switcher) en ambos modos
+    modo juego: texto plano t('toolbar.modeEdit') = "Modo Edición", sin icono
+    modo edición: iconTextButton(iconSvg('mode-play'), t('toolbar.modePlay')) = icono + "Ir al Modo Juego" (00283, era "Modo Juego")
+ui.class.app-title__mode-indicator        concepto de estilo (00283).  anchor: src/ui/appTitle.js#renderModeIndicator
+    <span> bajo el título de cabecera, solo en modo edición; texto t('toolbar.modeEdit'); font-size var(--text-md), font-weight 600, color var(--accent-blue), letter-spacing 0.02em
+    ver 003-modales-menus.md "Header layout in edit mode: title + mode indicator"
+ui.class.app-title-bar--edit              concepto de estilo (00283).  anchor: src/styles/main.css
+    modificador en h1#app-title, solo modo edición; añade trama de rayas diagonales (repeating-linear-gradient 135°, 8px, rgba(255,255,255,0.05)) sobre el gradiente base existente
+    ver 003-modales-menus.md "Edit-mode header texture"
 ui.class.mode-switcher__settings-btn      concepto de estilo (00244).  anchor: src/ui/editModeToggle.js#createSettingsButton
     botón de configuración icono-solo 36×36, esquema "sobre fondo oscuro" (contorno claro, sin fondo azul), a diferencia de .mode-switcher__fit-btn
 ui.class.decision.mode-switcher-both-modes   decisión (00244).  sin ancla
-    [motivación] #mode-switcher se puebla en ambos modos (renderModeSwitcher ya no hace early return si !PLAY); #edit-toolbar solo aloja la franja .edit-toolbar con Importar/Exportar; el botón de modo y "Ajustar zoom" viven siempre en #mode-switcher
+    [motivación] #mode-switcher se puebla en ambos modos (renderModeSwitcher ya no hace early return si !PLAY); el botón de modo y "Ajustar zoom" viven siempre en #mode-switcher. Importar/Exportar viven en #mode-switcher en modo juego y dentro de h1#app-title en modo edición (00290 — antes en #edit-toolbar, eliminado)
+ui.class.app-title__controls              concepto de estilo (00290).  anchor: src/ui/appTitle.js#renderControls
+    fila de Importar/Exportar, tercer hijo de .app-title__block (tras .app-title__row y .app-title__mode-indicator), transparente, sin fondo/sombra propios — hereda el fondo/trama de h1
+    reemplaza .edit-toolbar (elemento hermano de h1, eliminado 00290 tras que ninguna combinación de color/trama/sombra/fase de trama — 00287/00288/00289 — lograra una costura invisible entre dos elementos distintos
+    [gotcha] lleva un listener click con stopPropagation — sin él, pulsar Importar/Exportar burbujearía hasta h1.onclick (ver ui.class.app-title--hoverable) y abriría sin querer la edición en línea del título
+    ver 003-modales-menus.md "Header layout in edit mode: title + mode indicator"
 ui.class.splash-overlay                    concepto de estilo (00245, 00248).  anchor: src/styles/main.css
     overlay del splash de arranque; position fixed, inset 0, flex centrado, z-index 1300
     fondo (00248): fondo de la mesa de juego — background-color var(--bg-table) + background-image radial-gradient(circle, var(--bg-table-dot) 1.5px, transparent 1.5px) + background-size 32px 32px, replicado de .infinite-table (el <body> solo trae var(--bg-table) liso, sin el patrón). Sin capa de atenuación (sigue sin ser el rgba(0,0,0,0.5) de .modal-overlay). Era #ffffff opaco hasta 00248.
