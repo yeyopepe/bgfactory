@@ -377,6 +377,7 @@ h1 {
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: var(--text-sm);
+  color: var(--text-light);
   transition: background var(--transition-fast);
 }
 
