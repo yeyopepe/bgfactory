@@ -2,9 +2,19 @@
 
 Project-specific steps `pv-how` runs **at the start of step 3 (analyze and write `plan.md`)**, before it invokes `pv-internal-tech-analysis` to gather technical context. Runs on a re-analysis too (step 2 → "re-analyze"); it does **not** run when the user chooses "implement the current `plan.md`" (step 2 → jump to 3.1), since that path does no analysis. LITERAL seed copied by `pv-init`/`pv-update` to `{workFolder}/stuff/hooks/how/10-before-analysis.md` — created only if absent, never overwritten, so steps you add here survive a framework update.
 
-Use it to load context the analysis should always have and that today depends on the user pasting it in: refresh generated types / an OpenAPI spec, dump the DB schema, regenerate a module index, pull an external dependency's docs into a local file `pv-internal-tech-analysis` can read as part of `sourcecodeDir`/docs.
 
-Substitutable here: `{workFolder}` and `{xxxx}` (the entry already exists at `{changesDir}/inProgress/{xxxx}/` from step 1). Paths like `description.md` or the entry folder aren't dedicated variables — compose them from those two, e.g. `{workFolder}/changes/inProgress/{xxxx}/description.md`. A step needing anything else (current branch, timestamp…) runs its own command for it. No `### Step` blocks below = hook skipped silently. If any step's command fails or its expected output doesn't appear, `pv-how` stops and explains — it doesn't work around it.
+
+### Step 1: Identificar los tests funcionales afectados
+
+**Command(s) to run**
+
+Ninguno (paso de análisis). Se hace junto al resto del análisis técnico, antes o durante la redacción de `plan.md`.
+
+**Notes**
+
+- Regla de cobertura por cambio: todo cambio que **añada** funcionalidad requiere tests funcionales nuevos (`src/test/functional/*.test.js`, con `registerFeature` y códigos `FT-<NNN>-<nn>`); todo cambio que **modifique** funcionalidad requiere actualizar los tests existentes que la cubren; todo cambio que **elimine** funcionalidad requiere borrar los tests que la validaban (y sus fixtures si procede). Formato y convenciones de los tests: `previo-sdd/design/docs/architecture/011-functional-test-framework.md`.
+- Como parte del análisis, identifica qué ficheros de `src/test/functional/` están afectados (existentes a actualizar/borrar) y qué casos nuevos harán falta (existentes o a crear), y refleja esa lista en `plan.md` sección (b) como checklist items propios (`- [ ]`), antes de las tareas de implementación que cubren.
+- Esto aplica siempre, con independencia del riesgo calculado en el paso 3.1 — no confundir con `how/20-after-plan.md` Step 1, que solo añade tests *adicionales* cuando el riesgo persistido es ≥ 4 para reducirlo. Este step cubre la cobertura mínima obligatoria; aquel cubre cobertura extra en cambios de alto riesgo.
 
 <!-- Add one "### Step N: {name}" block per step, in run order. Delete this comment when you add the first. -->
 

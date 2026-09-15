@@ -52,7 +52,7 @@ export function getComponentTypeLabel(type) {
   return entry ? entry.label : type;
 }
 
-export function openComponentTypeModal({ onAccept }) {
+export function openComponentTypeModal({ onAccept, onPresetSelected }) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
 
@@ -73,6 +73,11 @@ export function openComponentTypeModal({ onAccept }) {
   modal.appendChild(footer);
 
   let selectedType = COMPONENT_TYPES[0].value;
+
+  const sectionLabel = document.createElement('div');
+  sectionLabel.className = 'component-type-modal__section-label';
+  sectionLabel.textContent = t('componentTypeModal.componentsLabel');
+  content.appendChild(sectionLabel);
 
   const list = document.createElement('div');
   list.className = 'component-type-modal__list';
@@ -105,6 +110,71 @@ export function openComponentTypeModal({ onAccept }) {
   }
 
   content.appendChild(list);
+
+  const setSeparator = document.createElement('div');
+  setSeparator.className = 'component-type-modal__set-separator';
+  const separatorLineLeft = document.createElement('span');
+  separatorLineLeft.className = 'component-type-modal__set-separator-line';
+  const separatorText = document.createElement('span');
+  separatorText.className = 'component-type-modal__set-separator-text';
+  separatorText.textContent = t('componentTypeModal.presetsSeparator');
+  const separatorLineRight = document.createElement('span');
+  separatorLineRight.className = 'component-type-modal__set-separator-line';
+  setSeparator.appendChild(separatorLineLeft);
+  setSeparator.appendChild(separatorText);
+  setSeparator.appendChild(separatorLineRight);
+  content.appendChild(setSeparator);
+
+  const presetItem = document.createElement('div');
+  presetItem.className = 'component-type-modal__preset-item';
+  presetItem.setAttribute('role', 'button');
+  presetItem.setAttribute('tabindex', '0');
+
+  const presetIcon = document.createElement('span');
+  presetIcon.className = 'component-type-modal__preset-icon';
+  presetIcon.setAttribute('aria-hidden', 'true');
+  presetIcon.innerHTML = iconSvg('preset-french-deck', { size: ICON_SIZE.toolbar });
+  presetItem.appendChild(presetIcon);
+
+  const presetBody = document.createElement('div');
+  presetBody.className = 'component-type-modal__preset-body';
+
+  const presetTitle = document.createElement('div');
+  presetTitle.className = 'component-type-modal__preset-title';
+  presetTitle.textContent = t('componentTypeModal.preset.frenchDeck');
+  presetBody.appendChild(presetTitle);
+
+  const presetTags = document.createElement('div');
+  presetTags.className = 'component-type-modal__preset-tags';
+  for (const tagKey of ['componentTypeModal.preset.frenchDeck.tag1', 'componentTypeModal.preset.frenchDeck.tag2']) {
+    const tag = document.createElement('span');
+    tag.className = 'component-type-modal__preset-tag';
+    tag.textContent = t(tagKey);
+    presetTags.appendChild(tag);
+  }
+  presetBody.appendChild(presetTags);
+
+  presetItem.appendChild(presetBody);
+
+  const presetGo = document.createElement('span');
+  presetGo.className = 'component-type-modal__preset-go';
+  presetGo.setAttribute('aria-hidden', 'true');
+  presetGo.textContent = '›';
+  presetItem.appendChild(presetGo);
+
+  const selectPreset = () => {
+    if (onPresetSelected) onPresetSelected('frenchDeck54');
+    overlay.remove();
+  };
+  presetItem.addEventListener('click', selectPreset);
+  presetItem.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      selectPreset();
+    }
+  });
+
+  content.appendChild(presetItem);
 
   const cancelBtn = document.createElement('button');
   cancelBtn.className = 'btn-cancel';

@@ -1760,6 +1760,107 @@ fieldset.modal__section--untitled {
   color: var(--accent-blue);
 }
 
+/* Rótulo "Componentes" sobre la lista de tipos individuales (00236) */
+.component-type-modal__section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 0.625rem;
+}
+
+/* Separador "o elige un conjunto pre-definido" entre tipos individuales y
+   conjuntos pre-definidos (00236). Texto un poco más grande que el resto de
+   textos auxiliares del modal. */
+.component-type-modal__set-separator {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0 1rem;
+}
+
+.component-type-modal__set-separator-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border-neutral);
+}
+
+.component-type-modal__set-separator-text {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Item de conjunto pre-definido: acción inmediata (sin radio, no pasa por
+   "Aceptar") — visualmente diferenciado del resto de la lista (00236). */
+.component-type-modal__preset-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  background: transparent;
+  border: 1.5px solid var(--border-neutral);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.component-type-modal__preset-item:hover {
+  background: var(--accent-blue-light);
+  border-color: var(--accent-blue);
+}
+
+.component-type-modal__preset-icon {
+  flex-shrink: 0;
+  width: 30px;
+  height: 34px;
+  color: var(--accent-blue);
+}
+
+.component-type-modal__preset-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.component-type-modal__preset-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.component-type-modal__preset-title {
+  font-weight: 700;
+  color: var(--accent-blue-dark);
+  line-height: 1.25;
+  margin-bottom: 0.375rem;
+}
+
+.component-type-modal__preset-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.component-type-modal__preset-tag {
+  font-size: 0.68rem;
+  color: var(--accent-blue);
+  background: var(--accent-blue-alpha-15);
+  border: 1px solid var(--accent-blue-alpha-25);
+  border-radius: 3px;
+  padding: 1px 6px;
+}
+
+/* Chevron "ejecuta una acción / avanza" — no es un desplegable */
+.component-type-modal__preset-go {
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--accent-blue);
+  opacity: 0.55;
+  padding-right: 0.125rem;
+}
+
 /* Board background modal — sub-modal "Imagen" (gallery grid of image resources) */
 .board-image-modal__search {
   margin-bottom: 1rem;
@@ -2568,6 +2669,28 @@ fieldset.modal__section--untitled {
   cursor: pointer;
 }
 
+.component-panel__header-left,
+.component-panel__header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.component-panel__count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.4rem;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--text-light);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  box-shadow: var(--shadow-badge);
+}
+
 .component-panel__filter {
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--border-neutral);
@@ -2690,6 +2813,28 @@ fieldset.modal__section--untitled {
   color: inherit;
   font-size: var(--text-base);
   cursor: pointer;
+}
+
+.resource-panel__header-left,
+.resource-panel__header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.resource-panel__count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.4rem;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--text-light);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  box-shadow: var(--shadow-badge);
 }
 
 .resource-panel__filter {
@@ -3309,6 +3454,28 @@ fieldset.modal__section--untitled {
   color: inherit;
   font-size: var(--text-base);
   cursor: pointer;
+}
+
+.tag-panel__header-left,
+.tag-panel__header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.tag-panel__count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.4rem;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.18);
+  color: var(--text-light);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  box-shadow: var(--shadow-badge);
 }
 
 /* Cuadro de filtro de texto libre, mismo aspecto que

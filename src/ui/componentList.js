@@ -497,9 +497,21 @@ export function renderComponentList(
   const header = document.createElement('div');
   header.className = 'component-panel__header';
 
+  const headerLeft = document.createElement('div');
+  headerLeft.className = 'component-panel__header-left';
+  headerLeft.innerHTML = iconSvg('panel-componentes');
+
   const title = document.createElement('strong');
-  title.textContent = t('componentList.title', { count: components.length });
-  header.appendChild(title);
+  title.textContent = t('componentList.title');
+  headerLeft.appendChild(title);
+
+  const headerRight = document.createElement('div');
+  headerRight.className = 'component-panel__header-right';
+
+  const countBadge = document.createElement('span');
+  countBadge.className = 'component-panel__count-badge';
+  countBadge.textContent = String(components.length);
+  headerRight.appendChild(countBadge);
 
   const toggleButton = document.createElement('button');
   toggleButton.type = 'button';
@@ -507,7 +519,10 @@ export function renderComponentList(
   toggleButton.addEventListener('click', () => {
     if (onToggleCollapse) onToggleCollapse();
   });
-  header.appendChild(toggleButton);
+  headerRight.appendChild(toggleButton);
+
+  header.appendChild(headerLeft);
+  header.appendChild(headerRight);
 
   header.addEventListener('mousedown', (e) => {
     if (e.button !== 0 || e.target === toggleButton) return;

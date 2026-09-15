@@ -1,0 +1,253 @@
+<style>
+  :root {
+    --bg-table: #c2c2c2;
+    --bg-table-dot: rgba(0, 0, 0, 0.09);
+    --accent-blue: #2c7dd8;
+    --accent-blue-dark: #123a66;
+    --accent-blue-light: #eaf3fc;
+    --accent-blue-alpha-15: rgba(44, 125, 216, 0.15);
+    --accent-blue-alpha-25: rgba(44, 125, 216, 0.25);
+    --text-primary: #1a1a1a;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --border-neutral: #dcdcdc;
+    --bg-subtle: #f0f0f0;
+    --bg-hover: #e8e8e8;
+    --bg-surface: #ffffff;
+    --bg-overlay: rgba(0, 0, 0, 0.5);
+    --radius-sm: 4px;
+    --radius-lg: 8px;
+    --shadow-2: 0 4px 20px rgba(0, 0, 0, 0.15);
+    --shadow-focus: 0 0 0 3px var(--accent-blue-alpha-15);
+    --transition-fast: 150ms ease;
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-md: 1.125rem;
+    --font-medium: 500;
+    --font-semibold: 600;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    color: var(--text-primary);
+    background-color: var(--bg-table);
+    background-image: radial-gradient(circle, var(--bg-table-dot) 1.5px, transparent 1.5px);
+    background-size: 32px 32px;
+    min-height: 100vh;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-overlay);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .modal {
+    background: var(--bg-surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2);
+    width: 100%;
+    max-width: 440px;
+    overflow: hidden;
+  }
+
+  .modal__header {
+    padding: var(--space-4);
+    font-size: var(--text-md);
+    font-weight: var(--font-semibold);
+    border-bottom: 1px solid var(--border-neutral);
+  }
+
+  .modal__content {
+    padding: var(--space-4);
+  }
+
+  .modal__content > p {
+    margin: 0 0 var(--space-3);
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+  }
+
+  .preset-confirm-modal__ids-hint {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+  }
+
+  .preset-confirm-modal__summary {
+    list-style: none;
+    margin: 0 0 var(--space-4);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .preset-confirm-modal__summary-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--border-neutral);
+    font-size: var(--text-sm);
+    cursor: default;
+  }
+  .preset-confirm-modal__summary-item:last-child {
+    border-bottom: none;
+  }
+
+  .preset-confirm-modal__summary-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .preset-confirm-modal__summary-icon svg { width: 100%; height: 100%; }
+
+  .preset-confirm-modal__summary-count {
+    font-weight: var(--font-semibold);
+    color: var(--accent-blue-dark);
+  }
+
+  .modal__section {
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    padding: var(--space-4);
+    margin: 0 0 var(--space-2);
+  }
+
+  .modal__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-bottom: var(--space-3);
+  }
+  .modal__field:last-child { margin-bottom: 0; }
+
+  .modal__field label {
+    font-size: var(--text-xs);
+    font-weight: var(--font-medium);
+    color: var(--text-muted);
+  }
+
+  .modal__field input[type="text"] {
+    font-family: inherit;
+    font-size: var(--text-sm);
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--border-neutral);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    background: var(--bg-surface);
+  }
+  .modal__field input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: var(--shadow-focus);
+  }
+
+  .modal__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border-top: 1px solid var(--border-neutral);
+    background: var(--bg-subtle);
+  }
+
+  .btn-cancel,
+  .btn-accept {
+    font-family: inherit;
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .btn-cancel {
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+    border-color: var(--border-neutral);
+  }
+  .btn-cancel:hover { background: var(--bg-hover); }
+
+  .btn-accept {
+    background: var(--accent-blue);
+    color: var(--text-light);
+  }
+  .btn-accept:hover {
+    background: var(--accent-blue-dark);
+    transform: translateY(-1px);
+  }
+</style>
+
+<div class="modal-overlay">
+  <div class="modal">
+    <div class="modal__header">Añadir "Baraja francesa estándar"</div>
+
+    <!-- Nota de maqueta: las filas de este resumen son solo informativas (no
+         pulsables). Se distinguen deliberadamente del estilo de
+         ".component-type-modal__preset-item" (fondo azul, borde, icono de
+         acento) porque ese estilo ya significa "fila accionable" en el
+         proyecto (ver "Pre-defined set item" en 003-modales-menus.md); aquí
+         se usa en su lugar un separador fino sin fondo, cursor por defecto e
+         icono en tono neutro, mismo criterio que una fila de solo lectura
+         como ".context-menu__info-row". -->
+    <div class="modal__content">
+      <p>Se van a crear:</p>
+
+      <ul class="preset-confirm-modal__summary">
+        <li class="preset-confirm-modal__summary-item">
+          <span class="preset-confirm-modal__summary-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          </span>
+          <span><span class="preset-confirm-modal__summary-count">54</span> recursos nuevos</span>
+        </li>
+        <li class="preset-confirm-modal__summary-item">
+          <span class="preset-confirm-modal__summary-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 8h6M9 12h6"/></svg>
+          </span>
+          <span><span class="preset-confirm-modal__summary-count">54</span> componentes carta (52 cartas + 2 comodines)</span>
+        </li>
+        <li class="preset-confirm-modal__summary-item">
+          <span class="preset-confirm-modal__summary-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="12" height="16" rx="2"/><rect x="8" y="3" width="12" height="16" rx="2" fill="white"/></svg>
+          </span>
+          <span><span class="preset-confirm-modal__summary-count">1</span> componente mazo</span>
+        </li>
+      </ul>
+
+      <p class="preset-confirm-modal__ids-hint">Puedes cambiar estos identificadores antes de crear el conjunto:</p>
+
+      <fieldset class="modal__section">
+        <div class="modal__field">
+          <label for="mazo-id">Id del mazo</label>
+          <input type="text" id="mazo-id" value="Baraja Francesa" />
+        </div>
+        <div class="modal__field">
+          <label for="carta-prefix">Prefijo de id de las cartas</label>
+          <input type="text" id="carta-prefix" value="card-" />
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="modal__footer">
+      <button class="btn-cancel">Cancelar</button>
+      <button class="btn-accept">Aceptar</button>
+    </div>
+  </div>
+</div>

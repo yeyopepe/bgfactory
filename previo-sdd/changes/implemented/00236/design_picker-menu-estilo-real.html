@@ -162,29 +162,9 @@ body {
 }
 .set-separator__line { flex: 1; height: 1px; background: var(--border-neutral); }
 .set-separator__text {
-  font-size: 0.7rem;
+  font-size: 0.8125rem;
   color: var(--text-muted);
   white-space: nowrap;
-}
-
-/* ─────────────────────────────────────────────────────────────
-   Rótulo "Conjuntos pre-definidos" (NUEVO en 00236)
-   ───────────────────────────────────────────────────────────── */
-.preset-section-label {
-  display: flex; align-items: center; gap: 0.4rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--accent-blue);
-  margin-bottom: 0.625rem;
-}
-.preset-section-label::before {
-  content: "";
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--accent-blue);
-  flex-shrink: 0;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -269,7 +249,7 @@ body {
           <input type="radio" name="component-type" value="texto" checked>
           <span class="component-type-modal__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 6h16"/><path d="M4 10h16"/><path d="M4 14h16"/><path d="M4 18h9"/>
+              <line x1="21" y1="6" x2="3" y2="6"/><line x1="15" y1="12" x2="3" y2="12"/><line x1="17" y1="18" x2="3" y2="18"/>
             </svg>
           </span>
           <span>Cuadro de texto</span>
@@ -280,8 +260,8 @@ body {
           <input type="radio" name="component-type" value="tableroSimple">
           <span class="component-type-modal__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="1.5"/>
-              <path d="M9 3v18"/><path d="M15 3v18"/><path d="M3 9h18"/><path d="M3 15h18"/>
+              <rect width="18" height="18" x="3" y="3" rx="2"/>
+              <path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/>
             </svg>
           </span>
           <span>Tablero simple</span>
@@ -292,8 +272,7 @@ body {
           <input type="radio" name="component-type" value="tableroPersonalizado">
           <span class="component-type-modal__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 3h11v6"/><path d="M3 9h9"/><path d="M3 15h7"/><path d="M3 3v18h9"/><path d="M9 15v6"/>
-              <path d="M18.5 12.5l3 3L16 21l-3 .5.5-3z"/>
+              <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
             </svg>
           </span>
           <span>Tablero personalizado</span>
@@ -304,12 +283,7 @@ body {
           <input type="radio" name="component-type" value="dado">
           <span class="component-type-modal__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="3"/>
-              <circle cx="8" cy="8" r="1.1" fill="currentColor" stroke="none"/>
-              <circle cx="16" cy="8" r="1.1" fill="currentColor" stroke="none"/>
-              <circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none"/>
-              <circle cx="8" cy="16" r="1.1" fill="currentColor" stroke="none"/>
-              <circle cx="16" cy="16" r="1.1" fill="currentColor" stroke="none"/>
+              <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M16 8h.01"/><path d="M8 8h.01"/><path d="M8 16h.01"/><path d="M16 16h.01"/><path d="M12 12h.01"/>
             </svg>
           </span>
           <span>Dado Configurable</span>
@@ -320,8 +294,7 @@ body {
           <input type="radio" name="component-type" value="documento">
           <span class="component-type-modal__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
-              <path d="M14 3v5h5"/><path d="M9 13h6"/><path d="M9 17h6"/>
+              <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/>
             </svg>
           </span>
           <span>Visor de documentos</span>
@@ -332,8 +305,7 @@ body {
           <input type="radio" name="component-type" value="carta">
           <span class="component-type-modal__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="6" y="2.5" width="12" height="19" rx="2.5"/>
-              <path d="M9 7h6"/><path d="M9 11h4"/>
+              <rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
             </svg>
           </span>
           <span>Carta/Ficha</span>
@@ -344,8 +316,7 @@ body {
           <input type="radio" name="component-type" value="mazo">
           <span class="component-type-modal__icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="8" y="6" width="11" height="15" rx="2"/>
-              <path d="M5.5 17.5V5.5a2 2 0 0 1 2-2H15"/>
+              <path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>
             </svg>
           </span>
           <span>Mazo</span>
@@ -356,12 +327,11 @@ body {
       <!-- ══ Separador entre secciones ══ -->
       <div class="set-separator">
         <span class="set-separator__line"></span>
-        <span class="set-separator__text">o elige un conjunto completo</span>
+        <span class="set-separator__text">o elige un conjunto pre-definido</span>
         <span class="set-separator__line"></span>
       </div>
 
       <!-- ══ Sección 2: conjuntos pre-definidos (NUEVO en 00236) ══ -->
-      <div class="preset-section-label">Conjuntos pre-definidos</div>
 
       <!-- Clic en esta fila = creación inmediata de la baraja + cierre del modal.
            No hay radio y NO pasa por el botón "Aceptar" del footer. -->

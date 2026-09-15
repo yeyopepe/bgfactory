@@ -1,0 +1,174 @@
+<style>
+  :root {
+    --bg-toolbar: #333333;
+    --bg-card: #f5f5f5;
+    --text-light: #ffffff;
+    --text-muted: #666666;
+    --toolbar-hover: rgba(255, 255, 255, 0.1);
+    --radius-lg: 8px;
+    --radius-full: 9999px;
+    --shadow-1: 0 2px 6px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.08);
+    --shadow-badge: 0 2px 4px rgba(0, 0, 0, 0.25);
+    --space-2: 0.5rem;
+    --space-4: 1rem;
+    --text-base: 1rem;
+    --text-sm: 0.875rem;
+    --font-semibold: 600;
+  }
+
+  body {
+    font-family: system-ui, sans-serif;
+    background: #dcdcdc;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+
+  .mockup-note {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+    max-width: 320px;
+  }
+
+  .panel {
+    width: 300px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-1);
+  }
+
+  .panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-2) var(--space-4);
+    background: var(--bg-toolbar);
+    color: var(--text-light);
+    cursor: grab;
+    user-select: none;
+  }
+
+  .panel__header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .panel__title {
+    font-weight: var(--font-semibold);
+    font-size: var(--text-base);
+  }
+
+  .panel__header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .panel__count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.4rem;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.18);
+    color: var(--text-light);
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    box-shadow: var(--shadow-badge);
+  }
+
+  .panel__toggle-btn {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: var(--text-base);
+    line-height: 1;
+    cursor: pointer;
+    padding: 0.1rem 0.2rem;
+  }
+
+  .panel__toggle-btn:hover {
+    background: var(--toolbar-hover);
+    border-radius: 4px;
+  }
+
+  .panel__body {
+    padding: var(--space-4);
+    color: var(--text-muted);
+    font-size: var(--text-sm);
+    min-height: 2.5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .icon-frame {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+</style>
+
+<!-- Mockup estático de referencia: solo la cabecera de cada panel cambia de aspecto; el cuerpo se simula vacío/simplificado para dar contexto, no reproduce el contenido real de cada lista. -->
+
+<p class="mockup-note">
+  Mockup de referencia — nuevo aspecto de cabecera para los paneles "Componentes", "Recursos" y "Etiquetas": icono + título a la izquierda, badge de número de elementos + botón de plegar/desplegar a la derecha.
+</p>
+
+<div class="panel">
+  <div class="panel__header">
+    <div class="panel__header-left">
+      <svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="18" height="18" x="3" y="3" rx="2"/>
+        <path d="M3 12h18"/>
+        <path d="M12 3v18"/>
+      </svg>
+      <span class="panel__title">Componentes</span>
+    </div>
+    <div class="panel__header-right">
+      <span class="panel__count-badge">55</span>
+      <button type="button" class="panel__toggle-btn">▾</button>
+    </div>
+  </div>
+  <div class="panel__body">(lista de componentes...)</div>
+</div>
+
+<div class="panel">
+  <div class="panel__header">
+    <div class="panel__header-left">
+      <svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="18" height="18" x="3" y="3" rx="2"/>
+        <circle cx="9" cy="9" r="2"/>
+        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+      </svg>
+      <span class="panel__title">Recursos</span>
+    </div>
+    <div class="panel__header-right">
+      <span class="panel__count-badge">12</span>
+      <button type="button" class="panel__toggle-btn">▾</button>
+    </div>
+  </div>
+  <div class="panel__body">(galería de recursos...)</div>
+</div>
+
+<div class="panel">
+  <div class="panel__header">
+    <div class="panel__header-left">
+      <svg class="icon-frame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/>
+        <circle cx="7.5" cy="7.5" r="1.5"/>
+      </svg>
+      <span class="panel__title">Etiquetas</span>
+    </div>
+    <div class="panel__header-right">
+      <span class="panel__count-badge">3</span>
+      <button type="button" class="panel__toggle-btn">▾</button>
+    </div>
+  </div>
+  <div class="panel__body">(lista de etiquetas...)</div>
+</div>

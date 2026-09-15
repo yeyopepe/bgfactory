@@ -216,6 +216,14 @@ ui.zindex.max = 1300                       afirmación de estilo (00245)
 ui.motion.reduced.rule:                    afirmación de estilo (00245 -> 00246 -> eliminado en ajuste 00246).  sin ancla
     el proyecto NO usa prefers-reduced-motion en ningún sitio. Las 2 animaciones (@keyframes progress-modal-spin, @keyframes splash-progress-fill) son indicadores funcionales, corren siempre.
     un @media (prefers-reduced-motion: reduce) para la barra del splash existió brevemente (00246) y se quitó en la misma sesión
+ui.icon.panel-componentes                 concepto de estilo (00268).  anchor: src/ui/icons.js
+    rejilla 2x2 de cuadrados redondeados; cabecera del panel flotante "Componentes"
+ui.icon.panel-recursos                    concepto de estilo (00268).  anchor: src/ui/icons.js
+    glifo de imagen (marco + círculo + trazo de montaña); cabecera del panel flotante "Recursos"
+ui.class.panel-header-with-badge          concepto de estilo (00268).  anchor: src/styles/main.css
+    patrón de cabecera de panel flotante: .{prefix}-panel__header-left (icono + <strong> título sin contador) + .{prefix}-panel__header-right (.{prefix}-panel__count-badge + botón plegar/desplegar existente), {prefix} = component/resource/tag
+    ver 003-modales-menus.md "Floating-panel header: icon + title + count badge"
+    reemplaza el patrón anterior de <strong> único con el contador embebido en el texto (t('*.title', { count }))
 test                                      concepto (framework de tests funcionales, 00238).  anchor: src/test/run.js
     ver 011-functional-test-framework.md
 test.harness                              concepto.  anchor: src/test/harness.js#run

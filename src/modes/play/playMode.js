@@ -129,8 +129,11 @@ export function renderPlayMode(container) {
       onMazoDraw: (mazo) => {
         const cartaIds = mazo.properties?.cartaIds || [];
         if (cartaIds.length === 0) return;
-        sacarCartaDeMazo(mazo.id, cartaIds[0]);
+        // El mazo sube de orden (si aplica) ANTES de sacar la carta: así el orden
+        // "al frente" que fija sacarCartaDeMazo (state.js) para la carta revelada
+        // es el que queda vigente, y no lo pisa este subir del propio mazo.
         if (getEffectiveGeneralProps(mazo, groups).subirAlMoverInteractuar) reorderComponent(mazo.id, 1);
+        sacarCartaDeMazo(mazo.id, cartaIds[0]);
       },
       onContextMenu: (component, event) => {
         // Click derecho configurable por componente: con "Ninguno" seleccionado, no

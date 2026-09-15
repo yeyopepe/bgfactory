@@ -78,19 +78,26 @@ body {
   border-bottom: 1px solid var(--border-neutral);
   background: var(--bg-card);
   flex-shrink: 0;
+  display: flex; gap: 0.4rem;
 }
 .filter-input {
-  width: 100%;
-  padding: 0.3rem 0.5rem 0.3rem 1.75rem;
+  flex: 1;
+  padding: 0.3rem 0.5rem;
   border: 1px solid var(--border-neutral);
   border-radius: var(--radius-sm);
   font-size: 0.8rem;
   color: var(--text-primary);
   background: white;
-  position: relative;
 }
-.filter-wrap { position: relative; }
-.filter-wrap svg { position: absolute; left: 6px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+.filter-clear {
+  flex-shrink: 0;
+  width: 26px; height: 26px;
+  border: none; background: none; cursor: pointer;
+  color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-sm);
+}
+.filter-clear:hover { background: #f0f0f0; color: var(--text-primary); }
 
 /* Table area */
 .panel__table-wrap {
@@ -126,12 +133,6 @@ body {
 }
 .table-row:hover { background: #fafafa; }
 
-/* Checkbox cell */
-.cell-check input[type="checkbox"] {
-  accent-color: var(--accent-blue);
-  width: 13px; height: 13px;
-}
-
 /* ID/name cell */
 .cell-name {
   display: flex; align-items: center; gap: 6px;
@@ -151,23 +152,30 @@ body {
 .type-carta { background: #fff3e0; color: #b45309; border: 1px solid #f5c36b; }
 .type-mazo  { background: #e8f0fc; color: #1a5fa8; border: 1px solid #9ec0ef; }
 
-/* Copy badge placeholder */
-.cell-copy {
+/* Order cell */
+.cell-order {
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: 0.8rem;
 }
 
-/* Actions cell */
+/* Copy cell */
+.cell-copy {
+  color: var(--text-primary);
+  font-size: 0.8rem;
+}
+
+/* Actions cell — botones de texto, como en el panel real */
 .cell-actions {
   display: flex; gap: 4px; justify-content: flex-end;
 }
 .action-btn {
-  width: 22px; height: 22px;
   border: none; background: none; cursor: pointer;
   color: var(--text-muted);
-  display: flex; align-items: center; justify-content: center;
+  font-size: 0.72rem;
+  padding: 2px 5px;
   border-radius: 3px;
   transition: background 0.1s, color 0.1s;
+  white-space: nowrap;
 }
 .action-btn:hover { background: #f0f0f0; color: var(--text-primary); }
 
@@ -185,9 +193,10 @@ body {
 .group-chevron {
   color: var(--accent-blue);
   flex-shrink: 0;
-  transition: transform 0.15s;
+  font-size: 0.7rem;
+  width: 12px;
+  text-align: center;
 }
-.group-chevron.open { transform: rotate(90deg); }
 .group-label {
   flex: 1;
   font-weight: 600;
@@ -203,10 +212,6 @@ body {
   font-size: 0.65rem;
   font-weight: 700;
   flex-shrink: 0;
-}
-.group-check input[type="checkbox"] {
-  accent-color: var(--accent-blue);
-  width: 13px; height: 13px;
 }
 
 /* ─── CHILD ROW (inside group) ─── */
@@ -225,10 +230,6 @@ body {
   background: #c0cfe8;
 }
 
-/* Suit color helpers */
-.suit-red { color: #c0392b; }
-.suit-black { color: #1a1a1a; }
-
 /* ─── MORE HINT ─── */
 .more-hint {
   padding: 0.35rem 0.75rem 0.35rem 44px;
@@ -237,19 +238,6 @@ body {
   background: white;
   border-bottom: 1px solid #f0f0f0;
   font-style: italic;
-}
-
-/* ─── MAZO separator label ─── */
-.section-sep {
-  padding: 0.35rem 0.75rem;
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
-  background: #f8f8f8;
-  border-bottom: 1px solid var(--border-neutral);
-  border-top: 2px solid var(--border-neutral);
 }
 
 /* Panel footer */
@@ -285,11 +273,8 @@ body {
   <!-- Header -->
   <div class="panel__header">
     <div class="panel__header-left">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <rect x="1" y="1" width="12" height="12" rx="2" stroke="white" stroke-width="1.4"/>
-        <line x1="1" y1="5" x2="13" y2="5" stroke="white" stroke-width="0.9"/>
-        <line x1="1" y1="9" x2="13" y2="9" stroke="white" stroke-width="0.9"/>
-        <line x1="5" y1="1" x2="5" y2="13" stroke="white" stroke-width="0.9"/>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/>
       </svg>
       Componentes
     </div>
@@ -298,13 +283,12 @@ body {
 
   <!-- Filter -->
   <div class="panel__filter">
-    <div class="filter-wrap">
-      <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="color:#999">
-        <circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.3"/>
-        <line x1="8.5" y1="8.5" x2="12" y2="12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    <input class="filter-input" type="text" placeholder="Filtrar componentes…" readonly>
+    <button class="filter-clear" title="Limpiar búsqueda" aria-label="Limpiar búsqueda">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
       </svg>
-      <input class="filter-input" type="text" placeholder="Filtrar componentes…" readonly>
-    </div>
+    </button>
   </div>
 
   <!-- Table -->
@@ -312,8 +296,8 @@ body {
 
     <!-- Column headers -->
     <div class="table-head">
-      <div></div>
-      <div>Nombre / Id</div>
+      <div>Orden</div>
+      <div>Id</div>
       <div>Tipo</div>
       <div>Copia</div>
       <div style="text-align:right">Acciones</div>
@@ -322,12 +306,7 @@ body {
     <!-- GROUP ROW — Baraja francesa -->
     <div class="table-row table-row--group">
       <div class="group-row-inner">
-        <div class="group-check"><input type="checkbox" title="Seleccionar grupo"></div>
-        <span class="group-chevron open">
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-            <polyline points="2,3 5,7 8,3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </span>
+        <span class="group-chevron">▾</span>
         <span class="group-label">Grupo: Baraja francesa estándar (54 cartas)</span>
         <span class="group-badge">54</span>
       </div>
@@ -335,98 +314,61 @@ body {
 
     <!-- Child rows — first cards of ♠ -->
     <div class="table-row table-row--child">
-      <div class="cell-check"><input type="checkbox"></div>
-      <div class="cell-name">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <rect x="1.5" y="1.5" width="9" height="12" rx="1.2" stroke="#555" stroke-width="1"/>
-          <rect x="3" y="3" width="9" height="12" rx="1.2" stroke="#888" stroke-width="0.7" opacity="0.5"/>
-        </svg>
-        <span>A<span class="suit-black">♠</span> · baraja-francesa-picas-as</span>
-      </div>
+      <div class="cell-order">1</div>
+      <div class="cell-name"><span>baraja-francesa-picas-as</span></div>
       <div><span class="type-badge type-carta">carta</span></div>
-      <div class="cell-copy">—</div>
+      <div class="cell-copy"></div>
       <div class="cell-actions">
-        <button class="action-btn" title="Editar">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2.5l2 2L4 10H2v-2l5.5-5.5z" stroke="currentColor" stroke-width="1.2"/></svg>
-        </button>
-        <button class="action-btn" title="Eliminar">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-        </button>
+        <button class="action-btn">Editar</button>
+        <button class="action-btn">Eliminar</button>
       </div>
     </div>
 
     <div class="table-row table-row--child">
-      <div class="cell-check"><input type="checkbox"></div>
-      <div class="cell-name">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <rect x="1.5" y="1.5" width="9" height="12" rx="1.2" stroke="#555" stroke-width="1"/>
-          <rect x="3" y="3" width="9" height="12" rx="1.2" stroke="#888" stroke-width="0.7" opacity="0.5"/>
-        </svg>
-        <span>2<span class="suit-black">♠</span> · baraja-francesa-picas-2</span>
-      </div>
+      <div class="cell-order">2</div>
+      <div class="cell-name"><span>baraja-francesa-picas-2</span></div>
       <div><span class="type-badge type-carta">carta</span></div>
-      <div class="cell-copy">—</div>
+      <div class="cell-copy"></div>
       <div class="cell-actions">
-        <button class="action-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2.5l2 2L4 10H2v-2l5.5-5.5z" stroke="currentColor" stroke-width="1.2"/></svg></button>
-        <button class="action-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+        <button class="action-btn">Editar</button>
+        <button class="action-btn">Eliminar</button>
       </div>
     </div>
 
     <div class="table-row table-row--child">
-      <div class="cell-check"><input type="checkbox"></div>
-      <div class="cell-name">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <rect x="1.5" y="1.5" width="9" height="12" rx="1.2" stroke="#555" stroke-width="1"/>
-          <rect x="3" y="3" width="9" height="12" rx="1.2" stroke="#888" stroke-width="0.7" opacity="0.5"/>
-        </svg>
-        <span>3<span class="suit-black">♠</span> · baraja-francesa-picas-3</span>
-      </div>
+      <div class="cell-order">3</div>
+      <div class="cell-name"><span>baraja-francesa-picas-3</span></div>
       <div><span class="type-badge type-carta">carta</span></div>
-      <div class="cell-copy">—</div>
+      <div class="cell-copy"></div>
       <div class="cell-actions">
-        <button class="action-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2.5l2 2L4 10H2v-2l5.5-5.5z" stroke="currentColor" stroke-width="1.2"/></svg></button>
-        <button class="action-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+        <button class="action-btn">Editar</button>
+        <button class="action-btn">Eliminar</button>
       </div>
     </div>
 
     <div class="table-row table-row--child">
-      <div class="cell-check"><input type="checkbox"></div>
-      <div class="cell-name">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <rect x="1.5" y="1.5" width="9" height="12" rx="1.2" stroke="#555" stroke-width="1"/>
-          <rect x="3" y="3" width="9" height="12" rx="1.2" stroke="#888" stroke-width="0.7" opacity="0.5"/>
-        </svg>
-        <span>4<span class="suit-black">♠</span> · baraja-francesa-picas-4</span>
-      </div>
+      <div class="cell-order">4</div>
+      <div class="cell-name"><span>baraja-francesa-picas-4</span></div>
       <div><span class="type-badge type-carta">carta</span></div>
-      <div class="cell-copy">—</div>
+      <div class="cell-copy"></div>
       <div class="cell-actions">
-        <button class="action-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2.5l2 2L4 10H2v-2l5.5-5.5z" stroke="currentColor" stroke-width="1.2"/></svg></button>
-        <button class="action-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+        <button class="action-btn">Editar</button>
+        <button class="action-btn">Eliminar</button>
       </div>
     </div>
 
     <!-- "…more" hint -->
     <div class="more-hint">… y 50 cartas más dentro del grupo (5♠ → K♠, ♥, ♦, ♣ y Jokers)</div>
 
-    <!-- Mazo row — outside the group -->
-    <div class="section-sep">Fuera del grupo</div>
-
+    <!-- Mazo row — fila suelta normal, fuera del grupo -->
     <div class="table-row">
-      <div class="cell-check"><input type="checkbox"></div>
-      <div class="cell-name">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <rect x="5" y="4" width="8" height="10" rx="1" stroke="#555" stroke-width="1" opacity="0.5"/>
-          <rect x="3" y="2.5" width="8" height="10" rx="1" stroke="#555" stroke-width="1" opacity="0.75"/>
-          <rect x="1" y="1" width="8" height="10" rx="1" stroke="#555" stroke-width="1.2"/>
-        </svg>
-        <span>mazo · baraja-francesa-mazo</span>
-      </div>
+      <div class="cell-order">55</div>
+      <div class="cell-name"><span>baraja-francesa-mazo</span></div>
       <div><span class="type-badge type-mazo">mazo</span></div>
-      <div class="cell-copy">—</div>
+      <div class="cell-copy"></div>
       <div class="cell-actions">
-        <button class="action-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2.5l2 2L4 10H2v-2l5.5-5.5z" stroke="currentColor" stroke-width="1.2"/></svg></button>
-        <button class="action-btn"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M4 3V2h4v1M5 5v4M7 5v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+        <button class="action-btn">Editar</button>
+        <button class="action-btn">Eliminar</button>
       </div>
     </div>
 

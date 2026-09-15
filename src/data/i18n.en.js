@@ -82,11 +82,19 @@ export const CATALOG_EN = {
 
   // --- "Add component" modal ---
   'componentTypeModal.title': 'Add component',
+  'componentTypeModal.componentsLabel': 'Components',
+  'componentTypeModal.presetsSeparator': 'or pick a pre-defined set',
+  'componentTypeModal.preset.frenchDeck': 'Standard French deck (54 cards)',
+  'componentTypeModal.preset.frenchDeck.tag1': '52 cards + 2 jokers',
+  'componentTypeModal.preset.frenchDeck.tag2': '1 deck',
+  'componentTypeModal.preset.frenchDeck.progress': 'Generating deck…',
+  'componentTypeModal.preset.frenchDeck.backResourceName': 'French deck - back',
+  'componentTypeModal.preset.frenchDeck.deckName': 'French Deck',
 
   // --- Components panel ---
   'componentList.empty': 'No components yet.',
   'componentList.emptyFilter': 'No components match "{filter}".',
-  'componentList.title': 'Components ({count})',
+  'componentList.title': 'Components',
   'componentList.add': '+ Add component',
   'componentList.filterPlaceholder': 'Filter components…',
   'componentList.ungroup': 'Ungroup',
@@ -94,14 +102,14 @@ export const CATALOG_EN = {
   // --- Resources panel ---
   'resourceList.empty': 'No resources yet.',
   'resourceList.emptyFilter': 'No resources match "{filter}".',
-  'resourceList.title': 'Resources ({count})',
+  'resourceList.title': 'Resources',
   'resourceList.add': '+ Add resource ▾',
   'resourceList.filterPlaceholder': 'Filter resources…',
 
   // --- Tags panel ---
   'tagList.empty': 'No tags yet.',
   'tagList.emptyFilter': 'No tags match "{filter}".',
-  'tagList.title': 'Tags ({count})',
+  'tagList.title': 'Tags',
   'tagList.add': '+ Add tag',
   'tagList.filterPlaceholder': 'Filter tags…',
 

@@ -145,7 +145,7 @@ describe('013 — Subir al mover/interactuar', () => {
     expect(getComponents().find((c) => c.id === 'c1').properties.caraActual).toBe('frontal');
   });
 
-  it('FT-013-07 · sacar carta de un mazo en Modo Juego sube a order 1', () => {
+  it('FT-013-07 · sacar carta de un mazo en Modo Juego sube el mazo, pero la carta revelada queda por delante', () => {
     const carta = addComp('carta', 'carta-en-mazo');
     const m1 = addComp('mazo', 'm1', { subirAlMoverInteractuar: true, properties: { cartaIds: [carta.id] } });
     expect(m1.subirAlMoverInteractuar).toBe(true);
@@ -159,7 +159,11 @@ describe('013 — Subir al mover/interactuar', () => {
     expect(mazoNode).toBeTruthy();
     mazoNode.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 
-    expect(orderOf('m1')).toBe(1);
+    // El mazo sube (order 1 -> 2), pero sacar la carta la deja por delante de
+    // él (order 1): así la carta revelada se pinta por encima del marco/texto
+    // de la zona de revelado y del propio mazo, no al revés.
+    expect(orderOf('m1')).toBe(2);
+    expect(orderOf('carta-en-mazo')).toBe(1);
   });
 
   it('FT-013-08 · independencia de "bloqueado"', () => {

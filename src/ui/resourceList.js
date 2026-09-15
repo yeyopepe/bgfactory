@@ -253,9 +253,21 @@ export function renderResourceList(
   const header = document.createElement('div');
   header.className = 'resource-panel__header';
 
+  const headerLeft = document.createElement('div');
+  headerLeft.className = 'resource-panel__header-left';
+  headerLeft.innerHTML = iconSvg('panel-recursos');
+
   const title = document.createElement('strong');
-  title.textContent = t('resourceList.title', { count: resources.length });
-  header.appendChild(title);
+  title.textContent = t('resourceList.title');
+  headerLeft.appendChild(title);
+
+  const headerRight = document.createElement('div');
+  headerRight.className = 'resource-panel__header-right';
+
+  const countBadge = document.createElement('span');
+  countBadge.className = 'resource-panel__count-badge';
+  countBadge.textContent = String(resources.length);
+  headerRight.appendChild(countBadge);
 
   const toggleButton = document.createElement('button');
   toggleButton.type = 'button';
@@ -263,7 +275,10 @@ export function renderResourceList(
   toggleButton.addEventListener('click', () => {
     if (onToggleCollapse) onToggleCollapse();
   });
-  header.appendChild(toggleButton);
+  headerRight.appendChild(toggleButton);
+
+  header.appendChild(headerLeft);
+  header.appendChild(headerRight);
 
   header.addEventListener('mousedown', (e) => {
     if (e.button !== 0 || e.target === toggleButton) return;

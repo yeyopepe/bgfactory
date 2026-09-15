@@ -184,9 +184,21 @@ export function renderTagList(
   const header = document.createElement('div');
   header.className = 'tag-panel__header';
 
+  const headerLeft = document.createElement('div');
+  headerLeft.className = 'tag-panel__header-left';
+  headerLeft.innerHTML = iconSvg('tag');
+
   const title = document.createElement('strong');
-  title.textContent = t('tagList.title', { count: tags.length });
-  header.appendChild(title);
+  title.textContent = t('tagList.title');
+  headerLeft.appendChild(title);
+
+  const headerRight = document.createElement('div');
+  headerRight.className = 'tag-panel__header-right';
+
+  const countBadge = document.createElement('span');
+  countBadge.className = 'tag-panel__count-badge';
+  countBadge.textContent = String(tags.length);
+  headerRight.appendChild(countBadge);
 
   const toggleButton = document.createElement('button');
   toggleButton.type = 'button';
@@ -194,7 +206,10 @@ export function renderTagList(
   toggleButton.addEventListener('click', () => {
     if (onToggleCollapse) onToggleCollapse();
   });
-  header.appendChild(toggleButton);
+  headerRight.appendChild(toggleButton);
+
+  header.appendChild(headerLeft);
+  header.appendChild(headerRight);
 
   header.addEventListener('mousedown', (e) => {
     if (e.button !== 0 || e.target === toggleButton) return;

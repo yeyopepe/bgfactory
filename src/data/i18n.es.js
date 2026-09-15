@@ -80,11 +80,19 @@ export const CATALOG_ES = {
 
   // --- Modal "Añadir componente" ---
   'componentTypeModal.title': 'Añadir componente',
+  'componentTypeModal.componentsLabel': 'Componentes',
+  'componentTypeModal.presetsSeparator': 'o elige un conjunto pre-definido',
+  'componentTypeModal.preset.frenchDeck': 'Baraja francesa estándar (54 cartas)',
+  'componentTypeModal.preset.frenchDeck.tag1': '52 cartas + 2 jokers',
+  'componentTypeModal.preset.frenchDeck.tag2': '1 mazo',
+  'componentTypeModal.preset.frenchDeck.progress': 'Generando baraja…',
+  'componentTypeModal.preset.frenchDeck.backResourceName': 'Baraja francesa - reverso',
+  'componentTypeModal.preset.frenchDeck.deckName': 'Baraja Francesa',
 
   // --- Panel de componentes ---
   'componentList.empty': 'No hay componentes todavía.',
   'componentList.emptyFilter': 'No hay componentes que coincidan con «{filter}».',
-  'componentList.title': 'Componentes ({count})',
+  'componentList.title': 'Componentes',
   'componentList.add': '+ Añadir componente',
   'componentList.filterPlaceholder': 'Filtrar componentes…',
   'componentList.ungroup': 'Desagrupar',
@@ -92,14 +100,14 @@ export const CATALOG_ES = {
   // --- Panel de recursos ---
   'resourceList.empty': 'No hay recursos todavía.',
   'resourceList.emptyFilter': 'No hay recursos que coincidan con «{filter}».',
-  'resourceList.title': 'Recursos ({count})',
+  'resourceList.title': 'Recursos',
   'resourceList.add': '+ Añadir recurso ▾',
   'resourceList.filterPlaceholder': 'Filtrar recursos…',
 
   // --- Panel de etiquetas ---
   'tagList.empty': 'No hay etiquetas todavía.',
   'tagList.emptyFilter': 'No hay etiquetas que coincidan con «{filter}».',
-  'tagList.title': 'Etiquetas ({count})',
+  'tagList.title': 'Etiquetas',
   'tagList.add': '+ Añadir etiqueta',
   'tagList.filterPlaceholder': 'Filtrar etiquetas…',
 

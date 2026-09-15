@@ -217,7 +217,7 @@ State shadows:
 |---|---|---|
 | `--shadow-focus` | `0 0 0 3px var(--accent-blue-alpha-15)` | Focus ring, normal fields |
 | `--shadow-focus-strong` | `0 0 0 3px var(--accent-blue-alpha-25)` | Focus ring, selected/edit-mode elements |
-| `--shadow-badge` | `0 2px 4px rgba(0,0,0,0.25)` | Floating badges: lock, hidden, copies |
+| `--shadow-badge` | `0 2px 4px rgba(0,0,0,0.25)` | Floating badges: lock, hidden, copies; floating-panel header count badge (00268, `003-modales-menus.md` "Floating-panel header: icon + title + count badge") |
 
 - [gotcha] two separate focus-ring tokens are kept (not consolidated) because they reflect a real existing distinction: normal fields use the lighter opacity, selected elements the stronger one.
 - `.dice`: uses `filter: drop-shadow(...)` instead of `box-shadow`, so the shadow follows the real silhouette (triangle/square/rhombus/decagon) instead of the container's square box.

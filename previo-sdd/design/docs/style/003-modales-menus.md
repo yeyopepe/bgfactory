@@ -22,6 +22,18 @@ Single source for every icon: `ui/icons.js` (`../architecture/006-ui-layer.md`).
 - `name` not present in `ui/icons.js`'s icon map → warning-box placeholder, not a thrown error (`[gotcha]` — a typo'd name degrades visibly instead of breaking the screen).
 - `size` sets the emitted `<svg>`'s `width`/`height` attributes; a context-scoped `.icon-frame` CSS rule (`main.css`) overrides them where one exists — `size` is the icon's own declared default, not a guarantee of the rendered pixel size.
 
+New icons (00268): `panel-componentes` (2×2 grid of rounded squares, floating "Componentes" panel header), `panel-recursos` (image glyph — frame + circle + mountain path, floating "Recursos" panel header). Grouped in `ui/icons.js` under the `// Cabeceras de paneles flotantes` comment block. The "Etiquetas" panel header reuses the pre-existing `tag` icon instead of a new one.
+
+## Floating-panel header: icon + title + count badge
+
+Pattern for the header of the app's floating panels (`.component-panel__header`, `.resource-panel__header`, `.tag-panel__header`, `002-componentes-layout.md`) — since 00268, replacing a single `<strong>` with the count embedded in the text (e.g. "Componentes (55)"):
+
+- Left group (`.{prefix}-panel__header-left`, `{prefix}` = `component`/`resource`/`tag`): `display: flex; align-items: center; gap: var(--space-2)` — an icon (`iconSvg`, default `ICON_SIZE.toolbar` 20px: `panel-componentes`/`panel-recursos`/`tag`) followed by a `<strong>` with the panel's name only (`t('componentList.title')`/`resourceList.title`/`tagList.title` — the i18n key no longer takes a `count` param, just the bare word, e.g. "Componentes"/"Components").
+- Right group (`.{prefix}-panel__header-right`), same flex/gap as the left group: a count badge (`.{prefix}-panel__count-badge`) followed by the pre-existing collapse/expand toggle button (`▾`/`▸`, unchanged behavior and position relative to the badge — badge first, then the button).
+- `.{prefix}-panel__count-badge`: `display: inline-flex; align-items: center; justify-content: center; min-width: 1.5rem; height: 1.5rem; padding: 0 0.4rem; border-radius: var(--radius-full); background: rgba(255, 255, 255, 0.18); color: var(--text-light); font-size: var(--text-sm); font-weight: var(--font-semibold); box-shadow: var(--shadow-badge)` — `textContent` is the panel's live element count (`components.length`/`resources.length`/`tags.length`), re-rendered on every panel redraw (no extra reactivity: same refresh path the old embedded count used).
+- The header's own drag-to-move `mousedown` listener (`003-modales-menus.md`, "Cursors") keeps checking `e.target === toggleButton` only — the new icon/title/badge are non-interactive, so they don't need excluding.
+- Any future floating panel with a header: reuse this pattern (`header-left`/`header-right`/`count-badge`) instead of a plain title string.
+
 
 
 Standard pattern for contextual help anywhere in the app: `.help-icon`, a 16px circle with "?" (`ui/helpIcon.js`, `createHelpIcon({ text, html })`).
@@ -195,6 +207,16 @@ An *interactive* variant of this section's same visual language (background `rgb
 - Deliberately does **not** use `.align-group`/`.align-group__btn` ("Group of icon-only buttons", meant for selectable options with an `active` state over a form background): these buttons are momentary actions with no "active" state and need guaranteed contrast over an arbitrary content image, not a neutral modal background.
 - `32px` square, `border-radius: var(--radius-sm)`, hover `rgba(0,0,0,.72)`, `title`/`aria-label` as the only accessible label (icon-only button, §9 in `002-componentes-layout.md`).
 - Any future action control overlaid on an arbitrary image/visual content: reuse this criterion instead of `.align-group` or an ad-hoc overlay.
+
+## Pre-defined set item (immediate action in a selection list)
+
+Pattern for an item that executes an action and closes its modal directly, coexisting in the same list as ordinary deferred-selection items (radio + "Aceptar"/"Accept") — first use: `.component-type-modal__preset-item` (`ui/componentTypeModal.js`, 00236), the "Baraja francesa estándar (54 cartas)" item below the 7 ordinary component-type rows. First time a picker modal mixes both interaction modes (deferred selection, immediate action) in one list.
+
+- **Separator introducing the section** (`.component-type-modal__set-separator`): a line (`.component-type-modal__set-separator-line`, `flex:1; height:1px; background:var(--border-neutral)`) on each side of a centered text (`.component-type-modal__set-separator-text`, `font-size:0.8125rem` — larger than this modal's other auxiliary text, e.g. `.component-type-modal__section-label` at `0.7rem`, since it also functions as the section's only heading, no separate title row). `margin:1.25rem 0 1rem`.
+- **Row look** (`.component-type-modal__preset-item`): `background:var(--accent-blue-light)`, `border:1.5px solid var(--accent-blue)`, `border-radius:var(--radius-sm)`, `padding:0.75rem 0.875rem`. `[hover]` `background:var(--accent-blue-alpha-15)`, `border-color:var(--accent-blue-dark)`. No radio input — visually and structurally distinct from `.component-type-modal__item`'s ordinary rows.
+- **Content**: decorative icon (`.component-type-modal__preset-icon`, `30×34px`, `color:var(--accent-blue)`) + title (`.component-type-modal__preset-title`, `font-weight:700`, `color:var(--accent-blue-dark)`) + up to N info tags (`.component-type-modal__preset-tag`, `font-size:0.68rem`, `color:var(--accent-blue)`, `background:var(--accent-blue-alpha-15)`, `border:1px solid var(--accent-blue-alpha-25)`) + a trailing chevron `›` (`.component-type-modal__preset-go`, `font-size:1.5rem`, `opacity:0.55`) — the chevron signals "runs an action", not a disclosure/dropdown affordance.
+- **Interaction**: `role="button" tabindex="0"`, `[click]` and `[keydown: Enter | Space]` both invoke the same handler (`preventDefault` on the key case) — runs the action and calls `overlay.remove()` directly, never touching the row-owning list's `selectedType` state nor the modal's own "Aceptar"/"Accept" footer button (that button keeps applying only to whichever ordinary row's radio is checked).
+- Any future pre-defined-set item, or any other case of an immediate-action row living inside an otherwise deferred-selection list: reuse this exact class family and interaction contract instead of an ad-hoc button-in-a-list.
 
 ## Wide modals (exception to `max-width: 500px`)
 
