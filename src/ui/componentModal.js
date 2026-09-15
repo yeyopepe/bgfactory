@@ -24,6 +24,7 @@ import { openComponentCopiesModal } from './componentCopiesModal.js';
 import { getInteractionsForType, isInteractionActive } from '../core/interactions.js';
 import { sortByName } from '../core/textSort.js';
 import { t } from '../core/i18n.js';
+import { iconSvg, ICON_SIZE } from './icons.js';
 
 const DEFAULT_BOARD_SIZE = 200;
 const DEFAULT_TABLERO_PERSONALIZADO_WIDTH = 300;
@@ -307,11 +308,17 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   const tabContents = new Map();
   let activeTab = 'general';
 
-  function createTab(name, label) {
+  function createTab(name, label, iconName) {
     const tab = document.createElement('button');
     tab.className = 'modal__tab';
     if (name === activeTab) tab.classList.add('active');
-    tab.textContent = label;
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'modal__tab-icon';
+    iconSpan.innerHTML = iconSvg(iconName, { size: ICON_SIZE.menu });
+    tab.appendChild(iconSpan);
+    const labelSpan = document.createElement('span');
+    labelSpan.textContent = label;
+    tab.appendChild(labelSpan);
     tab.addEventListener('click', () => switchTab(name));
     tabs.appendChild(tab);
 
@@ -332,12 +339,12 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   }
 
   // General tab: id field with validation
-  createTab('general', t('componentModal.tab.general'));
+  createTab('general', t('componentModal.tab.general'), 'settings');
   const generalContent = tabContents.get('general').content;
 
   // Visual tab: tamaño, profundidad/color de extrusión, y secciones específicas de aspecto
   // trasladadas desde "Específicas" (ver renderSpecificTab más abajo).
-  createTab('visual', t('componentModal.tab.visual'));
+  createTab('visual', t('componentModal.tab.visual'), 'tab-visual');
   const visualContent = tabContents.get('visual').content;
 
   const idField = document.createElement('div');
@@ -850,11 +857,11 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   });
 
   // Specific tab: type-specific fields
-  createTab('specific', t('componentModal.tab.specific'));
+  createTab('specific', t('componentModal.tab.specific'), 'type-carta');
   const specificContent = tabContents.get('specific').content;
 
   // Interacciones tab: sección "Interacciones programadas" (trasladada desde "Generales").
-  createTab('interacciones', t('componentModal.tab.interacciones'));
+  createTab('interacciones', t('componentModal.tab.interacciones'), 'tab-interacciones');
   const interaccionesContent = tabContents.get('interacciones').content;
 
   // Interacciones programadas: un combo por cada interacción de click izquierdo que el tipo actual
@@ -950,7 +957,7 @@ export function openComponentModal({ component = null, onAccept, onDelete }) {
   }
 
   // Copias tab: linked copies and sync actions
-  createTab('copias', t('componentModal.tab.copias'));
+  createTab('copias', t('componentModal.tab.copias'), 'clone');
   const copiasContent = tabContents.get('copias').content;
 
   // Populate copias tab

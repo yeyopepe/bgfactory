@@ -22,7 +22,7 @@ flowchart TD
 
     ROOT --> T1[["Pestaña: Generales"]]
     ROOT --> T2[["Pestaña: Apariencia"]]
-    ROOT --> T3[["Pestaña: Específicas"]]
+    ROOT --> T3[["Pestaña: Contenido"]]
     ROOT --> T3B[["Pestaña: Interacciones"]]
     ROOT --> T4[["Pestaña: Copias"]]
     ROOT --> FOOT[["Footer (común)"]]
@@ -79,7 +79,7 @@ flowchart TD
         V_S3 --> V_S3c["Tamaño de fuente, Color del texto, Color de fondo (texto)"]
     end
 
-    subgraph SG_ESP [Específicas — contenido según tipo]
+    subgraph SG_ESP [Contenido — contenido según tipo]
         T3 --> E_TX["texto: Contenido"]
         T3 --> E_TS["tableroSimple: Fondo → Configurar fondo…"]
         T3 --> E_TP["tableroPersonalizado: Editar diseño del tablero"]
@@ -150,7 +150,7 @@ Fichas técnicas de referencia: modelo de datos del componente (`architecture/00
 
 # Ventana: Propiedades del componente
 
-Modal de edición de un componente. 5 pestañas ("Generales", "Apariencia", "Específicas", "Interacciones", "Copias") + footer común + 9 sub-modales. Se abre en modo edición desde el panel flotante de componentes o con doble clic sobre el componente en la mesa. La pestaña activa al abrir es siempre "Generales".
+Modal de edición de un componente. 5 pestañas ("Generales", "Apariencia", "Contenido", "Interacciones", "Copias") + footer común + 9 sub-modales. Se abre en modo edición desde el panel flotante de componentes o con doble clic sobre el componente en la mesa. La pestaña activa al abrir es siempre "Generales".
 
 ## Pestaña "Generales"
 
@@ -211,60 +211,60 @@ Orden de secciones de la pestaña (grupo ordenado por el bloque de reordenación
 
 ---
 
-## Pestaña "Específicas"
+## Pestaña "Contenido"
 
-El contenido cambia por completo según el tipo de componente. Cada bloque son las filas de esa pestaña **para ese tipo**; la posición es dentro de la pestaña "Específicas". i18n de la pestaña: `componentModal.tab.specific`.
+El contenido cambia por completo según el tipo de componente. Cada bloque son las filas de esa pestaña **para ese tipo**; la posición es dentro de la pestaña "Contenido". i18n de la pestaña: `componentModal.tab.specific`.
 
 ### Texto (Cuadro de texto)
 
 | | Pos. | Nombre | Tipo | Dentro de… | Aparece en | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|---|:---:|---|---|
-| | 1 | Contenido | área de texto | Específicas | Texto | No | | i18n `common.content`; propiedad `properties.contenido` |
+| | 1 | Contenido | área de texto | Contenido | Texto | No | | i18n `common.content`; propiedad `properties.contenido` |
 
-> Los campos de fuente, color de texto y color de fondo del tipo Texto **no** están en "Específicas": forman la sección "Efecto" de la pestaña "Apariencia" (ver Tabla A, pestaña "Apariencia", posiciones 9–12).
+> Los campos de fuente, color de texto y color de fondo del tipo Texto **no** están en "Contenido": forman la sección "Efecto" de la pestaña "Apariencia" (ver Tabla A, pestaña "Apariencia", posiciones 9–12).
 
 ### T. simple (Tablero simple)
 
 | | Pos. | Nombre | Tipo | Dentro de… | Aparece en | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|---|:---:|---|---|
-| 🔽 | 1 | **Fondo** | sección | Específicas | T. simple | No | | i18n `common.background` |
-| | 2 | Tipo de fondo | (control de selección de fondo) | Específicas › Fondo | T. simple | No | | propiedad `properties.fondoTipo` (`colorPatron`/`imagen`); los dos bloques coexisten |
-| | 3 | Configurar fondo… | botón → *Color y patrón de tablero* / *Elegir imagen* | Específicas › Fondo | T. simple | No | | i18n `componentModal.configureBackground` |
+| 🔽 | 1 | **Fondo** | sección | Contenido | T. simple | No | | i18n `common.background` |
+| | 2 | Tipo de fondo | (control de selección de fondo) | Contenido › Fondo | T. simple | No | | propiedad `properties.fondoTipo` (`colorPatron`/`imagen`); los dos bloques coexisten |
+| | 3 | Configurar fondo… | botón → *Color y patrón de tablero* / *Elegir imagen* | Contenido › Fondo | T. simple | No | | i18n `componentModal.configureBackground` |
 
 ### T. pers. (Tablero personalizado)
 
 | | Pos. | Nombre | Tipo | Dentro de… | Aparece en | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|---|:---:|---|---|
-| | 1 | Editar diseño del tablero | botón → *Editor visual* (1 cara) | Específicas | T. pers. | No | | i18n `componentModal.editBoardDesign`; edita `properties.cara` |
+| | 1 | Editar diseño del tablero | botón → *Editor visual* (1 cara) | Contenido | T. pers. | No | | i18n `componentModal.editBoardDesign`; edita `properties.cara` |
 
 ### Dado
 
 | | Pos. | Nombre | Tipo | Dentro de… | Aparece en | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|---|:---:|---|---|
-| | 1 | Configuración de caras | opción (Número máximo / Lista de valores) | Específicas | Dado | No | | i18n `componentModal.facesConfig`; propiedad `properties.modoCaras` (`numeroMaximo`/`lista`); los dos modos coexisten |
-| | 2 | Número máximo de caras | número (2–100) | Específicas | Dado | No | configuración de caras = "Número máximo" | i18n `componentModal.maxNumber`; propiedad `properties.numeroMaximoCaras` |
-| | 3 | Lista de valores | texto (valores separados por comas) | Específicas | Dado | No | configuración de caras = "Lista de valores" | i18n `componentModal.valueList` · error `componentModal.valueListError`; propiedad `properties.listaValores`; requiere ≥2 valores no vacíos |
-| | 4 | Tipografía del resultado | botón → *Elegir tipografía* | Específicas | Dado | No | | i18n `componentModal.fontTypeLabel` / `componentModal.chooseFont`; propiedad `properties.fuenteResourceId` |
+| | 1 | Configuración de caras | opción (Número máximo / Lista de valores) | Contenido | Dado | No | | i18n `componentModal.facesConfig`; propiedad `properties.modoCaras` (`numeroMaximo`/`lista`); los dos modos coexisten |
+| | 2 | Número máximo de caras | número (2–100) | Contenido | Dado | No | configuración de caras = "Número máximo" | i18n `componentModal.maxNumber`; propiedad `properties.numeroMaximoCaras` |
+| | 3 | Lista de valores | texto (valores separados por comas) | Contenido | Dado | No | configuración de caras = "Lista de valores" | i18n `componentModal.valueList` · error `componentModal.valueListError`; propiedad `properties.listaValores`; requiere ≥2 valores no vacíos |
+| | 4 | Tipografía del resultado | botón → *Elegir tipografía* | Contenido | Dado | No | | i18n `componentModal.fontTypeLabel` / `componentModal.chooseFont`; propiedad `properties.fuenteResourceId` |
 
 ### Doc. (Visor de documentos)
 
 | | Pos. | Nombre | Tipo | Dentro de… | Aparece en | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|---|:---:|---|---|
-| | 1 | Tipo de contenido | opción (Texto / URL) | Específicas | Doc. | No | | i18n `componentModal.contentTypeLabel`; propiedad `properties.tipoContenido` (`texto`/`url`); los dos coexisten |
-| | 2 | Contenido | área de texto | Específicas | Doc. | No | tipo de contenido = "Texto" | i18n `common.content`; propiedad `properties.contenido` |
-| | 3 | Formato | desplegable (Markdown / HTML) | Específicas | Doc. | No | tipo de contenido = "Texto" | i18n `componentModal.formatLabel`; propiedad `properties.formato` |
-| | 4 | URL de la página | texto | Específicas | Doc. | No | tipo de contenido = "URL" | i18n `componentModal.pageUrlLabel`; propiedad `properties.url` |
+| | 1 | Tipo de contenido | opción (Texto / URL) | Contenido | Doc. | No | | i18n `componentModal.contentTypeLabel`; propiedad `properties.tipoContenido` (`texto`/`url`); los dos coexisten |
+| | 2 | Contenido | área de texto | Contenido | Doc. | No | tipo de contenido = "Texto" | i18n `common.content`; propiedad `properties.contenido` |
+| | 3 | Formato | desplegable (Markdown / HTML) | Contenido | Doc. | No | tipo de contenido = "Texto" | i18n `componentModal.formatLabel`; propiedad `properties.formato` |
+| | 4 | URL de la página | texto | Contenido | Doc. | No | tipo de contenido = "URL" | i18n `componentModal.pageUrlLabel`; propiedad `properties.url` |
 
 ### Carta (Carta/Ficha)
 
 | | Pos. | Nombre | Tipo | Dentro de… | Aparece en | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|---|:---:|---|---|
-| | 1 | Proporción | desplegable (10 opciones: 5:7 Poker vertical, 7:5 Poker horizontal, Tarot vertical, Tarot horizontal, Cuadrada, Circular, Hexagonal vertical, Hexagonal horizontal, Triángulo, Triángulo invertido) | Específicas | Carta | No | | i18n `componentModal.proportionLabel`; propiedad `properties.proporcion`; catálogo de proporciones en la ficha técnica de tipos |
-| | 2 | Editar diseño de la carta | botón → *Editor visual* (2 caras) | Específicas | Carta | No | | i18n `componentModal.editCardDesign`; edita `properties.caraFrontal` / `properties.caraTrasera` |
-| 🔽 | 3 | **Estilo** | sección | Específicas | Carta | No | | i18n `componentModal.cardStyleLegend` |
-| | 4 | Copiar estilo | botón → *Copiar estilo — selección* | Específicas › Estilo | Carta | No | | i18n `componentModal.copyStyle` |
-| | 5 | Pegar estilo | botón | Específicas › Estilo | Carta | No | | i18n `componentModal.pasteStyle`; pegado todo-o-nada, con modal de error propio si hay incompatibilidades |
-| | 6 | *(texto de ayuda del bloque Estilo)* | texto informativo | Específicas › Estilo | Carta | No | | i18n `componentModal.styleHint` |
+| | 1 | Proporción | desplegable (10 opciones: 5:7 Poker vertical, 7:5 Poker horizontal, Tarot vertical, Tarot horizontal, Cuadrada, Circular, Hexagonal vertical, Hexagonal horizontal, Triángulo, Triángulo invertido) | Contenido | Carta | No | | i18n `componentModal.proportionLabel`; propiedad `properties.proporcion`; catálogo de proporciones en la ficha técnica de tipos |
+| | 2 | Editar diseño de la carta | botón → *Editor visual* (2 caras) | Contenido | Carta | No | | i18n `componentModal.editCardDesign`; edita `properties.caraFrontal` / `properties.caraTrasera` |
+| 🔽 | 3 | **Estilo** | sección | Contenido | Carta | No | | i18n `componentModal.cardStyleLegend` |
+| | 4 | Copiar estilo | botón → *Copiar estilo — selección* | Contenido › Estilo | Carta | No | | i18n `componentModal.copyStyle` |
+| | 5 | Pegar estilo | botón | Contenido › Estilo | Carta | No | | i18n `componentModal.pasteStyle`; pegado todo-o-nada, con modal de error propio si hay incompatibilidades |
+| | 6 | *(texto de ayuda del bloque Estilo)* | texto informativo | Contenido › Estilo | Carta | No | | i18n `componentModal.styleHint` |
 
 ### Mazo
 
@@ -272,23 +272,23 @@ El contenido cambia por completo según el tipo de componente. Cada bloque son l
 
 | | Pos. | Nombre | Tipo | Dentro de… | Aparece en | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|---|:---:|---|---|
-| 🔽 | 1 | **Cartas reveladas** | sección | Específicas | Mazo | No | | i18n `componentModal.revealedCardsLegend` |
-| | 2 | Disposición carta revelada | desplegable (Arriba / Abajo / Derecha / Izquierda) | Específicas › Cartas reveladas | Mazo | No | | i18n `componentModal.revealDisposition`; propiedad `properties.disposicion` |
-| | 3 | *(nota sobre la disposición)* | texto informativo | Específicas › Cartas reveladas | Mazo | No | | i18n `componentModal.revealDispositionNote` |
-| | 4 | Texto carta revelada | texto | Específicas › Cartas reveladas | Mazo | No | | i18n `componentModal.revealedCardText`; propiedad `properties.textoCartaRevelada` (cadena vacía válida) |
-| | 5 | Cara de la carta revelada | desplegable (Frontal / Trasera) | Específicas › Cartas reveladas | Mazo | No | | i18n `componentModal.revealCard`; propiedad `properties.caraCartaRevelada` |
-| 🔽 | 6 | **Imagen** | sección | Específicas | Mazo | No | | i18n `componentModal.imageLegend` |
-| | 7 | *(previsualización de la imagen del mazo)* | previsualización | Específicas › Imagen | Mazo | No | | propiedad `properties.imagenResourceId` |
-| | 8 | Elegir imagen… | botón → *Elegir imagen* | Específicas › Imagen | Mazo | No | | i18n `componentModal.chooseImage` |
-| | 9 | Ajustar imagen… | botón → *Ajustar imagen* | Específicas › Imagen | Mazo | No | hay imagen elegida | i18n `componentModal.adjustImage`; propiedad `properties.ajusteImagen` / `properties.transparenciaImagen` |
-| | 10 | Quitar imagen | botón | Específicas › Imagen | Mazo | No | hay imagen elegida | i18n `componentModal.removeImage` |
-| | 11 | Ver contenido del mazo | botón → *Ver contenido del mazo* | Específicas | Mazo | No | | i18n `componentModal.viewMazoContent`; abre `mazoContentModal` (lista de cartas de `properties.cartaIds`) |
+| 🔽 | 1 | **Cartas reveladas** | sección | Contenido | Mazo | No | | i18n `componentModal.revealedCardsLegend` |
+| | 2 | Disposición carta revelada | desplegable (Arriba / Abajo / Derecha / Izquierda) | Contenido › Cartas reveladas | Mazo | No | | i18n `componentModal.revealDisposition`; propiedad `properties.disposicion` |
+| | 3 | *(nota sobre la disposición)* | texto informativo | Contenido › Cartas reveladas | Mazo | No | | i18n `componentModal.revealDispositionNote` |
+| | 4 | Texto carta revelada | texto | Contenido › Cartas reveladas | Mazo | No | | i18n `componentModal.revealedCardText`; propiedad `properties.textoCartaRevelada` (cadena vacía válida) |
+| | 5 | Cara de la carta revelada | desplegable (Frontal / Trasera) | Contenido › Cartas reveladas | Mazo | No | | i18n `componentModal.revealCard`; propiedad `properties.caraCartaRevelada` |
+| 🔽 | 6 | **Imagen** | sección | Contenido | Mazo | No | | i18n `componentModal.imageLegend` |
+| | 7 | *(previsualización de la imagen del mazo)* | previsualización | Contenido › Imagen | Mazo | No | | propiedad `properties.imagenResourceId` |
+| | 8 | Elegir imagen… | botón → *Elegir imagen* | Contenido › Imagen | Mazo | No | | i18n `componentModal.chooseImage` |
+| | 9 | Ajustar imagen… | botón → *Ajustar imagen* | Contenido › Imagen | Mazo | No | hay imagen elegida | i18n `componentModal.adjustImage`; propiedad `properties.ajusteImagen` / `properties.transparenciaImagen` |
+| | 10 | Quitar imagen | botón | Contenido › Imagen | Mazo | No | hay imagen elegida | i18n `componentModal.removeImage` |
+| | 11 | Ver contenido del mazo | botón → *Ver contenido del mazo* | Contenido | Mazo | No | | i18n `componentModal.viewMazoContent`; abre `mazoContentModal` (lista de cartas de `properties.cartaIds`) |
 
 ---
 
 ## Pestaña "Interacciones"
 
-i18n de la pestaña: `componentModal.tab.interacciones` ("Interacciones" / "Interactions"). Situada entre "Específicas" y "Copias". Su único contenido es la sección "Interacciones programadas". Se muestra siempre, para todos los tipos: la fila fija "Clic derecho" hace que nunca quede vacía.
+i18n de la pestaña: `componentModal.tab.interacciones` ("Interacciones" / "Interactions"). Situada entre "Contenido" y "Copias". Su único contenido es la sección "Interacciones programadas". Se muestra siempre, para todos los tipos: la fila fija "Clic derecho" hace que nunca quede vacía.
 
 | | Pos. | Nombre | Tipo | Dentro de… | Aparece en | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|---|:---:|---|---|
@@ -344,7 +344,7 @@ Se abre desde: Generales › Ayuda al jugador › "Editar título de componente�
 
 ### Editor visual
 
-Se abre desde: Específicas › "Editar diseño de la carta" (2 caras: frontal y trasera) o "Editar diseño del tablero" (1 cara).
+Se abre desde: Contenido › "Editar diseño de la carta" (2 caras: frontal y trasera) o "Editar diseño del tablero" (1 cara).
 
 | | Pos. | Nombre | Tipo | Dentro de… | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|:---:|---|---|
@@ -403,7 +403,7 @@ Se abre con doble clic sobre un cuadro de texto dentro del *Editor visual*.
 
 ### Color y patrón de tablero
 
-Se abre desde: Específicas › Fondo › "Configurar fondo…" (opción color/patrón) para el Tablero simple.
+Se abre desde: Contenido › Fondo › "Configurar fondo…" (opción color/patrón) para el Tablero simple.
 
 | | Pos. | Nombre | Tipo | Dentro de… | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|:---:|---|---|
@@ -416,7 +416,7 @@ Se abre desde: Específicas › Fondo › "Configurar fondo…" (opción color/p
 
 ### Elegir imagen
 
-Se abre desde: "Configurar fondo…" (opción imagen), Específicas › Imagen › "Elegir imagen…" del Mazo, y desde el *Editor visual* / *Editar figura* ("Elegir imagen…").
+Se abre desde: "Configurar fondo…" (opción imagen), Contenido › Imagen › "Elegir imagen…" del Mazo, y desde el *Editor visual* / *Editar figura* ("Elegir imagen…").
 
 | | Pos. | Nombre | Tipo | Dentro de… | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|:---:|---|---|
@@ -427,7 +427,7 @@ Se abre desde: "Configurar fondo…" (opción imagen), Específicas › Imagen �
 
 ### Elegir tipografía
 
-Se abre desde: Específicas › "Tipografía del resultado" del Dado, y desde *Editar cuadro de texto* › "Tipografía".
+Se abre desde: Contenido › "Tipografía del resultado" del Dado, y desde *Editar cuadro de texto* › "Tipografía".
 
 | | Pos. | Nombre | Tipo | Dentro de… | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|:---:|---|---|
@@ -438,7 +438,7 @@ Se abre desde: Específicas › "Tipografía del resultado" del Dado, y desde *E
 
 ### Ajustar imagen
 
-Se abre desde: Específicas › Imagen › "Ajustar imagen…" del Mazo, y desde el *Editor visual* / *Editar figura* ("Ajustar imagen…").
+Se abre desde: Contenido › Imagen › "Ajustar imagen…" del Mazo, y desde el *Editor visual* / *Editar figura* ("Ajustar imagen…").
 
 | | Pos. | Nombre | Tipo | Dentro de… | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|:---:|---|---|
@@ -451,7 +451,7 @@ Se abre desde: Específicas › Imagen › "Ajustar imagen…" del Mazo, y desde
 
 ### Copiar estilo — selección
 
-Se abre desde: Específicas › Estilo › "Copiar estilo" de la Carta.
+Se abre desde: Contenido › Estilo › "Copiar estilo" de la Carta.
 
 | | Pos. | Nombre | Tipo | Dentro de… | Ayuda (?) | Visible cuando… | Notas técnicas |
 |:-:|---:|---|---|---|:---:|---|---|
@@ -493,7 +493,7 @@ Modal "Propiedades del grupo" (i18n `groupModal.title`). Una sola pestaña ("Gen
 | | 1 | Cancelar | botón | Footer del modal de grupo | No | | i18n `common.cancel` |
 | | 2 | Guardar | botón | Footer del modal de grupo | No | siempre presente; deshabilitado si el id no es válido | i18n `common.save` (no `common.accept`, a diferencia del componente y la etiqueta) |
 
-> El modal de grupo **no** tiene botón "Eliminar" (desagrupar se hace desde el menú contextual o el panel, no desde aquí), ni pestañas "Apariencia"/"Específicas"/"Copias", ni campos de tamaño. Los textos de ayuda son propios del grupo (`help.group.*`), redactados en términos de "los miembros de este grupo".
+> El modal de grupo **no** tiene botón "Eliminar" (desagrupar se hace desde el menú contextual o el panel, no desde aquí), ni pestañas "Apariencia"/"Contenido"/"Copias", ni campos de tamaño. Los textos de ayuda son propios del grupo (`help.group.*`), redactados en términos de "los miembros de este grupo".
 
 ---
 
@@ -603,9 +603,9 @@ Posición dentro de la pestaña "Apariencia". "Tamaño" (posiciones 1–4) y sus
 
 ---
 
-## Pestaña "Específicas"
+## Pestaña "Contenido"
 
-Aquí **todo** depende del tipo (cada tipo tiene su propio contenido). Posición dentro de la pestaña "Específicas".
+Aquí **todo** depende del tipo (cada tipo tiene su propio contenido). Posición dentro de la pestaña "Contenido".
 
 | | Elemento | Texto | T.simp | T.pers | Dado | Doc | Carta | Mazo |
 |:-:|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
@@ -644,7 +644,7 @@ Aquí **todo** depende del tipo (cada tipo tiene su propio contenido). Posición
 | | Quitar imagen | — | — | — | — | — | — | 10 |
 | | Ver contenido del mazo | — | — | — | — | — | — | 11 |
 
-> La sección "Forma" del Mazo (Forma, Orientación) no está en "Específicas": vive en la pestaña "Apariencia" (ver la subsección "Pestaña "Apariencia"" de esta Tabla B). En el bloque de "Específicas" del Mazo, las posiciones 3 y 7 las ocupan una nota informativa (bajo "Disposición carta revelada") y la previsualización de la imagen, respectivamente (ver Tabla A). Por eso "Texto carta revelada" es 4 y "Elegir imagen…" es 8.
+> La sección "Forma" del Mazo (Forma, Orientación) no está en "Contenido": vive en la pestaña "Apariencia" (ver la subsección "Pestaña "Apariencia"" de esta Tabla B). En el bloque de "Contenido" del Mazo, las posiciones 3 y 7 las ocupan una nota informativa (bajo "Disposición carta revelada") y la previsualización de la imagen, respectivamente (ver Tabla A). Por eso "Texto carta revelada" es 4 y "Elegir imagen…" es 8.
 
 ---
 

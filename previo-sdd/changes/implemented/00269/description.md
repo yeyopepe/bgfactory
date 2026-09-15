@@ -28,6 +28,7 @@ El cambio de nombre de "Específicas" a "Contenido" es solo de la etiqueta visib
 - El renombrado de "Específicas" a "Contenido" se aplica también a cualquier otra referencia textual existente a esa pestaña que haga falta actualizar, no solo a la etiqueta que ve el usuario en la propia pestaña.
 - No hay cambio de comportamiento: ni el orden de las pestañas, ni su contenido, ni ninguna otra interacción se ven alterados por este cambio, que es puramente visual (icono) y de texto (nombre de una pestaña).
 - Al añadir un icono a cada pestaña, la fila de las 5 pestañas ocupa más ancho horizontal que antes. El panel de propiedades debe seguir mostrando las 5 pestañas en una sola fila, sin que el texto se corte ni las pestañas salten de línea — si el ancho por defecto actual del panel se queda corto con los iconos añadidos, debe ampliarse lo necesario para que seguir viéndose correctamente.
+- Cuando una pestaña está seleccionada (activa), además de la línea azul inferior que ya la resalta, su icono también se muestra en azul (`--accent-blue`). El texto de la pestaña activa no cambia de color (sigue en el tono oscuro actual, `--text-primary`) — solo el icono pasa a azul.
 
 ## Technical notes
 

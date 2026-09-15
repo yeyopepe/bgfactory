@@ -16,6 +16,7 @@ import { resetState, mountEditMode, mountPlayMode } from '../helpers.js';
 import { getComponents, addComponent, loadResources } from '../../core/state.js';
 import { createComponent } from '../../core/component.js';
 import { createDefaultComponent, openComponentModal } from '../../ui/componentModal.js';
+import { t } from '../../core/i18n.js';
 
 registerFeature({ primary: 19 });
 
@@ -196,13 +197,13 @@ describe('019 — Tablero personalizado', () => {
     sombra.dispatchEvent(new Event('change', { bubbles: true }));
     expect(target.properties.sombra).toBe(false);
 
-    // Ausencia de proporción y esquinas redondeadas: en la pestaña "Específicas"
+    // Ausencia de proporción y esquinas redondeadas: en la pestaña "Contenido"
     // ('carta' es quien añade el <select> de proporción vía
     // renderCartaSpecificFields; aquí solo hay el botón de "Editar diseño"),
     // no debe aparecer ningún <select> ni checkbox adicional al margen de los
     // ya comprobados de la sección "Visual".
     const specificTabButton = [...modal.querySelectorAll('.modal__tab')].find(
-      (btn) => btn.textContent === 'Específicas',
+      (btn) => btn.querySelector('span:not(.modal__tab-icon)')?.textContent === t('componentModal.tab.specific'),
     );
     specificTabButton.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     const specificContent = [...modal.querySelectorAll('div')].find(

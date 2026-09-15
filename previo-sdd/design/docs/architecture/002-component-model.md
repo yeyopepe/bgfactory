@@ -40,7 +40,7 @@
 | `id` | string | generated UUID | Unique identifier | `ui/componentModal.js`, "Generales" tab (non-empty + uniqueness validation in UI layer) |
 | `type` | free string | — | Component type (`'texto'`, `'tableroSimple'`, etc.) | Set on creation, not editable afterward |
 | `name` | string | — | Name | — |
-| `properties` | object | `{}` | Type-specific properties | `ui/componentModal.js`, "Específicas" tab |
+| `properties` | object | `{}` | Type-specific properties | `ui/componentModal.js`, "Contenido" tab |
 | `image` | string \| null | `null` | Unused by any current type. Types with an image background (`'tableroSimple'`, `'carta'`, `'tableroPersonalizado'`) reference a resource via `properties.imagenResourceId` or `properties.<face>.imagenResourceId`, not via `image` | — |
 | `x`, `y` | number | `0` | Position in the table world. Creation from edit mode assigns an initial position that does not overlap existing components | Drag on the table |
 | `width`, `height` | number \| null | `null` | Size in pixels. `null` = automatic by content. Set on resize from edit mode | Resize on the table |

@@ -653,6 +653,7 @@ h1 {
   max-height: 80vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* Ancho dinámico vía clamp() con unidades de viewport: se recalcula solo en
@@ -660,7 +661,7 @@ h1 {
    .image-adjust-modal--large (`width: fit-content`, contenido de ancho
    variable), aquí el ancho es siempre el mismo porcentaje de pantalla. */
 .component-editor-modal {
-  width: clamp(400px, 50vw, min(600px, 65vw));
+  width: clamp(460px, 50vw, min(600px, 65vw));
   max-width: none;
   box-shadow: var(--shadow-3);
 }
@@ -677,6 +678,9 @@ h1 {
 }
 
 .modal__tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   padding: 0.75rem 1rem;
   background: var(--bg-hover);
   border: none;
@@ -687,10 +691,18 @@ h1 {
   transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 
+.modal__tab svg {
+  flex-shrink: 0;
+}
+
 .modal__tab.active {
   background: var(--bg-surface);
   color: var(--text-primary);
   border-bottom-color: var(--accent-blue);
+}
+
+.modal__tab.active .modal__tab-icon {
+  color: var(--accent-blue);
 }
 
 .modal__tab:hover {

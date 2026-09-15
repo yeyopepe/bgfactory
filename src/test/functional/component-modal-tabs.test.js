@@ -7,7 +7,7 @@
 // openComponentModal añade .modal-overlay a document.body (no a #content).
 
 import { describe, it, expect, beforeEach, afterEach, registerFeature } from '../harness.js';
-import { resetState } from '../helpers.js';
+import { resetState, loadRealStylesheet } from '../helpers.js';
 import { getComponents, addComponent } from '../../core/state.js';
 import { openComponentModal, createDefaultComponent } from '../../ui/componentModal.js';
 
@@ -110,6 +110,13 @@ describe('002 — Ventana de alta/edición de componentes', () => {
     } finally {
       window.confirm = original;
     }
+  });
+
+  it('FT-002-19 · la modal recorta su contenido con el borde redondeado (overflow: hidden)', async () => {
+    await loadRealStylesheet();
+    openComponentModal({ component: createDefaultComponent('carta'), onAccept() {}, onDelete() {} });
+
+    expect(getComputedStyle(modal()).overflow).toBe('hidden');
   });
 
   it('FT-002-18 · validación de id: vacío, sólo espacios y duplicado de otro', () => {

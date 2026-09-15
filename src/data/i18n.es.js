@@ -557,7 +557,7 @@ export const CATALOG_ES = {
   'componentModal.createTitle': 'Crear componente',
   'componentModal.tab.general': 'Generales',
   'componentModal.tab.visual': 'Apariencia',
-  'componentModal.tab.specific': 'Específicas',
+  'componentModal.tab.specific': 'Contenido',
   'componentModal.tab.interacciones': 'Interacciones',
   'componentModal.tab.copias': 'Copias',
   'componentModal.borderLegend.extrusion': 'Extrusión',
