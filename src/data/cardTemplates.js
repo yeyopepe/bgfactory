@@ -36,10 +36,12 @@ export function resourceName({ suitId, rank }) {
 // prefijo "card-" en vez de "baraja-francesa-" y sin extensión. Los 2 jokers
 // son idénticos pero necesitan id único: jokerIndex (1-based) desambigua,
 // omitiendo el sufijo en el primero para no romper el patrón "card-joker" ya
-// usado en otros sitios de la app como ejemplo de id de carta.
-export function cardId({ suitId, rank, jokerIndex }) {
-  if (rank === 'joker') return jokerIndex > 1 ? `card-joker-${jokerIndex}` : 'card-joker';
-  return `card-${suitId}-${rank}`;
+// usado en otros sitios de la app como ejemplo de id de carta. `prefix`
+// (00275) permite regenerar el id con un prefijo distinto del fijo "card-",
+// elegido por el usuario en la ventana de confirmación del preset.
+export function cardId({ suitId, rank, jokerIndex, prefix = 'card-' }) {
+  if (rank === 'joker') return jokerIndex > 1 ? `${prefix}joker-${jokerIndex}` : `${prefix}joker`;
+  return `${prefix}${suitId}-${rank}`;
 }
 
 // Fuente única de verdad del orden y nombrado de las 54 cartas: picas,
@@ -71,6 +73,7 @@ export function buildFrenchDeckCatalog() {
       rank: 'joker',
       label: null,
       designKind: 'joker',
+      jokerIndex: i + 1,
       resourceName: resourceName({ rank: 'joker' }),
       cardId: cardId({ rank: 'joker', jokerIndex: i + 1 }),
     });

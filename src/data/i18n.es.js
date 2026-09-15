@@ -89,6 +89,16 @@ export const CATALOG_ES = {
   'componentTypeModal.preset.frenchDeck.backResourceName': 'Baraja francesa - reverso',
   'componentTypeModal.preset.frenchDeck.deckName': 'Baraja Francesa',
 
+  // --- Ventana de confirmación de conjunto pre-definido (00275) ---
+  'presetConfirmModal.title': 'Añadir "{name}"',
+  'presetConfirmModal.summaryLabel': 'Se van a crear:',
+  'presetConfirmModal.idsHint': 'Puedes cambiar estos identificadores antes de crear el conjunto:',
+  'presetConfirmModal.deckIdLabel': 'Id del mazo',
+  'presetConfirmModal.cardPrefixLabel': 'Prefijo de id de las cartas',
+  'presetConfirmModal.frenchDeck.resourcesCount': '{count} recursos nuevos',
+  'presetConfirmModal.frenchDeck.cardsCount': '{count} componentes carta ({normalCount} cartas + {jokerCount} comodines)',
+  'presetConfirmModal.frenchDeck.deckCount': '1 componente mazo',
+
   // --- Panel de componentes ---
   'componentList.empty': 'No hay componentes todavía.',
   'componentList.emptyFilter': 'No hay componentes que coincidan con «{filter}».',

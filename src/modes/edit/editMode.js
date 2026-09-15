@@ -32,7 +32,8 @@ import { openResourceReplaceConfirmModal } from '../../ui/resourceReplaceConfirm
 import { openContextMenu } from '../../ui/contextMenu.js';
 import { showToast } from '../../ui/toast.js';
 import { runWithProgressModal } from '../../ui/progressModal.js';
-import { createFrenchDeckPreset } from '../../core/presets/frenchDeck.js';
+import { openPresetConfirmModal } from '../../ui/presetConfirmModal.js';
+import { createFrenchDeckPreset, getFrenchDeckPresetSummary } from '../../core/presets/frenchDeck.js';
 import { sortByName } from '../../core/textSort.js';
 import { t } from '../../core/i18n.js';
 import { iconEl, ICON_SIZE } from '../../ui/icons.js';
@@ -418,7 +419,7 @@ export function renderEditMode(container) {
   }
 
   function openAddModal() {
-    openComponentTypeModal({
+    const typeModal = openComponentTypeModal({
       onAccept: (type) => {
         const newComponent = createDefaultComponent(type);
         const n = getComponents().length;
@@ -440,8 +441,14 @@ export function renderEditMode(container) {
       },
       onPresetSelected: (presetId) => {
         if (presetId !== 'frenchDeck54') return;
-        runWithProgressModal(t('componentTypeModal.preset.frenchDeck.progress'), () => {
-          createFrenchDeckPreset();
+        openPresetConfirmModal({
+          summary: getFrenchDeckPresetSummary(),
+          onAccept: ({ deckId, cardPrefix }) => {
+            typeModal.close();
+            runWithProgressModal(t('componentTypeModal.preset.frenchDeck.progress'), () => {
+              createFrenchDeckPreset({ deckId, cardPrefix });
+            });
+          },
         });
       },
     });

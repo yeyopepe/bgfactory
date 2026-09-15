@@ -91,6 +91,16 @@ export const CATALOG_EN = {
   'componentTypeModal.preset.frenchDeck.backResourceName': 'French deck - back',
   'componentTypeModal.preset.frenchDeck.deckName': 'French Deck',
 
+  // --- Pre-defined set confirmation window (00275) ---
+  'presetConfirmModal.title': 'Add "{name}"',
+  'presetConfirmModal.summaryLabel': 'This will create:',
+  'presetConfirmModal.idsHint': 'You can change these identifiers before creating the set:',
+  'presetConfirmModal.deckIdLabel': 'Deck id',
+  'presetConfirmModal.cardPrefixLabel': 'Card id prefix',
+  'presetConfirmModal.frenchDeck.resourcesCount': '{count} new resources',
+  'presetConfirmModal.frenchDeck.cardsCount': '{count} card components ({normalCount} cards + {jokerCount} jokers)',
+  'presetConfirmModal.frenchDeck.deckCount': '1 deck component',
+
   // --- Components panel ---
   'componentList.empty': 'No components yet.',
   'componentList.emptyFilter': 'No components match "{filter}".',

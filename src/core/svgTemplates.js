@@ -22,32 +22,28 @@ export function renderCardBackSvg() {
 </svg>`;
 }
 
-function renderCorner(label, colorHex) {
+function renderCorner(label, colorHex, fontSize, x = 7, y = 19) {
   return `<g fill="${colorHex}" font-family="Georgia, serif">
-<text x="7" y="19" font-size="14" font-weight="bold">${label}</text>
+<text x="${x}" y="${y}" font-size="${fontSize}" font-weight="bold">${label}</text>
 </g>`;
 }
 
 function renderNormalFace({ symbol, colorHex, label }) {
-  return `${renderCorner(label, colorHex)}
+  return `${renderCorner(label, colorHex, 23)}
 <text x="50" y="82" text-anchor="middle" dominant-baseline="middle" font-family="Georgia, serif" font-size="42" fill="${colorHex}">${symbol}</text>
-<g transform="rotate(180, 50, 70)">${renderCorner(label, colorHex)}</g>`;
+<g transform="rotate(180, 50, 70)">${renderCorner(label, colorHex, 23)}</g>`;
 }
 
 function renderAceFace({ symbol, colorHex, label }) {
-  return `${renderCorner(label, colorHex)}
+  return `${renderCorner(label, colorHex, 23, 4, 24)}
 <text x="50" y="84" text-anchor="middle" dominant-baseline="middle" font-family="Georgia, serif" font-size="74" fill="${colorHex}">${symbol}</text>
-<g transform="rotate(180, 50, 70)">${renderCorner(label, colorHex)}</g>`;
+<g transform="rotate(180, 50, 70)">${renderCorner(label, colorHex, 23, 4, 24)}</g>`;
 }
 
 function renderFigureFace({ symbol, colorHex, label }) {
-  return `${renderCorner(label, colorHex)}
-<path d="M 30,65 L 30,53 L 40,60 L 50,46 L 60,60 L 70,53 L 70,65 Z" fill="${colorHex}"/>
-<circle cx="30" cy="53" r="3" fill="${colorHex}"/>
-<circle cx="50" cy="46" r="3.5" fill="${colorHex}"/>
-<circle cx="70" cy="53" r="3" fill="${colorHex}"/>
-<text x="50" y="105" text-anchor="middle" dominant-baseline="middle" font-family="Georgia, serif" font-size="32" fill="${colorHex}">${symbol}</text>
-<g transform="rotate(180, 50, 70)">${renderCorner(label, colorHex)}</g>`;
+  return `${renderCorner(label, colorHex, 26, 4, 24)}
+<text x="50" y="75" text-anchor="middle" dominant-baseline="middle" font-family="Georgia, serif" font-size="96" fill="${colorHex}">${symbol}</text>
+<g transform="rotate(180, 50, 70)">${renderCorner(label, colorHex, 26, 4, 24)}</g>`;
 }
 
 function renderJokerFace() {

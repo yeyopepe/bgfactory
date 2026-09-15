@@ -163,8 +163,10 @@ export function openComponentTypeModal({ onAccept, onPresetSelected }) {
   presetItem.appendChild(presetGo);
 
   const selectPreset = () => {
+    // 00275: ya no cierra el overlay al pulsarse — el modal de tipo sigue
+    // visible mientras se decide en la ventana de confirmación del preset;
+    // solo se cierra si el usuario confirma (ver editMode.js#openAddModal).
     if (onPresetSelected) onPresetSelected('frenchDeck54');
-    overlay.remove();
   };
   presetItem.addEventListener('click', selectPreset);
   presetItem.addEventListener('keydown', (event) => {
@@ -201,4 +203,8 @@ export function openComponentTypeModal({ onAccept, onPresetSelected }) {
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay && mousedownOnOverlay) overlay.remove();
   });
+
+  // 00275: expuesto para que quien orqueste un preset pueda cerrar este modal
+  // de tipo tras confirmar en la ventana de confirmación del preset.
+  return { close: () => overlay.remove() };
 }

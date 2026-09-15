@@ -8,10 +8,12 @@
 import { getComponents, getResources, loadResources, loadComponents } from '../state.js';
 import { createResource } from '../resource.js';
 import { nextCloneId } from '../component.js';
-import { buildFrenchDeckCatalog } from '../../data/cardTemplates.js';
+import { buildFrenchDeckCatalog, cardId } from '../../data/cardTemplates.js';
 import { renderCardBackSvg, renderCardFaceSvg } from '../svgTemplates.js';
 import { createDefaultComponent } from '../../ui/componentModal.js';
 import { t } from '../i18n.js';
+
+const DEFAULT_CARD_PREFIX = 'card-';
 
 // Id descriptivo fijo (00274): si ya está en uso (p. ej. una generación previa
 // del mismo conjunto en la misma partida), se desambigua con la misma regla
@@ -45,8 +47,29 @@ function computeGridPosition(index, cardWidth, cardHeight) {
   };
 }
 
-export function createFrenchDeckPreset() {
+// Resumen ligero para la ventana de confirmación (00275): deriva conteos de
+// `buildFrenchDeckCatalog()` sin generar SVGs ni tocar el estado. Forma
+// genérica reutilizable por cualquier futuro conjunto pre-definido, no solo
+// la baraja francesa (ver ui/presetConfirmModal.js).
+export function getFrenchDeckPresetSummary() {
   const catalog = buildFrenchDeckCatalog();
+  const jokerCount = catalog.filter((entry) => entry.rank === 'joker').length;
+  const cardCount = catalog.length;
+  return {
+    title: t('componentTypeModal.preset.frenchDeck'),
+    defaultDeckId: t('componentTypeModal.preset.frenchDeck.deckName'),
+    defaultCardPrefix: DEFAULT_CARD_PREFIX,
+    counts: [
+      { icon: 'panel-recursos', count: cardCount, label: t('presetConfirmModal.frenchDeck.resourcesCount', { count: cardCount }) },
+      { icon: 'type-carta', count: cardCount, label: t('presetConfirmModal.frenchDeck.cardsCount', { count: cardCount, normalCount: cardCount - jokerCount, jokerCount }) },
+      { icon: 'type-mazo', count: 1, label: t('presetConfirmModal.frenchDeck.deckCount') },
+    ],
+  };
+}
+
+export function createFrenchDeckPreset({ deckId, cardPrefix } = {}) {
+  const catalog = buildFrenchDeckCatalog();
+  const resolvedCardPrefix = cardPrefix?.trim() || DEFAULT_CARD_PREFIX;
 
   const backSvg = renderCardBackSvg();
   const backDataUrl = svgToDataUrl(backSvg);
@@ -84,7 +107,8 @@ export function createFrenchDeckPreset() {
     }
 
     const carta = createDefaultComponent('carta');
-    carta.id = freeId(entry.cardId, [...getComponents(), ...newComponents]);
+    const desiredCardId = cardId({ suitId: entry.suitId, rank: entry.rank, jokerIndex: entry.jokerIndex, prefix: resolvedCardPrefix });
+    carta.id = freeId(desiredCardId, [...getComponents(), ...newComponents]);
     carta.properties.caraFrontal.imagenResourceId = faceResource.id;
     carta.properties.caraFrontal.bordeColor = '#d8d8d8';
     carta.properties.caraFrontal.bordeGrosor = 1;
@@ -99,7 +123,8 @@ export function createFrenchDeckPreset() {
   });
 
   const mazo = createDefaultComponent('mazo');
-  mazo.id = freeId(t('componentTypeModal.preset.frenchDeck.deckName'), [...getComponents(), ...newComponents]);
+  const resolvedDeckId = deckId?.trim() || t('componentTypeModal.preset.frenchDeck.deckName');
+  mazo.id = freeId(resolvedDeckId, [...getComponents(), ...newComponents]);
   mazo.properties.cartaIds = newComponents.map((c) => c.id);
   mazo.x = 100;
   mazo.y = 100;

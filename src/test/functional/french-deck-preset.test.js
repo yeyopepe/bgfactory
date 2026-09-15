@@ -53,4 +53,27 @@ describe('002 — Conjunto pre-definido "Baraja francesa"', () => {
     expect(asIds).toContain('card-picas-as');
     expect(asIds).toContain('card-picas-as(1)');
   });
+
+  it('FT-002-22 · createFrenchDeckPreset acepta deckId y cardPrefix personalizados y los aplica al mazo y a las cartas, desambiguando igual que con los valores por defecto', () => {
+    createFrenchDeckPreset({ deckId: 'Mi Baraja', cardPrefix: 'naipe-' });
+    const mazo = getComponents().find((c) => c.type === 'mazo');
+    expect(mazo.id).toBe('Mi Baraja');
+
+    const cartas = getComponents().filter((c) => c.type === 'carta');
+    expect(cartas.length).toBe(54);
+    const as = cartas.find((c) => c.id === 'naipe-picas-as');
+    expect(as).toBeTruthy();
+    const jokerIds = cartas.filter((c) => c.id.startsWith('naipe-joker')).map((c) => c.id);
+    expect(jokerIds).toHaveLength(2);
+    expect(jokerIds).toContain('naipe-joker');
+    expect(jokerIds).toContain('naipe-joker-2');
+
+    // Generar de nuevo con el mismo deckId y prefijo desambigua igual que con los valores por defecto.
+    createFrenchDeckPreset({ deckId: 'Mi Baraja', cardPrefix: 'naipe-' });
+    const mazos = getComponents().filter((c) => c.type === 'mazo');
+    expect(mazos.map((m) => m.id)).toContain('Mi Baraja(1)');
+    const asIds = getComponents().filter((c) => c.id.startsWith('naipe-picas-as')).map((c) => c.id);
+    expect(asIds).toHaveLength(2);
+    expect(asIds).toContain('naipe-picas-as(1)');
+  });
 });

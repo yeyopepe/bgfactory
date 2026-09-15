@@ -3660,6 +3660,56 @@ fieldset.modal__section--untitled {
   font-size: var(--text-sm);
 }
 
+/* Preset confirmation modal (change 00275) — resumen de conteos agregados
+   antes de crear un conjunto pre-definido de componentes. Filas de solo
+   lectura, mismo criterio que .context-menu__info-row: sin fondo/borde de
+   acento (eso queda reservado a .component-type-modal__preset-item). */
+.preset-confirm-modal__summary {
+  list-style: none;
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.preset-confirm-modal__summary-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border-neutral);
+  font-size: var(--text-sm);
+  cursor: default;
+}
+.preset-confirm-modal__summary-item:last-child {
+  border-bottom: none;
+}
+
+.preset-confirm-modal__summary-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.preset-confirm-modal__summary-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.preset-confirm-modal__summary-count {
+  font-weight: var(--font-semibold);
+  color: var(--accent-blue-dark);
+}
+
+.preset-confirm-modal__ids-hint {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
 /* Resource replace confirmation modal — lista de nombres de recurso
    duplicados detectados al añadir uno o varios recursos nuevos. */
 .resource-replace-confirm-modal__list {
