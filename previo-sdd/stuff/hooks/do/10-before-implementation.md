@@ -4,32 +4,14 @@ Project-specific steps `pv-do` runs **before it starts implementing** (at the to
 
 
 
-### Step 1: Ejecutar la cobertura de tests planificada en `plan.md`
+### Step 1: Run the test coverage planned in `plan.md`
 
 **Command(s) to run**
 
-Ninguno (paso de verificación de alcance, no de ejecución). Aplica al implementar el código de `2.1`, antes de darlo por terminado.
+None (a scope-verification step, not an execution one). Applies while implementing `2.1`'s code, before considering it done.
 
 **Notes**
 
-- `pv-how` (hook `how/10-before-analysis.md`, Step 1) ya identifica durante el análisis qué tests funcionales hay que añadir/actualizar/borrar y los deja como checklist items en `plan.md` sección (b), antes de las tareas de implementación que cubren. Este step consiste en tratarlos como parte obligatoria del propio checklist: no se marcan como completos ni se da el cambio por terminado si quedan pendientes.
-- Si al implementar surge la necesidad de un test no anticipado en `plan.md` (o uno planificado deja de tener sentido), créalo/ajústalo igualmente — `plan.md` es la base, no el techo, de la regla de cobertura por cambio. Formato y convenciones de los tests: `previo-sdd/design/docs/architecture/011-functional-test-framework.md`.
-- El step `20-after-implementation` solo verifica que `npm run test:all` pase — eso no sustituye este step, ya que la suite puede pasar en verde sin cubrir la funcionalidad nueva o sin haberse actualizado tras un cambio de comportamiento.
-
-<!-- Add one "### Step N: {name}" block per step, in run order. Delete this comment when you add the first. -->
-
-<!--
-### Step 1: {name}
-
-**Command(s) to run**
-
-[Exact command(s), in order, from the repo root.]
-
-**Generated file(s)**
-
-[What the step produces and how to verify it — a path, a log line, an exit code. Omit if the step only checks a precondition.]
-
-**Notes**
-
-[Prerequisites, side effects, what not to touch. Optional.]
--->
+- `pv-how` (hook `how/10-before-analysis.md`, Step 1) already identifies during the analysis which functional tests need to be added/updated/deleted, and leaves them as checklist items in `plan.md` section (b), before the implementation tasks they cover. This step consists of treating them as a mandatory part of that same checklist: they aren't marked complete, and the change isn't considered done, while any remain pending.
+- If, while implementing, the need for a test not anticipated in `plan.md` comes up (or a planned one stops making sense), create/adjust it anyway — `plan.md` is the baseline, not the ceiling, of the per-change coverage rule. Test format and conventions: `previo-sdd/design/docs/architecture/011-functional-test-framework.md`.
+- The `20-after-implementation` step only verifies that `npm run test:all` passes — that doesn't replace this step, since the suite can pass green without covering the new functionality or without having been updated after a behavior change.

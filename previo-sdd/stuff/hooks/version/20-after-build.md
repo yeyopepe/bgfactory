@@ -1,87 +1,87 @@
 # version/20 — post-build
 
-### Step 1: Ejecutar la batería de tests funcionales
+### Step 1: Run the functional test suite
 
-Antes de copiar la documentación y generar el changelog, ejecutar toda la
-batería de tests funcionales del proyecto (`src/test/functional/*.test.js`)
-contra el código fuente real del repo — el mismo que se acaba de empaquetar en
-el entregable. Guardar siempre un informe del resultado dentro de la carpeta de
-la versión y, si algún test falla, detener aquí la preparación de la versión.
+Before copying the documentation and generating the changelog, run the
+project's entire functional test suite (`src/test/functional/*.test.js`)
+against the real source code in the repo — the same code that was just
+packaged into the deliverable. Always save a report of the result inside the
+version folder, and if any test fails, stop the version preparation here.
 
 **Command(s) to run**
 
-Desde la raíz del repo:
+From the repo root:
 
 ```
 npm test
 ```
 
-Interpretación del código de salida (documentado en
+Exit code interpretation (documented in
 `previo-sdd/design/docs/architecture/011-functional-test-framework.md`):
 
-- `0` — todos los tests pasan y sin anomalías de trazabilidad.
-- `1` — algún test falla o hay una anomalía de trazabilidad.
-- `2` — el navegador headless (Playwright/Chromium) no está instalado. En ese
-  caso, ejecutar una sola vez:
+- `0` — all tests pass and no traceability anomalies.
+- `1` — some test fails or there's a traceability anomaly.
+- `2` — the headless browser (Playwright/Chromium) isn't installed. In that
+  case, run once:
 
   ```
   npm run test:setup
   ```
 
-  y volver a ejecutar `npm test`. Si el segundo intento vuelve a dar `2`, es un
-  fallo real de entorno: detener la preparación de la versión e informar al
-  usuario de que no se ha podido preparar el entorno de tests (mostrando la
-  salida de `npm run test:setup` / `npm test`). No reintentar más veces.
+  and run `npm test` again. If the second attempt returns `2` again, it's a
+  real environment failure: stop the version preparation and tell the user
+  the test environment couldn't be set up (showing the output of
+  `npm run test:setup` / `npm test`). Don't retry further.
 
 **Generated file(s)**
 
-`previo-sdd/versions/{XXXX}/test-report.md` — informe de esta ejecución
-concreta. Se genera SIEMPRE, haya o no fallos. Formato (texto plano dentro del
-`.md`, sin tablas):
+`previo-sdd/versions/{XXXX}/test-report.md` — report of this specific run.
+Always generated, whether there are failures or not. Format (plain text
+inside the `.md`, no tables):
 
 ```
-Versión: {XXXX}
-Fecha: {YYYY-MM-DD HH:MM}
+Version: {XXXX}
+Date: {YYYY-MM-DD HH:MM}
 
-Resultado: Correcto            <- "Con fallos" si hubo algún fallo
-Total: {N} — Correctos: {X} — Fallidos: {Y}
+Result: Passed                 <- "Failed" if there was any failure
+Total: {N} — Passed: {X} — Failed: {Y}
 ```
 
-Los totales se leen de la línea `Total: N — OK: X — FALLOS: Y` que imprime
-`npm test` en su resumen final. Si `Fallidos` > 0, añadir a continuación:
+The totals are read from the `Total: N — OK: X — FALLOS: Y` line that
+`npm test` prints in its final summary. If `Failed` > 0, append:
 
 ```
 
-Tests fallidos:
+Failed tests:
 
-{bloque de fallos copiado literalmente de la salida de `npm test`}
+{failure block copied literally from `npm test`'s output}
 ```
 
-El bloque de fallos es tal cual lo imprime `npm test`: por cada fallo, la línea
-`  ✗ <fichero> › <caso>` seguida de `      esperado:` / `      obtenido:` (o
-`      error:` si no es un fallo de aserción). No reformatear.
+The failure block is exactly as `npm test` prints it: for each failure, the
+line `  ✗ <file> › <case>` followed by `      esperado:` / `      obtenido:`
+(or `      error:` if it isn't an assertion failure). Don't reformat.
 
 **Notes**
 
-- Este paso corre después de que el ZIP del entregable ya está construido y
-  copiado a `files/` (paso 4 de `pv-version`), y antes de `copy-docs.py` y del
-  changelog (pasos 5–6). Se acepta que el entregable ya exista aunque los tests
-  fallen.
-- **Si `npm test` termina con código `0`**: continuar con el flujo normal de
-  `pv-version` (copiar documentación, changelog, resumen). No hace falta
-  informar nada especial salvo que el paso se ejecutó correctamente.
-- **Si `npm test` termina con código `1`** (algún test falla): NO continuar con
-  el resto de `pv-version`. El `test-report.md` ya queda guardado con el detalle
-  de los fallos. Informar al usuario de que hay tests fallidos e indicarle la
-  ruta `previo-sdd/versions/{XXXX}/test-report.md` para consultar el detalle —
-  **no volcar la lista completa de fallos en la conversación**. A continuación
-  preguntarle explícitamente si quiere analizar esos fallos:
-  - Si responde que sí: indicarle que cada fallo puede tratarse como una
-    corrección (`/pv-fix`) o un cambio (`/pv-new`) del proyecto, o simplemente
-    comentarse en la conversación; no se dispara ninguna acción automática. La
-    preparación de la versión queda detenida en este punto.
-  - Si responde que no: la preparación de la versión queda detenida, sin
-    generar nada más.
-- `pv-version` paso 4.1 ya establece que un fallo de un paso de "In the middle"
-  detiene la release; este paso se apoya en ese comportamiento nativo para los
-  casos de parada.
+- This step runs after the deliverable's ZIP is already built and copied to
+  `files/` (`pv-version` step 4), and before `copy-docs.py` and the changelog
+  (steps 5–6). It's acceptable for the deliverable to already exist even if
+  the tests fail.
+- **If `npm test` ends with exit code `0`**: continue with `pv-version`'s
+  normal flow (copy documentation, changelog, summary). No need to report
+  anything special beyond the step having run correctly.
+- **If `npm test` ends with exit code `1`** (some test fails): do NOT continue
+  with the rest of `pv-version`. `test-report.md` is already saved with the
+  failure detail. Tell the user there are failing tests and point them to
+  `previo-sdd/versions/{XXXX}/test-report.md` for the detail — **don't dump
+  the full failure list into the conversation**. Then explicitly ask whether
+  they want to analyze those failures:
+  - If they say yes: tell them each failure can be handled as a fix
+    (`/pv-fix`) or a change (`/pv-new`) of the project, or simply discussed in
+    the conversation; no automatic action is triggered. The version
+    preparation stays stopped at this point.
+  - If they say no: the version preparation stays stopped, nothing else is
+    generated.
+- `pv-version` step 4.1 already establishes that a failure in an "In the
+  middle" step stops the release; this step relies on that native behavior
+  for the stopping cases.

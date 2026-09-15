@@ -4,32 +4,14 @@ Project-specific steps `pv-how` runs **at the start of step 3 (analyze and write
 
 
 
-### Step 1: Identificar los tests funcionales afectados
+### Step 1: Identify the affected functional tests
 
 **Command(s) to run**
 
-Ninguno (paso de análisis). Se hace junto al resto del análisis técnico, antes o durante la redacción de `plan.md`.
+None (an analysis step). Done alongside the rest of the technical analysis, before or while drafting `plan.md`.
 
 **Notes**
 
-- Regla de cobertura por cambio: todo cambio que **añada** funcionalidad requiere tests funcionales nuevos (`src/test/functional/*.test.js`, con `registerFeature` y códigos `FT-<NNN>-<nn>`); todo cambio que **modifique** funcionalidad requiere actualizar los tests existentes que la cubren; todo cambio que **elimine** funcionalidad requiere borrar los tests que la validaban (y sus fixtures si procede). Formato y convenciones de los tests: `previo-sdd/design/docs/architecture/011-functional-test-framework.md`.
-- Como parte del análisis, identifica qué ficheros de `src/test/functional/` están afectados (existentes a actualizar/borrar) y qué casos nuevos harán falta (existentes o a crear), y refleja esa lista en `plan.md` sección (b) como checklist items propios (`- [ ]`), antes de las tareas de implementación que cubren.
-- Esto aplica siempre, con independencia del riesgo calculado en el paso 3.1 — no confundir con `how/20-after-plan.md` Step 1, que solo añade tests *adicionales* cuando el riesgo persistido es ≥ 4 para reducirlo. Este step cubre la cobertura mínima obligatoria; aquel cubre cobertura extra en cambios de alto riesgo.
-
-<!-- Add one "### Step N: {name}" block per step, in run order. Delete this comment when you add the first. -->
-
-<!--
-### Step 1: {name}
-
-**Command(s) to run**
-
-[Exact command(s), in order, from the repo root.]
-
-**Generated file(s)**
-
-[What the step produces and how to verify it — a path, a log line, an exit code. Omit if the step only checks a precondition.]
-
-**Notes**
-
-[Prerequisites, side effects, what not to touch. Optional.]
--->
+- Per-change coverage rule: any change that **adds** functionality requires new functional tests (`src/test/functional/*.test.js`, with `registerFeature` and `FT-<NNN>-<nn>` codes); any change that **modifies** functionality requires updating the existing tests that cover it; any change that **removes** functionality requires deleting the tests that validated it (and its fixtures if applicable). Test format and conventions: `previo-sdd/design/docs/architecture/011-functional-test-framework.md`.
+- As part of the analysis, identify which files under `src/test/functional/` are affected (existing ones to update/delete) and what new cases will be needed (existing or to create), and reflect that list in `plan.md` section (b) as its own checklist items (`- [ ]`), before the implementation tasks they cover.
+- This always applies, regardless of the risk computed in step 3.1 — don't confuse it with `how/20-after-plan.md` Step 1, which only adds *additional* tests when the persisted risk is ≥ 4 to reduce it. This step covers the mandatory minimum coverage; that one covers extra coverage for high-risk changes.
